@@ -5,8 +5,89 @@
     <link>https://onthedock.github.io/index.xml</link>
     <description>Recent content on On The Dock</description>
     <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Mon, 03 Apr 2017 22:38:35 +0200</lastBuildDate>
+    <lastBuildDate>Sat, 08 Apr 2017 05:53:59 +0200</lastBuildDate>
     <atom:link href="https://onthedock.github.io/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Contenedores y volúmenes de datos en el host</title>
+      <link>https://onthedock.github.io/post/contenedores-y-volumenes-en-el-host/</link>
+      <pubDate>Sat, 08 Apr 2017 05:53:59 +0200</pubDate>
+      
+      <guid>https://onthedock.github.io/post/contenedores-y-volumenes-en-el-host/</guid>
+      <description>&lt;p&gt;Ayer leía el artículo &lt;a href=&#34;https://thenewstack.io/containers-storage-arent-yet/&#34;&gt;Containers and Storage: Why We Aren’t There Yet&lt;/a&gt; y recordaba los &lt;em&gt;quebraderos de cabeza&lt;/em&gt; que tuve intentado crear una serie de contenedores accediendo a un volumen de datos.&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;
+
+&lt;p&gt;El problema, como bien indica el artículo, es que &lt;em&gt;a día de hoy&lt;/em&gt;, no es posible hacer que el acceso a un volumen de datos sea a la vez &lt;strong&gt;&lt;em&gt;portable&lt;/em&gt; y &lt;em&gt;seguro&lt;/em&gt;&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;Los detalles son muy técnicos, pero revelan la manera en la que trabajan Linux y Docker. Tener claros estos conceptos es interesante para enteneder cómo funciona Docker y cómo afrontar los problemas que puedan surgir creando contenedores.&lt;/p&gt;
+
+&lt;p&gt;Dentro de un contenedor, por defecto, sólo tenemos el usuario &lt;code&gt;root&lt;/code&gt;, por lo que todos los procesos &lt;strong&gt;dentro&lt;/strong&gt; del contenedor se ejecutan con permisos de &lt;em&gt;superadministrador&lt;/em&gt; (&lt;code&gt;root&lt;/code&gt;).&lt;/p&gt;
+
+&lt;p&gt;Desde el punto de vista de la seguridad, ejecutar procesos con permisos de &lt;code&gt;root&lt;/code&gt; si no es necesario, es una mala práctica; en caso de que el sistema se vea comprometido, un atacante dispondría de todos los permisos y podría causar mucho daño.&lt;/p&gt;
+
+&lt;p&gt;En Docker, este riesgo se encuentra &lt;em&gt;aislado&lt;/em&gt; &lt;strong&gt;dentro&lt;/strong&gt; del contenedor. Pese a todo, se recomienda cambiar a un usuario con menos privilegios siempre que sea posible.&lt;/p&gt;
+
+&lt;p&gt;Si le echas un vistazo a la &lt;a href=&#34;https://github.com/nginxinc/docker-nginx/blob/0c7611139f2ce7c5a6b1febbfd5b436c8c7d2d53/mainline/alpine/nginx.conf&#34;&gt;configuración del contenedor oficial de Nginx&lt;/a&gt; verás que la primera instrucción es:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;user nginx;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Es decir, que lo primero que hace Nginx es cambiar a un usuario &lt;em&gt;no-root&lt;/em&gt; cuando se ejecuta.&lt;/p&gt;
+
+&lt;p&gt;El proceso es el siguiente: el contenedor arranca con el usuario &lt;code&gt;root&lt;/code&gt; y cuando se lanza el proceso &lt;code&gt;nginx&lt;/code&gt;, se cambia al usuario &lt;em&gt;nginx&lt;/em&gt; (eliminando los privilegios del usuario &lt;em&gt;root&lt;/em&gt;).&lt;/p&gt;
+
+&lt;p&gt;Desde el punto de vista de la seguridad, si alguien compromete el contenedor, el proceso se ejecuta con un usuario con permisos restringidos, por lo que el atacante puede causar &lt;strong&gt;daño limitado&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;So far, so good&lt;/em&gt; (hasta aquí todo bien, que dicen los anglosajones).&lt;/p&gt;
+
+&lt;p&gt;¿Qué pasa cuando se &lt;em&gt;monta&lt;/em&gt; una carpeta una carpeta del &lt;em&gt;host&lt;/em&gt; en el contenedor?&lt;/p&gt;
+
+&lt;p&gt;En caso de que el contenedor se vea comprometido, el atacante ya no está restringido al contenedor, sino que tiene una &lt;em&gt;vía de entrada&lt;/em&gt; al &lt;em&gt;host&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;A día de hoy Docker requiere permisos de &lt;code&gt;root&lt;/code&gt; en el &lt;em&gt;host&lt;/em&gt; para ejecutarse. En particular, en el caso del &lt;em&gt;montaje&lt;/em&gt; de carpetas del &lt;em&gt;host&lt;/em&gt; en el contenedor, Docker puede montar &lt;strong&gt;cualquier&lt;/strong&gt; carpeta (o fichero) en un contenedor (mira la sección &lt;a href=&#34;https://docs.docker.com/engine/security/security/&#34;&gt;Docker deamon attack surface&lt;/a&gt; en la documentación oficial de Docker). Así que si un atacante se hiciera con el control del proceso Docker, podría lanzar un contenedor, montar la carpeta &lt;code&gt;/&lt;/code&gt; y modificar el sistema desde el contenedor.&lt;/p&gt;
+
+&lt;p&gt;Esto sería &lt;strong&gt;muy malo&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;Pero ya hemos dicho antes que podemos minimizar el riesgo usando usuarios no privilegiados dentro del contenedor, como &lt;code&gt;nginx&lt;/code&gt;, ¿no?&lt;/p&gt;
+
+&lt;p&gt;Desde el punto de vista de la seguridad, siguiendo las buenas prácticas, en cuanto lancemos el proceso dentro del contenedor, cambiamos a un usuario sin privilegios y ¡problema resuelto!&lt;/p&gt;
+
+&lt;p&gt;Ojalá las cosas fueran tan sencillas&amp;hellip;&lt;/p&gt;
+
+&lt;p&gt;Considera el siguiente caso; hemos creado una imagen con Dokuwiki, por ejemplo, usando como base la imagen de Nginx siguiendo las buenas prácticas de seguridad. Hemos minimizado el riesgo ante un eventual ataque usando un usuario sin privilegios llamado &lt;em&gt;nginx&lt;/em&gt;. Como estamos muy orgullosos de nuestra imagen, la subimos a DockerHub: &lt;code&gt;xaviaznar/nginx-dokuwiki-seguro&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Un usuario se descarga esta imagen y lanza un contenedor, montando una carpeta local de su &lt;em&gt;host&lt;/em&gt; desde la que quiere servir su propia wiki. Para ello lanza un comando como:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ docker run -d --name miwiki -p 80:80 -v /wiki:/dokuwiki/data/pages xaviaznar/nginx-dokuwiki-seguro 
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;(Es sólo un ejemplo ilustrativo, este &lt;em&gt;montaje&lt;/em&gt; de &lt;a href=&#34;https://www.dokuwiki.org/devel:dirlayout&#34;&gt;carpetas&lt;/a&gt; no es una buena idea).&lt;/p&gt;
+
+&lt;p&gt;El contenedor arranca sin problemas, pero cuando quiere crear o modificar una página en el wiki, no funciona.&lt;/p&gt;
+
+&lt;p&gt;¿Qué pasa?&lt;/p&gt;
+
+&lt;p&gt;El problema es que ahora estamos relacionando &lt;strong&gt;dos&lt;/strong&gt; sistemas Linux, con usuarios diferentes.&lt;/p&gt;
+
+&lt;p&gt;Por un lado tenemos el usuario &lt;code&gt;nginx&lt;/code&gt; dentro del contenedor, sin privilegios, que hemos creado siguiendo las buenas prácticas de seguridad.&lt;/p&gt;
+
+&lt;p&gt;En el sistema &lt;em&gt;host&lt;/em&gt;, Docker se ejecuta con permisos de &lt;code&gt;root&lt;/code&gt;, por lo que puede realizar el montaje de la carpeta &lt;code&gt;/wiki&lt;/code&gt; en el contenedor sin problemas.&lt;/p&gt;
+
+&lt;p&gt;Cuando el usuario &lt;code&gt;nginx&lt;/code&gt; (del contenedor) intenta escribir en la carpeta del &lt;em&gt;host&lt;/em&gt;, el sistema comprueba si el usuario &lt;code&gt;nginx&lt;/code&gt; tiene permisos para escribir en esa carpeta. Como el usuario &lt;code&gt;nginx&lt;/code&gt; solo existe &lt;strong&gt;dentro&lt;/strong&gt; del contenedor, el sistema del &lt;em&gt;host&lt;/em&gt; no lo reconoce y se le deniega el acceso.&lt;/p&gt;
+
+&lt;p&gt;Aquí es donde surge el dilema entre seguridad y portabilidad: si ejecutamos los procesos en el contenedor como &lt;code&gt;root&lt;/code&gt;, no tenemos problemas para acceder a carpetas locales en el &lt;em&gt;host&lt;/em&gt;, pero nos enfrentamos a un problema de seguridad potencialmente grave. Si minimizamos el riesgo usando un usuario sin privilegios, tenemos problemas de permisos al intentar acceder a carpetas locales.&lt;/p&gt;
+
+&lt;p&gt;Como indica &lt;a href=&#34;https://twitter.com/jejb_&#34;&gt;James Bottomley&lt;/a&gt;, evangelista de contendores para IBM en la &lt;a href=&#34;http://events.linuxfoundation.org/events/vault&#34;&gt;conferencia Vault&lt;/a&gt; sobre almacenamiento de la Linux Foundation en Boston el mes pasado:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;&amp;ldquo;This is a significant problem for running unprivileged containers alongside standard images. If we’ve all written out container images for different values of root, it’ll be a horrible nasty mess somewhere.&amp;rdquo;&lt;/p&gt;
+
+&lt;p&gt;&lt;small&gt;Este es un problema significativo de cara a ejecutar contenedores sin privilegios junto a imágenes estándar. Si hemos creado imágenes de contenedores para diferentes valores de &lt;code&gt;root&lt;/code&gt;, en algún sitio habrá un lío tremendo.&lt;/small&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;El artículo comenta algunas soluciones que se están desarrollando para solventar el problema, pero por ahora, el dilema entre seguridad y el acceso al &lt;em&gt;host&lt;/em&gt; sigue estando sobre la mesa.&lt;/p&gt;</description>
+    </item>
     
     <item>
       <title>Publica en Github Pages</title>
