@@ -8,6 +8,47 @@
     <atom:link href="https://onthedock.github.io/tags/hypriot-os/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
+      <title>Acciones previas a la instalación de Kubernetes en Raspberry Pi</title>
+      <link>https://onthedock.github.io/post/acciones-previas-instalacion-rpi/</link>
+      <pubDate>Sun, 09 Apr 2017 21:34:16 +0200</pubDate>
+      
+      <guid>https://onthedock.github.io/post/acciones-previas-instalacion-rpi/</guid>
+      <description>&lt;p&gt;Uno de los objetivos motivadores de la existencia de este blog es instalar un clúster de Kubernetes sobre Raspberry Pi. Este artículo se centra en las tareas previas a la instalación en sí.&lt;/p&gt;
+
+&lt;p&gt;Kubernetes requiere una instalación previa de Docker, una tarea simplificada gracias a HypriotOS, la &lt;em&gt;distro&lt;/em&gt; creada específicamente con este fin.&lt;/p&gt;
+
+&lt;p&gt;El siguiente paso, la instalación de Kubernetes en la Raspberry será objeto de otra(s) entrada(s). Pero sin duda esta tarea sería mucho más complicada sin las contribuciones del joven finlandés &lt;a href=&#34;https://www.cncf.io/blog/2016/11/29/diversity-scholarship-series-programming-journey-becoming-kubernetes-maintainer/&#34;&gt;Lucas Käldström&lt;/a&gt; y su proyecto -ahora integrado la rama principal- &lt;a href=&#34;https://github.com/luxas/kubernetes-on-arm&#34;&gt;Kubernetes on ARM&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Descarga la imagen de &lt;a href=&#34;https://blog.hypriot.com/downloads/&#34;&gt;HypriotOS&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;Traspásala a una tarjeta microSD usando, por ejemplo, &lt;a href=&#34;https://etcher.io/&#34;&gt;Etcher&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Inserta la tarjeta microsSD en la Raspberry Pi y arranca la RPi.&lt;/li&gt;
+&lt;li&gt;Comprueba que ha arrancado correctamente haciendo ping a &lt;code&gt;black-pearl.local&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;Accede a la RPi mediante &lt;code&gt;ssh pirate@black-pearl.local&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;Acepta el mensaje de seguridad (es la primera vez que conectas al equipo)&lt;/li&gt;
+&lt;li&gt;Edita el fichero &lt;code&gt;/boot/device-init.yaml&lt;/code&gt; para modificar el nombre de la RPi. En mi caso, he cambiado el nombre a &lt;code&gt;k1&lt;/code&gt;: &lt;code&gt;hostname: k1&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;Crea un backup del fichero de configuración de la tarjeta de red: &lt;code&gt;sudo cp /etc/network/interfaces.d/eth0 /etc/network/interfaces.d/eth0.original&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;Edita el fichero &lt;code&gt;/etc/network/interfaces.d/eth0&lt;/code&gt; para establecer una IP estática para la RPi:&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;  allow-hotplug eth0
+  iface eth0 inet static
+	address 192.168.1.11
+	gateway 192.168.1.1
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Reinicia la RPi para que los cambios sean efectivos: &lt;code&gt;sudo reboot&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;Comprueba que la RPi responde a ping con el nuevo nombre: &lt;code&gt;ping k1.local&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;Accede a la RPi mediante &lt;code&gt;ssh pirate@k1.local&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;Actualiza la RPi: &lt;code&gt;sudo apt-get update &amp;amp;&amp;amp; sudo apt-get upgrade -y&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;Verifica la versión de Docker instalada: &lt;code&gt;$ docker version&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;</description>
+    </item>
+    
+    <item>
       <title>Introducción a Hypriot OS</title>
       <link>https://onthedock.github.io/post/introduccion-a-hypriotos/</link>
       <pubDate>Sat, 05 Nov 2016 10:37:47 +0100</pubDate>
