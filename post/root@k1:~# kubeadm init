@@ -1,0 +1,105 @@
+root@k1:~# kubeadm init
+[preflight] Running pre-flight checks
+[preflight] Some fatal errors occurred:
+	user is not running as root
+[preflight] WARNING: docker version is greater than the most recently validated version. Docker version: 17.04.0-ce. Max validated version: 1.12
+[preflight] Starting the kubelet service
+[certificates] Generated CA certificate and key.
+[certificates] Generated API server certificate and key.
+[certificates] API Server serving cert is signed for DNS names [k1 kubernetes kubernetes.default kubernetes.default.svc kubernetes.default.svc.cluster.local] and IPs [10.96.0.1 192.168.1.11]
+[certificates] Generated API server kubelet client certificate and key.
+[certificates] Generated service account token signing key and public key.
+[certificates] Generated front-proxy CA certificate and key.
+[certificates] Generated front-proxy client certificate and key.
+[certificates] Valid certificates and keys now exist in "/etc/kubernetes/pki"
+[kubeconfig] Wrote KubeConfig file to disk: "/etc/kubernetes/admin.conf"
+[kubeconfig] Wrote KubeConfig file to disk: "/etc/kubernetes/kubelet.conf"
+[kubeconfig] Wrote KubeConfig file to disk: "/etc/kubernetes/controller-manager.conf"
+[kubeconfig] Wrote KubeConfig file to disk: "/etc/kubernetes/scheduler.conf"
+[apiclient] Created API client, waiting for the control plane to become ready
+[apiclient] All control plane components are healthy after 17.579370 seconds
+[apiclient] Waiting for at least one node to register
+[apiclient] First node has registered after 3.110137 seconds
+[token] Using token: 402cbc.b3a3cd82a0686c45
+[apiconfig] Created RBAC rules
+[addons] Created essential addon: kube-proxy
+[addons] Created essential addon: kube-dns
+
+Your Kubernetes master has initialized successfully!
+
+To start using your cluster, you need to run (as a regular user):
+
+  sudo cp /etc/kubernetes/admin.conf $HOME/
+  sudo chown $(id -u):$(id -g) $HOME/admin.conf
+  export KUBECONFIG=$HOME/admin.conf
+
+You should now deploy a pod network to the cluster.
+Run "kubectl apply -f [podnetwork].yaml" with one of the options listed at:
+  http://kubernetes.io/docs/admin/addons/
+
+You can now join any number of machines by running the following on each node
+as root:
+
+  kubeadm join --token 402cbc.b3a3cd82a0686c45 192.168.1.11:6443
+
+----
+
+HypriotOS/armv7: root@k1 in ~
+$ kubectl get pods
+The connection to the server localhost:8080 was refused - did you specify the right host or port?
+HypriotOS/armv7: root@k1 in ~
+$ exit
+logout
+HypriotOS/armv7: pirate@k1 in ~
+
+Ejecutamos los comandos que copian la configuración para que un usuario no-`root` pueda usar Kubernetes:
+
+$ sudo cp /etc/kubernetes/admin.conf $HOME/
+$ sudo chown $(id -u):$(id -g) $HOME/admin.conf
+$ export KUBECONFIG=$HOME/admin.conf
+
+
+
+$ kubectl get nodes
+NAME      STATUS     AGE       VERSION
+k1        NotReady   2m        v1.6.1
+HypriotOS/armv7: pirate@k1 in ~
+$ curl -sSL https://rawgit.com/coreos/flannel/v0.7.0/Documentation/kube-flannel.yml | sed "s/amd64/arm/g" | kubectl create -f -
+configmap "kube-flannel-cfg" created
+daemonset "kube-flannel-ds" created
+HypriotOS/armv7: pirate@k1 in ~
+$ kubectl get nodes
+NAME      STATUS     AGE       VERSION
+k1        NotReady   4m        v1.6.1
+HypriotOS/armv7: pirate@k1 in ~
+$ kubectl get pods --all-namespaces
+NAMESPACE     NAME                         READY     STATUS    RESTARTS   AGE
+kube-system   etcd-k1                      1/1       Running   0          4m
+kube-system   kube-apiserver-k1            1/1       Running   0          4m
+kube-system   kube-controller-manager-k1   1/1       Running   0          4m
+kube-system   kube-dns-279829092-1b27r     0/3       Pending   0          4m
+kube-system   kube-proxy-3dggd             1/1       Running   0          4m
+kube-system   kube-scheduler-k1            1/1       Running   0          4m
+
+
+
+$ kubectl get pods --all-namespaces
+NAMESPACE     NAME                         READY     STATUS              RESTARTS   AGE
+kube-system   etcd-k1                      1/1       Running             0          9m
+kube-system   kube-apiserver-k1            1/1       Running             0          9m
+kube-system   kube-controller-manager-k1   1/1       Running             0          9m
+kube-system   kube-dns-279829092-1b27r     0/3       Pending             0          9m
+kube-system   kube-proxy-3dggd             1/1       Running             0          9m
+kube-system   kube-scheduler-k1            1/1       Running             0          9m
+kube-system   weave-net-6qr0l              0/2       ContainerCreating   0          1m
+HypriotOS/armv7: pirate@k1 in ~
+$ kubectl get pods --all-namespaces
+NAMESPACE     NAME                         READY     STATUS              RESTARTS   AGE
+kube-system   etcd-k1                      1/1       Running             0          10m
+kube-system   kube-apiserver-k1            1/1       Running             0          10m
+kube-system   kube-controller-manager-k1   1/1       Running             0          10m
+kube-system   kube-dns-279829092-1b27r     0/3       ContainerCreating   0          10m
+kube-system   kube-proxy-3dggd             1/1       Running             0          10m
+kube-system   kube-scheduler-k1            1/1       Running             0          10m
+kube-system   weave-net-6qr0l              2/2       Running             0          2m
+HypriotOS/armv7: pirate@k1 in ~
