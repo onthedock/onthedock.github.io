@@ -6,8 +6,88 @@
     <description>Recent content on On The Dock</description>
     <generator>Hugo -- gohugo.io</generator>
     <copyright>Handmade with &amp;#9829; by Xavi Aznar</copyright>
-    <lastBuildDate>Mon, 10 Apr 2017 22:45:28 +0200</lastBuildDate>
+    <lastBuildDate>Fri, 14 Apr 2017 18:10:34 +0200</lastBuildDate>
     <atom:link href="https://onthedock.github.io/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Error: The connection to the server localhost:8080 was refused</title>
+      <link>https://onthedock.github.io/post/error_the-connection-to-the-server-was-refused/</link>
+      <pubDate>Fri, 14 Apr 2017 18:10:34 +0200</pubDate>
+      
+      <guid>https://onthedock.github.io/post/error_the-connection-to-the-server-was-refused/</guid>
+      <description>&lt;p&gt;Después de &lt;a href=&#34;https://onthedock.github.io/post/k8s-en-rpi-teaser/&#34;&gt;conseguir arrancar Kubernetes tras la instalación&lt;/a&gt;, al intentar ejecutar comandos vía &lt;code&gt;kubectl&lt;/code&gt; obtengo el mensaje de error &lt;code&gt;The connection to the server localhost:8080 was refused - did you specify the right host or port?&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;A continuación explico cómo solucionar el error y evitar que vuelva a mostrarse.&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;
+
+&lt;p&gt;En la guía oficial para instalar Kubernetes en Linux con kubeadm &lt;a href=&#34;https://kubernetes.io/docs/getting-started-guides/kubeadm/&#34;&gt;Installing Kubernetes on Linux with kubeadm&lt;/a&gt;, en la salida del comando &lt;code&gt;kubeadm init&lt;/code&gt; en el punto &lt;em&gt;(&lt;sup&gt;2&lt;/sup&gt;&amp;frasl;&lt;sub&gt;4&lt;/sub&gt;) - Initializing your master&lt;/em&gt;, se muestra:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;Your Kubernetes master has initialized successfully!
+
+To start using your cluster, you need to run (as a regular &amp;gt;user):
+
+ sudo cp /etc/kubernetes/admin.conf $HOME/
+ sudo chown $(id -u):$(id -g) $HOME/admin.conf
+ export KUBECONFIG=$HOME/admin.conf
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;El problema es que la &lt;em&gt;exportación&lt;/em&gt; de la variable de entorno realizada mediante &lt;code&gt;export KUBECONFIG=$HOME/admin.conf&lt;/code&gt; &lt;strong&gt;se pierde en cuanto se cierra la sesión&lt;/strong&gt;.
+Por tanto, cuando reconectamos más tarde, la variable &lt;code&gt;KUBECONFIG&lt;/code&gt; está vacía y el comando &lt;code&gt;kubectl&lt;/code&gt; intenta conectar con &lt;code&gt;localhost:8080&lt;/code&gt;. Como el API server no está escuchando en esta IP y puerto, lo que obtenemos el mensaje de error:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;The connection to the server localhost:8080 was refused - did you specify the right host or port?
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Si miramos el contenido del fichero &lt;code&gt;$HOME/admin.conf&lt;/code&gt; mediante &lt;code&gt;cat $HOME/admin.conf&lt;/code&gt; encontramos una línea que identifica el servidor: &lt;code&gt;server: https://192.168.1.11:6443&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;Parece que lo único que tenemos que hacer es especificar el servidor como parámetro para &lt;code&gt;kubectl&lt;/code&gt;, pero&amp;hellip;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ kubectl get nodes --server=https://192.168.1.11:6443
+Please enter Username: pirate
+Please enter Password: ********
+  Unable to connect to the server: x509: certificate signed by unknown authority
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Si usamos el usuario &lt;code&gt;root&lt;/code&gt;, el resultado es el mismo.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Observando el contenido del fichero &lt;code&gt;admin.conf&lt;/code&gt; vemos que para el parámetro &lt;code&gt;user&lt;/code&gt; se especifican certificados (mediante &lt;code&gt;client-certificate-data&lt;/code&gt; y &lt;code&gt;client-key-data&lt;/code&gt;):&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;...
+users:
+- name: kubernetes-admin
+  user:
+    client-certificate-data: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUM4akNDQ...
+    client-key-data:   LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLQVdLN3JjWDIKY2DIKY2t1c...
+$
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Así que no podemos autenticarnos en el API Server con los usuarios del sistema y tenemos que usar los certificados en el fichero &lt;code&gt;admin.conf&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Esto nos lleva de nuevo a la variable &lt;code&gt;KUBECONFIG&lt;/code&gt;. Si lanzamos el comando &lt;code&gt;export KUBECONFIG...&lt;/code&gt;, los comandos funcionarán durante la sesión en curso, pero tendremos que lanzar el comando &lt;code&gt;export&lt;/code&gt; en cada nueva sesión:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ export KUBECONFIG=$HOME/admin.conf
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;La solución para que la variable se establezca automáticamente en cada inicio de sesión es añadiéndo el valor en el fichero &lt;code&gt;$HOME/.bashrc&lt;/code&gt;.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ nano $HOME/.bashrc
+export KUBECONFIG=$HOME/admin.conf
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Para verificar que funciona como debe, cierra sesión y vuelve a iniciarla.&lt;/p&gt;
+
+&lt;p&gt;Comprueba que puedes lanzar comandos sin problemas:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ kubectl get nodes
+NAME      STATUS    AGE       VERSION
+k1        Ready     3d        v1.6.1
+$
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;¡Problema solucionado!&lt;/p&gt;</description>
+    </item>
     
     <item>
       <title>Kubernetes en la Raspberry Pi (teaser)</title>
