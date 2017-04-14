@@ -130,7 +130,7 @@
 
 <p></p>
 
-<p>En la guía oficial para instalar Kubernetes en Linux con kubeadm <a href="https://kubernetes.io/docs/getting-started-guides/kubeadm/">Installing Kubernetes on Linux with kubeadm</a>, en la salida del comando <code>kubeadm init</code> en el punto <em>(<sup>2</sup>&frasl;<sub>4</sub>) - Initializing your master</em>, se muestra:</p>
+<p>En la guía oficial para instalar Kubernetes en Linux con <code>kubeadm</code> <a href="https://kubernetes.io/docs/getting-started-guides/kubeadm/">Installing Kubernetes on Linux with kubeadm</a>, en la salida del comando <code>kubeadm init</code> en el punto <em>(<sup>2</sup>&frasl;<sub>4</sub>) - Initializing your master</em>, se muestra:</p>
 
 <pre><code>Your Kubernetes master has initialized successfully!
 
@@ -195,7 +195,23 @@ k1        Ready     3d        v1.6.1
 $
 </code></pre>
 
-<p>¡Problema solucionado!</p></div>
+<p>¡Problema solucionado!</p>
+
+<p>Otra solución alternativa, si no quieres modificar el fichero <code>$HOME/admin.conf</code> es pasar la ubicación del fichero como parámetro a <code>kubectl</code>:</p>
+
+<pre><code class="language-shell">$ kubectl get nodes
+The connection to the server localhost:8080 was refused - did you specify the right host or port?
+$ kubectl --kubeconfig ./admin.conf get nodes
+NAME      STATUS    AGE       VERSION
+k1        Ready     3d        v1.6.1
+$
+</code></pre>
+
+<p>Puedes usar también este método para conectar, por ejemplo, desde otro equipo al nodo master del clúster (debes copiar primero el fichero <code>admin.conf</code> a tu equipo, desde su ubicación original <code>/etc/kubernetes/admin.conf</code> o desde la carpeta <code>$HOME</code> del usuario, si lo has copiado):</p>
+
+<pre><code class="language-shell">$ scp pirate@k1.local:/home/pirate/admin.conf .
+kubectl --kubeconfig ./admin.conf get nodes
+</code></pre></div>
 
   <aside class="p-share">
   <a href="http://b.hatena.ne.jp/add?mode=confirm&url=https%3a%2f%2fonthedock.github.io%2fpost%2ferror_the-connection-to-the-server-was-refused%2f&title=Error%3a%20The%20connection%20to%20the%20server%20localhost%3a8080%20was%20refused" title="はてなブックマーク" class="ht" target="_blank" rel="nofollow"></a>

@@ -20,7 +20,7 @@
 
 &lt;p&gt;&lt;/p&gt;
 
-&lt;p&gt;En la guía oficial para instalar Kubernetes en Linux con kubeadm &lt;a href=&#34;https://kubernetes.io/docs/getting-started-guides/kubeadm/&#34;&gt;Installing Kubernetes on Linux with kubeadm&lt;/a&gt;, en la salida del comando &lt;code&gt;kubeadm init&lt;/code&gt; en el punto &lt;em&gt;(&lt;sup&gt;2&lt;/sup&gt;&amp;frasl;&lt;sub&gt;4&lt;/sub&gt;) - Initializing your master&lt;/em&gt;, se muestra:&lt;/p&gt;
+&lt;p&gt;En la guía oficial para instalar Kubernetes en Linux con &lt;code&gt;kubeadm&lt;/code&gt; &lt;a href=&#34;https://kubernetes.io/docs/getting-started-guides/kubeadm/&#34;&gt;Installing Kubernetes on Linux with kubeadm&lt;/a&gt;, en la salida del comando &lt;code&gt;kubeadm init&lt;/code&gt; en el punto &lt;em&gt;(&lt;sup&gt;2&lt;/sup&gt;&amp;frasl;&lt;sub&gt;4&lt;/sub&gt;) - Initializing your master&lt;/em&gt;, se muestra:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code&gt;Your Kubernetes master has initialized successfully!
 
@@ -85,7 +85,23 @@ k1        Ready     3d        v1.6.1
 $
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;¡Problema solucionado!&lt;/p&gt;</description>
+&lt;p&gt;¡Problema solucionado!&lt;/p&gt;
+
+&lt;p&gt;Otra solución alternativa, si no quieres modificar el fichero &lt;code&gt;$HOME/admin.conf&lt;/code&gt; es pasar la ubicación del fichero como parámetro a &lt;code&gt;kubectl&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ kubectl get nodes
+The connection to the server localhost:8080 was refused - did you specify the right host or port?
+$ kubectl --kubeconfig ./admin.conf get nodes
+NAME      STATUS    AGE       VERSION
+k1        Ready     3d        v1.6.1
+$
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Puedes usar también este método para conectar, por ejemplo, desde otro equipo al nodo master del clúster (debes copiar primero el fichero &lt;code&gt;admin.conf&lt;/code&gt; a tu equipo, desde su ubicación original &lt;code&gt;/etc/kubernetes/admin.conf&lt;/code&gt; o desde la carpeta &lt;code&gt;$HOME&lt;/code&gt; del usuario, si lo has copiado):&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ scp pirate@k1.local:/home/pirate/admin.conf .
+kubectl --kubeconfig ./admin.conf get nodes
+&lt;/code&gt;&lt;/pre&gt;</description>
     </item>
     
   </channel>
