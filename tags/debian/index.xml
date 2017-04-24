@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Debian on On The Dock</title>
+    <link>https://onthedock.github.io/tags/debian/index.xml</link>
+    <description>Recent content in Debian on On The Dock</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <copyright>Handmade with &amp;#9829; by Xavi Aznar</copyright>
+    <atom:link href="https://onthedock.github.io/tags/debian/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Solucion al error missing cgroups memory en Debian Jessie</title>
+      <link>https://onthedock.github.io/post/solucion-al-error-missing-cgroups-memory-en-debian-jessie/</link>
+      <pubDate>Sat, 22 Apr 2017 07:57:14 +0200</pubDate>
+      
+      <guid>https://onthedock.github.io/post/solucion-al-error-missing-cgroups-memory-en-debian-jessie/</guid>
+      <description>&lt;p&gt;Al lanzar la inicialización del clúster con &lt;code&gt;kubeadm init&lt;/code&gt; en Debian Jessie, las comprobaciones inciales indican que no se encuentran los &lt;em&gt;cgroups&lt;/em&gt; para la memoria. Los &lt;em&gt;cgroups&lt;/em&gt; son una de las piezas fundamentales en las que se basa Docker para &lt;em&gt;aislar&lt;/em&gt; los procesos de los contenedores, por lo que la inicialización del clúster de Kubernetes se detiene.&lt;/p&gt;
+
+&lt;p&gt;La solución es tan sencilla como habilitar los &lt;em&gt;cgroups&lt;/em&gt; durante el arranque.&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;
+
+&lt;p&gt;En primer lugar, verificamos la versión del &lt;em&gt;kernel&lt;/em&gt; que tenemos instalada:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;# uname -a
+Linux k8s 3.16.0-4-amd64 #1 SMP Debian 3.16.39-1+deb8u2 (2017-03-07) x86_64 GNU/Linux
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Al lanzar &lt;code&gt;kubeadm init&lt;/code&gt; obtenemos el error:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;# kubeadm init
+[kubeadm] WARNING: kubeadm is in beta, please do not use it for production clusters.
+[init] Using Kubernetes version: v1.6.0
+[init] Using Authorization mode: RBAC
+[preflight] Running pre-flight checks
+[preflight] The system verification failed. Printing the output from the verification:
+OS: Linux
+KERNEL_VERSION: 3.16.0-4-amd64
+CONFIG_NAMESPACES: enabled
+CONFIG_NET_NS: enabled
+CONFIG_PID_NS: enabled
+CONFIG_IPC_NS: enabled
+CONFIG_UTS_NS: enabled
+CONFIG_CGROUPS: enabled
+CONFIG_CGROUP_CPUACCT: enabled
+CONFIG_CGROUP_DEVICE: enabled
+CONFIG_CGROUP_FREEZER: enabled
+CONFIG_CGROUP_SCHED: enabled
+CONFIG_CPUSETS: enabled
+CONFIG_MEMCG: enabled
+CONFIG_INET: enabled
+CONFIG_EXT4_FS: enabled (as module)
+CONFIG_PROC_FS: enabled
+CONFIG_NETFILTER_XT_TARGET_REDIRECT: enabled (as module)
+CONFIG_NETFILTER_XT_MATCH_COMMENT: enabled (as module)
+CONFIG_OVERLAYFS_FS: not set - Required for overlayfs.
+CONFIG_AUFS_FS: enabled (as module)
+CONFIG_BLK_DEV_DM: enabled (as module)
+CGROUPS_CPU: enabled
+CGROUPS_CPUACCT: enabled
+CGROUPS_CPUSET: enabled
+CGROUPS_DEVICES: enabled
+CGROUPS_FREEZER: enabled
+CGROUPS_MEMORY: missing
+DOCKER_VERSION: 17.04.0-ce
+[preflight] WARNING: docker version is greater than the most recently validated version. Docker version: 17.04.0-ce. Max validated version: 1.12
+[preflight] Some fatal errors occurred:
+	missing cgroups: memory
+[preflight] If you know what you are doing, you can skip pre-flight checks with `--skip-preflight-checks`
+#
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;solución&#34;&gt;Solución&lt;/h2&gt;
+
+&lt;p&gt;La solución la he encontrado en &lt;a href=&#34;https://phabricator.wikimedia.org/T122734&#34;&gt;Enable memory cgroups for default Jessie image&lt;/a&gt;.&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Nos convertimos en &lt;em&gt;root&lt;/em&gt;: &lt;code&gt;sudo su -&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;Editamos el fichero &lt;code&gt;/etc/default/grup&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;En los parámetros para el arranque de linux (&lt;code&gt;GRUB_CMDLINE_LINUX&lt;/code&gt;) añadimos &lt;code&gt;cgroup_enable=memory&lt;/code&gt;. En mi caso, la línea queda: &lt;code&gt;GRUB_CMDLINE_LINUX_DEFAULT=&amp;quot;quiet cgroup_enable=memory&amp;quot;&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;Actualizamos &lt;em&gt;grub&lt;/em&gt;: &lt;code&gt;update-grub2&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;Reiniciamos la máquina: &lt;code&gt;reboot&lt;/code&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;...
+[preflight] WARNING: docker version is greater than the most recently validated version. Docker version: 17.04.0-ce. Max validated version: 1.12
+[preflight] Some fatal errors occurred:
+	missing cgroups: memory
+[preflight] If you know what you are doing, you can skip pre-flight checks with `--skip-preflight-checks`
+root@k8s:~# nano /etc/default/grub
+root@k8s:~# update-grub2
+Generating grub configuration file ...
+Found linux image: /boot/vmlinuz-3.16.0-4-amd64
+Found initrd image: /boot/initrd.img-3.16.0-4-amd64
+done
+root@k8s:~# reboot
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Al lanzar &lt;code&gt;kubeadm init&lt;/code&gt; de nuevo, el clúster arranca con normalidad:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;root@k8s:~# kubeadm init
+[kubeadm] WARNING: kubeadm is in beta, please do not use it for production clusters.
+[init] Using Kubernetes version: v1.6.0
+[init] Using Authorization mode: RBAC
+[preflight] Running pre-flight checks
+[preflight] WARNING: docker version is greater than the most recently validated version. Docker version: 17.04.0-ce. Max validated version: 1.12
+[certificates] Generated CA certificate and key.
+[certificates] Generated API server certificate and key.
+[certificates] API Server serving cert is signed for DNS names [k8s kubernetes kubernetes.default kubernetes.default.svc kubernetes.default.svc.cluster.local] and IPs [10.96.0.1 192.168.1.99]
+[certificates] Generated API server kubelet client certificate and key.
+[certificates] Generated service account token signing key and public key.
+[certificates] Generated front-proxy CA certificate and key.
+[certificates] Generated front-proxy client certificate and key.
+[certificates] Valid certificates and keys now exist in &amp;quot;/etc/kubernetes/pki&amp;quot;
+[kubeconfig] Wrote KubeConfig file to disk: &amp;quot;/etc/kubernetes/scheduler.conf&amp;quot;
+[kubeconfig] Wrote KubeConfig file to disk: &amp;quot;/etc/kubernetes/admin.conf&amp;quot;
+[kubeconfig] Wrote KubeConfig file to disk: &amp;quot;/etc/kubernetes/kubelet.conf&amp;quot;
+[kubeconfig] Wrote KubeConfig file to disk: &amp;quot;/etc/kubernetes/controller-manager.conf&amp;quot;
+[apiclient] Created API client, waiting for the control plane to become ready
+[apiclient] All control plane components are healthy after 39.363656 seconds
+[apiclient] Waiting for at least one node to register
+[apiclient] First node has registered after 1.518215 seconds
+[token] Using token: fe9e91.7142118e712eb019
+[apiconfig] Created RBAC rules
+[addons] Created essential addon: kube-proxy
+[addons] Created essential addon: kube-dns
+
+Your Kubernetes master has initialized successfully!
+
+To start using your cluster, you need to run (as a regular user):
+
+  sudo cp /etc/kubernetes/admin.conf $HOME/
+  sudo chown $(id -u):$(id -g) $HOME/admin.conf
+  export KUBECONFIG=$HOME/admin.conf
+
+You should now deploy a pod network to the cluster.
+Run &amp;quot;kubectl apply -f [podnetwork].yaml&amp;quot; with one of the options listed at:
+  http://kubernetes.io/docs/admin/addons/
+
+You can now join any number of machines by running the following on each node
+as root:
+
+  kubeadm join --token fe9e91.7142118e712eb019 192.168.1.99:6443
+
+root@k8s:~#
+&lt;/code&gt;&lt;/pre&gt;</description>
+    </item>
+    
+  </channel>
+</rss>
