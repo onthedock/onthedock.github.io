@@ -11,13 +11,13 @@
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
 
-<link rel="canonical" href="https://onthedock.github.io/post/instalacion-de-kubernetes-falla-missing-cgroups-memory/">
+<link rel="canonical" href="https://onthedock.github.io/post/portainer-para-monitorizar-tus-contenedores-en-docker/">
 
 
     
     <link href="https://fonts.googleapis.com/css?family=Lobster|Lato:400,700" rel="stylesheet">
     
-    <title>La instalación de Kubernetes falla en Debian Jessie (Missing cgroups: memory) - On The Dock</title>
+    <title>Portainer para monitorizar tus contenedores en Docker - On The Dock</title>
     <style amp-boilerplate>body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}</style><noscript><style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style></noscript>
     <script async src="https://cdn.ampproject.org/v0.js"></script>
     
@@ -26,22 +26,22 @@
 <script async custom-element="amp-ad" src="https://cdn.ampproject.org/v0/amp-ad-0.1.js"></script>
 
     
-<meta name="description" content="&lt;p&gt;La instalación de Kubernetes se realiza de forma casi automática gracias al &lt;em&gt;script&lt;/em&gt; &lt;code&gt;kubeadm&lt;/code&gt;. Sólo hay que seguir las instrucciones de &lt;a href=&#34;https://kubernetes.io/docs/getting-started-guides/kubeadm/&#34;&gt;Installing Kubernetes on Linux with kubeadm&lt;/a&gt; y la salida por pantalla del propio &lt;em&gt;script&lt;/em&gt;.&lt;/p&gt;&lt;p&gt;&lt;/p&gt;">
+<meta name="description" content="&lt;p&gt;&lt;a href=&#34;http://portainer.io/&#34;&gt;Portainer&lt;/a&gt; es una herramienta ligera y &lt;em&gt;open-source&lt;/em&gt; de gestión de contenedores sobre Docker (o Docker Swarm). Portainer ofrece una interfaz gráfica para gestionar el &lt;em&gt;host&lt;/em&gt; Docker desde cualquier navegador, tiene soporte para Raspberry Pi y se puede desplegar como un simple contenedor.&lt;/p&gt;&lt;p&gt;Espero que este artículo ayude a todos aquellos que tengan ganas de probar Portainer y evitarles los problemas que me he encontrado yo.&lt;/p&gt;&lt;p&gt;&lt;/p&gt;">
 
-<meta property="og:title" content="La instalación de Kubernetes falla en Debian Jessie (Missing cgroups: memory) - On The Dock">
+<meta property="og:title" content="Portainer para monitorizar tus contenedores en Docker - On The Dock">
 <meta property="og:type" content="article">
-<meta property="og:url" content="https://onthedock.github.io/post/instalacion-de-kubernetes-falla-missing-cgroups-memory/">
-<meta property="og:image" content="https://onthedock.github.io/images/kubernetes.png">
+<meta property="og:url" content="https://onthedock.github.io/post/portainer-para-monitorizar-tus-contenedores-en-docker/">
+<meta property="og:image" content="https://onthedock.github.io/images/docker.png">
 <meta property="og:site_name" content="On The Dock">
-<meta property="og:description" content="&lt;p&gt;La instalación de Kubernetes se realiza de forma casi automática gracias al &lt;em&gt;script&lt;/em&gt; &lt;code&gt;kubeadm&lt;/code&gt;. Sólo hay que seguir las instrucciones de &lt;a href=&#34;https://kubernetes.io/docs/getting-started-guides/kubeadm/&#34;&gt;Installing Kubernetes on Linux with kubeadm&lt;/a&gt; y la salida por pantalla del propio &lt;em&gt;script&lt;/em&gt;.&lt;/p&gt;&lt;p&gt;&lt;/p&gt;">
+<meta property="og:description" content="&lt;p&gt;&lt;a href=&#34;http://portainer.io/&#34;&gt;Portainer&lt;/a&gt; es una herramienta ligera y &lt;em&gt;open-source&lt;/em&gt; de gestión de contenedores sobre Docker (o Docker Swarm). Portainer ofrece una interfaz gráfica para gestionar el &lt;em&gt;host&lt;/em&gt; Docker desde cualquier navegador, tiene soporte para Raspberry Pi y se puede desplegar como un simple contenedor.&lt;/p&gt;&lt;p&gt;Espero que este artículo ayude a todos aquellos que tengan ganas de probar Portainer y evitarles los problemas que me he encontrado yo.&lt;/p&gt;&lt;p&gt;&lt;/p&gt;">
 <meta property="og:locale" content="ja_JP">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="On The Dock">
-<meta name="twitter:url" content="https://onthedock.github.io/post/instalacion-de-kubernetes-falla-missing-cgroups-memory/">
-<meta name="twitter:title" content="La instalación de Kubernetes falla en Debian Jessie (Missing cgroups: memory) - On The Dock">
-<meta name="twitter:description" content="&lt;p&gt;La instalación de Kubernetes se realiza de forma casi automática gracias al &lt;em&gt;script&lt;/em&gt; &lt;code&gt;kubeadm&lt;/code&gt;. Sólo hay que seguir las instrucciones de &lt;a href=&#34;https://kubernetes.io/docs/getting-started-guides/kubeadm/&#34;&gt;Installing Kubernetes on Linux with kubeadm&lt;/a&gt; y la salida por pantalla del propio &lt;em&gt;script&lt;/em&gt;.&lt;/p&gt;&lt;p&gt;&lt;/p&gt;">
-<meta name="twitter:image" content="https://onthedock.github.io/images/kubernetes.png">
+<meta name="twitter:url" content="https://onthedock.github.io/post/portainer-para-monitorizar-tus-contenedores-en-docker/">
+<meta name="twitter:title" content="Portainer para monitorizar tus contenedores en Docker - On The Dock">
+<meta name="twitter:description" content="&lt;p&gt;&lt;a href=&#34;http://portainer.io/&#34;&gt;Portainer&lt;/a&gt; es una herramienta ligera y &lt;em&gt;open-source&lt;/em&gt; de gestión de contenedores sobre Docker (o Docker Swarm). Portainer ofrece una interfaz gráfica para gestionar el &lt;em&gt;host&lt;/em&gt; Docker desde cualquier navegador, tiene soporte para Raspberry Pi y se puede desplegar como un simple contenedor.&lt;/p&gt;&lt;p&gt;Espero que este artículo ayude a todos aquellos que tengan ganas de probar Portainer y evitarles los problemas que me he encontrado yo.&lt;/p&gt;&lt;p&gt;&lt;/p&gt;">
+<meta name="twitter:image" content="https://onthedock.github.io/images/docker.png">
 
 
 <script type="application/ld+json">
@@ -52,15 +52,15 @@
       "@type": "WebPage",
       "@id":"https://onthedock.github.io/"
     },
-    "headline": "La instalación de Kubernetes falla en Debian Jessie (Missing cgroups: memory) - On The Dock",
+    "headline": "Portainer para monitorizar tus contenedores en Docker - On The Dock",
     "image": {
       "@type": "ImageObject",
-      "url": "https://onthedock.github.io/images/kubernetes.png",
+      "url": "https://onthedock.github.io/images/docker.png",
       "height": 800,
       "width": 800
     },
-    "datePublished": "2017-04-17T19:38:11JST",
-    "dateModified": "2017-04-17T19:38:11JST",
+    "datePublished": "2017-04-29T12:55:04JST",
+    "dateModified": "2017-04-29T12:55:04JST",
     "author": {
       "@type": "Person",
       "name": "On The Dock"
@@ -75,7 +75,9 @@
         "height": 60
       }
     },
-    "description": "<p>La instalación de Kubernetes se realiza de forma casi automática gracias al <em>script</em> <code>kubeadm</code>. Sólo hay que seguir las instrucciones de <a href="https://kubernetes.io/docs/getting-started-guides/kubeadm/">Installing Kubernetes on Linux with kubeadm</a> y la salida por pantalla del propio <em>script</em>.</p>
+    "description": "<p><a href="http://portainer.io/">Portainer</a> es una herramienta ligera y <em>open-source</em> de gestión de contenedores sobre Docker (o Docker Swarm). Portainer ofrece una interfaz gráfica para gestionar el <em>host</em> Docker desde cualquier navegador, tiene soporte para Raspberry Pi y se puede desplegar como un simple contenedor.</p>
+
+<p>Espero que este artículo ayude a todos aquellos que tengan ganas de probar Portainer y evitarles los problemas que me he encontrado yo.</p>
 
 <p></p>"
   }
@@ -106,14 +108,14 @@
     <main>
       
 <div class="l-container">
-  <article class="single article-56f0c54dd1d491bee4deb9e58637d798">
+  <article class="single article-d57ddd678ce2f40890e6ca5a338be781">
   <div class="header-wrapper">
-    <a href="https://onthedock.github.io/post/instalacion-de-kubernetes-falla-missing-cgroups-memory/" class="thumbnail" title="La instalación de Kubernetes falla en Debian Jessie (Missing cgroups: memory)"></a>
+    <a href="https://onthedock.github.io/post/portainer-para-monitorizar-tus-contenedores-en-docker/" class="thumbnail" title="Portainer para monitorizar tus contenedores en Docker"></a>
     <header class="article-header">
       <div class="clearfix">
-        <h1 class="title">La instalación de Kubernetes falla en Debian Jessie (Missing cgroups: memory)</h1>
+        <h1 class="title">Portainer para monitorizar tus contenedores en Docker</h1>
         <ul class="p-facts">
-          <li><time datetime="2017-04-17T19:38:11JST">17 Apr 2017</time></li>
+          <li><time datetime="2017-04-29T12:55:04JST">29 Apr 2017</time></li>
           <li><a href="https://onthedock.github.io/post/">post</a></li>
           
           <li>Xavier Aznar</li>
@@ -122,150 +124,176 @@
     </header>
   </div>
 
-  <div class="article-body"><p>La instalación de Kubernetes se realiza de forma casi automática gracias al <em>script</em> <code>kubeadm</code>. Sólo hay que seguir las instrucciones de <a href="https://kubernetes.io/docs/getting-started-guides/kubeadm/">Installing Kubernetes on Linux with kubeadm</a> y la salida por pantalla del propio <em>script</em>.</p>
+  <div class="article-body"><p><a href="http://portainer.io/">Portainer</a> es una herramienta ligera y <em>open-source</em> de gestión de contenedores sobre Docker (o Docker Swarm). Portainer ofrece una interfaz gráfica para gestionar el <em>host</em> Docker desde cualquier navegador, tiene soporte para Raspberry Pi y se puede desplegar como un simple contenedor.</p>
+
+<p>Espero que este artículo ayude a todos aquellos que tengan ganas de probar Portainer y evitarles los problemas que me he encontrado yo.</p>
 
 <p></p>
 
-<p>Para no <em>deshacer</em> la instalación de Kubernetes sobre Raspberry Pi, he creado una máquina virtual con Debian 3 (<em>Jessie</em>):</p>
+<p>He estado buscando algún tipo de solución gráfica para monitorizar las Raspberry Pi ya que, por algún motivo, los nodos <em>worker</em> del clúster de Kubernetes se <em>cuelgan</em>.</p>
 
-<pre><code class="language-shell"># uname -a
-Linux k8s 3.16.0-4-amd64 #1 SMP Debian 3.16.39-1+deb8u2 (2017-03-07) x86_64 GNU/Linux
+<p>Buscando alguna solución de monitorizado he encontrado Portainer referenciado en el blog de Hypriot: <a href="https://blog.hypriot.com/post/new-docker-ui-portainer/">Visualize your Raspberry Pi containers with Portainer or UI for Docker</a>.</p>
+
+<p>Portainer no es una herramienta de monitorizado (a nivel de <em>host</em>), sino que está enfocada a la <em>visualización</em> básicamente del estado de los contenedores de uno (o varios) <em>endpoints</em> Docker (o Docker Swarm). Sin embargo, ofreciendo soporte para ARM y estando disponible en forma de contenedor, no había motivo para no probarlo ;)</p>
+
+<h1 id="soporte-para-arm">Soporte para ARM</h1>
+
+<p>En el apartado para obtener Portainer de la web, sólo se indica el comando:</p>
+
+<pre><code class="language-shell">docker run -d -p 9000:9000 portainer/portainer
 </code></pre>
 
-<p>En primer lugar, me he convertido en <code>root</code> mediante <code>su -</code>.</p>
+<p>Por muy minimalista que quiera ser la página, la verdad es que no les hubiera costado nada indicar que existen diferentes versiones disponibles de la imagen (como por ejemplo, la que proporciona soporte para ARM).</p>
 
-<p>Uno de los requisitos para instalar Kubernetes es tener Docker instalado. En mi caso, tengo instalado <code>docker-engine</code>, el paquete de Docker mantenido por Docker Inc. Este paquete y <code>docker.io</code> (el mantenido por Ubuntu) son equivalentes, aunque tienen numeración de versión diferente.</p>
+<p>Además, lanzando el comando <em>tal cual</em>, si quieres configurar Portainer para monitorizar el nodo <em>local</em> donde, no funcionará (requiere montar <code>/var/run/docker.sock</code> en el contenedor).</p>
 
-<p>Verifico que Docker está instalado:</p>
+<p>El artículo de Hypriot apunta a una imagen llamada <code>portainer/portainer:arm</code>, que ya no existe en DockerHub. Revisando las <a href="https://hub.docker.com/r/portainer/portainer/tags/">etiquetas disponibles para las imágenes de Portainer</a>, encontramos:</p>
 
-<pre><code class="language-shell"># docker version
-Client:
- Version:      17.04.0-ce
- API version:  1.28
- Go version:   go1.7.5
- Git commit:   4845c56
- Built:        Mon Apr  3 17:45:49 2017
- OS/Arch:      linux/amd64
-
-Server:
- Version:      17.04.0-ce
- API version:  1.28 (minimum version 1.12)
- Go version:   go1.7.5
- Git commit:   4845c56
- Built:        Mon Apr  3 17:45:49 2017
- OS/Arch:      linux/amd64
- Experimental: false
-#
+<pre><code class="language-shell">TagName				Compressed Size 	Last Updated 
+ppc64le				4 MB			16 days ago
+demo				4 MB			23 days ago
+latest				0 B 			23 days ago
+1.12.4				0 B 			23 days ago
+windows-amd64 			337 MB			23 days ago
+windows-amd64-1.12.4	 	337 MB			23 days ago
+linux-arm64 			4 MB			23 days ago
+linux-arm64-1.12.4 		4 MB			23 days ago
+linux-arm 			4 MB			23 days ago
+linux-arm-1.12.4 		4 MB			23 days ago
+linux-amd64 			4 MB			23 days ago
+linux-amd64-1.12.4 		4 MB			23 days ago
 </code></pre>
 
-<p>Antes de empezar la instalación, he actualizado el sistema mediante:</p>
+<p>Seleccionamos la versión adecuada para nuestra Raspberry Pi y la descargamos mediante:</p>
 
-<pre><code class="language-shell"># apt-get update &amp;&amp; apt-get upgrade
-...
+<pre><code class="language-shell">$ docker pull portainer/portainer:linux-arm-1.12.4
+linux-arm-1.12.4: Pulling from portainer/portainer
+a3ed95caeb02: Pull complete
+802d894958a2: Pull complete
+30fb5c96d238: Pull complete
+Digest: sha256:5269fd824014fac1dee29e2cf74aa5c337cf5c0ceb7cae2634c1e054f5e2763f
+Status: Downloaded newer image for portainer/portainer:linux-arm-1.12.4
+$
 </code></pre>
 
-<p>A partir de aquí, sigo las instrucciones de la guía oficial.</p>
+<p>A continuación he lanzado la creación del contenedor usando:</p>
 
-<pre><code class="language-shell"># apt-get update &amp;&amp; apt-get install -y apt-transport-https
-...
-Reading state information... Done
-apt-transport-https is already the newest version.
-0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
-#
+<pre><code class="language-shell">$ docker run -d -p 9000:9000 --name portainer portainer/portainer:linux-arm-1.12.4
+d5ad5764788a932cd19942dcb0e70471101173c8d14801b0ce7c172ef9ac72ff
+$
 </code></pre>
 
-<p>Obtenemos la clave GPG de los paquetes de Kubernetes:</p>
+<h2 id="acceso-a-portainer">Acceso a Portainer</h2>
 
-<pre><code class="language-shell"># curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
-OK
+<p>Abre un navegador y accede a <code>http://IP-nodo:9000/</code>.</p>
+
+<p>La primera vez que accedes a la URL de Portainer debes introducir el password del usuario <code>admin</code>.</p>
+
+<figure>
+  <amp-img src="https://onthedock.github.io/images/portainer-1-define-admin-password.png" alt="Portainer para monitorizar tus contenedores en Docker images/portainer-1-define-admin-password.png" width=640 height=400 layout="responsive"></amp-img>
+  
+</figure>
+
+
+<p>Una vez introducido, puedes acceder a la UI de gestión de Portainer.</p>
+
+<figure>
+  <amp-img src="https://onthedock.github.io/images/portainer-2-first-login.png" alt="Portainer para monitorizar tus contenedores en Docker images/portainer-2-first-login.png" width=640 height=400 layout="responsive"></amp-img>
+  
+</figure>
+
+
+<p>Para mostrar información sobre los contendores (imágenes, volúmenes, etc) en Docker, Portainer necesita conectarse -vía API- al <em>host</em> en el que corre Docker. Tenemos dos opciones, un <em>endpoint remoto</em> (opción por defecto) o conectar con el <em>host</em> donde corre Portainer:</p>
+
+<figure>
+  <amp-img src="https://onthedock.github.io/images/portainer-3-remote_endpoint_by_default.png" alt="Portainer para monitorizar tus contenedores en Docker images/portainer-3-remote_endpoint_by_default.png" width=640 height=400 layout="responsive"></amp-img>
+  
+</figure>
+
+
+<p>El problema es que, como vemos, al seleccionar un <em>endpoint</em> local, se indica que hay que lanzar el contenedor de Portainer dando acceso al contenedor sobre <code>/var/run/docker.sock</code>:</p>
+
+<figure>
+  <amp-img src="https://onthedock.github.io/images/portainer-4-local_endpoint_require_docker.sock.png" alt="Portainer para monitorizar tus contenedores en Docker images/portainer-4-local_endpoint_require_docker.sock.png" width=640 height=400 layout="responsive"></amp-img>
+  
+</figure>
+
+
+<p>Como este <em>detalle</em> no se indica en ningún sitio hasta que estás intentando configurar Portainer, lo más probable es que no hayas lanzado el contenedor con el volumen necesario.</p>
+
+<p>Así que es necesario detener el contenedor -y eliminarlo, si quieres reusar el nombre- y volver a lanzar el proceso de configuración.</p>
+
+<p>No son más que unos pocos comandos en Linux (o en tu Mac), pero sin duda es una molestia que podría evitarse dando algo más de información. Mucho más grave es si el sistema operativo de tu <em>host</em> es Windows, ya que <strong>esta opción no está disponible</strong>.</p>
+
+<pre><code class="language-shell">$ docker stop portainer
+portainer
+$ docker rm portainer
+portainer
 </code></pre>
 
-<p>Añadimos el repositorio de Kubernetes:</p>
+<h2 id="acceso-a-portainer-segundo-intento">Acceso a Portainer (segundo intento)</h2>
 
-<pre><code class="language-shell">apt-get update &amp;&amp; apt-get install -y apt-transport-https
-curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
-cat &lt;&lt;EOF &gt;/etc/apt/sources.list.d/kubernetes.list
-deb http://apt.kubernetes.io/ kubernetes-xenial main
-EOF
+<p>Lanzamos el contenedor de Portainer montando <code>docker.sock</code> y pasamos por los mismos pasos que en intento anterior:</p>
+
+<pre><code class="language-shell">$ docker run -d -p 9000:9000 --name portainer -v &quot;/var/run/docker.sock:/var/run/docker.sock&quot; portainer/portainer:linux-arm-1.12.4
+3f0ad98393ed5c67cda864737d83fe098a13d1317e1f6c299419ab1a3c1d153c
+$
 </code></pre>
 
-<p>Y ya sólo nos queda actualizar la información e instalar los componentes de Kubernetes:</p>
+<p>Después de validarnos, podemos conectar con el <em>docker-engine</em> local y visualizar el <em>dashboard</em>:</p>
 
-<pre><code class="language-shell"># apt-get update
-...
-Fetched 22.1 kB in 3s (6,784 B/s)
-Reading package lists... Done
-#
-# apt-get install -y kubelet kubeadm kubectl kubernetes-cni
-...
-Setting up ebtables (2.0.10.4-3) ...
-update-rc.d: warning: start and stop actions are no longer supported; falling back to defaults
-Setting up ethtool (1:3.16-1) ...
-Setting up kubernetes-cni (0.5.1-00) ...
-Setting up socat (1.7.2.4-2) ...
-Setting up kubelet (1.6.1-00) ...
-Setting up kubectl (1.6.1-00) ...
-Setting up kubeadm (1.6.1-00) ...
-Processing triggers for systemd (215-17+deb8u6) ...
-#
-</code></pre>
+<figure>
+  <amp-img src="https://onthedock.github.io/images/portainer-5-dashboard.png" alt="Portainer para monitorizar tus contenedores en Docker images/portainer-5-dashboard.png" width=640 height=400 layout="responsive"></amp-img>
+  
+</figure>
 
-<p>Ya tenemos instalado Kubernetes en nuestro sistema.</p>
 
-<p>El siguiente paso es inicializar el clúster con <code>kubeadm init</code>.</p>
+<p>Desde la interfaz web podemos gestionar los contenedores, imágenes y volúmenes existentes:</p>
 
-<pre><code class="language-shell"># kubeadm init
-[kubeadm] WARNING: kubeadm is in beta, please do not use it for production clusters.
-[init] Using Kubernetes version: v1.6.0
-[init] Using Authorization mode: RBAC
-[preflight] Running pre-flight checks
-[preflight] The system verification failed. Printing the output from the verification:
-OS: Linux
-KERNEL_VERSION: 3.16.0-4-amd64
-CONFIG_NAMESPACES: enabled
-CONFIG_NET_NS: enabled
-CONFIG_PID_NS: enabled
-CONFIG_IPC_NS: enabled
-CONFIG_UTS_NS: enabled
-CONFIG_CGROUPS: enabled
-CONFIG_CGROUP_CPUACCT: enabled
-CONFIG_CGROUP_DEVICE: enabled
-CONFIG_CGROUP_FREEZER: enabled
-CONFIG_CGROUP_SCHED: enabled
-CONFIG_CPUSETS: enabled
-CONFIG_MEMCG: enabled
-CONFIG_INET: enabled
-CONFIG_EXT4_FS: enabled (as module)
-CONFIG_PROC_FS: enabled
-CONFIG_NETFILTER_XT_TARGET_REDIRECT: enabled (as module)
-CONFIG_NETFILTER_XT_MATCH_COMMENT: enabled (as module)
-CONFIG_OVERLAYFS_FS: not set - Required for overlayfs.
-CONFIG_AUFS_FS: enabled (as module)
-CONFIG_BLK_DEV_DM: enabled (as module)
-CGROUPS_CPU: enabled
-CGROUPS_CPUACCT: enabled
-CGROUPS_CPUSET: enabled
-CGROUPS_DEVICES: enabled
-CGROUPS_FREEZER: enabled
-CGROUPS_MEMORY: missing
-DOCKER_VERSION: 17.04.0-ce
-[preflight] WARNING: docker version is greater than the most recently validated version. Docker version: 17.04.0-ce. Max validated version: 1.12
-[preflight] WARNING: hostname &quot;k8s&quot; could not be reached
-[preflight] WARNING: hostname &quot;k8s&quot; lookup k8s on 80.58.61.254:53: no such host
-[preflight] Some fatal errors occurred:
-	missing cgroups: memory
-[preflight] If you know what you are doing, you can skip pre-flight checks with `--skip-preflight-checks`
-#
-</code></pre>
+<figure>
+  <amp-img src="https://onthedock.github.io/images/portainer-6-containers.png" alt="Portainer para monitorizar tus contenedores en Docker images/portainer-6-containers.png" width=640 height=400 layout="responsive"></amp-img>
+  
+  <figcaption>
+    
+    Contenedores.
+    
+  </figcaption>
+  
+</figure>
 
-<p>La instalación de Kubernetes falla porque no están habilitados los <em>cgroups</em> para la memoria. :(</p></div>
+
+<figure>
+  <amp-img src="https://onthedock.github.io/images/portainer-7-images.png" alt="Portainer para monitorizar tus contenedores en Docker images/portainer-7-images.png" width=640 height=400 layout="responsive"></amp-img>
+  
+  <figcaption>
+    
+    Imágenes.
+    
+  </figcaption>
+  
+</figure>
+
+
+<figure>
+  <amp-img src="https://onthedock.github.io/images/portainer-8-volumes.png" alt="Portainer para monitorizar tus contenedores en Docker images/portainer-8-volumes.png" width=640 height=400 layout="responsive"></amp-img>
+  
+  <figcaption>
+    
+    Volúmenes.
+    
+  </figcaption>
+  
+</figure>
+
+
+<p>En el próximo artículo me concentraré en usar <a href="/tags/portainer/">Portainer</a> para realizar la gestión de Docker.</p></div>
 
   <aside class="p-share">
-  <a href="http://b.hatena.ne.jp/add?mode=confirm&url=https%3a%2f%2fonthedock.github.io%2fpost%2finstalacion-de-kubernetes-falla-missing-cgroups-memory%2f&title=La%20instalaci%c3%b3n%20de%20Kubernetes%20falla%20en%20Debian%20Jessie%20%28Missing%20cgroups%3a%20memory%29" title="はてなブックマーク" class="ht" target="_blank" rel="nofollow"></a>
-  <a href="http://www.facebook.com/sharer.php?u=https%3a%2f%2fonthedock.github.io%2fpost%2finstalacion-de-kubernetes-falla-missing-cgroups-memory%2f&t=La%20instalaci%c3%b3n%20de%20Kubernetes%20falla%20en%20Debian%20Jessie%20%28Missing%20cgroups%3a%20memory%29" title="Facebookでシェア" class="fb" target="_blank" rel="nofollow"></a>
-  <a href="http://twitter.com/intent/tweet?url=https%3a%2f%2fonthedock.github.io%2fpost%2finstalacion-de-kubernetes-falla-missing-cgroups-memory%2f&text=La%20instalaci%c3%b3n%20de%20Kubernetes%20falla%20en%20Debian%20Jessie%20%28Missing%20cgroups%3a%20memory%29&tw_p=tweetbutton" title="Twitterでシェア" class="tw" target="_blank" rel="nofollow"></a>
-  <a href="https://plus.google.com/share?url=https%3a%2f%2fonthedock.github.io%2fpost%2finstalacion-de-kubernetes-falla-missing-cgroups-memory%2f" title="Google Plusでシェア" class="gp" target="_blank" rel="nofollow"></a>
-  <a href="http://line.me/R/msg/text/?La%20instalaci%c3%b3n%20de%20Kubernetes%20falla%20en%20Debian%20Jessie%20%28Missing%20cgroups%3a%20memory%29 https%3a%2f%2fonthedock.github.io%2fpost%2finstalacion-de-kubernetes-falla-missing-cgroups-memory%2f" title="LINEでシェア" class="ln" target="_blank" rel="nofollow"></a>
+  <a href="http://b.hatena.ne.jp/add?mode=confirm&url=https%3a%2f%2fonthedock.github.io%2fpost%2fportainer-para-monitorizar-tus-contenedores-en-docker%2f&title=Portainer%20para%20monitorizar%20tus%20contenedores%20en%20Docker" title="はてなブックマーク" class="ht" target="_blank" rel="nofollow"></a>
+  <a href="http://www.facebook.com/sharer.php?u=https%3a%2f%2fonthedock.github.io%2fpost%2fportainer-para-monitorizar-tus-contenedores-en-docker%2f&t=Portainer%20para%20monitorizar%20tus%20contenedores%20en%20Docker" title="Facebookでシェア" class="fb" target="_blank" rel="nofollow"></a>
+  <a href="http://twitter.com/intent/tweet?url=https%3a%2f%2fonthedock.github.io%2fpost%2fportainer-para-monitorizar-tus-contenedores-en-docker%2f&text=Portainer%20para%20monitorizar%20tus%20contenedores%20en%20Docker&tw_p=tweetbutton" title="Twitterでシェア" class="tw" target="_blank" rel="nofollow"></a>
+  <a href="https://plus.google.com/share?url=https%3a%2f%2fonthedock.github.io%2fpost%2fportainer-para-monitorizar-tus-contenedores-en-docker%2f" title="Google Plusでシェア" class="gp" target="_blank" rel="nofollow"></a>
+  <a href="http://line.me/R/msg/text/?Portainer%20para%20monitorizar%20tus%20contenedores%20en%20Docker https%3a%2f%2fonthedock.github.io%2fpost%2fportainer-para-monitorizar-tus-contenedores-en-docker%2f" title="LINEでシェア" class="ln" target="_blank" rel="nofollow"></a>
 </aside>
 
 
@@ -276,7 +304,7 @@ DOCKER_VERSION: 17.04.0-ce
         
         <li itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb"><a href="https://onthedock.github.io/post/" itemprop="url"><span itemprop="title">post</span></a></li>
         
-        <li>La instalación de Kubernetes falla en Debian Jessie (Missing cgroups: memory)</li>
+        <li>Portainer para monitorizar tus contenedores en Docker</li>
       </ol>
 
       
@@ -287,11 +315,7 @@ DOCKER_VERSION: 17.04.0-ce
           <header><a href="https://onthedock.github.io/categories/">categories</a></header>
           <ul>
             
-            <li><a href="https://onthedock.github.io/categories/debian/">debian</a></li>
-            
-            <li><a href="https://onthedock.github.io/categories/hypriot-os/">hypriot os</a></li>
-            
-            <li><a href="https://onthedock.github.io/categories/kubernetes/">kubernetes</a></li>
+            <li><a href="https://onthedock.github.io/categories/ops/">ops</a></li>
             
           </ul>
         </li>
@@ -304,7 +328,11 @@ DOCKER_VERSION: 17.04.0-ce
           <header><a href="https://onthedock.github.io/tags/">tags</a></header>
           <ul>
             
-            <li><a href="https://onthedock.github.io/tags/ops/">ops</a></li>
+            <li><a href="https://onthedock.github.io/tags/raspberry-pi/">raspberry pi</a></li>
+            
+            <li><a href="https://onthedock.github.io/tags/docker/">docker</a></li>
+            
+            <li><a href="https://onthedock.github.io/tags/portainer/">portainer</a></li>
             
           </ul>
         </li>
@@ -322,22 +350,7 @@ DOCKER_VERSION: 17.04.0-ce
   <section>
     <header><span>Latests</span></header>
     <ul class="p-articles thin">
-      <li><article class="li sm article-d57ddd678ce2f40890e6ca5a338be781">
-  <div class="header-wrapper">
-    <a href="https://onthedock.github.io/post/portainer-para-monitorizar-tus-contenedores-en-docker/" class="thumbnail" title="Portainer para monitorizar tus contenedores en Docker"></a>
-    <header class="article-header">
-      <div class="clearfix">
-        <h2 class="title"><a href="https://onthedock.github.io/post/portainer-para-monitorizar-tus-contenedores-en-docker/">Portainer para monitorizar tus contenedores en Docker</a></h2>
-        <ul class="p-facts">
-          <li><time datetime="2017-04-29T12:55:04JST">29 Apr 2017</time></li>
-          <li><a href="https://onthedock.github.io/post/">post</a></li>
-          
-        </ul>
-      </div>
-    </header>
-  </div>
-</article>
-</li><li><article class="li sm article-4b7d60a0bb1d0e0a2314ebbf1af71e86">
+      <li><article class="li sm article-4b7d60a0bb1d0e0a2314ebbf1af71e86">
   <div class="header-wrapper">
     <a href="https://onthedock.github.io/post/solucion-al-error-missing-cgroups-memory-en-debian-jessie/" class="thumbnail" title="Solución al error de instalación de Kubernetes en Debian Jessie (Missing cgroups: memory)"></a>
     <header class="article-header">
@@ -345,6 +358,21 @@ DOCKER_VERSION: 17.04.0-ce
         <h2 class="title"><a href="https://onthedock.github.io/post/solucion-al-error-missing-cgroups-memory-en-debian-jessie/">Solución al error de instalación de Kubernetes en Debian Jessie (Missing cgroups: memory)</a></h2>
         <ul class="p-facts">
           <li><time datetime="2017-04-22T07:57:14JST">22 Apr 2017</time></li>
+          <li><a href="https://onthedock.github.io/post/">post</a></li>
+          
+        </ul>
+      </div>
+    </header>
+  </div>
+</article>
+</li><li><article class="li sm article-56f0c54dd1d491bee4deb9e58637d798">
+  <div class="header-wrapper">
+    <a href="https://onthedock.github.io/post/instalacion-de-kubernetes-falla-missing-cgroups-memory/" class="thumbnail" title="La instalación de Kubernetes falla en Debian Jessie (Missing cgroups: memory)"></a>
+    <header class="article-header">
+      <div class="clearfix">
+        <h2 class="title"><a href="https://onthedock.github.io/post/instalacion-de-kubernetes-falla-missing-cgroups-memory/">La instalación de Kubernetes falla en Debian Jessie (Missing cgroups: memory)</a></h2>
+        <ul class="p-facts">
+          <li><time datetime="2017-04-17T19:38:11JST">17 Apr 2017</time></li>
           <li><a href="https://onthedock.github.io/post/">post</a></li>
           
         </ul>

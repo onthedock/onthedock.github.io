@@ -9,6 +9,177 @@
     <atom:link href="https://onthedock.github.io/categories/ops/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
+      <title>Portainer para monitorizar tus contenedores en Docker</title>
+      <link>https://onthedock.github.io/post/portainer-para-monitorizar-tus-contenedores-en-docker/</link>
+      <pubDate>Sat, 29 Apr 2017 12:55:04 +0200</pubDate>
+      
+      <guid>https://onthedock.github.io/post/portainer-para-monitorizar-tus-contenedores-en-docker/</guid>
+      <description>&lt;p&gt;&lt;a href=&#34;http://portainer.io/&#34;&gt;Portainer&lt;/a&gt; es una herramienta ligera y &lt;em&gt;open-source&lt;/em&gt; de gestión de contenedores sobre Docker (o Docker Swarm). Portainer ofrece una interfaz gráfica para gestionar el &lt;em&gt;host&lt;/em&gt; Docker desde cualquier navegador, tiene soporte para Raspberry Pi y se puede desplegar como un simple contenedor.&lt;/p&gt;
+
+&lt;p&gt;Espero que este artículo ayude a todos aquellos que tengan ganas de probar Portainer y evitarles los problemas que me he encontrado yo.&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;
+
+&lt;p&gt;He estado buscando algún tipo de solución gráfica para monitorizar las Raspberry Pi ya que, por algún motivo, los nodos &lt;em&gt;worker&lt;/em&gt; del clúster de Kubernetes se &lt;em&gt;cuelgan&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;Buscando alguna solución de monitorizado he encontrado Portainer referenciado en el blog de Hypriot: &lt;a href=&#34;https://blog.hypriot.com/post/new-docker-ui-portainer/&#34;&gt;Visualize your Raspberry Pi containers with Portainer or UI for Docker&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Portainer no es una herramienta de monitorizado (a nivel de &lt;em&gt;host&lt;/em&gt;), sino que está enfocada a la &lt;em&gt;visualización&lt;/em&gt; básicamente del estado de los contenedores de uno (o varios) &lt;em&gt;endpoints&lt;/em&gt; Docker (o Docker Swarm). Sin embargo, ofreciendo soporte para ARM y estando disponible en forma de contenedor, no había motivo para no probarlo ;)&lt;/p&gt;
+
+&lt;h1 id=&#34;soporte-para-arm&#34;&gt;Soporte para ARM&lt;/h1&gt;
+
+&lt;p&gt;En el apartado para obtener Portainer de la web, sólo se indica el comando:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;docker run -d -p 9000:9000 portainer/portainer
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Por muy minimalista que quiera ser la página, la verdad es que no les hubiera costado nada indicar que existen diferentes versiones disponibles de la imagen (como por ejemplo, la que proporciona soporte para ARM).&lt;/p&gt;
+
+&lt;p&gt;Además, lanzando el comando &lt;em&gt;tal cual&lt;/em&gt;, si quieres configurar Portainer para monitorizar el nodo &lt;em&gt;local&lt;/em&gt; donde, no funcionará (requiere montar &lt;code&gt;/var/run/docker.sock&lt;/code&gt; en el contenedor).&lt;/p&gt;
+
+&lt;p&gt;El artículo de Hypriot apunta a una imagen llamada &lt;code&gt;portainer/portainer:arm&lt;/code&gt;, que ya no existe en DockerHub. Revisando las &lt;a href=&#34;https://hub.docker.com/r/portainer/portainer/tags/&#34;&gt;etiquetas disponibles para las imágenes de Portainer&lt;/a&gt;, encontramos:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;TagName				Compressed Size 	Last Updated 
+ppc64le				4 MB			16 days ago
+demo				4 MB			23 days ago
+latest				0 B 			23 days ago
+1.12.4				0 B 			23 days ago
+windows-amd64 			337 MB			23 days ago
+windows-amd64-1.12.4	 	337 MB			23 days ago
+linux-arm64 			4 MB			23 days ago
+linux-arm64-1.12.4 		4 MB			23 days ago
+linux-arm 			4 MB			23 days ago
+linux-arm-1.12.4 		4 MB			23 days ago
+linux-amd64 			4 MB			23 days ago
+linux-amd64-1.12.4 		4 MB			23 days ago
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Seleccionamos la versión adecuada para nuestra Raspberry Pi y la descargamos mediante:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ docker pull portainer/portainer:linux-arm-1.12.4
+linux-arm-1.12.4: Pulling from portainer/portainer
+a3ed95caeb02: Pull complete
+802d894958a2: Pull complete
+30fb5c96d238: Pull complete
+Digest: sha256:5269fd824014fac1dee29e2cf74aa5c337cf5c0ceb7cae2634c1e054f5e2763f
+Status: Downloaded newer image for portainer/portainer:linux-arm-1.12.4
+$
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;A continuación he lanzado la creación del contenedor usando:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ docker run -d -p 9000:9000 --name portainer portainer/portainer:linux-arm-1.12.4
+d5ad5764788a932cd19942dcb0e70471101173c8d14801b0ce7c172ef9ac72ff
+$
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;acceso-a-portainer&#34;&gt;Acceso a Portainer&lt;/h2&gt;
+
+&lt;p&gt;Abre un navegador y accede a &lt;code&gt;http://IP-nodo:9000/&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;La primera vez que accedes a la URL de Portainer debes introducir el password del usuario &lt;code&gt;admin&lt;/code&gt;.&lt;/p&gt;
+
+&lt;figure&gt;
+  &lt;amp-img src=&#34;https://onthedock.github.io/images/portainer-1-define-admin-password.png&#34; alt=&#34;Portainer para monitorizar tus contenedores en Docker images/portainer-1-define-admin-password.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
+  
+&lt;/figure&gt;
+
+
+&lt;p&gt;Una vez introducido, puedes acceder a la UI de gestión de Portainer.&lt;/p&gt;
+
+&lt;figure&gt;
+  &lt;amp-img src=&#34;https://onthedock.github.io/images/portainer-2-first-login.png&#34; alt=&#34;Portainer para monitorizar tus contenedores en Docker images/portainer-2-first-login.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
+  
+&lt;/figure&gt;
+
+
+&lt;p&gt;Para mostrar información sobre los contendores (imágenes, volúmenes, etc) en Docker, Portainer necesita conectarse -vía API- al &lt;em&gt;host&lt;/em&gt; en el que corre Docker. Tenemos dos opciones, un &lt;em&gt;endpoint remoto&lt;/em&gt; (opción por defecto) o conectar con el &lt;em&gt;host&lt;/em&gt; donde corre Portainer:&lt;/p&gt;
+
+&lt;figure&gt;
+  &lt;amp-img src=&#34;https://onthedock.github.io/images/portainer-3-remote_endpoint_by_default.png&#34; alt=&#34;Portainer para monitorizar tus contenedores en Docker images/portainer-3-remote_endpoint_by_default.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
+  
+&lt;/figure&gt;
+
+
+&lt;p&gt;El problema es que, como vemos, al seleccionar un &lt;em&gt;endpoint&lt;/em&gt; local, se indica que hay que lanzar el contenedor de Portainer dando acceso al contenedor sobre &lt;code&gt;/var/run/docker.sock&lt;/code&gt;:&lt;/p&gt;
+
+&lt;figure&gt;
+  &lt;amp-img src=&#34;https://onthedock.github.io/images/portainer-4-local_endpoint_require_docker.sock.png&#34; alt=&#34;Portainer para monitorizar tus contenedores en Docker images/portainer-4-local_endpoint_require_docker.sock.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
+  
+&lt;/figure&gt;
+
+
+&lt;p&gt;Como este &lt;em&gt;detalle&lt;/em&gt; no se indica en ningún sitio hasta que estás intentando configurar Portainer, lo más probable es que no hayas lanzado el contenedor con el volumen necesario.&lt;/p&gt;
+
+&lt;p&gt;Así que es necesario detener el contenedor -y eliminarlo, si quieres reusar el nombre- y volver a lanzar el proceso de configuración.&lt;/p&gt;
+
+&lt;p&gt;No son más que unos pocos comandos en Linux (o en tu Mac), pero sin duda es una molestia que podría evitarse dando algo más de información. Mucho más grave es si el sistema operativo de tu &lt;em&gt;host&lt;/em&gt; es Windows, ya que &lt;strong&gt;esta opción no está disponible&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ docker stop portainer
+portainer
+$ docker rm portainer
+portainer
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;acceso-a-portainer-segundo-intento&#34;&gt;Acceso a Portainer (segundo intento)&lt;/h2&gt;
+
+&lt;p&gt;Lanzamos el contenedor de Portainer montando &lt;code&gt;docker.sock&lt;/code&gt; y pasamos por los mismos pasos que en intento anterior:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ docker run -d -p 9000:9000 --name portainer -v &amp;quot;/var/run/docker.sock:/var/run/docker.sock&amp;quot; portainer/portainer:linux-arm-1.12.4
+3f0ad98393ed5c67cda864737d83fe098a13d1317e1f6c299419ab1a3c1d153c
+$
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Después de validarnos, podemos conectar con el &lt;em&gt;docker-engine&lt;/em&gt; local y visualizar el &lt;em&gt;dashboard&lt;/em&gt;:&lt;/p&gt;
+
+&lt;figure&gt;
+  &lt;amp-img src=&#34;https://onthedock.github.io/images/portainer-5-dashboard.png&#34; alt=&#34;Portainer para monitorizar tus contenedores en Docker images/portainer-5-dashboard.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
+  
+&lt;/figure&gt;
+
+
+&lt;p&gt;Desde la interfaz web podemos gestionar los contenedores, imágenes y volúmenes existentes:&lt;/p&gt;
+
+&lt;figure&gt;
+  &lt;amp-img src=&#34;https://onthedock.github.io/images/portainer-6-containers.png&#34; alt=&#34;Portainer para monitorizar tus contenedores en Docker images/portainer-6-containers.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
+  
+  &lt;figcaption&gt;
+    
+    Contenedores.
+    
+  &lt;/figcaption&gt;
+  
+&lt;/figure&gt;
+
+
+&lt;figure&gt;
+  &lt;amp-img src=&#34;https://onthedock.github.io/images/portainer-7-images.png&#34; alt=&#34;Portainer para monitorizar tus contenedores en Docker images/portainer-7-images.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
+  
+  &lt;figcaption&gt;
+    
+    Imágenes.
+    
+  &lt;/figcaption&gt;
+  
+&lt;/figure&gt;
+
+
+&lt;figure&gt;
+  &lt;amp-img src=&#34;https://onthedock.github.io/images/portainer-8-volumes.png&#34; alt=&#34;Portainer para monitorizar tus contenedores en Docker images/portainer-8-volumes.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
+  
+  &lt;figcaption&gt;
+    
+    Volúmenes.
+    
+  &lt;/figcaption&gt;
+  
+&lt;/figure&gt;
+
+
+&lt;p&gt;En el próximo artículo me concentraré en usar &lt;a href=&#34;https://onthedock.github.io/tags/portainer/&#34;&gt;Portainer&lt;/a&gt; para realizar la gestión de Docker.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
       <title>Solución al error de instalación de Kubernetes en Debian Jessie (Missing cgroups: memory)</title>
       <link>https://onthedock.github.io/post/solucion-al-error-missing-cgroups-memory-en-debian-jessie/</link>
       <pubDate>Sat, 22 Apr 2017 07:57:14 +0200</pubDate>
