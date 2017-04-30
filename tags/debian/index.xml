@@ -2,20 +2,80 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Debian on On The Dock</title>
-    <link>https://onthedock.github.io/tags/debian/index.xml</link>
+    <link>http://192.168.1.9:8000/tags/debian/index.xml</link>
     <description>Recent content in Debian on On The Dock</description>
     <generator>Hugo -- gohugo.io</generator>
     <copyright>Handmade with &amp;#9829; by Xavi Aznar</copyright>
-    <atom:link href="https://onthedock.github.io/tags/debian/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://192.168.1.9:8000/tags/debian/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Múltiples mensajes &#39;action 17 suspended&#39; en los logs</title>
+      <link>http://192.168.1.9:8000/post/170430-multiples-mensajes-action-17-suspended/</link>
+      <pubDate>Sun, 30 Apr 2017 08:44:27 +0200</pubDate>
+      
+      <guid>http://192.168.1.9:8000/post/170430-multiples-mensajes-action-17-suspended/</guid>
+      <description>&lt;p&gt;Investigando las causas por las que los dos nodos con Raspberry Pi 3 se &lt;em&gt;cuelgan&lt;/em&gt;, he encontrado múltiples apariciones de este mensaje en &lt;code&gt;/var/log/messages&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-log&#34;&gt;Apr 30 06:40:42 k3 rsyslogd-2007: action &#39;action 17&#39; suspended, next retry is Sun Apr 30 06:41:12 2017 [try http://www.rsyslog.com/e/2007 ]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;/p&gt;
+
+&lt;p&gt;De hecho, revisando el origen del problema he encontrado este comando que cuenta las apariciones del mensaje:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ sudo grep &amp;quot;action.*suspend&amp;quot; /var/log/messages | wc -l
+1394
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Además de &lt;em&gt;spamear&lt;/em&gt; los logs, provoca un montón de escrituras innecesarias sobre la tarjeta microSD, lo que puede acortar la vida útil de la misma.&lt;/p&gt;
+
+&lt;p&gt;No tengo claro si este puede ser la causa que hace que las dos Raspberry Pi 3 se cuelguen pasado un tiempo y que dejen de responder, lo que hace que deba reiniciarlas (desconectando/conectando el cable) para recuperarlas. Sin embargo, en el nodo &lt;em&gt;master&lt;/em&gt; (Raspberry Pi 2 B+) no aparece el mensaje en los logs y no se cuelga (aunque la configuración de &lt;em&gt;rsyslog&lt;/em&gt; es la misma).&lt;/p&gt;
+
+&lt;h1 id=&#34;solución-a-los-mensajes-de-rsyslog&#34;&gt;Solución a los mensajes de rsyslog&lt;/h1&gt;
+
+&lt;p&gt;El mensaje de error , es un problema de configuración de la aplicación &lt;code&gt;rsyslog&lt;/code&gt;, que intenta mostrar mensajes en &lt;code&gt;/dev/xconsole&lt;/code&gt;, pero falla.&lt;/p&gt;
+
+&lt;p&gt;La solución la explica Danny Tuppeny en su blog, en &lt;a href=&#34;https://blog.dantup.com/2016/04/removing-rsyslog-spam-on-raspberry-pi-raspbian-jessie/&#34;&gt;Removing [action &amp;lsquo;action 17&amp;rsquo; suspended] rsyslog Spam on Raspberry Pi (Raspian Jessie)&lt;/a&gt;. Él mismo abrió un &lt;em&gt;bug&lt;/em&gt; en RPI-Distro: &lt;a href=&#34;https://github.com/RPi-Distro/repo/issues/28&#34;&gt;Default Raspbian Jessie Lite install spams syslog with &amp;ldquo;rsyslogd-2007: action &amp;lsquo;action 17&amp;rsquo; suspended, next retry is #28&lt;/a&gt; en él explicaba cómo había eliminado la línea que hace referencia a &lt;code&gt;/dev/xconsole&lt;/code&gt; de la configuración de &lt;em&gt;rasyslog&lt;/em&gt; y que el mensaje desaparecía (después de reiniciar).&lt;/p&gt;
+
+&lt;p&gt;Para comprobar si esta es la causa del &lt;em&gt;cuelgue&lt;/em&gt; de la RPi 3, he modificado la configuración de &lt;em&gt;rsyslog&lt;/em&gt; en el nodo &lt;strong&gt;k2&lt;/strong&gt; del clúster, pero no en el &lt;strong&gt;k3&lt;/strong&gt;. De esta forma podré averiguar si la configuración de &lt;em&gt;rsyslog&lt;/em&gt; es la causante del &lt;em&gt;cuelgue&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;También he actualizado el sistema (en todos los nodos) y &lt;em&gt;kubelet&lt;/em&gt;, &lt;em&gt;kubectl&lt;/em&gt; y &lt;em&gt;kubeadm&lt;/em&gt; se han actualizado a la versión 1.6.2:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;...
+Setting up libldap-2.4-2:armhf (2.4.40+dfsg-1+deb8u2) ...
+Setting up libicu52:armhf (52.1-8+deb8u5) ...
+Setting up kubelet (1.6.2-00) ...
+Setting up kubectl (1.6.2-00) ...
+Setting up kubeadm (1.6.2-00) ...
+Processing triggers for libc-bin (2.19-18+deb8u7)
+...
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ kubectl get nodes
+NAME      STATUS    AGE       VERSION
+k1        Ready     19d       v1.6.2
+k2        Ready     14d       v1.6.2
+k3        Ready     14d       v1.6.2
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Ahora sólo queda esperar -normalmente unas cuantas horas- a ver qué pasa: hay tres posibilidades:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Se cuelga &lt;strong&gt;k3&lt;/strong&gt; pero no &lt;strong&gt;k2&lt;/strong&gt;: La configuración de &lt;em&gt;rsyslog&lt;/em&gt; era la causa.&lt;/li&gt;
+&lt;li&gt;Se cuelga &lt;strong&gt;k2&lt;/strong&gt; pero no &lt;strong&gt;k3&lt;/strong&gt;: ¿?&lt;/li&gt;
+&lt;li&gt;No se cuelga ni &lt;strong&gt;k2&lt;/strong&gt; ni &lt;strong&gt;k3&lt;/strong&gt;: Era un problema de alguno de los componetes actualizados que sólo afecta a la RPi 3.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;Informaré en cuanto tenga resultados.&lt;/p&gt;</description>
+    </item>
     
     <item>
       <title>Solución al error de instalación de Kubernetes en Debian Jessie (Missing cgroups: memory)</title>
-      <link>https://onthedock.github.io/post/170422-solucion-al-error-missing-cgroups-memory-en-debian-jessie/</link>
+      <link>http://192.168.1.9:8000/post/170422-solucion-al-error-missing-cgroups-memory-en-debian-jessie/</link>
       <pubDate>Sat, 22 Apr 2017 07:57:14 +0200</pubDate>
       
-      <guid>https://onthedock.github.io/post/170422-solucion-al-error-missing-cgroups-memory-en-debian-jessie/</guid>
-      <description>&lt;p&gt;Al lanzar la inicialización del clúster con &lt;code&gt;kubeadm init&lt;/code&gt; en Debian Jessie, las comprobaciones inciales indican que no se encuentran los &lt;em&gt;cgroups&lt;/em&gt; para la memoria (échale un vistazo al artículo &lt;a href=&#34;No page found with path or logical name &#34;post/instalacion-de-kubernetes-falla-missing-cgroups-memory.md&#34;.
-&#34;&gt;La instalación de Kubernetes falla en Debian Jessie (missing cgroups: memory)&lt;/a&gt;). Los &lt;em&gt;cgroups&lt;/em&gt; son una de las piezas fundamentales en las que se basa Docker para &lt;em&gt;aislar&lt;/em&gt; los procesos de los contenedores, por lo que la inicialización del clúster de Kubernetes se detiene.&lt;/p&gt;
+      <guid>http://192.168.1.9:8000/post/170422-solucion-al-error-missing-cgroups-memory-en-debian-jessie/</guid>
+      <description>&lt;p&gt;Al lanzar la inicialización del clúster con &lt;code&gt;kubeadm init&lt;/code&gt; en Debian Jessie, las comprobaciones inciales indican que no se encuentran los &lt;em&gt;cgroups&lt;/em&gt; para la memoria (échale un vistazo al artículo &lt;a href=&#34;http://192.168.1.9:8000/post/170417-instalacion-de-kubernetes-falla-missing-cgroups-memory/&#34;&gt;La instalación de Kubernetes falla en Debian Jessie (missing cgroups: memory)&lt;/a&gt;). Los &lt;em&gt;cgroups&lt;/em&gt; son una de las piezas fundamentales en las que se basa Docker para &lt;em&gt;aislar&lt;/em&gt; los procesos de los contenedores, por lo que la inicialización del clúster de Kubernetes se detiene.&lt;/p&gt;
 
 &lt;p&gt;La solución es tan sencilla como habilitar los &lt;em&gt;cgroups&lt;/em&gt; durante el arranque.&lt;/p&gt;
 

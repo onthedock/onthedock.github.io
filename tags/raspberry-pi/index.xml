@@ -2,18 +2,79 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Raspberry Pi on On The Dock</title>
-    <link>https://onthedock.github.io/tags/raspberry-pi/index.xml</link>
+    <link>http://192.168.1.9:8000/tags/raspberry-pi/index.xml</link>
     <description>Recent content in Raspberry Pi on On The Dock</description>
     <generator>Hugo -- gohugo.io</generator>
     <copyright>Handmade with &amp;#9829; by Xavi Aznar</copyright>
-    <atom:link href="https://onthedock.github.io/tags/raspberry-pi/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://192.168.1.9:8000/tags/raspberry-pi/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Múltiples mensajes &#39;action 17 suspended&#39; en los logs</title>
+      <link>http://192.168.1.9:8000/post/170430-multiples-mensajes-action-17-suspended/</link>
+      <pubDate>Sun, 30 Apr 2017 08:44:27 +0200</pubDate>
+      
+      <guid>http://192.168.1.9:8000/post/170430-multiples-mensajes-action-17-suspended/</guid>
+      <description>&lt;p&gt;Investigando las causas por las que los dos nodos con Raspberry Pi 3 se &lt;em&gt;cuelgan&lt;/em&gt;, he encontrado múltiples apariciones de este mensaje en &lt;code&gt;/var/log/messages&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-log&#34;&gt;Apr 30 06:40:42 k3 rsyslogd-2007: action &#39;action 17&#39; suspended, next retry is Sun Apr 30 06:41:12 2017 [try http://www.rsyslog.com/e/2007 ]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;/p&gt;
+
+&lt;p&gt;De hecho, revisando el origen del problema he encontrado este comando que cuenta las apariciones del mensaje:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ sudo grep &amp;quot;action.*suspend&amp;quot; /var/log/messages | wc -l
+1394
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Además de &lt;em&gt;spamear&lt;/em&gt; los logs, provoca un montón de escrituras innecesarias sobre la tarjeta microSD, lo que puede acortar la vida útil de la misma.&lt;/p&gt;
+
+&lt;p&gt;No tengo claro si este puede ser la causa que hace que las dos Raspberry Pi 3 se cuelguen pasado un tiempo y que dejen de responder, lo que hace que deba reiniciarlas (desconectando/conectando el cable) para recuperarlas. Sin embargo, en el nodo &lt;em&gt;master&lt;/em&gt; (Raspberry Pi 2 B+) no aparece el mensaje en los logs y no se cuelga (aunque la configuración de &lt;em&gt;rsyslog&lt;/em&gt; es la misma).&lt;/p&gt;
+
+&lt;h1 id=&#34;solución-a-los-mensajes-de-rsyslog&#34;&gt;Solución a los mensajes de rsyslog&lt;/h1&gt;
+
+&lt;p&gt;El mensaje de error , es un problema de configuración de la aplicación &lt;code&gt;rsyslog&lt;/code&gt;, que intenta mostrar mensajes en &lt;code&gt;/dev/xconsole&lt;/code&gt;, pero falla.&lt;/p&gt;
+
+&lt;p&gt;La solución la explica Danny Tuppeny en su blog, en &lt;a href=&#34;https://blog.dantup.com/2016/04/removing-rsyslog-spam-on-raspberry-pi-raspbian-jessie/&#34;&gt;Removing [action &amp;lsquo;action 17&amp;rsquo; suspended] rsyslog Spam on Raspberry Pi (Raspian Jessie)&lt;/a&gt;. Él mismo abrió un &lt;em&gt;bug&lt;/em&gt; en RPI-Distro: &lt;a href=&#34;https://github.com/RPi-Distro/repo/issues/28&#34;&gt;Default Raspbian Jessie Lite install spams syslog with &amp;ldquo;rsyslogd-2007: action &amp;lsquo;action 17&amp;rsquo; suspended, next retry is #28&lt;/a&gt; en él explicaba cómo había eliminado la línea que hace referencia a &lt;code&gt;/dev/xconsole&lt;/code&gt; de la configuración de &lt;em&gt;rasyslog&lt;/em&gt; y que el mensaje desaparecía (después de reiniciar).&lt;/p&gt;
+
+&lt;p&gt;Para comprobar si esta es la causa del &lt;em&gt;cuelgue&lt;/em&gt; de la RPi 3, he modificado la configuración de &lt;em&gt;rsyslog&lt;/em&gt; en el nodo &lt;strong&gt;k2&lt;/strong&gt; del clúster, pero no en el &lt;strong&gt;k3&lt;/strong&gt;. De esta forma podré averiguar si la configuración de &lt;em&gt;rsyslog&lt;/em&gt; es la causante del &lt;em&gt;cuelgue&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;También he actualizado el sistema (en todos los nodos) y &lt;em&gt;kubelet&lt;/em&gt;, &lt;em&gt;kubectl&lt;/em&gt; y &lt;em&gt;kubeadm&lt;/em&gt; se han actualizado a la versión 1.6.2:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;...
+Setting up libldap-2.4-2:armhf (2.4.40+dfsg-1+deb8u2) ...
+Setting up libicu52:armhf (52.1-8+deb8u5) ...
+Setting up kubelet (1.6.2-00) ...
+Setting up kubectl (1.6.2-00) ...
+Setting up kubeadm (1.6.2-00) ...
+Processing triggers for libc-bin (2.19-18+deb8u7)
+...
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ kubectl get nodes
+NAME      STATUS    AGE       VERSION
+k1        Ready     19d       v1.6.2
+k2        Ready     14d       v1.6.2
+k3        Ready     14d       v1.6.2
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Ahora sólo queda esperar -normalmente unas cuantas horas- a ver qué pasa: hay tres posibilidades:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Se cuelga &lt;strong&gt;k3&lt;/strong&gt; pero no &lt;strong&gt;k2&lt;/strong&gt;: La configuración de &lt;em&gt;rsyslog&lt;/em&gt; era la causa.&lt;/li&gt;
+&lt;li&gt;Se cuelga &lt;strong&gt;k2&lt;/strong&gt; pero no &lt;strong&gt;k3&lt;/strong&gt;: ¿?&lt;/li&gt;
+&lt;li&gt;No se cuelga ni &lt;strong&gt;k2&lt;/strong&gt; ni &lt;strong&gt;k3&lt;/strong&gt;: Era un problema de alguno de los componetes actualizados que sólo afecta a la RPi 3.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;Informaré en cuanto tenga resultados.&lt;/p&gt;</description>
+    </item>
     
     <item>
       <title>Portainer para monitorizar tus contenedores en Docker</title>
-      <link>https://onthedock.github.io/post/170429-portainer-para-monitorizar-tus-contenedores-en-docker/</link>
+      <link>http://192.168.1.9:8000/post/170429-portainer-para-monitorizar-tus-contenedores-en-docker/</link>
       <pubDate>Sat, 29 Apr 2017 12:55:04 +0200</pubDate>
       
-      <guid>https://onthedock.github.io/post/170429-portainer-para-monitorizar-tus-contenedores-en-docker/</guid>
+      <guid>http://192.168.1.9:8000/post/170429-portainer-para-monitorizar-tus-contenedores-en-docker/</guid>
       <description>&lt;p&gt;&lt;a href=&#34;http://portainer.io/&#34;&gt;Portainer&lt;/a&gt; es una herramienta ligera y &lt;em&gt;open-source&lt;/em&gt; de gestión de contenedores sobre Docker (o Docker Swarm). Portainer ofrece una interfaz gráfica para gestionar el &lt;em&gt;host&lt;/em&gt; Docker desde cualquier navegador, tiene soporte para Raspberry Pi y se puede desplegar como un simple contenedor.&lt;/p&gt;
 
 &lt;p&gt;Espero que este artículo ayude a todos aquellos que tengan ganas de probar Portainer y evitarles los problemas que me he encontrado yo.&lt;/p&gt;
@@ -80,7 +141,7 @@ $
 &lt;p&gt;La primera vez que accedes a la URL de Portainer debes introducir el password del usuario &lt;code&gt;admin&lt;/code&gt;.&lt;/p&gt;
 
 &lt;figure&gt;
-  &lt;amp-img src=&#34;https://onthedock.github.io/images/170429/portainer-1-define-admin-password.png&#34; alt=&#34;Portainer para monitorizar tus contenedores en Docker images/170429/portainer-1-define-admin-password.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
+  &lt;amp-img src=&#34;http://192.168.1.9:8000/images/170429/portainer-1-define-admin-password.png&#34; alt=&#34;Portainer para monitorizar tus contenedores en Docker images/170429/portainer-1-define-admin-password.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
   
 &lt;/figure&gt;
 
@@ -88,7 +149,7 @@ $
 &lt;p&gt;Una vez introducido, puedes acceder a la UI de gestión de Portainer.&lt;/p&gt;
 
 &lt;figure&gt;
-  &lt;amp-img src=&#34;https://onthedock.github.io/images/170429/portainer-2-first-login.png&#34; alt=&#34;Portainer para monitorizar tus contenedores en Docker images/170429/portainer-2-first-login.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
+  &lt;amp-img src=&#34;http://192.168.1.9:8000/images/170429/portainer-2-first-login.png&#34; alt=&#34;Portainer para monitorizar tus contenedores en Docker images/170429/portainer-2-first-login.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
   
 &lt;/figure&gt;
 
@@ -96,7 +157,7 @@ $
 &lt;p&gt;Para mostrar información sobre los contendores (imágenes, volúmenes, etc) en Docker, Portainer necesita conectarse -vía API- al &lt;em&gt;host&lt;/em&gt; en el que corre Docker. Tenemos dos opciones, un &lt;em&gt;endpoint remoto&lt;/em&gt; (opción por defecto) o conectar con el &lt;em&gt;host&lt;/em&gt; donde corre Portainer:&lt;/p&gt;
 
 &lt;figure&gt;
-  &lt;amp-img src=&#34;https://onthedock.github.io/images/170429/portainer-3-remote_endpoint_by_default.png&#34; alt=&#34;Portainer para monitorizar tus contenedores en Docker images/170429/portainer-3-remote_endpoint_by_default.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
+  &lt;amp-img src=&#34;http://192.168.1.9:8000/images/170429/portainer-3-remote_endpoint_by_default.png&#34; alt=&#34;Portainer para monitorizar tus contenedores en Docker images/170429/portainer-3-remote_endpoint_by_default.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
   
 &lt;/figure&gt;
 
@@ -104,7 +165,7 @@ $
 &lt;p&gt;El problema es que, como vemos, al seleccionar un &lt;em&gt;endpoint&lt;/em&gt; local, se indica que hay que lanzar el contenedor de Portainer dando acceso al contenedor sobre &lt;code&gt;/var/run/docker.sock&lt;/code&gt;:&lt;/p&gt;
 
 &lt;figure&gt;
-  &lt;amp-img src=&#34;https://onthedock.github.io/images/170429/portainer-4-local_endpoint_require_docker.sock.png&#34; alt=&#34;Portainer para monitorizar tus contenedores en Docker images/170429/portainer-4-local_endpoint_require_docker.sock.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
+  &lt;amp-img src=&#34;http://192.168.1.9:8000/images/170429/portainer-4-local_endpoint_require_docker.sock.png&#34; alt=&#34;Portainer para monitorizar tus contenedores en Docker images/170429/portainer-4-local_endpoint_require_docker.sock.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
   
 &lt;/figure&gt;
 
@@ -133,7 +194,7 @@ $
 &lt;p&gt;Después de validarnos, podemos conectar con el &lt;em&gt;docker-engine&lt;/em&gt; local y visualizar el &lt;em&gt;dashboard&lt;/em&gt;:&lt;/p&gt;
 
 &lt;figure&gt;
-  &lt;amp-img src=&#34;https://onthedock.github.io/images/170429/portainer-5-dashboard.png&#34; alt=&#34;Portainer para monitorizar tus contenedores en Docker images/170429/portainer-5-dashboard.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
+  &lt;amp-img src=&#34;http://192.168.1.9:8000/images/170429/portainer-5-dashboard.png&#34; alt=&#34;Portainer para monitorizar tus contenedores en Docker images/170429/portainer-5-dashboard.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
   
 &lt;/figure&gt;
 
@@ -141,7 +202,7 @@ $
 &lt;p&gt;Desde la interfaz web podemos gestionar los contenedores, imágenes y volúmenes existentes:&lt;/p&gt;
 
 &lt;figure&gt;
-  &lt;amp-img src=&#34;https://onthedock.github.io/images/170429/portainer-6-containers.png&#34; alt=&#34;Portainer para monitorizar tus contenedores en Docker images/170429/portainer-6-containers.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
+  &lt;amp-img src=&#34;http://192.168.1.9:8000/images/170429/portainer-6-containers.png&#34; alt=&#34;Portainer para monitorizar tus contenedores en Docker images/170429/portainer-6-containers.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
   
   &lt;figcaption&gt;
     
@@ -153,7 +214,7 @@ $
 
 
 &lt;figure&gt;
-  &lt;amp-img src=&#34;https://onthedock.github.io/images/170429/portainer-7-images.png&#34; alt=&#34;Portainer para monitorizar tus contenedores en Docker images/170429/portainer-7-images.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
+  &lt;amp-img src=&#34;http://192.168.1.9:8000/images/170429/portainer-7-images.png&#34; alt=&#34;Portainer para monitorizar tus contenedores en Docker images/170429/portainer-7-images.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
   
   &lt;figcaption&gt;
     
@@ -165,7 +226,7 @@ $
 
 
 &lt;figure&gt;
-  &lt;amp-img src=&#34;https://onthedock.github.io/images/170429/portainer-8-volumes.png&#34; alt=&#34;Portainer para monitorizar tus contenedores en Docker images/170429/portainer-8-volumes.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
+  &lt;amp-img src=&#34;http://192.168.1.9:8000/images/170429/portainer-8-volumes.png&#34; alt=&#34;Portainer para monitorizar tus contenedores en Docker images/170429/portainer-8-volumes.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
   
   &lt;figcaption&gt;
     
@@ -176,15 +237,15 @@ $
 &lt;/figure&gt;
 
 
-&lt;p&gt;En el próximo artículo me concentraré en usar &lt;a href=&#34;https://onthedock.github.io/tags/portainer/&#34;&gt;Portainer&lt;/a&gt; para realizar la gestión de Docker.&lt;/p&gt;</description>
+&lt;p&gt;En el próximo artículo me concentraré en usar &lt;a href=&#34;http://192.168.1.9:8000/tags/portainer/&#34;&gt;Portainer&lt;/a&gt; para realizar la gestión de Docker.&lt;/p&gt;</description>
     </item>
     
     <item>
       <title>Cómo agregar un nodo a un cluster Kubernetes</title>
-      <link>https://onthedock.github.io/post/170417-como-agregar-un-nodo-a-un-cluster-kubernetes/</link>
+      <link>http://192.168.1.9:8000/post/170417-como-agregar-un-nodo-a-un-cluster-kubernetes/</link>
       <pubDate>Sat, 15 Apr 2017 16:27:30 +0200</pubDate>
       
-      <guid>https://onthedock.github.io/post/170417-como-agregar-un-nodo-a-un-cluster-kubernetes/</guid>
+      <guid>http://192.168.1.9:8000/post/170417-como-agregar-un-nodo-a-un-cluster-kubernetes/</guid>
       <description>&lt;p&gt;Después de realizar la instalación del nodo &lt;em&gt;master&lt;/em&gt; del clúster Kubernetes, el siguiente paso es agregar nodos adicionales al clúster. Es en estos nodos donde se van a planificar los &lt;em&gt;pods&lt;/em&gt; que realizan las funciones &lt;em&gt;productivas&lt;/em&gt; del clúster (en el nodo &lt;em&gt;master&lt;/em&gt; sólo realiza tareas de gestión del clúster).&lt;/p&gt;
 
 &lt;p&gt;&lt;/p&gt;
@@ -389,12 +450,12 @@ $
     
     <item>
       <title>Kubernetes en la Raspberry Pi (teaser)</title>
-      <link>https://onthedock.github.io/post/170410-k8s-en-rpi-teaser/</link>
+      <link>http://192.168.1.9:8000/post/170410-k8s-en-rpi-teaser/</link>
       <pubDate>Mon, 10 Apr 2017 22:45:28 +0200</pubDate>
       
-      <guid>https://onthedock.github.io/post/170410-k8s-en-rpi-teaser/</guid>
+      <guid>http://192.168.1.9:8000/post/170410-k8s-en-rpi-teaser/</guid>
       <description>&lt;figure&gt;
-  &lt;amp-img src=&#34;https://onthedock.github.io/images/170410/itsalive.jpg&#34; alt=&#34;Kubernetes en la Raspberry Pi (teaser) images/170410/itsalive.jpg&#34; width=400 height=292 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
+  &lt;amp-img src=&#34;http://192.168.1.9:8000/images/170410/itsalive.jpg&#34; alt=&#34;Kubernetes en la Raspberry Pi (teaser) images/170410/itsalive.jpg&#34; width=400 height=292 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
   
 &lt;/figure&gt;
 
@@ -402,7 +463,7 @@ $
 &lt;p&gt;&lt;/p&gt;
 
 &lt;p&gt;&lt;figure&gt;
-  &lt;amp-img src=&#34;https://onthedock.github.io/images/170410/k8s-en-rpi.png&#34; alt=&#34;Kubernetes en la Raspberry Pi (teaser) images/170410/k8s-en-rpi.png&#34; width=640 height=259 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
+  &lt;amp-img src=&#34;http://192.168.1.9:8000/images/170410/k8s-en-rpi.png&#34; alt=&#34;Kubernetes en la Raspberry Pi (teaser) images/170410/k8s-en-rpi.png&#34; width=640 height=259 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
   
   &lt;figcaption&gt;
     
@@ -416,10 +477,10 @@ $
     
     <item>
       <title>Acciones previas a la instalación de Kubernetes en Raspberry Pi</title>
-      <link>https://onthedock.github.io/post/170409-acciones-previas-instalacion-rpi/</link>
+      <link>http://192.168.1.9:8000/post/170409-acciones-previas-instalacion-rpi/</link>
       <pubDate>Sun, 09 Apr 2017 21:34:16 +0200</pubDate>
       
-      <guid>https://onthedock.github.io/post/170409-acciones-previas-instalacion-rpi/</guid>
+      <guid>http://192.168.1.9:8000/post/170409-acciones-previas-instalacion-rpi/</guid>
       <description>&lt;p&gt;Uno de los objetivos motivadores de la existencia de este blog es instalar un clúster de Kubernetes sobre Raspberry Pi. Este artículo se centra en las tareas previas a la instalación en sí.&lt;/p&gt;
 
 &lt;p&gt;Kubernetes requiere una instalación previa de Docker, una tarea simplificada gracias a HypriotOS, la &lt;em&gt;distro&lt;/em&gt; creada específicamente con este fin.&lt;/p&gt;
@@ -457,10 +518,10 @@ $
     
     <item>
       <title>Introducción a Hypriot OS</title>
-      <link>https://onthedock.github.io/post/161105-introduccion-a-hypriotos/</link>
+      <link>http://192.168.1.9:8000/post/161105-introduccion-a-hypriotos/</link>
       <pubDate>Sat, 05 Nov 2016 10:37:47 +0100</pubDate>
       
-      <guid>https://onthedock.github.io/post/161105-introduccion-a-hypriotos/</guid>
+      <guid>http://192.168.1.9:8000/post/161105-introduccion-a-hypriotos/</guid>
       <description>&lt;p&gt;&lt;a href=&#34;http://blog.hypriot.com/about/#hypriotos:6083a88ee3411b0d17ce02d738f69d47&#34;&gt;HypriotOS&lt;/a&gt; es un sistema operativo basado en &lt;a href=&#34;http://www.debian.org/&#34;&gt;Debian&lt;/a&gt; optimizado para ejecutar &lt;a href=&#34;http://www.docker.com/&#34;&gt;Docker&lt;/a&gt; en plataformas ARM como las &lt;a href=&#34;https://www.raspberrypi.org/&#34;&gt;Raspberry Pi&lt;/a&gt;.&lt;/p&gt;
 
 &lt;p&gt;&lt;/p&gt;
