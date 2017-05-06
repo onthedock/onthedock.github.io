@@ -2,163 +2,135 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Debian on On The Dock</title>
-    <link>https://onthedock.github.io/tags/debian/index.xml</link>
+    <link>http://192.168.1.9:8000/tags/debian/index.xml</link>
     <description>Recent content in Debian on On The Dock</description>
     <generator>Hugo -- gohugo.io</generator>
     <copyright>Handmade with &amp;#9829; by Xavi Aznar</copyright>
-    <atom:link href="https://onthedock.github.io/tags/debian/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://192.168.1.9:8000/tags/debian/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
-      <title>El nodo k3 del clúster colgado de nuevo</title>
-      <link>https://onthedock.github.io/post/170430-k3-colgado-de-nuevo/</link>
-      <pubDate>Sun, 30 Apr 2017 11:39:20 +0200</pubDate>
+      <title>Instala Weave Net en Kubernetes 1.6</title>
+      <link>http://192.168.1.9:8000/post/170505-instala-weave-net-en-kubernetes-1.6/</link>
+      <pubDate>Fri, 05 May 2017 22:14:36 +0200</pubDate>
       
-      <guid>https://onthedock.github.io/post/170430-k3-colgado-de-nuevo/</guid>
-      <description>&lt;p&gt;En la entrada anterior &lt;a href=&#34;https://onthedock.github.io/post/170430-multiples-mensajes-action-17-suspended/&#34;&gt;Múltiples mensajes &amp;lsquo;action 17 suspended&amp;rsquo; en los logs&lt;/a&gt; comentaba que estaba a la espera de obtener resultados; después de apenas unas horas, ya los tengo: &lt;strong&gt;k3&lt;/strong&gt; se ha vuelto a &lt;em&gt;colgar&lt;/em&gt; mientras que &lt;strong&gt;k2&lt;/strong&gt; no.&lt;/p&gt;
+      <guid>http://192.168.1.9:8000/post/170505-instala-weave-net-en-kubernetes-1.6/</guid>
+      <description>&lt;p&gt;Una de las cosas que más me sorprenden de Kubernetes es que es necesario instalar una &lt;em&gt;capa de red&lt;/em&gt; sobre el clúster.&lt;/p&gt;
 
-&lt;p&gt;Este resultado parece demostrar que la mala configuración de &lt;em&gt;rsyslog&lt;/em&gt; es la causante de los &lt;em&gt;cuelgues&lt;/em&gt; de las RPi 3 en el clúster de Kubernetes.&lt;/p&gt;
+&lt;p&gt;En el caso concreto del que he obtenido las &lt;em&gt;capturas de pantalla&lt;/em&gt;, el clúster corre sobre máquinas virtuales con Debian Jessie.
+&lt;/p&gt;
 
-&lt;p&gt;&lt;strong&gt;Actualización&lt;/strong&gt;: Las RPi3 siguen colgándose :(&lt;/p&gt;
+&lt;p&gt;La instalación de Weave Net en Kubernetes consiste únicamente en una línea, como explica el artículo: &lt;a href=&#34;https://www.weave.works/weave-net-kubernetes-integration/&#34;&gt;Run Weave Net with Kubernetes in Just One Line&lt;/a&gt;.&lt;/p&gt;
 
-&lt;p&gt;&lt;/p&gt;
-
-&lt;p&gt;A modo de recordatorio, los cambios realizados en los dos nodos sobre Raspberry Pi 3 han sido (incluyo el nodo &lt;strong&gt;k1&lt;/strong&gt; con RPi2):&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;                                |  k1  |  k2  |  k3  |
-                                | RPi2 | RPi3 | RPi3 |
- -------------------------------|------|------|------|
-| Modificada conf. de rsyslog   |  No  |  Sí  |  No  |
-| Actualización a versión 1.6.2 |  Sí  |  Sí  |  Sí  |
- ----------------------------------------------------
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Hasta ahora, los únicos nodos que se &lt;em&gt;colgaban&lt;/em&gt; eran el &lt;strong&gt;k2&lt;/strong&gt; y el &lt;strong&gt;k3&lt;/strong&gt; (sobre RPi3).&lt;/p&gt;
-
-&lt;p&gt;Al modificar la configuración en de &lt;em&gt;rsyslog&lt;/em&gt; en &lt;strong&gt;k2&lt;/strong&gt; y pasadas unas horas, el único nodo que se sigue colgando es el &lt;strong&gt;k3&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;Antes de instalar la &lt;em&gt;red&lt;/em&gt; en el clúster (de momento, de un solo nodo), &lt;em&gt;kubectl&lt;/em&gt; indica que el estado del nodo es &lt;code&gt;NotReady&lt;/code&gt;:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ kubectl get nodes
 NAME      STATUS     AGE       VERSION
-k1        Ready      19d       v1.6.2
-k2        Ready      14d       v1.6.2
-k3        NotReady   14d       v1.6.2
+k8s       NotReady   5h        v1.6.1
+$
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;Es decir, el fallo a la hora de redirigir los mensajes a &lt;code&gt;/dev/xconsole&lt;/code&gt;:&lt;/p&gt;
+&lt;p&gt;En la salida del comando tenemos que la versión de Kubernetes es la 1.6.1. Este dato será importante más adelante a la hora de escoger el comando de instalación de Weave Net.&lt;/p&gt;
 
-&lt;ul&gt;
-&lt;li&gt;sólo afectan a las RPi3&lt;/li&gt;
-&lt;li&gt;provoca que el sistema se acabe colgando&lt;/li&gt;
-&lt;/ul&gt;
+&lt;p&gt;Si obtenemos la lista de &lt;em&gt;pods&lt;/em&gt;, comprobamos que no tenemos ningún &lt;em&gt;pod de red&lt;/em&gt;:&lt;/p&gt;
 
-&lt;p&gt;Para solucionarlo, como &lt;code&gt;root&lt;/code&gt;:&lt;/p&gt;
-
-&lt;ol&gt;
-&lt;li&gt;Abre &lt;code&gt;/etc/rsyslog.conf&lt;/code&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;Modifica las últimas líneas (al final del fichero) y coméntalas:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-txt&#34;&gt;# The named pipe /dev/xconsole is for the `xconsole&#39; utility.  To use it,
-# you must invoke `xconsole&#39; with the `-file&#39; option:
-#
-#    $ xconsole -file /dev/xconsole [...]
-#
-# NOTE: adjust the list below, or you&#39;ll go crazy if you have a reasonably
-#      busy site..
-#
-daemon.*;mail.*;\
-    news.err;\
-    *.=debug;*.=info;\
-    *.=notice;*.=warn       |/dev/xconsole
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ kubectl get pods --all-namespaces
+NAMESPACE     NAME                          READY     STATUS    RESTARTS   AGE
+kube-system   etcd-k8s                      1/1       Running   0          5h
+kube-system   kube-apiserver-k8s            1/1       Running   0          5h
+kube-system   kube-controller-manager-k8s   1/1       Running   0          5h
+kube-system   kube-dns-3913472980-4nlg9     0/3       Pending   0          5h
+kube-system   kube-proxy-l02zn              1/1       Running   0          5h
+kube-system   kube-scheduler-k8s            1/1       Running   0          5h
+$
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;deben quedar como:&lt;/p&gt;
+&lt;p&gt;Además, los &lt;em&gt;pods&lt;/em&gt; de &lt;em&gt;DNS&lt;/em&gt; &lt;code&gt;kube-dns-*&lt;/code&gt; están en estado &lt;code&gt;Pending&lt;/code&gt;.&lt;/p&gt;
 
-&lt;pre&gt;&lt;code class=&#34;language-txt&#34;&gt;#daemon.*;mail.*;\
-#        news.err;\
-#        *.=debug;*.=info;\
-#        *.=notice;*.=warn       |/dev/xconsole
+&lt;p&gt;Siguiendo las instrucciones del artículo de Weave Net, lanzamos el comando de instalación para versiones 1.6 (o superior):&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ kubectl apply -f https://git.io/weave-kube-1.6
+clusterrole &amp;quot;weave-net&amp;quot; created
+serviceaccount &amp;quot;weave-net&amp;quot; created
+clusterrolebinding &amp;quot;weave-net&amp;quot; created
+daemonset &amp;quot;weave-net&amp;quot; created
+$
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;Podrías comentar la redirección &lt;code&gt;|/dev/xconsole&lt;/code&gt;, pero en este caso el bloque no tendría ninguna funcionalidad, por lo que creo que es &lt;em&gt;más limpio&lt;/em&gt; comentar todo el bloque.&lt;/p&gt;&lt;/li&gt;
+&lt;p&gt;Obtenemos la lista de &lt;em&gt;pods&lt;/em&gt; de nuevo y observamos que se están creando dos nuevos contenedores:&lt;/p&gt;
 
-&lt;li&gt;&lt;p&gt;Reinicia el equipo mediante &lt;code&gt;reboot&lt;/code&gt;.&lt;/p&gt;&lt;/li&gt;
-&lt;/ol&gt;</description>
-    </item>
-    
-    <item>
-      <title>Múltiples mensajes &#39;action 17 suspended&#39; en los logs</title>
-      <link>https://onthedock.github.io/post/170430-multiples-mensajes-action-17-suspended/</link>
-      <pubDate>Sun, 30 Apr 2017 08:44:27 +0200</pubDate>
-      
-      <guid>https://onthedock.github.io/post/170430-multiples-mensajes-action-17-suspended/</guid>
-      <description>&lt;p&gt;Investigando las causas por las que los dos nodos con Raspberry Pi 3 se &lt;em&gt;cuelgan&lt;/em&gt;, he encontrado múltiples apariciones de este mensaje en &lt;code&gt;/var/log/messages&lt;/code&gt;:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-log&#34;&gt;Apr 30 06:40:42 k3 rsyslogd-2007: action &#39;action 17&#39; suspended, next retry is Sun Apr 30 06:41:12 2017 [try http://www.rsyslog.com/e/2007 ]
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;operador@k8s:~$ kubectl get pods --all-namespaces
+NAMESPACE     NAME                          READY     STATUS              RESTARTS   AGE
+kube-system   etcd-k8s                      1/1       Running             0          5h
+kube-system   kube-apiserver-k8s            1/1       Running             0          5h
+kube-system   kube-controller-manager-k8s   1/1       Running             0          5h
+kube-system   kube-dns-3913472980-4nlg9     0/3       Pending             0          5h
+kube-system   kube-proxy-l02zn              1/1       Running             0          5h
+kube-system   kube-scheduler-k8s            1/1       Running             0          5h
+kube-system   weave-net-32ptg               0/2       ContainerCreating   0          12s
+operador@k8s:~$
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;&lt;/p&gt;
+&lt;p&gt;De hecho, se creado el &lt;em&gt;daemonset&lt;/em&gt; &amp;ldquo;weave-net&amp;rdquo;. Un &lt;em&gt;daemonset&lt;/em&gt; es un &lt;em&gt;pod&lt;/em&gt; que se crea en cada uno de los nodos del clúster automáticamente. Kubernetes se encarga de descargar la imagen desde DockerHub y arrancar un contenedor. Los nodos en la red creada por Weave Net forman una red &lt;em&gt;mesh&lt;/em&gt; que se configura automáticamente, de manera que es posible agregar nodos adicionales sin necesidad de cambiar ninguna configuración.&lt;/p&gt;
 
-&lt;p&gt;De hecho, revisando el origen del problema he encontrado este comando que cuenta las apariciones del mensaje:&lt;/p&gt;
+&lt;p&gt;Pasados unos segundos la creación de los nodos se ha completado:&lt;/p&gt;
 
-&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ sudo grep &amp;quot;action.*suspend&amp;quot; /var/log/messages | wc -l
-1394
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$  kubectl get pods --all-namespaces
+NAMESPACE     NAME                          READY     STATUS         RESTARTS   AGE
+kube-system   etcd-k8s                      1/1       Running        0          5h
+kube-system   kube-apiserver-k8s            1/1       Running        0          5h
+kube-system   kube-controller-manager-k8s   1/1       Running        0          5h
+kube-system   kube-dns-3913472980-4nlg9     0/3       ErrImagePull   0          5h
+kube-system   kube-proxy-l02zn              1/1       Running        0          5h
+kube-system   kube-scheduler-k8s            1/1       Running        0          5h
+kube-system   weave-net-32ptg               2/2       Running        0          1m
+$
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;Además de &lt;em&gt;spamear&lt;/em&gt; los logs, provoca un montón de escrituras innecesarias sobre la tarjeta microSD, lo que puede acortar la vida útil de la misma.&lt;/p&gt;
-
-&lt;p&gt;No tengo claro si este puede ser la causa que hace que las dos Raspberry Pi 3 se cuelguen pasado un tiempo y que dejen de responder, lo que hace que deba reiniciarlas (desconectando/conectando el cable) para recuperarlas. Sin embargo, en el nodo &lt;em&gt;master&lt;/em&gt; (Raspberry Pi 2 B+) no aparece el mensaje en los logs y no se cuelga (aunque la configuración de &lt;em&gt;rsyslog&lt;/em&gt; es la misma).&lt;/p&gt;
-
-&lt;h1 id=&#34;solución-a-los-mensajes-de-rsyslog&#34;&gt;Solución a los mensajes de rsyslog&lt;/h1&gt;
-
-&lt;p&gt;El mensaje de error , es un problema de configuración de la aplicación &lt;code&gt;rsyslog&lt;/code&gt;, que intenta mostrar mensajes en &lt;code&gt;/dev/xconsole&lt;/code&gt;, pero falla.&lt;/p&gt;
-
-&lt;p&gt;La solución la explica Danny Tuppeny en su blog, en &lt;a href=&#34;https://blog.dantup.com/2016/04/removing-rsyslog-spam-on-raspberry-pi-raspbian-jessie/&#34;&gt;Removing [action &amp;lsquo;action 17&amp;rsquo; suspended] rsyslog Spam on Raspberry Pi (Raspian Jessie)&lt;/a&gt;. Él mismo abrió un &lt;em&gt;bug&lt;/em&gt; en RPI-Distro: &lt;a href=&#34;https://github.com/RPi-Distro/repo/issues/28&#34;&gt;Default Raspbian Jessie Lite install spams syslog with &amp;ldquo;rsyslogd-2007: action &amp;lsquo;action 17&amp;rsquo; suspended, next retry is #28&lt;/a&gt; en él explicaba cómo había eliminado la línea que hace referencia a &lt;code&gt;/dev/xconsole&lt;/code&gt; de la configuración de &lt;em&gt;rasyslog&lt;/em&gt; y que el mensaje desaparecía (después de reiniciar).&lt;/p&gt;
-
-&lt;p&gt;Para comprobar si esta es la causa del &lt;em&gt;cuelgue&lt;/em&gt; de la RPi 3, he modificado la configuración de &lt;em&gt;rsyslog&lt;/em&gt; en el nodo &lt;strong&gt;k2&lt;/strong&gt; del clúster, pero no en el &lt;strong&gt;k3&lt;/strong&gt;. De esta forma podré averiguar si la configuración de &lt;em&gt;rsyslog&lt;/em&gt; es la causante del &lt;em&gt;cuelgue&lt;/em&gt;.&lt;/p&gt;
-
-&lt;p&gt;También he actualizado el sistema (en todos los nodos) y &lt;em&gt;kubelet&lt;/em&gt;, &lt;em&gt;kubectl&lt;/em&gt; y &lt;em&gt;kubeadm&lt;/em&gt; se han actualizado a la versión 1.6.2:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;...
-Setting up libldap-2.4-2:armhf (2.4.40+dfsg-1+deb8u2) ...
-Setting up libicu52:armhf (52.1-8+deb8u5) ...
-Setting up kubelet (1.6.2-00) ...
-Setting up kubectl (1.6.2-00) ...
-Setting up kubeadm (1.6.2-00) ...
-Processing triggers for libc-bin (2.19-18+deb8u7)
-...
-&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Finalmente, verificamos que el primer nodo del clúster ya es operativo:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ kubectl get nodes
 NAME      STATUS    AGE       VERSION
-k1        Ready     19d       v1.6.2
-k2        Ready     14d       v1.6.2
-k3        Ready     14d       v1.6.2
+k8s       Ready     5h        v1.6.1
+$
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;Ahora sólo queda esperar -normalmente unas cuantas horas- a ver qué pasa: hay tres posibilidades:&lt;/p&gt;
+&lt;p&gt;Además, una vez que tenemos la red instalada en el clúster, el &lt;em&gt;pod&lt;/em&gt; &lt;code&gt;kube-dns&lt;/code&gt; comienza la creación de los contenedores (quizás tengas que reiniciar):&lt;/p&gt;
 
-&lt;ol&gt;
-&lt;li&gt;Se cuelga &lt;strong&gt;k3&lt;/strong&gt; pero no &lt;strong&gt;k2&lt;/strong&gt;: La configuración de &lt;em&gt;rsyslog&lt;/em&gt; era la causa.&lt;/li&gt;
-&lt;li&gt;Se cuelga &lt;strong&gt;k2&lt;/strong&gt; pero no &lt;strong&gt;k3&lt;/strong&gt;: ¿?&lt;/li&gt;
-&lt;li&gt;No se cuelga ni &lt;strong&gt;k2&lt;/strong&gt; ni &lt;strong&gt;k3&lt;/strong&gt;: Era un problema de alguno de los componetes actualizados que sólo afecta a la RPi 3.&lt;/li&gt;
-&lt;/ol&gt;
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ kubectl get pods --all-namespaces
+NAMESPACE     NAME                          READY     STATUS              RESTARTS   AGE
+kube-system   etcd-k8s                      1/1       Running             1          11d
+kube-system   kube-apiserver-k8s            1/1       Running             1          11d
+kube-system   kube-controller-manager-k8s   1/1       Running             1          11d
+kube-system   kube-dns-3913472980-4nlg9     0/3       ContainerCreating   0          11d
+kube-system   kube-proxy-l02zn              1/1       Running             1          11d
+kube-system   kube-scheduler-k8s            1/1       Running             1          11d
+kube-system   weave-net-32ptg               2/2       Running             3          10d
+&lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;Informaré en cuanto tenga resultados.&lt;/p&gt;
+&lt;p&gt;Tras unos segundos, tenemos todos los &lt;em&gt;pods&lt;/em&gt; del clúster funcionales:&lt;/p&gt;
 
-&lt;h1 id=&#34;unas-horas-después&#34;&gt;Unas horas después&amp;hellip;&lt;/h1&gt;
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ kubectl get pods --all-namespaces
+NAMESPACE     NAME                          READY     STATUS    RESTARTS   AGE
+kube-system   etcd-k8s                      1/1       Running   1          11d
+kube-system   kube-apiserver-k8s            1/1       Running   1          11d
+kube-system   kube-controller-manager-k8s   1/1       Running   1          11d
+kube-system   kube-dns-3913472980-4nlg9     3/3       Running   0          11d
+kube-system   kube-proxy-l02zn              1/1       Running   1          11d
+kube-system   kube-scheduler-k8s            1/1       Running   1          11d
+kube-system   weave-net-32ptg               2/2       Running   3          10d
+$
+&lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;Ya tenngo resultados: la configuración de &lt;em&gt;rsyslog&lt;/em&gt; es la que causa el cuelgue del sistema en las RPi3.&lt;/p&gt;
-
-&lt;p&gt;Échale un vistazo a cómo solucionar este error en la entrada: &lt;a href=&#34;https://onthedock.github.io/post/170430-k3-colgado-de-nuevo/&#34;&gt;El nodo k3 del clúster colgado de nuevo&lt;/a&gt;&lt;/p&gt;</description>
+&lt;p&gt;Ahora sólo tenemos que añadir nodos &lt;em&gt;worker&lt;/em&gt; y hacer crecer el clúster.&lt;/p&gt;</description>
     </item>
     
     <item>
       <title>Solución al error de instalación de Kubernetes en Debian Jessie (Missing cgroups: memory)</title>
-      <link>https://onthedock.github.io/post/170422-solucion-al-error-missing-cgroups-memory-en-debian-jessie/</link>
+      <link>http://192.168.1.9:8000/post/170422-solucion-al-error-missing-cgroups-memory-en-debian-jessie/</link>
       <pubDate>Sat, 22 Apr 2017 07:57:14 +0200</pubDate>
       
-      <guid>https://onthedock.github.io/post/170422-solucion-al-error-missing-cgroups-memory-en-debian-jessie/</guid>
-      <description>&lt;p&gt;Al lanzar la inicialización del clúster con &lt;code&gt;kubeadm init&lt;/code&gt; en Debian Jessie, las comprobaciones inciales indican que no se encuentran los &lt;em&gt;cgroups&lt;/em&gt; para la memoria (échale un vistazo al artículo &lt;a href=&#34;https://onthedock.github.io/post/170417-instalacion-de-kubernetes-falla-missing-cgroups-memory/&#34;&gt;La instalación de Kubernetes falla en Debian Jessie (missing cgroups: memory)&lt;/a&gt;). Los &lt;em&gt;cgroups&lt;/em&gt; son una de las piezas fundamentales en las que se basa Docker para &lt;em&gt;aislar&lt;/em&gt; los procesos de los contenedores, por lo que la inicialización del clúster de Kubernetes se detiene.&lt;/p&gt;
+      <guid>http://192.168.1.9:8000/post/170422-solucion-al-error-missing-cgroups-memory-en-debian-jessie/</guid>
+      <description>&lt;p&gt;Al lanzar la inicialización del clúster con &lt;code&gt;kubeadm init&lt;/code&gt; en Debian Jessie, las comprobaciones inciales indican que no se encuentran los &lt;em&gt;cgroups&lt;/em&gt; para la memoria (échale un vistazo al artículo &lt;a href=&#34;http://192.168.1.9:8000/post/170417-instalacion-de-kubernetes-falla-missing-cgroups-memory/&#34;&gt;La instalación de Kubernetes falla en Debian Jessie (missing cgroups: memory)&lt;/a&gt;). Los &lt;em&gt;cgroups&lt;/em&gt; son una de las piezas fundamentales en las que se basa Docker para &lt;em&gt;aislar&lt;/em&gt; los procesos de los contenedores, por lo que la inicialización del clúster de Kubernetes se detiene.&lt;/p&gt;
 
 &lt;p&gt;La solución es tan sencilla como habilitar los &lt;em&gt;cgroups&lt;/em&gt; durante el arranque.&lt;/p&gt;
 

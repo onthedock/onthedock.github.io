@@ -2,19 +2,362 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Kubernetes on On The Dock</title>
-    <link>https://onthedock.github.io/tags/kubernetes/index.xml</link>
+    <link>http://192.168.1.9:8000/tags/kubernetes/index.xml</link>
     <description>Recent content in Kubernetes on On The Dock</description>
     <generator>Hugo -- gohugo.io</generator>
     <copyright>Handmade with &amp;#9829; by Xavi Aznar</copyright>
-    <atom:link href="https://onthedock.github.io/tags/kubernetes/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://192.168.1.9:8000/tags/kubernetes/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Troubleshooting Kubernetes (II)</title>
+      <link>http://192.168.1.9:8000/post/170506-troubleshooting-kubernetes-ii/</link>
+      <pubDate>Sat, 06 May 2017 05:21:09 +0200</pubDate>
+      
+      <guid>http://192.168.1.9:8000/post/170506-troubleshooting-kubernetes-ii/</guid>
+      <description>&lt;p&gt;Sigo con el &lt;em&gt;troubleshooting&lt;/em&gt; del &lt;em&gt;cuelgue&lt;/em&gt; de los nodos sobre Raspberry Pi 3 del clúster.&lt;/p&gt;
+
+&lt;p&gt;Ayer estuve &lt;em&gt;haciendo limpieza&lt;/em&gt; siguiendo &lt;em&gt;vagamente&lt;/em&gt; la recomendación de &lt;a href=&#34;https://github.com/kubernetes/kubernetes/issues/43593#issuecomment-288899231&#34;&gt;esta respuesta&lt;/a&gt; en el hilo &lt;a href=&#34;https://github.com/kubernetes/kubernetes/issues/43593#issuecomment-288899231&#34;&gt;Kubernetes memory consumption explosion&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;
+
+&lt;p&gt;La solución de &lt;code&gt;RenaudWasTaken&lt;/code&gt; al problema de consumo excesivo de memoria (32GB) fue la realizar limpieza de las carpetas:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;/var/run/kubernetes&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;/var/lib/kubelet&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;/var/lib/etcd&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Antes de empezar a borrar &lt;em&gt;a lo loco&lt;/em&gt;, revisé el contenido de estas carpetas.&lt;/p&gt;
+
+&lt;h2 id=&#34;var-run-kubernetes&#34;&gt;&lt;code&gt;/var/run/kubernetes&lt;/code&gt;&lt;/h2&gt;
+
+&lt;p&gt;En &lt;code&gt;/var/run/kubernetes&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ ls -la /var/run/kubernetes/ 
+total 8
+drwxr-xr-x  2 root root   80 May  5 18:43 .
+drwxr-xr-x 18 root root  600 May  5 18:43 ..
+-rw-r--r--  1 root root 1082 May  5 18:43 kubelet.crt
+-rw-------  1 root root 1679 May  5 18:43 kubelet.key
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Estos ficheros son certificados, por lo que no parecen implicados en el problema y decido no borrarlos.&lt;/p&gt;
+
+&lt;h2 id=&#34;var-lib-kubelet&#34;&gt;&lt;code&gt;/var/lib/kubelet&lt;/code&gt;&lt;/h2&gt;
+
+&lt;h3 id=&#34;nodo-k2&#34;&gt;Nodo &lt;strong&gt;k2&lt;/strong&gt;&lt;/h3&gt;
+
+&lt;p&gt;Al intentar listar el contenido de la carpeta &lt;code&gt;/var/lib/kubelet/pods&lt;/code&gt;, la Raspberry Pi 3 ha tardado una eternidad (en los primeros intentos he creído que había dejado de responder).&lt;/p&gt;
+
+&lt;p&gt;Finalmente, el resultado del comando ha mostrado una gran cantidad de carpetas dentro de esta carpeta:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ ls -la /var/lib/kubelet/pods
+...
+drwx------    2 root root    4096 May  4 23:11 wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_flannel-cfg.deleting~443381808.deleting~108562981.deleting~938554959.deleting~743974077.deleting~207819844.deleting~559419937.deleting~142152710.deleting~494766199.deleting~952339001
+drwx------    2 root root    4096 May  5 18:02 wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_flannel-cfg.deleting~443381808.deleting~108562981.deleting~938554959.deleting~743974077.deleting~274346355.deleting~274250693.deleting~987962315.deleting~680794233.deleting~917929467
+drwx------    2 root root    4096 May  4 23:37 wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_flannel-cfg.deleting~443381808.deleting~108562981.deleting~938554959.deleting~743974077.deleting~274346355.deleting~292131322.deleting~049606881.deleting~105942520.deleting~463246644
+drwx------    2 root root    4096 May  4 22:46 wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_flannel-cfg.deleting~443381808.deleting~119491600.deleting~962328406.deleting~220005477.deleting~309794961.deleting~392355244.deleting~378832104.deleting~159122214.deleting~324365539
+drwx------    2 root root    4096 Apr 15 20:39 wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_flannel-cfg.deleting~443381808.deleting~162549394.deleting~296869341.deleting~353223099.deleting~018715754.deleting~526835026.deleting~320404022.deleting~453576282.deleting~001809150
+...
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Parece como si algo no hubiera funcionado correctamente y hubiera entrado en un bucle, creando carpetas y más carpetas. Además, en el nombre de alguna de estas carpetas aparece &lt;code&gt;..._flannel-cfg...&lt;/code&gt;. Esta ha sido la pista que me ha convencido; al intentar instalar el &lt;em&gt;dashboard&lt;/em&gt; de Kubernetes, tuve problemas precisamente porque no tengo instalado Flannel. Eliminé el &lt;em&gt;pod&lt;/em&gt; y no le di más vueltas.&lt;/p&gt;
+
+&lt;p&gt;Sin embargo, la existencia de estas carpetas parece indicar que la eliminación no fue tan limpia como pensaba y que &lt;em&gt;algo&lt;/em&gt; se quedó atrapado en un bucle.&lt;/p&gt;
+
+&lt;p&gt;He lanzado &lt;code&gt;rm -rf /var/lib/kubelet/pods/&lt;/code&gt; y el comando ha fallado indicando que uno de los &lt;em&gt;pods&lt;/em&gt; estaba en uso. Así que he eliminado poco a poco los &lt;em&gt;pods&lt;/em&gt; hasta que al final:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ ls /var/lib/kubelet/pods/ -la
+total 24
+drwxr-x--- 4 root root 12288 May  5 18:40 .
+drwxr-x--- 4 root root  4096 Apr 15 09:08 ..
+drwxr-x--- 5 root root  4096 May  5 18:43 c0323b0f-31bd-11e7-a0ed-b827eb650fdb
+drwxr-x--- 5 root root  4096 May  5 18:43 f2da9dfb-31bd-11e7-a0ed-b827eb650fdb
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Estos &lt;em&gt;pods&lt;/em&gt;, sean los que sean, están en uso (no tengo nada desplegado en el clúster, así que deben ser &lt;em&gt;de sistema&lt;/em&gt;).&lt;/p&gt;
+
+&lt;p&gt;Tras la limpieza, he reiniciado el nodo.&lt;/p&gt;
+
+&lt;h3 id=&#34;nodo-k3&#34;&gt;Nodo &lt;strong&gt;k3&lt;/strong&gt;&lt;/h3&gt;
+
+&lt;p&gt;El nodo &lt;strong&gt;k3&lt;/strong&gt; no presentaba estas &lt;em&gt;carpetas sospechosas&lt;/em&gt;, pero también he realizado limpieza:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ rm -rf /var/lib/kubelet/pods/
+rm: cannot remove ‘/var/lib/kubelet/pods/3a5e2819-21e5-11e7-bcfd-b827eb650fdb/volumes/kubernetes.io~configmap’: Directory not empty
+rm: cannot remove ‘/var/lib/kubelet/pods/71290201-31bb-11e7-a0ed-b827eb650fdb/volumes/kubernetes.io~secret/kube-proxy-token-7zk2k’: Device or resource busy
+rm: cannot remove ‘/var/lib/kubelet/pods/ef887c6a-31ba-11e7-a0ed-b827eb650fdb/volumes/kubernetes.io~secret/weave-net-token-61scv’: Device or resource busy
+$
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Igual que en el nodo &lt;strong&gt;k2&lt;/strong&gt;, he reiniciado.&lt;/p&gt;
+
+&lt;h2 id=&#34;resultados&#34;&gt;Resultados&lt;/h2&gt;
+
+&lt;p&gt;Los nodos &lt;strong&gt;k2&lt;/strong&gt; y &lt;strong&gt;k3&lt;/strong&gt; siguen en estado &lt;code&gt;Ready&lt;/code&gt; tras unas siete y ocho horas, que es bastante más de lo que &lt;em&gt;aguantaban&lt;/em&gt; antes.&lt;/p&gt;
+
+&lt;p&gt;He comprobado que en la carpeta &lt;code&gt;/var/lib/kubelet/pods&lt;/code&gt; sólo aparecen dos &lt;em&gt;pods&lt;/em&gt; (en el nodo &lt;strong&gt;k2&lt;/strong&gt;):&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ ls -la /var/lib/kubelet/pods/
+total 24
+drwxr-x--- 4 root root 12288 May  5 18:40 .
+drwxr-x--- 4 root root  4096 Apr 15 09:08 ..
+drwxr-x--- 5 root root  4096 May  5 18:43 c0323b0f-31bd-11e7-a0ed-b827eb650fdb
+drwxr-x--- 5 root root  4096 May  5 18:43 f2da9dfb-31bd-11e7-a0ed-b827eb650fdb
+$
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;En el nodo &lt;strong&gt;k3&lt;/strong&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ ls -la /var/lib/kubelet/pods/
+total 28
+drwxr-x--- 5 root root 12288 May  5 19:44 .
+drwxr-x--- 4 root root  4096 Apr 15 14:10 ..
+drwxr-x--- 3 root root  4096 May  5 19:33 3a5e2819-21e5-11e7-bcfd-b827eb650fdb
+drwxr-x--- 5 root root  4096 May  5 19:37 514d4c93-31c9-11e7-a0ed-b827eb650fdb
+drwxr-x--- 5 root root  4096 May  5 19:37 c0b9753a-31c9-11e7-a0ed-b827eb650fdb
+$
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Más adelante actualizaré el artículo para verificar si los nodos siguen activos y sin problemas.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Instala Weave Net en Kubernetes 1.6</title>
+      <link>http://192.168.1.9:8000/post/170505-instala-weave-net-en-kubernetes-1.6/</link>
+      <pubDate>Fri, 05 May 2017 22:14:36 +0200</pubDate>
+      
+      <guid>http://192.168.1.9:8000/post/170505-instala-weave-net-en-kubernetes-1.6/</guid>
+      <description>&lt;p&gt;Una de las cosas que más me sorprenden de Kubernetes es que es necesario instalar una &lt;em&gt;capa de red&lt;/em&gt; sobre el clúster.&lt;/p&gt;
+
+&lt;p&gt;En el caso concreto del que he obtenido las &lt;em&gt;capturas de pantalla&lt;/em&gt;, el clúster corre sobre máquinas virtuales con Debian Jessie.
+&lt;/p&gt;
+
+&lt;p&gt;La instalación de Weave Net en Kubernetes consiste únicamente en una línea, como explica el artículo: &lt;a href=&#34;https://www.weave.works/weave-net-kubernetes-integration/&#34;&gt;Run Weave Net with Kubernetes in Just One Line&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Antes de instalar la &lt;em&gt;red&lt;/em&gt; en el clúster (de momento, de un solo nodo), &lt;em&gt;kubectl&lt;/em&gt; indica que el estado del nodo es &lt;code&gt;NotReady&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ kubectl get nodes
+NAME      STATUS     AGE       VERSION
+k8s       NotReady   5h        v1.6.1
+$
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;En la salida del comando tenemos que la versión de Kubernetes es la 1.6.1. Este dato será importante más adelante a la hora de escoger el comando de instalación de Weave Net.&lt;/p&gt;
+
+&lt;p&gt;Si obtenemos la lista de &lt;em&gt;pods&lt;/em&gt;, comprobamos que no tenemos ningún &lt;em&gt;pod de red&lt;/em&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ kubectl get pods --all-namespaces
+NAMESPACE     NAME                          READY     STATUS    RESTARTS   AGE
+kube-system   etcd-k8s                      1/1       Running   0          5h
+kube-system   kube-apiserver-k8s            1/1       Running   0          5h
+kube-system   kube-controller-manager-k8s   1/1       Running   0          5h
+kube-system   kube-dns-3913472980-4nlg9     0/3       Pending   0          5h
+kube-system   kube-proxy-l02zn              1/1       Running   0          5h
+kube-system   kube-scheduler-k8s            1/1       Running   0          5h
+$
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Además, los &lt;em&gt;pods&lt;/em&gt; de &lt;em&gt;DNS&lt;/em&gt; &lt;code&gt;kube-dns-*&lt;/code&gt; están en estado &lt;code&gt;Pending&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Siguiendo las instrucciones del artículo de Weave Net, lanzamos el comando de instalación para versiones 1.6 (o superior):&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ kubectl apply -f https://git.io/weave-kube-1.6
+clusterrole &amp;quot;weave-net&amp;quot; created
+serviceaccount &amp;quot;weave-net&amp;quot; created
+clusterrolebinding &amp;quot;weave-net&amp;quot; created
+daemonset &amp;quot;weave-net&amp;quot; created
+$
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Obtenemos la lista de &lt;em&gt;pods&lt;/em&gt; de nuevo y observamos que se están creando dos nuevos contenedores:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;operador@k8s:~$ kubectl get pods --all-namespaces
+NAMESPACE     NAME                          READY     STATUS              RESTARTS   AGE
+kube-system   etcd-k8s                      1/1       Running             0          5h
+kube-system   kube-apiserver-k8s            1/1       Running             0          5h
+kube-system   kube-controller-manager-k8s   1/1       Running             0          5h
+kube-system   kube-dns-3913472980-4nlg9     0/3       Pending             0          5h
+kube-system   kube-proxy-l02zn              1/1       Running             0          5h
+kube-system   kube-scheduler-k8s            1/1       Running             0          5h
+kube-system   weave-net-32ptg               0/2       ContainerCreating   0          12s
+operador@k8s:~$
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;De hecho, se creado el &lt;em&gt;daemonset&lt;/em&gt; &amp;ldquo;weave-net&amp;rdquo;. Un &lt;em&gt;daemonset&lt;/em&gt; es un &lt;em&gt;pod&lt;/em&gt; que se crea en cada uno de los nodos del clúster automáticamente. Kubernetes se encarga de descargar la imagen desde DockerHub y arrancar un contenedor. Los nodos en la red creada por Weave Net forman una red &lt;em&gt;mesh&lt;/em&gt; que se configura automáticamente, de manera que es posible agregar nodos adicionales sin necesidad de cambiar ninguna configuración.&lt;/p&gt;
+
+&lt;p&gt;Pasados unos segundos la creación de los nodos se ha completado:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$  kubectl get pods --all-namespaces
+NAMESPACE     NAME                          READY     STATUS         RESTARTS   AGE
+kube-system   etcd-k8s                      1/1       Running        0          5h
+kube-system   kube-apiserver-k8s            1/1       Running        0          5h
+kube-system   kube-controller-manager-k8s   1/1       Running        0          5h
+kube-system   kube-dns-3913472980-4nlg9     0/3       ErrImagePull   0          5h
+kube-system   kube-proxy-l02zn              1/1       Running        0          5h
+kube-system   kube-scheduler-k8s            1/1       Running        0          5h
+kube-system   weave-net-32ptg               2/2       Running        0          1m
+$
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Finalmente, verificamos que el primer nodo del clúster ya es operativo:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ kubectl get nodes
+NAME      STATUS    AGE       VERSION
+k8s       Ready     5h        v1.6.1
+$
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Además, una vez que tenemos la red instalada en el clúster, el &lt;em&gt;pod&lt;/em&gt; &lt;code&gt;kube-dns&lt;/code&gt; comienza la creación de los contenedores (quizás tengas que reiniciar):&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ kubectl get pods --all-namespaces
+NAMESPACE     NAME                          READY     STATUS              RESTARTS   AGE
+kube-system   etcd-k8s                      1/1       Running             1          11d
+kube-system   kube-apiserver-k8s            1/1       Running             1          11d
+kube-system   kube-controller-manager-k8s   1/1       Running             1          11d
+kube-system   kube-dns-3913472980-4nlg9     0/3       ContainerCreating   0          11d
+kube-system   kube-proxy-l02zn              1/1       Running             1          11d
+kube-system   kube-scheduler-k8s            1/1       Running             1          11d
+kube-system   weave-net-32ptg               2/2       Running             3          10d
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Tras unos segundos, tenemos todos los &lt;em&gt;pods&lt;/em&gt; del clúster funcionales:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ kubectl get pods --all-namespaces
+NAMESPACE     NAME                          READY     STATUS    RESTARTS   AGE
+kube-system   etcd-k8s                      1/1       Running   1          11d
+kube-system   kube-apiserver-k8s            1/1       Running   1          11d
+kube-system   kube-controller-manager-k8s   1/1       Running   1          11d
+kube-system   kube-dns-3913472980-4nlg9     3/3       Running   0          11d
+kube-system   kube-proxy-l02zn              1/1       Running   1          11d
+kube-system   kube-scheduler-k8s            1/1       Running   1          11d
+kube-system   weave-net-32ptg               2/2       Running   3          10d
+$
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Ahora sólo tenemos que añadir nodos &lt;em&gt;worker&lt;/em&gt; y hacer crecer el clúster.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Errores sobre Orphaned pods en syslog</title>
+      <link>http://192.168.1.9:8000/post/170430-errores-sobre-orphaned-pods-en-syslog/</link>
+      <pubDate>Sun, 30 Apr 2017 12:55:44 +0200</pubDate>
+      
+      <guid>http://192.168.1.9:8000/post/170430-errores-sobre-orphaned-pods-en-syslog/</guid>
+      <description>&lt;p&gt;Los nodos &lt;strong&gt;k2&lt;/strong&gt; y &lt;strong&gt;k3&lt;/strong&gt; del clúster dejan de responder pasadas unas horas. La única manera de solucionarlo es reiniciar los nodos. Siguiendo con la revisión de logs, he encontrado que se genera una gran cantidad de entradas en &lt;em&gt;syslog&lt;/em&gt; en referencia a &lt;em&gt;orphaned pods&lt;/em&gt;. Además, el número de estos errores no para de crecer &lt;strong&gt;rápidamente&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ grep &amp;quot;kubelet_volumes.go:114] Orphaned pod&amp;quot; /var/log/syslog | wc -l
+118938
+$ grep &amp;quot;kubelet_volumes.go:114] Orphaned pod&amp;quot; /var/log/syslog | wc -l
+119022
+$ grep &amp;quot;kubelet_volumes.go:114] Orphaned pod&amp;quot; /var/log/syslog | wc -l
+119170
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Revisando las últimas entradas del log:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-log&#34;&gt;Apr 30 10:57:57 k2 kubelet[3619]: E0430 10:57:57.186318    3619 kubelet_volumes.go:114] Orphaned pod &amp;quot;5064b9d9-2c9e-11e7-a7ae-b827eb650fdb&amp;quot; found, but volume paths are still present on disk.
+Apr 30 10:58:01 k2 kubelet[3619]: E0430 10:58:01.759595    3619 kubelet_volumes.go:114] Orphaned pod &amp;quot;6c601e9c-2c9c-11e7-a7ae-b827eb650fdb&amp;quot; found, but volume paths are still present on disk.
+Apr 30 10:58:03 k2 kubelet[3619]: E0430 10:58:03.226372    3619 kubelet.go:1549] Unable to mount volumes for pod &amp;quot;weave-net-bs9bs_kube-system(4461d51d-2d93-11e7-a7ae-b827eb650fdb)&amp;quot;: timeout expired waiting for volumes to attach/mount for pod &amp;quot;kube-system&amp;quot;/&amp;quot;weave-net-bs9bs&amp;quot;. list of unattached/unmounted volumes=[weavedb cni-bin cni-bin2 cni-conf dbus lib-modules weave-net-token-61scv]; skipping pod
+Apr 30 10:58:03 k2 kubelet[3619]: E0430 10:58:03.238315    3619 pod_workers.go:182] Error syncing pod 4461d51d-2d93-11e7-a7ae-b827eb650fdb (&amp;quot;weave-net-bs9bs_kube-system(4461d51d-2d93-11e7-a7ae-b827eb650fdb)&amp;quot;), skipping: timeout expired waiting for volumes to attach/mount for pod &amp;quot;kube-system&amp;quot;/&amp;quot;weave-net-bs9bs&amp;quot;. list of unattached/unmounted volumes=[weavedb cni-bin cni-bin2 cni-conf dbus lib-modules weave-net-token-61scv]
+Apr 30 10:58:05 k2 kubelet[3619]: E0430 10:58:05.830432    3619 kubelet_volumes.go:114] Orphaned pod &amp;quot;bb4d3ea6-2b80-11e7-9388-b827eb650fdb&amp;quot; found, but volume paths are still present on disk.
+Apr 30 10:58:08 k2 kubelet[3619]: E0430 10:58:08.435567    3619 kubelet_volumes.go:114] Orphaned pod &amp;quot;cb23be0d-2d7e-11e7-a7ae-b827eb650fdb&amp;quot; found, but volume paths are still present on disk.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Todas estas entradas se encuentran en los logs del nodo &lt;strong&gt;k2&lt;/strong&gt;, donde no hay ningún &lt;em&gt;pod&lt;/em&gt; en ejecución (a parte de los propios de  Kubernetes que el clúster planifica en los diferentes nodos).&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Actualización&lt;/strong&gt;: &lt;a href=&#34;http://192.168.1.9:8000/post/170506-troubleshooting-kubernetes-ii/&#34;&gt;Troubleshooting Kubernetes (II)&lt;/a&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>El nodo k3 del clúster colgado de nuevo</title>
+      <link>http://192.168.1.9:8000/post/170430-k3-colgado-de-nuevo/</link>
+      <pubDate>Sun, 30 Apr 2017 11:39:20 +0200</pubDate>
+      
+      <guid>http://192.168.1.9:8000/post/170430-k3-colgado-de-nuevo/</guid>
+      <description>&lt;p&gt;En la entrada anterior &lt;a href=&#34;http://192.168.1.9:8000/post/170430-multiples-mensajes-action-17-suspended/&#34;&gt;Múltiples mensajes &amp;lsquo;action 17 suspended&amp;rsquo; en los logs&lt;/a&gt; comentaba que estaba a la espera de obtener resultados; después de apenas unas horas, ya los tengo: &lt;strong&gt;k3&lt;/strong&gt; se ha vuelto a &lt;em&gt;colgar&lt;/em&gt; mientras que &lt;strong&gt;k2&lt;/strong&gt; no.&lt;/p&gt;
+
+&lt;p&gt;Este resultado parece demostrar que la mala configuración de &lt;em&gt;rsyslog&lt;/em&gt; es la causante de los &lt;em&gt;cuelgues&lt;/em&gt; de las RPi 3 en el clúster de Kubernetes.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Actualización&lt;/strong&gt;: El nodo &lt;strong&gt;k2&lt;/strong&gt; sobre RPi3 sigue colgándose :(&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Actualización II&lt;/strong&gt;: &lt;a href=&#34;http://192.168.1.9:8000/post/170506-troubleshooting-kubernetes-ii/&#34;&gt;Parece solucionado&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;
+
+&lt;p&gt;A modo de recordatorio, los cambios realizados en los dos nodos sobre Raspberry Pi 3 han sido (incluyo el nodo &lt;strong&gt;k1&lt;/strong&gt; con RPi2):&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;                                |  k1  |  k2  |  k3  |
+                                | RPi2 | RPi3 | RPi3 |
+ -------------------------------|------|------|------|
+| Modificada conf. de rsyslog   |  No  |  Sí  |  No  |
+| Actualización a versión 1.6.2 |  Sí  |  Sí  |  Sí  |
+ ----------------------------------------------------
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Hasta ahora, los únicos nodos que se &lt;em&gt;colgaban&lt;/em&gt; eran el &lt;strong&gt;k2&lt;/strong&gt; y el &lt;strong&gt;k3&lt;/strong&gt; (sobre RPi3).&lt;/p&gt;
+
+&lt;p&gt;Al modificar la configuración en de &lt;em&gt;rsyslog&lt;/em&gt; en &lt;strong&gt;k2&lt;/strong&gt; y pasadas unas horas, el único nodo que se sigue colgando es el &lt;strong&gt;k3&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ kubectl get nodes
+NAME      STATUS     AGE       VERSION
+k1        Ready      19d       v1.6.2
+k2        Ready      14d       v1.6.2
+k3        NotReady   14d       v1.6.2
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Es decir, el fallo a la hora de redirigir los mensajes a &lt;code&gt;/dev/xconsole&lt;/code&gt;:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;sólo afectan a las RPi3&lt;/li&gt;
+&lt;li&gt;provoca que el sistema se acabe colgando&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Para solucionarlo, como &lt;code&gt;root&lt;/code&gt;:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Abre &lt;code&gt;/etc/rsyslog.conf&lt;/code&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Modifica las últimas líneas (al final del fichero) y coméntalas:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-txt&#34;&gt;# The named pipe /dev/xconsole is for the `xconsole&#39; utility.  To use it,
+# you must invoke `xconsole&#39; with the `-file&#39; option:
+#
+#    $ xconsole -file /dev/xconsole [...]
+#
+# NOTE: adjust the list below, or you&#39;ll go crazy if you have a reasonably
+#      busy site..
+#
+daemon.*;mail.*;\
+    news.err;\
+    *.=debug;*.=info;\
+    *.=notice;*.=warn       |/dev/xconsole
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;deben quedar como:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-txt&#34;&gt;#daemon.*;mail.*;\
+#        news.err;\
+#        *.=debug;*.=info;\
+#        *.=notice;*.=warn       |/dev/xconsole
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Podrías comentar la redirección &lt;code&gt;|/dev/xconsole&lt;/code&gt;, pero en este caso el bloque no tendría ninguna funcionalidad, por lo que creo que es &lt;em&gt;más limpio&lt;/em&gt; comentar todo el bloque.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Reinicia el equipo mediante &lt;code&gt;reboot&lt;/code&gt;.&lt;/p&gt;&lt;/li&gt;
+&lt;/ol&gt;</description>
+    </item>
     
     <item>
       <title>Solución al error de instalación de Kubernetes en Debian Jessie (Missing cgroups: memory)</title>
-      <link>https://onthedock.github.io/post/170422-solucion-al-error-missing-cgroups-memory-en-debian-jessie/</link>
+      <link>http://192.168.1.9:8000/post/170422-solucion-al-error-missing-cgroups-memory-en-debian-jessie/</link>
       <pubDate>Sat, 22 Apr 2017 07:57:14 +0200</pubDate>
       
-      <guid>https://onthedock.github.io/post/170422-solucion-al-error-missing-cgroups-memory-en-debian-jessie/</guid>
-      <description>&lt;p&gt;Al lanzar la inicialización del clúster con &lt;code&gt;kubeadm init&lt;/code&gt; en Debian Jessie, las comprobaciones inciales indican que no se encuentran los &lt;em&gt;cgroups&lt;/em&gt; para la memoria (échale un vistazo al artículo &lt;a href=&#34;https://onthedock.github.io/post/170417-instalacion-de-kubernetes-falla-missing-cgroups-memory/&#34;&gt;La instalación de Kubernetes falla en Debian Jessie (missing cgroups: memory)&lt;/a&gt;). Los &lt;em&gt;cgroups&lt;/em&gt; son una de las piezas fundamentales en las que se basa Docker para &lt;em&gt;aislar&lt;/em&gt; los procesos de los contenedores, por lo que la inicialización del clúster de Kubernetes se detiene.&lt;/p&gt;
+      <guid>http://192.168.1.9:8000/post/170422-solucion-al-error-missing-cgroups-memory-en-debian-jessie/</guid>
+      <description>&lt;p&gt;Al lanzar la inicialización del clúster con &lt;code&gt;kubeadm init&lt;/code&gt; en Debian Jessie, las comprobaciones inciales indican que no se encuentran los &lt;em&gt;cgroups&lt;/em&gt; para la memoria (échale un vistazo al artículo &lt;a href=&#34;http://192.168.1.9:8000/post/170417-instalacion-de-kubernetes-falla-missing-cgroups-memory/&#34;&gt;La instalación de Kubernetes falla en Debian Jessie (missing cgroups: memory)&lt;/a&gt;). Los &lt;em&gt;cgroups&lt;/em&gt; son una de las piezas fundamentales en las que se basa Docker para &lt;em&gt;aislar&lt;/em&gt; los procesos de los contenedores, por lo que la inicialización del clúster de Kubernetes se detiene.&lt;/p&gt;
 
 &lt;p&gt;La solución es tan sencilla como habilitar los &lt;em&gt;cgroups&lt;/em&gt; durante el arranque.&lt;/p&gt;
 
@@ -148,10 +491,10 @@ root@k8s:~#
     
     <item>
       <title>Cómo agregar un nodo a un cluster Kubernetes</title>
-      <link>https://onthedock.github.io/post/170417-como-agregar-un-nodo-a-un-cluster-kubernetes/</link>
+      <link>http://192.168.1.9:8000/post/170417-como-agregar-un-nodo-a-un-cluster-kubernetes/</link>
       <pubDate>Sat, 15 Apr 2017 16:27:30 +0200</pubDate>
       
-      <guid>https://onthedock.github.io/post/170417-como-agregar-un-nodo-a-un-cluster-kubernetes/</guid>
+      <guid>http://192.168.1.9:8000/post/170417-como-agregar-un-nodo-a-un-cluster-kubernetes/</guid>
       <description>&lt;p&gt;Después de realizar la instalación del nodo &lt;em&gt;master&lt;/em&gt; del clúster Kubernetes, el siguiente paso es agregar nodos adicionales al clúster. Es en estos nodos donde se van a planificar los &lt;em&gt;pods&lt;/em&gt; que realizan las funciones &lt;em&gt;productivas&lt;/em&gt; del clúster (en el nodo &lt;em&gt;master&lt;/em&gt; sólo realiza tareas de gestión del clúster).&lt;/p&gt;
 
 &lt;p&gt;&lt;/p&gt;
@@ -356,11 +699,11 @@ $
     
     <item>
       <title>Error: The connection to the server localhost:8080 was refused</title>
-      <link>https://onthedock.github.io/post/170414-error_the-connection-to-the-server-was-refused/</link>
+      <link>http://192.168.1.9:8000/post/170414-error_the-connection-to-the-server-was-refused/</link>
       <pubDate>Fri, 14 Apr 2017 18:10:34 +0200</pubDate>
       
-      <guid>https://onthedock.github.io/post/170414-error_the-connection-to-the-server-was-refused/</guid>
-      <description>&lt;p&gt;Después de &lt;a href=&#34;https://onthedock.github.io/post/170410-k8s-en-rpi-teaser/&#34;&gt;conseguir arrancar Kubernetes tras la instalación&lt;/a&gt;, al intentar ejecutar comandos vía &lt;code&gt;kubectl&lt;/code&gt; obtengo el mensaje de error &lt;code&gt;The connection to the server localhost:8080 was refused - did you specify the right host or port?&lt;/code&gt;&lt;/p&gt;
+      <guid>http://192.168.1.9:8000/post/170414-error_the-connection-to-the-server-was-refused/</guid>
+      <description>&lt;p&gt;Después de &lt;a href=&#34;http://192.168.1.9:8000/post/170410-k8s-en-rpi-teaser/&#34;&gt;conseguir arrancar Kubernetes tras la instalación&lt;/a&gt;, al intentar ejecutar comandos vía &lt;code&gt;kubectl&lt;/code&gt; obtengo el mensaje de error &lt;code&gt;The connection to the server localhost:8080 was refused - did you specify the right host or port?&lt;/code&gt;&lt;/p&gt;
 
 &lt;p&gt;A continuación explico cómo solucionar el error y evitar que vuelva a mostrarse.&lt;/p&gt;
 
@@ -452,12 +795,12 @@ kubectl --kubeconfig ./admin.conf get nodes
     
     <item>
       <title>Kubernetes en la Raspberry Pi (teaser)</title>
-      <link>https://onthedock.github.io/post/170410-k8s-en-rpi-teaser/</link>
+      <link>http://192.168.1.9:8000/post/170410-k8s-en-rpi-teaser/</link>
       <pubDate>Mon, 10 Apr 2017 22:45:28 +0200</pubDate>
       
-      <guid>https://onthedock.github.io/post/170410-k8s-en-rpi-teaser/</guid>
+      <guid>http://192.168.1.9:8000/post/170410-k8s-en-rpi-teaser/</guid>
       <description>&lt;figure&gt;
-  &lt;amp-img src=&#34;https://onthedock.github.io/images/170410/itsalive.jpg&#34; alt=&#34;Kubernetes en la Raspberry Pi (teaser) images/170410/itsalive.jpg&#34; width=400 height=292 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
+  &lt;amp-img src=&#34;http://192.168.1.9:8000/images/170410/itsalive.jpg&#34; alt=&#34;Kubernetes en la Raspberry Pi (teaser) images/170410/itsalive.jpg&#34; width=400 height=292 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
   
 &lt;/figure&gt;
 
@@ -465,7 +808,7 @@ kubectl --kubeconfig ./admin.conf get nodes
 &lt;p&gt;&lt;/p&gt;
 
 &lt;p&gt;&lt;figure&gt;
-  &lt;amp-img src=&#34;https://onthedock.github.io/images/170410/k8s-en-rpi.png&#34; alt=&#34;Kubernetes en la Raspberry Pi (teaser) images/170410/k8s-en-rpi.png&#34; width=640 height=259 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
+  &lt;amp-img src=&#34;http://192.168.1.9:8000/images/170410/k8s-en-rpi.png&#34; alt=&#34;Kubernetes en la Raspberry Pi (teaser) images/170410/k8s-en-rpi.png&#34; width=640 height=259 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
   
   &lt;figcaption&gt;
     
@@ -479,10 +822,10 @@ kubectl --kubeconfig ./admin.conf get nodes
     
     <item>
       <title>Acciones previas a la instalación de Kubernetes en Raspberry Pi</title>
-      <link>https://onthedock.github.io/post/170409-acciones-previas-instalacion-rpi/</link>
+      <link>http://192.168.1.9:8000/post/170409-acciones-previas-instalacion-rpi/</link>
       <pubDate>Sun, 09 Apr 2017 21:34:16 +0200</pubDate>
       
-      <guid>https://onthedock.github.io/post/170409-acciones-previas-instalacion-rpi/</guid>
+      <guid>http://192.168.1.9:8000/post/170409-acciones-previas-instalacion-rpi/</guid>
       <description>&lt;p&gt;Uno de los objetivos motivadores de la existencia de este blog es instalar un clúster de Kubernetes sobre Raspberry Pi. Este artículo se centra en las tareas previas a la instalación en sí.&lt;/p&gt;
 
 &lt;p&gt;Kubernetes requiere una instalación previa de Docker, una tarea simplificada gracias a HypriotOS, la &lt;em&gt;distro&lt;/em&gt; creada específicamente con este fin.&lt;/p&gt;

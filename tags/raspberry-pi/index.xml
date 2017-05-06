@@ -2,23 +2,173 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Raspberry Pi on On The Dock</title>
-    <link>https://onthedock.github.io/tags/raspberry-pi/index.xml</link>
+    <link>http://192.168.1.9:8000/tags/raspberry-pi/index.xml</link>
     <description>Recent content in Raspberry Pi on On The Dock</description>
     <generator>Hugo -- gohugo.io</generator>
     <copyright>Handmade with &amp;#9829; by Xavi Aznar</copyright>
-    <atom:link href="https://onthedock.github.io/tags/raspberry-pi/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://192.168.1.9:8000/tags/raspberry-pi/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Troubleshooting Kubernetes (II)</title>
+      <link>http://192.168.1.9:8000/post/170506-troubleshooting-kubernetes-ii/</link>
+      <pubDate>Sat, 06 May 2017 05:21:09 +0200</pubDate>
+      
+      <guid>http://192.168.1.9:8000/post/170506-troubleshooting-kubernetes-ii/</guid>
+      <description>&lt;p&gt;Sigo con el &lt;em&gt;troubleshooting&lt;/em&gt; del &lt;em&gt;cuelgue&lt;/em&gt; de los nodos sobre Raspberry Pi 3 del clúster.&lt;/p&gt;
+
+&lt;p&gt;Ayer estuve &lt;em&gt;haciendo limpieza&lt;/em&gt; siguiendo &lt;em&gt;vagamente&lt;/em&gt; la recomendación de &lt;a href=&#34;https://github.com/kubernetes/kubernetes/issues/43593#issuecomment-288899231&#34;&gt;esta respuesta&lt;/a&gt; en el hilo &lt;a href=&#34;https://github.com/kubernetes/kubernetes/issues/43593#issuecomment-288899231&#34;&gt;Kubernetes memory consumption explosion&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;
+
+&lt;p&gt;La solución de &lt;code&gt;RenaudWasTaken&lt;/code&gt; al problema de consumo excesivo de memoria (32GB) fue la realizar limpieza de las carpetas:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;/var/run/kubernetes&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;/var/lib/kubelet&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;/var/lib/etcd&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Antes de empezar a borrar &lt;em&gt;a lo loco&lt;/em&gt;, revisé el contenido de estas carpetas.&lt;/p&gt;
+
+&lt;h2 id=&#34;var-run-kubernetes&#34;&gt;&lt;code&gt;/var/run/kubernetes&lt;/code&gt;&lt;/h2&gt;
+
+&lt;p&gt;En &lt;code&gt;/var/run/kubernetes&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ ls -la /var/run/kubernetes/ 
+total 8
+drwxr-xr-x  2 root root   80 May  5 18:43 .
+drwxr-xr-x 18 root root  600 May  5 18:43 ..
+-rw-r--r--  1 root root 1082 May  5 18:43 kubelet.crt
+-rw-------  1 root root 1679 May  5 18:43 kubelet.key
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Estos ficheros son certificados, por lo que no parecen implicados en el problema y decido no borrarlos.&lt;/p&gt;
+
+&lt;h2 id=&#34;var-lib-kubelet&#34;&gt;&lt;code&gt;/var/lib/kubelet&lt;/code&gt;&lt;/h2&gt;
+
+&lt;h3 id=&#34;nodo-k2&#34;&gt;Nodo &lt;strong&gt;k2&lt;/strong&gt;&lt;/h3&gt;
+
+&lt;p&gt;Al intentar listar el contenido de la carpeta &lt;code&gt;/var/lib/kubelet/pods&lt;/code&gt;, la Raspberry Pi 3 ha tardado una eternidad (en los primeros intentos he creído que había dejado de responder).&lt;/p&gt;
+
+&lt;p&gt;Finalmente, el resultado del comando ha mostrado una gran cantidad de carpetas dentro de esta carpeta:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ ls -la /var/lib/kubelet/pods
+...
+drwx------    2 root root    4096 May  4 23:11 wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_flannel-cfg.deleting~443381808.deleting~108562981.deleting~938554959.deleting~743974077.deleting~207819844.deleting~559419937.deleting~142152710.deleting~494766199.deleting~952339001
+drwx------    2 root root    4096 May  5 18:02 wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_flannel-cfg.deleting~443381808.deleting~108562981.deleting~938554959.deleting~743974077.deleting~274346355.deleting~274250693.deleting~987962315.deleting~680794233.deleting~917929467
+drwx------    2 root root    4096 May  4 23:37 wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_flannel-cfg.deleting~443381808.deleting~108562981.deleting~938554959.deleting~743974077.deleting~274346355.deleting~292131322.deleting~049606881.deleting~105942520.deleting~463246644
+drwx------    2 root root    4096 May  4 22:46 wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_flannel-cfg.deleting~443381808.deleting~119491600.deleting~962328406.deleting~220005477.deleting~309794961.deleting~392355244.deleting~378832104.deleting~159122214.deleting~324365539
+drwx------    2 root root    4096 Apr 15 20:39 wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_flannel-cfg.deleting~443381808.deleting~162549394.deleting~296869341.deleting~353223099.deleting~018715754.deleting~526835026.deleting~320404022.deleting~453576282.deleting~001809150
+...
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Parece como si algo no hubiera funcionado correctamente y hubiera entrado en un bucle, creando carpetas y más carpetas. Además, en el nombre de alguna de estas carpetas aparece &lt;code&gt;..._flannel-cfg...&lt;/code&gt;. Esta ha sido la pista que me ha convencido; al intentar instalar el &lt;em&gt;dashboard&lt;/em&gt; de Kubernetes, tuve problemas precisamente porque no tengo instalado Flannel. Eliminé el &lt;em&gt;pod&lt;/em&gt; y no le di más vueltas.&lt;/p&gt;
+
+&lt;p&gt;Sin embargo, la existencia de estas carpetas parece indicar que la eliminación no fue tan limpia como pensaba y que &lt;em&gt;algo&lt;/em&gt; se quedó atrapado en un bucle.&lt;/p&gt;
+
+&lt;p&gt;He lanzado &lt;code&gt;rm -rf /var/lib/kubelet/pods/&lt;/code&gt; y el comando ha fallado indicando que uno de los &lt;em&gt;pods&lt;/em&gt; estaba en uso. Así que he eliminado poco a poco los &lt;em&gt;pods&lt;/em&gt; hasta que al final:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ ls /var/lib/kubelet/pods/ -la
+total 24
+drwxr-x--- 4 root root 12288 May  5 18:40 .
+drwxr-x--- 4 root root  4096 Apr 15 09:08 ..
+drwxr-x--- 5 root root  4096 May  5 18:43 c0323b0f-31bd-11e7-a0ed-b827eb650fdb
+drwxr-x--- 5 root root  4096 May  5 18:43 f2da9dfb-31bd-11e7-a0ed-b827eb650fdb
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Estos &lt;em&gt;pods&lt;/em&gt;, sean los que sean, están en uso (no tengo nada desplegado en el clúster, así que deben ser &lt;em&gt;de sistema&lt;/em&gt;).&lt;/p&gt;
+
+&lt;p&gt;Tras la limpieza, he reiniciado el nodo.&lt;/p&gt;
+
+&lt;h3 id=&#34;nodo-k3&#34;&gt;Nodo &lt;strong&gt;k3&lt;/strong&gt;&lt;/h3&gt;
+
+&lt;p&gt;El nodo &lt;strong&gt;k3&lt;/strong&gt; no presentaba estas &lt;em&gt;carpetas sospechosas&lt;/em&gt;, pero también he realizado limpieza:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ rm -rf /var/lib/kubelet/pods/
+rm: cannot remove ‘/var/lib/kubelet/pods/3a5e2819-21e5-11e7-bcfd-b827eb650fdb/volumes/kubernetes.io~configmap’: Directory not empty
+rm: cannot remove ‘/var/lib/kubelet/pods/71290201-31bb-11e7-a0ed-b827eb650fdb/volumes/kubernetes.io~secret/kube-proxy-token-7zk2k’: Device or resource busy
+rm: cannot remove ‘/var/lib/kubelet/pods/ef887c6a-31ba-11e7-a0ed-b827eb650fdb/volumes/kubernetes.io~secret/weave-net-token-61scv’: Device or resource busy
+$
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Igual que en el nodo &lt;strong&gt;k2&lt;/strong&gt;, he reiniciado.&lt;/p&gt;
+
+&lt;h2 id=&#34;resultados&#34;&gt;Resultados&lt;/h2&gt;
+
+&lt;p&gt;Los nodos &lt;strong&gt;k2&lt;/strong&gt; y &lt;strong&gt;k3&lt;/strong&gt; siguen en estado &lt;code&gt;Ready&lt;/code&gt; tras unas siete y ocho horas, que es bastante más de lo que &lt;em&gt;aguantaban&lt;/em&gt; antes.&lt;/p&gt;
+
+&lt;p&gt;He comprobado que en la carpeta &lt;code&gt;/var/lib/kubelet/pods&lt;/code&gt; sólo aparecen dos &lt;em&gt;pods&lt;/em&gt; (en el nodo &lt;strong&gt;k2&lt;/strong&gt;):&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ ls -la /var/lib/kubelet/pods/
+total 24
+drwxr-x--- 4 root root 12288 May  5 18:40 .
+drwxr-x--- 4 root root  4096 Apr 15 09:08 ..
+drwxr-x--- 5 root root  4096 May  5 18:43 c0323b0f-31bd-11e7-a0ed-b827eb650fdb
+drwxr-x--- 5 root root  4096 May  5 18:43 f2da9dfb-31bd-11e7-a0ed-b827eb650fdb
+$
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;En el nodo &lt;strong&gt;k3&lt;/strong&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ ls -la /var/lib/kubelet/pods/
+total 28
+drwxr-x--- 5 root root 12288 May  5 19:44 .
+drwxr-x--- 4 root root  4096 Apr 15 14:10 ..
+drwxr-x--- 3 root root  4096 May  5 19:33 3a5e2819-21e5-11e7-bcfd-b827eb650fdb
+drwxr-x--- 5 root root  4096 May  5 19:37 514d4c93-31c9-11e7-a0ed-b827eb650fdb
+drwxr-x--- 5 root root  4096 May  5 19:37 c0b9753a-31c9-11e7-a0ed-b827eb650fdb
+$
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Más adelante actualizaré el artículo para verificar si los nodos siguen activos y sin problemas.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Errores sobre Orphaned pods en syslog</title>
+      <link>http://192.168.1.9:8000/post/170430-errores-sobre-orphaned-pods-en-syslog/</link>
+      <pubDate>Sun, 30 Apr 2017 12:55:44 +0200</pubDate>
+      
+      <guid>http://192.168.1.9:8000/post/170430-errores-sobre-orphaned-pods-en-syslog/</guid>
+      <description>&lt;p&gt;Los nodos &lt;strong&gt;k2&lt;/strong&gt; y &lt;strong&gt;k3&lt;/strong&gt; del clúster dejan de responder pasadas unas horas. La única manera de solucionarlo es reiniciar los nodos. Siguiendo con la revisión de logs, he encontrado que se genera una gran cantidad de entradas en &lt;em&gt;syslog&lt;/em&gt; en referencia a &lt;em&gt;orphaned pods&lt;/em&gt;. Además, el número de estos errores no para de crecer &lt;strong&gt;rápidamente&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ grep &amp;quot;kubelet_volumes.go:114] Orphaned pod&amp;quot; /var/log/syslog | wc -l
+118938
+$ grep &amp;quot;kubelet_volumes.go:114] Orphaned pod&amp;quot; /var/log/syslog | wc -l
+119022
+$ grep &amp;quot;kubelet_volumes.go:114] Orphaned pod&amp;quot; /var/log/syslog | wc -l
+119170
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Revisando las últimas entradas del log:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-log&#34;&gt;Apr 30 10:57:57 k2 kubelet[3619]: E0430 10:57:57.186318    3619 kubelet_volumes.go:114] Orphaned pod &amp;quot;5064b9d9-2c9e-11e7-a7ae-b827eb650fdb&amp;quot; found, but volume paths are still present on disk.
+Apr 30 10:58:01 k2 kubelet[3619]: E0430 10:58:01.759595    3619 kubelet_volumes.go:114] Orphaned pod &amp;quot;6c601e9c-2c9c-11e7-a7ae-b827eb650fdb&amp;quot; found, but volume paths are still present on disk.
+Apr 30 10:58:03 k2 kubelet[3619]: E0430 10:58:03.226372    3619 kubelet.go:1549] Unable to mount volumes for pod &amp;quot;weave-net-bs9bs_kube-system(4461d51d-2d93-11e7-a7ae-b827eb650fdb)&amp;quot;: timeout expired waiting for volumes to attach/mount for pod &amp;quot;kube-system&amp;quot;/&amp;quot;weave-net-bs9bs&amp;quot;. list of unattached/unmounted volumes=[weavedb cni-bin cni-bin2 cni-conf dbus lib-modules weave-net-token-61scv]; skipping pod
+Apr 30 10:58:03 k2 kubelet[3619]: E0430 10:58:03.238315    3619 pod_workers.go:182] Error syncing pod 4461d51d-2d93-11e7-a7ae-b827eb650fdb (&amp;quot;weave-net-bs9bs_kube-system(4461d51d-2d93-11e7-a7ae-b827eb650fdb)&amp;quot;), skipping: timeout expired waiting for volumes to attach/mount for pod &amp;quot;kube-system&amp;quot;/&amp;quot;weave-net-bs9bs&amp;quot;. list of unattached/unmounted volumes=[weavedb cni-bin cni-bin2 cni-conf dbus lib-modules weave-net-token-61scv]
+Apr 30 10:58:05 k2 kubelet[3619]: E0430 10:58:05.830432    3619 kubelet_volumes.go:114] Orphaned pod &amp;quot;bb4d3ea6-2b80-11e7-9388-b827eb650fdb&amp;quot; found, but volume paths are still present on disk.
+Apr 30 10:58:08 k2 kubelet[3619]: E0430 10:58:08.435567    3619 kubelet_volumes.go:114] Orphaned pod &amp;quot;cb23be0d-2d7e-11e7-a7ae-b827eb650fdb&amp;quot; found, but volume paths are still present on disk.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Todas estas entradas se encuentran en los logs del nodo &lt;strong&gt;k2&lt;/strong&gt;, donde no hay ningún &lt;em&gt;pod&lt;/em&gt; en ejecución (a parte de los propios de  Kubernetes que el clúster planifica en los diferentes nodos).&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Actualización&lt;/strong&gt;: &lt;a href=&#34;http://192.168.1.9:8000/post/170506-troubleshooting-kubernetes-ii/&#34;&gt;Troubleshooting Kubernetes (II)&lt;/a&gt;&lt;/p&gt;</description>
+    </item>
     
     <item>
       <title>El nodo k3 del clúster colgado de nuevo</title>
-      <link>https://onthedock.github.io/post/170430-k3-colgado-de-nuevo/</link>
+      <link>http://192.168.1.9:8000/post/170430-k3-colgado-de-nuevo/</link>
       <pubDate>Sun, 30 Apr 2017 11:39:20 +0200</pubDate>
       
-      <guid>https://onthedock.github.io/post/170430-k3-colgado-de-nuevo/</guid>
-      <description>&lt;p&gt;En la entrada anterior &lt;a href=&#34;https://onthedock.github.io/post/170430-multiples-mensajes-action-17-suspended/&#34;&gt;Múltiples mensajes &amp;lsquo;action 17 suspended&amp;rsquo; en los logs&lt;/a&gt; comentaba que estaba a la espera de obtener resultados; después de apenas unas horas, ya los tengo: &lt;strong&gt;k3&lt;/strong&gt; se ha vuelto a &lt;em&gt;colgar&lt;/em&gt; mientras que &lt;strong&gt;k2&lt;/strong&gt; no.&lt;/p&gt;
+      <guid>http://192.168.1.9:8000/post/170430-k3-colgado-de-nuevo/</guid>
+      <description>&lt;p&gt;En la entrada anterior &lt;a href=&#34;http://192.168.1.9:8000/post/170430-multiples-mensajes-action-17-suspended/&#34;&gt;Múltiples mensajes &amp;lsquo;action 17 suspended&amp;rsquo; en los logs&lt;/a&gt; comentaba que estaba a la espera de obtener resultados; después de apenas unas horas, ya los tengo: &lt;strong&gt;k3&lt;/strong&gt; se ha vuelto a &lt;em&gt;colgar&lt;/em&gt; mientras que &lt;strong&gt;k2&lt;/strong&gt; no.&lt;/p&gt;
 
 &lt;p&gt;Este resultado parece demostrar que la mala configuración de &lt;em&gt;rsyslog&lt;/em&gt; es la causante de los &lt;em&gt;cuelgues&lt;/em&gt; de las RPi 3 en el clúster de Kubernetes.&lt;/p&gt;
 
-&lt;p&gt;&lt;strong&gt;Actualización&lt;/strong&gt;: Las RPi3 siguen colgándose :(&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Actualización&lt;/strong&gt;: El nodo &lt;strong&gt;k2&lt;/strong&gt; sobre RPi3 sigue colgándose :(&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Actualización II&lt;/strong&gt;: &lt;a href=&#34;http://192.168.1.9:8000/post/170506-troubleshooting-kubernetes-ii/&#34;&gt;Parece solucionado&lt;/a&gt;&lt;/p&gt;
 
 &lt;p&gt;&lt;/p&gt;
 
@@ -87,10 +237,10 @@ daemon.*;mail.*;\
     
     <item>
       <title>Múltiples mensajes &#39;action 17 suspended&#39; en los logs</title>
-      <link>https://onthedock.github.io/post/170430-multiples-mensajes-action-17-suspended/</link>
+      <link>http://192.168.1.9:8000/post/170430-multiples-mensajes-action-17-suspended/</link>
       <pubDate>Sun, 30 Apr 2017 08:44:27 +0200</pubDate>
       
-      <guid>https://onthedock.github.io/post/170430-multiples-mensajes-action-17-suspended/</guid>
+      <guid>http://192.168.1.9:8000/post/170430-multiples-mensajes-action-17-suspended/</guid>
       <description>&lt;p&gt;Investigando las causas por las que los dos nodos con Raspberry Pi 3 se &lt;em&gt;cuelgan&lt;/em&gt;, he encontrado múltiples apariciones de este mensaje en &lt;code&gt;/var/log/messages&lt;/code&gt;:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-log&#34;&gt;Apr 30 06:40:42 k3 rsyslogd-2007: action &#39;action 17&#39; suspended, next retry is Sun Apr 30 06:41:12 2017 [try http://www.rsyslog.com/e/2007 ]
@@ -149,20 +299,25 @@ k3        Ready     14d       v1.6.2
 
 &lt;p&gt;Ya tenngo resultados: la configuración de &lt;em&gt;rsyslog&lt;/em&gt; es la que causa el cuelgue del sistema en las RPi3.&lt;/p&gt;
 
-&lt;p&gt;Échale un vistazo a cómo solucionar este error en la entrada: &lt;a href=&#34;https://onthedock.github.io/post/170430-k3-colgado-de-nuevo/&#34;&gt;El nodo k3 del clúster colgado de nuevo&lt;/a&gt;&lt;/p&gt;</description>
+&lt;p&gt;Échale un vistazo a cómo solucionar este error en la entrada: &lt;a href=&#34;http://192.168.1.9:8000/post/170430-k3-colgado-de-nuevo/&#34;&gt;El nodo k3 del clúster colgado de nuevo&lt;/a&gt;.&lt;/p&gt;</description>
     </item>
     
     <item>
-      <title>Portainer para monitorizar tus contenedores en Docker</title>
-      <link>https://onthedock.github.io/post/170429-portainer-para-monitorizar-tus-contenedores-en-docker/</link>
+      <title>Portainer para gestionar tus contenedores en Docker</title>
+      <link>http://192.168.1.9:8000/post/170429-portainer-para-gestionar-tus-contenedores-en-docker/</link>
       <pubDate>Sat, 29 Apr 2017 12:55:04 +0200</pubDate>
       
-      <guid>https://onthedock.github.io/post/170429-portainer-para-monitorizar-tus-contenedores-en-docker/</guid>
+      <guid>http://192.168.1.9:8000/post/170429-portainer-para-gestionar-tus-contenedores-en-docker/</guid>
       <description>&lt;p&gt;&lt;a href=&#34;http://portainer.io/&#34;&gt;Portainer&lt;/a&gt; es una herramienta ligera y &lt;em&gt;open-source&lt;/em&gt; de gestión de contenedores sobre Docker (o Docker Swarm). Portainer ofrece una interfaz gráfica para gestionar el &lt;em&gt;host&lt;/em&gt; Docker desde cualquier navegador, tiene soporte para Raspberry Pi y se puede desplegar como un simple contenedor.&lt;/p&gt;
 
 &lt;p&gt;Espero que este artículo ayude a todos aquellos que tengan ganas de probar Portainer y evitarles los problemas que me he encontrado yo.&lt;/p&gt;
 
-&lt;p&gt;&lt;/p&gt;
+&lt;p&gt;
+&lt;figure&gt;
+  &lt;amp-img src=&#34;http://192.168.1.9:8000/images/portainer-logo.png&#34; alt=&#34;Portainer para gestionar tus contenedores en Docker images/portainer-logo.png&#34; width=1106 height=361 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
+  
+&lt;/figure&gt;
+&lt;/p&gt;
 
 &lt;p&gt;He estado buscando algún tipo de solución gráfica para monitorizar las Raspberry Pi ya que, por algún motivo, los nodos &lt;em&gt;worker&lt;/em&gt; del clúster de Kubernetes se &lt;em&gt;cuelgan&lt;/em&gt;.&lt;/p&gt;
 
@@ -224,7 +379,7 @@ $
 &lt;p&gt;La primera vez que accedes a la URL de Portainer debes introducir el password del usuario &lt;code&gt;admin&lt;/code&gt;.&lt;/p&gt;
 
 &lt;figure&gt;
-  &lt;amp-img src=&#34;https://onthedock.github.io/images/170429/portainer-1-define-admin-password.png&#34; alt=&#34;Portainer para monitorizar tus contenedores en Docker images/170429/portainer-1-define-admin-password.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
+  &lt;amp-img src=&#34;http://192.168.1.9:8000/images/170429/portainer-1-define-admin-password.png&#34; alt=&#34;Portainer para gestionar tus contenedores en Docker images/170429/portainer-1-define-admin-password.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
   
 &lt;/figure&gt;
 
@@ -232,7 +387,7 @@ $
 &lt;p&gt;Una vez introducido, puedes acceder a la UI de gestión de Portainer.&lt;/p&gt;
 
 &lt;figure&gt;
-  &lt;amp-img src=&#34;https://onthedock.github.io/images/170429/portainer-2-first-login.png&#34; alt=&#34;Portainer para monitorizar tus contenedores en Docker images/170429/portainer-2-first-login.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
+  &lt;amp-img src=&#34;http://192.168.1.9:8000/images/170429/portainer-2-first-login.png&#34; alt=&#34;Portainer para gestionar tus contenedores en Docker images/170429/portainer-2-first-login.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
   
 &lt;/figure&gt;
 
@@ -240,7 +395,7 @@ $
 &lt;p&gt;Para mostrar información sobre los contendores (imágenes, volúmenes, etc) en Docker, Portainer necesita conectarse -vía API- al &lt;em&gt;host&lt;/em&gt; en el que corre Docker. Tenemos dos opciones, un &lt;em&gt;endpoint remoto&lt;/em&gt; (opción por defecto) o conectar con el &lt;em&gt;host&lt;/em&gt; donde corre Portainer:&lt;/p&gt;
 
 &lt;figure&gt;
-  &lt;amp-img src=&#34;https://onthedock.github.io/images/170429/portainer-3-remote_endpoint_by_default.png&#34; alt=&#34;Portainer para monitorizar tus contenedores en Docker images/170429/portainer-3-remote_endpoint_by_default.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
+  &lt;amp-img src=&#34;http://192.168.1.9:8000/images/170429/portainer-3-remote_endpoint_by_default.png&#34; alt=&#34;Portainer para gestionar tus contenedores en Docker images/170429/portainer-3-remote_endpoint_by_default.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
   
 &lt;/figure&gt;
 
@@ -248,7 +403,7 @@ $
 &lt;p&gt;El problema es que, como vemos, al seleccionar un &lt;em&gt;endpoint&lt;/em&gt; local, se indica que hay que lanzar el contenedor de Portainer dando acceso al contenedor sobre &lt;code&gt;/var/run/docker.sock&lt;/code&gt;:&lt;/p&gt;
 
 &lt;figure&gt;
-  &lt;amp-img src=&#34;https://onthedock.github.io/images/170429/portainer-4-local_endpoint_require_docker.sock.png&#34; alt=&#34;Portainer para monitorizar tus contenedores en Docker images/170429/portainer-4-local_endpoint_require_docker.sock.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
+  &lt;amp-img src=&#34;http://192.168.1.9:8000/images/170429/portainer-4-local_endpoint_require_docker.sock.png&#34; alt=&#34;Portainer para gestionar tus contenedores en Docker images/170429/portainer-4-local_endpoint_require_docker.sock.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
   
 &lt;/figure&gt;
 
@@ -277,7 +432,7 @@ $
 &lt;p&gt;Después de validarnos, podemos conectar con el &lt;em&gt;docker-engine&lt;/em&gt; local y visualizar el &lt;em&gt;dashboard&lt;/em&gt;:&lt;/p&gt;
 
 &lt;figure&gt;
-  &lt;amp-img src=&#34;https://onthedock.github.io/images/170429/portainer-5-dashboard.png&#34; alt=&#34;Portainer para monitorizar tus contenedores en Docker images/170429/portainer-5-dashboard.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
+  &lt;amp-img src=&#34;http://192.168.1.9:8000/images/170429/portainer-5-dashboard.png&#34; alt=&#34;Portainer para gestionar tus contenedores en Docker images/170429/portainer-5-dashboard.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
   
 &lt;/figure&gt;
 
@@ -285,7 +440,7 @@ $
 &lt;p&gt;Desde la interfaz web podemos gestionar los contenedores, imágenes y volúmenes existentes:&lt;/p&gt;
 
 &lt;figure&gt;
-  &lt;amp-img src=&#34;https://onthedock.github.io/images/170429/portainer-6-containers.png&#34; alt=&#34;Portainer para monitorizar tus contenedores en Docker images/170429/portainer-6-containers.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
+  &lt;amp-img src=&#34;http://192.168.1.9:8000/images/170429/portainer-6-containers.png&#34; alt=&#34;Portainer para gestionar tus contenedores en Docker images/170429/portainer-6-containers.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
   
   &lt;figcaption&gt;
     
@@ -297,7 +452,7 @@ $
 
 
 &lt;figure&gt;
-  &lt;amp-img src=&#34;https://onthedock.github.io/images/170429/portainer-7-images.png&#34; alt=&#34;Portainer para monitorizar tus contenedores en Docker images/170429/portainer-7-images.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
+  &lt;amp-img src=&#34;http://192.168.1.9:8000/images/170429/portainer-7-images.png&#34; alt=&#34;Portainer para gestionar tus contenedores en Docker images/170429/portainer-7-images.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
   
   &lt;figcaption&gt;
     
@@ -309,7 +464,7 @@ $
 
 
 &lt;figure&gt;
-  &lt;amp-img src=&#34;https://onthedock.github.io/images/170429/portainer-8-volumes.png&#34; alt=&#34;Portainer para monitorizar tus contenedores en Docker images/170429/portainer-8-volumes.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
+  &lt;amp-img src=&#34;http://192.168.1.9:8000/images/170429/portainer-8-volumes.png&#34; alt=&#34;Portainer para gestionar tus contenedores en Docker images/170429/portainer-8-volumes.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
   
   &lt;figcaption&gt;
     
@@ -320,15 +475,15 @@ $
 &lt;/figure&gt;
 
 
-&lt;p&gt;En el próximo artículo me concentraré en usar &lt;a href=&#34;https://onthedock.github.io/tags/portainer/&#34;&gt;Portainer&lt;/a&gt; para realizar la gestión de Docker.&lt;/p&gt;</description>
+&lt;p&gt;En el próximo artículo me concentraré en usar &lt;a href=&#34;http://192.168.1.9:8000/tags/portainer/&#34;&gt;Portainer&lt;/a&gt; para realizar la gestión de Docker.&lt;/p&gt;</description>
     </item>
     
     <item>
       <title>Cómo agregar un nodo a un cluster Kubernetes</title>
-      <link>https://onthedock.github.io/post/170417-como-agregar-un-nodo-a-un-cluster-kubernetes/</link>
+      <link>http://192.168.1.9:8000/post/170417-como-agregar-un-nodo-a-un-cluster-kubernetes/</link>
       <pubDate>Sat, 15 Apr 2017 16:27:30 +0200</pubDate>
       
-      <guid>https://onthedock.github.io/post/170417-como-agregar-un-nodo-a-un-cluster-kubernetes/</guid>
+      <guid>http://192.168.1.9:8000/post/170417-como-agregar-un-nodo-a-un-cluster-kubernetes/</guid>
       <description>&lt;p&gt;Después de realizar la instalación del nodo &lt;em&gt;master&lt;/em&gt; del clúster Kubernetes, el siguiente paso es agregar nodos adicionales al clúster. Es en estos nodos donde se van a planificar los &lt;em&gt;pods&lt;/em&gt; que realizan las funciones &lt;em&gt;productivas&lt;/em&gt; del clúster (en el nodo &lt;em&gt;master&lt;/em&gt; sólo realiza tareas de gestión del clúster).&lt;/p&gt;
 
 &lt;p&gt;&lt;/p&gt;
@@ -532,13 +687,109 @@ $
     </item>
     
     <item>
+      <title>Error: The connection to the server localhost:8080 was refused</title>
+      <link>http://192.168.1.9:8000/post/170414-error_the-connection-to-the-server-was-refused/</link>
+      <pubDate>Fri, 14 Apr 2017 18:10:34 +0200</pubDate>
+      
+      <guid>http://192.168.1.9:8000/post/170414-error_the-connection-to-the-server-was-refused/</guid>
+      <description>&lt;p&gt;Después de &lt;a href=&#34;http://192.168.1.9:8000/post/170410-k8s-en-rpi-teaser/&#34;&gt;conseguir arrancar Kubernetes tras la instalación&lt;/a&gt;, al intentar ejecutar comandos vía &lt;code&gt;kubectl&lt;/code&gt; obtengo el mensaje de error &lt;code&gt;The connection to the server localhost:8080 was refused - did you specify the right host or port?&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;A continuación explico cómo solucionar el error y evitar que vuelva a mostrarse.&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;
+
+&lt;p&gt;En la guía oficial para instalar Kubernetes en Linux con &lt;code&gt;kubeadm&lt;/code&gt; &lt;a href=&#34;https://kubernetes.io/docs/getting-started-guides/kubeadm/&#34;&gt;Installing Kubernetes on Linux with kubeadm&lt;/a&gt;, en la salida del comando &lt;code&gt;kubeadm init&lt;/code&gt; en el punto &lt;em&gt;(&lt;sup&gt;2&lt;/sup&gt;&amp;frasl;&lt;sub&gt;4&lt;/sub&gt;) - Initializing your master&lt;/em&gt;, se muestra:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;Your Kubernetes master has initialized successfully!
+
+To start using your cluster, you need to run (as a regular &amp;gt;user):
+
+ sudo cp /etc/kubernetes/admin.conf $HOME/
+ sudo chown $(id -u):$(id -g) $HOME/admin.conf
+ export KUBECONFIG=$HOME/admin.conf
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;El problema es que la &lt;em&gt;exportación&lt;/em&gt; de la variable de entorno realizada mediante &lt;code&gt;export KUBECONFIG=$HOME/admin.conf&lt;/code&gt; &lt;strong&gt;se pierde en cuanto se cierra la sesión&lt;/strong&gt;.
+Por tanto, cuando reconectamos más tarde, la variable &lt;code&gt;KUBECONFIG&lt;/code&gt; está vacía y el comando &lt;code&gt;kubectl&lt;/code&gt; intenta conectar con &lt;code&gt;localhost:8080&lt;/code&gt;. Como el API server no está escuchando en esta IP y puerto, lo que obtenemos el mensaje de error:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;The connection to the server localhost:8080 was refused - did you specify the right host or port?
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Si miramos el contenido del fichero &lt;code&gt;$HOME/admin.conf&lt;/code&gt; mediante &lt;code&gt;cat $HOME/admin.conf&lt;/code&gt; encontramos una línea que identifica el servidor: &lt;code&gt;server: https://192.168.1.11:6443&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;Parece que lo único que tenemos que hacer es especificar el servidor como parámetro para &lt;code&gt;kubectl&lt;/code&gt;, pero&amp;hellip;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ kubectl get nodes --server=https://192.168.1.11:6443
+Please enter Username: pirate
+Please enter Password: ********
+  Unable to connect to the server: x509: certificate signed by unknown authority
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Si usamos el usuario &lt;code&gt;root&lt;/code&gt;, el resultado es el mismo.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Observando el contenido del fichero &lt;code&gt;admin.conf&lt;/code&gt; vemos que para el parámetro &lt;code&gt;user&lt;/code&gt; se especifican certificados (mediante &lt;code&gt;client-certificate-data&lt;/code&gt; y &lt;code&gt;client-key-data&lt;/code&gt;):&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;...
+users:
+- name: kubernetes-admin
+  user:
+    client-certificate-data: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUM4akNDQ...
+    client-key-data:   LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLQVdLN3JjWDIKY2DIKY2t1c...
+$
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Así que no podemos autenticarnos en el API Server con los usuarios del sistema y tenemos que usar los certificados en el fichero &lt;code&gt;admin.conf&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Esto nos lleva de nuevo a la variable &lt;code&gt;KUBECONFIG&lt;/code&gt;. Si lanzamos el comando &lt;code&gt;export KUBECONFIG...&lt;/code&gt;, los comandos funcionarán durante la sesión en curso, pero tendremos que lanzar el comando &lt;code&gt;export&lt;/code&gt; en cada nueva sesión:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ export KUBECONFIG=$HOME/admin.conf
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;La solución para que la variable se establezca automáticamente en cada inicio de sesión es añadiéndo el valor en el fichero &lt;code&gt;$HOME/.bashrc&lt;/code&gt;.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ nano $HOME/.bashrc
+export KUBECONFIG=$HOME/admin.conf
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Para verificar que funciona como debe, cierra sesión y vuelve a iniciarla.&lt;/p&gt;
+
+&lt;p&gt;Comprueba que puedes lanzar comandos sin problemas:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ kubectl get nodes
+NAME      STATUS    AGE       VERSION
+k1        Ready     3d        v1.6.1
+$
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;¡Problema solucionado!&lt;/p&gt;
+
+&lt;p&gt;Otra solución alternativa, si no quieres modificar el fichero &lt;code&gt;$HOME/admin.conf&lt;/code&gt; es pasar la ubicación del fichero como parámetro a &lt;code&gt;kubectl&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ kubectl get nodes
+The connection to the server localhost:8080 was refused - did you specify the right host or port?
+$ kubectl --kubeconfig ./admin.conf get nodes
+NAME      STATUS    AGE       VERSION
+k1        Ready     3d        v1.6.1
+$
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Puedes usar también este método para conectar, por ejemplo, desde otro equipo al nodo master del clúster (debes copiar primero el fichero &lt;code&gt;admin.conf&lt;/code&gt; a tu equipo, desde su ubicación original &lt;code&gt;/etc/kubernetes/admin.conf&lt;/code&gt; o desde la carpeta &lt;code&gt;$HOME&lt;/code&gt; del usuario, si lo has copiado):&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ scp pirate@k1.local:/home/pirate/admin.conf .
+kubectl --kubeconfig ./admin.conf get nodes
+&lt;/code&gt;&lt;/pre&gt;</description>
+    </item>
+    
+    <item>
       <title>Kubernetes en la Raspberry Pi (teaser)</title>
-      <link>https://onthedock.github.io/post/170410-k8s-en-rpi-teaser/</link>
+      <link>http://192.168.1.9:8000/post/170410-k8s-en-rpi-teaser/</link>
       <pubDate>Mon, 10 Apr 2017 22:45:28 +0200</pubDate>
       
-      <guid>https://onthedock.github.io/post/170410-k8s-en-rpi-teaser/</guid>
+      <guid>http://192.168.1.9:8000/post/170410-k8s-en-rpi-teaser/</guid>
       <description>&lt;figure&gt;
-  &lt;amp-img src=&#34;https://onthedock.github.io/images/170410/itsalive.jpg&#34; alt=&#34;Kubernetes en la Raspberry Pi (teaser) images/170410/itsalive.jpg&#34; width=400 height=292 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
+  &lt;amp-img src=&#34;http://192.168.1.9:8000/images/170410/itsalive.jpg&#34; alt=&#34;Kubernetes en la Raspberry Pi (teaser) images/170410/itsalive.jpg&#34; width=400 height=292 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
   
 &lt;/figure&gt;
 
@@ -546,7 +797,7 @@ $
 &lt;p&gt;&lt;/p&gt;
 
 &lt;p&gt;&lt;figure&gt;
-  &lt;amp-img src=&#34;https://onthedock.github.io/images/170410/k8s-en-rpi.png&#34; alt=&#34;Kubernetes en la Raspberry Pi (teaser) images/170410/k8s-en-rpi.png&#34; width=640 height=259 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
+  &lt;amp-img src=&#34;http://192.168.1.9:8000/images/170410/k8s-en-rpi.png&#34; alt=&#34;Kubernetes en la Raspberry Pi (teaser) images/170410/k8s-en-rpi.png&#34; width=640 height=259 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
   
   &lt;figcaption&gt;
     
@@ -560,10 +811,10 @@ $
     
     <item>
       <title>Acciones previas a la instalación de Kubernetes en Raspberry Pi</title>
-      <link>https://onthedock.github.io/post/170409-acciones-previas-instalacion-rpi/</link>
+      <link>http://192.168.1.9:8000/post/170409-acciones-previas-instalacion-rpi/</link>
       <pubDate>Sun, 09 Apr 2017 21:34:16 +0200</pubDate>
       
-      <guid>https://onthedock.github.io/post/170409-acciones-previas-instalacion-rpi/</guid>
+      <guid>http://192.168.1.9:8000/post/170409-acciones-previas-instalacion-rpi/</guid>
       <description>&lt;p&gt;Uno de los objetivos motivadores de la existencia de este blog es instalar un clúster de Kubernetes sobre Raspberry Pi. Este artículo se centra en las tareas previas a la instalación en sí.&lt;/p&gt;
 
 &lt;p&gt;Kubernetes requiere una instalación previa de Docker, una tarea simplificada gracias a HypriotOS, la &lt;em&gt;distro&lt;/em&gt; creada específicamente con este fin.&lt;/p&gt;
@@ -601,10 +852,10 @@ $
     
     <item>
       <title>Introducción a Hypriot OS</title>
-      <link>https://onthedock.github.io/post/161105-introduccion-a-hypriotos/</link>
+      <link>http://192.168.1.9:8000/post/161105-introduccion-a-hypriotos/</link>
       <pubDate>Sat, 05 Nov 2016 10:37:47 +0100</pubDate>
       
-      <guid>https://onthedock.github.io/post/161105-introduccion-a-hypriotos/</guid>
+      <guid>http://192.168.1.9:8000/post/161105-introduccion-a-hypriotos/</guid>
       <description>&lt;p&gt;&lt;a href=&#34;http://blog.hypriot.com/about/#hypriotos:6083a88ee3411b0d17ce02d738f69d47&#34;&gt;HypriotOS&lt;/a&gt; es un sistema operativo basado en &lt;a href=&#34;http://www.debian.org/&#34;&gt;Debian&lt;/a&gt; optimizado para ejecutar &lt;a href=&#34;http://www.docker.com/&#34;&gt;Docker&lt;/a&gt; en plataformas ARM como las &lt;a href=&#34;https://www.raspberrypi.org/&#34;&gt;Raspberry Pi&lt;/a&gt;.&lt;/p&gt;
 
 &lt;p&gt;&lt;/p&gt;

@@ -2,18 +2,163 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Docker on On The Dock</title>
-    <link>https://onthedock.github.io/categories/docker/index.xml</link>
+    <link>http://192.168.1.9:8000/categories/docker/index.xml</link>
     <description>Recent content in Docker on On The Dock</description>
     <generator>Hugo -- gohugo.io</generator>
     <copyright>Handmade with &amp;#9829; by Xavi Aznar</copyright>
-    <atom:link href="https://onthedock.github.io/categories/docker/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://192.168.1.9:8000/categories/docker/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>La instalación de Kubernetes falla en Debian Jessie (Missing cgroups: memory)</title>
+      <link>http://192.168.1.9:8000/post/170417-instalacion-de-kubernetes-falla-missing-cgroups-memory/</link>
+      <pubDate>Mon, 17 Apr 2017 19:38:11 +0200</pubDate>
+      
+      <guid>http://192.168.1.9:8000/post/170417-instalacion-de-kubernetes-falla-missing-cgroups-memory/</guid>
+      <description>&lt;p&gt;La instalación de Kubernetes se realiza de forma casi automática gracias al &lt;em&gt;script&lt;/em&gt; &lt;code&gt;kubeadm&lt;/code&gt;. Sólo hay que seguir las instrucciones de &lt;a href=&#34;https://kubernetes.io/docs/getting-started-guides/kubeadm/&#34;&gt;Installing Kubernetes on Linux with kubeadm&lt;/a&gt; y la salida por pantalla del propio &lt;em&gt;script&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;
+
+&lt;p&gt;Para no &lt;em&gt;deshacer&lt;/em&gt; la instalación de Kubernetes sobre Raspberry Pi, he creado una máquina virtual con Debian 3 (&lt;em&gt;Jessie&lt;/em&gt;):&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;# uname -a
+Linux k8s 3.16.0-4-amd64 #1 SMP Debian 3.16.39-1+deb8u2 (2017-03-07) x86_64 GNU/Linux
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;En primer lugar, me he convertido en &lt;code&gt;root&lt;/code&gt; mediante &lt;code&gt;su -&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Uno de los requisitos para instalar Kubernetes es tener Docker instalado. En mi caso, tengo instalado &lt;code&gt;docker-engine&lt;/code&gt;, el paquete de Docker mantenido por Docker Inc. Este paquete y &lt;code&gt;docker.io&lt;/code&gt; (el mantenido por Ubuntu) son equivalentes, aunque tienen numeración de versión diferente.&lt;/p&gt;
+
+&lt;p&gt;Verifico que Docker está instalado:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;# docker version
+Client:
+ Version:      17.04.0-ce
+ API version:  1.28
+ Go version:   go1.7.5
+ Git commit:   4845c56
+ Built:        Mon Apr  3 17:45:49 2017
+ OS/Arch:      linux/amd64
+
+Server:
+ Version:      17.04.0-ce
+ API version:  1.28 (minimum version 1.12)
+ Go version:   go1.7.5
+ Git commit:   4845c56
+ Built:        Mon Apr  3 17:45:49 2017
+ OS/Arch:      linux/amd64
+ Experimental: false
+#
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Antes de empezar la instalación, he actualizado el sistema mediante:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;# apt-get update &amp;amp;&amp;amp; apt-get upgrade
+...
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;A partir de aquí, sigo las instrucciones de la guía oficial.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;# apt-get update &amp;amp;&amp;amp; apt-get install -y apt-transport-https
+...
+Reading state information... Done
+apt-transport-https is already the newest version.
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+#
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Obtenemos la clave GPG de los paquetes de Kubernetes:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;# curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
+OK
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Añadimos el repositorio de Kubernetes:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;apt-get update &amp;amp;&amp;amp; apt-get install -y apt-transport-https
+curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
+cat &amp;lt;&amp;lt;EOF &amp;gt;/etc/apt/sources.list.d/kubernetes.list
+deb http://apt.kubernetes.io/ kubernetes-xenial main
+EOF
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Y ya sólo nos queda actualizar la información e instalar los componentes de Kubernetes:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;# apt-get update
+...
+Fetched 22.1 kB in 3s (6,784 B/s)
+Reading package lists... Done
+#
+# apt-get install -y kubelet kubeadm kubectl kubernetes-cni
+...
+Setting up ebtables (2.0.10.4-3) ...
+update-rc.d: warning: start and stop actions are no longer supported; falling back to defaults
+Setting up ethtool (1:3.16-1) ...
+Setting up kubernetes-cni (0.5.1-00) ...
+Setting up socat (1.7.2.4-2) ...
+Setting up kubelet (1.6.1-00) ...
+Setting up kubectl (1.6.1-00) ...
+Setting up kubeadm (1.6.1-00) ...
+Processing triggers for systemd (215-17+deb8u6) ...
+#
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Ya tenemos instalado Kubernetes en nuestro sistema.&lt;/p&gt;
+
+&lt;p&gt;El siguiente paso es inicializar el clúster con &lt;code&gt;kubeadm init&lt;/code&gt;.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;# kubeadm init
+[kubeadm] WARNING: kubeadm is in beta, please do not use it for production clusters.
+[init] Using Kubernetes version: v1.6.0
+[init] Using Authorization mode: RBAC
+[preflight] Running pre-flight checks
+[preflight] The system verification failed. Printing the output from the verification:
+OS: Linux
+KERNEL_VERSION: 3.16.0-4-amd64
+CONFIG_NAMESPACES: enabled
+CONFIG_NET_NS: enabled
+CONFIG_PID_NS: enabled
+CONFIG_IPC_NS: enabled
+CONFIG_UTS_NS: enabled
+CONFIG_CGROUPS: enabled
+CONFIG_CGROUP_CPUACCT: enabled
+CONFIG_CGROUP_DEVICE: enabled
+CONFIG_CGROUP_FREEZER: enabled
+CONFIG_CGROUP_SCHED: enabled
+CONFIG_CPUSETS: enabled
+CONFIG_MEMCG: enabled
+CONFIG_INET: enabled
+CONFIG_EXT4_FS: enabled (as module)
+CONFIG_PROC_FS: enabled
+CONFIG_NETFILTER_XT_TARGET_REDIRECT: enabled (as module)
+CONFIG_NETFILTER_XT_MATCH_COMMENT: enabled (as module)
+CONFIG_OVERLAYFS_FS: not set - Required for overlayfs.
+CONFIG_AUFS_FS: enabled (as module)
+CONFIG_BLK_DEV_DM: enabled (as module)
+CGROUPS_CPU: enabled
+CGROUPS_CPUACCT: enabled
+CGROUPS_CPUSET: enabled
+CGROUPS_DEVICES: enabled
+CGROUPS_FREEZER: enabled
+CGROUPS_MEMORY: missing
+DOCKER_VERSION: 17.04.0-ce
+[preflight] WARNING: docker version is greater than the most recently validated version. Docker version: 17.04.0-ce. Max validated version: 1.12
+[preflight] WARNING: hostname &amp;quot;k8s&amp;quot; could not be reached
+[preflight] WARNING: hostname &amp;quot;k8s&amp;quot; lookup k8s on 80.58.61.254:53: no such host
+[preflight] Some fatal errors occurred:
+	missing cgroups: memory
+[preflight] If you know what you are doing, you can skip pre-flight checks with `--skip-preflight-checks`
+#
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;La instalación de Kubernetes falla porque no están habilitados los &lt;em&gt;cgroups&lt;/em&gt; para la memoria. :(&lt;/p&gt;</description>
+    </item>
     
     <item>
       <title>Docker-engine vs Docker.io</title>
-      <link>https://onthedock.github.io/post/170410-docker-engine_vs_docker.io/</link>
+      <link>http://192.168.1.9:8000/post/170410-docker-engine_vs_docker.io/</link>
       <pubDate>Mon, 10 Apr 2017 21:30:31 +0200</pubDate>
       
-      <guid>https://onthedock.github.io/post/170410-docker-engine_vs_docker.io/</guid>
+      <guid>http://192.168.1.9:8000/post/170410-docker-engine_vs_docker.io/</guid>
       <description>&lt;p&gt;En función de la distribución que uses, verás que el paquete de instalación de Docker es &lt;code&gt;docker-engine&lt;/code&gt; o &lt;code&gt;docker.io&lt;/code&gt;.&lt;/p&gt;
 
 &lt;p&gt;¿Cuál es la diferencia entre uno y otro?&lt;/p&gt;
@@ -67,10 +212,10 @@ Need to get 3,082 kB of archives.
     
     <item>
       <title>Contenedores y volúmenes de datos en el host</title>
-      <link>https://onthedock.github.io/post/170408-contenedores-y-volumenes-en-el-host/</link>
+      <link>http://192.168.1.9:8000/post/170408-contenedores-y-volumenes-en-el-host/</link>
       <pubDate>Sat, 08 Apr 2017 05:53:59 +0200</pubDate>
       
-      <guid>https://onthedock.github.io/post/170408-contenedores-y-volumenes-en-el-host/</guid>
+      <guid>http://192.168.1.9:8000/post/170408-contenedores-y-volumenes-en-el-host/</guid>
       <description>&lt;p&gt;Ayer leía el artículo &lt;a href=&#34;https://thenewstack.io/containers-storage-arent-yet/&#34;&gt;Containers and Storage: Why We Aren’t There Yet&lt;/a&gt; y recordaba los &lt;em&gt;quebraderos de cabeza&lt;/em&gt; que tuve intentado crear una serie de contenedores accediendo a un volumen de datos.&lt;/p&gt;
 
 &lt;p&gt;&lt;/p&gt;
