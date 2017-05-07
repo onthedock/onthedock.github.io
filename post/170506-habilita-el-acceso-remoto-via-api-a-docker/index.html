@@ -11,13 +11,13 @@
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
 
-<link rel="canonical" href="https://onthedock.github.io/post/170430-k3-colgado-de-nuevo/">
+<link rel="canonical" href="https://onthedock.github.io/post/170506-habilita-el-acceso-remoto-via-api-a-docker/">
 
 
     
     <link href="https://fonts.googleapis.com/css?family=Lobster|Lato:400,700" rel="stylesheet">
     
-    <title>El nodo k3 del clúster colgado de nuevo - On The Dock</title>
+    <title>Habilita el acceso remoto vía API a Docker - On The Dock</title>
     <style amp-boilerplate>body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}</style><noscript><style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style></noscript>
     <script async src="https://cdn.ampproject.org/v0.js"></script>
     
@@ -26,22 +26,22 @@
 <script async custom-element="amp-ad" src="https://cdn.ampproject.org/v0/amp-ad-0.1.js"></script>
 
     
-<meta name="description" content="&lt;p&gt;En la entrada anterior &lt;a href=&#34;https://onthedock.github.io/post/170430-multiples-mensajes-action-17-suspended/&#34;&gt;Múltiples mensajes &amp;lsquo;action 17 suspended&amp;rsquo; en los logs&lt;/a&gt; comentaba que estaba a la espera de obtener resultados; después de apenas unas horas, ya los tengo: &lt;strong&gt;k3&lt;/strong&gt; se ha vuelto a &lt;em&gt;colgar&lt;/em&gt; mientras que &lt;strong&gt;k2&lt;/strong&gt; no.&lt;/p&gt;&lt;p&gt;Este resultado parece demostrar que la mala configuración de &lt;em&gt;rsyslog&lt;/em&gt; es la causante de los &lt;em&gt;cuelgues&lt;/em&gt; de las RPi 3 en el clúster de Kubernetes.&lt;/p&gt;&lt;p&gt;&lt;strong&gt;Actualización&lt;/strong&gt;: El nodo &lt;strong&gt;k2&lt;/strong&gt; sobre RPi3 sigue colgándose :(&lt;/p&gt;&lt;p&gt;&lt;strong&gt;Actualización II&lt;/strong&gt;: &lt;a href=&#34;https://onthedock.github.io/post/170506-troubleshooting-kubernetes-ii/&#34;&gt;Parece solucionado&lt;/a&gt;&lt;/p&gt;&lt;p&gt;&lt;/p&gt;">
+<meta name="description" content="&lt;p&gt;Portainer permite gestionar &lt;em&gt;endpoints&lt;/em&gt; remotos para Docker (y Docker Swarm) mediante el API REST de Docker Engine. El problema es que el API está desactivado por defecto.&lt;/p&gt;&lt;p&gt;A continuación indico cómo activar y verificar el acceso remoto al API de Docker Engine.&lt;/p&gt;&lt;p&gt;&lt;/p&gt;">
 
-<meta property="og:title" content="El nodo k3 del clúster colgado de nuevo - On The Dock">
+<meta property="og:title" content="Habilita el acceso remoto vía API a Docker - On The Dock">
 <meta property="og:type" content="article">
-<meta property="og:url" content="https://onthedock.github.io/post/170430-k3-colgado-de-nuevo/">
-<meta property="og:image" content="https://onthedock.github.io/images/raspberry_pi.png">
+<meta property="og:url" content="https://onthedock.github.io/post/170506-habilita-el-acceso-remoto-via-api-a-docker/">
+<meta property="og:image" content="https://onthedock.github.io/images/docker.png">
 <meta property="og:site_name" content="On The Dock">
-<meta property="og:description" content="&lt;p&gt;En la entrada anterior &lt;a href=&#34;https://onthedock.github.io/post/170430-multiples-mensajes-action-17-suspended/&#34;&gt;Múltiples mensajes &amp;lsquo;action 17 suspended&amp;rsquo; en los logs&lt;/a&gt; comentaba que estaba a la espera de obtener resultados; después de apenas unas horas, ya los tengo: &lt;strong&gt;k3&lt;/strong&gt; se ha vuelto a &lt;em&gt;colgar&lt;/em&gt; mientras que &lt;strong&gt;k2&lt;/strong&gt; no.&lt;/p&gt;&lt;p&gt;Este resultado parece demostrar que la mala configuración de &lt;em&gt;rsyslog&lt;/em&gt; es la causante de los &lt;em&gt;cuelgues&lt;/em&gt; de las RPi 3 en el clúster de Kubernetes.&lt;/p&gt;&lt;p&gt;&lt;strong&gt;Actualización&lt;/strong&gt;: El nodo &lt;strong&gt;k2&lt;/strong&gt; sobre RPi3 sigue colgándose :(&lt;/p&gt;&lt;p&gt;&lt;strong&gt;Actualización II&lt;/strong&gt;: &lt;a href=&#34;https://onthedock.github.io/post/170506-troubleshooting-kubernetes-ii/&#34;&gt;Parece solucionado&lt;/a&gt;&lt;/p&gt;&lt;p&gt;&lt;/p&gt;">
+<meta property="og:description" content="&lt;p&gt;Portainer permite gestionar &lt;em&gt;endpoints&lt;/em&gt; remotos para Docker (y Docker Swarm) mediante el API REST de Docker Engine. El problema es que el API está desactivado por defecto.&lt;/p&gt;&lt;p&gt;A continuación indico cómo activar y verificar el acceso remoto al API de Docker Engine.&lt;/p&gt;&lt;p&gt;&lt;/p&gt;">
 <meta property="og:locale" content="ja_JP">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="On The Dock">
-<meta name="twitter:url" content="https://onthedock.github.io/post/170430-k3-colgado-de-nuevo/">
-<meta name="twitter:title" content="El nodo k3 del clúster colgado de nuevo - On The Dock">
-<meta name="twitter:description" content="&lt;p&gt;En la entrada anterior &lt;a href=&#34;https://onthedock.github.io/post/170430-multiples-mensajes-action-17-suspended/&#34;&gt;Múltiples mensajes &amp;lsquo;action 17 suspended&amp;rsquo; en los logs&lt;/a&gt; comentaba que estaba a la espera de obtener resultados; después de apenas unas horas, ya los tengo: &lt;strong&gt;k3&lt;/strong&gt; se ha vuelto a &lt;em&gt;colgar&lt;/em&gt; mientras que &lt;strong&gt;k2&lt;/strong&gt; no.&lt;/p&gt;&lt;p&gt;Este resultado parece demostrar que la mala configuración de &lt;em&gt;rsyslog&lt;/em&gt; es la causante de los &lt;em&gt;cuelgues&lt;/em&gt; de las RPi 3 en el clúster de Kubernetes.&lt;/p&gt;&lt;p&gt;&lt;strong&gt;Actualización&lt;/strong&gt;: El nodo &lt;strong&gt;k2&lt;/strong&gt; sobre RPi3 sigue colgándose :(&lt;/p&gt;&lt;p&gt;&lt;strong&gt;Actualización II&lt;/strong&gt;: &lt;a href=&#34;https://onthedock.github.io/post/170506-troubleshooting-kubernetes-ii/&#34;&gt;Parece solucionado&lt;/a&gt;&lt;/p&gt;&lt;p&gt;&lt;/p&gt;">
-<meta name="twitter:image" content="https://onthedock.github.io/images/raspberry_pi.png">
+<meta name="twitter:url" content="https://onthedock.github.io/post/170506-habilita-el-acceso-remoto-via-api-a-docker/">
+<meta name="twitter:title" content="Habilita el acceso remoto vía API a Docker - On The Dock">
+<meta name="twitter:description" content="&lt;p&gt;Portainer permite gestionar &lt;em&gt;endpoints&lt;/em&gt; remotos para Docker (y Docker Swarm) mediante el API REST de Docker Engine. El problema es que el API está desactivado por defecto.&lt;/p&gt;&lt;p&gt;A continuación indico cómo activar y verificar el acceso remoto al API de Docker Engine.&lt;/p&gt;&lt;p&gt;&lt;/p&gt;">
+<meta name="twitter:image" content="https://onthedock.github.io/images/docker.png">
 
 
 <script type="application/ld+json">
@@ -52,15 +52,15 @@
       "@type": "WebPage",
       "@id":"https://onthedock.github.io/"
     },
-    "headline": "El nodo k3 del clúster colgado de nuevo - On The Dock",
+    "headline": "Habilita el acceso remoto vía API a Docker - On The Dock",
     "image": {
       "@type": "ImageObject",
-      "url": "https://onthedock.github.io/images/raspberry_pi.png",
+      "url": "https://onthedock.github.io/images/docker.png",
       "height": 800,
       "width": 800
     },
-    "datePublished": "2017-04-30T11:39:20JST",
-    "dateModified": "2017-04-30T11:39:20JST",
+    "datePublished": "2017-05-06T15:23:36JST",
+    "dateModified": "2017-05-06T15:23:36JST",
     "author": {
       "@type": "Person",
       "name": "On The Dock"
@@ -75,13 +75,9 @@
         "height": 60
       }
     },
-    "description": "<p>En la entrada anterior <a href="https://onthedock.github.io/post/170430-multiples-mensajes-action-17-suspended/">Múltiples mensajes &lsquo;action 17 suspended&rsquo; en los logs</a> comentaba que estaba a la espera de obtener resultados; después de apenas unas horas, ya los tengo: <strong>k3</strong> se ha vuelto a <em>colgar</em> mientras que <strong>k2</strong> no.</p>
+    "description": "<p>Portainer permite gestionar <em>endpoints</em> remotos para Docker (y Docker Swarm) mediante el API REST de Docker Engine. El problema es que el API está desactivado por defecto.</p>
 
-<p>Este resultado parece demostrar que la mala configuración de <em>rsyslog</em> es la causante de los <em>cuelgues</em> de las RPi 3 en el clúster de Kubernetes.</p>
-
-<p><strong>Actualización</strong>: El nodo <strong>k2</strong> sobre RPi3 sigue colgándose :(</p>
-
-<p><strong>Actualización II</strong>: <a href="https://onthedock.github.io/post/170506-troubleshooting-kubernetes-ii/">Parece solucionado</a></p>
+<p>A continuación indico cómo activar y verificar el acceso remoto al API de Docker Engine.</p>
 
 <p></p>"
   }
@@ -112,14 +108,14 @@
     <main>
       
 <div class="l-container">
-  <article class="single article-4db85da082f771e8fb9029adad4173ec">
+  <article class="single article-086bb6242700303c8a958c5e74df0ca9">
   <div class="header-wrapper">
-    <a href="https://onthedock.github.io/post/170430-k3-colgado-de-nuevo/" class="thumbnail" title="El nodo k3 del clúster colgado de nuevo"></a>
+    <a href="https://onthedock.github.io/post/170506-habilita-el-acceso-remoto-via-api-a-docker/" class="thumbnail" title="Habilita el acceso remoto vía API a Docker"></a>
     <header class="article-header">
       <div class="clearfix">
-        <h1 class="title">El nodo k3 del clúster colgado de nuevo</h1>
+        <h1 class="title">Habilita el acceso remoto vía API a Docker</h1>
         <ul class="p-facts">
-          <li><time datetime="2017-04-30T11:39:20JST">30 Apr 2017</time></li>
+          <li><time datetime="2017-05-06T15:23:36JST">6 May 2017</time></li>
           <li><a href="https://onthedock.github.io/post/">post</a></li>
           
           <li>Xavier Aznar</li>
@@ -128,84 +124,113 @@
     </header>
   </div>
 
-  <div class="article-body"><p>En la entrada anterior <a href="https://onthedock.github.io/post/170430-multiples-mensajes-action-17-suspended/">Múltiples mensajes &lsquo;action 17 suspended&rsquo; en los logs</a> comentaba que estaba a la espera de obtener resultados; después de apenas unas horas, ya los tengo: <strong>k3</strong> se ha vuelto a <em>colgar</em> mientras que <strong>k2</strong> no.</p>
+  <div class="article-body"><p>Portainer permite gestionar <em>endpoints</em> remotos para Docker (y Docker Swarm) mediante el API REST de Docker Engine. El problema es que el API está desactivado por defecto.</p>
 
-<p>Este resultado parece demostrar que la mala configuración de <em>rsyslog</em> es la causante de los <em>cuelgues</em> de las RPi 3 en el clúster de Kubernetes.</p>
-
-<p><strong>Actualización</strong>: El nodo <strong>k2</strong> sobre RPi3 sigue colgándose :(</p>
-
-<p><strong>Actualización II</strong>: <a href="https://onthedock.github.io/post/170506-troubleshooting-kubernetes-ii/">Parece solucionado</a></p>
+<p>A continuación indico cómo activar y verificar el acceso remoto al API de Docker Engine.</p>
 
 <p></p>
 
-<p>A modo de recordatorio, los cambios realizados en los dos nodos sobre Raspberry Pi 3 han sido (incluyo el nodo <strong>k1</strong> con RPi2):</p>
+<p>Buscando en Google cómo habilitar el API remoto de Docker Engine probablemente encuentres el artículo
+<a href="https://www.ivankrizsan.se/2016/05/18/enabling-docker-remote-api-on-ubuntu-16-04/">Enabling Docker Remote API on Ubuntu 16.04</a>. Como bien dice en el párrafo inicial, no es fácil encontrar unas instrucciones claras sobre cómo configurar el API de principio a fin.</p>
 
-<pre><code>                                |  k1  |  k2  |  k3  |
-                                | RPi2 | RPi3 | RPi3 |
- -------------------------------|------|------|------|
-| Modificada conf. de rsyslog   |  No  |  Sí  |  No  |
-| Actualización a versión 1.6.2 |  Sí  |  Sí  |  Sí  |
- ----------------------------------------------------
+<p>Lanzando <code>docker man</code>, vemos que la opción que buscamos es:</p>
+
+<pre><code>-H, --host=[unix:///var/run/docker.sock]: tcp://[host]:[port][path] to bind or
+       unix://[/path/to/socket] to use.
+         The socket(s) to bind to in daemon mode specified using one or more
+         tcp://host:port/path, unix:///path/to/socket, fd://* or fd://socketfd.
+         If the tcp port is not specified, then it will default to either 2375 when
+         --tls is off, or 2376 when --tls is on, or --tlsverify is specified.
 </code></pre>
 
-<p>Hasta ahora, los únicos nodos que se <em>colgaban</em> eran el <strong>k2</strong> y el <strong>k3</strong> (sobre RPi3).</p>
-
-<p>Al modificar la configuración en de <em>rsyslog</em> en <strong>k2</strong> y pasadas unas horas, el único nodo que se sigue colgando es el <strong>k3</strong>.</p>
-
-<pre><code class="language-shell">$ kubectl get nodes
-NAME      STATUS     AGE       VERSION
-k1        Ready      19d       v1.6.2
-k2        Ready      14d       v1.6.2
-k3        NotReady   14d       v1.6.2
-</code></pre>
-
-<p>Es decir, el fallo a la hora de redirigir los mensajes a <code>/dev/xconsole</code>:</p>
+<p>Esta opción debe pasarse en el arranque del <em>daemon</em> de Docker. Para configurar esta opción durante el arranque de Docker Engine tenemos dos opciones:</p>
 
 <ul>
-<li>sólo afectan a las RPi3</li>
-<li>provoca que el sistema se acabe colgando</li>
+<li>modificar el arranque del <em>daemon</em> modificando la configuración de <code>/lib/systemd/system/docker.service</code></li>
+<li>añadiendo las opciones en el fichero de configuración de Docker Engine. Para sistemas Linux con <em>systemd</em>, la <a href="https://docs.docker.com/engine/admin/systemd/#start-automatically-at-system-boot">configuración del <em>daemon</em> de Docker</a> se realiza a través del fichero <code>daemon.json</code> ubicado en <code>/etc/docker/</code>.</li>
 </ul>
 
-<p>Para solucionarlo, como <code>root</code>:</p>
+<blockquote>
+<p>He intentado configurar Docker Engine mediante el segundo método <em>daemon.json</em> pero no he sido capaz de activar el API.</p>
+</blockquote>
 
-<ol>
-<li>Abre <code>/etc/rsyslog.conf</code></li>
+<p>Primero, hacemos una copia de seguridad del fichero <code>/lib/systemd/system/docker.service</code>:</p>
 
-<li><p>Modifica las últimas líneas (al final del fichero) y coméntalas:</p>
-
-<pre><code class="language-txt"># The named pipe /dev/xconsole is for the `xconsole' utility.  To use it,
-# you must invoke `xconsole' with the `-file' option:
+<pre><code class="language-shell"># cp /lib/systemd/system/docker.service /lib/systemd/system/docker.service.original
 #
-#    $ xconsole -file /dev/xconsole [...]
-#
-# NOTE: adjust the list below, or you'll go crazy if you have a reasonably
-#      busy site..
-#
-daemon.*;mail.*;\
-    news.err;\
-    *.=debug;*.=info;\
-    *.=notice;*.=warn       |/dev/xconsole
 </code></pre>
 
-<p>deben quedar como:</p>
+<p>Editamos el fichero <code>/lib/systemd/system/docker.service</code></p>
 
-<pre><code class="language-txt">#daemon.*;mail.*;\
-#        news.err;\
-#        *.=debug;*.=info;\
-#        *.=notice;*.=warn       |/dev/xconsole
+<pre><code class="language-shell"># nano /lib/systemd/system/docker.service
+[Unit]
+Description=Docker Application Container Engine
+Documentation=https://docs.docker.com
+After=network-online.target docker.socket firewalld.service
+Wants=network-online.target
+Requires=docker.socket
+
+[Service]
+Type=notify
+# the default is not to use systemd for cgroups because the delegate issues still
+# exists and systemd currently does not support the cgroup feature set required
+# for containers run by docker
+ExecStart=/usr/bin/dockerd -H fd:// 
+ExecReload=/bin/kill -s HUP $MAINPID
+LimitNOFILE=1048576
+# Having non-zero Limit*s causes performance problems due to accounting overhead
+# in the kernel. We recommend using cgroups to do container-local accounting.
+LimitNPROC=infinity
+LimitCORE=infinity
+# Uncomment TasksMax if your systemd version supports it.
+# Only systemd 226 and above support this version.
+#TasksMax=infinity
+TimeoutStartSec=0
+# set delegate yes so that systemd does not reset the cgroups of docker containers
+Delegate=yes
+# kill only the docker process, not all processes in the cgroup
+KillMode=process
+# restart the docker process if it exits prematurely
+Restart=on-failure
+StartLimitBurst=3
+StartLimitInterval=60s
+
+[Install]
+WantedBy=multi-user.target
 </code></pre>
 
-<p>Podrías comentar la redirección <code>|/dev/xconsole</code>, pero en este caso el bloque no tendría ninguna funcionalidad, por lo que creo que es <em>más limpio</em> comentar todo el bloque.</p></li>
+<p>Modificamos la línea <code>ExecStart=/usr/bin/dockerd -H fd://</code> y añadimos: <code>-H tcp://0.0.0.0:2375</code> de manera que quede:</p>
 
-<li><p>Reinicia el equipo mediante <code>reboot</code>.</p></li>
-</ol></div>
+<pre><code class="language-txt">ExecStart=/usr/bin/dockerd -H fd:// -H tcp://0.0.0.0:2375
+</code></pre>
+
+<blockquote>
+<p>Esto hace que <em>dockerd</em> escuche en todas las interfaces disponibles. En el caso de la máquina virtual en la que estoy probando, sólo tengo una, pero lo correcto sería especificar la dirección IP donde quieres que escuche <em>dockerd</em>.</p>
+</blockquote>
+
+<p>Guardamos los cambios.</p>
+
+<p>Recargamos la configuración y reiniciamos el servicio.</p>
+
+<p>Para comprobar que hemos el API funciona, lanzamos una consulta usando <em>curl</em>:</p>
+
+<pre><code class="language-shell"># systemctl daemon-reload
+# systemctl restart docker
+# curl http://localhost:2375/version
+{&quot;Version&quot;:&quot;17.05.0-ce&quot;,&quot;ApiVersion&quot;:&quot;1.29&quot;,&quot;MinAPIVersion&quot;:&quot;1.12&quot;,&quot;GitCommit&quot;:&quot;89658be&quot;,&quot;GoVersion&quot;:&quot;go1.7.5&quot;,&quot;Os&quot;:&quot;linux&quot;,&quot;Arch&quot;:&quot;amd64&quot;,&quot;KernelVersion&quot;:&quot;3.16.0-4-amd64&quot;,&quot;BuildTime&quot;:&quot;2017-05-04T22:04:27.257991431+00:00&quot;}
+#
+</code></pre>
+
+<blockquote>
+<p>Debes tener en cuenta que esta configuración <strong>supone un riesgo de seguridad</strong> al permitir el acceso al API de Docker Engine sin ningún tipo de control.</p>
+</blockquote></div>
 
   <aside class="p-share">
-  <a href="http://b.hatena.ne.jp/add?mode=confirm&url=https%3a%2f%2fonthedock.github.io%2fpost%2f170430-k3-colgado-de-nuevo%2f&title=El%20nodo%20k3%20del%20cl%c3%baster%20colgado%20de%20nuevo" title="はてなブックマーク" class="ht" target="_blank" rel="nofollow"></a>
-  <a href="http://www.facebook.com/sharer.php?u=https%3a%2f%2fonthedock.github.io%2fpost%2f170430-k3-colgado-de-nuevo%2f&t=El%20nodo%20k3%20del%20cl%c3%baster%20colgado%20de%20nuevo" title="Facebookでシェア" class="fb" target="_blank" rel="nofollow"></a>
-  <a href="http://twitter.com/intent/tweet?url=https%3a%2f%2fonthedock.github.io%2fpost%2f170430-k3-colgado-de-nuevo%2f&text=El%20nodo%20k3%20del%20cl%c3%baster%20colgado%20de%20nuevo&tw_p=tweetbutton" title="Twitterでシェア" class="tw" target="_blank" rel="nofollow"></a>
-  <a href="https://plus.google.com/share?url=https%3a%2f%2fonthedock.github.io%2fpost%2f170430-k3-colgado-de-nuevo%2f" title="Google Plusでシェア" class="gp" target="_blank" rel="nofollow"></a>
-  <a href="http://line.me/R/msg/text/?El%20nodo%20k3%20del%20cl%c3%baster%20colgado%20de%20nuevo https%3a%2f%2fonthedock.github.io%2fpost%2f170430-k3-colgado-de-nuevo%2f" title="LINEでシェア" class="ln" target="_blank" rel="nofollow"></a>
+  <a href="http://b.hatena.ne.jp/add?mode=confirm&url=https%3a%2f%2fonthedock.github.io%2fpost%2f170506-habilita-el-acceso-remoto-via-api-a-docker%2f&title=Habilita%20el%20acceso%20remoto%20v%c3%ada%20API%20a%20Docker" title="はてなブックマーク" class="ht" target="_blank" rel="nofollow"></a>
+  <a href="http://www.facebook.com/sharer.php?u=https%3a%2f%2fonthedock.github.io%2fpost%2f170506-habilita-el-acceso-remoto-via-api-a-docker%2f&t=Habilita%20el%20acceso%20remoto%20v%c3%ada%20API%20a%20Docker" title="Facebookでシェア" class="fb" target="_blank" rel="nofollow"></a>
+  <a href="http://twitter.com/intent/tweet?url=https%3a%2f%2fonthedock.github.io%2fpost%2f170506-habilita-el-acceso-remoto-via-api-a-docker%2f&text=Habilita%20el%20acceso%20remoto%20v%c3%ada%20API%20a%20Docker&tw_p=tweetbutton" title="Twitterでシェア" class="tw" target="_blank" rel="nofollow"></a>
+  <a href="https://plus.google.com/share?url=https%3a%2f%2fonthedock.github.io%2fpost%2f170506-habilita-el-acceso-remoto-via-api-a-docker%2f" title="Google Plusでシェア" class="gp" target="_blank" rel="nofollow"></a>
+  <a href="http://line.me/R/msg/text/?Habilita%20el%20acceso%20remoto%20v%c3%ada%20API%20a%20Docker https%3a%2f%2fonthedock.github.io%2fpost%2f170506-habilita-el-acceso-remoto-via-api-a-docker%2f" title="LINEでシェア" class="ln" target="_blank" rel="nofollow"></a>
 </aside>
 
 
@@ -216,7 +241,7 @@ daemon.*;mail.*;\
         
         <li itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb"><a href="https://onthedock.github.io/post/" itemprop="url"><span itemprop="title">post</span></a></li>
         
-        <li>El nodo k3 del clúster colgado de nuevo</li>
+        <li>Habilita el acceso remoto vía API a Docker</li>
       </ol>
 
       
@@ -226,6 +251,8 @@ daemon.*;mail.*;\
         <li>
           <header><a href="https://onthedock.github.io/categories/">categories</a></header>
           <ul>
+            
+            <li><a href="https://onthedock.github.io/categories/dev/">dev</a></li>
             
             <li><a href="https://onthedock.github.io/categories/ops/">ops</a></li>
             
@@ -240,11 +267,11 @@ daemon.*;mail.*;\
           <header><a href="https://onthedock.github.io/tags/">tags</a></header>
           <ul>
             
-            <li><a href="https://onthedock.github.io/tags/raspberry-pi/">raspberry pi</a></li>
+            <li><a href="https://onthedock.github.io/tags/linux/">linux</a></li>
             
-            <li><a href="https://onthedock.github.io/tags/hypriot-os/">hypriot os</a></li>
+            <li><a href="https://onthedock.github.io/tags/debian/">debian</a></li>
             
-            <li><a href="https://onthedock.github.io/tags/kubernetes/">kubernetes</a></li>
+            <li><a href="https://onthedock.github.io/tags/docker/">docker</a></li>
             
           </ul>
         </li>
@@ -292,21 +319,6 @@ daemon.*;mail.*;\
     </header>
   </div>
 </article>
-</li><li><article class="li sm article-086bb6242700303c8a958c5e74df0ca9">
-  <div class="header-wrapper">
-    <a href="https://onthedock.github.io/post/170506-habilita-el-acceso-remoto-via-api-a-docker/" class="thumbnail" title="Habilita el acceso remoto vía API a Docker"></a>
-    <header class="article-header">
-      <div class="clearfix">
-        <h2 class="title"><a href="https://onthedock.github.io/post/170506-habilita-el-acceso-remoto-via-api-a-docker/">Habilita el acceso remoto vía API a Docker</a></h2>
-        <ul class="p-facts">
-          <li><time datetime="2017-05-06T15:23:36JST">6 May 2017</time></li>
-          <li><a href="https://onthedock.github.io/post/">post</a></li>
-          
-        </ul>
-      </div>
-    </header>
-  </div>
-</article>
 </li><li><article class="li sm article-4c6b9124141ca1a8135b9177248b7e15">
   <div class="header-wrapper">
     <a href="https://onthedock.github.io/post/170506-tags-categorias-archetypes-en-hugo/" class="thumbnail" title="Tags, categorias y organización en Hugo"></a>
@@ -315,6 +327,21 @@ daemon.*;mail.*;\
         <h2 class="title"><a href="https://onthedock.github.io/post/170506-tags-categorias-archetypes-en-hugo/">Tags, categorias y organización en Hugo</a></h2>
         <ul class="p-facts">
           <li><time datetime="2017-05-06T06:23:50JST">6 May 2017</time></li>
+          <li><a href="https://onthedock.github.io/post/">post</a></li>
+          
+        </ul>
+      </div>
+    </header>
+  </div>
+</article>
+</li><li><article class="li sm article-911698c11286b3ef9eb1a11440c09845">
+  <div class="header-wrapper">
+    <a href="https://onthedock.github.io/post/170506-troubleshooting-kubernetes-ii/" class="thumbnail" title="Troubleshooting Kubernetes (II)"></a>
+    <header class="article-header">
+      <div class="clearfix">
+        <h2 class="title"><a href="https://onthedock.github.io/post/170506-troubleshooting-kubernetes-ii/">Troubleshooting Kubernetes (II)</a></h2>
+        <ul class="p-facts">
+          <li><time datetime="2017-05-06T05:21:09JST">6 May 2017</time></li>
           <li><a href="https://onthedock.github.io/post/">post</a></li>
           
         </ul>

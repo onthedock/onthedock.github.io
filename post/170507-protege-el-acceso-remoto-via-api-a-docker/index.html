@@ -11,13 +11,13 @@
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
 
-<link rel="canonical" href="https://onthedock.github.io/post/170430-k3-colgado-de-nuevo/">
+<link rel="canonical" href="https://onthedock.github.io/post/170507-protege-el-acceso-remoto-via-api-a-docker/">
 
 
     
     <link href="https://fonts.googleapis.com/css?family=Lobster|Lato:400,700" rel="stylesheet">
     
-    <title>El nodo k3 del clúster colgado de nuevo - On The Dock</title>
+    <title>Protege el acceso remoto via API a Docker - On The Dock</title>
     <style amp-boilerplate>body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}</style><noscript><style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style></noscript>
     <script async src="https://cdn.ampproject.org/v0.js"></script>
     
@@ -26,22 +26,22 @@
 <script async custom-element="amp-ad" src="https://cdn.ampproject.org/v0/amp-ad-0.1.js"></script>
 
     
-<meta name="description" content="&lt;p&gt;En la entrada anterior &lt;a href=&#34;https://onthedock.github.io/post/170430-multiples-mensajes-action-17-suspended/&#34;&gt;Múltiples mensajes &amp;lsquo;action 17 suspended&amp;rsquo; en los logs&lt;/a&gt; comentaba que estaba a la espera de obtener resultados; después de apenas unas horas, ya los tengo: &lt;strong&gt;k3&lt;/strong&gt; se ha vuelto a &lt;em&gt;colgar&lt;/em&gt; mientras que &lt;strong&gt;k2&lt;/strong&gt; no.&lt;/p&gt;&lt;p&gt;Este resultado parece demostrar que la mala configuración de &lt;em&gt;rsyslog&lt;/em&gt; es la causante de los &lt;em&gt;cuelgues&lt;/em&gt; de las RPi 3 en el clúster de Kubernetes.&lt;/p&gt;&lt;p&gt;&lt;strong&gt;Actualización&lt;/strong&gt;: El nodo &lt;strong&gt;k2&lt;/strong&gt; sobre RPi3 sigue colgándose :(&lt;/p&gt;&lt;p&gt;&lt;strong&gt;Actualización II&lt;/strong&gt;: &lt;a href=&#34;https://onthedock.github.io/post/170506-troubleshooting-kubernetes-ii/&#34;&gt;Parece solucionado&lt;/a&gt;&lt;/p&gt;&lt;p&gt;&lt;/p&gt;">
+<meta name="description" content="&lt;p&gt;En el artículo &lt;a href=&#34;https://onthedock.github.io/post/170506-habilita-el-acceso-remoto-via-api-a-docker/&#34;&gt;Habilita el API remoto de Docker&lt;/a&gt; explicaba cómo configurar el acceso remoto al API de Docker. El problema es que de esta forma no hay manera de restringir el acceso.&lt;/p&gt;&lt;p&gt;En este artículo protegemos el acceso usando TLS de manera que sólo se permitan conexiones que presenten un certificado firmado por una CA de confianza.&lt;/p&gt;">
 
-<meta property="og:title" content="El nodo k3 del clúster colgado de nuevo - On The Dock">
+<meta property="og:title" content="Protege el acceso remoto via API a Docker - On The Dock">
 <meta property="og:type" content="article">
-<meta property="og:url" content="https://onthedock.github.io/post/170430-k3-colgado-de-nuevo/">
-<meta property="og:image" content="https://onthedock.github.io/images/raspberry_pi.png">
+<meta property="og:url" content="https://onthedock.github.io/post/170507-protege-el-acceso-remoto-via-api-a-docker/">
+<meta property="og:image" content="https://onthedock.github.io/images/docker.png">
 <meta property="og:site_name" content="On The Dock">
-<meta property="og:description" content="&lt;p&gt;En la entrada anterior &lt;a href=&#34;https://onthedock.github.io/post/170430-multiples-mensajes-action-17-suspended/&#34;&gt;Múltiples mensajes &amp;lsquo;action 17 suspended&amp;rsquo; en los logs&lt;/a&gt; comentaba que estaba a la espera de obtener resultados; después de apenas unas horas, ya los tengo: &lt;strong&gt;k3&lt;/strong&gt; se ha vuelto a &lt;em&gt;colgar&lt;/em&gt; mientras que &lt;strong&gt;k2&lt;/strong&gt; no.&lt;/p&gt;&lt;p&gt;Este resultado parece demostrar que la mala configuración de &lt;em&gt;rsyslog&lt;/em&gt; es la causante de los &lt;em&gt;cuelgues&lt;/em&gt; de las RPi 3 en el clúster de Kubernetes.&lt;/p&gt;&lt;p&gt;&lt;strong&gt;Actualización&lt;/strong&gt;: El nodo &lt;strong&gt;k2&lt;/strong&gt; sobre RPi3 sigue colgándose :(&lt;/p&gt;&lt;p&gt;&lt;strong&gt;Actualización II&lt;/strong&gt;: &lt;a href=&#34;https://onthedock.github.io/post/170506-troubleshooting-kubernetes-ii/&#34;&gt;Parece solucionado&lt;/a&gt;&lt;/p&gt;&lt;p&gt;&lt;/p&gt;">
+<meta property="og:description" content="&lt;p&gt;En el artículo &lt;a href=&#34;https://onthedock.github.io/post/170506-habilita-el-acceso-remoto-via-api-a-docker/&#34;&gt;Habilita el API remoto de Docker&lt;/a&gt; explicaba cómo configurar el acceso remoto al API de Docker. El problema es que de esta forma no hay manera de restringir el acceso.&lt;/p&gt;&lt;p&gt;En este artículo protegemos el acceso usando TLS de manera que sólo se permitan conexiones que presenten un certificado firmado por una CA de confianza.&lt;/p&gt;">
 <meta property="og:locale" content="ja_JP">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="On The Dock">
-<meta name="twitter:url" content="https://onthedock.github.io/post/170430-k3-colgado-de-nuevo/">
-<meta name="twitter:title" content="El nodo k3 del clúster colgado de nuevo - On The Dock">
-<meta name="twitter:description" content="&lt;p&gt;En la entrada anterior &lt;a href=&#34;https://onthedock.github.io/post/170430-multiples-mensajes-action-17-suspended/&#34;&gt;Múltiples mensajes &amp;lsquo;action 17 suspended&amp;rsquo; en los logs&lt;/a&gt; comentaba que estaba a la espera de obtener resultados; después de apenas unas horas, ya los tengo: &lt;strong&gt;k3&lt;/strong&gt; se ha vuelto a &lt;em&gt;colgar&lt;/em&gt; mientras que &lt;strong&gt;k2&lt;/strong&gt; no.&lt;/p&gt;&lt;p&gt;Este resultado parece demostrar que la mala configuración de &lt;em&gt;rsyslog&lt;/em&gt; es la causante de los &lt;em&gt;cuelgues&lt;/em&gt; de las RPi 3 en el clúster de Kubernetes.&lt;/p&gt;&lt;p&gt;&lt;strong&gt;Actualización&lt;/strong&gt;: El nodo &lt;strong&gt;k2&lt;/strong&gt; sobre RPi3 sigue colgándose :(&lt;/p&gt;&lt;p&gt;&lt;strong&gt;Actualización II&lt;/strong&gt;: &lt;a href=&#34;https://onthedock.github.io/post/170506-troubleshooting-kubernetes-ii/&#34;&gt;Parece solucionado&lt;/a&gt;&lt;/p&gt;&lt;p&gt;&lt;/p&gt;">
-<meta name="twitter:image" content="https://onthedock.github.io/images/raspberry_pi.png">
+<meta name="twitter:url" content="https://onthedock.github.io/post/170507-protege-el-acceso-remoto-via-api-a-docker/">
+<meta name="twitter:title" content="Protege el acceso remoto via API a Docker - On The Dock">
+<meta name="twitter:description" content="&lt;p&gt;En el artículo &lt;a href=&#34;https://onthedock.github.io/post/170506-habilita-el-acceso-remoto-via-api-a-docker/&#34;&gt;Habilita el API remoto de Docker&lt;/a&gt; explicaba cómo configurar el acceso remoto al API de Docker. El problema es que de esta forma no hay manera de restringir el acceso.&lt;/p&gt;&lt;p&gt;En este artículo protegemos el acceso usando TLS de manera que sólo se permitan conexiones que presenten un certificado firmado por una CA de confianza.&lt;/p&gt;">
+<meta name="twitter:image" content="https://onthedock.github.io/images/docker.png">
 
 
 <script type="application/ld+json">
@@ -52,15 +52,15 @@
       "@type": "WebPage",
       "@id":"https://onthedock.github.io/"
     },
-    "headline": "El nodo k3 del clúster colgado de nuevo - On The Dock",
+    "headline": "Protege el acceso remoto via API a Docker - On The Dock",
     "image": {
       "@type": "ImageObject",
-      "url": "https://onthedock.github.io/images/raspberry_pi.png",
+      "url": "https://onthedock.github.io/images/docker.png",
       "height": 800,
       "width": 800
     },
-    "datePublished": "2017-04-30T11:39:20JST",
-    "dateModified": "2017-04-30T11:39:20JST",
+    "datePublished": "2017-05-07T18:33:16JST",
+    "dateModified": "2017-05-07T18:33:16JST",
     "author": {
       "@type": "Person",
       "name": "On The Dock"
@@ -75,15 +75,10 @@
         "height": 60
       }
     },
-    "description": "<p>En la entrada anterior <a href="https://onthedock.github.io/post/170430-multiples-mensajes-action-17-suspended/">Múltiples mensajes &lsquo;action 17 suspended&rsquo; en los logs</a> comentaba que estaba a la espera de obtener resultados; después de apenas unas horas, ya los tengo: <strong>k3</strong> se ha vuelto a <em>colgar</em> mientras que <strong>k2</strong> no.</p>
+    "description": "<p>En el artículo <a href="https://onthedock.github.io/post/170506-habilita-el-acceso-remoto-via-api-a-docker/">Habilita el API remoto de Docker</a> explicaba cómo configurar el acceso remoto al API de Docker. El problema es que de esta forma no hay manera de restringir el acceso.</p>
 
-<p>Este resultado parece demostrar que la mala configuración de <em>rsyslog</em> es la causante de los <em>cuelgues</em> de las RPi 3 en el clúster de Kubernetes.</p>
-
-<p><strong>Actualización</strong>: El nodo <strong>k2</strong> sobre RPi3 sigue colgándose :(</p>
-
-<p><strong>Actualización II</strong>: <a href="https://onthedock.github.io/post/170506-troubleshooting-kubernetes-ii/">Parece solucionado</a></p>
-
-<p></p>"
+<p>En este artículo protegemos el acceso usando TLS de manera que sólo se permitan conexiones que presenten un certificado firmado por una CA de confianza.
+</p>"
   }
 </script>
 
@@ -112,14 +107,14 @@
     <main>
       
 <div class="l-container">
-  <article class="single article-4db85da082f771e8fb9029adad4173ec">
+  <article class="single article-59e1fe22eaedce05afe517780f87cc98">
   <div class="header-wrapper">
-    <a href="https://onthedock.github.io/post/170430-k3-colgado-de-nuevo/" class="thumbnail" title="El nodo k3 del clúster colgado de nuevo"></a>
+    <a href="https://onthedock.github.io/post/170507-protege-el-acceso-remoto-via-api-a-docker/" class="thumbnail" title="Protege el acceso remoto via API a Docker"></a>
     <header class="article-header">
       <div class="clearfix">
-        <h1 class="title">El nodo k3 del clúster colgado de nuevo</h1>
+        <h1 class="title">Protege el acceso remoto via API a Docker</h1>
         <ul class="p-facts">
-          <li><time datetime="2017-04-30T11:39:20JST">30 Apr 2017</time></li>
+          <li><time datetime="2017-05-07T18:33:16JST">7 May 2017</time></li>
           <li><a href="https://onthedock.github.io/post/">post</a></li>
           
           <li>Xavier Aznar</li>
@@ -128,84 +123,193 @@
     </header>
   </div>
 
-  <div class="article-body"><p>En la entrada anterior <a href="https://onthedock.github.io/post/170430-multiples-mensajes-action-17-suspended/">Múltiples mensajes &lsquo;action 17 suspended&rsquo; en los logs</a> comentaba que estaba a la espera de obtener resultados; después de apenas unas horas, ya los tengo: <strong>k3</strong> se ha vuelto a <em>colgar</em> mientras que <strong>k2</strong> no.</p>
+  <div class="article-body"><p>En el artículo <a href="https://onthedock.github.io/post/170506-habilita-el-acceso-remoto-via-api-a-docker/">Habilita el API remoto de Docker</a> explicaba cómo configurar el acceso remoto al API de Docker. El problema es que de esta forma no hay manera de restringir el acceso.</p>
 
-<p>Este resultado parece demostrar que la mala configuración de <em>rsyslog</em> es la causante de los <em>cuelgues</em> de las RPi 3 en el clúster de Kubernetes.</p>
+<p>En este artículo protegemos el acceso usando TLS de manera que sólo se permitan conexiones que presenten un certificado firmado por una CA de confianza.
+</p>
 
-<p><strong>Actualización</strong>: El nodo <strong>k2</strong> sobre RPi3 sigue colgándose :(</p>
+<p>Seguiremos las instrucciones oficiales de Docker <a href="https://docs.docker.com/engine/security/https/">Protect the Docker daemon socket</a>.</p>
 
-<p><strong>Actualización II</strong>: <a href="https://onthedock.github.io/post/170506-troubleshooting-kubernetes-ii/">Parece solucionado</a></p>
+<h2 id="creamos-una-ca-claves-para-el-cliente-y-el-servidor-con-openssl">Creamos una CA, claves para el cliente y el servidor con OpenSSL</h2>
 
-<p></p>
+<p>Primero, en la máquina <em>host</em> del Docker <em>daemon</em>, generamos las claves públicas y privadas de la CA (<em>Certification Authority</em>, la entidad certificadora):</p>
 
-<p>A modo de recordatorio, los cambios realizados en los dos nodos sobre Raspberry Pi 3 han sido (incluyo el nodo <strong>k1</strong> con RPi2):</p>
-
-<pre><code>                                |  k1  |  k2  |  k3  |
-                                | RPi2 | RPi3 | RPi3 |
- -------------------------------|------|------|------|
-| Modificada conf. de rsyslog   |  No  |  Sí  |  No  |
-| Actualización a versión 1.6.2 |  Sí  |  Sí  |  Sí  |
- ----------------------------------------------------
-</code></pre>
-
-<p>Hasta ahora, los únicos nodos que se <em>colgaban</em> eran el <strong>k2</strong> y el <strong>k3</strong> (sobre RPi3).</p>
-
-<p>Al modificar la configuración en de <em>rsyslog</em> en <strong>k2</strong> y pasadas unas horas, el único nodo que se sigue colgando es el <strong>k3</strong>.</p>
-
-<pre><code class="language-shell">$ kubectl get nodes
-NAME      STATUS     AGE       VERSION
-k1        Ready      19d       v1.6.2
-k2        Ready      14d       v1.6.2
-k3        NotReady   14d       v1.6.2
-</code></pre>
-
-<p>Es decir, el fallo a la hora de redirigir los mensajes a <code>/dev/xconsole</code>:</p>
-
-<ul>
-<li>sólo afectan a las RPi3</li>
-<li>provoca que el sistema se acabe colgando</li>
-</ul>
-
-<p>Para solucionarlo, como <code>root</code>:</p>
-
-<ol>
-<li>Abre <code>/etc/rsyslog.conf</code></li>
-
-<li><p>Modifica las últimas líneas (al final del fichero) y coméntalas:</p>
-
-<pre><code class="language-txt"># The named pipe /dev/xconsole is for the `xconsole' utility.  To use it,
-# you must invoke `xconsole' with the `-file' option:
+<pre><code class="language-shell"># openssl genrsa -aes256 -out ca-key.pem 4096
+Generating RSA private key, 4096 bit long modulus
+............................................................................................................................................................................................................................................++
+..........................++
+e is 65537 (0x10001)
+Enter pass phrase for ca-key.pem:
+Verifying - Enter pass phrase for ca-key.pem:
 #
-#    $ xconsole -file /dev/xconsole [...]
-#
-# NOTE: adjust the list below, or you'll go crazy if you have a reasonably
-#      busy site..
-#
-daemon.*;mail.*;\
-    news.err;\
-    *.=debug;*.=info;\
-    *.=notice;*.=warn       |/dev/xconsole
 </code></pre>
 
-<p>deben quedar como:</p>
+<p>Y a continuación:</p>
 
-<pre><code class="language-txt">#daemon.*;mail.*;\
-#        news.err;\
-#        *.=debug;*.=info;\
-#        *.=notice;*.=warn       |/dev/xconsole
+<pre><code class="language-shell"># openssl req -new -x509 -days 365 -key ca-key.pem -sha256 -out ca.pem
+Enter pass phrase for ca-key.pem:
+You are about to be asked to enter information that will be incorporated
+into your certificate request.
+What you are about to enter is what is called a Distinguished Name or a DN.
+There are quite a few fields but you can leave some blank
+For some fields there will be a default value,
+If you enter '.', the field will be left blank.
+-----
+Country Name (2 letter code) [AU]:ES
+State or Province Name (full name) [Some-State]:Barcelona
+Locality Name (eg, city) []:Barcelona
+Organization Name (eg, company) [Internet Widgits Pty Ltd]:Ameisin
+Organizational Unit Name (eg, section) []:DevOps
+Common Name (e.g. server FQDN or YOUR name) []:192.168.1.20
+Email Address []: {REDACTED}
+#
 </code></pre>
 
-<p>Podrías comentar la redirección <code>|/dev/xconsole</code>, pero en este caso el bloque no tendría ninguna funcionalidad, por lo que creo que es <em>más limpio</em> comentar todo el bloque.</p></li>
+<p>Ahora que tenemos una CA, podemos crear la clave para el servidor y la petición de firmado del certificado (<em>certificate signing request</em>, CSR). Por favor, verifica que <code>Common Name</code> (es decir, el <em>FQDN</em> o <em>YOUR Name</em>) coincide con el nombre del <em>host</em> que vas a usar para conectar a Docker.</p>
 
-<li><p>Reinicia el equipo mediante <code>reboot</code>.</p></li>
-</ol></div>
+<pre><code class="language-shell"># openssl genrsa -out server-key.pem 4096
+Generating RSA private key, 4096 bit long modulus
+............................................................................................................................................................................................................................................................................................................................++
+...............................................................++
+e is 65537 (0x10001)
+# openssl req -subj &quot;/CN=192.168.1.20&quot; -sha256 -new -key server-key.pem -out server.csr
+#
+</code></pre>
+
+<p>A continuación vamos a firmar la clave pública con nuestra CA.</p>
+
+<p>Como las conexiones TLS pueden realizarse usando la dirección IP o un nombre DNS, deben especificarse durante la creación del certificado.</p>
+
+<pre><code class="language-shell"># echo subjectAltName = IP:192.168.1.20,IP:127.0.0.1 &gt; extfile.cnf
+# openssl x509 -req -days 365 -sha256 -in server.csr -CA ca.pem -CAkey ca-key.pem \
+&gt;   -CAcreateserial -out server-cert.pem -extfile extfile.cnf
+Signature ok
+subject=/CN=192.168.1.20
+Getting CA Private Key
+Enter pass phrase for ca-key.pem:
+#
+</code></pre>
+
+<h2 id="autenticación-del-cliente">Autenticación del cliente</h2>
+
+<p>Para autenticar al cliente, crearemos una clave de cliente y una petición de firmado del certificado.</p>
+
+<blockquote>
+<p>Para simplificar, los siguientes dos pasos pueden realizarse desde la máquina donde se encuentra el Docker <em>daemon</em>.</p>
+</blockquote>
+
+<pre><code class="language-shell"># openssl genrsa -out key.pem 4096
+Generating RSA private key, 4096 bit long modulus
+...............................................................................++
+................................................................................................................................................................................++
+e is 65537 (0x10001)
+# openssl req -subj '/CN=client' -new -key key.pem -out client.csr
+#
+</code></pre>
+
+<p>Para que la clave permita autenticar al cliente, creamos un fichero de configuración de extensiones:</p>
+
+<pre><code class="language-shell"># echo extendedKeyUsage = clientAuth &gt; extfile.cnf
+#
+</code></pre>
+
+<p>Ahora firmamos la clave:</p>
+
+<pre><code class="language-shell"># openssl x509 -req -days 365 -sha256 -in client.csr -CA ca.pem -CAkey ca-key.pem \
+&gt;   -CAcreateserial -out cert.pem -extfile extfile.cnf
+Signature ok
+subject=/CN=client
+Getting CA Private Key
+Enter pass phrase for ca-key.pem:
+#
+</code></pre>
+
+<p>Después de haber generado <code>cert.pem</code> y <code>server-cert.pem</code> podemos eliminar las peticiones de firmado:</p>
+
+<pre><code class="language-shell"># ls
+ca-key.pem  ca.srl    client.csr  extfile.cnf  server-cert.pem	server-key.pem
+ca.pem	    cert.pem  key.pem     server.csr
+# rm -v client.csr server.csr
+removed ‘client.csr’
+removed ‘server.csr’
+#
+</code></pre>
+
+<h2 id="protección-de-las-claves">Protección de las claves</h2>
+
+<p>Con una máscara <code>umask</code> por defecto de <code>022</code> las claves secretas que hemos generado dan a todo el mundo acceso de lectura y de escritura a tu usuario y tu grupo.</p>
+
+<p>Para proteger las claves de daños accidentales, vamos a eliminar los permisos de escritura sobre ellas. Para hacerlas de sólo lectura para tu usuario, usamos:</p>
+
+<pre><code class="language-shell"># chmod -v 0400 ca-key.pem key.pem server-key.pem
+mode of ‘ca-key.pem’ changed from 0644 (rw-r--r--) to 0400 (r--------)
+mode of ‘key.pem’ changed from 0644 (rw-r--r--) to 0400 (r--------)
+mode of ‘server-key.pem’ changed from 0644 (rw-r--r--) to 0400 (r--------)
+#
+</code></pre>
+
+<p>Los certificados pueden ser leídos por todo el mundo, pero para evitar daños accidentales, mejor eliminamos los permisos de escritura:</p>
+
+<pre><code class="language-shell"># chmod -v 0444 ca.pem server-cert.pem cert.pem
+mode of ‘ca.pem’ changed from 0644 (rw-r--r--) to 0444 (r--r--r--)
+mode of ‘server-cert.pem’ changed from 0644 (rw-r--r--) to 0444 (r--r--r--)
+mode of ‘cert.pem’ changed from 0644 (rw-r--r--) to 0444 (r--r--r--)
+#
+</code></pre>
+
+<h2 id="configurando-el-api-de-acceso-remoto-de-forma-segura">Configurando el API de acceso remoto de forma segura</h2>
+
+<p>Para hacer que el Docker <em>daemon</em> sólo acepte conexiones de clientes que proporcionen un certificado de confianza de tu CA.</p>
+
+<p>Para ello, modificamos las opciones de arranque del <em>daemon</em> de Docker:</p>
+
+<pre><code class="language-shell"># nano /lib/systemd/system/docker.service
+</code></pre>
+
+<p>Modificamos la línea:</p>
+
+<pre><code class="language-txt">ExecStart=/usr/bin/dockerd -H fd:// -H=0.0.0.0:2375
+</code></pre>
+
+<p>De manera que quede como (lo he dividido en varias líneas por claridad):</p>
+
+<pre><code class="language-shell">ExecStart=/usr/bin/dockerd --tlsverify 		\
+         --tlscacert=/root/ca.pem 		\
+         --tlscert=/root/server-cert.pem 	\
+         --tlskey=/root/server-key.pem 		\
+         -H=0.0.0.0:2376 			\
+         -H fd://
+</code></pre>
+
+<p>A continuación, recargamos la configuración y reinciamos el servicio:</p>
+
+<pre><code class="language-shell"># systemctl daemon-reload
+# systemctl restart docker
+</code></pre>
+
+<blockquote>
+<p>Los primeros intentos de arrancar el <em>daemon</em> han fallado; ha sido necesario especificar la ruta completa a los certificados y las claves para conseguir que el servicio arrancara.</p>
+</blockquote>
+
+<p>Finalmente, comprobamos que podemos acceder usando el certificado con <em>curl</em>:</p>
+
+<pre><code class="language-shell"># curl https://192.168.1.20:2376/version --cert /root/cert.pem --key /root/key.pem --cacert /root/ca.pem
+{&quot;Version&quot;:&quot;17.05.0-ce&quot;,&quot;ApiVersion&quot;:&quot;1.29&quot;,&quot;MinAPIVersion&quot;:&quot;1.12&quot;,&quot;GitCommit&quot;:&quot;89658be&quot;,&quot;GoVersion&quot;:&quot;go1.7.5&quot;,&quot;Os&quot;:&quot;linux&quot;,&quot;Arch&quot;:&quot;amd64&quot;,&quot;KernelVersion&quot;:&quot;3.16.0-4-amd64&quot;,&quot;BuildTime&quot;:&quot;2017-05-04T22:04:27.257991431+00:00&quot;}
+#
+</code></pre>
+
+<p>A diferencia de lo que pasaba antes, cuando se intenta acceder a <code>https://192.168.1.9:2376/version</code> desde otro equipo (sin usar el certificado), obtenemos un error:</p>
+
+<pre><code class="language-url">This site can’t be reached
+192.168.1.9 refused to connect.
+</code></pre></div>
 
   <aside class="p-share">
-  <a href="http://b.hatena.ne.jp/add?mode=confirm&url=https%3a%2f%2fonthedock.github.io%2fpost%2f170430-k3-colgado-de-nuevo%2f&title=El%20nodo%20k3%20del%20cl%c3%baster%20colgado%20de%20nuevo" title="はてなブックマーク" class="ht" target="_blank" rel="nofollow"></a>
-  <a href="http://www.facebook.com/sharer.php?u=https%3a%2f%2fonthedock.github.io%2fpost%2f170430-k3-colgado-de-nuevo%2f&t=El%20nodo%20k3%20del%20cl%c3%baster%20colgado%20de%20nuevo" title="Facebookでシェア" class="fb" target="_blank" rel="nofollow"></a>
-  <a href="http://twitter.com/intent/tweet?url=https%3a%2f%2fonthedock.github.io%2fpost%2f170430-k3-colgado-de-nuevo%2f&text=El%20nodo%20k3%20del%20cl%c3%baster%20colgado%20de%20nuevo&tw_p=tweetbutton" title="Twitterでシェア" class="tw" target="_blank" rel="nofollow"></a>
-  <a href="https://plus.google.com/share?url=https%3a%2f%2fonthedock.github.io%2fpost%2f170430-k3-colgado-de-nuevo%2f" title="Google Plusでシェア" class="gp" target="_blank" rel="nofollow"></a>
-  <a href="http://line.me/R/msg/text/?El%20nodo%20k3%20del%20cl%c3%baster%20colgado%20de%20nuevo https%3a%2f%2fonthedock.github.io%2fpost%2f170430-k3-colgado-de-nuevo%2f" title="LINEでシェア" class="ln" target="_blank" rel="nofollow"></a>
+  <a href="http://b.hatena.ne.jp/add?mode=confirm&url=https%3a%2f%2fonthedock.github.io%2fpost%2f170507-protege-el-acceso-remoto-via-api-a-docker%2f&title=Protege%20el%20acceso%20remoto%20via%20API%20a%20Docker" title="はてなブックマーク" class="ht" target="_blank" rel="nofollow"></a>
+  <a href="http://www.facebook.com/sharer.php?u=https%3a%2f%2fonthedock.github.io%2fpost%2f170507-protege-el-acceso-remoto-via-api-a-docker%2f&t=Protege%20el%20acceso%20remoto%20via%20API%20a%20Docker" title="Facebookでシェア" class="fb" target="_blank" rel="nofollow"></a>
+  <a href="http://twitter.com/intent/tweet?url=https%3a%2f%2fonthedock.github.io%2fpost%2f170507-protege-el-acceso-remoto-via-api-a-docker%2f&text=Protege%20el%20acceso%20remoto%20via%20API%20a%20Docker&tw_p=tweetbutton" title="Twitterでシェア" class="tw" target="_blank" rel="nofollow"></a>
+  <a href="https://plus.google.com/share?url=https%3a%2f%2fonthedock.github.io%2fpost%2f170507-protege-el-acceso-remoto-via-api-a-docker%2f" title="Google Plusでシェア" class="gp" target="_blank" rel="nofollow"></a>
+  <a href="http://line.me/R/msg/text/?Protege%20el%20acceso%20remoto%20via%20API%20a%20Docker https%3a%2f%2fonthedock.github.io%2fpost%2f170507-protege-el-acceso-remoto-via-api-a-docker%2f" title="LINEでシェア" class="ln" target="_blank" rel="nofollow"></a>
 </aside>
 
 
@@ -216,7 +320,7 @@ daemon.*;mail.*;\
         
         <li itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb"><a href="https://onthedock.github.io/post/" itemprop="url"><span itemprop="title">post</span></a></li>
         
-        <li>El nodo k3 del clúster colgado de nuevo</li>
+        <li>Protege el acceso remoto via API a Docker</li>
       </ol>
 
       
@@ -240,11 +344,11 @@ daemon.*;mail.*;\
           <header><a href="https://onthedock.github.io/tags/">tags</a></header>
           <ul>
             
-            <li><a href="https://onthedock.github.io/tags/raspberry-pi/">raspberry pi</a></li>
+            <li><a href="https://onthedock.github.io/tags/linux/">linux</a></li>
             
-            <li><a href="https://onthedock.github.io/tags/hypriot-os/">hypriot os</a></li>
+            <li><a href="https://onthedock.github.io/tags/debian/">debian</a></li>
             
-            <li><a href="https://onthedock.github.io/tags/kubernetes/">kubernetes</a></li>
+            <li><a href="https://onthedock.github.io/tags/docker/">docker</a></li>
             
           </ul>
         </li>
@@ -262,22 +366,7 @@ daemon.*;mail.*;\
   <section>
     <header><span>Latests</span></header>
     <ul class="p-articles thin">
-      <li><article class="li sm article-59e1fe22eaedce05afe517780f87cc98">
-  <div class="header-wrapper">
-    <a href="https://onthedock.github.io/post/170507-protege-el-acceso-remoto-via-api-a-docker/" class="thumbnail" title="Protege el acceso remoto via API a Docker"></a>
-    <header class="article-header">
-      <div class="clearfix">
-        <h2 class="title"><a href="https://onthedock.github.io/post/170507-protege-el-acceso-remoto-via-api-a-docker/">Protege el acceso remoto via API a Docker</a></h2>
-        <ul class="p-facts">
-          <li><time datetime="2017-05-07T18:33:16JST">7 May 2017</time></li>
-          <li><a href="https://onthedock.github.io/post/">post</a></li>
-          
-        </ul>
-      </div>
-    </header>
-  </div>
-</article>
-</li><li><article class="li sm article-87ee3835fe3b255e8566c3bfed2bd38b">
+      <li><article class="li sm article-87ee3835fe3b255e8566c3bfed2bd38b">
   <div class="header-wrapper">
     <a href="https://onthedock.github.io/post/170506-configura-un-endpoint-remoto-en-portainer/" class="thumbnail" title="Configura un endpoint remoto en Portainer"></a>
     <header class="article-header">
@@ -315,6 +404,21 @@ daemon.*;mail.*;\
         <h2 class="title"><a href="https://onthedock.github.io/post/170506-tags-categorias-archetypes-en-hugo/">Tags, categorias y organización en Hugo</a></h2>
         <ul class="p-facts">
           <li><time datetime="2017-05-06T06:23:50JST">6 May 2017</time></li>
+          <li><a href="https://onthedock.github.io/post/">post</a></li>
+          
+        </ul>
+      </div>
+    </header>
+  </div>
+</article>
+</li><li><article class="li sm article-911698c11286b3ef9eb1a11440c09845">
+  <div class="header-wrapper">
+    <a href="https://onthedock.github.io/post/170506-troubleshooting-kubernetes-ii/" class="thumbnail" title="Troubleshooting Kubernetes (II)"></a>
+    <header class="article-header">
+      <div class="clearfix">
+        <h2 class="title"><a href="https://onthedock.github.io/post/170506-troubleshooting-kubernetes-ii/">Troubleshooting Kubernetes (II)</a></h2>
+        <ul class="p-facts">
+          <li><time datetime="2017-05-06T05:21:09JST">6 May 2017</time></li>
           <li><a href="https://onthedock.github.io/post/">post</a></li>
           
         </ul>

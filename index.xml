@@ -6,8 +6,196 @@
     <description>Recent content on On The Dock</description>
     <generator>Hugo -- gohugo.io</generator>
     <copyright>Handmade with &amp;#9829; by Xavi Aznar</copyright>
-    <lastBuildDate>Sat, 06 May 2017 17:38:20 +0200</lastBuildDate>
+    <lastBuildDate>Sun, 07 May 2017 18:33:16 +0200</lastBuildDate>
     <atom:link href="https://onthedock.github.io/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Protege el acceso remoto via API a Docker</title>
+      <link>https://onthedock.github.io/post/170507-protege-el-acceso-remoto-via-api-a-docker/</link>
+      <pubDate>Sun, 07 May 2017 18:33:16 +0200</pubDate>
+      
+      <guid>https://onthedock.github.io/post/170507-protege-el-acceso-remoto-via-api-a-docker/</guid>
+      <description>&lt;p&gt;En el artículo &lt;a href=&#34;https://onthedock.github.io/post/170506-habilita-el-acceso-remoto-via-api-a-docker/&#34;&gt;Habilita el API remoto de Docker&lt;/a&gt; explicaba cómo configurar el acceso remoto al API de Docker. El problema es que de esta forma no hay manera de restringir el acceso.&lt;/p&gt;
+
+&lt;p&gt;En este artículo protegemos el acceso usando TLS de manera que sólo se permitan conexiones que presenten un certificado firmado por una CA de confianza.
+&lt;/p&gt;
+
+&lt;p&gt;Seguiremos las instrucciones oficiales de Docker &lt;a href=&#34;https://docs.docker.com/engine/security/https/&#34;&gt;Protect the Docker daemon socket&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&#34;creamos-una-ca-claves-para-el-cliente-y-el-servidor-con-openssl&#34;&gt;Creamos una CA, claves para el cliente y el servidor con OpenSSL&lt;/h2&gt;
+
+&lt;p&gt;Primero, en la máquina &lt;em&gt;host&lt;/em&gt; del Docker &lt;em&gt;daemon&lt;/em&gt;, generamos las claves públicas y privadas de la CA (&lt;em&gt;Certification Authority&lt;/em&gt;, la entidad certificadora):&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;# openssl genrsa -aes256 -out ca-key.pem 4096
+Generating RSA private key, 4096 bit long modulus
+............................................................................................................................................................................................................................................++
+..........................++
+e is 65537 (0x10001)
+Enter pass phrase for ca-key.pem:
+Verifying - Enter pass phrase for ca-key.pem:
+#
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Y a continuación:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;# openssl req -new -x509 -days 365 -key ca-key.pem -sha256 -out ca.pem
+Enter pass phrase for ca-key.pem:
+You are about to be asked to enter information that will be incorporated
+into your certificate request.
+What you are about to enter is what is called a Distinguished Name or a DN.
+There are quite a few fields but you can leave some blank
+For some fields there will be a default value,
+If you enter &#39;.&#39;, the field will be left blank.
+-----
+Country Name (2 letter code) [AU]:ES
+State or Province Name (full name) [Some-State]:Barcelona
+Locality Name (eg, city) []:Barcelona
+Organization Name (eg, company) [Internet Widgits Pty Ltd]:Ameisin
+Organizational Unit Name (eg, section) []:DevOps
+Common Name (e.g. server FQDN or YOUR name) []:192.168.1.20
+Email Address []: {REDACTED}
+#
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Ahora que tenemos una CA, podemos crear la clave para el servidor y la petición de firmado del certificado (&lt;em&gt;certificate signing request&lt;/em&gt;, CSR). Por favor, verifica que &lt;code&gt;Common Name&lt;/code&gt; (es decir, el &lt;em&gt;FQDN&lt;/em&gt; o &lt;em&gt;YOUR Name&lt;/em&gt;) coincide con el nombre del &lt;em&gt;host&lt;/em&gt; que vas a usar para conectar a Docker.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;# openssl genrsa -out server-key.pem 4096
+Generating RSA private key, 4096 bit long modulus
+............................................................................................................................................................................................................................................................................................................................++
+...............................................................++
+e is 65537 (0x10001)
+# openssl req -subj &amp;quot;/CN=192.168.1.20&amp;quot; -sha256 -new -key server-key.pem -out server.csr
+#
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;A continuación vamos a firmar la clave pública con nuestra CA.&lt;/p&gt;
+
+&lt;p&gt;Como las conexiones TLS pueden realizarse usando la dirección IP o un nombre DNS, deben especificarse durante la creación del certificado.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;# echo subjectAltName = IP:192.168.1.20,IP:127.0.0.1 &amp;gt; extfile.cnf
+# openssl x509 -req -days 365 -sha256 -in server.csr -CA ca.pem -CAkey ca-key.pem \
+&amp;gt;   -CAcreateserial -out server-cert.pem -extfile extfile.cnf
+Signature ok
+subject=/CN=192.168.1.20
+Getting CA Private Key
+Enter pass phrase for ca-key.pem:
+#
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;autenticación-del-cliente&#34;&gt;Autenticación del cliente&lt;/h2&gt;
+
+&lt;p&gt;Para autenticar al cliente, crearemos una clave de cliente y una petición de firmado del certificado.&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Para simplificar, los siguientes dos pasos pueden realizarse desde la máquina donde se encuentra el Docker &lt;em&gt;daemon&lt;/em&gt;.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;# openssl genrsa -out key.pem 4096
+Generating RSA private key, 4096 bit long modulus
+...............................................................................++
+................................................................................................................................................................................++
+e is 65537 (0x10001)
+# openssl req -subj &#39;/CN=client&#39; -new -key key.pem -out client.csr
+#
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Para que la clave permita autenticar al cliente, creamos un fichero de configuración de extensiones:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;# echo extendedKeyUsage = clientAuth &amp;gt; extfile.cnf
+#
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Ahora firmamos la clave:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;# openssl x509 -req -days 365 -sha256 -in client.csr -CA ca.pem -CAkey ca-key.pem \
+&amp;gt;   -CAcreateserial -out cert.pem -extfile extfile.cnf
+Signature ok
+subject=/CN=client
+Getting CA Private Key
+Enter pass phrase for ca-key.pem:
+#
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Después de haber generado &lt;code&gt;cert.pem&lt;/code&gt; y &lt;code&gt;server-cert.pem&lt;/code&gt; podemos eliminar las peticiones de firmado:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;# ls
+ca-key.pem  ca.srl    client.csr  extfile.cnf  server-cert.pem	server-key.pem
+ca.pem	    cert.pem  key.pem     server.csr
+# rm -v client.csr server.csr
+removed ‘client.csr’
+removed ‘server.csr’
+#
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;protección-de-las-claves&#34;&gt;Protección de las claves&lt;/h2&gt;
+
+&lt;p&gt;Con una máscara &lt;code&gt;umask&lt;/code&gt; por defecto de &lt;code&gt;022&lt;/code&gt; las claves secretas que hemos generado dan a todo el mundo acceso de lectura y de escritura a tu usuario y tu grupo.&lt;/p&gt;
+
+&lt;p&gt;Para proteger las claves de daños accidentales, vamos a eliminar los permisos de escritura sobre ellas. Para hacerlas de sólo lectura para tu usuario, usamos:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;# chmod -v 0400 ca-key.pem key.pem server-key.pem
+mode of ‘ca-key.pem’ changed from 0644 (rw-r--r--) to 0400 (r--------)
+mode of ‘key.pem’ changed from 0644 (rw-r--r--) to 0400 (r--------)
+mode of ‘server-key.pem’ changed from 0644 (rw-r--r--) to 0400 (r--------)
+#
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Los certificados pueden ser leídos por todo el mundo, pero para evitar daños accidentales, mejor eliminamos los permisos de escritura:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;# chmod -v 0444 ca.pem server-cert.pem cert.pem
+mode of ‘ca.pem’ changed from 0644 (rw-r--r--) to 0444 (r--r--r--)
+mode of ‘server-cert.pem’ changed from 0644 (rw-r--r--) to 0444 (r--r--r--)
+mode of ‘cert.pem’ changed from 0644 (rw-r--r--) to 0444 (r--r--r--)
+#
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;configurando-el-api-de-acceso-remoto-de-forma-segura&#34;&gt;Configurando el API de acceso remoto de forma segura&lt;/h2&gt;
+
+&lt;p&gt;Para hacer que el Docker &lt;em&gt;daemon&lt;/em&gt; sólo acepte conexiones de clientes que proporcionen un certificado de confianza de tu CA.&lt;/p&gt;
+
+&lt;p&gt;Para ello, modificamos las opciones de arranque del &lt;em&gt;daemon&lt;/em&gt; de Docker:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;# nano /lib/systemd/system/docker.service
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Modificamos la línea:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-txt&#34;&gt;ExecStart=/usr/bin/dockerd -H fd:// -H=0.0.0.0:2375
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;De manera que quede como (lo he dividido en varias líneas por claridad):&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;ExecStart=/usr/bin/dockerd --tlsverify 		\
+         --tlscacert=/root/ca.pem 		\
+         --tlscert=/root/server-cert.pem 	\
+         --tlskey=/root/server-key.pem 		\
+         -H=0.0.0.0:2376 			\
+         -H fd://
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;A continuación, recargamos la configuración y reinciamos el servicio:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;# systemctl daemon-reload
+# systemctl restart docker
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Los primeros intentos de arrancar el &lt;em&gt;daemon&lt;/em&gt; han fallado; ha sido necesario especificar la ruta completa a los certificados y las claves para conseguir que el servicio arrancara.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Finalmente, comprobamos que podemos acceder usando el certificado con &lt;em&gt;curl&lt;/em&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;# curl https://192.168.1.20:2376/version --cert /root/cert.pem --key /root/key.pem --cacert /root/ca.pem
+{&amp;quot;Version&amp;quot;:&amp;quot;17.05.0-ce&amp;quot;,&amp;quot;ApiVersion&amp;quot;:&amp;quot;1.29&amp;quot;,&amp;quot;MinAPIVersion&amp;quot;:&amp;quot;1.12&amp;quot;,&amp;quot;GitCommit&amp;quot;:&amp;quot;89658be&amp;quot;,&amp;quot;GoVersion&amp;quot;:&amp;quot;go1.7.5&amp;quot;,&amp;quot;Os&amp;quot;:&amp;quot;linux&amp;quot;,&amp;quot;Arch&amp;quot;:&amp;quot;amd64&amp;quot;,&amp;quot;KernelVersion&amp;quot;:&amp;quot;3.16.0-4-amd64&amp;quot;,&amp;quot;BuildTime&amp;quot;:&amp;quot;2017-05-04T22:04:27.257991431+00:00&amp;quot;}
+#
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;A diferencia de lo que pasaba antes, cuando se intenta acceder a &lt;code&gt;https://192.168.1.9:2376/version&lt;/code&gt; desde otro equipo (sin usar el certificado), obtenemos un error:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-url&#34;&gt;This site can’t be reached
+192.168.1.9 refused to connect.
+&lt;/code&gt;&lt;/pre&gt;</description>
+    </item>
     
     <item>
       <title>Configura un endpoint remoto en Portainer</title>
@@ -17,7 +205,8 @@
       <guid>https://onthedock.github.io/post/170506-configura-un-endpoint-remoto-en-portainer/</guid>
       <description>&lt;p&gt;En el artículo &lt;a href=&#34;https://onthedock.github.io/post/170429-portainer-para-gestionar-tus-contenedores-en-docker/&#34;&gt;Portainer para gestionar tus contenedores en Docker&lt;/a&gt; usamos &lt;strong&gt;Portainer&lt;/strong&gt; para gestionar el Docker Engine local.&lt;/p&gt;
 
-&lt;p&gt;En el artículo &lt;a href=&#34;https://onthedock.github.io/post/170506-habilita-el-api-remoto-de-docker/&#34;&gt;Habilita el API remoto de Docker&lt;/a&gt; habilitamos el acceso remoto al API de Docker Engine.&lt;/p&gt;
+&lt;p&gt;En el artículo &lt;a href=&#34;No page found with path or logical name &#34;170506-habilita-el-api-remoto-de-docker.md&#34;.
+&#34;&gt;Habilita el API remoto de Docker&lt;/a&gt; habilitamos el acceso remoto al API de Docker Engine.&lt;/p&gt;
 
 &lt;p&gt;En este artículo configuramos &lt;strong&gt;Portainer&lt;/strong&gt; para conectar con un &lt;em&gt;endpoint&lt;/em&gt; remoto (el API expuesta de un Docker Engine).
 &lt;/p&gt;
@@ -55,11 +244,11 @@
     </item>
     
     <item>
-      <title>Habilita el API remoto de Docker</title>
-      <link>https://onthedock.github.io/post/170506-habilita-el-api-remoto-de-docker/</link>
+      <title>Habilita el acceso remoto vía API a Docker</title>
+      <link>https://onthedock.github.io/post/170506-habilita-el-acceso-remoto-via-api-a-docker/</link>
       <pubDate>Sat, 06 May 2017 15:23:36 +0200</pubDate>
       
-      <guid>https://onthedock.github.io/post/170506-habilita-el-api-remoto-de-docker/</guid>
+      <guid>https://onthedock.github.io/post/170506-habilita-el-acceso-remoto-via-api-a-docker/</guid>
       <description>&lt;p&gt;Portainer permite gestionar &lt;em&gt;endpoints&lt;/em&gt; remotos para Docker (y Docker Swarm) mediante el API REST de Docker Engine. El problema es que el API está desactivado por defecto.&lt;/p&gt;
 
 &lt;p&gt;A continuación indico cómo activar y verificar el acceso remoto al API de Docker Engine.&lt;/p&gt;
@@ -1689,33 +1878,6 @@ $
 &lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ scp pirate@k1.local:/home/pirate/admin.conf .
 kubectl --kubeconfig ./admin.conf get nodes
 &lt;/code&gt;&lt;/pre&gt;</description>
-    </item>
-    
-    <item>
-      <title>Kubernetes en la Raspberry Pi (teaser)</title>
-      <link>https://onthedock.github.io/post/170410-k8s-en-rpi-teaser/</link>
-      <pubDate>Mon, 10 Apr 2017 22:45:28 +0200</pubDate>
-      
-      <guid>https://onthedock.github.io/post/170410-k8s-en-rpi-teaser/</guid>
-      <description>&lt;figure&gt;
-  &lt;amp-img src=&#34;https://onthedock.github.io/images/170410/itsalive.jpg&#34; alt=&#34;Kubernetes en la Raspberry Pi (teaser) images/170410/itsalive.jpg&#34; width=400 height=292 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
-  
-&lt;/figure&gt;
-
-
-&lt;p&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;figure&gt;
-  &lt;amp-img src=&#34;https://onthedock.github.io/images/170410/k8s-en-rpi.png&#34; alt=&#34;Kubernetes en la Raspberry Pi (teaser) images/170410/k8s-en-rpi.png&#34; width=640 height=259 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
-  
-  &lt;figcaption&gt;
-    
-    Todos los componentes necesarios en Running
-    
-  &lt;/figcaption&gt;
-  
-&lt;/figure&gt;
-&lt;/p&gt;</description>
     </item>
     
   </channel>
