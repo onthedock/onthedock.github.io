@@ -9,6 +9,78 @@
     <atom:link href="https://onthedock.github.io/categories/ops/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
+      <title>Normas para estructurar ficheros implicados en la creación de contenedores</title>
+      <link>https://onthedock.github.io/post/170520-normas-para-estructurar-ficheros-implicados-en-la-creacion-de-contenedores/</link>
+      <pubDate>Sat, 20 May 2017 19:59:44 +0200</pubDate>
+      
+      <guid>https://onthedock.github.io/post/170520-normas-para-estructurar-ficheros-implicados-en-la-creacion-de-contenedores/</guid>
+      <description>&lt;p&gt;El proceso desde la creación a la ejecución del contenedor se puede separar en varias fases:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Creación de la imagen (mediante la redacción de un fichero &lt;code&gt;Dockerfile&lt;/code&gt;)&lt;/li&gt;
+&lt;li&gt;Construcción de la imagen&lt;/li&gt;
+&lt;li&gt;Ejecución del contenedores&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;Para tener los diferentes ficheros implicados en el proceso organizados de forma homogénea, me he autoimpuesto las siguientes reglas a la hora de estructurar los repositorios.&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;
+
+&lt;h2 id=&#34;dockerfile&#34;&gt;Dockerfile&lt;/h2&gt;
+
+&lt;p&gt;El primero paso para ejecutar un contenedor es crear la imagen en la que está basado. Para ello debes crear un fichero &lt;code&gt;Dockerfile&lt;/code&gt; en el que se indica la imagen base usada y los diferentes pasos de instalación de paquetes, configuración de usuarios, volúmenes y puertos expuestos.&lt;/p&gt;
+
+&lt;p&gt;En la creación de la imagen intervienen, además del fichero &lt;code&gt;Dockerfile&lt;/code&gt;, ficheros de configuración, etc que se copian a la imagen desde la carpeta donde se encuentra el fichero &lt;code&gt;Dockerfile&lt;/code&gt; (el llamado &lt;em&gt;contexto&lt;/em&gt;, ver &lt;a href=&#34;https://docs.docker.com/engine/reference/commandline/build/#options&#34;&gt;Documentación oficial de &lt;code&gt;docker build&lt;/code&gt;&lt;/a&gt;).&lt;/p&gt;
+
+&lt;p&gt;Para gestionar los cambios sobre estos ficheros, lo más sencillo es guardarlos en un repositorio y tener un registro de todos los cambios que se van introduciendo a lo largo del tiempo.&lt;/p&gt;
+
+&lt;p&gt;Todos los ficheros relacionados con la &lt;em&gt;creación&lt;/em&gt; de la imagen se colocan en una carpeta llamada &lt;code&gt;build&lt;/code&gt;, con el &lt;code&gt;Dockerfile&lt;/code&gt; y los ficheros de configuración, etc, agrupados en sus correspondientes carpetas.&lt;/p&gt;
+
+&lt;p&gt;En esta carpeta también se incluyen un fichero con instrucciones para la creación de la imagen (condiciones en las que reutilizar la cache, puntos a tener en cuenta, etc) y un &lt;em&gt;script&lt;/em&gt; para lanzar la creación de la imagen de forma siempre igual (quizás el script borra ficheros temporales o descargados en ejecuciones anteriores, por ejemplo).&lt;/p&gt;
+
+&lt;h2 id=&#34;construcción-de-la-imagen&#34;&gt;Construcción de la imagen&lt;/h2&gt;
+
+&lt;p&gt;Una vez creado el &lt;code&gt;Dockerfile&lt;/code&gt;, &lt;em&gt;construyes&lt;/em&gt; la imagen mediante &lt;code&gt;docker build&lt;/code&gt;. Aunque en general la construcción se realiza mediante un sólo comando de la forma &lt;code&gt;docker build -t {repositorio/etiqueta} .&lt;/code&gt;, puede ser interesante disponer de documentación con indicaciones sobre las reglas de etiquetado de la imagen definidas por la empresa o similar.&lt;/p&gt;
+
+&lt;h2 id=&#34;ejecución-del-contenedor&#34;&gt;Ejecución del contenedor&lt;/h2&gt;
+
+&lt;p&gt;Finalmente la creación de contenedores basados en la imagen se realiza mediante un comando &lt;code&gt;docker run&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;A la hora de ejecutar el contenedor la instrucción puede incluir el nombre del contenedor final, la relación entre puertos del &lt;em&gt;host&lt;/em&gt; y el contenedor, el montaje de volúmenes, etc. En algunos casos, el contenedor admite parámetros que se pasan al comando definido en la instrucción &lt;code&gt;CMD&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Para evitar errores o simplemente para no teclear una y otra vez comandos larguísimos para ejecutar el contenedor, podemos crear un &lt;em&gt;script&lt;/em&gt; que lance el contenedor con los parámetros necesarios, así como documentación de la funcionalidad proporcionada por el contenedor, etc.&lt;/p&gt;
+
+&lt;p&gt;Estos ficheros se guardan en el carpeta llamada &lt;code&gt;run&lt;/code&gt;; básicamente el comando para lanzar la creación del contenedor de forma homogénea y las instrucciones con información sobre el uso del contenedor, volúmenes, etc.&lt;/p&gt;
+
+&lt;h2 id=&#34;carpetas&#34;&gt;Carpetas&lt;/h2&gt;
+
+&lt;p&gt;Para estructurar todos los ficheros implicados en el proceso de creación de un contenedor he definido la siguiente estructura de carpetas:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;./nombre-contenedor/
+ |
+ ├─Readme.md
+ ├─build/
+ | ├─Dockerfile
+ | ├─build.sh
+ | ├─Build-Instructions.md
+ | ├─{context-files}/
+ | ├─...
+ | ├─{context-files}/
+ ├─run/
+ | ├─run.sh
+ | ├─Run-Instructions.md
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;motivación&#34;&gt;Motivación&lt;/h2&gt;
+
+&lt;p&gt;No he encontrado ningún artículo sobre la organización de los ficheros implicados en el creación de imágenes o de los flujos de trabajo asociados a estos procesos. Tampoco sobre las normas a la hora de etiquetar las imágenes o si se realizan validaciones a la hora de obtener/subir imágenes de repositorios públicos.&lt;/p&gt;
+
+&lt;p&gt;Incluso en una empresa en la que el proceso de desarrollo y operación de las aplicaciones gire alrededor del concepto &lt;em&gt;DevOp&lt;/em&gt;, puede haber otros implicados en el proceso &lt;em&gt;administrativo&lt;/em&gt; del ciclo de vida de la aplicación: decisiones estratégicas, a nivel de seguridad, de &lt;em&gt;compliance&lt;/em&gt; con leyes como la protección de datos, etc.&lt;/p&gt;
+
+&lt;p&gt;En los artículos/conferencias lo habitual es explicar soluciones técnicas sin entrar nunca en estos procesos que relacionan IT con el resto de departamentos de la empresa.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
       <title>El nodo k3 sigue colgandose por culpa de Flannel</title>
       <link>https://onthedock.github.io/post/170517-el-nodo-k3-sigue-colgandose-por-culpa-de-flannel/</link>
       <pubDate>Wed, 17 May 2017 21:02:21 +0200</pubDate>
@@ -1702,33 +1774,6 @@ $
 &lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ scp pirate@k1.local:/home/pirate/admin.conf .
 kubectl --kubeconfig ./admin.conf get nodes
 &lt;/code&gt;&lt;/pre&gt;</description>
-    </item>
-    
-    <item>
-      <title>Kubernetes en la Raspberry Pi (teaser)</title>
-      <link>https://onthedock.github.io/post/170410-k8s-en-rpi-teaser/</link>
-      <pubDate>Mon, 10 Apr 2017 22:45:28 +0200</pubDate>
-      
-      <guid>https://onthedock.github.io/post/170410-k8s-en-rpi-teaser/</guid>
-      <description>&lt;figure&gt;
-  &lt;amp-img src=&#34;https://onthedock.github.io/images/170410/itsalive.jpg&#34; alt=&#34;Kubernetes en la Raspberry Pi (teaser) images/170410/itsalive.jpg&#34; width=400 height=292 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
-  
-&lt;/figure&gt;
-
-
-&lt;p&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;figure&gt;
-  &lt;amp-img src=&#34;https://onthedock.github.io/images/170410/k8s-en-rpi.png&#34; alt=&#34;Kubernetes en la Raspberry Pi (teaser) images/170410/k8s-en-rpi.png&#34; width=640 height=259 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
-  
-  &lt;figcaption&gt;
-    
-    Todos los componentes necesarios en Running
-    
-  &lt;/figcaption&gt;
-  
-&lt;/figure&gt;
-&lt;/p&gt;</description>
     </item>
     
   </channel>
