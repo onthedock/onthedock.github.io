@@ -2,19 +2,150 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>On The Dock</title>
-    <link>https://onthedock.github.io/index.xml</link>
+    <link>http://192.168.1.9:8000/index.xml</link>
     <description>Recent content on On The Dock</description>
     <generator>Hugo -- gohugo.io</generator>
     <copyright>Handmade with &amp;#9829; by Xavi Aznar</copyright>
-    <lastBuildDate>Sun, 21 May 2017 09:26:45 +0200</lastBuildDate>
-    <atom:link href="https://onthedock.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 25 May 2017 18:34:11 +0200</lastBuildDate>
+    <atom:link href="http://192.168.1.9:8000/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Introduccion a YAML</title>
+      <link>http://192.168.1.9:8000/post/170525-introduccion-a-yaml/</link>
+      <pubDate>Thu, 25 May 2017 18:34:11 +0200</pubDate>
+      
+      <guid>http://192.168.1.9:8000/post/170525-introduccion-a-yaml/</guid>
+      <description>&lt;p&gt;YAML es el lenguaje en el que se definen los &lt;em&gt;pods&lt;/em&gt;, los &lt;em&gt;deployments&lt;/em&gt; y demás estructuras en Kubernetes. Todos los artículos que he leído sobre cómo crear un fichero de definición del &lt;em&gt;pod&lt;/em&gt; (&lt;em&gt;deployment&lt;/em&gt;, etc) se centran en el &lt;strong&gt;contenido&lt;/strong&gt; del fichero.&lt;/p&gt;
+
+&lt;p&gt;Pero en mi caso, echaba de menos una explicación de &lt;strong&gt;cómo&lt;/strong&gt; se crea el fichero, qué reglas se siguen a la hora de &lt;em&gt;describir&lt;/em&gt; la configuración en formato YAML.&lt;/p&gt;
+
+&lt;p&gt;Afortunadamente el lenguaje YAML es muy sencillo y basta con conocer un par de estructuras para crear los ficheros de configuración de Kubernetes.&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;
+
+&lt;p&gt;YAML es un lenguaje de marcado muy simple, basado en ficheros de texto plano legible por los humanos. Este formato se utiliza dentro del mundillo del software para almacenar información de tipo configuración.&lt;/p&gt;
+
+&lt;p&gt;YAML son las siglas de &lt;em&gt;Yet Another Markup Language&lt;/em&gt; (Otro lenguaje de marcado más) o &lt;em&gt;YAML Ain&amp;rsquo;t Markup Language&lt;/em&gt; (YAML no es un lenguaje de marcado), depende de a quién preguntes.&lt;/p&gt;
+
+&lt;p&gt;Usar YAML para las definiciones de Kubernetes proporciona las siguientes ventajas:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Conveniencia&lt;/strong&gt; No es necesario especificar todos los parámetros en la línea de comandos.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Mantenimiento&lt;/strong&gt; Los ficheros YAML puede ser gestionados por un sistema de control de versiones, de manera que se pueden registrar los cambios.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Flexibilidad&lt;/strong&gt; Es posible crear estructuras mucho más complejas usando YAML de lo que puede conseguirse desde la línea de comandos.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;YAML es un superconjunto de JSON, lo que significa que cualquier fichero JSON válido también es un fichero YAML válido.&lt;/p&gt;
+
+&lt;p&gt;Como consejos generales a la hora de crear un fichero YAML:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Usa siempre la codificación UTF-8 para evitar errores.&lt;/li&gt;
+&lt;li&gt;No uses &lt;strong&gt;nunca&lt;/strong&gt; tabulaciones&lt;/li&gt;
+&lt;li&gt;Usa una fuente monoespaciada para visualizar/editar el contenido de los ficheros YAML.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Sólo necesitas conocer dos tipos de estructuras en YAML:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Listas&lt;/li&gt;
+&lt;li&gt;Mapas&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;A parte de los mapas y las listas, también te puede resultar útil saber que cualquier línea que comience con un &lt;code&gt;#&lt;/code&gt; se considera un comentario y es ignorada.&lt;/p&gt;
+
+&lt;h2 id=&#34;mapas-yaml&#34;&gt;Mapas YAML&lt;/h2&gt;
+
+&lt;p&gt;Los mapas te permiten asociar parejas de nombres y valores, lo que es conveniente cuando estás tratando con información relativa a configuraciones. Por ejemplo, puedes tener una configuración que empiece como:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-yml&#34;&gt;---
+apiVersion: v1
+kind: Pod
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;La primera línea es un separador, y es opcional a no ser que trates de definir múltiples estructuras en un solo fichero. En el fichero puedes ver que tenemos dos valores, &lt;code&gt;v1&lt;/code&gt; y &lt;code&gt;Pod&lt;/code&gt;, asociados a dos claves, &lt;code&gt;apiVersion&lt;/code&gt; y &lt;code&gt;kind&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;No es necesario que los valores estén entrecomillados (con comillas simples o dobles), excepto para asegurarte de que no se interpreta algún caracter especial con un significado diferente a su valor literal.&lt;/p&gt;
+
+&lt;p&gt;Las parejas clave-valor contenidas en un mapa se almacenan sin orden, por lo que puedes especificarlas en el orden que quieras.&lt;/p&gt;
+
+&lt;p&gt;El fichero YAML anterior es equivalente a:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-yml&#34;&gt;---
+kind: Pod
+apiVersion: v1
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Podemos anidar mapas dentro de mapas para crear estructuras más complejas, como:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-yml&#34;&gt;---
+apiVersion: v1
+kind: Pod
+metadata:
+   name: rss-site
+   labels:
+      app: web
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;En este caso tenemos un mapa llamado &lt;code&gt;metadata&lt;/code&gt; que contiene otros dos mapas; el primero &lt;code&gt;name: rss-site&lt;/code&gt; y el segundo, &lt;code&gt;labels&lt;/code&gt;, contiene como valor otro mapa &lt;code&gt;app: web&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Puedes anidar tantos mapas dentro de mapas como quieras.&lt;/p&gt;
+
+&lt;p&gt;Para indicar que un mapa está contenido en otro, se usa la indentación. En el ejemplo anterior hemos usado una indentación de 3 espacios, pero el número de espacios no importa, siempre que sea &lt;strong&gt;consistente&lt;/strong&gt; en el fichero. El procesador de YAML interpreta las claves y valores en la misma profundidad de indentación como al mismo nivel (por ejemplo, &lt;code&gt;name&lt;/code&gt; y &lt;code&gt;labels&lt;/code&gt;), mientras que si están indentadas, interpreta que están &lt;em&gt;contenidas&lt;/em&gt; unos en otros (como en el caso de &lt;code&gt;labels&lt;/code&gt; y &lt;code&gt;app: web&lt;/code&gt;).&lt;/p&gt;
+
+&lt;h2 id=&#34;listas-en-yaml&#34;&gt;Listas en YAML&lt;/h2&gt;
+
+&lt;p&gt;Una lista, en YAML, es una secuencia de objetos, o lo que es lo mismo, una colección ordenada de valores. En este caso los valores no están asociados con una clave, sino con un índice posicional obtenido del orden en el que están especificados en la lista. Por ejemplo:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-yml&#34;&gt;args
+   - sleep
+   - 1000
+   - message
+   - &amp;quot;Hello World!&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Puede haber cualquier número de elementos en una lista.&lt;/p&gt;
+
+&lt;p&gt;Como en el caso de las parejas clave-valor, los elementos de una lista se encuentran indentados con el mismo número de espacios bajo el identificador (la clave) de la lista; cada elemento de la lista va precedido por un &lt;code&gt;-&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Del mismo modo que podemos anidar mapas en mapas, podemos anidar listas en listas, mapas en listas y cualquier combinación imaginable. Un ejemplo de mapas y listas anidados:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-yml&#34;&gt;# Configuracion ficticia
+spec:
+   containers:
+      - name: front-end
+        image: nginx
+        ports:
+           - containerPort: 80
+      - name: rss-reader
+        image: xavi/rss-reader
+        ports:
+           - containerPort: 80
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;En resumen, tenemos:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Mapas&lt;/strong&gt;, que son grupos no ordenados de parejas de clave y valor&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Listas&lt;/strong&gt;, que son colecciones ordenadas de elementos individuales&lt;/li&gt;
+&lt;li&gt;Mapas de mapas&lt;/li&gt;
+&lt;li&gt;Mapas de listas&lt;/li&gt;
+&lt;li&gt;Listas de mapas&lt;/li&gt;
+&lt;li&gt;Listas de listas&lt;/li&gt;
+&lt;li&gt;etc&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Básicamente, cualquier estructura que puedas imaginar, se puede construir a partir de estos dos elementos.&lt;/p&gt;
+
+&lt;p&gt;Con estos conocimientos básicos, espero que ahora te resulte mucho más sencillo interpretar los ficheros de configuración de &lt;em&gt;pods&lt;/em&gt;, &lt;em&gt;deployments&lt;/em&gt;, etc. Y no sólo en Kubernetes; las configuraciones en formato YAML son usadas por un montón de productos diferentes.&lt;/p&gt;</description>
+    </item>
     
     <item>
       <title>Vagrant: primeras impresiones</title>
-      <link>https://onthedock.github.io/post/170521-vagrant-primeras-impresiones/</link>
+      <link>http://192.168.1.9:8000/post/170521-vagrant-primeras-impresiones/</link>
       <pubDate>Sun, 21 May 2017 09:26:45 +0200</pubDate>
       
-      <guid>https://onthedock.github.io/post/170521-vagrant-primeras-impresiones/</guid>
+      <guid>http://192.168.1.9:8000/post/170521-vagrant-primeras-impresiones/</guid>
       <description>&lt;p&gt;He estado probando &lt;a href=&#34;https://www.vagrantup.com&#34;&gt;Vagrant&lt;/a&gt; para automatizar la creación de máquinas virtuales en las que probar Docker, etc.&lt;/p&gt;
 
 &lt;p&gt;En este artículo comento mis primeras impresiones con Vagrant.&lt;/p&gt;
@@ -98,10 +229,10 @@ apt-get install docker.io -y
     
     <item>
       <title>Normas para estructurar ficheros implicados en la creación de contenedores</title>
-      <link>https://onthedock.github.io/post/170520-normas-para-estructurar-ficheros-implicados-en-la-creacion-de-contenedores/</link>
+      <link>http://192.168.1.9:8000/post/170520-normas-para-estructurar-ficheros-implicados-en-la-creacion-de-contenedores/</link>
       <pubDate>Sat, 20 May 2017 19:59:44 +0200</pubDate>
       
-      <guid>https://onthedock.github.io/post/170520-normas-para-estructurar-ficheros-implicados-en-la-creacion-de-contenedores/</guid>
+      <guid>http://192.168.1.9:8000/post/170520-normas-para-estructurar-ficheros-implicados-en-la-creacion-de-contenedores/</guid>
       <description>&lt;p&gt;El proceso desde la creación a la ejecución del contenedor se puede separar en varias fases:&lt;/p&gt;
 
 &lt;ol&gt;
@@ -170,11 +301,11 @@ apt-get install docker.io -y
     
     <item>
       <title>El nodo k3 sigue colgandose por culpa de Flannel</title>
-      <link>https://onthedock.github.io/post/170517-el-nodo-k3-sigue-colgandose-por-culpa-de-flannel/</link>
+      <link>http://192.168.1.9:8000/post/170517-el-nodo-k3-sigue-colgandose-por-culpa-de-flannel/</link>
       <pubDate>Wed, 17 May 2017 21:02:21 +0200</pubDate>
       
-      <guid>https://onthedock.github.io/post/170517-el-nodo-k3-sigue-colgandose-por-culpa-de-flannel/</guid>
-      <description>&lt;p&gt;En la entrada &lt;a href=&#34;https://onthedock.github.io/post/170506-troubleshooting-kubernetes-ii/&#34;&gt;Troubleshooting Kubernetes (II)&lt;/a&gt; encontré restos de la instalación de &lt;a href=&#34;https://github.com/coreos/flannel&#34;&gt;Flannel&lt;/a&gt; en la Raspberry Pi. Eliminé los &lt;em&gt;pods&lt;/em&gt; que hacían referencia a Flannel y conseguí que el nodo &lt;strong&gt;k2&lt;/strong&gt; no se volviera a colgar.&lt;/p&gt;
+      <guid>http://192.168.1.9:8000/post/170517-el-nodo-k3-sigue-colgandose-por-culpa-de-flannel/</guid>
+      <description>&lt;p&gt;En la entrada &lt;a href=&#34;http://192.168.1.9:8000/post/170506-troubleshooting-kubernetes-ii/&#34;&gt;Troubleshooting Kubernetes (II)&lt;/a&gt; encontré restos de la instalación de &lt;a href=&#34;https://github.com/coreos/flannel&#34;&gt;Flannel&lt;/a&gt; en la Raspberry Pi. Eliminé los &lt;em&gt;pods&lt;/em&gt; que hacían referencia a Flannel y conseguí que el nodo &lt;strong&gt;k2&lt;/strong&gt; no se volviera a colgar.&lt;/p&gt;
 
 &lt;p&gt;Sin embargo, el problema sigue dándose en el nodo &lt;strong&gt;k3&lt;/strong&gt;.&lt;/p&gt;
 
@@ -221,11 +352,11 @@ $
     
     <item>
       <title>Protege el acceso remoto via API a Docker</title>
-      <link>https://onthedock.github.io/post/170507-protege-el-acceso-remoto-via-api-a-docker/</link>
+      <link>http://192.168.1.9:8000/post/170507-protege-el-acceso-remoto-via-api-a-docker/</link>
       <pubDate>Sun, 07 May 2017 18:33:16 +0200</pubDate>
       
-      <guid>https://onthedock.github.io/post/170507-protege-el-acceso-remoto-via-api-a-docker/</guid>
-      <description>&lt;p&gt;En el artículo &lt;a href=&#34;https://onthedock.github.io/post/170506-habilita-el-acceso-remoto-via-api-a-docker/&#34;&gt;Habilita el API remoto de Docker&lt;/a&gt; explicaba cómo configurar el acceso remoto al API de Docker. El problema es que de esta forma no hay manera de restringir el acceso.&lt;/p&gt;
+      <guid>http://192.168.1.9:8000/post/170507-protege-el-acceso-remoto-via-api-a-docker/</guid>
+      <description>&lt;p&gt;En el artículo &lt;a href=&#34;http://192.168.1.9:8000/post/170506-habilita-el-acceso-remoto-via-api-a-docker/&#34;&gt;Habilita el API remoto de Docker&lt;/a&gt; explicaba cómo configurar el acceso remoto al API de Docker. El problema es que de esta forma no hay manera de restringir el acceso.&lt;/p&gt;
 
 &lt;p&gt;En este artículo protegemos el acceso usando TLS de manera que sólo se permitan conexiones que presenten un certificado firmado por una CA de confianza.
 &lt;/p&gt;
@@ -409,13 +540,13 @@ mode of ‘cert.pem’ changed from 0644 (rw-r--r--) to 0444 (r--r--r--)
     
     <item>
       <title>Configura un endpoint remoto en Portainer</title>
-      <link>https://onthedock.github.io/post/170506-configura-un-endpoint-remoto-en-portainer/</link>
+      <link>http://192.168.1.9:8000/post/170506-configura-un-endpoint-remoto-en-portainer/</link>
       <pubDate>Sat, 06 May 2017 17:38:20 +0200</pubDate>
       
-      <guid>https://onthedock.github.io/post/170506-configura-un-endpoint-remoto-en-portainer/</guid>
-      <description>&lt;p&gt;En el artículo &lt;a href=&#34;https://onthedock.github.io/post/170429-portainer-para-gestionar-tus-contenedores-en-docker/&#34;&gt;Portainer para gestionar tus contenedores en Docker&lt;/a&gt; usamos &lt;strong&gt;Portainer&lt;/strong&gt; para gestionar el Docker Engine local.&lt;/p&gt;
+      <guid>http://192.168.1.9:8000/post/170506-configura-un-endpoint-remoto-en-portainer/</guid>
+      <description>&lt;p&gt;En el artículo &lt;a href=&#34;http://192.168.1.9:8000/post/170429-portainer-para-gestionar-tus-contenedores-en-docker/&#34;&gt;Portainer para gestionar tus contenedores en Docker&lt;/a&gt; usamos &lt;strong&gt;Portainer&lt;/strong&gt; para gestionar el Docker Engine local.&lt;/p&gt;
 
-&lt;p&gt;En el artículo &lt;a href=&#34;https://onthedock.github.io/post/170506-habilita-el-acceso-remoto-via-api-a-docker/&#34;&gt;Habilita el API remoto de Docker&lt;/a&gt; habilitamos el acceso remoto al API de Docker Engine.&lt;/p&gt;
+&lt;p&gt;En el artículo &lt;a href=&#34;http://192.168.1.9:8000/post/170506-habilita-el-acceso-remoto-via-api-a-docker/&#34;&gt;Habilita el API remoto de Docker&lt;/a&gt; habilitamos el acceso remoto al API de Docker Engine.&lt;/p&gt;
 
 &lt;p&gt;En este artículo configuramos &lt;strong&gt;Portainer&lt;/strong&gt; para conectar con un &lt;em&gt;endpoint&lt;/em&gt; remoto (el API expuesta de un Docker Engine).
 &lt;/p&gt;
@@ -425,7 +556,7 @@ mode of ‘cert.pem’ changed from 0644 (rw-r--r--) to 0444 (r--r--r--)
 &lt;p&gt;Para configurar el &lt;em&gt;endopoint&lt;/em&gt; remoto (no seguro) sólo necesitas proporcionar un nombre para el &lt;em&gt;endpoint&lt;/em&gt; y la URL de acceso:&lt;/p&gt;
 
 &lt;figure&gt;
-  &lt;amp-img src=&#34;https://onthedock.github.io/images/170506/1-configure-endpoint.png&#34; alt=&#34;Configura un endpoint remoto en Portainer images/170506/1-configure-endpoint.png&#34; width=935 height=660 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
+  &lt;amp-img src=&#34;http://192.168.1.9:8000/images/170506/1-configure-endpoint.png&#34; alt=&#34;Configura un endpoint remoto en Portainer images/170506/1-configure-endpoint.png&#34; width=935 height=660 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
   
   &lt;figcaption&gt;
     
@@ -441,7 +572,7 @@ mode of ‘cert.pem’ changed from 0644 (rw-r--r--) to 0444 (r--r--r--)
 &lt;p&gt;Para cambiar entre los diferentes &lt;em&gt;endpoints&lt;/em&gt; definidos en &lt;strong&gt;Portainer&lt;/strong&gt;, selecciona el que quieres gestionar en el desplegable de la parte superior del panel lateral:&lt;/p&gt;
 
 &lt;figure&gt;
-  &lt;amp-img src=&#34;https://onthedock.github.io/images/170506/2-change-endpoint.png&#34; alt=&#34;Configura un endpoint remoto en Portainer images/170506/2-change-endpoint.png&#34; width=450 height=168 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
+  &lt;amp-img src=&#34;http://192.168.1.9:8000/images/170506/2-change-endpoint.png&#34; alt=&#34;Configura un endpoint remoto en Portainer images/170506/2-change-endpoint.png&#34; width=450 height=168 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
   
   &lt;figcaption&gt;
     
@@ -454,10 +585,10 @@ mode of ‘cert.pem’ changed from 0644 (rw-r--r--) to 0444 (r--r--r--)
     
     <item>
       <title>Habilita el acceso remoto vía API a Docker</title>
-      <link>https://onthedock.github.io/post/170506-habilita-el-acceso-remoto-via-api-a-docker/</link>
+      <link>http://192.168.1.9:8000/post/170506-habilita-el-acceso-remoto-via-api-a-docker/</link>
       <pubDate>Sat, 06 May 2017 15:23:36 +0200</pubDate>
       
-      <guid>https://onthedock.github.io/post/170506-habilita-el-acceso-remoto-via-api-a-docker/</guid>
+      <guid>http://192.168.1.9:8000/post/170506-habilita-el-acceso-remoto-via-api-a-docker/</guid>
       <description>&lt;p&gt;Portainer permite gestionar &lt;em&gt;endpoints&lt;/em&gt; remotos para Docker (y Docker Swarm) mediante el API REST de Docker Engine. El problema es que el API está desactivado por defecto.&lt;/p&gt;
 
 &lt;p&gt;A continuación indico cómo activar y verificar el acceso remoto al API de Docker Engine.&lt;/p&gt;
@@ -562,10 +693,10 @@ WantedBy=multi-user.target
     
     <item>
       <title>Tags, categorias y organización en Hugo</title>
-      <link>https://onthedock.github.io/post/170506-tags-categorias-archetypes-en-hugo/</link>
+      <link>http://192.168.1.9:8000/post/170506-tags-categorias-archetypes-en-hugo/</link>
       <pubDate>Sat, 06 May 2017 06:23:50 +0200</pubDate>
       
-      <guid>https://onthedock.github.io/post/170506-tags-categorias-archetypes-en-hugo/</guid>
+      <guid>http://192.168.1.9:8000/post/170506-tags-categorias-archetypes-en-hugo/</guid>
       <description>&lt;p&gt;A medida que aumenta el número de artículos me he dado cuenta de que es necesario tener algún conjunto de reglas para organizar los ficheros que componen el blog.&lt;/p&gt;
 
 &lt;p&gt;El problema no está en los ficheros de Hugo, sino en los ficheros generados por mi: artículos, imágenes, etc.
@@ -642,10 +773,10 @@ WantedBy=multi-user.target
     
     <item>
       <title>Troubleshooting Kubernetes (II)</title>
-      <link>https://onthedock.github.io/post/170506-troubleshooting-kubernetes-ii/</link>
+      <link>http://192.168.1.9:8000/post/170506-troubleshooting-kubernetes-ii/</link>
       <pubDate>Sat, 06 May 2017 05:21:09 +0200</pubDate>
       
-      <guid>https://onthedock.github.io/post/170506-troubleshooting-kubernetes-ii/</guid>
+      <guid>http://192.168.1.9:8000/post/170506-troubleshooting-kubernetes-ii/</guid>
       <description>&lt;p&gt;Sigo con el &lt;em&gt;troubleshooting&lt;/em&gt; del &lt;em&gt;cuelgue&lt;/em&gt; de los nodos sobre Raspberry Pi 3 del clúster.&lt;/p&gt;
 
 &lt;p&gt;Ayer estuve &lt;em&gt;haciendo limpieza&lt;/em&gt; siguiendo &lt;em&gt;vagamente&lt;/em&gt; la recomendación de &lt;a href=&#34;https://github.com/kubernetes/kubernetes/issues/43593#issuecomment-288899231&#34;&gt;esta respuesta&lt;/a&gt; en el hilo &lt;a href=&#34;https://github.com/kubernetes/kubernetes/issues/43593#issuecomment-288899231&#34;&gt;Kubernetes memory consumption explosion&lt;/a&gt;.&lt;/p&gt;
@@ -757,10 +888,10 @@ $
     
     <item>
       <title>Instala Weave Net en Kubernetes 1.6</title>
-      <link>https://onthedock.github.io/post/170505-instala-weave-net-en-kubernetes-1.6/</link>
+      <link>http://192.168.1.9:8000/post/170505-instala-weave-net-en-kubernetes-1.6/</link>
       <pubDate>Fri, 05 May 2017 22:14:36 +0200</pubDate>
       
-      <guid>https://onthedock.github.io/post/170505-instala-weave-net-en-kubernetes-1.6/</guid>
+      <guid>http://192.168.1.9:8000/post/170505-instala-weave-net-en-kubernetes-1.6/</guid>
       <description>&lt;p&gt;Una de las cosas que más me sorprenden de Kubernetes es que es necesario instalar una &lt;em&gt;capa de red&lt;/em&gt; sobre el clúster.&lt;/p&gt;
 
 &lt;p&gt;En el caso concreto del que he obtenido las &lt;em&gt;capturas de pantalla&lt;/em&gt;, el clúster corre sobre máquinas virtuales con Debian Jessie.
@@ -873,11 +1004,11 @@ $
     
     <item>
       <title>Troubleshooting Kubernetes (I)</title>
-      <link>https://onthedock.github.io/post/170430-troubleshooting-kubernetes-i/</link>
+      <link>http://192.168.1.9:8000/post/170430-troubleshooting-kubernetes-i/</link>
       <pubDate>Sun, 30 Apr 2017 15:24:35 +0200</pubDate>
       
-      <guid>https://onthedock.github.io/post/170430-troubleshooting-kubernetes-i/</guid>
-      <description>&lt;p&gt;Tras la alegría inicial pensando que la configuración de &lt;em&gt;rsyslog&lt;/em&gt; era la causante de los cuelgues de las dos RPi 3 (&lt;a href=&#34;https://onthedock.github.io/post/170430-k3-colgado-de-nuevo/&#34;&gt;El nodo k3 del clúster colgado de nuevo&lt;/a&gt;), pasadas unas horas los dos nodos &lt;strong&gt;k2&lt;/strong&gt; y &lt;strong&gt;k3&lt;/strong&gt; han dejado de responder de nuevo.&lt;/p&gt;
+      <guid>http://192.168.1.9:8000/post/170430-troubleshooting-kubernetes-i/</guid>
+      <description>&lt;p&gt;Tras la alegría inicial pensando que la configuración de &lt;em&gt;rsyslog&lt;/em&gt; era la causante de los cuelgues de las dos RPi 3 (&lt;a href=&#34;http://192.168.1.9:8000/post/170430-k3-colgado-de-nuevo/&#34;&gt;El nodo k3 del clúster colgado de nuevo&lt;/a&gt;), pasadas unas horas los dos nodos &lt;strong&gt;k2&lt;/strong&gt; y &lt;strong&gt;k3&lt;/strong&gt; han dejado de responder de nuevo.&lt;/p&gt;
 
 &lt;p&gt;Así que es el momento de atacar el problema de forma algo más sistemática. Para ello seguiré las instrucciones que proporcina la página de Kubernetes &lt;a href=&#34;https://kubernetes.io/docs/tasks/debug-application-cluster/debug-cluster/&#34;&gt;Troubleshooting Clusters&lt;/a&gt;.
 &lt;/p&gt;
@@ -1149,10 +1280,10 @@ ls: cannot access /var/log/kube*: No such file or directory
     
     <item>
       <title>Errores sobre Orphaned pods en syslog</title>
-      <link>https://onthedock.github.io/post/170430-errores-sobre-orphaned-pods-en-syslog/</link>
+      <link>http://192.168.1.9:8000/post/170430-errores-sobre-orphaned-pods-en-syslog/</link>
       <pubDate>Sun, 30 Apr 2017 12:55:44 +0200</pubDate>
       
-      <guid>https://onthedock.github.io/post/170430-errores-sobre-orphaned-pods-en-syslog/</guid>
+      <guid>http://192.168.1.9:8000/post/170430-errores-sobre-orphaned-pods-en-syslog/</guid>
       <description>&lt;p&gt;Los nodos &lt;strong&gt;k2&lt;/strong&gt; y &lt;strong&gt;k3&lt;/strong&gt; del clúster dejan de responder pasadas unas horas. La única manera de solucionarlo es reiniciar los nodos. Siguiendo con la revisión de logs, he encontrado que se genera una gran cantidad de entradas en &lt;em&gt;syslog&lt;/em&gt; en referencia a &lt;em&gt;orphaned pods&lt;/em&gt;. Además, el número de estos errores no para de crecer &lt;strong&gt;rápidamente&lt;/strong&gt;.&lt;/p&gt;
 
 &lt;p&gt;&lt;/p&gt;
@@ -1177,22 +1308,22 @@ Apr 30 10:58:08 k2 kubelet[3619]: E0430 10:58:08.435567    3619 kubelet_volumes.
 
 &lt;p&gt;Todas estas entradas se encuentran en los logs del nodo &lt;strong&gt;k2&lt;/strong&gt;, donde no hay ningún &lt;em&gt;pod&lt;/em&gt; en ejecución (a parte de los propios de  Kubernetes que el clúster planifica en los diferentes nodos).&lt;/p&gt;
 
-&lt;p&gt;&lt;strong&gt;Actualización&lt;/strong&gt;: &lt;a href=&#34;https://onthedock.github.io/post/170506-troubleshooting-kubernetes-ii/&#34;&gt;Troubleshooting Kubernetes (II)&lt;/a&gt;&lt;/p&gt;</description>
+&lt;p&gt;&lt;strong&gt;Actualización&lt;/strong&gt;: &lt;a href=&#34;http://192.168.1.9:8000/post/170506-troubleshooting-kubernetes-ii/&#34;&gt;Troubleshooting Kubernetes (II)&lt;/a&gt;&lt;/p&gt;</description>
     </item>
     
     <item>
       <title>El nodo k3 del clúster colgado de nuevo</title>
-      <link>https://onthedock.github.io/post/170430-k3-colgado-de-nuevo/</link>
+      <link>http://192.168.1.9:8000/post/170430-k3-colgado-de-nuevo/</link>
       <pubDate>Sun, 30 Apr 2017 11:39:20 +0200</pubDate>
       
-      <guid>https://onthedock.github.io/post/170430-k3-colgado-de-nuevo/</guid>
-      <description>&lt;p&gt;En la entrada anterior &lt;a href=&#34;https://onthedock.github.io/post/170430-multiples-mensajes-action-17-suspended/&#34;&gt;Múltiples mensajes &amp;lsquo;action 17 suspended&amp;rsquo; en los logs&lt;/a&gt; comentaba que estaba a la espera de obtener resultados; después de apenas unas horas, ya los tengo: &lt;strong&gt;k3&lt;/strong&gt; se ha vuelto a &lt;em&gt;colgar&lt;/em&gt; mientras que &lt;strong&gt;k2&lt;/strong&gt; no.&lt;/p&gt;
+      <guid>http://192.168.1.9:8000/post/170430-k3-colgado-de-nuevo/</guid>
+      <description>&lt;p&gt;En la entrada anterior &lt;a href=&#34;http://192.168.1.9:8000/post/170430-multiples-mensajes-action-17-suspended/&#34;&gt;Múltiples mensajes &amp;lsquo;action 17 suspended&amp;rsquo; en los logs&lt;/a&gt; comentaba que estaba a la espera de obtener resultados; después de apenas unas horas, ya los tengo: &lt;strong&gt;k3&lt;/strong&gt; se ha vuelto a &lt;em&gt;colgar&lt;/em&gt; mientras que &lt;strong&gt;k2&lt;/strong&gt; no.&lt;/p&gt;
 
 &lt;p&gt;Este resultado parece demostrar que la mala configuración de &lt;em&gt;rsyslog&lt;/em&gt; es la causante de los &lt;em&gt;cuelgues&lt;/em&gt; de las RPi 3 en el clúster de Kubernetes.&lt;/p&gt;
 
 &lt;p&gt;&lt;strong&gt;Actualización&lt;/strong&gt;: El nodo &lt;strong&gt;k2&lt;/strong&gt; sobre RPi3 sigue colgándose :(&lt;/p&gt;
 
-&lt;p&gt;&lt;strong&gt;Actualización II&lt;/strong&gt;: &lt;a href=&#34;https://onthedock.github.io/post/170506-troubleshooting-kubernetes-ii/&#34;&gt;Parece solucionado&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Actualización II&lt;/strong&gt;: &lt;a href=&#34;http://192.168.1.9:8000/post/170506-troubleshooting-kubernetes-ii/&#34;&gt;Parece solucionado&lt;/a&gt;&lt;/p&gt;
 
 &lt;p&gt;&lt;/p&gt;
 
@@ -1261,10 +1392,10 @@ daemon.*;mail.*;\
     
     <item>
       <title>Múltiples mensajes &#39;action 17 suspended&#39; en los logs</title>
-      <link>https://onthedock.github.io/post/170430-multiples-mensajes-action-17-suspended/</link>
+      <link>http://192.168.1.9:8000/post/170430-multiples-mensajes-action-17-suspended/</link>
       <pubDate>Sun, 30 Apr 2017 08:44:27 +0200</pubDate>
       
-      <guid>https://onthedock.github.io/post/170430-multiples-mensajes-action-17-suspended/</guid>
+      <guid>http://192.168.1.9:8000/post/170430-multiples-mensajes-action-17-suspended/</guid>
       <description>&lt;p&gt;Investigando las causas por las que los dos nodos con Raspberry Pi 3 se &lt;em&gt;cuelgan&lt;/em&gt;, he encontrado múltiples apariciones de este mensaje en &lt;code&gt;/var/log/messages&lt;/code&gt;:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-log&#34;&gt;Apr 30 06:40:42 k3 rsyslogd-2007: action &#39;action 17&#39; suspended, next retry is Sun Apr 30 06:41:12 2017 [try http://www.rsyslog.com/e/2007 ]
@@ -1323,22 +1454,22 @@ k3        Ready     14d       v1.6.2
 
 &lt;p&gt;Ya tenngo resultados: la configuración de &lt;em&gt;rsyslog&lt;/em&gt; es la que causa el cuelgue del sistema en las RPi3.&lt;/p&gt;
 
-&lt;p&gt;Échale un vistazo a cómo solucionar este error en la entrada: &lt;a href=&#34;https://onthedock.github.io/post/170430-k3-colgado-de-nuevo/&#34;&gt;El nodo k3 del clúster colgado de nuevo&lt;/a&gt;.&lt;/p&gt;</description>
+&lt;p&gt;Échale un vistazo a cómo solucionar este error en la entrada: &lt;a href=&#34;http://192.168.1.9:8000/post/170430-k3-colgado-de-nuevo/&#34;&gt;El nodo k3 del clúster colgado de nuevo&lt;/a&gt;.&lt;/p&gt;</description>
     </item>
     
     <item>
       <title>Portainer para gestionar tus contenedores en Docker</title>
-      <link>https://onthedock.github.io/post/170429-portainer-para-gestionar-tus-contenedores-en-docker/</link>
+      <link>http://192.168.1.9:8000/post/170429-portainer-para-gestionar-tus-contenedores-en-docker/</link>
       <pubDate>Sat, 29 Apr 2017 12:55:04 +0200</pubDate>
       
-      <guid>https://onthedock.github.io/post/170429-portainer-para-gestionar-tus-contenedores-en-docker/</guid>
+      <guid>http://192.168.1.9:8000/post/170429-portainer-para-gestionar-tus-contenedores-en-docker/</guid>
       <description>&lt;p&gt;&lt;a href=&#34;http://portainer.io/&#34;&gt;Portainer&lt;/a&gt; es una herramienta ligera y &lt;em&gt;open-source&lt;/em&gt; de gestión de contenedores sobre Docker (o Docker Swarm). Portainer ofrece una interfaz gráfica para gestionar el &lt;em&gt;host&lt;/em&gt; Docker desde cualquier navegador, tiene soporte para Raspberry Pi y se puede desplegar como un simple contenedor.&lt;/p&gt;
 
 &lt;p&gt;Espero que este artículo ayude a todos aquellos que tengan ganas de probar Portainer y evitarles los problemas que me he encontrado yo.&lt;/p&gt;
 
 &lt;p&gt;
 &lt;figure&gt;
-  &lt;amp-img src=&#34;https://onthedock.github.io/images/portainer-logo.png&#34; alt=&#34;Portainer para gestionar tus contenedores en Docker images/portainer-logo.png&#34; width=1106 height=361 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
+  &lt;amp-img src=&#34;http://192.168.1.9:8000/images/portainer-logo.png&#34; alt=&#34;Portainer para gestionar tus contenedores en Docker images/portainer-logo.png&#34; width=1106 height=361 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
   
 &lt;/figure&gt;
 &lt;/p&gt;
@@ -1403,7 +1534,7 @@ $
 &lt;p&gt;La primera vez que accedes a la URL de Portainer debes introducir el password del usuario &lt;code&gt;admin&lt;/code&gt;.&lt;/p&gt;
 
 &lt;figure&gt;
-  &lt;amp-img src=&#34;https://onthedock.github.io/images/170429/portainer-1-define-admin-password.png&#34; alt=&#34;Portainer para gestionar tus contenedores en Docker images/170429/portainer-1-define-admin-password.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
+  &lt;amp-img src=&#34;http://192.168.1.9:8000/images/170429/portainer-1-define-admin-password.png&#34; alt=&#34;Portainer para gestionar tus contenedores en Docker images/170429/portainer-1-define-admin-password.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
   
 &lt;/figure&gt;
 
@@ -1411,7 +1542,7 @@ $
 &lt;p&gt;Una vez introducido, puedes acceder a la UI de gestión de Portainer.&lt;/p&gt;
 
 &lt;figure&gt;
-  &lt;amp-img src=&#34;https://onthedock.github.io/images/170429/portainer-2-first-login.png&#34; alt=&#34;Portainer para gestionar tus contenedores en Docker images/170429/portainer-2-first-login.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
+  &lt;amp-img src=&#34;http://192.168.1.9:8000/images/170429/portainer-2-first-login.png&#34; alt=&#34;Portainer para gestionar tus contenedores en Docker images/170429/portainer-2-first-login.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
   
 &lt;/figure&gt;
 
@@ -1419,7 +1550,7 @@ $
 &lt;p&gt;Para mostrar información sobre los contendores (imágenes, volúmenes, etc) en Docker, Portainer necesita conectarse -vía API- al &lt;em&gt;host&lt;/em&gt; en el que corre Docker. Tenemos dos opciones, un &lt;em&gt;endpoint remoto&lt;/em&gt; (opción por defecto) o conectar con el &lt;em&gt;host&lt;/em&gt; donde corre Portainer:&lt;/p&gt;
 
 &lt;figure&gt;
-  &lt;amp-img src=&#34;https://onthedock.github.io/images/170429/portainer-3-remote_endpoint_by_default.png&#34; alt=&#34;Portainer para gestionar tus contenedores en Docker images/170429/portainer-3-remote_endpoint_by_default.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
+  &lt;amp-img src=&#34;http://192.168.1.9:8000/images/170429/portainer-3-remote_endpoint_by_default.png&#34; alt=&#34;Portainer para gestionar tus contenedores en Docker images/170429/portainer-3-remote_endpoint_by_default.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
   
 &lt;/figure&gt;
 
@@ -1427,7 +1558,7 @@ $
 &lt;p&gt;El problema es que, como vemos, al seleccionar un &lt;em&gt;endpoint&lt;/em&gt; local, se indica que hay que lanzar el contenedor de Portainer dando acceso al contenedor sobre &lt;code&gt;/var/run/docker.sock&lt;/code&gt;:&lt;/p&gt;
 
 &lt;figure&gt;
-  &lt;amp-img src=&#34;https://onthedock.github.io/images/170429/portainer-4-local_endpoint_require_docker.sock.png&#34; alt=&#34;Portainer para gestionar tus contenedores en Docker images/170429/portainer-4-local_endpoint_require_docker.sock.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
+  &lt;amp-img src=&#34;http://192.168.1.9:8000/images/170429/portainer-4-local_endpoint_require_docker.sock.png&#34; alt=&#34;Portainer para gestionar tus contenedores en Docker images/170429/portainer-4-local_endpoint_require_docker.sock.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
   
 &lt;/figure&gt;
 
@@ -1456,7 +1587,7 @@ $
 &lt;p&gt;Después de validarnos, podemos conectar con el &lt;em&gt;docker-engine&lt;/em&gt; local y visualizar el &lt;em&gt;dashboard&lt;/em&gt;:&lt;/p&gt;
 
 &lt;figure&gt;
-  &lt;amp-img src=&#34;https://onthedock.github.io/images/170429/portainer-5-dashboard.png&#34; alt=&#34;Portainer para gestionar tus contenedores en Docker images/170429/portainer-5-dashboard.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
+  &lt;amp-img src=&#34;http://192.168.1.9:8000/images/170429/portainer-5-dashboard.png&#34; alt=&#34;Portainer para gestionar tus contenedores en Docker images/170429/portainer-5-dashboard.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
   
 &lt;/figure&gt;
 
@@ -1464,7 +1595,7 @@ $
 &lt;p&gt;Desde la interfaz web podemos gestionar los contenedores, imágenes y volúmenes existentes:&lt;/p&gt;
 
 &lt;figure&gt;
-  &lt;amp-img src=&#34;https://onthedock.github.io/images/170429/portainer-6-containers.png&#34; alt=&#34;Portainer para gestionar tus contenedores en Docker images/170429/portainer-6-containers.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
+  &lt;amp-img src=&#34;http://192.168.1.9:8000/images/170429/portainer-6-containers.png&#34; alt=&#34;Portainer para gestionar tus contenedores en Docker images/170429/portainer-6-containers.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
   
   &lt;figcaption&gt;
     
@@ -1476,7 +1607,7 @@ $
 
 
 &lt;figure&gt;
-  &lt;amp-img src=&#34;https://onthedock.github.io/images/170429/portainer-7-images.png&#34; alt=&#34;Portainer para gestionar tus contenedores en Docker images/170429/portainer-7-images.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
+  &lt;amp-img src=&#34;http://192.168.1.9:8000/images/170429/portainer-7-images.png&#34; alt=&#34;Portainer para gestionar tus contenedores en Docker images/170429/portainer-7-images.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
   
   &lt;figcaption&gt;
     
@@ -1488,7 +1619,7 @@ $
 
 
 &lt;figure&gt;
-  &lt;amp-img src=&#34;https://onthedock.github.io/images/170429/portainer-8-volumes.png&#34; alt=&#34;Portainer para gestionar tus contenedores en Docker images/170429/portainer-8-volumes.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
+  &lt;amp-img src=&#34;http://192.168.1.9:8000/images/170429/portainer-8-volumes.png&#34; alt=&#34;Portainer para gestionar tus contenedores en Docker images/170429/portainer-8-volumes.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
   
   &lt;figcaption&gt;
     
@@ -1499,145 +1630,7 @@ $
 &lt;/figure&gt;
 
 
-&lt;p&gt;En el próximo artículo me concentraré en usar &lt;a href=&#34;https://onthedock.github.io/tags/portainer/&#34;&gt;Portainer&lt;/a&gt; para realizar la gestión de Docker.&lt;/p&gt;</description>
-    </item>
-    
-    <item>
-      <title>Solución al error de instalación de Kubernetes en Debian Jessie (Missing cgroups: memory)</title>
-      <link>https://onthedock.github.io/post/170422-solucion-al-error-missing-cgroups-memory-en-debian-jessie/</link>
-      <pubDate>Sat, 22 Apr 2017 07:57:14 +0200</pubDate>
-      
-      <guid>https://onthedock.github.io/post/170422-solucion-al-error-missing-cgroups-memory-en-debian-jessie/</guid>
-      <description>&lt;p&gt;Al lanzar la inicialización del clúster con &lt;code&gt;kubeadm init&lt;/code&gt; en Debian Jessie, las comprobaciones inciales indican que no se encuentran los &lt;em&gt;cgroups&lt;/em&gt; para la memoria (échale un vistazo al artículo &lt;a href=&#34;https://onthedock.github.io/post/170417-instalacion-de-kubernetes-falla-missing-cgroups-memory/&#34;&gt;La instalación de Kubernetes falla en Debian Jessie (missing cgroups: memory)&lt;/a&gt;). Los &lt;em&gt;cgroups&lt;/em&gt; son una de las piezas fundamentales en las que se basa Docker para &lt;em&gt;aislar&lt;/em&gt; los procesos de los contenedores, por lo que la inicialización del clúster de Kubernetes se detiene.&lt;/p&gt;
-
-&lt;p&gt;La solución es tan sencilla como habilitar los &lt;em&gt;cgroups&lt;/em&gt; durante el arranque.&lt;/p&gt;
-
-&lt;p&gt;&lt;/p&gt;
-
-&lt;p&gt;En primer lugar, verificamos la versión del &lt;em&gt;kernel&lt;/em&gt; que tenemos instalada:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;# uname -a
-Linux k8s 3.16.0-4-amd64 #1 SMP Debian 3.16.39-1+deb8u2 (2017-03-07) x86_64 GNU/Linux
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Al lanzar &lt;code&gt;kubeadm init&lt;/code&gt; obtenemos el error:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;# kubeadm init
-[kubeadm] WARNING: kubeadm is in beta, please do not use it for production clusters.
-[init] Using Kubernetes version: v1.6.0
-[init] Using Authorization mode: RBAC
-[preflight] Running pre-flight checks
-[preflight] The system verification failed. Printing the output from the verification:
-OS: Linux
-KERNEL_VERSION: 3.16.0-4-amd64
-CONFIG_NAMESPACES: enabled
-CONFIG_NET_NS: enabled
-CONFIG_PID_NS: enabled
-CONFIG_IPC_NS: enabled
-CONFIG_UTS_NS: enabled
-CONFIG_CGROUPS: enabled
-CONFIG_CGROUP_CPUACCT: enabled
-CONFIG_CGROUP_DEVICE: enabled
-CONFIG_CGROUP_FREEZER: enabled
-CONFIG_CGROUP_SCHED: enabled
-CONFIG_CPUSETS: enabled
-CONFIG_MEMCG: enabled
-CONFIG_INET: enabled
-CONFIG_EXT4_FS: enabled (as module)
-CONFIG_PROC_FS: enabled
-CONFIG_NETFILTER_XT_TARGET_REDIRECT: enabled (as module)
-CONFIG_NETFILTER_XT_MATCH_COMMENT: enabled (as module)
-CONFIG_OVERLAYFS_FS: not set - Required for overlayfs.
-CONFIG_AUFS_FS: enabled (as module)
-CONFIG_BLK_DEV_DM: enabled (as module)
-CGROUPS_CPU: enabled
-CGROUPS_CPUACCT: enabled
-CGROUPS_CPUSET: enabled
-CGROUPS_DEVICES: enabled
-CGROUPS_FREEZER: enabled
-CGROUPS_MEMORY: missing
-DOCKER_VERSION: 17.04.0-ce
-[preflight] WARNING: docker version is greater than the most recently validated version. Docker version: 17.04.0-ce. Max validated version: 1.12
-[preflight] Some fatal errors occurred:
-	missing cgroups: memory
-[preflight] If you know what you are doing, you can skip pre-flight checks with `--skip-preflight-checks`
-#
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;solución&#34;&gt;Solución&lt;/h2&gt;
-
-&lt;p&gt;La solución la he encontrado en &lt;a href=&#34;https://phabricator.wikimedia.org/T122734&#34;&gt;Enable memory cgroups for default Jessie image&lt;/a&gt;.&lt;/p&gt;
-
-&lt;ol&gt;
-&lt;li&gt;Nos convertimos en &lt;em&gt;root&lt;/em&gt;: &lt;code&gt;sudo su -&lt;/code&gt;&lt;/li&gt;
-&lt;li&gt;Editamos el fichero &lt;code&gt;/etc/default/grup&lt;/code&gt;&lt;/li&gt;
-&lt;li&gt;En los parámetros para el arranque de linux (&lt;code&gt;GRUB_CMDLINE_LINUX&lt;/code&gt;) añadimos &lt;code&gt;cgroup_enable=memory&lt;/code&gt;. En mi caso, la línea queda: &lt;code&gt;GRUB_CMDLINE_LINUX_DEFAULT=&amp;quot;quiet cgroup_enable=memory&amp;quot;&lt;/code&gt;&lt;/li&gt;
-&lt;li&gt;Actualizamos &lt;em&gt;grub&lt;/em&gt;: &lt;code&gt;update-grub2&lt;/code&gt;&lt;/li&gt;
-&lt;li&gt;Reiniciamos la máquina: &lt;code&gt;reboot&lt;/code&gt;&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;...
-[preflight] WARNING: docker version is greater than the most recently validated version. Docker version: 17.04.0-ce. Max validated version: 1.12
-[preflight] Some fatal errors occurred:
-	missing cgroups: memory
-[preflight] If you know what you are doing, you can skip pre-flight checks with `--skip-preflight-checks`
-root@k8s:~# nano /etc/default/grub
-root@k8s:~# update-grub2
-Generating grub configuration file ...
-Found linux image: /boot/vmlinuz-3.16.0-4-amd64
-Found initrd image: /boot/initrd.img-3.16.0-4-amd64
-done
-root@k8s:~# reboot
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Al lanzar &lt;code&gt;kubeadm init&lt;/code&gt; de nuevo, el clúster arranca con normalidad:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;root@k8s:~# kubeadm init
-[kubeadm] WARNING: kubeadm is in beta, please do not use it for production clusters.
-[init] Using Kubernetes version: v1.6.0
-[init] Using Authorization mode: RBAC
-[preflight] Running pre-flight checks
-[preflight] WARNING: docker version is greater than the most recently validated version. Docker version: 17.04.0-ce. Max validated version: 1.12
-[certificates] Generated CA certificate and key.
-[certificates] Generated API server certificate and key.
-[certificates] API Server serving cert is signed for DNS names [k8s kubernetes kubernetes.default kubernetes.default.svc kubernetes.default.svc.cluster.local] and IPs [10.96.0.1 192.168.1.99]
-[certificates] Generated API server kubelet client certificate and key.
-[certificates] Generated service account token signing key and public key.
-[certificates] Generated front-proxy CA certificate and key.
-[certificates] Generated front-proxy client certificate and key.
-[certificates] Valid certificates and keys now exist in &amp;quot;/etc/kubernetes/pki&amp;quot;
-[kubeconfig] Wrote KubeConfig file to disk: &amp;quot;/etc/kubernetes/scheduler.conf&amp;quot;
-[kubeconfig] Wrote KubeConfig file to disk: &amp;quot;/etc/kubernetes/admin.conf&amp;quot;
-[kubeconfig] Wrote KubeConfig file to disk: &amp;quot;/etc/kubernetes/kubelet.conf&amp;quot;
-[kubeconfig] Wrote KubeConfig file to disk: &amp;quot;/etc/kubernetes/controller-manager.conf&amp;quot;
-[apiclient] Created API client, waiting for the control plane to become ready
-[apiclient] All control plane components are healthy after 39.363656 seconds
-[apiclient] Waiting for at least one node to register
-[apiclient] First node has registered after 1.518215 seconds
-[token] Using token: fe9e91.7142118e712eb019
-[apiconfig] Created RBAC rules
-[addons] Created essential addon: kube-proxy
-[addons] Created essential addon: kube-dns
-
-Your Kubernetes master has initialized successfully!
-
-To start using your cluster, you need to run (as a regular user):
-
-  sudo cp /etc/kubernetes/admin.conf $HOME/
-  sudo chown $(id -u):$(id -g) $HOME/admin.conf
-  export KUBECONFIG=$HOME/admin.conf
-
-You should now deploy a pod network to the cluster.
-Run &amp;quot;kubectl apply -f [podnetwork].yaml&amp;quot; with one of the options listed at:
-  http://kubernetes.io/docs/admin/addons/
-
-You can now join any number of machines by running the following on each node
-as root:
-
-  kubeadm join --token fe9e91.7142118e712eb019 192.168.1.99:6443
-
-root@k8s:~#
-&lt;/code&gt;&lt;/pre&gt;</description>
+&lt;p&gt;En el próximo artículo me concentraré en usar &lt;a href=&#34;http://192.168.1.9:8000/tags/portainer/&#34;&gt;Portainer&lt;/a&gt; para realizar la gestión de Docker.&lt;/p&gt;</description>
     </item>
     
   </channel>
