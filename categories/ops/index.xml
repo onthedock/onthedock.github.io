@@ -2,18 +2,109 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Ops on On The Dock</title>
-    <link>http://192.168.1.9:8000/categories/ops/index.xml</link>
+    <link>https://onthedock.github.io/categories/ops/index.xml</link>
     <description>Recent content in Ops on On The Dock</description>
     <generator>Hugo -- gohugo.io</generator>
     <copyright>Handmade with &amp;#9829; by Xavi Aznar</copyright>
-    <atom:link href="http://192.168.1.9:8000/categories/ops/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://onthedock.github.io/categories/ops/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Revisión de conceptos</title>
+      <link>https://onthedock.github.io/post/170528-revision-de-conceptos/</link>
+      <pubDate>Sun, 28 May 2017 07:59:31 +0200</pubDate>
+      
+      <guid>https://onthedock.github.io/post/170528-revision-de-conceptos/</guid>
+      <description>&lt;p&gt;Después de estabilizar el clúster, el siguiente paso es poner en marcha aplicaciones. Pero ¿qué es exactamente lo que hay que desplegar?: ¿&lt;em&gt;pods&lt;/em&gt;?, ¿&lt;em&gt;replication controllers&lt;/em&gt;?, ¿&lt;em&gt;deployments&lt;/em&gt;?&lt;/p&gt;
+
+&lt;p&gt;Muchos artículos empiezan creando el fichero YAML para un &lt;em&gt;pod&lt;/em&gt;, después construyen el &lt;em&gt;replication controller&lt;/em&gt;, etc&amp;hellip; Sin embargo, revisando la documentación oficial, crear &lt;em&gt;pods&lt;/em&gt; directamente en Kubernetes no tiene mucho sentido.&lt;/p&gt;
+
+&lt;p&gt;En este artículo intento determinar qué objetos son los que deben crearse en un clúster Kubernetes.
+&lt;/p&gt;
+
+&lt;h2 id=&#34;pod&#34;&gt;Pod&lt;/h2&gt;
+
+&lt;p&gt;La unidad fundamental de despliegue en Kubernetes es el &lt;a href=&#34;https://kubernetes.io/docs/concepts/workloads/pods/pod-overview/&#34;&gt;&lt;strong&gt;Pod&lt;/strong&gt;&lt;/a&gt;. Un &lt;em&gt;pod&lt;/em&gt; sería el equivalente a la mínima unidad funcional de la aplicación.&lt;/p&gt;
+
+&lt;p&gt;En general, un &lt;em&gt;pod&lt;/em&gt; contendrá únicamente un contenedor, aunque no tiene que ser así: si tenemos dos contenedores que actúan de forma conjunta, podemos desplegarlos dentro de un solo &lt;em&gt;pod&lt;/em&gt;. Dentro de un &lt;em&gt;pod&lt;/em&gt; todos los contenedores se pueden comunicar entre ellos usando &lt;code&gt;localhost&lt;/code&gt;, por lo que es una manera sencilla de desplegar en Kubernetes aplicaciones que, aunque hayan sido &lt;em&gt;containerizadas&lt;/em&gt;, no puedan modificarse para comunicarse con otras partes de la aplicación usando una IP o un nombre DNS (porque la aplicación espera que el resto de &lt;em&gt;partes&lt;/em&gt; de la aplicación estén en el mismo equipo).&lt;/p&gt;
+
+&lt;p&gt;En este sentido, todos los contenedores dentro de un &lt;em&gt;pod&lt;/em&gt; se podría decir que están instaladas en una mismo equipo (como un &lt;em&gt;stack&lt;/em&gt; LAMP).&lt;/p&gt;
+
+&lt;p&gt;Sin embargo, un &lt;em&gt;pod&lt;/em&gt; es un elemento &lt;strong&gt;no-durable&lt;/strong&gt;, es decir, que puede fallar o ser eliminado en cualquier momento. Por tanto, &lt;strong&gt;no es una buena idea desplegar &lt;em&gt;pods&lt;/em&gt; individuales en Kubernetes&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;Como indica la &lt;a href=&#34;https://kubernetes.io/docs/api-reference/v1.6/#pod-v1-core&#34;&gt;documentación para los &lt;em&gt;pods&lt;/em&gt; de la API para la versión 1.6 de Kubernetes&lt;/a&gt;:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;It is recommended that users create Pods only through a Controller, and not directly.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&#34;replicaset-y-replication-controller&#34;&gt;ReplicaSet y Replication Controller&lt;/h2&gt;
+
+&lt;p&gt;El &lt;a href=&#34;https://kubernetes.io/docs/concepts/workloads/controllers/replicationcontroller/&#34;&gt;&lt;strong&gt;Replication Controller&lt;/strong&gt;&lt;/a&gt; o la versión &lt;em&gt;mejorada&lt;/em&gt;, el &lt;a href=&#34;https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/&#34;&gt;&lt;strong&gt;ReplicaSet&lt;/strong&gt;&lt;/a&gt; se encarga de mantener un determinado número de réplicas del &lt;em&gt;pod&lt;/em&gt; en el clúster.&lt;/p&gt;
+
+&lt;p&gt;El &lt;em&gt;ReplicaSet&lt;/em&gt; asegura que un determinado número de copias -&lt;strong&gt;réplicas&lt;/strong&gt;- del &lt;em&gt;pod&lt;/em&gt; se encuentran en ejecución en el clúster en todo momento. Por tanto, si alguno de los &lt;em&gt;pods&lt;/em&gt; es eliminado, el &lt;em&gt;ReplicaSet&lt;/em&gt; se encarga de crear un nuevo &lt;em&gt;pod&lt;/em&gt;. Para ello, el &lt;em&gt;ReplicaSet&lt;/em&gt; incluye una plantilla con la que crear nuevos &lt;em&gt;pods&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;Así, el &lt;em&gt;ReplicaSet&lt;/em&gt; define el &lt;strong&gt;estado deseado&lt;/strong&gt; de la aplicación: cuántas copias de mi aplicación quiero tener en todo momento en ejecución en el clúster.
+Modificando el número de réplicas para el &lt;em&gt;ReplicaSet&lt;/em&gt; podemos &lt;strong&gt;escalar&lt;/strong&gt; (incrementar o reducir) el número de copias en ejecución en función de las necesidades.&lt;/p&gt;
+
+&lt;p&gt;Por tanto, parece que el mejor candidato para ponerse a definir ficheros &lt;code&gt;YAML&lt;/code&gt; y desplegar aplicaciones en el clúster de Kubernetes sería un &lt;em&gt;ReplicaSet&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;Si embargo, la &lt;a href=&#34;https://kubernetes.io/docs/api-reference/v1.6/#replicaset-v1beta1-extensions&#34;&gt;documentación oficial&lt;/a&gt; nos ofrece otra opción:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;In many cases it is recommended to create a Deployment instead of ReplicaSet.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Es decir, tenemos una opción mejor: el &lt;a href=&#34;https://kubernetes.io/docs/concepts/workloads/controllers/deployment/&#34;&gt;&lt;strong&gt;Deployment&lt;/strong&gt;&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&#34;deployment&#34;&gt;Deployment&lt;/h2&gt;
+
+&lt;p&gt;El &lt;em&gt;Deployment&lt;/em&gt; añade la capacidad de poder actualizar la aplicación definida en un &lt;em&gt;ReplicaSet&lt;/em&gt; sin pérdida de servicio, mediante &lt;strong&gt;actualización continua&lt;/strong&gt; (&lt;em&gt;rolling update&lt;/em&gt;).&lt;/p&gt;
+
+&lt;p&gt;Si el estado deseado de la aplicación son tres réplicas de un pod basado en &lt;code&gt;yomismo/app-1.0&lt;/code&gt; y queremos actualizar a &lt;code&gt;yomismo/app-2.0&lt;/code&gt;, el &lt;em&gt;Deployment&lt;/em&gt; se encarga de realizar la transición de la versión 1.0 a la 2.0 de forma que no haya interrupción del servicio. La estrategia de actualización puede definirse manualmente, pero sin entrar en detalles, Kubernetes se encarga de ir eliminado progresivamente las réplicas de la aplicación v1.0 y sustituirlas por las de la v2.0.&lt;/p&gt;
+
+&lt;p&gt;El proceso se hace de forma controlada, por lo que si surgen problemas con la nueva versión de la aplicación, la actualización se detiene y es posible realizar &lt;em&gt;marcha atrás&lt;/em&gt; hacia la versión estable.&lt;/p&gt;
+
+&lt;h2 id=&#34;resumiendo&#34;&gt;Resumiendo&lt;/h2&gt;
+
+&lt;p&gt;Así pues, después de leer la sección de &lt;a href=&#34;https://kubernetes.io/docs/concepts/&#34;&gt;Concepts&lt;/a&gt; de la documentación de Kubernetes, parece que ya tengo claro cuál es el proceso para desplegar aplicaciones en Kubernetes.&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;En Docker
+
+&lt;ol&gt;
+&lt;li&gt;Crear fichero &lt;code&gt;Dockerfile&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;Construir imagen personalizada&lt;/li&gt;
+&lt;li&gt;Subir imagen a un &lt;em&gt;Registry&lt;/em&gt; (de momento, DockerHub)&lt;/li&gt;
+&lt;/ol&gt;&lt;/li&gt;
+&lt;li&gt;En Kubernetes
+
+&lt;ol&gt;
+&lt;li&gt;Crear fichero &lt;code&gt;YAML&lt;/code&gt; definiendo el &lt;em&gt;Deployment&lt;/em&gt;&lt;/li&gt;
+&lt;li&gt;Crear &lt;em&gt;Deployment&lt;/em&gt; en el clúster&lt;/li&gt;
+&lt;/ol&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Hay otros objetos específicos que pueden ser más adecuados para tus necesidades:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;em&gt;DaemonSets&lt;/em&gt; : despliegan una copia de un &lt;em&gt;pod&lt;/em&gt; en cada nodo del clúster. Por ejemplo, un antivirus, o una herramienta de gestión de logs, etc&lt;/li&gt;
+&lt;li&gt;&lt;em&gt;Jobs&lt;/em&gt; y &lt;em&gt;CronJobs&lt;/em&gt;: crean &lt;em&gt;pods&lt;/em&gt; hasta asegurar que un número determinado finaliza con éxito, lo que completa el &lt;em&gt;job&lt;/em&gt;.&lt;/li&gt;
+&lt;li&gt;&lt;em&gt;StatefulSets&lt;/em&gt; : todavía en Beta, asignan una identidad única a los &lt;em&gt;pods&lt;/em&gt;, lo que garantiza que se creen o escalen en un orden determinado.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;siguientes-pasos&#34;&gt;Siguientes pasos&lt;/h2&gt;
+
+&lt;p&gt;Al final de este proceso tendré una aplicación &lt;em&gt;simple&lt;/em&gt; desplegada en el clúster. Con &amp;ldquo;sencilla&amp;rdquo; quiero decir que las diferentes instancias de la aplicación actuan de forma independiente. Un ejemplo sería un servidor web: con el &lt;em&gt;deployment&lt;/em&gt; sería posible escalar la aplicación para dar respuesta a la demanda en todo momento y actualizar el contenido de la web sin interrupciones.&lt;/p&gt;
+
+&lt;p&gt;El siguiente paso es crear una aplicación &lt;em&gt;compleja&lt;/em&gt; en la que tengamos, por ejemplo, un &lt;em&gt;frontend&lt;/em&gt; y un &lt;em&gt;backend&lt;/em&gt;. Para estas situaciones, necesitaremos definir un &lt;a href=&#34;https://kubernetes.io/docs/concepts/services-networking/service/&#34;&gt;&lt;strong&gt;servicio&lt;/strong&gt;&lt;/a&gt;.&lt;/p&gt;</description>
+    </item>
     
     <item>
       <title>Introduccion a YAML</title>
-      <link>http://192.168.1.9:8000/post/170525-introduccion-a-yaml/</link>
+      <link>https://onthedock.github.io/post/170525-introduccion-a-yaml/</link>
       <pubDate>Thu, 25 May 2017 18:34:11 +0200</pubDate>
       
-      <guid>http://192.168.1.9:8000/post/170525-introduccion-a-yaml/</guid>
+      <guid>https://onthedock.github.io/post/170525-introduccion-a-yaml/</guid>
       <description>&lt;p&gt;YAML es el lenguaje en el que se definen los &lt;em&gt;pods&lt;/em&gt;, los &lt;em&gt;deployments&lt;/em&gt; y demás estructuras en Kubernetes. Todos los artículos que he leído sobre cómo crear un fichero de definición del &lt;em&gt;pod&lt;/em&gt; (&lt;em&gt;deployment&lt;/em&gt;, etc) se centran en el &lt;strong&gt;contenido&lt;/strong&gt; del fichero.&lt;/p&gt;
 
 &lt;p&gt;Pero en mi caso, echaba de menos una explicación de &lt;strong&gt;cómo&lt;/strong&gt; se crea el fichero, qué reglas se siguen a la hora de &lt;em&gt;describir&lt;/em&gt; la configuración en formato YAML.&lt;/p&gt;
@@ -141,10 +232,10 @@ spec:
     
     <item>
       <title>Normas para estructurar ficheros implicados en la creación de contenedores</title>
-      <link>http://192.168.1.9:8000/post/170520-normas-para-estructurar-ficheros-implicados-en-la-creacion-de-contenedores/</link>
+      <link>https://onthedock.github.io/post/170520-normas-para-estructurar-ficheros-implicados-en-la-creacion-de-contenedores/</link>
       <pubDate>Sat, 20 May 2017 19:59:44 +0200</pubDate>
       
-      <guid>http://192.168.1.9:8000/post/170520-normas-para-estructurar-ficheros-implicados-en-la-creacion-de-contenedores/</guid>
+      <guid>https://onthedock.github.io/post/170520-normas-para-estructurar-ficheros-implicados-en-la-creacion-de-contenedores/</guid>
       <description>&lt;p&gt;El proceso desde la creación a la ejecución del contenedor se puede separar en varias fases:&lt;/p&gt;
 
 &lt;ol&gt;
@@ -213,11 +304,11 @@ spec:
     
     <item>
       <title>El nodo k3 sigue colgandose por culpa de Flannel</title>
-      <link>http://192.168.1.9:8000/post/170517-el-nodo-k3-sigue-colgandose-por-culpa-de-flannel/</link>
+      <link>https://onthedock.github.io/post/170517-el-nodo-k3-sigue-colgandose-por-culpa-de-flannel/</link>
       <pubDate>Wed, 17 May 2017 21:02:21 +0200</pubDate>
       
-      <guid>http://192.168.1.9:8000/post/170517-el-nodo-k3-sigue-colgandose-por-culpa-de-flannel/</guid>
-      <description>&lt;p&gt;En la entrada &lt;a href=&#34;http://192.168.1.9:8000/post/170506-troubleshooting-kubernetes-ii/&#34;&gt;Troubleshooting Kubernetes (II)&lt;/a&gt; encontré restos de la instalación de &lt;a href=&#34;https://github.com/coreos/flannel&#34;&gt;Flannel&lt;/a&gt; en la Raspberry Pi. Eliminé los &lt;em&gt;pods&lt;/em&gt; que hacían referencia a Flannel y conseguí que el nodo &lt;strong&gt;k2&lt;/strong&gt; no se volviera a colgar.&lt;/p&gt;
+      <guid>https://onthedock.github.io/post/170517-el-nodo-k3-sigue-colgandose-por-culpa-de-flannel/</guid>
+      <description>&lt;p&gt;En la entrada &lt;a href=&#34;https://onthedock.github.io/post/170506-troubleshooting-kubernetes-ii/&#34;&gt;Troubleshooting Kubernetes (II)&lt;/a&gt; encontré restos de la instalación de &lt;a href=&#34;https://github.com/coreos/flannel&#34;&gt;Flannel&lt;/a&gt; en la Raspberry Pi. Eliminé los &lt;em&gt;pods&lt;/em&gt; que hacían referencia a Flannel y conseguí que el nodo &lt;strong&gt;k2&lt;/strong&gt; no se volviera a colgar.&lt;/p&gt;
 
 &lt;p&gt;Sin embargo, el problema sigue dándose en el nodo &lt;strong&gt;k3&lt;/strong&gt;.&lt;/p&gt;
 
@@ -264,11 +355,11 @@ $
     
     <item>
       <title>Protege el acceso remoto via API a Docker</title>
-      <link>http://192.168.1.9:8000/post/170507-protege-el-acceso-remoto-via-api-a-docker/</link>
+      <link>https://onthedock.github.io/post/170507-protege-el-acceso-remoto-via-api-a-docker/</link>
       <pubDate>Sun, 07 May 2017 18:33:16 +0200</pubDate>
       
-      <guid>http://192.168.1.9:8000/post/170507-protege-el-acceso-remoto-via-api-a-docker/</guid>
-      <description>&lt;p&gt;En el artículo &lt;a href=&#34;http://192.168.1.9:8000/post/170506-habilita-el-acceso-remoto-via-api-a-docker/&#34;&gt;Habilita el API remoto de Docker&lt;/a&gt; explicaba cómo configurar el acceso remoto al API de Docker. El problema es que de esta forma no hay manera de restringir el acceso.&lt;/p&gt;
+      <guid>https://onthedock.github.io/post/170507-protege-el-acceso-remoto-via-api-a-docker/</guid>
+      <description>&lt;p&gt;En el artículo &lt;a href=&#34;https://onthedock.github.io/post/170506-habilita-el-acceso-remoto-via-api-a-docker/&#34;&gt;Habilita el API remoto de Docker&lt;/a&gt; explicaba cómo configurar el acceso remoto al API de Docker. El problema es que de esta forma no hay manera de restringir el acceso.&lt;/p&gt;
 
 &lt;p&gt;En este artículo protegemos el acceso usando TLS de manera que sólo se permitan conexiones que presenten un certificado firmado por una CA de confianza.
 &lt;/p&gt;
@@ -452,13 +543,13 @@ mode of ‘cert.pem’ changed from 0644 (rw-r--r--) to 0444 (r--r--r--)
     
     <item>
       <title>Configura un endpoint remoto en Portainer</title>
-      <link>http://192.168.1.9:8000/post/170506-configura-un-endpoint-remoto-en-portainer/</link>
+      <link>https://onthedock.github.io/post/170506-configura-un-endpoint-remoto-en-portainer/</link>
       <pubDate>Sat, 06 May 2017 17:38:20 +0200</pubDate>
       
-      <guid>http://192.168.1.9:8000/post/170506-configura-un-endpoint-remoto-en-portainer/</guid>
-      <description>&lt;p&gt;En el artículo &lt;a href=&#34;http://192.168.1.9:8000/post/170429-portainer-para-gestionar-tus-contenedores-en-docker/&#34;&gt;Portainer para gestionar tus contenedores en Docker&lt;/a&gt; usamos &lt;strong&gt;Portainer&lt;/strong&gt; para gestionar el Docker Engine local.&lt;/p&gt;
+      <guid>https://onthedock.github.io/post/170506-configura-un-endpoint-remoto-en-portainer/</guid>
+      <description>&lt;p&gt;En el artículo &lt;a href=&#34;https://onthedock.github.io/post/170429-portainer-para-gestionar-tus-contenedores-en-docker/&#34;&gt;Portainer para gestionar tus contenedores en Docker&lt;/a&gt; usamos &lt;strong&gt;Portainer&lt;/strong&gt; para gestionar el Docker Engine local.&lt;/p&gt;
 
-&lt;p&gt;En el artículo &lt;a href=&#34;http://192.168.1.9:8000/post/170506-habilita-el-acceso-remoto-via-api-a-docker/&#34;&gt;Habilita el API remoto de Docker&lt;/a&gt; habilitamos el acceso remoto al API de Docker Engine.&lt;/p&gt;
+&lt;p&gt;En el artículo &lt;a href=&#34;https://onthedock.github.io/post/170506-habilita-el-acceso-remoto-via-api-a-docker/&#34;&gt;Habilita el API remoto de Docker&lt;/a&gt; habilitamos el acceso remoto al API de Docker Engine.&lt;/p&gt;
 
 &lt;p&gt;En este artículo configuramos &lt;strong&gt;Portainer&lt;/strong&gt; para conectar con un &lt;em&gt;endpoint&lt;/em&gt; remoto (el API expuesta de un Docker Engine).
 &lt;/p&gt;
@@ -468,7 +559,7 @@ mode of ‘cert.pem’ changed from 0644 (rw-r--r--) to 0444 (r--r--r--)
 &lt;p&gt;Para configurar el &lt;em&gt;endopoint&lt;/em&gt; remoto (no seguro) sólo necesitas proporcionar un nombre para el &lt;em&gt;endpoint&lt;/em&gt; y la URL de acceso:&lt;/p&gt;
 
 &lt;figure&gt;
-  &lt;amp-img src=&#34;http://192.168.1.9:8000/images/170506/1-configure-endpoint.png&#34; alt=&#34;Configura un endpoint remoto en Portainer images/170506/1-configure-endpoint.png&#34; width=935 height=660 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
+  &lt;amp-img src=&#34;https://onthedock.github.io/images/170506/1-configure-endpoint.png&#34; alt=&#34;Configura un endpoint remoto en Portainer images/170506/1-configure-endpoint.png&#34; width=935 height=660 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
   
   &lt;figcaption&gt;
     
@@ -484,7 +575,7 @@ mode of ‘cert.pem’ changed from 0644 (rw-r--r--) to 0444 (r--r--r--)
 &lt;p&gt;Para cambiar entre los diferentes &lt;em&gt;endpoints&lt;/em&gt; definidos en &lt;strong&gt;Portainer&lt;/strong&gt;, selecciona el que quieres gestionar en el desplegable de la parte superior del panel lateral:&lt;/p&gt;
 
 &lt;figure&gt;
-  &lt;amp-img src=&#34;http://192.168.1.9:8000/images/170506/2-change-endpoint.png&#34; alt=&#34;Configura un endpoint remoto en Portainer images/170506/2-change-endpoint.png&#34; width=450 height=168 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
+  &lt;amp-img src=&#34;https://onthedock.github.io/images/170506/2-change-endpoint.png&#34; alt=&#34;Configura un endpoint remoto en Portainer images/170506/2-change-endpoint.png&#34; width=450 height=168 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
   
   &lt;figcaption&gt;
     
@@ -497,10 +588,10 @@ mode of ‘cert.pem’ changed from 0644 (rw-r--r--) to 0444 (r--r--r--)
     
     <item>
       <title>Habilita el acceso remoto vía API a Docker</title>
-      <link>http://192.168.1.9:8000/post/170506-habilita-el-acceso-remoto-via-api-a-docker/</link>
+      <link>https://onthedock.github.io/post/170506-habilita-el-acceso-remoto-via-api-a-docker/</link>
       <pubDate>Sat, 06 May 2017 15:23:36 +0200</pubDate>
       
-      <guid>http://192.168.1.9:8000/post/170506-habilita-el-acceso-remoto-via-api-a-docker/</guid>
+      <guid>https://onthedock.github.io/post/170506-habilita-el-acceso-remoto-via-api-a-docker/</guid>
       <description>&lt;p&gt;Portainer permite gestionar &lt;em&gt;endpoints&lt;/em&gt; remotos para Docker (y Docker Swarm) mediante el API REST de Docker Engine. El problema es que el API está desactivado por defecto.&lt;/p&gt;
 
 &lt;p&gt;A continuación indico cómo activar y verificar el acceso remoto al API de Docker Engine.&lt;/p&gt;
@@ -605,10 +696,10 @@ WantedBy=multi-user.target
     
     <item>
       <title>Troubleshooting Kubernetes (II)</title>
-      <link>http://192.168.1.9:8000/post/170506-troubleshooting-kubernetes-ii/</link>
+      <link>https://onthedock.github.io/post/170506-troubleshooting-kubernetes-ii/</link>
       <pubDate>Sat, 06 May 2017 05:21:09 +0200</pubDate>
       
-      <guid>http://192.168.1.9:8000/post/170506-troubleshooting-kubernetes-ii/</guid>
+      <guid>https://onthedock.github.io/post/170506-troubleshooting-kubernetes-ii/</guid>
       <description>&lt;p&gt;Sigo con el &lt;em&gt;troubleshooting&lt;/em&gt; del &lt;em&gt;cuelgue&lt;/em&gt; de los nodos sobre Raspberry Pi 3 del clúster.&lt;/p&gt;
 
 &lt;p&gt;Ayer estuve &lt;em&gt;haciendo limpieza&lt;/em&gt; siguiendo &lt;em&gt;vagamente&lt;/em&gt; la recomendación de &lt;a href=&#34;https://github.com/kubernetes/kubernetes/issues/43593#issuecomment-288899231&#34;&gt;esta respuesta&lt;/a&gt; en el hilo &lt;a href=&#34;https://github.com/kubernetes/kubernetes/issues/43593#issuecomment-288899231&#34;&gt;Kubernetes memory consumption explosion&lt;/a&gt;.&lt;/p&gt;
@@ -720,10 +811,10 @@ $
     
     <item>
       <title>Instala Weave Net en Kubernetes 1.6</title>
-      <link>http://192.168.1.9:8000/post/170505-instala-weave-net-en-kubernetes-1.6/</link>
+      <link>https://onthedock.github.io/post/170505-instala-weave-net-en-kubernetes-1.6/</link>
       <pubDate>Fri, 05 May 2017 22:14:36 +0200</pubDate>
       
-      <guid>http://192.168.1.9:8000/post/170505-instala-weave-net-en-kubernetes-1.6/</guid>
+      <guid>https://onthedock.github.io/post/170505-instala-weave-net-en-kubernetes-1.6/</guid>
       <description>&lt;p&gt;Una de las cosas que más me sorprenden de Kubernetes es que es necesario instalar una &lt;em&gt;capa de red&lt;/em&gt; sobre el clúster.&lt;/p&gt;
 
 &lt;p&gt;En el caso concreto del que he obtenido las &lt;em&gt;capturas de pantalla&lt;/em&gt;, el clúster corre sobre máquinas virtuales con Debian Jessie.
@@ -836,11 +927,11 @@ $
     
     <item>
       <title>Troubleshooting Kubernetes (I)</title>
-      <link>http://192.168.1.9:8000/post/170430-troubleshooting-kubernetes-i/</link>
+      <link>https://onthedock.github.io/post/170430-troubleshooting-kubernetes-i/</link>
       <pubDate>Sun, 30 Apr 2017 15:24:35 +0200</pubDate>
       
-      <guid>http://192.168.1.9:8000/post/170430-troubleshooting-kubernetes-i/</guid>
-      <description>&lt;p&gt;Tras la alegría inicial pensando que la configuración de &lt;em&gt;rsyslog&lt;/em&gt; era la causante de los cuelgues de las dos RPi 3 (&lt;a href=&#34;http://192.168.1.9:8000/post/170430-k3-colgado-de-nuevo/&#34;&gt;El nodo k3 del clúster colgado de nuevo&lt;/a&gt;), pasadas unas horas los dos nodos &lt;strong&gt;k2&lt;/strong&gt; y &lt;strong&gt;k3&lt;/strong&gt; han dejado de responder de nuevo.&lt;/p&gt;
+      <guid>https://onthedock.github.io/post/170430-troubleshooting-kubernetes-i/</guid>
+      <description>&lt;p&gt;Tras la alegría inicial pensando que la configuración de &lt;em&gt;rsyslog&lt;/em&gt; era la causante de los cuelgues de las dos RPi 3 (&lt;a href=&#34;https://onthedock.github.io/post/170430-k3-colgado-de-nuevo/&#34;&gt;El nodo k3 del clúster colgado de nuevo&lt;/a&gt;), pasadas unas horas los dos nodos &lt;strong&gt;k2&lt;/strong&gt; y &lt;strong&gt;k3&lt;/strong&gt; han dejado de responder de nuevo.&lt;/p&gt;
 
 &lt;p&gt;Así que es el momento de atacar el problema de forma algo más sistemática. Para ello seguiré las instrucciones que proporcina la página de Kubernetes &lt;a href=&#34;https://kubernetes.io/docs/tasks/debug-application-cluster/debug-cluster/&#34;&gt;Troubleshooting Clusters&lt;/a&gt;.
 &lt;/p&gt;
@@ -1112,10 +1203,10 @@ ls: cannot access /var/log/kube*: No such file or directory
     
     <item>
       <title>Errores sobre Orphaned pods en syslog</title>
-      <link>http://192.168.1.9:8000/post/170430-errores-sobre-orphaned-pods-en-syslog/</link>
+      <link>https://onthedock.github.io/post/170430-errores-sobre-orphaned-pods-en-syslog/</link>
       <pubDate>Sun, 30 Apr 2017 12:55:44 +0200</pubDate>
       
-      <guid>http://192.168.1.9:8000/post/170430-errores-sobre-orphaned-pods-en-syslog/</guid>
+      <guid>https://onthedock.github.io/post/170430-errores-sobre-orphaned-pods-en-syslog/</guid>
       <description>&lt;p&gt;Los nodos &lt;strong&gt;k2&lt;/strong&gt; y &lt;strong&gt;k3&lt;/strong&gt; del clúster dejan de responder pasadas unas horas. La única manera de solucionarlo es reiniciar los nodos. Siguiendo con la revisión de logs, he encontrado que se genera una gran cantidad de entradas en &lt;em&gt;syslog&lt;/em&gt; en referencia a &lt;em&gt;orphaned pods&lt;/em&gt;. Además, el número de estos errores no para de crecer &lt;strong&gt;rápidamente&lt;/strong&gt;.&lt;/p&gt;
 
 &lt;p&gt;&lt;/p&gt;
@@ -1140,22 +1231,22 @@ Apr 30 10:58:08 k2 kubelet[3619]: E0430 10:58:08.435567    3619 kubelet_volumes.
 
 &lt;p&gt;Todas estas entradas se encuentran en los logs del nodo &lt;strong&gt;k2&lt;/strong&gt;, donde no hay ningún &lt;em&gt;pod&lt;/em&gt; en ejecución (a parte de los propios de  Kubernetes que el clúster planifica en los diferentes nodos).&lt;/p&gt;
 
-&lt;p&gt;&lt;strong&gt;Actualización&lt;/strong&gt;: &lt;a href=&#34;http://192.168.1.9:8000/post/170506-troubleshooting-kubernetes-ii/&#34;&gt;Troubleshooting Kubernetes (II)&lt;/a&gt;&lt;/p&gt;</description>
+&lt;p&gt;&lt;strong&gt;Actualización&lt;/strong&gt;: &lt;a href=&#34;https://onthedock.github.io/post/170506-troubleshooting-kubernetes-ii/&#34;&gt;Troubleshooting Kubernetes (II)&lt;/a&gt;&lt;/p&gt;</description>
     </item>
     
     <item>
       <title>El nodo k3 del clúster colgado de nuevo</title>
-      <link>http://192.168.1.9:8000/post/170430-k3-colgado-de-nuevo/</link>
+      <link>https://onthedock.github.io/post/170430-k3-colgado-de-nuevo/</link>
       <pubDate>Sun, 30 Apr 2017 11:39:20 +0200</pubDate>
       
-      <guid>http://192.168.1.9:8000/post/170430-k3-colgado-de-nuevo/</guid>
-      <description>&lt;p&gt;En la entrada anterior &lt;a href=&#34;http://192.168.1.9:8000/post/170430-multiples-mensajes-action-17-suspended/&#34;&gt;Múltiples mensajes &amp;lsquo;action 17 suspended&amp;rsquo; en los logs&lt;/a&gt; comentaba que estaba a la espera de obtener resultados; después de apenas unas horas, ya los tengo: &lt;strong&gt;k3&lt;/strong&gt; se ha vuelto a &lt;em&gt;colgar&lt;/em&gt; mientras que &lt;strong&gt;k2&lt;/strong&gt; no.&lt;/p&gt;
+      <guid>https://onthedock.github.io/post/170430-k3-colgado-de-nuevo/</guid>
+      <description>&lt;p&gt;En la entrada anterior &lt;a href=&#34;https://onthedock.github.io/post/170430-multiples-mensajes-action-17-suspended/&#34;&gt;Múltiples mensajes &amp;lsquo;action 17 suspended&amp;rsquo; en los logs&lt;/a&gt; comentaba que estaba a la espera de obtener resultados; después de apenas unas horas, ya los tengo: &lt;strong&gt;k3&lt;/strong&gt; se ha vuelto a &lt;em&gt;colgar&lt;/em&gt; mientras que &lt;strong&gt;k2&lt;/strong&gt; no.&lt;/p&gt;
 
 &lt;p&gt;Este resultado parece demostrar que la mala configuración de &lt;em&gt;rsyslog&lt;/em&gt; es la causante de los &lt;em&gt;cuelgues&lt;/em&gt; de las RPi 3 en el clúster de Kubernetes.&lt;/p&gt;
 
 &lt;p&gt;&lt;strong&gt;Actualización&lt;/strong&gt;: El nodo &lt;strong&gt;k2&lt;/strong&gt; sobre RPi3 sigue colgándose :(&lt;/p&gt;
 
-&lt;p&gt;&lt;strong&gt;Actualización II&lt;/strong&gt;: &lt;a href=&#34;http://192.168.1.9:8000/post/170506-troubleshooting-kubernetes-ii/&#34;&gt;Parece solucionado&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Actualización II&lt;/strong&gt;: &lt;a href=&#34;https://onthedock.github.io/post/170506-troubleshooting-kubernetes-ii/&#34;&gt;Parece solucionado&lt;/a&gt;&lt;/p&gt;
 
 &lt;p&gt;&lt;/p&gt;
 
@@ -1224,10 +1315,10 @@ daemon.*;mail.*;\
     
     <item>
       <title>Múltiples mensajes &#39;action 17 suspended&#39; en los logs</title>
-      <link>http://192.168.1.9:8000/post/170430-multiples-mensajes-action-17-suspended/</link>
+      <link>https://onthedock.github.io/post/170430-multiples-mensajes-action-17-suspended/</link>
       <pubDate>Sun, 30 Apr 2017 08:44:27 +0200</pubDate>
       
-      <guid>http://192.168.1.9:8000/post/170430-multiples-mensajes-action-17-suspended/</guid>
+      <guid>https://onthedock.github.io/post/170430-multiples-mensajes-action-17-suspended/</guid>
       <description>&lt;p&gt;Investigando las causas por las que los dos nodos con Raspberry Pi 3 se &lt;em&gt;cuelgan&lt;/em&gt;, he encontrado múltiples apariciones de este mensaje en &lt;code&gt;/var/log/messages&lt;/code&gt;:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-log&#34;&gt;Apr 30 06:40:42 k3 rsyslogd-2007: action &#39;action 17&#39; suspended, next retry is Sun Apr 30 06:41:12 2017 [try http://www.rsyslog.com/e/2007 ]
@@ -1286,22 +1377,22 @@ k3        Ready     14d       v1.6.2
 
 &lt;p&gt;Ya tenngo resultados: la configuración de &lt;em&gt;rsyslog&lt;/em&gt; es la que causa el cuelgue del sistema en las RPi3.&lt;/p&gt;
 
-&lt;p&gt;Échale un vistazo a cómo solucionar este error en la entrada: &lt;a href=&#34;http://192.168.1.9:8000/post/170430-k3-colgado-de-nuevo/&#34;&gt;El nodo k3 del clúster colgado de nuevo&lt;/a&gt;.&lt;/p&gt;</description>
+&lt;p&gt;Échale un vistazo a cómo solucionar este error en la entrada: &lt;a href=&#34;https://onthedock.github.io/post/170430-k3-colgado-de-nuevo/&#34;&gt;El nodo k3 del clúster colgado de nuevo&lt;/a&gt;.&lt;/p&gt;</description>
     </item>
     
     <item>
       <title>Portainer para gestionar tus contenedores en Docker</title>
-      <link>http://192.168.1.9:8000/post/170429-portainer-para-gestionar-tus-contenedores-en-docker/</link>
+      <link>https://onthedock.github.io/post/170429-portainer-para-gestionar-tus-contenedores-en-docker/</link>
       <pubDate>Sat, 29 Apr 2017 12:55:04 +0200</pubDate>
       
-      <guid>http://192.168.1.9:8000/post/170429-portainer-para-gestionar-tus-contenedores-en-docker/</guid>
+      <guid>https://onthedock.github.io/post/170429-portainer-para-gestionar-tus-contenedores-en-docker/</guid>
       <description>&lt;p&gt;&lt;a href=&#34;http://portainer.io/&#34;&gt;Portainer&lt;/a&gt; es una herramienta ligera y &lt;em&gt;open-source&lt;/em&gt; de gestión de contenedores sobre Docker (o Docker Swarm). Portainer ofrece una interfaz gráfica para gestionar el &lt;em&gt;host&lt;/em&gt; Docker desde cualquier navegador, tiene soporte para Raspberry Pi y se puede desplegar como un simple contenedor.&lt;/p&gt;
 
 &lt;p&gt;Espero que este artículo ayude a todos aquellos que tengan ganas de probar Portainer y evitarles los problemas que me he encontrado yo.&lt;/p&gt;
 
 &lt;p&gt;
 &lt;figure&gt;
-  &lt;amp-img src=&#34;http://192.168.1.9:8000/images/portainer-logo.png&#34; alt=&#34;Portainer para gestionar tus contenedores en Docker images/portainer-logo.png&#34; width=1106 height=361 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
+  &lt;amp-img src=&#34;https://onthedock.github.io/images/portainer-logo.png&#34; alt=&#34;Portainer para gestionar tus contenedores en Docker images/portainer-logo.png&#34; width=1106 height=361 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
   
 &lt;/figure&gt;
 &lt;/p&gt;
@@ -1366,7 +1457,7 @@ $
 &lt;p&gt;La primera vez que accedes a la URL de Portainer debes introducir el password del usuario &lt;code&gt;admin&lt;/code&gt;.&lt;/p&gt;
 
 &lt;figure&gt;
-  &lt;amp-img src=&#34;http://192.168.1.9:8000/images/170429/portainer-1-define-admin-password.png&#34; alt=&#34;Portainer para gestionar tus contenedores en Docker images/170429/portainer-1-define-admin-password.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
+  &lt;amp-img src=&#34;https://onthedock.github.io/images/170429/portainer-1-define-admin-password.png&#34; alt=&#34;Portainer para gestionar tus contenedores en Docker images/170429/portainer-1-define-admin-password.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
   
 &lt;/figure&gt;
 
@@ -1374,7 +1465,7 @@ $
 &lt;p&gt;Una vez introducido, puedes acceder a la UI de gestión de Portainer.&lt;/p&gt;
 
 &lt;figure&gt;
-  &lt;amp-img src=&#34;http://192.168.1.9:8000/images/170429/portainer-2-first-login.png&#34; alt=&#34;Portainer para gestionar tus contenedores en Docker images/170429/portainer-2-first-login.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
+  &lt;amp-img src=&#34;https://onthedock.github.io/images/170429/portainer-2-first-login.png&#34; alt=&#34;Portainer para gestionar tus contenedores en Docker images/170429/portainer-2-first-login.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
   
 &lt;/figure&gt;
 
@@ -1382,7 +1473,7 @@ $
 &lt;p&gt;Para mostrar información sobre los contendores (imágenes, volúmenes, etc) en Docker, Portainer necesita conectarse -vía API- al &lt;em&gt;host&lt;/em&gt; en el que corre Docker. Tenemos dos opciones, un &lt;em&gt;endpoint remoto&lt;/em&gt; (opción por defecto) o conectar con el &lt;em&gt;host&lt;/em&gt; donde corre Portainer:&lt;/p&gt;
 
 &lt;figure&gt;
-  &lt;amp-img src=&#34;http://192.168.1.9:8000/images/170429/portainer-3-remote_endpoint_by_default.png&#34; alt=&#34;Portainer para gestionar tus contenedores en Docker images/170429/portainer-3-remote_endpoint_by_default.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
+  &lt;amp-img src=&#34;https://onthedock.github.io/images/170429/portainer-3-remote_endpoint_by_default.png&#34; alt=&#34;Portainer para gestionar tus contenedores en Docker images/170429/portainer-3-remote_endpoint_by_default.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
   
 &lt;/figure&gt;
 
@@ -1390,7 +1481,7 @@ $
 &lt;p&gt;El problema es que, como vemos, al seleccionar un &lt;em&gt;endpoint&lt;/em&gt; local, se indica que hay que lanzar el contenedor de Portainer dando acceso al contenedor sobre &lt;code&gt;/var/run/docker.sock&lt;/code&gt;:&lt;/p&gt;
 
 &lt;figure&gt;
-  &lt;amp-img src=&#34;http://192.168.1.9:8000/images/170429/portainer-4-local_endpoint_require_docker.sock.png&#34; alt=&#34;Portainer para gestionar tus contenedores en Docker images/170429/portainer-4-local_endpoint_require_docker.sock.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
+  &lt;amp-img src=&#34;https://onthedock.github.io/images/170429/portainer-4-local_endpoint_require_docker.sock.png&#34; alt=&#34;Portainer para gestionar tus contenedores en Docker images/170429/portainer-4-local_endpoint_require_docker.sock.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
   
 &lt;/figure&gt;
 
@@ -1419,7 +1510,7 @@ $
 &lt;p&gt;Después de validarnos, podemos conectar con el &lt;em&gt;docker-engine&lt;/em&gt; local y visualizar el &lt;em&gt;dashboard&lt;/em&gt;:&lt;/p&gt;
 
 &lt;figure&gt;
-  &lt;amp-img src=&#34;http://192.168.1.9:8000/images/170429/portainer-5-dashboard.png&#34; alt=&#34;Portainer para gestionar tus contenedores en Docker images/170429/portainer-5-dashboard.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
+  &lt;amp-img src=&#34;https://onthedock.github.io/images/170429/portainer-5-dashboard.png&#34; alt=&#34;Portainer para gestionar tus contenedores en Docker images/170429/portainer-5-dashboard.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
   
 &lt;/figure&gt;
 
@@ -1427,7 +1518,7 @@ $
 &lt;p&gt;Desde la interfaz web podemos gestionar los contenedores, imágenes y volúmenes existentes:&lt;/p&gt;
 
 &lt;figure&gt;
-  &lt;amp-img src=&#34;http://192.168.1.9:8000/images/170429/portainer-6-containers.png&#34; alt=&#34;Portainer para gestionar tus contenedores en Docker images/170429/portainer-6-containers.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
+  &lt;amp-img src=&#34;https://onthedock.github.io/images/170429/portainer-6-containers.png&#34; alt=&#34;Portainer para gestionar tus contenedores en Docker images/170429/portainer-6-containers.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
   
   &lt;figcaption&gt;
     
@@ -1439,7 +1530,7 @@ $
 
 
 &lt;figure&gt;
-  &lt;amp-img src=&#34;http://192.168.1.9:8000/images/170429/portainer-7-images.png&#34; alt=&#34;Portainer para gestionar tus contenedores en Docker images/170429/portainer-7-images.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
+  &lt;amp-img src=&#34;https://onthedock.github.io/images/170429/portainer-7-images.png&#34; alt=&#34;Portainer para gestionar tus contenedores en Docker images/170429/portainer-7-images.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
   
   &lt;figcaption&gt;
     
@@ -1451,7 +1542,7 @@ $
 
 
 &lt;figure&gt;
-  &lt;amp-img src=&#34;http://192.168.1.9:8000/images/170429/portainer-8-volumes.png&#34; alt=&#34;Portainer para gestionar tus contenedores en Docker images/170429/portainer-8-volumes.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
+  &lt;amp-img src=&#34;https://onthedock.github.io/images/170429/portainer-8-volumes.png&#34; alt=&#34;Portainer para gestionar tus contenedores en Docker images/170429/portainer-8-volumes.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
   
   &lt;figcaption&gt;
     
@@ -1462,16 +1553,16 @@ $
 &lt;/figure&gt;
 
 
-&lt;p&gt;En el próximo artículo me concentraré en usar &lt;a href=&#34;http://192.168.1.9:8000/tags/portainer/&#34;&gt;Portainer&lt;/a&gt; para realizar la gestión de Docker.&lt;/p&gt;</description>
+&lt;p&gt;En el próximo artículo me concentraré en usar &lt;a href=&#34;https://onthedock.github.io/tags/portainer/&#34;&gt;Portainer&lt;/a&gt; para realizar la gestión de Docker.&lt;/p&gt;</description>
     </item>
     
     <item>
       <title>Solución al error de instalación de Kubernetes en Debian Jessie (Missing cgroups: memory)</title>
-      <link>http://192.168.1.9:8000/post/170422-solucion-al-error-missing-cgroups-memory-en-debian-jessie/</link>
+      <link>https://onthedock.github.io/post/170422-solucion-al-error-missing-cgroups-memory-en-debian-jessie/</link>
       <pubDate>Sat, 22 Apr 2017 07:57:14 +0200</pubDate>
       
-      <guid>http://192.168.1.9:8000/post/170422-solucion-al-error-missing-cgroups-memory-en-debian-jessie/</guid>
-      <description>&lt;p&gt;Al lanzar la inicialización del clúster con &lt;code&gt;kubeadm init&lt;/code&gt; en Debian Jessie, las comprobaciones inciales indican que no se encuentran los &lt;em&gt;cgroups&lt;/em&gt; para la memoria (échale un vistazo al artículo &lt;a href=&#34;http://192.168.1.9:8000/post/170417-instalacion-de-kubernetes-falla-missing-cgroups-memory/&#34;&gt;La instalación de Kubernetes falla en Debian Jessie (missing cgroups: memory)&lt;/a&gt;). Los &lt;em&gt;cgroups&lt;/em&gt; son una de las piezas fundamentales en las que se basa Docker para &lt;em&gt;aislar&lt;/em&gt; los procesos de los contenedores, por lo que la inicialización del clúster de Kubernetes se detiene.&lt;/p&gt;
+      <guid>https://onthedock.github.io/post/170422-solucion-al-error-missing-cgroups-memory-en-debian-jessie/</guid>
+      <description>&lt;p&gt;Al lanzar la inicialización del clúster con &lt;code&gt;kubeadm init&lt;/code&gt; en Debian Jessie, las comprobaciones inciales indican que no se encuentran los &lt;em&gt;cgroups&lt;/em&gt; para la memoria (échale un vistazo al artículo &lt;a href=&#34;https://onthedock.github.io/post/170417-instalacion-de-kubernetes-falla-missing-cgroups-memory/&#34;&gt;La instalación de Kubernetes falla en Debian Jessie (missing cgroups: memory)&lt;/a&gt;). Los &lt;em&gt;cgroups&lt;/em&gt; son una de las piezas fundamentales en las que se basa Docker para &lt;em&gt;aislar&lt;/em&gt; los procesos de los contenedores, por lo que la inicialización del clúster de Kubernetes se detiene.&lt;/p&gt;
 
 &lt;p&gt;La solución es tan sencilla como habilitar los &lt;em&gt;cgroups&lt;/em&gt; durante el arranque.&lt;/p&gt;
 
@@ -1600,214 +1691,6 @@ as root:
   kubeadm join --token fe9e91.7142118e712eb019 192.168.1.99:6443
 
 root@k8s:~#
-&lt;/code&gt;&lt;/pre&gt;</description>
-    </item>
-    
-    <item>
-      <title>Cómo agregar un nodo a un cluster Kubernetes</title>
-      <link>http://192.168.1.9:8000/post/170417-como-agregar-un-nodo-a-un-cluster-kubernetes/</link>
-      <pubDate>Sat, 15 Apr 2017 16:27:30 +0200</pubDate>
-      
-      <guid>http://192.168.1.9:8000/post/170417-como-agregar-un-nodo-a-un-cluster-kubernetes/</guid>
-      <description>&lt;p&gt;Después de realizar la instalación del nodo &lt;em&gt;master&lt;/em&gt; del clúster Kubernetes, el siguiente paso es agregar nodos adicionales al clúster. Es en estos nodos donde se van a planificar los &lt;em&gt;pods&lt;/em&gt; que realizan las funciones &lt;em&gt;productivas&lt;/em&gt; del clúster (en el nodo &lt;em&gt;master&lt;/em&gt; sólo realiza tareas de gestión del clúster).&lt;/p&gt;
-
-&lt;p&gt;&lt;/p&gt;
-
-&lt;h1 id=&#34;cómo-agregar-un-nodo-a-un-cluster-kubernetes&#34;&gt;Cómo agregar un nodo a un cluster Kubernetes&lt;/h1&gt;
-
-&lt;p&gt;En el nodo que vamos a añadir tenemos instalador HypriotOS (una distribución basada en Debian creada específicamente para ejecutar Docker en la Raspberry Pi).&lt;/p&gt;
-
-&lt;p&gt;Hypriot OS tiene instalado Docker &lt;em&gt;de fábrica&lt;/em&gt; así que comprobamos la versión instalada:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ docker version
-Client:
- Version:      17.04.0-ce
- API version:  1.28
- Go version:   go1.7.5
- Git commit:   4845c56
- Built:        Mon Apr  3 18:22:23 2017
- OS/Arch:      linux/arm
-
-Server:
- Version:      17.04.0-ce
- API version:  1.28 (minimum version 1.12)
- Go version:   go1.7.5
- Git commit:   4845c56
- Built:        Mon Apr  3 18:22:23 2017
- OS/Arch:      linux/arm
- Experimental: false
-$
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;tareas-previas&#34;&gt;Tareas previas&lt;/h2&gt;
-
-&lt;p&gt;La instalación de HypriotOS define como nombre del &lt;em&gt;host&lt;/em&gt; &lt;code&gt;black-pearl&lt;/code&gt;.&lt;/p&gt;
-
-&lt;p&gt;Lo primero que haremos será cambiar el nombre del &lt;em&gt;host&lt;/em&gt;. Para ello modificamos el fichero &lt;code&gt;/boot/device-init.yaml&lt;/code&gt; especificando el nombre elegido para el nuevo nodo. En mi caso, &lt;code&gt;k2&lt;/code&gt;&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ sudo nano /boot/device-init.yaml
-
-# hostname for your HypriotOS device
-hostname: k2
-
-# optional wireless network settings
-wifi:
-  interfaces:
-#     wlan0:
-#       ssid: &amp;quot;MyNetwork&amp;quot;
-#       password: &amp;quot;secret_password&amp;quot;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Para que los cambios tenga efecto, es necesario reiniciar el equipo. Antes, sin embargo, vamos a establecer una IP fija.&lt;/p&gt;
-
-&lt;p&gt;Creamos una copia del fichero &lt;code&gt;/etc/network/interfaces.d/eth0&lt;/code&gt; antes de editarlo:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ sudo cp /etc/network/interfaces.d/eth0 /etc/network/interfaces.d/eth0.original
-$ sudo nano /etc/network/interfaces.d/eth0
-allow-hotplug eth0
-iface eth0 inet static
-  address 192.168.1.12
-  gateway 192.168.1.1
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Una vez realizadas las modificaciones del &lt;em&gt;hostname&lt;/em&gt; y de la dirección IP, reiniciamos el &lt;em&gt;host&lt;/em&gt;.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ sudo reboot
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;instalación-de-kubernetes-kubeadm-kubectl-y-kubelet&#34;&gt;Instalación de Kubernetes (&lt;code&gt;kubeadm&lt;/code&gt;,  &lt;code&gt;kubectl&lt;/code&gt; y &lt;code&gt;kubelet&lt;/code&gt;)&lt;/h2&gt;
-
-&lt;p&gt;Seguimos las instrucciones de la página oficial de Kubernetes: &lt;a href=&#34;https://kubernetes.io/docs/getting-started-guides/kubeadm/&#34;&gt;Installing Kubernetes on Linux with kubeadm&lt;/a&gt;.&lt;/p&gt;
-
-&lt;p&gt;Nos conectamos a la máquina vía &lt;em&gt;SSH&lt;/em&gt; y nos convertimos en &lt;code&gt;root&lt;/code&gt; mediante &lt;code&gt;sudo su -&lt;/code&gt;.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ apt-get update &amp;amp;&amp;amp; apt-get install -y apt-transport-https
-...
-apt-transport-https is already the newest version.0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;El siguiente paso es obtener la clave GPG:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
-OK
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Añadimos el repositorio de Kubernetes y actualizamos la lista de paquetes:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ cat &amp;lt;&amp;lt;EOF &amp;gt;/etc/apt/sources.list.d/kubernetes.list
-deb http://apt.kubernetes.io/ kubernetes-xenial main
-EOF
-$ apt-get update
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Verificamos que tenemos Docker instalado (en nuestro caso, &lt;code&gt;docker-engine&lt;/code&gt;):&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ apt-get install -y docker-engine
-...
-docker-engine is already the newest version.0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Ahora es el momento de lanzar la instalación de los diferentes componentes de Kubernets:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ apt-get install -y kubelet kubeadm kubectl kubernetes-cni
-...
-The following extra packages will be installed:  ebtables socatThe following NEW packages will be installed:  ebtables kubeadm kubectl kubelet kubernetes-cni socat0 upgraded, 6 newly installed, 0 to remove and 0 not upgraded.Need to get 37.1 MB of archives.After this operation, 266 MB of additional disk space will be used.0% [Working]
-...
-Setting up kubernetes-cni (0.5.1-00) ...
-Setting up socat (1.7.2.4-2) ...
-Setting up kubelet (1.6.1-00) ...
-Setting up kubectl (1.6.1-00) ...
-Setting up kubeadm (1.6.1-00) ...
-Processing triggers for systemd (215-17+deb8u6) ...
-$
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;agregar-nodo-al-clúster&#34;&gt;Agregar nodo al clúster&lt;/h2&gt;
-
-&lt;p&gt;Para añadir el &lt;em&gt;host&lt;/em&gt; como un nodo adicional del clúster de Kubernetes, usaremos el comando &lt;code&gt;kubeadm join --token {token} {IP-nodo-master}:puerto&lt;/code&gt;&lt;/p&gt;
-
-&lt;p&gt;El comando &lt;code&gt;kubeadm&lt;/code&gt; genera el token al inicializar el clúster, pero si no lo tenemos apuntado, podemos obtenerlo conectando al nodo &lt;em&gt;master&lt;/em&gt;:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ ssh pirate@k1.local
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Para obtener el &lt;em&gt;token&lt;/em&gt;, nos convertimos en el usuario &lt;code&gt;root&lt;/code&gt;:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ sudo su -
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;A continuación, obtenemos la lista de &lt;em&gt;tokens&lt;/em&gt; generados en el clúster:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ kubeadm token list
-TOKEN                     TTL         EXPIRES   USAGES                 DESCRIPTION
-5e6517.b9e07...293ff612   &amp;lt;forever&amp;gt;   &amp;lt;never&amp;gt;   authentication,signing   The default bootstrap token generated by &#39;kubeadm init&#39;.
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Copiamos el &lt;em&gt;token&lt;/em&gt; y cerramos la conexión con el nodo &lt;em&gt;master&lt;/em&gt;.&lt;/p&gt;
-
-&lt;p&gt;En el &lt;em&gt;host&lt;/em&gt; que vamos a unir como nodo al clúster, ejecutamos (como &lt;code&gt;root&lt;/code&gt;):&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;kubeadm join --token=5e6517.b9e07...293ff612 192.168.1.11:6443
-[kubeadm] WARNING: kubeadm is in beta, please do not use it for production clusters.
-[preflight] Running pre-flight checks
-[preflight] WARNING: docker version is greater than the most recently validated version. Docker version: 17.04.0-ce. Max validated version: 1.12
-[discovery] Trying to connect to API Server &amp;quot;192.168.1.11:6443&amp;quot;
-[discovery] Created cluster-info discovery client, requesting info from &amp;quot;https://192.168.1.11:6443&amp;quot;
-[discovery] Cluster info signature and contents are valid, will use API Server &amp;quot;https://192.168.1.11:6443&amp;quot;
-[discovery] Successfully established connection with API Server &amp;quot;192.168.1.11:6443&amp;quot;
-[bootstrap] Detected server version: v1.6.0
-[bootstrap] The server supports the Certificates API (certificates.k8s.io/v1beta1)
-[csr] Created API client to obtain unique certificate for this node, generating keys and certificate signing request
-[csr] Received signed certificate from the API server, generating KubeConfig...
-[kubeconfig] Wrote KubeConfig file to disk: &amp;quot;/etc/kubernetes/kubelet.conf&amp;quot;
-Node join complete:
-   * Certificate signing request sent to master and response  received.
-   * Kubelet informed of new secure connection details.
-
-   Run &#39;kubectl get nodes&#39; on the master to see this machine join.
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;verificación&#34;&gt;Verificación&lt;/h2&gt;
-
-&lt;p&gt;Para comprobar que el nodo &lt;code&gt;k2&lt;/code&gt; se ha añadido correctamente al clúster, nos conectamos al nodo &lt;em&gt;master&lt;/em&gt; y obtenemos la lista de nodos:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ kubectl get nodes
-NAME       STATUS     AGE       VERSION
-k1         Ready      4d        v1.6.1
-k2.local         NotReady   40s       v1.6.1
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;El nodo &lt;code&gt;k2&lt;/code&gt; del clúster aparece como &lt;code&gt;NotReady&lt;/code&gt;. Esta situación debe ser temporal. Tras unos instantes, al ejecutar de nuevo el comando, el &lt;em&gt;status&lt;/em&gt; del nuevo nodo debería haber cambiado y mostrarse como &lt;code&gt;Ready&lt;/code&gt;:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ kubectl get nodes
-NAME       STATUS    AGE       VERSION
-k1         Ready     4d        v1.6.1
-k2.local   Ready     1m        v1.6.1
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;cambio-de-nombre-del-nodo&#34;&gt;Cambio de nombre del nodo&lt;/h2&gt;
-
-&lt;p&gt;Incialmente he añadido el nodo al cúster como &lt;code&gt;k2.local&lt;/code&gt;, sin darme cuenta que el sufijo &lt;code&gt;.local&lt;/code&gt; lo añade el &lt;em&gt;daemon&lt;/em&gt; Avahi al publicar el nombre del &lt;em&gt;host&lt;/em&gt; en la red local.&lt;/p&gt;
-
-&lt;p&gt;He modificado el nombre del nodo en el fichero &lt;code&gt;/boot/device-init.yaml&lt;/code&gt; y he reiniciado el nodo, pero a nivel del clúster, el nodo &lt;code&gt;k2.local&lt;/code&gt; sigue formando parte del mismo. Por eso aparece como &lt;code&gt;NotReady&lt;/code&gt; al ejecutar &lt;code&gt;get nodes&lt;/code&gt;. El &lt;em&gt;nuevo&lt;/em&gt;  nodo &lt;code&gt;k2&lt;/code&gt; sí que aparece en al ejecutar el comando &lt;code&gt;get nodes&lt;/code&gt;:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ kubectl get nodes
-NAME       STATUS     AGE       VERSION
-k1         Ready      4d        v1.6.1
-k2         Ready      37m       v1.6.1
-k2.local   NotReady   1h        v1.6.1
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Para evitar confusiones, lo más conveniente es eliminar el nodo del clúster mediante &lt;code&gt;kubectl delete node&lt;/code&gt;:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;$ kubectl delete node k2.local
-node &amp;quot;k2.local&amp;quot; deleted
-
-$ kubectl get nodes
-NAME      STATUS    AGE       VERSION
-k1        Ready     4d        v1.6.1
-k2        Ready     45m       v1.6.1
-$
 &lt;/code&gt;&lt;/pre&gt;</description>
     </item>
     
