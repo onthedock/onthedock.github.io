@@ -9,6 +9,31 @@
     <atom:link href="https://onthedock.github.io/categories/ops/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
+      <title>Crear un cluster de un solo nodo</title>
+      <link>https://onthedock.github.io/post/170702-crear-un-cluster-de-un-solo-nodo/</link>
+      <pubDate>Sun, 02 Jul 2017 23:14:22 +0200</pubDate>
+      
+      <guid>https://onthedock.github.io/post/170702-crear-un-cluster-de-un-solo-nodo/</guid>
+      <description>&lt;p&gt;Para tener un clúster de desarrollo con la versatilidad de poder hacer y deshacer cambios (usando los &lt;em&gt;snapshots&lt;/em&gt; de una máquina virtual), lo más sencillo es disponer de un clúster de Kubernetes de un solo nodo.&lt;/p&gt;
+
+&lt;p&gt;
+Por defecto, el nodo master de un clúster de Kubernetes no ejecuta ningún tipo de carga de trabajo relacionada con los pods desplegados en el clúster, centrándose en las tareas de gestión de los &lt;em&gt;pods&lt;/em&gt; y del propio clúster.&lt;/p&gt;
+
+&lt;p&gt;Para permitir que el nodo master pueda ejecutar &lt;em&gt;pods&lt;/em&gt;, debemos modificar las opciones por defecto de Kubernetes.&lt;/p&gt;
+
+&lt;p&gt;En primer lugar, comprobamos que todos los pods del espacio de nombres de sistema han arrancado y se ejecutan correctamente:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ kubectl get nodes --all-namespaces
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Para que el nodo master admita el despliegue de &lt;em&gt;pods&lt;/em&gt;, modificamos mediante:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ kubectl taint nodes --all node-role.kubernetes.io/master-
+node &amp;quot;k8s-snc&amp;quot; untainted
+&lt;/code&gt;&lt;/pre&gt;</description>
+    </item>
+    
+    <item>
       <title>IP en mensaje prelogin</title>
       <link>https://onthedock.github.io/post/170702-ip-en-mensaje-prelogin/</link>
       <pubDate>Sun, 02 Jul 2017 22:07:18 +0200</pubDate>
@@ -1470,73 +1495,6 @@ daemon.*;mail.*;\
 
 &lt;li&gt;&lt;p&gt;Reinicia el equipo mediante &lt;code&gt;reboot&lt;/code&gt;.&lt;/p&gt;&lt;/li&gt;
 &lt;/ol&gt;</description>
-    </item>
-    
-    <item>
-      <title>Múltiples mensajes &#39;action 17 suspended&#39; en los logs</title>
-      <link>https://onthedock.github.io/post/170430-multiples-mensajes-action-17-suspended/</link>
-      <pubDate>Sun, 30 Apr 2017 08:44:27 +0200</pubDate>
-      
-      <guid>https://onthedock.github.io/post/170430-multiples-mensajes-action-17-suspended/</guid>
-      <description>&lt;p&gt;Investigando las causas por las que los dos nodos con Raspberry Pi 3 se &lt;em&gt;cuelgan&lt;/em&gt;, he encontrado múltiples apariciones de este mensaje en &lt;code&gt;/var/log/messages&lt;/code&gt;:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-log&#34;&gt;Apr 30 06:40:42 k3 rsyslogd-2007: action &#39;action 17&#39; suspended, next retry is Sun Apr 30 06:41:12 2017 [try http://www.rsyslog.com/e/2007 ]
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;&lt;/p&gt;
-
-&lt;p&gt;De hecho, revisando el origen del problema he encontrado este comando que cuenta las apariciones del mensaje:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ sudo grep &amp;quot;action.*suspend&amp;quot; /var/log/messages | wc -l
-1394
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Además de &lt;em&gt;spamear&lt;/em&gt; los logs, provoca un montón de escrituras innecesarias sobre la tarjeta microSD, lo que puede acortar la vida útil de la misma.&lt;/p&gt;
-
-&lt;p&gt;No tengo claro si este puede ser la causa que hace que las dos Raspberry Pi 3 se cuelguen pasado un tiempo y que dejen de responder, lo que hace que deba reiniciarlas (desconectando/conectando el cable) para recuperarlas. Sin embargo, en el nodo &lt;em&gt;master&lt;/em&gt; (Raspberry Pi 2 B+) no aparece el mensaje en los logs y no se cuelga (aunque la configuración de &lt;em&gt;rsyslog&lt;/em&gt; es la misma).&lt;/p&gt;
-
-&lt;h1 id=&#34;solución-a-los-mensajes-de-rsyslog&#34;&gt;Solución a los mensajes de rsyslog&lt;/h1&gt;
-
-&lt;p&gt;El mensaje de error , es un problema de configuración de la aplicación &lt;code&gt;rsyslog&lt;/code&gt;, que intenta mostrar mensajes en &lt;code&gt;/dev/xconsole&lt;/code&gt;, pero falla.&lt;/p&gt;
-
-&lt;p&gt;La solución la explica Danny Tuppeny en su blog, en &lt;a href=&#34;https://blog.dantup.com/2016/04/removing-rsyslog-spam-on-raspberry-pi-raspbian-jessie/&#34;&gt;Removing [action &amp;lsquo;action 17&amp;rsquo; suspended] rsyslog Spam on Raspberry Pi (Raspian Jessie)&lt;/a&gt;. Él mismo abrió un &lt;em&gt;bug&lt;/em&gt; en RPI-Distro: &lt;a href=&#34;https://github.com/RPi-Distro/repo/issues/28&#34;&gt;Default Raspbian Jessie Lite install spams syslog with &amp;ldquo;rsyslogd-2007: action &amp;lsquo;action 17&amp;rsquo; suspended, next retry is #28&lt;/a&gt; en él explicaba cómo había eliminado la línea que hace referencia a &lt;code&gt;/dev/xconsole&lt;/code&gt; de la configuración de &lt;em&gt;rasyslog&lt;/em&gt; y que el mensaje desaparecía (después de reiniciar).&lt;/p&gt;
-
-&lt;p&gt;Para comprobar si esta es la causa del &lt;em&gt;cuelgue&lt;/em&gt; de la RPi 3, he modificado la configuración de &lt;em&gt;rsyslog&lt;/em&gt; en el nodo &lt;strong&gt;k2&lt;/strong&gt; del clúster, pero no en el &lt;strong&gt;k3&lt;/strong&gt;. De esta forma podré averiguar si la configuración de &lt;em&gt;rsyslog&lt;/em&gt; es la causante del &lt;em&gt;cuelgue&lt;/em&gt;.&lt;/p&gt;
-
-&lt;p&gt;También he actualizado el sistema (en todos los nodos) y &lt;em&gt;kubelet&lt;/em&gt;, &lt;em&gt;kubectl&lt;/em&gt; y &lt;em&gt;kubeadm&lt;/em&gt; se han actualizado a la versión 1.6.2:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;...
-Setting up libldap-2.4-2:armhf (2.4.40+dfsg-1+deb8u2) ...
-Setting up libicu52:armhf (52.1-8+deb8u5) ...
-Setting up kubelet (1.6.2-00) ...
-Setting up kubectl (1.6.2-00) ...
-Setting up kubeadm (1.6.2-00) ...
-Processing triggers for libc-bin (2.19-18+deb8u7)
-...
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ kubectl get nodes
-NAME      STATUS    AGE       VERSION
-k1        Ready     19d       v1.6.2
-k2        Ready     14d       v1.6.2
-k3        Ready     14d       v1.6.2
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Ahora sólo queda esperar -normalmente unas cuantas horas- a ver qué pasa: hay tres posibilidades:&lt;/p&gt;
-
-&lt;ol&gt;
-&lt;li&gt;Se cuelga &lt;strong&gt;k3&lt;/strong&gt; pero no &lt;strong&gt;k2&lt;/strong&gt;: La configuración de &lt;em&gt;rsyslog&lt;/em&gt; era la causa.&lt;/li&gt;
-&lt;li&gt;Se cuelga &lt;strong&gt;k2&lt;/strong&gt; pero no &lt;strong&gt;k3&lt;/strong&gt;: ¿?&lt;/li&gt;
-&lt;li&gt;No se cuelga ni &lt;strong&gt;k2&lt;/strong&gt; ni &lt;strong&gt;k3&lt;/strong&gt;: Era un problema de alguno de los componetes actualizados que sólo afecta a la RPi 3.&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;p&gt;Informaré en cuanto tenga resultados.&lt;/p&gt;
-
-&lt;h1 id=&#34;unas-horas-después&#34;&gt;Unas horas después&amp;hellip;&lt;/h1&gt;
-
-&lt;p&gt;Ya tenngo resultados: la configuración de &lt;em&gt;rsyslog&lt;/em&gt; es la que causa el cuelgue del sistema en las RPi3.&lt;/p&gt;
-
-&lt;p&gt;Échale un vistazo a cómo solucionar este error en la entrada: &lt;a href=&#34;https://onthedock.github.io/post/170430-k3-colgado-de-nuevo/&#34;&gt;El nodo k3 del clúster colgado de nuevo&lt;/a&gt;.&lt;/p&gt;</description>
     </item>
     
   </channel>

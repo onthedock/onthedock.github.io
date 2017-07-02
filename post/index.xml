@@ -6,8 +6,33 @@
     <description>Recent content in Posts on On The Dock</description>
     <generator>Hugo -- gohugo.io</generator>
     <copyright>Handmade with &amp;#9829; by Xavi Aznar</copyright>
-    <lastBuildDate>Sun, 02 Jul 2017 22:07:18 +0200</lastBuildDate>
+    <lastBuildDate>Sun, 02 Jul 2017 23:14:22 +0200</lastBuildDate>
     <atom:link href="https://onthedock.github.io/post/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Crear un cluster de un solo nodo</title>
+      <link>https://onthedock.github.io/post/170702-crear-un-cluster-de-un-solo-nodo/</link>
+      <pubDate>Sun, 02 Jul 2017 23:14:22 +0200</pubDate>
+      
+      <guid>https://onthedock.github.io/post/170702-crear-un-cluster-de-un-solo-nodo/</guid>
+      <description>&lt;p&gt;Para tener un clúster de desarrollo con la versatilidad de poder hacer y deshacer cambios (usando los &lt;em&gt;snapshots&lt;/em&gt; de una máquina virtual), lo más sencillo es disponer de un clúster de Kubernetes de un solo nodo.&lt;/p&gt;
+
+&lt;p&gt;
+Por defecto, el nodo master de un clúster de Kubernetes no ejecuta ningún tipo de carga de trabajo relacionada con los pods desplegados en el clúster, centrándose en las tareas de gestión de los &lt;em&gt;pods&lt;/em&gt; y del propio clúster.&lt;/p&gt;
+
+&lt;p&gt;Para permitir que el nodo master pueda ejecutar &lt;em&gt;pods&lt;/em&gt;, debemos modificar las opciones por defecto de Kubernetes.&lt;/p&gt;
+
+&lt;p&gt;En primer lugar, comprobamos que todos los pods del espacio de nombres de sistema han arrancado y se ejecutan correctamente:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ kubectl get nodes --all-namespaces
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Para que el nodo master admita el despliegue de &lt;em&gt;pods&lt;/em&gt;, modificamos mediante:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ kubectl taint nodes --all node-role.kubernetes.io/master-
+node &amp;quot;k8s-snc&amp;quot; untainted
+&lt;/code&gt;&lt;/pre&gt;</description>
+    </item>
     
     <item>
       <title>IP en mensaje prelogin</title>
@@ -1526,39 +1551,6 @@ ls: cannot access /var/log/kube*: No such file or directory
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;Es probable que la documentación no esté actualizada, así que continuaré en cuanto encuentre los logs para poder revisarlos.&lt;/p&gt;</description>
-    </item>
-    
-    <item>
-      <title>Errores sobre Orphaned pods en syslog</title>
-      <link>https://onthedock.github.io/post/170430-errores-sobre-orphaned-pods-en-syslog/</link>
-      <pubDate>Sun, 30 Apr 2017 12:55:44 +0200</pubDate>
-      
-      <guid>https://onthedock.github.io/post/170430-errores-sobre-orphaned-pods-en-syslog/</guid>
-      <description>&lt;p&gt;Los nodos &lt;strong&gt;k2&lt;/strong&gt; y &lt;strong&gt;k3&lt;/strong&gt; del clúster dejan de responder pasadas unas horas. La única manera de solucionarlo es reiniciar los nodos. Siguiendo con la revisión de logs, he encontrado que se genera una gran cantidad de entradas en &lt;em&gt;syslog&lt;/em&gt; en referencia a &lt;em&gt;orphaned pods&lt;/em&gt;. Además, el número de estos errores no para de crecer &lt;strong&gt;rápidamente&lt;/strong&gt;.&lt;/p&gt;
-
-&lt;p&gt;&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ grep &amp;quot;kubelet_volumes.go:114] Orphaned pod&amp;quot; /var/log/syslog | wc -l
-118938
-$ grep &amp;quot;kubelet_volumes.go:114] Orphaned pod&amp;quot; /var/log/syslog | wc -l
-119022
-$ grep &amp;quot;kubelet_volumes.go:114] Orphaned pod&amp;quot; /var/log/syslog | wc -l
-119170
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Revisando las últimas entradas del log:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-log&#34;&gt;Apr 30 10:57:57 k2 kubelet[3619]: E0430 10:57:57.186318    3619 kubelet_volumes.go:114] Orphaned pod &amp;quot;5064b9d9-2c9e-11e7-a7ae-b827eb650fdb&amp;quot; found, but volume paths are still present on disk.
-Apr 30 10:58:01 k2 kubelet[3619]: E0430 10:58:01.759595    3619 kubelet_volumes.go:114] Orphaned pod &amp;quot;6c601e9c-2c9c-11e7-a7ae-b827eb650fdb&amp;quot; found, but volume paths are still present on disk.
-Apr 30 10:58:03 k2 kubelet[3619]: E0430 10:58:03.226372    3619 kubelet.go:1549] Unable to mount volumes for pod &amp;quot;weave-net-bs9bs_kube-system(4461d51d-2d93-11e7-a7ae-b827eb650fdb)&amp;quot;: timeout expired waiting for volumes to attach/mount for pod &amp;quot;kube-system&amp;quot;/&amp;quot;weave-net-bs9bs&amp;quot;. list of unattached/unmounted volumes=[weavedb cni-bin cni-bin2 cni-conf dbus lib-modules weave-net-token-61scv]; skipping pod
-Apr 30 10:58:03 k2 kubelet[3619]: E0430 10:58:03.238315    3619 pod_workers.go:182] Error syncing pod 4461d51d-2d93-11e7-a7ae-b827eb650fdb (&amp;quot;weave-net-bs9bs_kube-system(4461d51d-2d93-11e7-a7ae-b827eb650fdb)&amp;quot;), skipping: timeout expired waiting for volumes to attach/mount for pod &amp;quot;kube-system&amp;quot;/&amp;quot;weave-net-bs9bs&amp;quot;. list of unattached/unmounted volumes=[weavedb cni-bin cni-bin2 cni-conf dbus lib-modules weave-net-token-61scv]
-Apr 30 10:58:05 k2 kubelet[3619]: E0430 10:58:05.830432    3619 kubelet_volumes.go:114] Orphaned pod &amp;quot;bb4d3ea6-2b80-11e7-9388-b827eb650fdb&amp;quot; found, but volume paths are still present on disk.
-Apr 30 10:58:08 k2 kubelet[3619]: E0430 10:58:08.435567    3619 kubelet_volumes.go:114] Orphaned pod &amp;quot;cb23be0d-2d7e-11e7-a7ae-b827eb650fdb&amp;quot; found, but volume paths are still present on disk.
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Todas estas entradas se encuentran en los logs del nodo &lt;strong&gt;k2&lt;/strong&gt;, donde no hay ningún &lt;em&gt;pod&lt;/em&gt; en ejecución (a parte de los propios de  Kubernetes que el clúster planifica en los diferentes nodos).&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;Actualización&lt;/strong&gt;: &lt;a href=&#34;https://onthedock.github.io/post/170506-troubleshooting-kubernetes-ii/&#34;&gt;Troubleshooting Kubernetes (II)&lt;/a&gt;&lt;/p&gt;</description>
     </item>
     
   </channel>
