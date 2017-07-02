@@ -9,6 +9,53 @@
     <atom:link href="https://onthedock.github.io/tags/alpine/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
+      <title>IP en mensaje prelogin</title>
+      <link>https://onthedock.github.io/post/170702-ip-en-mensaje-prelogin/</link>
+      <pubDate>Sun, 02 Jul 2017 22:07:18 +0200</pubDate>
+      
+      <guid>https://onthedock.github.io/post/170702-ip-en-mensaje-prelogin/</guid>
+      <description>&lt;p&gt;En la pantalla de &lt;em&gt;login&lt;/em&gt; en modo consola de los sistemas Linux se muestra un mensaje de bienvenida.&lt;/p&gt;
+
+&lt;p&gt;En este artículo se muestra cómo hacer que se muestre la IP del equipo.&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;
+
+&lt;p&gt;Cuando tenemos una máquina (virtual) configurada para obtener la IP de forma dinámica mediante DHCP, al desconocer por adelantado la IP que se le ha asignado, es necesario conectarse al hipervisor, hacer login en la máquina virtual para, finalmente, obtener la IP &lt;em&gt;actual&lt;/em&gt; de la VM.&lt;/p&gt;
+
+&lt;p&gt;Entonces podemos conectarnos &lt;em&gt;remotamente&lt;/em&gt; usando PuTTY (desde Windows) o un emulador de terminal desde Linux/OSX.&lt;/p&gt;
+
+&lt;p&gt;Sin embargo, hay una manera de agilizar este proceso, aprovechando el mensaje que se muestra antes del login.&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Aunque en este caso he usado Alpine Linux, las instrucciones son igualmente válidas para la mayoría de distribuciones.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;En primer lugar necesitamos ejecutar un &lt;em&gt;script&lt;/em&gt; durante el arranque del sistema operativo. En el caso concreto de Alpine Linux, he encontrado la solución en &lt;a href=&#34;https://forum.alpinelinux.org/forum/general-discussion/run-script-boot&#34;&gt;run script on boot&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Ya que no vamos a escribir nuestro propio servicio, usaremos el servicio &lt;em&gt;local&lt;/em&gt;. Para ello, hay que añadir nuestro &lt;em&gt;script&lt;/em&gt; en la carpeta &lt;code&gt;/etc/local.d/&lt;/code&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;rc-update add local default
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;El &lt;code&gt;README&lt;/code&gt; ubicado en &lt;code&gt;/etc/local.d/README&lt;/code&gt; indica que cualquier fichero ejecutable con extensión &lt;code&gt;.start&lt;/code&gt; se lanza al arrancar el servicio, mientras que si la extensión es &lt;code&gt;.stop&lt;/code&gt;, se ejecuta al parar el servicio.&lt;/p&gt;
+
+&lt;p&gt;En mi caso, he usado el &lt;em&gt;script&lt;/em&gt; para obtener la IP de la máquina como se indica en &lt;a href=&#34;http://offbytwo.com/2008/05/09/show-ip-address-of-vm-as-console-pre-login-message.html&#34;&gt;Show IP address of VM as console pre-login message&lt;/a&gt; y la he escrito en el fichero &lt;code&gt;/etc/issue&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;/sbin/ifconfig | grep &amp;quot;inet addr&amp;quot; | grep -v &amp;quot;127.0.0.1&amp;quot; | awk &#39;{ print $2 }&#39; | awk -F: &#39;{ print $2 }&#39; &amp;gt; /etc/issue
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Después de convertir el &lt;em&gt;script&lt;/em&gt; en ejecutable, he reinciado la máquina para probar que todo funcionaba como esperaba.&lt;/p&gt;
+
+&lt;p&gt;Tras los mensajes de arranque, se muestra:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;192.168.1.208
+alpine login:
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Así no hace falta hacer &lt;em&gt;login&lt;/em&gt; en la máquina para obtener la IP.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
       <title>Instalación de Alpine linux</title>
       <link>https://onthedock.github.io/post/170604-instalacion-de-alpine-linux/</link>
       <pubDate>Sun, 04 Jun 2017 18:26:48 +0200</pubDate>

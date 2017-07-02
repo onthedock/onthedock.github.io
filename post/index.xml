@@ -6,8 +6,55 @@
     <description>Recent content in Posts on On The Dock</description>
     <generator>Hugo -- gohugo.io</generator>
     <copyright>Handmade with &amp;#9829; by Xavi Aznar</copyright>
-    <lastBuildDate>Sun, 04 Jun 2017 18:26:48 +0200</lastBuildDate>
+    <lastBuildDate>Sun, 02 Jul 2017 22:07:18 +0200</lastBuildDate>
     <atom:link href="https://onthedock.github.io/post/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>IP en mensaje prelogin</title>
+      <link>https://onthedock.github.io/post/170702-ip-en-mensaje-prelogin/</link>
+      <pubDate>Sun, 02 Jul 2017 22:07:18 +0200</pubDate>
+      
+      <guid>https://onthedock.github.io/post/170702-ip-en-mensaje-prelogin/</guid>
+      <description>&lt;p&gt;En la pantalla de &lt;em&gt;login&lt;/em&gt; en modo consola de los sistemas Linux se muestra un mensaje de bienvenida.&lt;/p&gt;
+
+&lt;p&gt;En este artículo se muestra cómo hacer que se muestre la IP del equipo.&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;
+
+&lt;p&gt;Cuando tenemos una máquina (virtual) configurada para obtener la IP de forma dinámica mediante DHCP, al desconocer por adelantado la IP que se le ha asignado, es necesario conectarse al hipervisor, hacer login en la máquina virtual para, finalmente, obtener la IP &lt;em&gt;actual&lt;/em&gt; de la VM.&lt;/p&gt;
+
+&lt;p&gt;Entonces podemos conectarnos &lt;em&gt;remotamente&lt;/em&gt; usando PuTTY (desde Windows) o un emulador de terminal desde Linux/OSX.&lt;/p&gt;
+
+&lt;p&gt;Sin embargo, hay una manera de agilizar este proceso, aprovechando el mensaje que se muestra antes del login.&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Aunque en este caso he usado Alpine Linux, las instrucciones son igualmente válidas para la mayoría de distribuciones.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;En primer lugar necesitamos ejecutar un &lt;em&gt;script&lt;/em&gt; durante el arranque del sistema operativo. En el caso concreto de Alpine Linux, he encontrado la solución en &lt;a href=&#34;https://forum.alpinelinux.org/forum/general-discussion/run-script-boot&#34;&gt;run script on boot&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Ya que no vamos a escribir nuestro propio servicio, usaremos el servicio &lt;em&gt;local&lt;/em&gt;. Para ello, hay que añadir nuestro &lt;em&gt;script&lt;/em&gt; en la carpeta &lt;code&gt;/etc/local.d/&lt;/code&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;rc-update add local default
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;El &lt;code&gt;README&lt;/code&gt; ubicado en &lt;code&gt;/etc/local.d/README&lt;/code&gt; indica que cualquier fichero ejecutable con extensión &lt;code&gt;.start&lt;/code&gt; se lanza al arrancar el servicio, mientras que si la extensión es &lt;code&gt;.stop&lt;/code&gt;, se ejecuta al parar el servicio.&lt;/p&gt;
+
+&lt;p&gt;En mi caso, he usado el &lt;em&gt;script&lt;/em&gt; para obtener la IP de la máquina como se indica en &lt;a href=&#34;http://offbytwo.com/2008/05/09/show-ip-address-of-vm-as-console-pre-login-message.html&#34;&gt;Show IP address of VM as console pre-login message&lt;/a&gt; y la he escrito en el fichero &lt;code&gt;/etc/issue&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;/sbin/ifconfig | grep &amp;quot;inet addr&amp;quot; | grep -v &amp;quot;127.0.0.1&amp;quot; | awk &#39;{ print $2 }&#39; | awk -F: &#39;{ print $2 }&#39; &amp;gt; /etc/issue
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Después de convertir el &lt;em&gt;script&lt;/em&gt; en ejecutable, he reinciado la máquina para probar que todo funcionaba como esperaba.&lt;/p&gt;
+
+&lt;p&gt;Tras los mensajes de arranque, se muestra:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;192.168.1.208
+alpine login:
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Así no hace falta hacer &lt;em&gt;login&lt;/em&gt; en la máquina para obtener la IP.&lt;/p&gt;</description>
+    </item>
     
     <item>
       <title>Instalación de Alpine linux</title>
@@ -1512,85 +1559,6 @@ Apr 30 10:58:08 k2 kubelet[3619]: E0430 10:58:08.435567    3619 kubelet_volumes.
 &lt;p&gt;Todas estas entradas se encuentran en los logs del nodo &lt;strong&gt;k2&lt;/strong&gt;, donde no hay ningún &lt;em&gt;pod&lt;/em&gt; en ejecución (a parte de los propios de  Kubernetes que el clúster planifica en los diferentes nodos).&lt;/p&gt;
 
 &lt;p&gt;&lt;strong&gt;Actualización&lt;/strong&gt;: &lt;a href=&#34;https://onthedock.github.io/post/170506-troubleshooting-kubernetes-ii/&#34;&gt;Troubleshooting Kubernetes (II)&lt;/a&gt;&lt;/p&gt;</description>
-    </item>
-    
-    <item>
-      <title>El nodo k3 del clúster colgado de nuevo</title>
-      <link>https://onthedock.github.io/post/170430-k3-colgado-de-nuevo/</link>
-      <pubDate>Sun, 30 Apr 2017 11:39:20 +0200</pubDate>
-      
-      <guid>https://onthedock.github.io/post/170430-k3-colgado-de-nuevo/</guid>
-      <description>&lt;p&gt;En la entrada anterior &lt;a href=&#34;https://onthedock.github.io/post/170430-multiples-mensajes-action-17-suspended/&#34;&gt;Múltiples mensajes &amp;lsquo;action 17 suspended&amp;rsquo; en los logs&lt;/a&gt; comentaba que estaba a la espera de obtener resultados; después de apenas unas horas, ya los tengo: &lt;strong&gt;k3&lt;/strong&gt; se ha vuelto a &lt;em&gt;colgar&lt;/em&gt; mientras que &lt;strong&gt;k2&lt;/strong&gt; no.&lt;/p&gt;
-
-&lt;p&gt;Este resultado parece demostrar que la mala configuración de &lt;em&gt;rsyslog&lt;/em&gt; es la causante de los &lt;em&gt;cuelgues&lt;/em&gt; de las RPi 3 en el clúster de Kubernetes.&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;Actualización&lt;/strong&gt;: El nodo &lt;strong&gt;k2&lt;/strong&gt; sobre RPi3 sigue colgándose :(&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;Actualización II&lt;/strong&gt;: &lt;a href=&#34;https://onthedock.github.io/post/170506-troubleshooting-kubernetes-ii/&#34;&gt;Parece solucionado&lt;/a&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;/p&gt;
-
-&lt;p&gt;A modo de recordatorio, los cambios realizados en los dos nodos sobre Raspberry Pi 3 han sido (incluyo el nodo &lt;strong&gt;k1&lt;/strong&gt; con RPi2):&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;                                |  k1  |  k2  |  k3  |
-                                | RPi2 | RPi3 | RPi3 |
- -------------------------------|------|------|------|
-| Modificada conf. de rsyslog   |  No  |  Sí  |  No  |
-| Actualización a versión 1.6.2 |  Sí  |  Sí  |  Sí  |
- ----------------------------------------------------
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Hasta ahora, los únicos nodos que se &lt;em&gt;colgaban&lt;/em&gt; eran el &lt;strong&gt;k2&lt;/strong&gt; y el &lt;strong&gt;k3&lt;/strong&gt; (sobre RPi3).&lt;/p&gt;
-
-&lt;p&gt;Al modificar la configuración en de &lt;em&gt;rsyslog&lt;/em&gt; en &lt;strong&gt;k2&lt;/strong&gt; y pasadas unas horas, el único nodo que se sigue colgando es el &lt;strong&gt;k3&lt;/strong&gt;.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ kubectl get nodes
-NAME      STATUS     AGE       VERSION
-k1        Ready      19d       v1.6.2
-k2        Ready      14d       v1.6.2
-k3        NotReady   14d       v1.6.2
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Es decir, el fallo a la hora de redirigir los mensajes a &lt;code&gt;/dev/xconsole&lt;/code&gt;:&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;sólo afectan a las RPi3&lt;/li&gt;
-&lt;li&gt;provoca que el sistema se acabe colgando&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;Para solucionarlo, como &lt;code&gt;root&lt;/code&gt;:&lt;/p&gt;
-
-&lt;ol&gt;
-&lt;li&gt;Abre &lt;code&gt;/etc/rsyslog.conf&lt;/code&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;Modifica las últimas líneas (al final del fichero) y coméntalas:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-txt&#34;&gt;# The named pipe /dev/xconsole is for the `xconsole&#39; utility.  To use it,
-# you must invoke `xconsole&#39; with the `-file&#39; option:
-#
-#    $ xconsole -file /dev/xconsole [...]
-#
-# NOTE: adjust the list below, or you&#39;ll go crazy if you have a reasonably
-#      busy site..
-#
-daemon.*;mail.*;\
-    news.err;\
-    *.=debug;*.=info;\
-    *.=notice;*.=warn       |/dev/xconsole
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;deben quedar como:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-txt&#34;&gt;#daemon.*;mail.*;\
-#        news.err;\
-#        *.=debug;*.=info;\
-#        *.=notice;*.=warn       |/dev/xconsole
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Podrías comentar la redirección &lt;code&gt;|/dev/xconsole&lt;/code&gt;, pero en este caso el bloque no tendría ninguna funcionalidad, por lo que creo que es &lt;em&gt;más limpio&lt;/em&gt; comentar todo el bloque.&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;Reinicia el equipo mediante &lt;code&gt;reboot&lt;/code&gt;.&lt;/p&gt;&lt;/li&gt;
-&lt;/ol&gt;</description>
     </item>
     
   </channel>
