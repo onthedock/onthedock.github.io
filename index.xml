@@ -6,8 +6,355 @@
     <description>Recent content on On The Dock</description>
     <generator>Hugo -- gohugo.io</generator>
     <copyright>Handmade with &amp;#9829; by Xavi Aznar</copyright>
-    <lastBuildDate>Sun, 02 Jul 2017 23:14:22 +0200</lastBuildDate>
+    <lastBuildDate>Sun, 16 Jul 2017 19:38:17 +0200</lastBuildDate>
     <atom:link href="https://onthedock.github.io/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Mi primera aplicación en Kubernetes</title>
+      <link>https://onthedock.github.io/post/170716-mi-primera-app-en-kubernetes/</link>
+      <pubDate>Sun, 16 Jul 2017 19:38:17 +0200</pubDate>
+      
+      <guid>https://onthedock.github.io/post/170716-mi-primera-app-en-kubernetes/</guid>
+      <description>&lt;p&gt;Después de &lt;a href=&#34;https://onthedock.github.io/post/170702-ip-en-mensaje-prelogin/&#34;&gt;crear un cluster de un solo nodo&lt;/a&gt;, en esta entrada explico los pasos para publicar una aplicación en el clúster.&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;
+
+&lt;h1 id=&#34;objetivo-publicar-una-aplicación&#34;&gt;Objetivo: publicar una aplicación&lt;/h1&gt;
+
+&lt;p&gt;El objetivo de esta entrada es publicar una aplicación en el clúster accesible a través de la IP del &lt;em&gt;host&lt;/em&gt;. Es decir, a todos los efectos, el usuario accede a la aplicación sin ningún conocimiento de que se encuentra en el clúster, corriendo sobre uno o varios contenedores.&lt;/p&gt;
+
+&lt;h1 id=&#34;usa-ficheros-yaml&#34;&gt;Usa ficheros YAML&lt;/h1&gt;
+
+&lt;p&gt;Los dos objetos necesarios para &lt;em&gt;publicar&lt;/em&gt; la aplicación, el &lt;em&gt;Deployment&lt;/em&gt; y el &lt;em&gt;Service&lt;/em&gt;, pueden crearse directamente o usando un fichero YAML.&lt;/p&gt;
+
+&lt;p&gt;El &lt;a href=&#34;https://kubernetes.io/docs/tutorials/kubernetes-basics/deploy-intro/&#34;&gt;tutorial de Kubernetes&lt;/a&gt; usa el método &lt;em&gt;online&lt;/em&gt;, creando los objetos directamente en la línea de comando. Sin embargo, creo que este método no debería usarse nunca en producción (porque pueden pasar cosas &lt;strong&gt;&lt;a href=&#34;https://aws.amazon.com/message/41926/&#34;&gt;muy&lt;/a&gt; &lt;a href=&#34;http://money.cnn.com/2017/03/02/technology/amazon-s3-outage-human-error/index.html&#34;&gt;malas&lt;/a&gt;&lt;/strong&gt;), por lo que vamos a usar los ficheros de configuración YAML para crear y actualizar los objetos en el clúster.&lt;/p&gt;
+
+&lt;h2 id=&#34;ejemplo-de-proceso-de-aprobación&#34;&gt;Ejemplo de proceso de aprobación&lt;/h2&gt;
+
+&lt;p&gt;Idealmente, cualquier cambio en el estado de la aplicación en el clúster debería seguir un flujo similar al de cualquier otra modificación que afecte a un sistema de producción; es decir, el DevOp clona el repositorio con la configuración de la aplicación en su equipo, hace los cambios y los verifica. Una vez satisfecho, los sube al repositorio (pasando por el sistema de aprobación establecido, como por ejemplo, una &lt;a href=&#34;https://help.github.com/articles/about-pull-requests/&#34;&gt;&lt;em&gt;pull request&lt;/em&gt;&lt;/a&gt;). Una vez aprobado, se incorpora el cambio al repositorio de configuración de la aplicación en producción, desde donde se aplica al entorno de producción.&lt;/p&gt;
+
+&lt;figure&gt;
+  &lt;amp-img src=&#34;https://onthedock.github.io/images/170716/pull-request-flow.png&#34; alt=&#34;Mi primera aplicación en Kubernetes images/170716/pull-request-flow.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
+  
+  &lt;figcaption&gt;
+    
+    &lt;a href=&#34;https://docs.rhodecode.com/RhodeCode-Enterprise/collaboration/pr-flow.html&#34; target=&#34;_blank&#34;&gt;Proceso de aprobación basado en pull request.&lt;/a&gt;
+    
+  &lt;/figcaption&gt;
+  
+&lt;/figure&gt;
+
+
+&lt;h1 id=&#34;define-el-deployment&#34;&gt;Define el &lt;em&gt;deployment&lt;/em&gt;&lt;/h1&gt;
+
+&lt;p&gt;Como vimos en la entrada de &lt;a href=&#34;https://onthedock.github.io/post/170528-revision-de-conceptos/&#34;&gt;revisión de conceptos&lt;/a&gt;, el primer paso para desplegar una aplicación en un clúster Kubernetes es crear un &lt;em&gt;deployment&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;El fichero de declaración del &lt;em&gt;deployment&lt;/em&gt; tiene tres bloques (la estructura es común al resto de objetos):&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Cabecera&lt;/li&gt;
+&lt;li&gt;Metadatos&lt;/li&gt;
+&lt;li&gt;Especificaciones&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-yaml&#34;&gt;apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: nginx 
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:stable-alpine
+        ports:
+        - containerPort: 80
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;cabecera&#34;&gt;Cabecera&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-yaml&#34;&gt;apiVersion: apps/v1beta1
+kind: Deployment
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;En primer lugar, la &lt;a href=&#34;https://kubernetes.io/docs/api-reference/v1.6/#deployment-v1beta1-apps&#34;&gt;versión de API&lt;/a&gt; que usamos para definir el &lt;em&gt;deployment&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;En &lt;code&gt;kind&lt;/code&gt;, especificamos el tipo de objeto que vamos a definir.&lt;/p&gt;
+
+&lt;h2 id=&#34;metadatos&#34;&gt;Metadatos&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-yaml&#34;&gt;metadata:
+  name: nginx 
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Datos que describen el &lt;em&gt;deployment&lt;/em&gt;; el único necesario es el nombre del &lt;em&gt;deployment&lt;/em&gt;.&lt;/p&gt;
+
+&lt;h2 id=&#34;especificaciones&#34;&gt;Especificaciones&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-yaml&#34;&gt;spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:stable-alpine
+        ports:
+        - containerPort: 80
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;En el apartado de especificaciones se declaran el número de réplicas de la aplicación que queremos en ejecución. Kubernetes se encarga de mantener este número de réplicas en ejecución en todo momento, respondiendo automáticamente en caso de fallo de alguno de los &lt;em&gt;pods&lt;/em&gt; o de los nodos del clúster.&lt;/p&gt;
+
+&lt;p&gt;Para poder crear nuevos &lt;em&gt;pods&lt;/em&gt; si es necesario, debemos definir una &lt;code&gt;template&lt;/code&gt; (plantilla) a partir de la cual crearlos.&lt;/p&gt;
+
+&lt;p&gt;Como, al fin y al cabo estamos definiendo un objeto de tipo &lt;em&gt;pod&lt;/em&gt;, tenemos de nuevo una sección de metadatos (en este caso, etiquetas para los &lt;em&gt;pods&lt;/em&gt; del &lt;em&gt;deployment&lt;/em&gt;) y las especificaciones para crear un &lt;em&gt;pod&lt;/em&gt;: el nombre, la imagen base para el contenedor del &lt;em&gt;pod&lt;/em&gt; y el puerto publicado por el contenedor.&lt;/p&gt;
+
+&lt;p&gt;Pueden definirse muchos otros parámetros, pero estos son los mínimos indispensables para tener un &lt;em&gt;deployment&lt;/em&gt; funcional (el único requerido es el &lt;code&gt;name&lt;/code&gt;).&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;La imagen se descarga por defecto desde DockerHub; si quieres usar un &lt;em&gt;registry&lt;/em&gt; alternativo, debes indicar la URL completa al recurso.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h1 id=&#34;crea-el-deployment&#34;&gt;Crea el &lt;em&gt;deployment&lt;/em&gt;&lt;/h1&gt;
+
+&lt;p&gt;En el &lt;a href=&#34;https://onthedock.github.io/post/170702-ip-en-mensaje-prelogin/&#34;&gt;cluster de un solo nodo&lt;/a&gt; de pruebas, he subido el fichero &lt;code&gt;nginx-deployment.yaml&lt;/code&gt; con la definición del apartado anterior.&lt;/p&gt;
+
+&lt;p&gt;Para crear el &lt;em&gt;deployment&lt;/em&gt; usamos:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sh&#34;&gt;$ kubectl create -f nginx-deployment.yaml
+deployment &amp;quot;nginx&amp;quot; created
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Otra opción es usar la opción &lt;code&gt;apply&lt;/code&gt;, que actualiza el &lt;em&gt;deployment&lt;/em&gt; si ya existe.&lt;/p&gt;
+
+&lt;p&gt;Una vez creado, lo examinamos en detalle con &lt;code&gt;describe&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sh&#34;&gt;$ kubectl describe deployment nginx
+Name:       nginx
+Namespace:     default
+CreationTimestamp:   Sun, 16 Jul 2017 11:06:48 +0200
+Labels:        app=nginx
+Annotations:      deployment.kubernetes.io/revision=1
+Selector:      app=nginx
+Replicas:      1 desired | 1 updated | 1 total | 1 available | 0 unavailable
+StrategyType:     RollingUpdate
+MinReadySeconds:  0
+RollingUpdateStrategy:  25% max unavailable, 25% max surge
+Pod Template:
+  Labels:   app=nginx
+  Containers:
+   nginx:
+    Image:     nginx:stable-alpine
+    Port:      80/TCP
+    Environment:  &amp;lt;none&amp;gt;
+    Mounts:    &amp;lt;none&amp;gt;
+  Volumes:     &amp;lt;none&amp;gt;
+Conditions:
+  Type      Status   Reason
+  ----      ------   ------
+  Available    True  MinimumReplicasAvailable
+  Progressing  True  NewReplicaSetAvailable
+OldReplicaSets:   &amp;lt;none&amp;gt;
+NewReplicaSet: nginx-3287103792 (1/1 replicas created)
+Events:
+  FirstSeen LastSeen Count From        SubObjectPath  Type     Reason         Message
+  --------- -------- ----- ----        -------------  -------- ------         -------
+  4m     4m    1  deployment-controller         Normal      ScalingReplicaSet Scaled up replica set nginx-3287103792 to 1
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;El &lt;em&gt;pod&lt;/em&gt; creado por Kubernetes tiene una IP asignada y está escuchando en el puerto 80, pero de momento sólo es accesible &lt;em&gt;desde dentro&lt;/em&gt; del clúster.&lt;/p&gt;
+
+&lt;p&gt;Puedes comprobarlo obteniendo el nombre del &lt;em&gt;pod&lt;/em&gt; y usando &lt;code&gt;describe&lt;/code&gt; para obtener su IP. A continuación, mediante &lt;code&gt;curl&lt;/code&gt; obtén la página de bienvenida de Nginx:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-html&#34;&gt;$ curl http://10.32.0.4:80
+&amp;lt;!DOCTYPE html&amp;gt;
+&amp;lt;html&amp;gt;
+&amp;lt;head&amp;gt;
+&amp;lt;title&amp;gt;Welcome to nginx!&amp;lt;/title&amp;gt;
+&amp;lt;style&amp;gt;
+    body {
+        width: 35em;
+        margin: 0 auto;
+        font-family: Tahoma, Verdana, Arial, sans-serif;
+    }
+&amp;lt;/style&amp;gt;
+&amp;lt;/head&amp;gt;
+&amp;lt;body&amp;gt;
+&amp;lt;h1&amp;gt;Welcome to nginx!&amp;lt;/h1&amp;gt;
+&amp;lt;p&amp;gt;If you see this page, the nginx web server is successfully installed and
+working. Further configuration is required.&amp;lt;/p&amp;gt;
+
+&amp;lt;p&amp;gt;For online documentation and support please refer to
+&amp;lt;a href=&amp;quot;http://nginx.org/&amp;quot;&amp;gt;nginx.org&amp;lt;/a&amp;gt;.&amp;lt;br/&amp;gt;
+Commercial support is available at
+&amp;lt;a href=&amp;quot;http://nginx.com/&amp;quot;&amp;gt;nginx.com&amp;lt;/a&amp;gt;.&amp;lt;/p&amp;gt;
+
+&amp;lt;p&amp;gt;&amp;lt;em&amp;gt;Thank you for using nginx.&amp;lt;/em&amp;gt;&amp;lt;/p&amp;gt;
+&amp;lt;/body&amp;gt;
+&amp;lt;/html&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Si intentas algo parecido &lt;em&gt;desde fuera&lt;/em&gt; del clúster, no tendrás respuesta.&lt;/p&gt;
+
+&lt;h2 id=&#34;modifica-el-número-de-réplicas&#34;&gt;Modifica el número de réplicas&lt;/h2&gt;
+
+&lt;p&gt;A modo de experimento, puedes modificar el número de réplicas directamente desde la línea de comandos usando:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sh&#34;&gt;$ kubectl scale deployment nginx --replicas 3
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Y revisando el resultado del comando anterior:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sh&#34;&gt;$ kubectl get pods -l app=nginx
+NAME                     READY     STATUS    RESTARTS   AGE
+nginx-3225377387-l0hwp   1/1       Running   0          3m
+nginx-3225377387-ptkdt   1/1       Running   0          3m
+nginx-3225377387-rrz1x   1/1       Running   0          11m
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Lo correcto, de todas maneras, habría sido modificar el fichero &lt;code&gt;nginx-deployment.yaml&lt;/code&gt; y aplicar la nueva configuración mediante &lt;code&gt;kubectl apply -f nginx-deployment.yaml&lt;/code&gt;&lt;/p&gt;
+
+&lt;h1 id=&#34;publica-la-aplicación&#34;&gt;Publica la aplicación&lt;/h1&gt;
+
+&lt;p&gt;La aplicación está disponible en el clúster, pero sólo es accesible &lt;em&gt;desde dentro&lt;/em&gt; del clúster. De este modo no es especialmente útil (teniendo en cuenta que se trata de un servidor web).&lt;/p&gt;
+
+&lt;p&gt;El siguiente paso es definir un &lt;em&gt;Service&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;Un &lt;a href=&#34;https://kubernetes.io/docs/concepts/services-networking/service/&#34;&gt;service&lt;/a&gt; define un conjunto de &lt;em&gt;pods&lt;/em&gt; y una política de acceso.&lt;/p&gt;
+
+&lt;p&gt;Esto quiere decir que el servicio agrupa &lt;em&gt;pods&lt;/em&gt; independientes en un conjunto que &amp;ldquo;trabaja en equipo&amp;rdquo; para hacer &amp;ldquo;algo&amp;rdquo; (que es lo que se llama &lt;em&gt;microservice&lt;/em&gt;, en terminología &lt;em&gt;DevOp&lt;/em&gt;).&lt;/p&gt;
+
+&lt;p&gt;En cuanto a la política de acceso, es una forma de indicar que -en la mayoría de casos- se asigna un puerto &lt;strong&gt;público&lt;/strong&gt; para que se pueda acceder a la aplicación &lt;em&gt;desde fuera&lt;/em&gt; del clúster.&lt;/p&gt;
+
+&lt;h1 id=&#34;define-el-service&#34;&gt;Define el &lt;em&gt;service&lt;/em&gt;&lt;/h1&gt;
+
+&lt;p&gt;El &lt;em&gt;service&lt;/em&gt; tiene los mismos tres bloques que el &lt;em&gt;deployment&lt;/em&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-yaml&#34;&gt;apiVersion: v1
+kind: Service
+metadata:
+  name: nginx
+  labels:
+    app: nginx
+spec:
+  selector:
+    app: nginx
+  ports:
+    - protocol: TCP
+      port: 80
+  type: LoadBalancer
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;cabecera-1&#34;&gt;Cabecera&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-yaml&#34;&gt;apiVersion: v1
+kind: Service
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;En la cabecera tenemos la versión de la API. Los &lt;em&gt;services&lt;/em&gt; existen desde la primera versión del API de Kubernetes, a diferencia de los &lt;em&gt;deployments&lt;/em&gt;.&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Recuerda de la entrada de &lt;a href=&#34;https://onthedock.github.io/post/170528-revision-de-conceptos/&#34;&gt;revisión de conceptos&lt;/a&gt; que antes de los &lt;em&gt;deployments&lt;/em&gt; se usaban directamente los &lt;em&gt;Replication Controllers&lt;/em&gt;, que después de mejoraron y se convirtieron en &lt;em&gt;ReplicaSets&lt;/em&gt;.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;En cuanto al tipo de objeto, en este caso definimos un &lt;code&gt;Service&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h2 id=&#34;metadatos-1&#34;&gt;Metadatos&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-yaml&#34;&gt;metadata:
+  name: nginx
+  labels:
+    app: nginx
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Tampoco hay sorpresas en cuanto a los metadatos del servicio; en este caso, además del nombre, he añadido la etiqueta &lt;code&gt;app: nginx&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h2 id=&#34;especificaciones-1&#34;&gt;Especificaciones&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-yaml&#34;&gt;spec:
+  selector:
+    app: nginx
+  ports:
+    - protocol: TCP
+      port: 80
+  type: LoadBalancer
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Como hemos visto en la definición de &lt;em&gt;servicio&lt;/em&gt;, éste sirve para agrupar &lt;em&gt;pods&lt;/em&gt;. El conjunto de &lt;em&gt;pods&lt;/em&gt; se define mediante un &lt;strong&gt;selector&lt;/strong&gt;, que en este caso, se trata de la etiqueta &lt;code&gt;app: nginx&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Usar etiquetas permite organizar los &lt;em&gt;pods&lt;/em&gt; con total flexibilidad. Por ejemplo, podrías tener diferentes frontales (Nginx para contenido estático y Apache para el resto, por ejemplo) y agruparlos todos bajo una etiqueta llamada &lt;code&gt;tier: front-end&lt;/code&gt;, por ejemplo, aunque cada tipo tenga, además, etiquetas específicas (&lt;code&gt;app: nginx&lt;/code&gt; y &lt;code&gt;app: apache&lt;/code&gt;).&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;La elección de las etiquetas es un asunto &lt;strong&gt;muy importante&lt;/strong&gt; que debes tener lo mejor organizado posible para tus aplicaciones.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;A continuación, en la definición del servicio, tenemos la parte de &lt;em&gt;política de acceso&lt;/em&gt;: una sección de &lt;code&gt;ports&lt;/code&gt; en la que se define el protocolo y puerto (o puertos) y el tipo de &amp;ldquo;conexión&amp;rdquo;.&lt;/p&gt;
+
+&lt;p&gt;Finalmente, mediante &lt;code&gt;type&lt;/code&gt;, define el tipo de acceso &lt;em&gt;desde el exterior&lt;/em&gt;. En el ejemplo he elegido el tipo &lt;code&gt;LoadBalancer&lt;/code&gt;.&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Este tipo de acceso creo que no está disponible en Minikube, por lo que si usas este entorno para las pruebas, quizás debas usar &lt;code&gt;type: NodePort&lt;/code&gt;.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;En resumen, el servicio expone el conjunto de &lt;em&gt;pods&lt;/em&gt; que verifican la condición expuesta en el &lt;code&gt;selector&lt;/code&gt; y conecta los puertos locales -de los contenedores- con puertos externos a nivel de clúster de Kubernetes.&lt;/p&gt;
+
+&lt;h1 id=&#34;crea-el-service&#34;&gt;Crea el &lt;em&gt;service&lt;/em&gt;&lt;/h1&gt;
+
+&lt;p&gt;El método para crear/actualizar el &lt;em&gt;service&lt;/em&gt; es el mismo que para el &lt;em&gt;deployment&lt;/em&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sh&#34;&gt;$ kubectl apply -f nginx-service.yaml
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Una vez aplicado el &lt;em&gt;service&lt;/em&gt;, usa &lt;code&gt;describe&lt;/code&gt; para inspeccionar en detalle el objeto:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sh&#34;&gt;$ kubectl describe service nginx
+Name:       nginx
+Namespace:     default
+Labels:        app=nginx
+Annotations:      kubectl.kubernetes.io/last-applied-configuration={&amp;quot;apiVersion&amp;quot;:&amp;quot;v1&amp;quot;,&amp;quot;kind&amp;quot;:&amp;quot;Service&amp;quot;,&amp;quot;metadata&amp;quot;:{&amp;quot;annotations&amp;quot;:{},&amp;quot;labels&amp;quot;:{&amp;quot;app&amp;quot;:&amp;quot;nginx&amp;quot;},&amp;quot;name&amp;quot;:&amp;quot;nginx&amp;quot;,&amp;quot;namespace&amp;quot;:&amp;quot;default&amp;quot;},&amp;quot;spec&amp;quot;:{&amp;quot;ports&amp;quot;:[{&amp;quot;port...
+Selector:      app=nginx
+Type:       LoadBalancer
+IP:         10.107.44.10
+Port:       &amp;lt;unset&amp;gt;  80/TCP
+NodePort:      &amp;lt;unset&amp;gt;  31010/TCP
+Endpoints:     10.32.0.3:80
+Session Affinity: None
+Events:        &amp;lt;none&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Para saber con qué puerto externo se ha conectado el puerto local 80/TCP necesitamos revisar el detalle del servicio creado. Como no hemos especificado ningún &lt;code&gt;targetPort&lt;/code&gt; Kubernetes asigna uno libre al azar.&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;El comportamiento es el mismo que cuando se lanza un contenedor mediante &lt;code&gt;docker run -P&lt;/code&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;En mi caso el &lt;code&gt;NodePort&lt;/code&gt; asignado es el 31010/TCP. Esto significa que si acceso a la IP del clúster a través del puerto 31010, Kubernetes redirigirá la petición al puerto 80 del servicio, con lo que obtendré la página de bienvenida de Nginx.&lt;/p&gt;
+
+&lt;figure&gt;
+  &lt;amp-img src=&#34;https://onthedock.github.io/images/170716/nginx-en-kubernetes.png&#34; alt=&#34;Mi primera aplicación en Kubernetes images/170716/nginx-en-kubernetes.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
+  
+&lt;/figure&gt;
+
+
+&lt;p&gt;Este es el resultado marcado como éxito para este experimento.&lt;/p&gt;
+
+&lt;h1 id=&#34;resumen&#34;&gt;Resumen&lt;/h1&gt;
+
+&lt;p&gt;En este artículo he explicado los pasos necesarios para publicar una aplicación en un clúster de Kubernetes:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Crear un &lt;em&gt;Deployment&lt;/em&gt;&lt;/li&gt;
+&lt;li&gt;Crear un &lt;em&gt;Service&lt;/em&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;El &lt;em&gt;deployment&lt;/em&gt; crea los diferentes &lt;em&gt;pods&lt;/em&gt; que componen la aplicación. El &lt;em&gt;service&lt;/em&gt; los agrupa de manera funcional y los expone para que sean accesibles &lt;em&gt;desde el exterior&lt;/em&gt; del clúster.&lt;/p&gt;</description>
+    </item>
     
     <item>
       <title>Crear un cluster de un solo nodo</title>
@@ -1275,282 +1622,6 @@ $
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;Ahora sólo tenemos que añadir nodos &lt;em&gt;worker&lt;/em&gt; y hacer crecer el clúster.&lt;/p&gt;</description>
-    </item>
-    
-    <item>
-      <title>Troubleshooting Kubernetes (I)</title>
-      <link>https://onthedock.github.io/post/170430-troubleshooting-kubernetes-i/</link>
-      <pubDate>Sun, 30 Apr 2017 15:24:35 +0200</pubDate>
-      
-      <guid>https://onthedock.github.io/post/170430-troubleshooting-kubernetes-i/</guid>
-      <description>&lt;p&gt;Tras la alegría inicial pensando que la configuración de &lt;em&gt;rsyslog&lt;/em&gt; era la causante de los cuelgues de las dos RPi 3 (&lt;a href=&#34;https://onthedock.github.io/post/170430-k3-colgado-de-nuevo/&#34;&gt;El nodo k3 del clúster colgado de nuevo&lt;/a&gt;), pasadas unas horas los dos nodos &lt;strong&gt;k2&lt;/strong&gt; y &lt;strong&gt;k3&lt;/strong&gt; han dejado de responder de nuevo.&lt;/p&gt;
-
-&lt;p&gt;Así que es el momento de atacar el problema de forma algo más sistemática. Para ello seguiré las instrucciones que proporcina la página de Kubernetes &lt;a href=&#34;https://kubernetes.io/docs/tasks/debug-application-cluster/debug-cluster/&#34;&gt;Troubleshooting Clusters&lt;/a&gt;.
-&lt;/p&gt;
-
-&lt;h2 id=&#34;descripción-del-problema&#34;&gt;Descripción del problema&lt;/h2&gt;
-
-&lt;p&gt;Tras unas horas activos y formando parte del clúster, los dos nodos que corren sobre Raspberry Pi 3 dejan de responder y el clúster los muestra como &lt;em&gt;NotReady&lt;/em&gt;.&lt;/p&gt;
-
-&lt;p&gt;El clúster está formado por tres Raspberry Pi; el nodo &lt;em&gt;master&lt;/em&gt; es una Raspberry Pi 2 B mientras que los dos nodos &lt;em&gt;worker&lt;/em&gt; son Raspberry Pi 3 B.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ kubectl get nodes -o wide
-NAME      STATUS     AGE       VERSION   EXTERNAL-IP   OS-IMAGE                        KERNEL-VERSION
-k1        Ready      19d       v1.6.2    &amp;lt;none&amp;gt;        Raspbian GNU/Linux 8 (jessie)   4.4.50-hypriotos-v7+
-k2        NotReady   15d       v1.6.2    &amp;lt;none&amp;gt;        Raspbian GNU/Linux 8 (jessie)   4.4.50-hypriotos-v7+
-k3        NotReady   14d       v1.6.2    &amp;lt;none&amp;gt;        Raspbian GNU/Linux 8 (jessie)   4.4.50-hypriotos-v7+
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;ping&#34;&gt;Ping&lt;/h2&gt;
-
-&lt;h3 id=&#34;ping-al-nombre-del-nodo&#34;&gt;Ping al nombre del nodo&lt;/h3&gt;
-
-&lt;p&gt;La prueba más sencilla para ver si los nodos están colgados, es lanzar un ping desde el portátil:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ ping -c5 k2.local
-ping: cannot resolve k2.local: Unknown host
-$ ping -c5 k3.local
-ping: cannot resolve k3.local: Unknown host
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;En esta prueba vemos que ninguno de los nodos responde al nombre que &lt;em&gt;publica&lt;/em&gt; el servicio &lt;a href=&#34;https://en.wikipedia.org/wiki/Avahi_(software)&#34;&gt;Avahi&lt;/a&gt; en el sistema.&lt;/p&gt;
-
-&lt;h3 id=&#34;ping-a-la-ip-del-nodo&#34;&gt;Ping a la IP del nodo&lt;/h3&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ ping -c5 192.168.1.12
-PING 192.168.1.12 (192.168.1.12): 56 data bytes
-64 bytes from 192.168.1.12: icmp_seq=0 ttl=64 time=3.842 ms
-64 bytes from 192.168.1.12: icmp_seq=1 ttl=64 time=6.678 ms
-64 bytes from 192.168.1.12: icmp_seq=2 ttl=64 time=10.789 ms
-64 bytes from 192.168.1.12: icmp_seq=3 ttl=64 time=7.411 ms
-64 bytes from 192.168.1.12: icmp_seq=4 ttl=64 time=10.518 ms
-
---- 192.168.1.12 ping statistics ---
-5 packets transmitted, 5 packets received, 0.0% packet loss
-round-trip min/avg/max/stddev = 3.842/7.848/10.789/2.584 ms
-$ ping -c5 192.168.1.13
-PING 192.168.1.13 (192.168.1.13): 56 data bytes
-Request timeout for icmp_seq 0
-Request timeout for icmp_seq 1
-Request timeout for icmp_seq 2
-Request timeout for icmp_seq 3
-
---- 192.168.1.13 ping statistics ---
-5 packets transmitted, 0 packets received, 100.0% packet loss
-$
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;En este caso, el nodo &lt;strong&gt;k2&lt;/strong&gt; sí que responde a ping a la IP, mientras que el nodo &lt;strong&gt;k3&lt;/strong&gt; actúa como si estuviera apagado o con la red deshabilitada.&lt;/p&gt;
-
-&lt;h3 id=&#34;ssh&#34;&gt;SSH&lt;/h3&gt;
-
-&lt;p&gt;Aunque el nodo &lt;strong&gt;k2&lt;/strong&gt; responde a ping, no es posible conectar vía SSH; el intento de conectar no tiene éxito, pero tampoco falla (por &lt;em&gt;timeout&lt;/em&gt;, por ejemplo). He probado a conectar tanto desde el portátil como desde el nodo &lt;strong&gt;k1&lt;/strong&gt;, con el mismo resulado:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ ssh pirate@192.168.1.12
-
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;kubelet-describe-node&#34;&gt;kubelet describe node&lt;/h2&gt;
-
-&lt;p&gt;Usamos el comando &lt;code&gt;kubelet describe node&lt;/code&gt; para los dos nodos colgados.&lt;/p&gt;
-
-&lt;h3 id=&#34;nodo-k2&#34;&gt;Nodo &lt;strong&gt;k2&lt;/strong&gt;&lt;/h3&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ kubectl describe node k2
-Name:			k2
-Role:
-Labels:			beta.kubernetes.io/arch=arm
-			beta.kubernetes.io/os=linux
-			kubernetes.io/hostname=k2
-Annotations:		node.alpha.kubernetes.io/ttl=0
-			volumes.kubernetes.io/controller-managed-attach-detach=true
-Taints:			&amp;lt;none&amp;gt;
-CreationTimestamp:	Sat, 15 Apr 2017 10:25:31 +0000
-Phase:
-Conditions:
-  Type			Status		LastHeartbeatTime			LastTransitionTime			Reason			Message
-  ----			------		-----------------			------------------			------			-------
-  OutOfDisk 		Unknown 	Sun, 30 Apr 2017 11:56:26 +0000 	Sun, 30 Apr 2017 11:57:11 +0000 	NodeStatusUnknown 	Kubelet stopped posting node status.
-  MemoryPressure 	Unknown 	Sun, 30 Apr 2017 11:56:26 +0000 	Sun, 30 Apr 2017 11:57:11 +0000 	NodeStatusUnknown 	Kubelet stopped posting node status.
-  DiskPressure 		Unknown 	Sun, 30 Apr 2017 11:56:26 +0000 	Sun, 30 Apr 2017 11:57:11 +0000 	NodeStatusUnknown 	Kubelet stopped posting node status.
-  Ready 		Unknown 	Sun, 30 Apr 2017 11:56:26 +0000 	Sun, 30 Apr 2017 11:57:11 +0000 	NodeStatusUnknown 	Kubelet stopped posting node status.
-Addresses:		192.168.1.12,192.168.1.12,k2
-Capacity:
- cpu:		4
- memory:	882632Ki
- pods:		110
-Allocatable:
- cpu:		4
- memory:	780232Ki
- pods:		110
-System Info:
- Machine ID:			9989a26f06984d6dbadc01770f018e3b
- System UUID:			9989a26f06984d6dbadc01770f018e3b
- Boot ID:			84bf8a2b-b83f-445b-a4b3-250dc6e5db40
- Kernel Version:		4.4.50-hypriotos-v7+
- OS Image:			Raspbian GNU/Linux 8 (jessie)
- Operating System:		linux
- Architecture:			arm
- Container Runtime Version:	docker://Unknown
- Kubelet Version:		v1.6.2
- Kube-Proxy Version:		v1.6.2
-PodCIDR:			10.244.2.0/24
-ExternalID:			k2
-Non-terminated Pods:		(2 in total)
-  Namespace			Name				CPU Requests	CPU Limits	Memory Requests	Memory Limits
-  ---------			----				------------	----------	---------------	-------------
-  kube-system			kube-proxy-g580s		0 (0%)		0 (0%)		0 (0%)		0 (0%)
-  kube-system			weave-net-kxpk6			20m (0%)	0 (0%)		0 (0%)		0 (0%)
-Allocated resources:
-  (Total limits may be over 100 percent, i.e., overcommitted.)
-  CPU Requests	CPU Limits	Memory Requests	Memory Limits
-  ------------	----------	---------------	-------------
-  20m (0%)	0 (0%)		0 (0%)		0 (0%)
-Events:		&amp;lt;none&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;nodo-k3&#34;&gt;Nodo &lt;strong&gt;k3&lt;/strong&gt;&lt;/h3&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ kubectl describe node k3
-Name:			k3
-Role:
-Labels:			beta.kubernetes.io/arch=arm
-			beta.kubernetes.io/os=linux
-			kubernetes.io/hostname=k3
-Annotations:		node.alpha.kubernetes.io/ttl=0
-			volumes.kubernetes.io/controller-managed-attach-detach=true
-Taints:			&amp;lt;none&amp;gt;
-CreationTimestamp:	Sat, 15 Apr 2017 14:10:06 +0000
-Phase:
-Conditions:
-  Type			Status		LastHeartbeatTime			LastTransitionTime			Reason			Message
-  ----			------		-----------------			------------------			------			-------
-  OutOfDisk 		Unknown 	Sun, 30 Apr 2017 10:33:45 +0000 	Sun, 30 Apr 2017 10:34:28 +0000 	NodeStatusUnknown 	Kubelet stopped posting node status.
-  MemoryPressure 	Unknown 	Sun, 30 Apr 2017 10:33:45 +0000 	Sun, 30 Apr 2017 10:34:28 +0000 	NodeStatusUnknown 	Kubelet stopped posting node status.
-  DiskPressure 		Unknown 	Sun, 30 Apr 2017 10:33:45 +0000 	Sun, 30 Apr 2017 10:34:28 +0000 	NodeStatusUnknown 	Kubelet stopped posting node status.
-  Ready 		Unknown 	Sun, 30 Apr 2017 10:33:45 +0000 	Sun, 30 Apr 2017 10:34:28 +0000 	NodeStatusUnknown 	Kubelet stopped posting node status.
-Addresses:		192.168.1.13,192.168.1.13,k3
-Capacity:
- cpu:		4
- memory:	882632Ki
- pods:		110
-Allocatable:
- cpu:		4
- memory:	780232Ki
- pods:		110
-System Info:
- Machine ID:			9989a26f06984d6dbadc01770f018e3b
- System UUID:			9989a26f06984d6dbadc01770f018e3b
- Boot ID:			23bf96e4-ec65-489c-be00-d0fa848265f3
- Kernel Version:		4.4.50-hypriotos-v7+
- OS Image:			Raspbian GNU/Linux 8 (jessie)
- Operating System:		linux
- Architecture:			arm
- Container Runtime Version:	docker://Unknown
- Kubelet Version:		v1.6.2
- Kube-Proxy Version:		v1.6.2
-PodCIDR:			10.244.3.0/24
-ExternalID:			k3
-Non-terminated Pods:		(2 in total)
-  Namespace			Name				CPU Requests	CPU Limits	Memory Requests	Memory Limits
-  ---------			----				------------	----------	---------------	-------------
-  kube-system			kube-proxy-bkl4g		0 (0%)		0 (0%)		0 (0%)		0 (0%)
-  kube-system			weave-net-3bf40			20m (0%)	0 (0%)		0 (0%)		0 (0%)
-Allocated resources:
-  (Total limits may be over 100 percent, i.e., overcommitted.)
-  CPU Requests	CPU Limits	Memory Requests	Memory Limits
-  ------------	----------	---------------	-------------
-  20m (0%)	0 (0%)		0 (0%)		0 (0%)
-Events:		&amp;lt;none&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;El nodo &lt;strong&gt;k2&lt;/strong&gt; deja de responder a las 11:56:26, mientras que el &lt;strong&gt;k3&lt;/strong&gt; lo hace a las 10:33:45.&lt;/p&gt;
-
-&lt;ul class=&#34;task-list&#34;&gt;
-&lt;li&gt;&lt;input type=&#34;checkbox&#34; checked disabled class=&#34;task-list-item&#34;&gt; Cuando reinicie los dos nodos lo haré a la misma hora, para comprobar si hay diferencias en el tiempo que tarda en dejar de responder cada nodo.&lt;/li&gt;
-&lt;li&gt;&lt;input type=&#34;checkbox&#34; disabled class=&#34;task-list-item&#34;&gt; Actualizar la zona horaria de las Raspberry Pi.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&#34;nodo-k1-ready&#34;&gt;Nodo &lt;strong&gt;k1&lt;/strong&gt; (&lt;code&gt;Ready&lt;/code&gt;)&lt;/h3&gt;
-
-&lt;p&gt;Como referencia, incluimos el mismo comando para el nodo &lt;em&gt;master&lt;/em&gt; &lt;strong&gt;k1&lt;/strong&gt;:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ kubectl describe node k1
-Name:			k1
-Role:
-Labels:			beta.kubernetes.io/arch=arm
-			beta.kubernetes.io/os=linux
-			kubernetes.io/hostname=k1
-			node-role.kubernetes.io/master=
-Annotations:		node.alpha.kubernetes.io/ttl=0
-			volumes.kubernetes.io/controller-managed-attach-detach=true
-Taints:			node-role.kubernetes.io/master:NoSchedule
-CreationTimestamp:	Mon, 10 Apr 2017 20:22:32 +0000
-Phase:
-Conditions:
-  Type			Status	LastHeartbeatTime			LastTransitionTime			Reason				Message
-  ----			------	-----------------			------------------			------				-------
-  OutOfDisk 		False 	Sun, 30 Apr 2017 14:01:10 +0000 	Sun, 30 Apr 2017 06:37:10 +0000 	KubeletHasSufficientDisk 	kubelet has sufficient disk space available
-  MemoryPressure 	False 	Sun, 30 Apr 2017 14:01:10 +0000 	Sun, 30 Apr 2017 06:37:10 +0000 	KubeletHasSufficientMemory 	kubelet has sufficient memory available
-  DiskPressure 		False 	Sun, 30 Apr 2017 14:01:10 +0000 	Sun, 30 Apr 2017 06:37:10 +0000 	KubeletHasNoDiskPressure 	kubelet has no disk pressure
-  Ready 		True 	Sun, 30 Apr 2017 14:01:10 +0000 	Sun, 30 Apr 2017 06:37:20 +0000 	KubeletReady 			kubelet is posting ready status
-Addresses:		192.168.1.11,192.168.1.11,k1
-Capacity:
- cpu:		4
- memory:	882632Ki
- pods:		110
-Allocatable:
- cpu:		4
- memory:	780232Ki
- pods:		110
-System Info:
- Machine ID:			9989a26f06984d6dbadc01770f018e3b
- System UUID:			9989a26f06984d6dbadc01770f018e3b
- Boot ID:			55e1fad0-d40c-480b-b039-5586ff728d2c
- Kernel Version:		4.4.50-hypriotos-v7+
- OS Image:			Raspbian GNU/Linux 8 (jessie)
- Operating System:		linux
- Architecture:			arm
- Container Runtime Version:	docker://Unknown
- Kubelet Version:		v1.6.2
- Kube-Proxy Version:		v1.6.2
-PodCIDR:			10.244.0.0/24
-ExternalID:			k1
-Non-terminated Pods:		(7 in total)
-  Namespace			Name					CPU Requests	CPU Limits	Memory Requests	Memory Limits
-  ---------			----					------------	----------	---------------	-------------
-  kube-system			etcd-k1					0 (0%)		0 (0%)		0 (0%)		0 (0%)
-  kube-system			kube-apiserver-k1			250m (6%)	0 (0%)		0 (0%)		0 (0%)
-  kube-system			kube-controller-manager-k1		200m (5%)	0 (0%)		0 (0%)		0 (0%)
-  kube-system			kube-dns-279829092-1b27r		260m (6%)	0 (0%)		110Mi (14%)	170Mi (22%)
-  kube-system			kube-proxy-3dggd			0 (0%)		0 (0%)		0 (0%)		0 (0%)
-  kube-system			kube-scheduler-k1			100m (2%)	0 (0%)		0 (0%)		0 (0%)
-  kube-system			weave-net-6qr0l				20m (0%)	0 (0%)		0 (0%)		0 (0%)
-Allocated resources:
-  (Total limits may be over 100 percent, i.e., overcommitted.)
-  CPU Requests	CPU Limits	Memory Requests	Memory Limits
-  ------------	----------	---------------	-------------
-  830m (20%)	0 (0%)		110Mi (14%)	170Mi (22%)
-Events:		&amp;lt;none&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;revisando-los-logs-en-el-nodo-master&#34;&gt;Revisando los logs en el nodo &lt;em&gt;master&lt;/em&gt;&lt;/h2&gt;
-
-&lt;p&gt;En la guía de &lt;em&gt;Troubleshooting&lt;/em&gt; de Kubernetes, el siguiente paso es revisar los logs. En el caso del nodo &lt;em&gt;master&lt;/em&gt;, los logs relevantes se encuentran en:&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;code&gt;/var/log/kube-apiserver.log&lt;/code&gt; - El &lt;em&gt;API Server&lt;/em&gt;, encargado de servir la API&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;/var/log/kube-scheduler.log&lt;/code&gt; - El &lt;em&gt;Scheduler&lt;/em&gt;, encargado de las decisiones de planificar los &lt;em&gt;pods&lt;/em&gt; en los nodos&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;/var/log/kube-controller-manager.log&lt;/code&gt; - El responsable de gestionar los &lt;em&gt;replication controllers&lt;/em&gt; encargados de mantener el &lt;strong&gt;estado deseado&lt;/strong&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;Sin embargo, los logs indicados &lt;strong&gt;no existen en la ruta indicada&lt;/strong&gt;:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ ls /var/log/kube*
-ls: cannot access /var/log/kube*: No such file or directory
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Es probable que la documentación no esté actualizada, así que continuaré en cuanto encuentre los logs para poder revisarlos.&lt;/p&gt;</description>
     </item>
     
   </channel>
