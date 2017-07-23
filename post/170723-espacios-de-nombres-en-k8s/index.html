@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html ⚡>
+  <head>
+    <meta charset="utf-8">
+<meta name="pinterest" content="nopin">
+<meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
+<meta name="theme-color" content="#263238">
+
+<meta name="generator" content="Hugo 0.19" />
+
+<link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
+
+
+<link rel="canonical" href="https://onthedock.github.io/post/170723-espacios-de-nombres-en-k8s/">
+
+
+    
+    <link href="https://fonts.googleapis.com/css?family=Lobster|Lato:400,700" rel="stylesheet">
+    
+    <title>Espacios de nombres en Kubernetes - On The Dock</title>
+    <style amp-boilerplate>body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}</style><noscript><style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style></noscript>
+    <script async src="https://cdn.ampproject.org/v0.js"></script>
+    
+    <script async custom-element="amp-twitter" src="https://cdn.ampproject.org/v0/amp-twitter-0.1.js"></script>
+<script async custom-element="amp-iframe" src="https://cdn.ampproject.org/v0/amp-iframe-0.1.js"></script>
+<script async custom-element="amp-ad" src="https://cdn.ampproject.org/v0/amp-ad-0.1.js"></script>
+
+    
+<meta name="description" content="&lt;p&gt;Los &lt;a href=&#34;https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/&#34;&gt;&lt;em&gt;namespaces&lt;/em&gt; (espacios de nombres)&lt;/a&gt; en Kubernetes permiten establecer un nivel adicional de separación entre los contenedores que comparten los recursos de un clúster.&lt;/p&gt;&lt;p&gt;Esto es especialmente útil cuando diferentes grupos de DevOps usan el mismo clúster y existe el riesgo potencial de colisión de nombres de los &lt;em&gt;pods&lt;/em&gt;, etc usados por los diferentes equipos.&lt;/p&gt;&lt;p&gt;&lt;/p&gt;">
+
+<meta property="og:title" content="Espacios de nombres en Kubernetes - On The Dock">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://onthedock.github.io/post/170723-espacios-de-nombres-en-k8s/">
+<meta property="og:image" content="https://onthedock.github.io/images/kubernetes.png">
+<meta property="og:site_name" content="On The Dock">
+<meta property="og:description" content="&lt;p&gt;Los &lt;a href=&#34;https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/&#34;&gt;&lt;em&gt;namespaces&lt;/em&gt; (espacios de nombres)&lt;/a&gt; en Kubernetes permiten establecer un nivel adicional de separación entre los contenedores que comparten los recursos de un clúster.&lt;/p&gt;&lt;p&gt;Esto es especialmente útil cuando diferentes grupos de DevOps usan el mismo clúster y existe el riesgo potencial de colisión de nombres de los &lt;em&gt;pods&lt;/em&gt;, etc usados por los diferentes equipos.&lt;/p&gt;&lt;p&gt;&lt;/p&gt;">
+<meta property="og:locale" content="ja_JP">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="On The Dock">
+<meta name="twitter:url" content="https://onthedock.github.io/post/170723-espacios-de-nombres-en-k8s/">
+<meta name="twitter:title" content="Espacios de nombres en Kubernetes - On The Dock">
+<meta name="twitter:description" content="&lt;p&gt;Los &lt;a href=&#34;https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/&#34;&gt;&lt;em&gt;namespaces&lt;/em&gt; (espacios de nombres)&lt;/a&gt; en Kubernetes permiten establecer un nivel adicional de separación entre los contenedores que comparten los recursos de un clúster.&lt;/p&gt;&lt;p&gt;Esto es especialmente útil cuando diferentes grupos de DevOps usan el mismo clúster y existe el riesgo potencial de colisión de nombres de los &lt;em&gt;pods&lt;/em&gt;, etc usados por los diferentes equipos.&lt;/p&gt;&lt;p&gt;&lt;/p&gt;">
+<meta name="twitter:image" content="https://onthedock.github.io/images/kubernetes.png">
+
+
+<script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "NewsArticle",
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id":"https://onthedock.github.io/"
+    },
+    "headline": "Espacios de nombres en Kubernetes - On The Dock",
+    "image": {
+      "@type": "ImageObject",
+      "url": "https://onthedock.github.io/images/kubernetes.png",
+      "height": 800,
+      "width": 800
+    },
+    "datePublished": "2017-07-23T20:04:45JST",
+    "dateModified": "2017-07-23T20:04:45JST",
+    "author": {
+      "@type": "Person",
+      "name": "On The Dock"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "On The Dock",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://onthedock.github.io/images/logo.png",
+        "width": 600,
+        "height": 60
+      }
+    },
+    "description": "<p>Los <a href="https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/"><em>namespaces</em> (espacios de nombres)</a> en Kubernetes permiten establecer un nivel adicional de separación entre los contenedores que comparten los recursos de un clúster.</p>
+
+<p>Esto es especialmente útil cuando diferentes grupos de DevOps usan el mismo clúster y existe el riesgo potencial de colisión de nombres de los <em>pods</em>, etc usados por los diferentes equipos.</p>
+
+<p></p>"
+  }
+</script>
+
+
+    <style amp-custom>
+      html { font-size: 18px;}@media (max-width: 768px) { html { font-size: 15px; }}body { font-family: Lato,'Hiragino Kaku Gothic Pro',メイリオ,Meiryo,sans-serif; font-size: inherit; margin: 0; color: #263238;}html, body { margin: 0;}a { text-decoration: none; color: #e91e63;}p { margin: 0;}ul,ol { margin: 0; padding: 0;}h1, h2, h3, h4, h5, h6 { margin: 0; font-weight: 700;}h1 { font-size: 1.8rem; line-height: 2rem; margin: 1.5rem 0; }h2 { font-size: 1.4rem; line-height: 2rem; margin: 1.5rem 0; }h3 { font-size: 1.2rem; line-height: 1.5rem; margin: 1.5rem 0; }h4, h5, h6 { font-size: 1rem; line-height: 1.5rem; margin: 1.5rem 0; }.clearfix::after { content: ''; display: block; clear: both;}main { display: block;}/* Layouts */.l-header { padding: .5rem 0; margin-bottom: 2rem; border-bottom: 1px dashed #cfd8dc; text-align: center;}.l-footer { font-size: .8rem; padding: 1rem 0; border-top: 1px dashed #cfd8dc;}.l-footer .copyright-notice,.l-footer .attribution { text-align: center;}.l-container { max-width: 42rem; margin: 0 auto; padding: 0 1rem;}/* Parts:logo */.p-logo { font-family: Lobster, cursive;}.p-logo a { color: #000; font-size: 1.6rem; line-height: 2rem;}/* Parts:section */section { border-top: 2px solid #eceff1; padding: 1.5rem 0;}section>header { text-transform: uppercase; font-weight: 700; margin-bottom: 2rem; text-align: center;}section>header span { display: inline-block; background-color: #000; color: #fff; letter-spacing: 3px; font-size: .7rem; padding: .5rem .75rem;}/* Parts:facts */.p-facts { list-style: none; font-size: .8rem; margin-bottom: 1rem;}.p-facts:last-child { margin-bottom: 0;}.p-facts li { display: inline-block; margin-right: .5rem; text-transform: uppercase;}.p-facts li header { margin-bottom: .25rem; font-weight: 700;}.p-facts li header a { color: #000; text-decoration: underline;}.p-facts li li { display: inline-block; margin-right: .5rem;}.p-facts li li::after { content: ',';}.p-facts li li:last-child::after { content: '';}/* Parts:crumb */.p-crumb { list-style: none; margin-bottom: 1rem; font-size: .8rem; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}.p-crumb:last-child { margin-bottom: 0;}.p-crumb li { display: inline;}.p-crumb li::after { content: '›'; margin: 0 .5rem;}.p-crumb li:last-child::after { content: '';}/* Parts:page-title */.p-page-title { margin-bottom: 2rem;}.p-page-title .title { margin-bottom: .5rem;}/* Parts:share */.p-share { margin-bottom: 1.5rem;}.p-share a { display: inline-block; text-align: center; padding: .5rem .5rem; margin-right: .25rem; font-size: .6rem; background-color: #eceff1; font-weight: 700;}.p-share a.ht { color: #00a4de; }.p-share a.fb { color: #3b5998; }.p-share a.tw { color: #1da1f2; }.p-share a.gp { color: #dd4b39; }.p-share a.ln { color: #00c300; }.p-share a.ht::before { content: 'Hatena'; }.p-share a.fb::before { content: 'Facebook'; }.p-share a.tw::before { content: 'Twitter'; }.p-share a.gp::before { content: 'Google+'; }.p-share a.ln::before { content: 'LINE'; }/* Parts:terms */.p-terms { padding-left: 2rem;}/* Parts:paginator */.p-paginator { text-align: center; margin-bottom: 3rem; padding-top: 2rem;}.p-paginator a { display: inline-block; border: 2px solid #eceff1; color: #263238; line-height: 2rem; padding: 0 1rem;}/* Parts:article */.p-articles { list-style: none;}.p-articles>li { margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px dashed #cfd8dc;}.p-articles>li:last-child { border-bottom: none; padding-bottom: 0;}.p-articles.thin>li { margin-bottom: 1rem; padding-bottom: 1rem;}article .article-header { display: table-cell; height: 6rem; vertical-align: middle;}article .title { margin: 0; margin-bottom: .5rem; font-size: 1.4rem; line-height: 2rem;}article .title a { color: #000;}article .header-wrapper { margin-bottom: 1.5rem;}article .thumbnail { display: block; background-position: center; background-size: cover; background-image: url(https://onthedock.github.io/images/default.jpg); width: 6rem; height: 6rem; border-radius: 50%; box-shadow: 0 0 3px 0 #333 inset; float: left; margin-right: 1rem;}article .summary { margin-bottom: 1.5rem;}article .readmore { text-align: center;}article .readmore a { font-size: .8rem; color: #000; text-decoration: underline;}article.li.sm .header-wrapper { margin-bottom: 0;}.article-body h2 { padding: 1rem 0; color: #55bbbb; border-bottom: 2px solid #eceff1;}.article-body h2:first-child { margin-top: 0; }.article-body h3 { color: #8997e4; font-style: italic;}.article-body h4 { border-left: solid .25rem #cddc39; padding: 0 .5rem;}.article-body p { margin: 1.5rem 0; line-height: 1.5rem;}.article-body a { text-decoration: underline;}.article-body ul,.article-body ol { padding-left: 1.5rem;}.article-body li { line-height: 2rem;}.article-body code { display: inline-block; font-family: Menlo, consolas, monospace; background-color: #eceff1; font-size: .8rem; padding: 0 .5rem; line-height: 1.5rem;}.article-body pre { margin: 1.5rem 0; padding: 1.5rem; font-size: .8rem; background-color: #263238; color: #fff; overflow: auto;}.article-body pre code { background-color: transparent;}.article-body blockquote { /* margin: 1.2rem 0; padding: .5rem 0; */ /*font-size: .8rem;*/ border-top: 1px solid #eceff1; border-bottom: 1px solid #eceff1; color: #607d8b;}.article-body blockquote p { margin: .5rem 0; line-height: 1.5rem;}.article-body strong { /*box-shadow: 0 -.5rem 0 0 #f06292 inset;*/ font-style: bold; font-weight: 700; color: #ff5722;}.article-body em { font-style: normal; /*font-weight: 700;*/ color: #00c300;}.article-body figure { margin: 1.5rem -2rem; }.article-body figure.left,.article-body figure.right { width: 15rem; height: 12rem; margin-top: 0; margin-left: 0; margin-right: 0;}.article-body figure.left { float: left; margin-right: 1rem; margin-left: -2rem; }.article-body figure.right { float: right; margin-left: 1rem; margin-right: -2rem; }@media (max-width: 768px) { .article-body figure { margin: 1.5rem -1rem; } .article-body figure.left, .article-body figure.right { float: none; margin: 0 -1rem; width: auto; height: auto; }}.article-body figcaption { padding: .5rem 0; font-size: .8rem; text-align: center;}.article-body figcaption a { color: #263238;}
+
+       .article-99a6578fdc273f40a61d182bcb5917c4 .thumbnail { background-image: url(https://onthedock.github.io/images/kubernetes.png);  }  .article-3ffff09a2dd1f953bbb8624d88756829 .thumbnail { background-image: url(https://onthedock.github.io/images/kubernetes.png);  }  .article-0a9cef5c4637bd946188e37439fef69c .thumbnail { background-image: url(https://onthedock.github.io/images/kubernetes.png);  }  .article-42a206d287914317761f7749b964ddb2 .thumbnail { background-image: url(https://onthedock.github.io/images/alpine.png);  }  .article-85dee6c250520e561ebc93740f1d514f .thumbnail { background-image: url(https://onthedock.github.io/images/alpine.png);  }  .article-a65000ba68f97000bb927be3f88f75bd .thumbnail { background-image: url(https://onthedock.github.io/images/kubernetes.png);  }  .article-2de6ff3b0144ea18b2ef056107448a33 .thumbnail { background-image: url(https://onthedock.github.io/images/yaml.png);  }  .article-a8aea2191f0d8d238ab6217feba51ac3 .thumbnail { background-image: url(https://onthedock.github.io/images/vagrant.png);  }  .article-67cd76b76e108b6604b344e92a3c329a .thumbnail { background-image: url(https://onthedock.github.io/images/docker.png);  }  .article-d341a5f8cd54b9da7a3a6d1168365c25 .thumbnail { background-image: url(https://onthedock.github.io/images/kubernetes.png);  }  .article-59e1fe22eaedce05afe517780f87cc98 .thumbnail { background-image: url(https://onthedock.github.io/images/docker.png);  }  .article-87ee3835fe3b255e8566c3bfed2bd38b .thumbnail { background-image: url(https://onthedock.github.io/images/portainer.png);  }  .article-086bb6242700303c8a958c5e74df0ca9 .thumbnail { background-image: url(https://onthedock.github.io/images/docker.png);  }  .article-4c6b9124141ca1a8135b9177248b7e15 .thumbnail { background-image: url(https://onthedock.github.io/images/hugo.png);  }  .article-911698c11286b3ef9eb1a11440c09845 .thumbnail { background-image: url(https://onthedock.github.io/images/kubernetes.png);  }  .article-6a0861472d6f0696079c81e3710d5fe8 .thumbnail { background-image: url(https://onthedock.github.io/images/kubernetes.png);  }  .article-40b8655184d8e4a2ca3650aece49e845 .thumbnail { background-image: url(https://onthedock.github.io/images/kubernetes.png);  }  .article-857a5f627557e7d92f1386f7c6e04dee .thumbnail { background-image: url(https://onthedock.github.io/images/raspberry_pi.png);  }  .article-4db85da082f771e8fb9029adad4173ec .thumbnail { background-image: url(https://onthedock.github.io/images/raspberry_pi.png);  }  .article-b69159ccecf58bff548bbd08481b6e15 .thumbnail { background-image: url(https://onthedock.github.io/images/raspberry_pi.png);  }  .article-da222607e970c37b0b59d8011a2e3398 .thumbnail { background-image: url(https://onthedock.github.io/images/portainer.png);  }  .article-7b36708a64c36890ceb1bf481f3de1fa .thumbnail { background-image: url(https://onthedock.github.io/images/kubernetes.png);  }  .article-d68e08dcca5eafff4ae0d8d06280bf02 .thumbnail { background-image: url(https://onthedock.github.io/images/kubernetes.png);  }  .article-8ff87e4d24c357bbee842dd088ef4cde .thumbnail { background-image: url(https://onthedock.github.io/images/kubernetes.png);  }  .article-d0ca4b0abe6c0c6d22baa800e3fc9935 .thumbnail { background-image: url(https://onthedock.github.io/images/kubernetes.png);  }  .article-63c13529eb1936073e0adc09d7e35b59 .thumbnail { background-image: url(https://onthedock.github.io/images/kubernetes.png);  }  .article-2e821bde62a219fe0b94f62e989269e7 .thumbnail { background-image: url(https://onthedock.github.io/images/docker.png);  }  .article-df564c824db9099fd85c925ad9635cda .thumbnail { background-image: url(https://onthedock.github.io/images/raspberry_pi.png);  }  .article-203d2d443889d9d70ca2ad9abcca49aa .thumbnail { background-image: url(https://onthedock.github.io/images/docker.png);  }  .article-526bade0815ac377e81216604b97c5f7 .thumbnail { background-image: url(https://onthedock.github.io/images/github.png);  }  .article-3d9c586728a0009cb0621b0368120462 .thumbnail { background-image: url(https://onthedock.github.io/images/hugo.png);  }  .article-160ee3ec04bb73e590f125b42640b34b .thumbnail { background-image: url(https://onthedock.github.io/images/hugo.png);  }  .article-c862ac2fb3511b386b4247a80aa6b90b .thumbnail { background-image: url(https://onthedock.github.io/images/linux.png);  }  .article-8a50a2d4216b1a3b2b46c646bd24c5e9 .thumbnail { background-image: url(https://onthedock.github.io/images/linux.png);  }  .article-f027d2889032f918da8e3cc9c03169e0 .thumbnail { background-image: url(https://onthedock.github.io/images/linux.png);  }  .article-6db4ecfe853552466ce5a71b1221a2a0 .thumbnail { background-image: url(https://onthedock.github.io/images/hypriot.png);  } 
+    </style>
+  </head>
+
+  <body>
+    
+    
+    
+
+    <header class="l-header">
+      <div class="l-container">
+        <div class="h-logo p-logo">
+          <a href="https://onthedock.github.io/" class="h-logo">On The Dock</a>
+          <p class="h-logo">Un blog sobre Docker, Kubernetes, DevOps y Raspberry Pi por Xavier Aznar</p>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      
+<div class="l-container">
+  <article class="single article-99a6578fdc273f40a61d182bcb5917c4">
+  <div class="header-wrapper">
+    <a href="https://onthedock.github.io/post/170723-espacios-de-nombres-en-k8s/" class="thumbnail" title="Espacios de nombres en Kubernetes"></a>
+    <header class="article-header">
+      <div class="clearfix">
+        <h1 class="title">Espacios de nombres en Kubernetes</h1>
+        <ul class="p-facts">
+          <li><time datetime="2017-07-23T20:04:45JST">23 Jul 2017</time></li>
+          <li><a href="https://onthedock.github.io/post/">post</a></li>
+          
+          <li>Xavier Aznar</li>
+        </ul>
+      </div>
+    </header>
+  </div>
+
+  <div class="article-body"><p>Los <a href="https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/"><em>namespaces</em> (espacios de nombres)</a> en Kubernetes permiten establecer un nivel adicional de separación entre los contenedores que comparten los recursos de un clúster.</p>
+
+<p>Esto es especialmente útil cuando diferentes grupos de DevOps usan el mismo clúster y existe el riesgo potencial de colisión de nombres de los <em>pods</em>, etc usados por los diferentes equipos.</p>
+
+<p></p>
+
+<p>Los espacios de nombres también facilitan la creación de cuotas para limitar los recursos disponibles para cada <em>namespace</em>. Puedes considerar los espacios de nombres como clústers <em>virtuales</em> sobre el clúster físico de Kubernetes. De esta forma, proporcionan separación lógica entre los entornos de diferentes equipos.</p>
+
+<p>Kubernetes proporciona dos <em>namespaces</em> por defecto: <code>kube-system</code> y <code>default</code>. A <em>grosso modo</em>, los objetos &ldquo;de usuario&rdquo; se crean en el espacio de nombres <code>default</code>, mientras que los de &ldquo;sistema&rdquo; se encuentran en <code>kube-system</code>.</p>
+
+<p>Para ver los espacios de nombres en el clúster, ejecuta:</p>
+
+<pre><code class="language-sh">$ kubectl get namespaces
+NAME          STATUS    AGE
+default       Active    21d
+kube-system   Active    21d
+</code></pre>
+
+<blockquote>
+<p>Puedes obtener el mismo resultado usando <code>ns</code> en vez de <code>namespaces</code></p>
+</blockquote>
+
+<p>Para comprobar la separación lógica entre los objetos de diferentes <em>namespaces</em>, lista los pods mediante <code>kubectl get pods</code>:</p>
+
+<pre><code class="language-sh">$ kubectl get pods
+NAME                     READY     STATUS    RESTARTS   AGE
+nginx-3225377387-xdth3   1/1       Running   0          7d
+</code></pre>
+
+<p>Analizando al detalle el <em>pod</em> mediante <code>kubectl describe pod nginx-3225377387-xdth3</code>, observa como se encuentra en el espacio de nombres <code>default</code>:</p>
+
+<pre><code class="language-sh">$ kubectl describe pod nginx-3225377387-xdth3
+Name:    nginx-3225377387-xdth3
+Namespace:  default
+Node:    k8s-snc/192.168.1.10
+...
+</code></pre>
+
+<p>Compara los resultados obtenidos con los comandos anteriores con el de <code>kubectl get pods --all-namespaces</code>:</p>
+
+<pre><code class="language-sh">$ kubectl get pods --all-namespaces
+NAMESPACE     NAME                              READY     STATUS    RESTARTS   AGE
+default       nginx-3225377387-xdth3            1/1       Running   0          7d
+kube-system   etcd-k8s-snc                      1/1       Running   3          21d
+kube-system   kube-apiserver-k8s-snc            1/1       Running   3          21d
+kube-system   kube-controller-manager-k8s-snc   1/1       Running   3          21d
+kube-system   kube-dns-2425271678-xbzt8         3/3       Running   12         21d
+kube-system   kube-proxy-tbstt                  1/1       Running   3          21d
+kube-system   kube-scheduler-k8s-snc            1/1       Running   3          21d
+kube-system   weave-net-snspp                   2/2       Running   9          20d
+</code></pre>
+
+<p>La primera columna de la salida del comando anterior indica el espacio de nombres en el que se encuentra cada <em>pod</em>, en este caso.</p>
+
+<h1 id="crea-un-nuevo-espacio-de-nombres">Crea un nuevo espacio de nombres</h1>
+
+<p>Para crear un <em>namespace</em>, crea un fichero <code>YAML</code> como el siguiente:</p>
+
+<pre><code class="language-yaml">apiVersion: v1
+kind: Namespace
+metadata:
+   name: developers
+</code></pre>
+
+<blockquote>
+<p>El nombre del <em>namespace</em> debe ser compatible con una entrada válida de DNS.</p>
+</blockquote>
+
+<p>Para crear el <em>namespace</em>, ejecuta:</p>
+
+<pre><code class="language-sh">$ kubectl create -f ns-developers.yaml
+namespace &quot;developers&quot; created
+</code></pre>
+
+<p>Al obtener la lista de espacios de nombres disponibles, observa que ahora el nuevo <em>namespace</em> aparece:</p>
+
+<pre><code class="language-sh">$ kubectl get ns
+NAME          STATUS    AGE
+default       Active    21d
+developers    Active    55s
+kube-system   Active    21d
+</code></pre>
+
+<p>Observa con detalle el <em>namespace</em> creado:</p>
+
+<pre><code class="language-sh">$ kubectl describe ns developers
+Name:    developers
+Labels:     &lt;none&gt;
+Annotations:   &lt;none&gt;
+Status:     Active
+
+No resource quota.
+
+No resource limits.
+</code></pre>
+
+<p>Idealmente, el particionamiento del clúster en espacios de nombres permite repartir los recursos del clúster imponiendo cuotas, de manera que los objetos de un determinado <em>namespace</em> no acaparen todos los recursos disponibles.</p>
+
+<p>A continuación indico cómo establecer algunos límites para el <em>namespace</em> (basado en <a href="https://kubernetes.io/docs/tasks/administer-cluster/apply-resource-quota-limit/">Apply Resource Quotas and Limits</a>).</p>
+
+<h2 id="aplicando-quotas-al-número-de-objetos-en-el-namespace">Aplicando quotas al número de objetos en el <em>namespace</em></h2>
+
+<p>Para aplicar una cuota, creamos un fichero <code>YAML</code> del tipo <code>ResourceQuota</code>:</p>
+
+<pre><code class="language-yaml">apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: object-counts
+spec:
+  hard:
+    persistentvolumeclaims: &quot;2&quot;
+    services.loadbalancers: &quot;2&quot;    
+    services.nodeports: &quot;0&quot;
+</code></pre>
+
+<p>Esta cuota limita el número de:</p>
+
+<ul>
+<li>volúmenes persistentes (2)</li>
+<li>balanceadores de carga (2)</li>
+<li><em>node ports</em> (0)</li>
+</ul>
+
+<p>Para crear la cuota, aplica el fichero <code>YAML</code>.</p>
+
+<blockquote>
+<p>Debes especificar el <em>namespace</em> donde aplicar la cuota.</p>
+</blockquote>
+
+<pre><code class="language-sh">$ kubectl create -f quota-object-counts.yaml --namespace developers
+resourcequota &quot;object-counts&quot; created
+</code></pre>
+
+<p>Comprobamos que se ha aplicado la cuota al <em>namespace</em> <code>developers</code>:</p>
+
+<pre><code class="language-sh">$ kubectl describe ns developers
+Name:    developers
+Labels:     &lt;none&gt;
+Annotations:   &lt;none&gt;
+Status:     Active
+
+Resource Quotas
+ Name:         object-counts
+ Resource      Used  Hard
+ --------      ---   ---
+ persistentvolumeclaims 0  2
+ services.loadbalancers 0  2
+ services.nodeports  0  0
+
+No resource limits.
+</code></pre>
+
+<p>Esta cuota impide la creación de más objetos de cada tipo de los especificados en la cuota (es decir, como máximo, puede haber dos <em>load balancers</em> en el espacio de nombres <code>developers</code>).</p>
+
+<h2 id="aplicando-cuotas-a-los-recursos-del-namespace">Aplicando cuotas a los recursos del <em>namespace</em></h2>
+
+<p>Habitualmente los límites que se suelen establecer para cada espacio de nombres están enfocados a limitar los recursos de CPU y memoria del <em>namespace</em>.</p>
+
+<p>El siguiente fichero <code>YAML</code> especifica un límite de 2 CPUs y 2GB de memoria. Además, especifica una limitación en cuanto a las peticiones que debe realizar un <em>pod</em> en este espacio de nombres. Finalmente, también se establece una limitación de como máximo, 4 <em>pods</em>.</p>
+
+<pre><code class="language-yaml">apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: compute-resources
+spec:
+  hard:
+    limits.cpu: &quot;2&quot;
+    limits.memory: 2Gi    
+    requests.cpu: &quot;1&quot;
+    requests.memory: 1Gi 
+    pods: &quot;4&quot;
+</code></pre>
+
+<p>Aplicamos la nueva cuota mediante:</p>
+
+<blockquote>
+<p>De nuevo, recuerda que debes especificar el <em>namespace</em> al que aplicar la cuota.</p>
+</blockquote>
+
+<pre><code class="language-sh">$ kubectl create -f quota-compute-resources.yaml --namespace developers
+resourcequota &quot;compute-resources&quot; created
+</code></pre>
+
+<p>El espacio de nombres está limitado ahora de la siguiente manera:</p>
+
+<pre><code class="language-sh">$ kubectl describe ns developers
+Name:          developers
+Labels:        &lt;none&gt;
+Annotations:   &lt;none&gt;
+Status:     Active
+
+Resource Quotas
+ Name:            compute-resources
+ Resource         Used  Hard
+ --------         ---   ---
+ limits.cpu       0     2
+ limits.memory    0     2Gi
+ pods             0     4
+ requests.cpu     0     1
+ requests.memory  0     1Gi
+
+ Name:                  object-counts
+ Resource               Used  Hard
+ --------               ---   ---
+ persistentvolumeclaims  0     2
+ services.loadbalancers  0     2
+ services.nodeports      0     0
+
+No resource limits.
+</code></pre>
+
+<p>La limitación impuesta en las peticiones (<code>requests</code>) de memoria y CPU <strong>obligan a que se especifiquen límites en la definición de los recursos asignados a cada <em>pod</em></strong>. En general, al crear la definición de un <em>deployment</em> no se especifican estos límites, lo que puede provocar algo de desconcierto.</p>
+
+<p>Vamos a crear un <em>Deployment</em> en el <em>namespace</em> <code>Developers</code>. Aunque asignamos el <em>deployment</em> al <em>namespace</em> desde la línea de comando, en un fichero <code>YAML</code> usaríamos:</p>
+
+<pre><code class="language-yaml">apiVersion: v1
+kind: Service
+metadata:
+   name: ejemplo
+   namespace: developers  
+spec:
+   ...
+</code></pre>
+
+<p>Creamos un <em>deployment</em>:</p>
+
+<pre><code class="language-sh">$ kubectl run nginx --image=nginx --replicas=1 --namespace=developers
+deployment &quot;nginx&quot; created
+</code></pre>
+
+<p>Todo parece ok hasta que buscamos el <em>pod</em> que debería crearse:</p>
+
+<pre><code class="language-sh">$ kubectl get pods --namespace developers
+No resources found.
+</code></pre>
+
+<p>Analizamos el detalle del <em>deployment</em></p>
+
+<pre><code class="language-sh">$ kubectl describe deployment nginx --namespace developers
+Name:       nginx
+Namespace:     developers
+CreationTimestamp:   Sun, 23 Jul 2017 21:19:57 +0200
+Labels:        run=nginx
+Annotations:      deployment.kubernetes.io/revision=1
+Selector:      run=nginx
+Replicas:      1 desired | 0 updated | 0 total | 0 available | 1 unavailable
+StrategyType:     RollingUpdate
+MinReadySeconds:  0
+RollingUpdateStrategy:  1 max unavailable, 1 max surge
+Pod Template:
+  Labels:   run=nginx
+  Containers:
+   nginx:
+    Image:     nginx
+    Port:      &lt;none&gt;
+    Environment:  &lt;none&gt;
+    Mounts:    &lt;none&gt;
+  Volumes:     &lt;none&gt;
+Conditions:
+  Type         Status   Reason
+  ----         ------   ------
+  Available       True  MinimumReplicasAvailable
+  ReplicaFailure  True  FailedCreate
+OldReplicaSets:      &lt;none&gt;
+NewReplicaSet:    nginx-4217019353 (0/1 replicas created)
+Events:
+  FirstSeen LastSeen Count From        SubObjectPath  Type     Reason         Message
+  --------- -------- ----- ----        -------------  -------- ------         -------
+  2m     2m    1  deployment-controller         Normal      ScalingReplicaSet Scaled up replica set nginx-4217019353 to 1
+</code></pre>
+
+<p>No se ha creado el <em>ReplicaSet</em>. Vamos a ver porqué:</p>
+
+<pre><code class="language-sh">$ kubectl describe rs nginx-4217019353 --namespace developers
+Name:    nginx-4217019353
+Namespace:  developers
+Selector:   pod-template-hash=4217019353,run=nginx
+Labels:     pod-template-hash=4217019353
+      run=nginx
+Annotations:   deployment.kubernetes.io/desired-replicas=1
+      deployment.kubernetes.io/max-replicas=2
+      deployment.kubernetes.io/revision=1
+Controlled By: Deployment/nginx
+Replicas:   0 current / 1 desired
+Pods Status:   0 Running / 0 Waiting / 0 Succeeded / 0 Failed
+Pod Template:
+  Labels:   pod-template-hash=4217019353
+      run=nginx
+  Containers:
+   nginx:
+    Image:     nginx
+    Port:      &lt;none&gt;
+    Environment:  &lt;none&gt;
+    Mounts:    &lt;none&gt;
+  Volumes:     &lt;none&gt;
+Conditions:
+  Type         Status   Reason
+  ----         ------   ------
+  ReplicaFailure  True  FailedCreate
+Events:
+  FirstSeen LastSeen Count From        SubObjectPath  Type     Reason      Message
+  --------- -------- ----- ----        -------------  -------- ------      -------
+  4m     1m    16 replicaset-controller         Warning     FailedCreate   Error creating: pods &quot;nginx-4217019353-&quot; is forbidden: failed quota: compute-resources: must specify limits.cpu,limits.memory,requests.cpu,requests.memory
+</code></pre>
+
+<p>El <em>deployment</em> crea un <em>ReplicaSet</em>, que a su vez intenta crear uno o más <em>pods</em>. Como en el <em>Deployment</em> no se ha especificado un límite para la CPU y memoria del <em>pod</em> y lo hemos exigido en las cuotas impuestas al <em>namespace</em>, la creación del <em>pod</em> falla. El mensaje de error es claro:</p>
+
+<pre><code>Error creating: pods &quot;nginx-4217019353-&quot; is forbidden: failed quota: compute-resources: must specify limits.cpu,limits.memory,requests.cpu,requests.memory
+</code></pre>
+
+<p>Si creamos el <em>pod</em> especificando los límites:</p>
+
+<pre><code class="language-sh">$ kubectl run nginx \
+  --image=nginx \
+  --replicas=1 \
+  --requests=cpu=100m,memory=256Mi \
+  --limits=cpu=200m,memory=512Mi \
+  --namespace=developers
+
+$ kubectl get pods --namespace developers
+NAME                     READY     STATUS    RESTARTS   AGE
+nginx-2432944439-1zqs7   1/1       Running   0          19s
+</code></pre>
+
+<p>Ahora, al revisar el <em>namespace</em>:</p>
+
+<pre><code class="language-sh">$ kubectl describe ns developers
+Name:    developers
+Labels:     &lt;none&gt;
+Annotations:   &lt;none&gt;
+Status:     Active
+
+Resource Quotas
+ Name:            compute-resources
+ Resource         Used  Hard
+ --------         ---   ---
+ limits.cpu       200m  2
+ limits.memory    512Mi 2Gi
+ pods             1     4
+ requests.cpu     100m  1
+ requests.memory  256Mi 1Gi
+
+ Name:                  object-counts
+ Resource               Used  Hard
+ --------               ---   ---
+ persistentvolumeclaims 0     2
+ services.loadbalancers 0     2
+ services.nodeports     0     0
+
+No resource limits.
+</code></pre>
+
+<h1 id="namespace-y-dns"><em>Namespace</em> y DNS</h1>
+
+<p>Cuando se crear un <em>service</em>, se crea la correspondiente entrada en el DNS. Esta entrada es de la forma <code>&lt;nombre-servicio&gt;.&lt;espacio-de-nombres&gt;.svc.cluster.local</code>, lo que significa que si un contenedor usa únicamente <code>&lt;nombre-de-servicio&gt;</code>, la resolución del nombre se realizará de forma local en el espacio de nombres en el que se encuentre.</p>
+
+<p>Esta configuración permite usar la misma configuración entre diferentes espacios de nombres (por ejemplo <em>Desarrollo</em>, <em>Integración</em> y <em>Producción</em>).</p>
+
+<p>Para que un contenedor pueda resolver el nombre de otro contenedor en otro <em>namespace</em>, debes usar el FQDN.</p>
+
+<h1 id="borrando-un-namespace">Borrando un <em>namespace</em></h1>
+
+<blockquote>
+<p>AVISO: Al borrar un <em>namespace</em> se borran <strong>todos los objetos</strong> del espacio de nombres.</p>
+</blockquote>
+
+<p>Para borrar un <em>namespace</em>, usa el comando <code>delete</code>:</p>
+
+<pre><code class="language-sh">$ kubectl delete ns developers
+namespace &quot;developers&quot; deleted
+</code></pre>
+
+<p>El borrado del <em>namespace</em> es asíncrono, por lo que puedes verlo como <code>Terminating</code> hasta que se realiza el borrado definitivo del mismo:</p>
+
+<pre><code class="language-sh">$ kubectl get ns
+NAME          STATUS        AGE
+default       Active        21d
+developers    Terminating   2h
+kube-system   Active        21d
+</code></pre>
+
+<h1 id="resumen">Resumen</h1>
+
+<p>En este artículo hemos visto qué es un <em>Namespace</em> y para qué sirve.</p>
+
+<p>También hemos visto cómo crear un espacio de nombres, obtener información sobre él y crear objetos en el <em>namespace</em>.</p>
+
+<p>Hemos aplicado cuotas para limitar los recursos disponibles y hemos visto cómo afecta a la creación de <em>deployments</em> en el espacio de nombres.</p>
+
+<p>Finalmente, hemos eliminado el espacio de nombres (y todos los objetos contenidos en él).</p></div>
+
+  <aside class="p-share">
+  <a href="http://b.hatena.ne.jp/add?mode=confirm&url=https%3a%2f%2fonthedock.github.io%2fpost%2f170723-espacios-de-nombres-en-k8s%2f&title=Espacios%20de%20nombres%20en%20Kubernetes" title="はてなブックマーク" class="ht" target="_blank" rel="nofollow"></a>
+  <a href="http://www.facebook.com/sharer.php?u=https%3a%2f%2fonthedock.github.io%2fpost%2f170723-espacios-de-nombres-en-k8s%2f&t=Espacios%20de%20nombres%20en%20Kubernetes" title="Facebookでシェア" class="fb" target="_blank" rel="nofollow"></a>
+  <a href="http://twitter.com/intent/tweet?url=https%3a%2f%2fonthedock.github.io%2fpost%2f170723-espacios-de-nombres-en-k8s%2f&text=Espacios%20de%20nombres%20en%20Kubernetes&tw_p=tweetbutton" title="Twitterでシェア" class="tw" target="_blank" rel="nofollow"></a>
+  <a href="https://plus.google.com/share?url=https%3a%2f%2fonthedock.github.io%2fpost%2f170723-espacios-de-nombres-en-k8s%2f" title="Google Plusでシェア" class="gp" target="_blank" rel="nofollow"></a>
+  <a href="http://line.me/R/msg/text/?Espacios%20de%20nombres%20en%20Kubernetes https%3a%2f%2fonthedock.github.io%2fpost%2f170723-espacios-de-nombres-en-k8s%2f" title="LINEでシェア" class="ln" target="_blank" rel="nofollow"></a>
+</aside>
+
+
+  <footer class="article-footer">
+    <section>
+      <ol class="p-crumb">
+        <li><a href="https://onthedock.github.io/">On The Dock</a></li>
+        
+        <li itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb"><a href="https://onthedock.github.io/post/" itemprop="url"><span itemprop="title">post</span></a></li>
+        
+        <li>Espacios de nombres en Kubernetes</li>
+      </ol>
+
+      
+      
+      
+      <ul class="p-facts">
+        <li>
+          <header><a href="https://onthedock.github.io/categories/">categories</a></header>
+          <ul>
+            
+            <li><a href="https://onthedock.github.io/categories/ops/">ops</a></li>
+            
+          </ul>
+        </li>
+      </ul>
+      
+      
+      
+      <ul class="p-facts">
+        <li>
+          <header><a href="https://onthedock.github.io/tags/">tags</a></header>
+          <ul>
+            
+            <li><a href="https://onthedock.github.io/tags/linux/">linux</a></li>
+            
+            <li><a href="https://onthedock.github.io/tags/kubernetes/">kubernetes</a></li>
+            
+            <li><a href="https://onthedock.github.io/tags/conceptos/">conceptos</a></li>
+            
+            <li><a href="https://onthedock.github.io/tags/tareas/">tareas</a></li>
+            
+          </ul>
+        </li>
+      </ul>
+      
+      
+    </section>
+  </footer>
+</article>
+
+
+
+  
+  
+  <section>
+    <header><span>Latests</span></header>
+    <ul class="p-articles thin">
+      <li><article class="li sm article-3ffff09a2dd1f953bbb8624d88756829">
+  <div class="header-wrapper">
+    <a href="https://onthedock.github.io/post/170716-mi-primera-app-en-kubernetes/" class="thumbnail" title="Mi primera aplicación en Kubernetes"></a>
+    <header class="article-header">
+      <div class="clearfix">
+        <h2 class="title"><a href="https://onthedock.github.io/post/170716-mi-primera-app-en-kubernetes/">Mi primera aplicación en Kubernetes</a></h2>
+        <ul class="p-facts">
+          <li><time datetime="2017-07-16T19:38:17JST">16 Jul 2017</time></li>
+          <li><a href="https://onthedock.github.io/post/">post</a></li>
+          
+        </ul>
+      </div>
+    </header>
+  </div>
+</article>
+</li><li><article class="li sm article-0a9cef5c4637bd946188e37439fef69c">
+  <div class="header-wrapper">
+    <a href="https://onthedock.github.io/post/170702-crear-un-cluster-de-un-solo-nodo/" class="thumbnail" title="Crear un cluster de un solo nodo"></a>
+    <header class="article-header">
+      <div class="clearfix">
+        <h2 class="title"><a href="https://onthedock.github.io/post/170702-crear-un-cluster-de-un-solo-nodo/">Crear un cluster de un solo nodo</a></h2>
+        <ul class="p-facts">
+          <li><time datetime="2017-07-02T23:14:22JST">2 Jul 2017</time></li>
+          <li><a href="https://onthedock.github.io/post/">post</a></li>
+          
+        </ul>
+      </div>
+    </header>
+  </div>
+</article>
+</li><li><article class="li sm article-42a206d287914317761f7749b964ddb2">
+  <div class="header-wrapper">
+    <a href="https://onthedock.github.io/post/170702-ip-en-mensaje-prelogin/" class="thumbnail" title="IP en mensaje prelogin"></a>
+    <header class="article-header">
+      <div class="clearfix">
+        <h2 class="title"><a href="https://onthedock.github.io/post/170702-ip-en-mensaje-prelogin/">IP en mensaje prelogin</a></h2>
+        <ul class="p-facts">
+          <li><time datetime="2017-07-02T22:07:18JST">2 Jul 2017</time></li>
+          <li><a href="https://onthedock.github.io/post/">post</a></li>
+          
+        </ul>
+      </div>
+    </header>
+  </div>
+</article>
+</li><li><article class="li sm article-85dee6c250520e561ebc93740f1d514f">
+  <div class="header-wrapper">
+    <a href="https://onthedock.github.io/post/170604-instalacion-de-alpine-linux/" class="thumbnail" title="Instalación de Alpine linux"></a>
+    <header class="article-header">
+      <div class="clearfix">
+        <h2 class="title"><a href="https://onthedock.github.io/post/170604-instalacion-de-alpine-linux/">Instalación de Alpine linux</a></h2>
+        <ul class="p-facts">
+          <li><time datetime="2017-06-04T18:26:48JST">4 Jun 2017</time></li>
+          <li><a href="https://onthedock.github.io/post/">post</a></li>
+          
+        </ul>
+      </div>
+    </header>
+  </div>
+</article>
+</li>
+    </ul>
+  </section>
+  
+</div>
+
+
+    </main>
+
+    
+
+    <footer class="l-footer">
+      <div class="l-container">
+        <p class="copyright-notice">Handmade with &#9829; by Xavi Aznar</p>
+        <aside>
+          <p class="attribution">Powered by <a href="https://gohugo.io/">Hugo</a> using <a href="https://github.com/dim0627/hugo_theme_aglaus" class="h-logo">Aglaus</a> (designed by <a href="http://yet.unresolved.xyz/">Daisuke Tsuji</a>).</p>
+        </aside>
+      </div>
+    </footer>
+
+    <a href="#" class="p-movetop" title="ページ上部へ戻る" rel="nofollow"></a>
+  </body>
+</html>
+

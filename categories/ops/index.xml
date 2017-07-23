@@ -9,6 +9,404 @@
     <atom:link href="https://onthedock.github.io/categories/ops/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
+      <title>Espacios de nombres en Kubernetes</title>
+      <link>https://onthedock.github.io/post/170723-espacios-de-nombres-en-k8s/</link>
+      <pubDate>Sun, 23 Jul 2017 20:04:45 +0200</pubDate>
+      
+      <guid>https://onthedock.github.io/post/170723-espacios-de-nombres-en-k8s/</guid>
+      <description>&lt;p&gt;Los &lt;a href=&#34;https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/&#34;&gt;&lt;em&gt;namespaces&lt;/em&gt; (espacios de nombres)&lt;/a&gt; en Kubernetes permiten establecer un nivel adicional de separación entre los contenedores que comparten los recursos de un clúster.&lt;/p&gt;
+
+&lt;p&gt;Esto es especialmente útil cuando diferentes grupos de DevOps usan el mismo clúster y existe el riesgo potencial de colisión de nombres de los &lt;em&gt;pods&lt;/em&gt;, etc usados por los diferentes equipos.&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;
+
+&lt;p&gt;Los espacios de nombres también facilitan la creación de cuotas para limitar los recursos disponibles para cada &lt;em&gt;namespace&lt;/em&gt;. Puedes considerar los espacios de nombres como clústers &lt;em&gt;virtuales&lt;/em&gt; sobre el clúster físico de Kubernetes. De esta forma, proporcionan separación lógica entre los entornos de diferentes equipos.&lt;/p&gt;
+
+&lt;p&gt;Kubernetes proporciona dos &lt;em&gt;namespaces&lt;/em&gt; por defecto: &lt;code&gt;kube-system&lt;/code&gt; y &lt;code&gt;default&lt;/code&gt;. A &lt;em&gt;grosso modo&lt;/em&gt;, los objetos &amp;ldquo;de usuario&amp;rdquo; se crean en el espacio de nombres &lt;code&gt;default&lt;/code&gt;, mientras que los de &amp;ldquo;sistema&amp;rdquo; se encuentran en &lt;code&gt;kube-system&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Para ver los espacios de nombres en el clúster, ejecuta:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sh&#34;&gt;$ kubectl get namespaces
+NAME          STATUS    AGE
+default       Active    21d
+kube-system   Active    21d
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Puedes obtener el mismo resultado usando &lt;code&gt;ns&lt;/code&gt; en vez de &lt;code&gt;namespaces&lt;/code&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Para comprobar la separación lógica entre los objetos de diferentes &lt;em&gt;namespaces&lt;/em&gt;, lista los pods mediante &lt;code&gt;kubectl get pods&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sh&#34;&gt;$ kubectl get pods
+NAME                     READY     STATUS    RESTARTS   AGE
+nginx-3225377387-xdth3   1/1       Running   0          7d
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Analizando al detalle el &lt;em&gt;pod&lt;/em&gt; mediante &lt;code&gt;kubectl describe pod nginx-3225377387-xdth3&lt;/code&gt;, observa como se encuentra en el espacio de nombres &lt;code&gt;default&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sh&#34;&gt;$ kubectl describe pod nginx-3225377387-xdth3
+Name:    nginx-3225377387-xdth3
+Namespace:  default
+Node:    k8s-snc/192.168.1.10
+...
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Compara los resultados obtenidos con los comandos anteriores con el de &lt;code&gt;kubectl get pods --all-namespaces&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sh&#34;&gt;$ kubectl get pods --all-namespaces
+NAMESPACE     NAME                              READY     STATUS    RESTARTS   AGE
+default       nginx-3225377387-xdth3            1/1       Running   0          7d
+kube-system   etcd-k8s-snc                      1/1       Running   3          21d
+kube-system   kube-apiserver-k8s-snc            1/1       Running   3          21d
+kube-system   kube-controller-manager-k8s-snc   1/1       Running   3          21d
+kube-system   kube-dns-2425271678-xbzt8         3/3       Running   12         21d
+kube-system   kube-proxy-tbstt                  1/1       Running   3          21d
+kube-system   kube-scheduler-k8s-snc            1/1       Running   3          21d
+kube-system   weave-net-snspp                   2/2       Running   9          20d
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;La primera columna de la salida del comando anterior indica el espacio de nombres en el que se encuentra cada &lt;em&gt;pod&lt;/em&gt;, en este caso.&lt;/p&gt;
+
+&lt;h1 id=&#34;crea-un-nuevo-espacio-de-nombres&#34;&gt;Crea un nuevo espacio de nombres&lt;/h1&gt;
+
+&lt;p&gt;Para crear un &lt;em&gt;namespace&lt;/em&gt;, crea un fichero &lt;code&gt;YAML&lt;/code&gt; como el siguiente:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-yaml&#34;&gt;apiVersion: v1
+kind: Namespace
+metadata:
+   name: developers
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;El nombre del &lt;em&gt;namespace&lt;/em&gt; debe ser compatible con una entrada válida de DNS.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Para crear el &lt;em&gt;namespace&lt;/em&gt;, ejecuta:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sh&#34;&gt;$ kubectl create -f ns-developers.yaml
+namespace &amp;quot;developers&amp;quot; created
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Al obtener la lista de espacios de nombres disponibles, observa que ahora el nuevo &lt;em&gt;namespace&lt;/em&gt; aparece:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sh&#34;&gt;$ kubectl get ns
+NAME          STATUS    AGE
+default       Active    21d
+developers    Active    55s
+kube-system   Active    21d
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Observa con detalle el &lt;em&gt;namespace&lt;/em&gt; creado:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sh&#34;&gt;$ kubectl describe ns developers
+Name:    developers
+Labels:     &amp;lt;none&amp;gt;
+Annotations:   &amp;lt;none&amp;gt;
+Status:     Active
+
+No resource quota.
+
+No resource limits.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Idealmente, el particionamiento del clúster en espacios de nombres permite repartir los recursos del clúster imponiendo cuotas, de manera que los objetos de un determinado &lt;em&gt;namespace&lt;/em&gt; no acaparen todos los recursos disponibles.&lt;/p&gt;
+
+&lt;p&gt;A continuación indico cómo establecer algunos límites para el &lt;em&gt;namespace&lt;/em&gt; (basado en &lt;a href=&#34;https://kubernetes.io/docs/tasks/administer-cluster/apply-resource-quota-limit/&#34;&gt;Apply Resource Quotas and Limits&lt;/a&gt;).&lt;/p&gt;
+
+&lt;h2 id=&#34;aplicando-quotas-al-número-de-objetos-en-el-namespace&#34;&gt;Aplicando quotas al número de objetos en el &lt;em&gt;namespace&lt;/em&gt;&lt;/h2&gt;
+
+&lt;p&gt;Para aplicar una cuota, creamos un fichero &lt;code&gt;YAML&lt;/code&gt; del tipo &lt;code&gt;ResourceQuota&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-yaml&#34;&gt;apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: object-counts
+spec:
+  hard:
+    persistentvolumeclaims: &amp;quot;2&amp;quot;
+    services.loadbalancers: &amp;quot;2&amp;quot;    
+    services.nodeports: &amp;quot;0&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Esta cuota limita el número de:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;volúmenes persistentes (2)&lt;/li&gt;
+&lt;li&gt;balanceadores de carga (2)&lt;/li&gt;
+&lt;li&gt;&lt;em&gt;node ports&lt;/em&gt; (0)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Para crear la cuota, aplica el fichero &lt;code&gt;YAML&lt;/code&gt;.&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Debes especificar el &lt;em&gt;namespace&lt;/em&gt; donde aplicar la cuota.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sh&#34;&gt;$ kubectl create -f quota-object-counts.yaml --namespace developers
+resourcequota &amp;quot;object-counts&amp;quot; created
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Comprobamos que se ha aplicado la cuota al &lt;em&gt;namespace&lt;/em&gt; &lt;code&gt;developers&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sh&#34;&gt;$ kubectl describe ns developers
+Name:    developers
+Labels:     &amp;lt;none&amp;gt;
+Annotations:   &amp;lt;none&amp;gt;
+Status:     Active
+
+Resource Quotas
+ Name:         object-counts
+ Resource      Used  Hard
+ --------      ---   ---
+ persistentvolumeclaims 0  2
+ services.loadbalancers 0  2
+ services.nodeports  0  0
+
+No resource limits.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Esta cuota impide la creación de más objetos de cada tipo de los especificados en la cuota (es decir, como máximo, puede haber dos &lt;em&gt;load balancers&lt;/em&gt; en el espacio de nombres &lt;code&gt;developers&lt;/code&gt;).&lt;/p&gt;
+
+&lt;h2 id=&#34;aplicando-cuotas-a-los-recursos-del-namespace&#34;&gt;Aplicando cuotas a los recursos del &lt;em&gt;namespace&lt;/em&gt;&lt;/h2&gt;
+
+&lt;p&gt;Habitualmente los límites que se suelen establecer para cada espacio de nombres están enfocados a limitar los recursos de CPU y memoria del &lt;em&gt;namespace&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;El siguiente fichero &lt;code&gt;YAML&lt;/code&gt; especifica un límite de 2 CPUs y 2GB de memoria. Además, especifica una limitación en cuanto a las peticiones que debe realizar un &lt;em&gt;pod&lt;/em&gt; en este espacio de nombres. Finalmente, también se establece una limitación de como máximo, 4 &lt;em&gt;pods&lt;/em&gt;.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-yaml&#34;&gt;apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: compute-resources
+spec:
+  hard:
+    limits.cpu: &amp;quot;2&amp;quot;
+    limits.memory: 2Gi    
+    requests.cpu: &amp;quot;1&amp;quot;
+    requests.memory: 1Gi 
+    pods: &amp;quot;4&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Aplicamos la nueva cuota mediante:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;De nuevo, recuerda que debes especificar el &lt;em&gt;namespace&lt;/em&gt; al que aplicar la cuota.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sh&#34;&gt;$ kubectl create -f quota-compute-resources.yaml --namespace developers
+resourcequota &amp;quot;compute-resources&amp;quot; created
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;El espacio de nombres está limitado ahora de la siguiente manera:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sh&#34;&gt;$ kubectl describe ns developers
+Name:          developers
+Labels:        &amp;lt;none&amp;gt;
+Annotations:   &amp;lt;none&amp;gt;
+Status:     Active
+
+Resource Quotas
+ Name:            compute-resources
+ Resource         Used  Hard
+ --------         ---   ---
+ limits.cpu       0     2
+ limits.memory    0     2Gi
+ pods             0     4
+ requests.cpu     0     1
+ requests.memory  0     1Gi
+
+ Name:                  object-counts
+ Resource               Used  Hard
+ --------               ---   ---
+ persistentvolumeclaims  0     2
+ services.loadbalancers  0     2
+ services.nodeports      0     0
+
+No resource limits.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;La limitación impuesta en las peticiones (&lt;code&gt;requests&lt;/code&gt;) de memoria y CPU &lt;strong&gt;obligan a que se especifiquen límites en la definición de los recursos asignados a cada &lt;em&gt;pod&lt;/em&gt;&lt;/strong&gt;. En general, al crear la definición de un &lt;em&gt;deployment&lt;/em&gt; no se especifican estos límites, lo que puede provocar algo de desconcierto.&lt;/p&gt;
+
+&lt;p&gt;Vamos a crear un &lt;em&gt;Deployment&lt;/em&gt; en el &lt;em&gt;namespace&lt;/em&gt; &lt;code&gt;Developers&lt;/code&gt;. Aunque asignamos el &lt;em&gt;deployment&lt;/em&gt; al &lt;em&gt;namespace&lt;/em&gt; desde la línea de comando, en un fichero &lt;code&gt;YAML&lt;/code&gt; usaríamos:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-yaml&#34;&gt;apiVersion: v1
+kind: Service
+metadata:
+   name: ejemplo
+   namespace: developers  
+spec:
+   ...
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Creamos un &lt;em&gt;deployment&lt;/em&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sh&#34;&gt;$ kubectl run nginx --image=nginx --replicas=1 --namespace=developers
+deployment &amp;quot;nginx&amp;quot; created
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Todo parece ok hasta que buscamos el &lt;em&gt;pod&lt;/em&gt; que debería crearse:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sh&#34;&gt;$ kubectl get pods --namespace developers
+No resources found.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Analizamos el detalle del &lt;em&gt;deployment&lt;/em&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sh&#34;&gt;$ kubectl describe deployment nginx --namespace developers
+Name:       nginx
+Namespace:     developers
+CreationTimestamp:   Sun, 23 Jul 2017 21:19:57 +0200
+Labels:        run=nginx
+Annotations:      deployment.kubernetes.io/revision=1
+Selector:      run=nginx
+Replicas:      1 desired | 0 updated | 0 total | 0 available | 1 unavailable
+StrategyType:     RollingUpdate
+MinReadySeconds:  0
+RollingUpdateStrategy:  1 max unavailable, 1 max surge
+Pod Template:
+  Labels:   run=nginx
+  Containers:
+   nginx:
+    Image:     nginx
+    Port:      &amp;lt;none&amp;gt;
+    Environment:  &amp;lt;none&amp;gt;
+    Mounts:    &amp;lt;none&amp;gt;
+  Volumes:     &amp;lt;none&amp;gt;
+Conditions:
+  Type         Status   Reason
+  ----         ------   ------
+  Available       True  MinimumReplicasAvailable
+  ReplicaFailure  True  FailedCreate
+OldReplicaSets:      &amp;lt;none&amp;gt;
+NewReplicaSet:    nginx-4217019353 (0/1 replicas created)
+Events:
+  FirstSeen LastSeen Count From        SubObjectPath  Type     Reason         Message
+  --------- -------- ----- ----        -------------  -------- ------         -------
+  2m     2m    1  deployment-controller         Normal      ScalingReplicaSet Scaled up replica set nginx-4217019353 to 1
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;No se ha creado el &lt;em&gt;ReplicaSet&lt;/em&gt;. Vamos a ver porqué:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sh&#34;&gt;$ kubectl describe rs nginx-4217019353 --namespace developers
+Name:    nginx-4217019353
+Namespace:  developers
+Selector:   pod-template-hash=4217019353,run=nginx
+Labels:     pod-template-hash=4217019353
+      run=nginx
+Annotations:   deployment.kubernetes.io/desired-replicas=1
+      deployment.kubernetes.io/max-replicas=2
+      deployment.kubernetes.io/revision=1
+Controlled By: Deployment/nginx
+Replicas:   0 current / 1 desired
+Pods Status:   0 Running / 0 Waiting / 0 Succeeded / 0 Failed
+Pod Template:
+  Labels:   pod-template-hash=4217019353
+      run=nginx
+  Containers:
+   nginx:
+    Image:     nginx
+    Port:      &amp;lt;none&amp;gt;
+    Environment:  &amp;lt;none&amp;gt;
+    Mounts:    &amp;lt;none&amp;gt;
+  Volumes:     &amp;lt;none&amp;gt;
+Conditions:
+  Type         Status   Reason
+  ----         ------   ------
+  ReplicaFailure  True  FailedCreate
+Events:
+  FirstSeen LastSeen Count From        SubObjectPath  Type     Reason      Message
+  --------- -------- ----- ----        -------------  -------- ------      -------
+  4m     1m    16 replicaset-controller         Warning     FailedCreate   Error creating: pods &amp;quot;nginx-4217019353-&amp;quot; is forbidden: failed quota: compute-resources: must specify limits.cpu,limits.memory,requests.cpu,requests.memory
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;El &lt;em&gt;deployment&lt;/em&gt; crea un &lt;em&gt;ReplicaSet&lt;/em&gt;, que a su vez intenta crear uno o más &lt;em&gt;pods&lt;/em&gt;. Como en el &lt;em&gt;Deployment&lt;/em&gt; no se ha especificado un límite para la CPU y memoria del &lt;em&gt;pod&lt;/em&gt; y lo hemos exigido en las cuotas impuestas al &lt;em&gt;namespace&lt;/em&gt;, la creación del &lt;em&gt;pod&lt;/em&gt; falla. El mensaje de error es claro:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;Error creating: pods &amp;quot;nginx-4217019353-&amp;quot; is forbidden: failed quota: compute-resources: must specify limits.cpu,limits.memory,requests.cpu,requests.memory
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Si creamos el &lt;em&gt;pod&lt;/em&gt; especificando los límites:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sh&#34;&gt;$ kubectl run nginx \
+  --image=nginx \
+  --replicas=1 \
+  --requests=cpu=100m,memory=256Mi \
+  --limits=cpu=200m,memory=512Mi \
+  --namespace=developers
+
+$ kubectl get pods --namespace developers
+NAME                     READY     STATUS    RESTARTS   AGE
+nginx-2432944439-1zqs7   1/1       Running   0          19s
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Ahora, al revisar el &lt;em&gt;namespace&lt;/em&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sh&#34;&gt;$ kubectl describe ns developers
+Name:    developers
+Labels:     &amp;lt;none&amp;gt;
+Annotations:   &amp;lt;none&amp;gt;
+Status:     Active
+
+Resource Quotas
+ Name:            compute-resources
+ Resource         Used  Hard
+ --------         ---   ---
+ limits.cpu       200m  2
+ limits.memory    512Mi 2Gi
+ pods             1     4
+ requests.cpu     100m  1
+ requests.memory  256Mi 1Gi
+
+ Name:                  object-counts
+ Resource               Used  Hard
+ --------               ---   ---
+ persistentvolumeclaims 0     2
+ services.loadbalancers 0     2
+ services.nodeports     0     0
+
+No resource limits.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h1 id=&#34;namespace-y-dns&#34;&gt;&lt;em&gt;Namespace&lt;/em&gt; y DNS&lt;/h1&gt;
+
+&lt;p&gt;Cuando se crear un &lt;em&gt;service&lt;/em&gt;, se crea la correspondiente entrada en el DNS. Esta entrada es de la forma &lt;code&gt;&amp;lt;nombre-servicio&amp;gt;.&amp;lt;espacio-de-nombres&amp;gt;.svc.cluster.local&lt;/code&gt;, lo que significa que si un contenedor usa únicamente &lt;code&gt;&amp;lt;nombre-de-servicio&amp;gt;&lt;/code&gt;, la resolución del nombre se realizará de forma local en el espacio de nombres en el que se encuentre.&lt;/p&gt;
+
+&lt;p&gt;Esta configuración permite usar la misma configuración entre diferentes espacios de nombres (por ejemplo &lt;em&gt;Desarrollo&lt;/em&gt;, &lt;em&gt;Integración&lt;/em&gt; y &lt;em&gt;Producción&lt;/em&gt;).&lt;/p&gt;
+
+&lt;p&gt;Para que un contenedor pueda resolver el nombre de otro contenedor en otro &lt;em&gt;namespace&lt;/em&gt;, debes usar el FQDN.&lt;/p&gt;
+
+&lt;h1 id=&#34;borrando-un-namespace&#34;&gt;Borrando un &lt;em&gt;namespace&lt;/em&gt;&lt;/h1&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;AVISO: Al borrar un &lt;em&gt;namespace&lt;/em&gt; se borran &lt;strong&gt;todos los objetos&lt;/strong&gt; del espacio de nombres.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Para borrar un &lt;em&gt;namespace&lt;/em&gt;, usa el comando &lt;code&gt;delete&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sh&#34;&gt;$ kubectl delete ns developers
+namespace &amp;quot;developers&amp;quot; deleted
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;El borrado del &lt;em&gt;namespace&lt;/em&gt; es asíncrono, por lo que puedes verlo como &lt;code&gt;Terminating&lt;/code&gt; hasta que se realiza el borrado definitivo del mismo:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-sh&#34;&gt;$ kubectl get ns
+NAME          STATUS        AGE
+default       Active        21d
+developers    Terminating   2h
+kube-system   Active        21d
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h1 id=&#34;resumen&#34;&gt;Resumen&lt;/h1&gt;
+
+&lt;p&gt;En este artículo hemos visto qué es un &lt;em&gt;Namespace&lt;/em&gt; y para qué sirve.&lt;/p&gt;
+
+&lt;p&gt;También hemos visto cómo crear un espacio de nombres, obtener información sobre él y crear objetos en el &lt;em&gt;namespace&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;Hemos aplicado cuotas para limitar los recursos disponibles y hemos visto cómo afecta a la creación de &lt;em&gt;deployments&lt;/em&gt; en el espacio de nombres.&lt;/p&gt;
+
+&lt;p&gt;Finalmente, hemos eliminado el espacio de nombres (y todos los objetos contenidos en él).&lt;/p&gt;</description>
+    </item>
+    
+    <item>
       <title>Mi primera aplicación en Kubernetes</title>
       <link>https://onthedock.github.io/post/170716-mi-primera-app-en-kubernetes/</link>
       <pubDate>Sun, 16 Jul 2017 19:38:17 +0200</pubDate>
@@ -1730,39 +2128,6 @@ ls: cannot access /var/log/kube*: No such file or directory
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;Es probable que la documentación no esté actualizada, así que continuaré en cuanto encuentre los logs para poder revisarlos.&lt;/p&gt;</description>
-    </item>
-    
-    <item>
-      <title>Errores sobre Orphaned pods en syslog</title>
-      <link>https://onthedock.github.io/post/170430-errores-sobre-orphaned-pods-en-syslog/</link>
-      <pubDate>Sun, 30 Apr 2017 12:55:44 +0200</pubDate>
-      
-      <guid>https://onthedock.github.io/post/170430-errores-sobre-orphaned-pods-en-syslog/</guid>
-      <description>&lt;p&gt;Los nodos &lt;strong&gt;k2&lt;/strong&gt; y &lt;strong&gt;k3&lt;/strong&gt; del clúster dejan de responder pasadas unas horas. La única manera de solucionarlo es reiniciar los nodos. Siguiendo con la revisión de logs, he encontrado que se genera una gran cantidad de entradas en &lt;em&gt;syslog&lt;/em&gt; en referencia a &lt;em&gt;orphaned pods&lt;/em&gt;. Además, el número de estos errores no para de crecer &lt;strong&gt;rápidamente&lt;/strong&gt;.&lt;/p&gt;
-
-&lt;p&gt;&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ grep &amp;quot;kubelet_volumes.go:114] Orphaned pod&amp;quot; /var/log/syslog | wc -l
-118938
-$ grep &amp;quot;kubelet_volumes.go:114] Orphaned pod&amp;quot; /var/log/syslog | wc -l
-119022
-$ grep &amp;quot;kubelet_volumes.go:114] Orphaned pod&amp;quot; /var/log/syslog | wc -l
-119170
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Revisando las últimas entradas del log:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-log&#34;&gt;Apr 30 10:57:57 k2 kubelet[3619]: E0430 10:57:57.186318    3619 kubelet_volumes.go:114] Orphaned pod &amp;quot;5064b9d9-2c9e-11e7-a7ae-b827eb650fdb&amp;quot; found, but volume paths are still present on disk.
-Apr 30 10:58:01 k2 kubelet[3619]: E0430 10:58:01.759595    3619 kubelet_volumes.go:114] Orphaned pod &amp;quot;6c601e9c-2c9c-11e7-a7ae-b827eb650fdb&amp;quot; found, but volume paths are still present on disk.
-Apr 30 10:58:03 k2 kubelet[3619]: E0430 10:58:03.226372    3619 kubelet.go:1549] Unable to mount volumes for pod &amp;quot;weave-net-bs9bs_kube-system(4461d51d-2d93-11e7-a7ae-b827eb650fdb)&amp;quot;: timeout expired waiting for volumes to attach/mount for pod &amp;quot;kube-system&amp;quot;/&amp;quot;weave-net-bs9bs&amp;quot;. list of unattached/unmounted volumes=[weavedb cni-bin cni-bin2 cni-conf dbus lib-modules weave-net-token-61scv]; skipping pod
-Apr 30 10:58:03 k2 kubelet[3619]: E0430 10:58:03.238315    3619 pod_workers.go:182] Error syncing pod 4461d51d-2d93-11e7-a7ae-b827eb650fdb (&amp;quot;weave-net-bs9bs_kube-system(4461d51d-2d93-11e7-a7ae-b827eb650fdb)&amp;quot;), skipping: timeout expired waiting for volumes to attach/mount for pod &amp;quot;kube-system&amp;quot;/&amp;quot;weave-net-bs9bs&amp;quot;. list of unattached/unmounted volumes=[weavedb cni-bin cni-bin2 cni-conf dbus lib-modules weave-net-token-61scv]
-Apr 30 10:58:05 k2 kubelet[3619]: E0430 10:58:05.830432    3619 kubelet_volumes.go:114] Orphaned pod &amp;quot;bb4d3ea6-2b80-11e7-9388-b827eb650fdb&amp;quot; found, but volume paths are still present on disk.
-Apr 30 10:58:08 k2 kubelet[3619]: E0430 10:58:08.435567    3619 kubelet_volumes.go:114] Orphaned pod &amp;quot;cb23be0d-2d7e-11e7-a7ae-b827eb650fdb&amp;quot; found, but volume paths are still present on disk.
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Todas estas entradas se encuentran en los logs del nodo &lt;strong&gt;k2&lt;/strong&gt;, donde no hay ningún &lt;em&gt;pod&lt;/em&gt; en ejecución (a parte de los propios de  Kubernetes que el clúster planifica en los diferentes nodos).&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;Actualización&lt;/strong&gt;: &lt;a href=&#34;https://onthedock.github.io/post/170506-troubleshooting-kubernetes-ii/&#34;&gt;Troubleshooting Kubernetes (II)&lt;/a&gt;&lt;/p&gt;</description>
     </item>
     
   </channel>
