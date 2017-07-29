@@ -9,6 +9,91 @@
     <atom:link href="https://onthedock.github.io/tags/kubernetes/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
+      <title>Asignar recursos de CPU y RAM a un contenedor</title>
+      <link>https://onthedock.github.io/post/170729-asignar-recursos-de-cpu-y-ram-a-un-contenedor/</link>
+      <pubDate>Sat, 29 Jul 2017 21:12:35 +0200</pubDate>
+      
+      <guid>https://onthedock.github.io/post/170729-asignar-recursos-de-cpu-y-ram-a-un-contenedor/</guid>
+      <description>&lt;p&gt;Cuando se crea un &lt;em&gt;pod&lt;/em&gt; se pueden reservar recursos de CPU y RAM para los contenedores que corren en el &lt;em&gt;pod&lt;/em&gt;. Para reservar recursos, usa el campo &lt;code&gt;resources: requests&lt;/code&gt; en el fichero de configuración. Para establecer límites, usa el campo &lt;code&gt;resources: limits&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;
+
+&lt;p&gt;Kubernetes planifica un &lt;em&gt;pod&lt;/em&gt; en un nodo sólo si el nodo tiene suficientes recursos de CPU y RAM disponibles para satisfacer la demanda de CPU y RAM total de todos los contenedores en el &lt;em&gt;pod&lt;/em&gt;. Es decir, la &lt;em&gt;request&lt;/em&gt; es la cantidad que necesita el &lt;em&gt;pod&lt;/em&gt; para arrancar y ponerse en funcionamiento.&lt;/p&gt;
+
+&lt;p&gt;En función de las tareas que ejecute el &lt;em&gt;pod&lt;/em&gt;, los recursos que consume pueden aumentar. Mediante el establecimiento de los &lt;em&gt;limits&lt;/em&gt; podemos acotar el uso máximo de recursos disponible para el &lt;em&gt;pod&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;Kubernetes no permite que el &lt;em&gt;pod&lt;/em&gt; consuma más recursos de CPU y RAM de los límites especificados para en el fichero de configuración.&lt;/p&gt;
+
+&lt;p&gt;Si un contenedor excede el límite de RAM, es eliminado.&lt;/p&gt;
+
+&lt;figure&gt;
+  &lt;amp-img src=&#34;https://onthedock.github.io/images/170729/k8s-pod-ram-requests-and-limits.svg&#34; alt=&#34;Asignar recursos de CPU y RAM a un contenedor images/170729/k8s-pod-ram-requests-and-limits.svg&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
+  
+&lt;/figure&gt;
+
+
+&lt;p&gt;Si un contenedor excede el límite de CPU, se convierte en un candidato para que su uso de CPU se vea restringido (&lt;em&gt;throttling&lt;/em&gt;) .&lt;/p&gt;
+
+&lt;figure&gt;
+  &lt;amp-img src=&#34;https://onthedock.github.io/images/170729/k8s-pod-cpu-requests-and-limits.svg&#34; alt=&#34;Asignar recursos de CPU y RAM a un contenedor images/170729/k8s-pod-cpu-requests-and-limits.svg&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
+  
+&lt;/figure&gt;
+
+
+&lt;h1 id=&#34;unidades-de-cpu-y-ram&#34;&gt;Unidades de CPU y RAM&lt;/h1&gt;
+
+&lt;p&gt;Los recursos de CPU se miden en &lt;strong&gt;cpus&lt;/strong&gt;. Se admiten valores fraccionados. Puedes usar el sufijo &lt;em&gt;m&lt;/em&gt; para indicar &amp;ldquo;mili&amp;rdquo;; por ejemplo, &lt;code&gt;100m cpu&lt;/code&gt; son &lt;code&gt;100 milicpu&lt;/code&gt; o &lt;code&gt;0.1 cpu&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Los recursos de RAM se miden en &lt;strong&gt;bytes&lt;/strong&gt;. Puedes indicar la RAM como un entero usando alguno de los siguientes sufijos: &lt;code&gt;E&lt;/code&gt;, &lt;code&gt;P&lt;/code&gt;, &lt;code&gt;T&lt;/code&gt;, &lt;code&gt;G&lt;/code&gt;, &lt;code&gt;M&lt;/code&gt;, &lt;code&gt;Ei&lt;/code&gt;, &lt;code&gt;Pi&lt;/code&gt;,&lt;code&gt;Ti&lt;/code&gt;, &lt;code&gt;Gi&lt;/code&gt;, &lt;code&gt;Mi&lt;/code&gt;y &lt;code&gt;Ki&lt;/code&gt;. Por ejemplo, las siguientes cantidades representan aproximadamente el mismo valor:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;128974848, 129e6, 129M , 123Mi
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Si no conoces por adelantado los recursos que reservar para un &lt;em&gt;pod&lt;/em&gt; puedes lanzar la aplicación sin especificar límites, usar el monitor de uso de recursos y determinar los valores apropiados.&lt;/p&gt;
+
+&lt;p&gt;Si un contenedor excede los límites establecidos de RAM, se elimina al quedarse sin memoria disponible: &lt;code&gt;out-of-memory&lt;/code&gt;. Debes especificar un valor ligeramente superior al valor esperado para dar un poco de margen al &lt;em&gt;pod&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;Si especificas una reserva (&lt;code&gt;request&lt;/code&gt;), el &lt;em&gt;pod&lt;/em&gt; tendrá garantizado disponer de la cantidad reservada del recurso. El &lt;em&gt;pod&lt;/em&gt; puede usar más recursos que los reservados, pero nunca más del límite establecido.&lt;/p&gt;
+
+&lt;p&gt;En el siguiene ejemplo, especificamos tanto una reserva como el límite de recursos de los que puede disponer un &lt;em&gt;pod&lt;/em&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-yaml&#34;&gt;apiVersion: v1
+kind: Pod
+metadata:
+  name: cpu-ram-demo
+spec:
+  containers:
+  - name: cpu-ram-demo-container
+    image: gcr.io/google-samples/node-hello:1.0
+    resources:
+      requests:
+        memory: &amp;quot;64Mi&amp;quot;
+        cpu: &amp;quot;250m&amp;quot;
+      limits:
+        memory: &amp;quot;128Mi&amp;quot;
+        cpu: &amp;quot;1&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;El &lt;em&gt;pod&lt;/em&gt; reserva 64Mi de RAM y 0.25 cpus, pero puede llegar a usar hasta el doble de RAM y toda una CPU.&lt;/p&gt;
+
+&lt;h1 id=&#34;si-no-especificas-reservas-o-límites&#34;&gt;Si no especificas reservas o límites&lt;/h1&gt;
+
+&lt;p&gt;Si no especificas un límite para la RAM, Kubernetes no restinge la cantidad de RAM que puede usar el contenedor. En esta situación un contenedor puede usar toda la memoria disponible en el nodo donde se está ejecutando. Del mismo modo, si no se especifica un límite máximo de CPU, un contenedor puede usar toda la capacidad de CPU del nodo.&lt;/p&gt;
+
+&lt;p&gt;Los límites por defecto se aplican en función de la disponibilidad de recursos aplicados al espacio de nombres en el que se ejecutan los &lt;em&gt;pods&lt;/em&gt;. Puedes consultar los límites mediante: &lt;code&gt;kubectl describe limitrange limits&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Es importante tener en cuenta que si se especifican límites a nivel de &lt;em&gt;namespace&lt;/em&gt;, la creación de objetos en el &lt;em&gt;namespace&lt;/em&gt; debe incluir también los límites o se producirán errores al crear objetos (a no ser que se hayan especificado límites por defecto).&lt;/p&gt;
+
+&lt;p&gt;En &lt;a href=&#34;https://kubernetes.io/docs/tasks/administer-cluster/cpu-memory-limit/&#34;&gt;Set Pod CPU and Memory Limits&lt;/a&gt; se indica cómo establecer límites superiores e inferiores para los recursos de un &lt;em&gt;pod&lt;/em&gt;. También se pueden especificar límites por defecto para los &lt;em&gt;pods&lt;/em&gt; aunque el usuario no los haya especificado en el fichero de configuración.&lt;/p&gt;
+
+&lt;p&gt;Los límites establecidos en el &lt;em&gt;namespace&lt;/em&gt; se aplican durante la creación o modificación de los &lt;em&gt;pods&lt;/em&gt;. Si cambias el rango de recursos permitidos, no afecta a los &lt;em&gt;pods&lt;/em&gt; creados previamente en el espacio de nombres.&lt;/p&gt;
+
+&lt;p&gt;Se pueden establecer límites en los recursos consumidos por diferentes motivos, pero normalmente se limitan para evitar problemas &lt;em&gt;a posteriori&lt;/em&gt;. Por ejemplo, si un nodo tiene 2GB de RAM, evitando la creación de &lt;em&gt;pods&lt;/em&gt; que requieran más memoria previene que el &lt;em&gt;pod&lt;/em&gt; no pueda desplegarse nunca (al no disponer de memoria suficiente disponible), por lo que es mejor evitar directamente su creación.&lt;/p&gt;
+
+&lt;p&gt;El otro motivo habitual para imponer límites es para distribuir los recursos del nodo entre los diferentes equipos/entornos; por ejemplo, asignando un 25% de la capacidad al equipo de desarrollo y el resto a los servicios en producción.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
       <title>Espacios de nombres en Kubernetes</title>
       <link>https://onthedock.github.io/post/170723-espacios-de-nombres-en-k8s/</link>
       <pubDate>Sun, 23 Jul 2017 20:04:45 +0200</pubDate>
@@ -2006,47 +2091,6 @@ kubectl --kubeconfig ./admin.conf get nodes
   
 &lt;/figure&gt;
 &lt;/p&gt;</description>
-    </item>
-    
-    <item>
-      <title>Acciones previas a la instalación de Kubernetes en Raspberry Pi</title>
-      <link>https://onthedock.github.io/post/170409-acciones-previas-instalacion-rpi/</link>
-      <pubDate>Sun, 09 Apr 2017 21:34:16 +0200</pubDate>
-      
-      <guid>https://onthedock.github.io/post/170409-acciones-previas-instalacion-rpi/</guid>
-      <description>&lt;p&gt;Uno de los objetivos motivadores de la existencia de este blog es instalar un clúster de Kubernetes sobre Raspberry Pi. Este artículo se centra en las tareas previas a la instalación en sí.&lt;/p&gt;
-
-&lt;p&gt;Kubernetes requiere una instalación previa de Docker, una tarea simplificada gracias a HypriotOS, la &lt;em&gt;distro&lt;/em&gt; creada específicamente con este fin.&lt;/p&gt;
-
-&lt;p&gt;El siguiente paso, la instalación de Kubernetes en la Raspberry será objeto de otra(s) entrada(s). Pero sin duda esta tarea sería mucho más complicada sin las contribuciones del joven finlandés &lt;a href=&#34;https://www.cncf.io/blog/2016/11/29/diversity-scholarship-series-programming-journey-becoming-kubernetes-maintainer/&#34;&gt;Lucas Käldström&lt;/a&gt; y su proyecto -ahora integrado la rama principal- &lt;a href=&#34;https://github.com/luxas/kubernetes-on-arm&#34;&gt;Kubernetes on ARM&lt;/a&gt;.&lt;/p&gt;
-
-&lt;p&gt;&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;Descarga la imagen de &lt;a href=&#34;https://blog.hypriot.com/downloads/&#34;&gt;HypriotOS&lt;/a&gt;.&lt;/li&gt;
-&lt;li&gt;Traspásala a una tarjeta microSD usando, por ejemplo, &lt;a href=&#34;https://etcher.io/&#34;&gt;Etcher&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;Inserta la tarjeta microsSD en la Raspberry Pi y arranca la RPi.&lt;/li&gt;
-&lt;li&gt;Comprueba que ha arrancado correctamente haciendo ping a &lt;code&gt;black-pearl.local&lt;/code&gt;&lt;/li&gt;
-&lt;li&gt;Accede a la RPi mediante &lt;code&gt;ssh pirate@black-pearl.local&lt;/code&gt;&lt;/li&gt;
-&lt;li&gt;Acepta el mensaje de seguridad (es la primera vez que conectas al equipo)&lt;/li&gt;
-&lt;li&gt;Edita el fichero &lt;code&gt;/boot/device-init.yaml&lt;/code&gt; para modificar el nombre de la RPi. En mi caso, he cambiado el nombre a &lt;code&gt;k1&lt;/code&gt;: &lt;code&gt;hostname: k1&lt;/code&gt;&lt;/li&gt;
-&lt;li&gt;Crea un backup del fichero de configuración de la tarjeta de red: &lt;code&gt;sudo cp /etc/network/interfaces.d/eth0 /etc/network/interfaces.d/eth0.original&lt;/code&gt;&lt;/li&gt;
-&lt;li&gt;Edita el fichero &lt;code&gt;/etc/network/interfaces.d/eth0&lt;/code&gt; para establecer una IP estática para la RPi:&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;  allow-hotplug eth0
-  iface eth0 inet static
-	address 192.168.1.11
-	gateway 192.168.1.1
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;ul&gt;
-&lt;li&gt;Reinicia la RPi para que los cambios sean efectivos: &lt;code&gt;sudo reboot&lt;/code&gt;&lt;/li&gt;
-&lt;li&gt;Comprueba que la RPi responde a ping con el nuevo nombre: &lt;code&gt;ping k1.local&lt;/code&gt;&lt;/li&gt;
-&lt;li&gt;Accede a la RPi mediante &lt;code&gt;ssh pirate@k1.local&lt;/code&gt;&lt;/li&gt;
-&lt;li&gt;Actualiza la RPi: &lt;code&gt;sudo apt-get update &amp;amp;&amp;amp; sudo apt-get upgrade -y&lt;/code&gt;&lt;/li&gt;
-&lt;li&gt;Verifica la versión de Docker instalada: &lt;code&gt;$ docker version&lt;/code&gt;&lt;/li&gt;
-&lt;/ul&gt;</description>
     </item>
     
   </channel>
