@@ -2,11 +2,28 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Ops on On The Dock</title>
-    <link>https://onthedock.github.io/categories/ops/index.xml</link>
+    <link>https://onthedock.github.io/categories/ops/</link>
     <description>Recent content in Ops on On The Dock</description>
     <generator>Hugo -- gohugo.io</generator>
     <copyright>Handmade with &amp;#9829; by Xavi Aznar</copyright>
-    <atom:link href="https://onthedock.github.io/categories/ops/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 30 Jul 2017 08:54:00 +0200</lastBuildDate>
+    
+	<atom:link href="https://onthedock.github.io/categories/ops/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Configurar un servidor NFS</title>
+      <link>https://onthedock.github.io/post/170730-servidor-nfs/</link>
+      <pubDate>Sun, 30 Jul 2017 08:54:00 +0200</pubDate>
+      
+      <guid>https://onthedock.github.io/post/170730-servidor-nfs/</guid>
+      <description>&lt;p&gt;Uno de los temas pendientes relacionado con Kubernetes es el almacenamiento en el clúster. En Docker es sencillo montar un volumen del &lt;em&gt;host&lt;/em&gt; en el contenedor. En Kubernetes, al tratarse de un clúster, el &lt;em&gt;scheduler&lt;/em&gt; puede planificar el &lt;em&gt;pod&lt;/em&gt; en cualquier nodo. Si el &lt;em&gt;pod&lt;/em&gt; es eliminado del nodo1, desde donde había montado un volumen, cuando se arranca una nueva copia del &lt;em&gt;pod&lt;/em&gt; en el nodo2, es muy probable que en este nodo no exista la misma carpeta. Y si existe, no contendrá los datos que existían en el nodo1.&lt;/p&gt;
+
+&lt;p&gt;Hay varias soluciones para el problema; la más sencilla es que el almacenamiento de los &lt;em&gt;pods&lt;/em&gt; esté &lt;strong&gt;fuera&lt;/strong&gt; del clúster y se monte por NFS.&lt;/p&gt;
+
+&lt;p&gt;En este artículo voy a explorar el primer paso para conseguir disponer de almacenamiento vía NFS en los &lt;em&gt;pods&lt;/em&gt; del clúster de Kubernetes.
+&lt;/p&gt;</description>
+    </item>
     
     <item>
       <title>Asignar recursos de CPU y RAM a un contenedor</title>
@@ -16,81 +33,7 @@
       <guid>https://onthedock.github.io/post/170729-asignar-recursos-de-cpu-y-ram-a-un-contenedor/</guid>
       <description>&lt;p&gt;Cuando se crea un &lt;em&gt;pod&lt;/em&gt; se pueden reservar recursos de CPU y RAM para los contenedores que corren en el &lt;em&gt;pod&lt;/em&gt;. Para reservar recursos, usa el campo &lt;code&gt;resources: requests&lt;/code&gt; en el fichero de configuración. Para establecer límites, usa el campo &lt;code&gt;resources: limits&lt;/code&gt;.&lt;/p&gt;
 
-&lt;p&gt;&lt;/p&gt;
-
-&lt;p&gt;Kubernetes planifica un &lt;em&gt;pod&lt;/em&gt; en un nodo sólo si el nodo tiene suficientes recursos de CPU y RAM disponibles para satisfacer la demanda de CPU y RAM total de todos los contenedores en el &lt;em&gt;pod&lt;/em&gt;. Es decir, la &lt;em&gt;request&lt;/em&gt; es la cantidad que necesita el &lt;em&gt;pod&lt;/em&gt; para arrancar y ponerse en funcionamiento.&lt;/p&gt;
-
-&lt;p&gt;En función de las tareas que ejecute el &lt;em&gt;pod&lt;/em&gt;, los recursos que consume pueden aumentar. Mediante el establecimiento de los &lt;em&gt;limits&lt;/em&gt; podemos acotar el uso máximo de recursos disponible para el &lt;em&gt;pod&lt;/em&gt;.&lt;/p&gt;
-
-&lt;p&gt;Kubernetes no permite que el &lt;em&gt;pod&lt;/em&gt; consuma más recursos de CPU y RAM de los límites especificados para en el fichero de configuración.&lt;/p&gt;
-
-&lt;p&gt;Si un contenedor excede el límite de RAM, es eliminado.&lt;/p&gt;
-
-&lt;figure&gt;
-  &lt;amp-img src=&#34;https://onthedock.github.io/images/170729/k8s-pod-ram-requests-and-limits.svg&#34; alt=&#34;Asignar recursos de CPU y RAM a un contenedor images/170729/k8s-pod-ram-requests-and-limits.svg&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
-  
-&lt;/figure&gt;
-
-
-&lt;p&gt;Si un contenedor excede el límite de CPU, se convierte en un candidato para que su uso de CPU se vea restringido (&lt;em&gt;throttling&lt;/em&gt;) .&lt;/p&gt;
-
-&lt;figure&gt;
-  &lt;amp-img src=&#34;https://onthedock.github.io/images/170729/k8s-pod-cpu-requests-and-limits.svg&#34; alt=&#34;Asignar recursos de CPU y RAM a un contenedor images/170729/k8s-pod-cpu-requests-and-limits.svg&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
-  
-&lt;/figure&gt;
-
-
-&lt;h1 id=&#34;unidades-de-cpu-y-ram&#34;&gt;Unidades de CPU y RAM&lt;/h1&gt;
-
-&lt;p&gt;Los recursos de CPU se miden en &lt;strong&gt;cpus&lt;/strong&gt;. Se admiten valores fraccionados. Puedes usar el sufijo &lt;em&gt;m&lt;/em&gt; para indicar &amp;ldquo;mili&amp;rdquo;; por ejemplo, &lt;code&gt;100m cpu&lt;/code&gt; son &lt;code&gt;100 milicpu&lt;/code&gt; o &lt;code&gt;0.1 cpu&lt;/code&gt;.&lt;/p&gt;
-
-&lt;p&gt;Los recursos de RAM se miden en &lt;strong&gt;bytes&lt;/strong&gt;. Puedes indicar la RAM como un entero usando alguno de los siguientes sufijos: &lt;code&gt;E&lt;/code&gt;, &lt;code&gt;P&lt;/code&gt;, &lt;code&gt;T&lt;/code&gt;, &lt;code&gt;G&lt;/code&gt;, &lt;code&gt;M&lt;/code&gt;, &lt;code&gt;Ei&lt;/code&gt;, &lt;code&gt;Pi&lt;/code&gt;,&lt;code&gt;Ti&lt;/code&gt;, &lt;code&gt;Gi&lt;/code&gt;, &lt;code&gt;Mi&lt;/code&gt;y &lt;code&gt;Ki&lt;/code&gt;. Por ejemplo, las siguientes cantidades representan aproximadamente el mismo valor:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;128974848, 129e6, 129M , 123Mi
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Si no conoces por adelantado los recursos que reservar para un &lt;em&gt;pod&lt;/em&gt; puedes lanzar la aplicación sin especificar límites, usar el monitor de uso de recursos y determinar los valores apropiados.&lt;/p&gt;
-
-&lt;p&gt;Si un contenedor excede los límites establecidos de RAM, se elimina al quedarse sin memoria disponible: &lt;code&gt;out-of-memory&lt;/code&gt;. Debes especificar un valor ligeramente superior al valor esperado para dar un poco de margen al &lt;em&gt;pod&lt;/em&gt;.&lt;/p&gt;
-
-&lt;p&gt;Si especificas una reserva (&lt;code&gt;request&lt;/code&gt;), el &lt;em&gt;pod&lt;/em&gt; tendrá garantizado disponer de la cantidad reservada del recurso. El &lt;em&gt;pod&lt;/em&gt; puede usar más recursos que los reservados, pero nunca más del límite establecido.&lt;/p&gt;
-
-&lt;p&gt;En el siguiene ejemplo, especificamos tanto una reserva como el límite de recursos de los que puede disponer un &lt;em&gt;pod&lt;/em&gt;:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-yaml&#34;&gt;apiVersion: v1
-kind: Pod
-metadata:
-  name: cpu-ram-demo
-spec:
-  containers:
-  - name: cpu-ram-demo-container
-    image: gcr.io/google-samples/node-hello:1.0
-    resources:
-      requests:
-        memory: &amp;quot;64Mi&amp;quot;
-        cpu: &amp;quot;250m&amp;quot;
-      limits:
-        memory: &amp;quot;128Mi&amp;quot;
-        cpu: &amp;quot;1&amp;quot;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;El &lt;em&gt;pod&lt;/em&gt; reserva 64Mi de RAM y 0.25 cpus, pero puede llegar a usar hasta el doble de RAM y toda una CPU.&lt;/p&gt;
-
-&lt;h1 id=&#34;si-no-especificas-reservas-o-límites&#34;&gt;Si no especificas reservas o límites&lt;/h1&gt;
-
-&lt;p&gt;Si no especificas un límite para la RAM, Kubernetes no restinge la cantidad de RAM que puede usar el contenedor. En esta situación un contenedor puede usar toda la memoria disponible en el nodo donde se está ejecutando. Del mismo modo, si no se especifica un límite máximo de CPU, un contenedor puede usar toda la capacidad de CPU del nodo.&lt;/p&gt;
-
-&lt;p&gt;Los límites por defecto se aplican en función de la disponibilidad de recursos aplicados al espacio de nombres en el que se ejecutan los &lt;em&gt;pods&lt;/em&gt;. Puedes consultar los límites mediante: &lt;code&gt;kubectl describe limitrange limits&lt;/code&gt;.&lt;/p&gt;
-
-&lt;p&gt;Es importante tener en cuenta que si se especifican límites a nivel de &lt;em&gt;namespace&lt;/em&gt;, la creación de objetos en el &lt;em&gt;namespace&lt;/em&gt; debe incluir también los límites o se producirán errores al crear objetos (a no ser que se hayan especificado límites por defecto).&lt;/p&gt;
-
-&lt;p&gt;En &lt;a href=&#34;https://kubernetes.io/docs/tasks/administer-cluster/cpu-memory-limit/&#34;&gt;Set Pod CPU and Memory Limits&lt;/a&gt; se indica cómo establecer límites superiores e inferiores para los recursos de un &lt;em&gt;pod&lt;/em&gt;. También se pueden especificar límites por defecto para los &lt;em&gt;pods&lt;/em&gt; aunque el usuario no los haya especificado en el fichero de configuración.&lt;/p&gt;
-
-&lt;p&gt;Los límites establecidos en el &lt;em&gt;namespace&lt;/em&gt; se aplican durante la creación o modificación de los &lt;em&gt;pods&lt;/em&gt;. Si cambias el rango de recursos permitidos, no afecta a los &lt;em&gt;pods&lt;/em&gt; creados previamente en el espacio de nombres.&lt;/p&gt;
-
-&lt;p&gt;Se pueden establecer límites en los recursos consumidos por diferentes motivos, pero normalmente se limitan para evitar problemas &lt;em&gt;a posteriori&lt;/em&gt;. Por ejemplo, si un nodo tiene 2GB de RAM, evitando la creación de &lt;em&gt;pods&lt;/em&gt; que requieran más memoria previene que el &lt;em&gt;pod&lt;/em&gt; no pueda desplegarse nunca (al no disponer de memoria suficiente disponible), por lo que es mejor evitar directamente su creación.&lt;/p&gt;
-
-&lt;p&gt;El otro motivo habitual para imponer límites es para distribuir los recursos del nodo entre los diferentes equipos/entornos; por ejemplo, asignando un 25% de la capacidad al equipo de desarrollo y el resto a los servicios en producción.&lt;/p&gt;</description>
+&lt;p&gt;&lt;/p&gt;</description>
     </item>
     
     <item>
@@ -103,392 +46,7 @@ spec:
 
 &lt;p&gt;Esto es especialmente útil cuando diferentes grupos de DevOps usan el mismo clúster y existe el riesgo potencial de colisión de nombres de los &lt;em&gt;pods&lt;/em&gt;, etc usados por los diferentes equipos.&lt;/p&gt;
 
-&lt;p&gt;&lt;/p&gt;
-
-&lt;p&gt;Los espacios de nombres también facilitan la creación de cuotas para limitar los recursos disponibles para cada &lt;em&gt;namespace&lt;/em&gt;. Puedes considerar los espacios de nombres como clústers &lt;em&gt;virtuales&lt;/em&gt; sobre el clúster físico de Kubernetes. De esta forma, proporcionan separación lógica entre los entornos de diferentes equipos.&lt;/p&gt;
-
-&lt;p&gt;Kubernetes proporciona dos &lt;em&gt;namespaces&lt;/em&gt; por defecto: &lt;code&gt;kube-system&lt;/code&gt; y &lt;code&gt;default&lt;/code&gt;. A &lt;em&gt;grosso modo&lt;/em&gt;, los objetos &amp;ldquo;de usuario&amp;rdquo; se crean en el espacio de nombres &lt;code&gt;default&lt;/code&gt;, mientras que los de &amp;ldquo;sistema&amp;rdquo; se encuentran en &lt;code&gt;kube-system&lt;/code&gt;.&lt;/p&gt;
-
-&lt;p&gt;Para ver los espacios de nombres en el clúster, ejecuta:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-sh&#34;&gt;$ kubectl get namespaces
-NAME          STATUS    AGE
-default       Active    21d
-kube-system   Active    21d
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;blockquote&gt;
-&lt;p&gt;Puedes obtener el mismo resultado usando &lt;code&gt;ns&lt;/code&gt; en vez de &lt;code&gt;namespaces&lt;/code&gt;&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;Para comprobar la separación lógica entre los objetos de diferentes &lt;em&gt;namespaces&lt;/em&gt;, lista los pods mediante &lt;code&gt;kubectl get pods&lt;/code&gt;:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-sh&#34;&gt;$ kubectl get pods
-NAME                     READY     STATUS    RESTARTS   AGE
-nginx-3225377387-xdth3   1/1       Running   0          7d
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Analizando al detalle el &lt;em&gt;pod&lt;/em&gt; mediante &lt;code&gt;kubectl describe pod nginx-3225377387-xdth3&lt;/code&gt;, observa como se encuentra en el espacio de nombres &lt;code&gt;default&lt;/code&gt;:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-sh&#34;&gt;$ kubectl describe pod nginx-3225377387-xdth3
-Name:    nginx-3225377387-xdth3
-Namespace:  default
-Node:    k8s-snc/192.168.1.10
-...
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Compara los resultados obtenidos con los comandos anteriores con el de &lt;code&gt;kubectl get pods --all-namespaces&lt;/code&gt;:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-sh&#34;&gt;$ kubectl get pods --all-namespaces
-NAMESPACE     NAME                              READY     STATUS    RESTARTS   AGE
-default       nginx-3225377387-xdth3            1/1       Running   0          7d
-kube-system   etcd-k8s-snc                      1/1       Running   3          21d
-kube-system   kube-apiserver-k8s-snc            1/1       Running   3          21d
-kube-system   kube-controller-manager-k8s-snc   1/1       Running   3          21d
-kube-system   kube-dns-2425271678-xbzt8         3/3       Running   12         21d
-kube-system   kube-proxy-tbstt                  1/1       Running   3          21d
-kube-system   kube-scheduler-k8s-snc            1/1       Running   3          21d
-kube-system   weave-net-snspp                   2/2       Running   9          20d
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;La primera columna de la salida del comando anterior indica el espacio de nombres en el que se encuentra cada &lt;em&gt;pod&lt;/em&gt;, en este caso.&lt;/p&gt;
-
-&lt;h1 id=&#34;crea-un-nuevo-espacio-de-nombres&#34;&gt;Crea un nuevo espacio de nombres&lt;/h1&gt;
-
-&lt;p&gt;Para crear un &lt;em&gt;namespace&lt;/em&gt;, crea un fichero &lt;code&gt;YAML&lt;/code&gt; como el siguiente:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-yaml&#34;&gt;apiVersion: v1
-kind: Namespace
-metadata:
-   name: developers
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;blockquote&gt;
-&lt;p&gt;El nombre del &lt;em&gt;namespace&lt;/em&gt; debe ser compatible con una entrada válida de DNS.&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;Para crear el &lt;em&gt;namespace&lt;/em&gt;, ejecuta:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-sh&#34;&gt;$ kubectl create -f ns-developers.yaml
-namespace &amp;quot;developers&amp;quot; created
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Al obtener la lista de espacios de nombres disponibles, observa que ahora el nuevo &lt;em&gt;namespace&lt;/em&gt; aparece:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-sh&#34;&gt;$ kubectl get ns
-NAME          STATUS    AGE
-default       Active    21d
-developers    Active    55s
-kube-system   Active    21d
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Observa con detalle el &lt;em&gt;namespace&lt;/em&gt; creado:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-sh&#34;&gt;$ kubectl describe ns developers
-Name:    developers
-Labels:     &amp;lt;none&amp;gt;
-Annotations:   &amp;lt;none&amp;gt;
-Status:     Active
-
-No resource quota.
-
-No resource limits.
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Idealmente, el particionamiento del clúster en espacios de nombres permite repartir los recursos del clúster imponiendo cuotas, de manera que los objetos de un determinado &lt;em&gt;namespace&lt;/em&gt; no acaparen todos los recursos disponibles.&lt;/p&gt;
-
-&lt;p&gt;A continuación indico cómo establecer algunos límites para el &lt;em&gt;namespace&lt;/em&gt; (basado en &lt;a href=&#34;https://kubernetes.io/docs/tasks/administer-cluster/apply-resource-quota-limit/&#34;&gt;Apply Resource Quotas and Limits&lt;/a&gt;).&lt;/p&gt;
-
-&lt;h2 id=&#34;aplicando-quotas-al-número-de-objetos-en-el-namespace&#34;&gt;Aplicando quotas al número de objetos en el &lt;em&gt;namespace&lt;/em&gt;&lt;/h2&gt;
-
-&lt;p&gt;Para aplicar una cuota, creamos un fichero &lt;code&gt;YAML&lt;/code&gt; del tipo &lt;code&gt;ResourceQuota&lt;/code&gt;:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-yaml&#34;&gt;apiVersion: v1
-kind: ResourceQuota
-metadata:
-  name: object-counts
-spec:
-  hard:
-    persistentvolumeclaims: &amp;quot;2&amp;quot;
-    services.loadbalancers: &amp;quot;2&amp;quot;    
-    services.nodeports: &amp;quot;0&amp;quot;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Esta cuota limita el número de:&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;volúmenes persistentes (2)&lt;/li&gt;
-&lt;li&gt;balanceadores de carga (2)&lt;/li&gt;
-&lt;li&gt;&lt;em&gt;node ports&lt;/em&gt; (0)&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;Para crear la cuota, aplica el fichero &lt;code&gt;YAML&lt;/code&gt;.&lt;/p&gt;
-
-&lt;blockquote&gt;
-&lt;p&gt;Debes especificar el &lt;em&gt;namespace&lt;/em&gt; donde aplicar la cuota.&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-sh&#34;&gt;$ kubectl create -f quota-object-counts.yaml --namespace developers
-resourcequota &amp;quot;object-counts&amp;quot; created
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Comprobamos que se ha aplicado la cuota al &lt;em&gt;namespace&lt;/em&gt; &lt;code&gt;developers&lt;/code&gt;:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-sh&#34;&gt;$ kubectl describe ns developers
-Name:    developers
-Labels:     &amp;lt;none&amp;gt;
-Annotations:   &amp;lt;none&amp;gt;
-Status:     Active
-
-Resource Quotas
- Name:         object-counts
- Resource      Used  Hard
- --------      ---   ---
- persistentvolumeclaims 0  2
- services.loadbalancers 0  2
- services.nodeports  0  0
-
-No resource limits.
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Esta cuota impide la creación de más objetos de cada tipo de los especificados en la cuota (es decir, como máximo, puede haber dos &lt;em&gt;load balancers&lt;/em&gt; en el espacio de nombres &lt;code&gt;developers&lt;/code&gt;).&lt;/p&gt;
-
-&lt;h2 id=&#34;aplicando-cuotas-a-los-recursos-del-namespace&#34;&gt;Aplicando cuotas a los recursos del &lt;em&gt;namespace&lt;/em&gt;&lt;/h2&gt;
-
-&lt;p&gt;Habitualmente los límites que se suelen establecer para cada espacio de nombres están enfocados a limitar los recursos de CPU y memoria del &lt;em&gt;namespace&lt;/em&gt;.&lt;/p&gt;
-
-&lt;p&gt;El siguiente fichero &lt;code&gt;YAML&lt;/code&gt; especifica un límite de 2 CPUs y 2GB de memoria. Además, especifica una limitación en cuanto a las peticiones que debe realizar un &lt;em&gt;pod&lt;/em&gt; en este espacio de nombres. Finalmente, también se establece una limitación de como máximo, 4 &lt;em&gt;pods&lt;/em&gt;.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-yaml&#34;&gt;apiVersion: v1
-kind: ResourceQuota
-metadata:
-  name: compute-resources
-spec:
-  hard:
-    limits.cpu: &amp;quot;2&amp;quot;
-    limits.memory: 2Gi    
-    requests.cpu: &amp;quot;1&amp;quot;
-    requests.memory: 1Gi 
-    pods: &amp;quot;4&amp;quot;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Aplicamos la nueva cuota mediante:&lt;/p&gt;
-
-&lt;blockquote&gt;
-&lt;p&gt;De nuevo, recuerda que debes especificar el &lt;em&gt;namespace&lt;/em&gt; al que aplicar la cuota.&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-sh&#34;&gt;$ kubectl create -f quota-compute-resources.yaml --namespace developers
-resourcequota &amp;quot;compute-resources&amp;quot; created
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;El espacio de nombres está limitado ahora de la siguiente manera:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-sh&#34;&gt;$ kubectl describe ns developers
-Name:          developers
-Labels:        &amp;lt;none&amp;gt;
-Annotations:   &amp;lt;none&amp;gt;
-Status:     Active
-
-Resource Quotas
- Name:            compute-resources
- Resource         Used  Hard
- --------         ---   ---
- limits.cpu       0     2
- limits.memory    0     2Gi
- pods             0     4
- requests.cpu     0     1
- requests.memory  0     1Gi
-
- Name:                  object-counts
- Resource               Used  Hard
- --------               ---   ---
- persistentvolumeclaims  0     2
- services.loadbalancers  0     2
- services.nodeports      0     0
-
-No resource limits.
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;La limitación impuesta en las peticiones (&lt;code&gt;requests&lt;/code&gt;) de memoria y CPU &lt;strong&gt;obligan a que se especifiquen límites en la definición de los recursos asignados a cada &lt;em&gt;pod&lt;/em&gt;&lt;/strong&gt;. En general, al crear la definición de un &lt;em&gt;deployment&lt;/em&gt; no se especifican estos límites, lo que puede provocar algo de desconcierto.&lt;/p&gt;
-
-&lt;p&gt;Vamos a crear un &lt;em&gt;Deployment&lt;/em&gt; en el &lt;em&gt;namespace&lt;/em&gt; &lt;code&gt;Developers&lt;/code&gt;. Aunque asignamos el &lt;em&gt;deployment&lt;/em&gt; al &lt;em&gt;namespace&lt;/em&gt; desde la línea de comando, en un fichero &lt;code&gt;YAML&lt;/code&gt; usaríamos:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-yaml&#34;&gt;apiVersion: v1
-kind: Service
-metadata:
-   name: ejemplo
-   namespace: developers  
-spec:
-   ...
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Creamos un &lt;em&gt;deployment&lt;/em&gt;:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-sh&#34;&gt;$ kubectl run nginx --image=nginx --replicas=1 --namespace=developers
-deployment &amp;quot;nginx&amp;quot; created
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Todo parece ok hasta que buscamos el &lt;em&gt;pod&lt;/em&gt; que debería crearse:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-sh&#34;&gt;$ kubectl get pods --namespace developers
-No resources found.
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Analizamos el detalle del &lt;em&gt;deployment&lt;/em&gt;&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-sh&#34;&gt;$ kubectl describe deployment nginx --namespace developers
-Name:       nginx
-Namespace:     developers
-CreationTimestamp:   Sun, 23 Jul 2017 21:19:57 +0200
-Labels:        run=nginx
-Annotations:      deployment.kubernetes.io/revision=1
-Selector:      run=nginx
-Replicas:      1 desired | 0 updated | 0 total | 0 available | 1 unavailable
-StrategyType:     RollingUpdate
-MinReadySeconds:  0
-RollingUpdateStrategy:  1 max unavailable, 1 max surge
-Pod Template:
-  Labels:   run=nginx
-  Containers:
-   nginx:
-    Image:     nginx
-    Port:      &amp;lt;none&amp;gt;
-    Environment:  &amp;lt;none&amp;gt;
-    Mounts:    &amp;lt;none&amp;gt;
-  Volumes:     &amp;lt;none&amp;gt;
-Conditions:
-  Type         Status   Reason
-  ----         ------   ------
-  Available       True  MinimumReplicasAvailable
-  ReplicaFailure  True  FailedCreate
-OldReplicaSets:      &amp;lt;none&amp;gt;
-NewReplicaSet:    nginx-4217019353 (0/1 replicas created)
-Events:
-  FirstSeen LastSeen Count From        SubObjectPath  Type     Reason         Message
-  --------- -------- ----- ----        -------------  -------- ------         -------
-  2m     2m    1  deployment-controller         Normal      ScalingReplicaSet Scaled up replica set nginx-4217019353 to 1
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;No se ha creado el &lt;em&gt;ReplicaSet&lt;/em&gt;. Vamos a ver porqué:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-sh&#34;&gt;$ kubectl describe rs nginx-4217019353 --namespace developers
-Name:    nginx-4217019353
-Namespace:  developers
-Selector:   pod-template-hash=4217019353,run=nginx
-Labels:     pod-template-hash=4217019353
-      run=nginx
-Annotations:   deployment.kubernetes.io/desired-replicas=1
-      deployment.kubernetes.io/max-replicas=2
-      deployment.kubernetes.io/revision=1
-Controlled By: Deployment/nginx
-Replicas:   0 current / 1 desired
-Pods Status:   0 Running / 0 Waiting / 0 Succeeded / 0 Failed
-Pod Template:
-  Labels:   pod-template-hash=4217019353
-      run=nginx
-  Containers:
-   nginx:
-    Image:     nginx
-    Port:      &amp;lt;none&amp;gt;
-    Environment:  &amp;lt;none&amp;gt;
-    Mounts:    &amp;lt;none&amp;gt;
-  Volumes:     &amp;lt;none&amp;gt;
-Conditions:
-  Type         Status   Reason
-  ----         ------   ------
-  ReplicaFailure  True  FailedCreate
-Events:
-  FirstSeen LastSeen Count From        SubObjectPath  Type     Reason      Message
-  --------- -------- ----- ----        -------------  -------- ------      -------
-  4m     1m    16 replicaset-controller         Warning     FailedCreate   Error creating: pods &amp;quot;nginx-4217019353-&amp;quot; is forbidden: failed quota: compute-resources: must specify limits.cpu,limits.memory,requests.cpu,requests.memory
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;El &lt;em&gt;deployment&lt;/em&gt; crea un &lt;em&gt;ReplicaSet&lt;/em&gt;, que a su vez intenta crear uno o más &lt;em&gt;pods&lt;/em&gt;. Como en el &lt;em&gt;Deployment&lt;/em&gt; no se ha especificado un límite para la CPU y memoria del &lt;em&gt;pod&lt;/em&gt; y lo hemos exigido en las cuotas impuestas al &lt;em&gt;namespace&lt;/em&gt;, la creación del &lt;em&gt;pod&lt;/em&gt; falla. El mensaje de error es claro:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;Error creating: pods &amp;quot;nginx-4217019353-&amp;quot; is forbidden: failed quota: compute-resources: must specify limits.cpu,limits.memory,requests.cpu,requests.memory
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Si creamos el &lt;em&gt;pod&lt;/em&gt; especificando los límites:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-sh&#34;&gt;$ kubectl run nginx \
-  --image=nginx \
-  --replicas=1 \
-  --requests=cpu=100m,memory=256Mi \
-  --limits=cpu=200m,memory=512Mi \
-  --namespace=developers
-
-$ kubectl get pods --namespace developers
-NAME                     READY     STATUS    RESTARTS   AGE
-nginx-2432944439-1zqs7   1/1       Running   0          19s
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Ahora, al revisar el &lt;em&gt;namespace&lt;/em&gt;:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-sh&#34;&gt;$ kubectl describe ns developers
-Name:    developers
-Labels:     &amp;lt;none&amp;gt;
-Annotations:   &amp;lt;none&amp;gt;
-Status:     Active
-
-Resource Quotas
- Name:            compute-resources
- Resource         Used  Hard
- --------         ---   ---
- limits.cpu       200m  2
- limits.memory    512Mi 2Gi
- pods             1     4
- requests.cpu     100m  1
- requests.memory  256Mi 1Gi
-
- Name:                  object-counts
- Resource               Used  Hard
- --------               ---   ---
- persistentvolumeclaims 0     2
- services.loadbalancers 0     2
- services.nodeports     0     0
-
-No resource limits.
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h1 id=&#34;namespace-y-dns&#34;&gt;&lt;em&gt;Namespace&lt;/em&gt; y DNS&lt;/h1&gt;
-
-&lt;p&gt;Cuando se crear un &lt;em&gt;service&lt;/em&gt;, se crea la correspondiente entrada en el DNS. Esta entrada es de la forma &lt;code&gt;&amp;lt;nombre-servicio&amp;gt;.&amp;lt;espacio-de-nombres&amp;gt;.svc.cluster.local&lt;/code&gt;, lo que significa que si un contenedor usa únicamente &lt;code&gt;&amp;lt;nombre-de-servicio&amp;gt;&lt;/code&gt;, la resolución del nombre se realizará de forma local en el espacio de nombres en el que se encuentre.&lt;/p&gt;
-
-&lt;p&gt;Esta configuración permite usar la misma configuración entre diferentes espacios de nombres (por ejemplo &lt;em&gt;Desarrollo&lt;/em&gt;, &lt;em&gt;Integración&lt;/em&gt; y &lt;em&gt;Producción&lt;/em&gt;).&lt;/p&gt;
-
-&lt;p&gt;Para que un contenedor pueda resolver el nombre de otro contenedor en otro &lt;em&gt;namespace&lt;/em&gt;, debes usar el FQDN.&lt;/p&gt;
-
-&lt;h1 id=&#34;borrando-un-namespace&#34;&gt;Borrando un &lt;em&gt;namespace&lt;/em&gt;&lt;/h1&gt;
-
-&lt;blockquote&gt;
-&lt;p&gt;AVISO: Al borrar un &lt;em&gt;namespace&lt;/em&gt; se borran &lt;strong&gt;todos los objetos&lt;/strong&gt; del espacio de nombres.&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;Para borrar un &lt;em&gt;namespace&lt;/em&gt;, usa el comando &lt;code&gt;delete&lt;/code&gt;:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-sh&#34;&gt;$ kubectl delete ns developers
-namespace &amp;quot;developers&amp;quot; deleted
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;El borrado del &lt;em&gt;namespace&lt;/em&gt; es asíncrono, por lo que puedes verlo como &lt;code&gt;Terminating&lt;/code&gt; hasta que se realiza el borrado definitivo del mismo:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-sh&#34;&gt;$ kubectl get ns
-NAME          STATUS        AGE
-default       Active        21d
-developers    Terminating   2h
-kube-system   Active        21d
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h1 id=&#34;resumen&#34;&gt;Resumen&lt;/h1&gt;
-
-&lt;p&gt;En este artículo hemos visto qué es un &lt;em&gt;Namespace&lt;/em&gt; y para qué sirve.&lt;/p&gt;
-
-&lt;p&gt;También hemos visto cómo crear un espacio de nombres, obtener información sobre él y crear objetos en el &lt;em&gt;namespace&lt;/em&gt;.&lt;/p&gt;
-
-&lt;p&gt;Hemos aplicado cuotas para limitar los recursos disponibles y hemos visto cómo afecta a la creación de &lt;em&gt;deployments&lt;/em&gt; en el espacio de nombres.&lt;/p&gt;
-
-&lt;p&gt;Finalmente, hemos eliminado el espacio de nombres (y todos los objetos contenidos en él).&lt;/p&gt;</description>
+&lt;p&gt;&lt;/p&gt;</description>
     </item>
     
     <item>
@@ -497,345 +55,9 @@ kube-system   Active        21d
       <pubDate>Sun, 16 Jul 2017 19:38:17 +0200</pubDate>
       
       <guid>https://onthedock.github.io/post/170716-mi-primera-app-en-kubernetes/</guid>
-      <description>&lt;p&gt;Después de &lt;a href=&#34;https://onthedock.github.io/post/170702-ip-en-mensaje-prelogin/&#34;&gt;crear un cluster de un solo nodo&lt;/a&gt;, en esta entrada explico los pasos para publicar una aplicación en el clúster.&lt;/p&gt;
+      <description>&lt;p&gt;Después de &lt;a href=&#34;https://onthedock.github.io/post/170702-crear-un-cluster-de-un-solo-nodo/&#34;&gt;crear un cluster de un solo nodo&lt;/a&gt;, en esta entrada explico los pasos para publicar una aplicación en el clúster.&lt;/p&gt;
 
-&lt;p&gt;&lt;/p&gt;
-
-&lt;h1 id=&#34;objetivo-publicar-una-aplicación&#34;&gt;Objetivo: publicar una aplicación&lt;/h1&gt;
-
-&lt;p&gt;El objetivo de esta entrada es publicar una aplicación en el clúster accesible a través de la IP del &lt;em&gt;host&lt;/em&gt;. Es decir, a todos los efectos, el usuario accede a la aplicación sin ningún conocimiento de que se encuentra en el clúster, corriendo sobre uno o varios contenedores.&lt;/p&gt;
-
-&lt;h1 id=&#34;usa-ficheros-yaml&#34;&gt;Usa ficheros YAML&lt;/h1&gt;
-
-&lt;p&gt;Los dos objetos necesarios para &lt;em&gt;publicar&lt;/em&gt; la aplicación, el &lt;em&gt;Deployment&lt;/em&gt; y el &lt;em&gt;Service&lt;/em&gt;, pueden crearse directamente o usando un fichero YAML.&lt;/p&gt;
-
-&lt;p&gt;El &lt;a href=&#34;https://kubernetes.io/docs/tutorials/kubernetes-basics/deploy-intro/&#34;&gt;tutorial de Kubernetes&lt;/a&gt; usa el método &lt;em&gt;online&lt;/em&gt;, creando los objetos directamente en la línea de comando. Sin embargo, creo que este método no debería usarse nunca en producción (porque pueden pasar cosas &lt;strong&gt;&lt;a href=&#34;https://aws.amazon.com/message/41926/&#34;&gt;muy&lt;/a&gt; &lt;a href=&#34;http://money.cnn.com/2017/03/02/technology/amazon-s3-outage-human-error/index.html&#34;&gt;malas&lt;/a&gt;&lt;/strong&gt;), por lo que vamos a usar los ficheros de configuración YAML para crear y actualizar los objetos en el clúster.&lt;/p&gt;
-
-&lt;h2 id=&#34;ejemplo-de-proceso-de-aprobación&#34;&gt;Ejemplo de proceso de aprobación&lt;/h2&gt;
-
-&lt;p&gt;Idealmente, cualquier cambio en el estado de la aplicación en el clúster debería seguir un flujo similar al de cualquier otra modificación que afecte a un sistema de producción; es decir, el DevOp clona el repositorio con la configuración de la aplicación en su equipo, hace los cambios y los verifica. Una vez satisfecho, los sube al repositorio (pasando por el sistema de aprobación establecido, como por ejemplo, una &lt;a href=&#34;https://help.github.com/articles/about-pull-requests/&#34;&gt;&lt;em&gt;pull request&lt;/em&gt;&lt;/a&gt;). Una vez aprobado, se incorpora el cambio al repositorio de configuración de la aplicación en producción, desde donde se aplica al entorno de producción.&lt;/p&gt;
-
-&lt;figure&gt;
-  &lt;amp-img src=&#34;https://onthedock.github.io/images/170716/pull-request-flow.png&#34; alt=&#34;Mi primera aplicación en Kubernetes images/170716/pull-request-flow.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
-  
-  &lt;figcaption&gt;
-    
-    &lt;a href=&#34;https://docs.rhodecode.com/RhodeCode-Enterprise/collaboration/pr-flow.html&#34; target=&#34;_blank&#34;&gt;Proceso de aprobación basado en pull request.&lt;/a&gt;
-    
-  &lt;/figcaption&gt;
-  
-&lt;/figure&gt;
-
-
-&lt;h1 id=&#34;define-el-deployment&#34;&gt;Define el &lt;em&gt;deployment&lt;/em&gt;&lt;/h1&gt;
-
-&lt;p&gt;Como vimos en la entrada de &lt;a href=&#34;https://onthedock.github.io/post/170528-revision-de-conceptos/&#34;&gt;revisión de conceptos&lt;/a&gt;, el primer paso para desplegar una aplicación en un clúster Kubernetes es crear un &lt;em&gt;deployment&lt;/em&gt;.&lt;/p&gt;
-
-&lt;p&gt;El fichero de declaración del &lt;em&gt;deployment&lt;/em&gt; tiene tres bloques (la estructura es común al resto de objetos):&lt;/p&gt;
-
-&lt;ol&gt;
-&lt;li&gt;Cabecera&lt;/li&gt;
-&lt;li&gt;Metadatos&lt;/li&gt;
-&lt;li&gt;Especificaciones&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-yaml&#34;&gt;apiVersion: apps/v1beta1
-kind: Deployment
-metadata:
-  name: nginx 
-spec:
-  replicas: 1
-  template:
-    metadata:
-      labels:
-        app: nginx
-    spec:
-      containers:
-      - name: nginx
-        image: nginx:stable-alpine
-        ports:
-        - containerPort: 80
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;cabecera&#34;&gt;Cabecera&lt;/h2&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-yaml&#34;&gt;apiVersion: apps/v1beta1
-kind: Deployment
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;En primer lugar, la &lt;a href=&#34;https://kubernetes.io/docs/api-reference/v1.6/#deployment-v1beta1-apps&#34;&gt;versión de API&lt;/a&gt; que usamos para definir el &lt;em&gt;deployment&lt;/em&gt;.&lt;/p&gt;
-
-&lt;p&gt;En &lt;code&gt;kind&lt;/code&gt;, especificamos el tipo de objeto que vamos a definir.&lt;/p&gt;
-
-&lt;h2 id=&#34;metadatos&#34;&gt;Metadatos&lt;/h2&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-yaml&#34;&gt;metadata:
-  name: nginx 
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Datos que describen el &lt;em&gt;deployment&lt;/em&gt;; el único necesario es el nombre del &lt;em&gt;deployment&lt;/em&gt;.&lt;/p&gt;
-
-&lt;h2 id=&#34;especificaciones&#34;&gt;Especificaciones&lt;/h2&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-yaml&#34;&gt;spec:
-  replicas: 1
-  template:
-    metadata:
-      labels:
-        app: nginx
-    spec:
-      containers:
-      - name: nginx
-        image: nginx:stable-alpine
-        ports:
-        - containerPort: 80
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;En el apartado de especificaciones se declaran el número de réplicas de la aplicación que queremos en ejecución. Kubernetes se encarga de mantener este número de réplicas en ejecución en todo momento, respondiendo automáticamente en caso de fallo de alguno de los &lt;em&gt;pods&lt;/em&gt; o de los nodos del clúster.&lt;/p&gt;
-
-&lt;p&gt;Para poder crear nuevos &lt;em&gt;pods&lt;/em&gt; si es necesario, debemos definir una &lt;code&gt;template&lt;/code&gt; (plantilla) a partir de la cual crearlos.&lt;/p&gt;
-
-&lt;p&gt;Como, al fin y al cabo estamos definiendo un objeto de tipo &lt;em&gt;pod&lt;/em&gt;, tenemos de nuevo una sección de metadatos (en este caso, etiquetas para los &lt;em&gt;pods&lt;/em&gt; del &lt;em&gt;deployment&lt;/em&gt;) y las especificaciones para crear un &lt;em&gt;pod&lt;/em&gt;: el nombre, la imagen base para el contenedor del &lt;em&gt;pod&lt;/em&gt; y el puerto publicado por el contenedor.&lt;/p&gt;
-
-&lt;p&gt;Pueden definirse muchos otros parámetros, pero estos son los mínimos indispensables para tener un &lt;em&gt;deployment&lt;/em&gt; funcional (el único requerido es el &lt;code&gt;name&lt;/code&gt;).&lt;/p&gt;
-
-&lt;blockquote&gt;
-&lt;p&gt;La imagen se descarga por defecto desde DockerHub; si quieres usar un &lt;em&gt;registry&lt;/em&gt; alternativo, debes indicar la URL completa al recurso.&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;h1 id=&#34;crea-el-deployment&#34;&gt;Crea el &lt;em&gt;deployment&lt;/em&gt;&lt;/h1&gt;
-
-&lt;p&gt;En el &lt;a href=&#34;https://onthedock.github.io/post/170702-ip-en-mensaje-prelogin/&#34;&gt;cluster de un solo nodo&lt;/a&gt; de pruebas, he subido el fichero &lt;code&gt;nginx-deployment.yaml&lt;/code&gt; con la definición del apartado anterior.&lt;/p&gt;
-
-&lt;p&gt;Para crear el &lt;em&gt;deployment&lt;/em&gt; usamos:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-sh&#34;&gt;$ kubectl create -f nginx-deployment.yaml
-deployment &amp;quot;nginx&amp;quot; created
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Otra opción es usar la opción &lt;code&gt;apply&lt;/code&gt;, que actualiza el &lt;em&gt;deployment&lt;/em&gt; si ya existe.&lt;/p&gt;
-
-&lt;p&gt;Una vez creado, lo examinamos en detalle con &lt;code&gt;describe&lt;/code&gt;:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-sh&#34;&gt;$ kubectl describe deployment nginx
-Name:       nginx
-Namespace:     default
-CreationTimestamp:   Sun, 16 Jul 2017 11:06:48 +0200
-Labels:        app=nginx
-Annotations:      deployment.kubernetes.io/revision=1
-Selector:      app=nginx
-Replicas:      1 desired | 1 updated | 1 total | 1 available | 0 unavailable
-StrategyType:     RollingUpdate
-MinReadySeconds:  0
-RollingUpdateStrategy:  25% max unavailable, 25% max surge
-Pod Template:
-  Labels:   app=nginx
-  Containers:
-   nginx:
-    Image:     nginx:stable-alpine
-    Port:      80/TCP
-    Environment:  &amp;lt;none&amp;gt;
-    Mounts:    &amp;lt;none&amp;gt;
-  Volumes:     &amp;lt;none&amp;gt;
-Conditions:
-  Type      Status   Reason
-  ----      ------   ------
-  Available    True  MinimumReplicasAvailable
-  Progressing  True  NewReplicaSetAvailable
-OldReplicaSets:   &amp;lt;none&amp;gt;
-NewReplicaSet: nginx-3287103792 (1/1 replicas created)
-Events:
-  FirstSeen LastSeen Count From        SubObjectPath  Type     Reason         Message
-  --------- -------- ----- ----        -------------  -------- ------         -------
-  4m     4m    1  deployment-controller         Normal      ScalingReplicaSet Scaled up replica set nginx-3287103792 to 1
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;El &lt;em&gt;pod&lt;/em&gt; creado por Kubernetes tiene una IP asignada y está escuchando en el puerto 80, pero de momento sólo es accesible &lt;em&gt;desde dentro&lt;/em&gt; del clúster.&lt;/p&gt;
-
-&lt;p&gt;Puedes comprobarlo obteniendo el nombre del &lt;em&gt;pod&lt;/em&gt; y usando &lt;code&gt;describe&lt;/code&gt; para obtener su IP. A continuación, mediante &lt;code&gt;curl&lt;/code&gt; obtén la página de bienvenida de Nginx:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-html&#34;&gt;$ curl http://10.32.0.4:80
-&amp;lt;!DOCTYPE html&amp;gt;
-&amp;lt;html&amp;gt;
-&amp;lt;head&amp;gt;
-&amp;lt;title&amp;gt;Welcome to nginx!&amp;lt;/title&amp;gt;
-&amp;lt;style&amp;gt;
-    body {
-        width: 35em;
-        margin: 0 auto;
-        font-family: Tahoma, Verdana, Arial, sans-serif;
-    }
-&amp;lt;/style&amp;gt;
-&amp;lt;/head&amp;gt;
-&amp;lt;body&amp;gt;
-&amp;lt;h1&amp;gt;Welcome to nginx!&amp;lt;/h1&amp;gt;
-&amp;lt;p&amp;gt;If you see this page, the nginx web server is successfully installed and
-working. Further configuration is required.&amp;lt;/p&amp;gt;
-
-&amp;lt;p&amp;gt;For online documentation and support please refer to
-&amp;lt;a href=&amp;quot;http://nginx.org/&amp;quot;&amp;gt;nginx.org&amp;lt;/a&amp;gt;.&amp;lt;br/&amp;gt;
-Commercial support is available at
-&amp;lt;a href=&amp;quot;http://nginx.com/&amp;quot;&amp;gt;nginx.com&amp;lt;/a&amp;gt;.&amp;lt;/p&amp;gt;
-
-&amp;lt;p&amp;gt;&amp;lt;em&amp;gt;Thank you for using nginx.&amp;lt;/em&amp;gt;&amp;lt;/p&amp;gt;
-&amp;lt;/body&amp;gt;
-&amp;lt;/html&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Si intentas algo parecido &lt;em&gt;desde fuera&lt;/em&gt; del clúster, no tendrás respuesta.&lt;/p&gt;
-
-&lt;h2 id=&#34;modifica-el-número-de-réplicas&#34;&gt;Modifica el número de réplicas&lt;/h2&gt;
-
-&lt;p&gt;A modo de experimento, puedes modificar el número de réplicas directamente desde la línea de comandos usando:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-sh&#34;&gt;$ kubectl scale deployment nginx --replicas 3
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Y revisando el resultado del comando anterior:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-sh&#34;&gt;$ kubectl get pods -l app=nginx
-NAME                     READY     STATUS    RESTARTS   AGE
-nginx-3225377387-l0hwp   1/1       Running   0          3m
-nginx-3225377387-ptkdt   1/1       Running   0          3m
-nginx-3225377387-rrz1x   1/1       Running   0          11m
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Lo correcto, de todas maneras, habría sido modificar el fichero &lt;code&gt;nginx-deployment.yaml&lt;/code&gt; y aplicar la nueva configuración mediante &lt;code&gt;kubectl apply -f nginx-deployment.yaml&lt;/code&gt;&lt;/p&gt;
-
-&lt;h1 id=&#34;publica-la-aplicación&#34;&gt;Publica la aplicación&lt;/h1&gt;
-
-&lt;p&gt;La aplicación está disponible en el clúster, pero sólo es accesible &lt;em&gt;desde dentro&lt;/em&gt; del clúster. De este modo no es especialmente útil (teniendo en cuenta que se trata de un servidor web).&lt;/p&gt;
-
-&lt;p&gt;El siguiente paso es definir un &lt;em&gt;Service&lt;/em&gt;.&lt;/p&gt;
-
-&lt;p&gt;Un &lt;a href=&#34;https://kubernetes.io/docs/concepts/services-networking/service/&#34;&gt;service&lt;/a&gt; define un conjunto de &lt;em&gt;pods&lt;/em&gt; y una política de acceso.&lt;/p&gt;
-
-&lt;p&gt;Esto quiere decir que el servicio agrupa &lt;em&gt;pods&lt;/em&gt; independientes en un conjunto que &amp;ldquo;trabaja en equipo&amp;rdquo; para hacer &amp;ldquo;algo&amp;rdquo; (que es lo que se llama &lt;em&gt;microservice&lt;/em&gt;, en terminología &lt;em&gt;DevOp&lt;/em&gt;).&lt;/p&gt;
-
-&lt;p&gt;En cuanto a la política de acceso, es una forma de indicar que -en la mayoría de casos- se asigna un puerto &lt;strong&gt;público&lt;/strong&gt; para que se pueda acceder a la aplicación &lt;em&gt;desde fuera&lt;/em&gt; del clúster.&lt;/p&gt;
-
-&lt;h1 id=&#34;define-el-service&#34;&gt;Define el &lt;em&gt;service&lt;/em&gt;&lt;/h1&gt;
-
-&lt;p&gt;El &lt;em&gt;service&lt;/em&gt; tiene los mismos tres bloques que el &lt;em&gt;deployment&lt;/em&gt;:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-yaml&#34;&gt;apiVersion: v1
-kind: Service
-metadata:
-  name: nginx
-  labels:
-    app: nginx
-spec:
-  selector:
-    app: nginx
-  ports:
-    - protocol: TCP
-      port: 80
-  type: LoadBalancer
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;cabecera-1&#34;&gt;Cabecera&lt;/h2&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-yaml&#34;&gt;apiVersion: v1
-kind: Service
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;En la cabecera tenemos la versión de la API. Los &lt;em&gt;services&lt;/em&gt; existen desde la primera versión del API de Kubernetes, a diferencia de los &lt;em&gt;deployments&lt;/em&gt;.&lt;/p&gt;
-
-&lt;blockquote&gt;
-&lt;p&gt;Recuerda de la entrada de &lt;a href=&#34;https://onthedock.github.io/post/170528-revision-de-conceptos/&#34;&gt;revisión de conceptos&lt;/a&gt; que antes de los &lt;em&gt;deployments&lt;/em&gt; se usaban directamente los &lt;em&gt;Replication Controllers&lt;/em&gt;, que después de mejoraron y se convirtieron en &lt;em&gt;ReplicaSets&lt;/em&gt;.&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;En cuanto al tipo de objeto, en este caso definimos un &lt;code&gt;Service&lt;/code&gt;.&lt;/p&gt;
-
-&lt;h2 id=&#34;metadatos-1&#34;&gt;Metadatos&lt;/h2&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-yaml&#34;&gt;metadata:
-  name: nginx
-  labels:
-    app: nginx
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Tampoco hay sorpresas en cuanto a los metadatos del servicio; en este caso, además del nombre, he añadido la etiqueta &lt;code&gt;app: nginx&lt;/code&gt;.&lt;/p&gt;
-
-&lt;h2 id=&#34;especificaciones-1&#34;&gt;Especificaciones&lt;/h2&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-yaml&#34;&gt;spec:
-  selector:
-    app: nginx
-  ports:
-    - protocol: TCP
-      port: 80
-  type: LoadBalancer
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Como hemos visto en la definición de &lt;em&gt;servicio&lt;/em&gt;, éste sirve para agrupar &lt;em&gt;pods&lt;/em&gt;. El conjunto de &lt;em&gt;pods&lt;/em&gt; se define mediante un &lt;strong&gt;selector&lt;/strong&gt;, que en este caso, se trata de la etiqueta &lt;code&gt;app: nginx&lt;/code&gt;.&lt;/p&gt;
-
-&lt;p&gt;Usar etiquetas permite organizar los &lt;em&gt;pods&lt;/em&gt; con total flexibilidad. Por ejemplo, podrías tener diferentes frontales (Nginx para contenido estático y Apache para el resto, por ejemplo) y agruparlos todos bajo una etiqueta llamada &lt;code&gt;tier: front-end&lt;/code&gt;, por ejemplo, aunque cada tipo tenga, además, etiquetas específicas (&lt;code&gt;app: nginx&lt;/code&gt; y &lt;code&gt;app: apache&lt;/code&gt;).&lt;/p&gt;
-
-&lt;blockquote&gt;
-&lt;p&gt;La elección de las etiquetas es un asunto &lt;strong&gt;muy importante&lt;/strong&gt; que debes tener lo mejor organizado posible para tus aplicaciones.&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;A continuación, en la definición del servicio, tenemos la parte de &lt;em&gt;política de acceso&lt;/em&gt;: una sección de &lt;code&gt;ports&lt;/code&gt; en la que se define el protocolo y puerto (o puertos) y el tipo de &amp;ldquo;conexión&amp;rdquo;.&lt;/p&gt;
-
-&lt;p&gt;Finalmente, mediante &lt;code&gt;type&lt;/code&gt;, define el tipo de acceso &lt;em&gt;desde el exterior&lt;/em&gt;. En el ejemplo he elegido el tipo &lt;code&gt;LoadBalancer&lt;/code&gt;.&lt;/p&gt;
-
-&lt;blockquote&gt;
-&lt;p&gt;Este tipo de acceso creo que no está disponible en Minikube, por lo que si usas este entorno para las pruebas, quizás debas usar &lt;code&gt;type: NodePort&lt;/code&gt;.&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;En resumen, el servicio expone el conjunto de &lt;em&gt;pods&lt;/em&gt; que verifican la condición expuesta en el &lt;code&gt;selector&lt;/code&gt; y conecta los puertos locales -de los contenedores- con puertos externos a nivel de clúster de Kubernetes.&lt;/p&gt;
-
-&lt;h1 id=&#34;crea-el-service&#34;&gt;Crea el &lt;em&gt;service&lt;/em&gt;&lt;/h1&gt;
-
-&lt;p&gt;El método para crear/actualizar el &lt;em&gt;service&lt;/em&gt; es el mismo que para el &lt;em&gt;deployment&lt;/em&gt;:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-sh&#34;&gt;$ kubectl apply -f nginx-service.yaml
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Una vez aplicado el &lt;em&gt;service&lt;/em&gt;, usa &lt;code&gt;describe&lt;/code&gt; para inspeccionar en detalle el objeto:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-sh&#34;&gt;$ kubectl describe service nginx
-Name:       nginx
-Namespace:     default
-Labels:        app=nginx
-Annotations:      kubectl.kubernetes.io/last-applied-configuration={&amp;quot;apiVersion&amp;quot;:&amp;quot;v1&amp;quot;,&amp;quot;kind&amp;quot;:&amp;quot;Service&amp;quot;,&amp;quot;metadata&amp;quot;:{&amp;quot;annotations&amp;quot;:{},&amp;quot;labels&amp;quot;:{&amp;quot;app&amp;quot;:&amp;quot;nginx&amp;quot;},&amp;quot;name&amp;quot;:&amp;quot;nginx&amp;quot;,&amp;quot;namespace&amp;quot;:&amp;quot;default&amp;quot;},&amp;quot;spec&amp;quot;:{&amp;quot;ports&amp;quot;:[{&amp;quot;port...
-Selector:      app=nginx
-Type:       LoadBalancer
-IP:         10.107.44.10
-Port:       &amp;lt;unset&amp;gt;  80/TCP
-NodePort:      &amp;lt;unset&amp;gt;  31010/TCP
-Endpoints:     10.32.0.3:80
-Session Affinity: None
-Events:        &amp;lt;none&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Para saber con qué puerto externo se ha conectado el puerto local 80/TCP necesitamos revisar el detalle del servicio creado. Como no hemos especificado ningún &lt;code&gt;targetPort&lt;/code&gt; Kubernetes asigna uno libre al azar.&lt;/p&gt;
-
-&lt;blockquote&gt;
-&lt;p&gt;El comportamiento es el mismo que cuando se lanza un contenedor mediante &lt;code&gt;docker run -P&lt;/code&gt;&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;En mi caso el &lt;code&gt;NodePort&lt;/code&gt; asignado es el 31010/TCP. Esto significa que si acceso a la IP del clúster a través del puerto 31010, Kubernetes redirigirá la petición al puerto 80 del servicio, con lo que obtendré la página de bienvenida de Nginx.&lt;/p&gt;
-
-&lt;figure&gt;
-  &lt;amp-img src=&#34;https://onthedock.github.io/images/170716/nginx-en-kubernetes.png&#34; alt=&#34;Mi primera aplicación en Kubernetes images/170716/nginx-en-kubernetes.png&#34; width=640 height=400 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
-  
-&lt;/figure&gt;
-
-
-&lt;p&gt;Este es el resultado marcado como éxito para este experimento.&lt;/p&gt;
-
-&lt;h1 id=&#34;resumen&#34;&gt;Resumen&lt;/h1&gt;
-
-&lt;p&gt;En este artículo he explicado los pasos necesarios para publicar una aplicación en un clúster de Kubernetes:&lt;/p&gt;
-
-&lt;ol&gt;
-&lt;li&gt;Crear un &lt;em&gt;Deployment&lt;/em&gt;&lt;/li&gt;
-&lt;li&gt;Crear un &lt;em&gt;Service&lt;/em&gt;&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;p&gt;El &lt;em&gt;deployment&lt;/em&gt; crea los diferentes &lt;em&gt;pods&lt;/em&gt; que componen la aplicación. El &lt;em&gt;service&lt;/em&gt; los agrupa de manera funcional y los expone para que sean accesibles &lt;em&gt;desde el exterior&lt;/em&gt; del clúster.&lt;/p&gt;</description>
+&lt;p&gt;&lt;/p&gt;</description>
     </item>
     
     <item>
@@ -844,23 +66,7 @@ Events:        &amp;lt;none&amp;gt;
       <pubDate>Sun, 02 Jul 2017 23:14:22 +0200</pubDate>
       
       <guid>https://onthedock.github.io/post/170702-crear-un-cluster-de-un-solo-nodo/</guid>
-      <description>&lt;p&gt;Para tener un clúster de desarrollo con la versatilidad de poder hacer y deshacer cambios (usando los &lt;em&gt;snapshots&lt;/em&gt; de una máquina virtual), lo más sencillo es disponer de un clúster de Kubernetes de un solo nodo.&lt;/p&gt;
-
-&lt;p&gt;
-Por defecto, el nodo master de un clúster de Kubernetes no ejecuta ningún tipo de carga de trabajo relacionada con los pods desplegados en el clúster, centrándose en las tareas de gestión de los &lt;em&gt;pods&lt;/em&gt; y del propio clúster.&lt;/p&gt;
-
-&lt;p&gt;Para permitir que el nodo master pueda ejecutar &lt;em&gt;pods&lt;/em&gt;, debemos modificar las opciones por defecto de Kubernetes.&lt;/p&gt;
-
-&lt;p&gt;En primer lugar, comprobamos que todos los pods del espacio de nombres de sistema han arrancado y se ejecutan correctamente:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;$ kubectl get nodes --all-namespaces
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Para que el nodo master admita el despliegue de &lt;em&gt;pods&lt;/em&gt;, modificamos mediante:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;$ kubectl taint nodes --all node-role.kubernetes.io/master-
-node &amp;quot;k8s-snc&amp;quot; untainted
-&lt;/code&gt;&lt;/pre&gt;</description>
+      <description>&lt;p&gt;Para tener un clúster de desarrollo con la versatilidad de poder hacer y deshacer cambios (usando los &lt;em&gt;snapshots&lt;/em&gt; de una máquina virtual), lo más sencillo es disponer de un clúster de Kubernetes de un solo nodo.&lt;/p&gt;</description>
     </item>
     
     <item>
@@ -873,41 +79,7 @@ node &amp;quot;k8s-snc&amp;quot; untainted
 
 &lt;p&gt;En este artículo se muestra cómo hacer que se muestre la IP del equipo.&lt;/p&gt;
 
-&lt;p&gt;&lt;/p&gt;
-
-&lt;p&gt;Cuando tenemos una máquina (virtual) configurada para obtener la IP de forma dinámica mediante DHCP, al desconocer por adelantado la IP que se le ha asignado, es necesario conectarse al hipervisor, hacer login en la máquina virtual para, finalmente, obtener la IP &lt;em&gt;actual&lt;/em&gt; de la VM.&lt;/p&gt;
-
-&lt;p&gt;Entonces podemos conectarnos &lt;em&gt;remotamente&lt;/em&gt; usando PuTTY (desde Windows) o un emulador de terminal desde Linux/OSX.&lt;/p&gt;
-
-&lt;p&gt;Sin embargo, hay una manera de agilizar este proceso, aprovechando el mensaje que se muestra antes del login.&lt;/p&gt;
-
-&lt;blockquote&gt;
-&lt;p&gt;Aunque en este caso he usado Alpine Linux, las instrucciones son igualmente válidas para la mayoría de distribuciones.&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;En primer lugar necesitamos ejecutar un &lt;em&gt;script&lt;/em&gt; durante el arranque del sistema operativo. En el caso concreto de Alpine Linux, he encontrado la solución en &lt;a href=&#34;https://forum.alpinelinux.org/forum/general-discussion/run-script-boot&#34;&gt;run script on boot&lt;/a&gt;.&lt;/p&gt;
-
-&lt;p&gt;Ya que no vamos a escribir nuestro propio servicio, usaremos el servicio &lt;em&gt;local&lt;/em&gt;. Para ello, hay que añadir nuestro &lt;em&gt;script&lt;/em&gt; en la carpeta &lt;code&gt;/etc/local.d/&lt;/code&gt;&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;rc-update add local default
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;El &lt;code&gt;README&lt;/code&gt; ubicado en &lt;code&gt;/etc/local.d/README&lt;/code&gt; indica que cualquier fichero ejecutable con extensión &lt;code&gt;.start&lt;/code&gt; se lanza al arrancar el servicio, mientras que si la extensión es &lt;code&gt;.stop&lt;/code&gt;, se ejecuta al parar el servicio.&lt;/p&gt;
-
-&lt;p&gt;En mi caso, he usado el &lt;em&gt;script&lt;/em&gt; para obtener la IP de la máquina como se indica en &lt;a href=&#34;http://offbytwo.com/2008/05/09/show-ip-address-of-vm-as-console-pre-login-message.html&#34;&gt;Show IP address of VM as console pre-login message&lt;/a&gt; y la he escrito en el fichero &lt;code&gt;/etc/issue&lt;/code&gt;:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;/sbin/ifconfig | grep &amp;quot;inet addr&amp;quot; | grep -v &amp;quot;127.0.0.1&amp;quot; | awk &#39;{ print $2 }&#39; | awk -F: &#39;{ print $2 }&#39; &amp;gt; /etc/issue
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Después de convertir el &lt;em&gt;script&lt;/em&gt; en ejecutable, he reinciado la máquina para probar que todo funcionaba como esperaba.&lt;/p&gt;
-
-&lt;p&gt;Tras los mensajes de arranque, se muestra:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;192.168.1.208
-alpine login:
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Así no hace falta hacer &lt;em&gt;login&lt;/em&gt; en la máquina para obtener la IP.&lt;/p&gt;</description>
+&lt;p&gt;&lt;/p&gt;</description>
     </item>
     
     <item>
@@ -922,104 +94,7 @@ alpine login:
 
 &lt;p&gt;En este artículo explico qué diferencias he encontrado en Alpine.&lt;/p&gt;
 
-&lt;p&gt;&lt;/p&gt;
-
-&lt;h2 id=&#34;descargando-alpine-linux&#34;&gt;Descargando Alpine Linux&lt;/h2&gt;
-
-&lt;p&gt;La primera diferencia respecto al resto de distribuciones es el tamaño de la ISO de instalación. En la &lt;a href=&#34;https://alpinelinux.org/downloads/&#34;&gt;página de descarga&lt;/a&gt; de Alpine Linux, tienes varias versiones para descargar. Además de las habituales, en función de la arquitectura (x86, x86-64, Raspberry Pi, Generic ARM), tienes disponibles versiones orientadas a entornos virtuales, para Xen, etc.&lt;/p&gt;
-
-&lt;p&gt;En mi caso he descargado la versión &lt;code&gt;Virtual&lt;/code&gt;, orientada a sistemas virtuales y la imagen de instalación ocupa 35MB!.&lt;/p&gt;
-
-&lt;h2 id=&#34;máquina-virtual&#34;&gt;Máquina virtual&lt;/h2&gt;
-
-&lt;p&gt;He creado una máquina virtual y he conectado la ISO.&lt;/p&gt;
-
-&lt;p&gt;Al arrancar la máquina, el sistema arranca en modo &lt;em&gt;live-CD&lt;/em&gt;, ejecutándose completamente en memoria.&lt;/p&gt;
-
-&lt;p&gt;Para acceder al sistema, teclea &lt;code&gt;root&lt;/code&gt;.&lt;/p&gt;
-
-&lt;p&gt;Mi primera sorpresa ha sido que no se ha solicitado la contraseña.&lt;/p&gt;
-
-&lt;p&gt;Una vez dentro, ara configurar el sistema, lanza la utilidad &lt;code&gt;setup-alpine&lt;/code&gt;.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;Welcome to Alpine!
-
-The Alpine Wiki contains a large amount of how-to guides and general
-information about administrating Alpine systems.
-See &amp;lt;http://wiki.alpinelinux.org&amp;gt;.
-
-You can setup the system with the command: setup-alpine
-
-You may change this message by editing /etc/motd.
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;El teclado, por defecto, está en inglés, por lo que el &lt;code&gt;-&lt;/code&gt; se encuentra bajo la tecla &lt;code&gt;?&lt;/code&gt; en un teclado en castellano.&lt;/p&gt;
-
-&lt;p&gt;El script de instalación pasa por los diferentes pasos de configuración:&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;teclado: &lt;code&gt;es&lt;/code&gt;&lt;/li&gt;
-&lt;li&gt;variacion de teclado: &lt;code&gt;es-cat&lt;/code&gt;&lt;/li&gt;
-&lt;li&gt;nombre del equipo: &lt;code&gt;alpine&lt;/code&gt;&lt;/li&gt;
-&lt;li&gt;inicializar interfaz: &lt;code&gt;eth0&lt;/code&gt;&lt;/li&gt;
-&lt;li&gt;configuración de IP: &lt;code&gt;dhcp&lt;/code&gt;&lt;/li&gt;
-&lt;li&gt;¿quieres realizar alguna configuración de red manual?: &lt;code&gt;no&lt;/code&gt;&lt;/li&gt;
-&lt;li&gt;establecer el password del &lt;code&gt;root&lt;/code&gt;:&lt;/li&gt;
-&lt;li&gt;zona horaria: &lt;code&gt;CET&lt;/code&gt;&lt;/li&gt;
-&lt;li&gt;Proxy: &lt;code&gt;none&lt;/code&gt;&lt;/li&gt;
-&lt;li&gt;Elección del &lt;em&gt;mirror&lt;/em&gt;: &lt;code&gt;f&lt;/code&gt; (se selecciona el más rápido)&lt;/li&gt;
-&lt;li&gt;instalación de servidor de SSH: &lt;code&gt;openssh&lt;/code&gt; (opción por defecto)&lt;/li&gt;
-&lt;li&gt;cliente NTP: &lt;code&gt;chrony&lt;/code&gt; (opción por defecto)&lt;/li&gt;
-&lt;li&gt;selección de disco: &lt;code&gt;sda&lt;/code&gt;&lt;/li&gt;
-&lt;li&gt;uso del disco: &lt;code&gt;sys&lt;/code&gt; (selecciona &lt;code&gt;?&lt;/code&gt; para ver las diferencias entre las opciones presentadas)&lt;/li&gt;
-&lt;li&gt;confirmar el borrado del disco: &lt;code&gt;y&lt;/code&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;Y ¡ya está! Sólo queda reiniciar.&lt;/p&gt;
-
-&lt;p&gt;En mi caso, he escrito &lt;code&gt;reboot&lt;/code&gt; y el sistema se ha reiniciado al cabo de unos pocos segundos.&lt;/p&gt;
-
-&lt;p&gt;Al hacer login de nuevo, me ha sorprendido que no se me haya solicitado el password y que se haya perdido la configuración introducida :(&lt;/p&gt;
-
-&lt;p&gt;Alpine Linux es una distribución tan ligera -y en la máquina de laboratorio tengo un SSD- que me ha costado un momento darme cuenta de que, al reiniciar, la máquina virtual no ha perdido la configuración, sino que ha arrancado de nuevo la versión del &lt;em&gt;live-CD&lt;/em&gt;.&lt;/p&gt;
-
-&lt;p&gt;Una vez expulsada la ISO, he reiniciado de nuevo y he accedido al sistema ya instalado en la VM ;)&lt;/p&gt;
-
-&lt;h2 id=&#34;acceso-remoto-vía-ssh&#34;&gt;Acceso remoto vía SSH&lt;/h2&gt;
-
-&lt;p&gt;Por comodidad, prefiero trabajar desde la consola del Mac, pero no quiero crear un nuevo usuario.&lt;/p&gt;
-
-&lt;p&gt;Por defecto, OpenSSH no permite la conexión remota del usuario &lt;code&gt;root&lt;/code&gt;, así que el siguiente paso es modificar el fichero de configuración.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;# vi /etc/ssh/sshd_config
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;ul&gt;
-&lt;li&gt;Desplázate hasta la línea &lt;code&gt;PermitRootLogin&lt;/code&gt;&lt;/li&gt;
-&lt;li&gt;Pulsa &lt;code&gt;i&lt;/code&gt; para entrar en el modo interactivo de Vi&lt;/li&gt;
-&lt;li&gt;Escribe en una nueva línea: &lt;code&gt;PermitRootLogin yes&lt;/code&gt;&lt;/li&gt;
-&lt;li&gt;Pulsa &lt;code&gt;ESC&lt;/code&gt; para volver al modo de comandos&lt;/li&gt;
-&lt;li&gt;Escribe &lt;code&gt;:wq&lt;/code&gt; (&lt;em&gt;write&lt;/em&gt;, &lt;em&gt;quit&lt;/em&gt;) para guardar los cambios y salir de Vi.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;Para que los cambios tengan efecto, reinicia el servicio SSH:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;# service sshd restart
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;siguientes-pasos&#34;&gt;Siguientes pasos&lt;/h2&gt;
-
-&lt;p&gt;A continuación realizaré la instalación de algunos paquetes.&lt;/p&gt;
-
-&lt;p&gt;El objetivo es probar el proceso que se realiza durante la creación de una imagen en Docker, pero en un entorno donde poder observar la salida de los comandos ejecutados, etc.&lt;/p&gt;
-
-&lt;h2 id=&#34;resumen&#34;&gt;Resumen&lt;/h2&gt;
-
-&lt;p&gt;En este artículo hemos instalado Alpine Linux en una máquina virtual.&lt;/p&gt;
-
-&lt;p&gt;También hemos modificado el servidor SSH para poder conectar remotamente como &lt;code&gt;root&lt;/code&gt; (por comodidad, en un entorno seguro de laboratorio).&lt;/p&gt;
-
-&lt;p&gt;En los próximos artículos seguiremos familiarizándonos con Alpine Linux.&lt;/p&gt;</description>
+&lt;p&gt;&lt;/p&gt;</description>
     </item>
     
     <item>
@@ -1033,84 +108,7 @@ You may change this message by editing /etc/motd.
 &lt;p&gt;Muchos artículos empiezan creando el fichero YAML para un &lt;em&gt;pod&lt;/em&gt;, después construyen el &lt;em&gt;replication controller&lt;/em&gt;, etc&amp;hellip; Sin embargo, revisando la documentación oficial, crear &lt;em&gt;pods&lt;/em&gt; directamente en Kubernetes no tiene mucho sentido.&lt;/p&gt;
 
 &lt;p&gt;En este artículo intento determinar qué objetos son los que deben crearse en un clúster Kubernetes.
-&lt;/p&gt;
-
-&lt;h2 id=&#34;pod&#34;&gt;Pod&lt;/h2&gt;
-
-&lt;p&gt;La unidad fundamental de despliegue en Kubernetes es el &lt;a href=&#34;https://kubernetes.io/docs/concepts/workloads/pods/pod-overview/&#34;&gt;&lt;strong&gt;Pod&lt;/strong&gt;&lt;/a&gt;. Un &lt;em&gt;pod&lt;/em&gt; sería el equivalente a la mínima unidad funcional de la aplicación.&lt;/p&gt;
-
-&lt;p&gt;En general, un &lt;em&gt;pod&lt;/em&gt; contendrá únicamente un contenedor, aunque no tiene que ser así: si tenemos dos contenedores que actúan de forma conjunta, podemos desplegarlos dentro de un solo &lt;em&gt;pod&lt;/em&gt;. Dentro de un &lt;em&gt;pod&lt;/em&gt; todos los contenedores se pueden comunicar entre ellos usando &lt;code&gt;localhost&lt;/code&gt;, por lo que es una manera sencilla de desplegar en Kubernetes aplicaciones que, aunque hayan sido &lt;em&gt;containerizadas&lt;/em&gt;, no puedan modificarse para comunicarse con otras partes de la aplicación usando una IP o un nombre DNS (porque la aplicación espera que el resto de &lt;em&gt;partes&lt;/em&gt; de la aplicación estén en el mismo equipo).&lt;/p&gt;
-
-&lt;p&gt;En este sentido, todos los contenedores dentro de un &lt;em&gt;pod&lt;/em&gt; se podría decir que están instaladas en una mismo equipo (como un &lt;em&gt;stack&lt;/em&gt; LAMP).&lt;/p&gt;
-
-&lt;p&gt;Sin embargo, un &lt;em&gt;pod&lt;/em&gt; es un elemento &lt;strong&gt;no-durable&lt;/strong&gt;, es decir, que puede fallar o ser eliminado en cualquier momento. Por tanto, &lt;strong&gt;no es una buena idea desplegar &lt;em&gt;pods&lt;/em&gt; individuales en Kubernetes&lt;/strong&gt;.&lt;/p&gt;
-
-&lt;p&gt;Como indica la &lt;a href=&#34;https://kubernetes.io/docs/api-reference/v1.6/#pod-v1-core&#34;&gt;documentación para los &lt;em&gt;pods&lt;/em&gt; de la API para la versión 1.6 de Kubernetes&lt;/a&gt;:&lt;/p&gt;
-
-&lt;blockquote&gt;
-&lt;p&gt;It is recommended that users create Pods only through a Controller, and not directly.&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;h2 id=&#34;replicaset-y-replication-controller&#34;&gt;ReplicaSet y Replication Controller&lt;/h2&gt;
-
-&lt;p&gt;El &lt;a href=&#34;https://kubernetes.io/docs/concepts/workloads/controllers/replicationcontroller/&#34;&gt;&lt;strong&gt;Replication Controller&lt;/strong&gt;&lt;/a&gt; o la versión &lt;em&gt;mejorada&lt;/em&gt;, el &lt;a href=&#34;https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/&#34;&gt;&lt;strong&gt;ReplicaSet&lt;/strong&gt;&lt;/a&gt; se encarga de mantener un determinado número de réplicas del &lt;em&gt;pod&lt;/em&gt; en el clúster.&lt;/p&gt;
-
-&lt;p&gt;El &lt;em&gt;ReplicaSet&lt;/em&gt; asegura que un determinado número de copias -&lt;strong&gt;réplicas&lt;/strong&gt;- del &lt;em&gt;pod&lt;/em&gt; se encuentran en ejecución en el clúster en todo momento. Por tanto, si alguno de los &lt;em&gt;pods&lt;/em&gt; es eliminado, el &lt;em&gt;ReplicaSet&lt;/em&gt; se encarga de crear un nuevo &lt;em&gt;pod&lt;/em&gt;. Para ello, el &lt;em&gt;ReplicaSet&lt;/em&gt; incluye una plantilla con la que crear nuevos &lt;em&gt;pods&lt;/em&gt;.&lt;/p&gt;
-
-&lt;p&gt;Así, el &lt;em&gt;ReplicaSet&lt;/em&gt; define el &lt;strong&gt;estado deseado&lt;/strong&gt; de la aplicación: cuántas copias de mi aplicación quiero tener en todo momento en ejecución en el clúster.
-Modificando el número de réplicas para el &lt;em&gt;ReplicaSet&lt;/em&gt; podemos &lt;strong&gt;escalar&lt;/strong&gt; (incrementar o reducir) el número de copias en ejecución en función de las necesidades.&lt;/p&gt;
-
-&lt;p&gt;Por tanto, parece que el mejor candidato para ponerse a definir ficheros &lt;code&gt;YAML&lt;/code&gt; y desplegar aplicaciones en el clúster de Kubernetes sería un &lt;em&gt;ReplicaSet&lt;/em&gt;.&lt;/p&gt;
-
-&lt;p&gt;Si embargo, la &lt;a href=&#34;https://kubernetes.io/docs/api-reference/v1.6/#replicaset-v1beta1-extensions&#34;&gt;documentación oficial&lt;/a&gt; nos ofrece otra opción:&lt;/p&gt;
-
-&lt;blockquote&gt;
-&lt;p&gt;In many cases it is recommended to create a Deployment instead of ReplicaSet.&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;Es decir, tenemos una opción mejor: el &lt;a href=&#34;https://kubernetes.io/docs/concepts/workloads/controllers/deployment/&#34;&gt;&lt;strong&gt;Deployment&lt;/strong&gt;&lt;/a&gt;.&lt;/p&gt;
-
-&lt;h2 id=&#34;deployment&#34;&gt;Deployment&lt;/h2&gt;
-
-&lt;p&gt;El &lt;em&gt;Deployment&lt;/em&gt; añade la capacidad de poder actualizar la aplicación definida en un &lt;em&gt;ReplicaSet&lt;/em&gt; sin pérdida de servicio, mediante &lt;strong&gt;actualización continua&lt;/strong&gt; (&lt;em&gt;rolling update&lt;/em&gt;).&lt;/p&gt;
-
-&lt;p&gt;Si el estado deseado de la aplicación son tres réplicas de un pod basado en &lt;code&gt;yomismo/app-1.0&lt;/code&gt; y queremos actualizar a &lt;code&gt;yomismo/app-2.0&lt;/code&gt;, el &lt;em&gt;Deployment&lt;/em&gt; se encarga de realizar la transición de la versión 1.0 a la 2.0 de forma que no haya interrupción del servicio. La estrategia de actualización puede definirse manualmente, pero sin entrar en detalles, Kubernetes se encarga de ir eliminado progresivamente las réplicas de la aplicación v1.0 y sustituirlas por las de la v2.0.&lt;/p&gt;
-
-&lt;p&gt;El proceso se hace de forma controlada, por lo que si surgen problemas con la nueva versión de la aplicación, la actualización se detiene y es posible realizar &lt;em&gt;marcha atrás&lt;/em&gt; hacia la versión estable.&lt;/p&gt;
-
-&lt;h2 id=&#34;resumiendo&#34;&gt;Resumiendo&lt;/h2&gt;
-
-&lt;p&gt;Así pues, después de leer la sección de &lt;a href=&#34;https://kubernetes.io/docs/concepts/&#34;&gt;Concepts&lt;/a&gt; de la documentación de Kubernetes, parece que ya tengo claro cuál es el proceso para desplegar aplicaciones en Kubernetes.&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;En Docker
-
-&lt;ol&gt;
-&lt;li&gt;Crear fichero &lt;code&gt;Dockerfile&lt;/code&gt;&lt;/li&gt;
-&lt;li&gt;Construir imagen personalizada&lt;/li&gt;
-&lt;li&gt;Subir imagen a un &lt;em&gt;Registry&lt;/em&gt; (de momento, DockerHub)&lt;/li&gt;
-&lt;/ol&gt;&lt;/li&gt;
-&lt;li&gt;En Kubernetes
-
-&lt;ol&gt;
-&lt;li&gt;Crear fichero &lt;code&gt;YAML&lt;/code&gt; definiendo el &lt;em&gt;Deployment&lt;/em&gt;&lt;/li&gt;
-&lt;li&gt;Crear &lt;em&gt;Deployment&lt;/em&gt; en el clúster&lt;/li&gt;
-&lt;/ol&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;Hay otros objetos específicos que pueden ser más adecuados para tus necesidades:&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;em&gt;DaemonSets&lt;/em&gt; : despliegan una copia de un &lt;em&gt;pod&lt;/em&gt; en cada nodo del clúster. Por ejemplo, un antivirus, o una herramienta de gestión de logs, etc&lt;/li&gt;
-&lt;li&gt;&lt;em&gt;Jobs&lt;/em&gt; y &lt;em&gt;CronJobs&lt;/em&gt;: crean &lt;em&gt;pods&lt;/em&gt; hasta asegurar que un número determinado finaliza con éxito, lo que completa el &lt;em&gt;job&lt;/em&gt;.&lt;/li&gt;
-&lt;li&gt;&lt;em&gt;StatefulSets&lt;/em&gt; : todavía en Beta, asignan una identidad única a los &lt;em&gt;pods&lt;/em&gt;, lo que garantiza que se creen o escalen en un orden determinado.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&#34;siguientes-pasos&#34;&gt;Siguientes pasos&lt;/h2&gt;
-
-&lt;p&gt;Al final de este proceso tendré una aplicación &lt;em&gt;simple&lt;/em&gt; desplegada en el clúster. Con &amp;ldquo;sencilla&amp;rdquo; quiero decir que las diferentes instancias de la aplicación actuan de forma independiente. Un ejemplo sería un servidor web: con el &lt;em&gt;deployment&lt;/em&gt; sería posible escalar la aplicación para dar respuesta a la demanda en todo momento y actualizar el contenido de la web sin interrupciones.&lt;/p&gt;
-
-&lt;p&gt;El siguiente paso es crear una aplicación &lt;em&gt;compleja&lt;/em&gt; en la que tengamos, por ejemplo, un &lt;em&gt;frontend&lt;/em&gt; y un &lt;em&gt;backend&lt;/em&gt;. Para estas situaciones, necesitaremos definir un &lt;a href=&#34;https://kubernetes.io/docs/concepts/services-networking/service/&#34;&gt;&lt;strong&gt;servicio&lt;/strong&gt;&lt;/a&gt;.&lt;/p&gt;</description>
+&lt;/p&gt;</description>
     </item>
     
     <item>
@@ -1125,123 +123,7 @@ Modificando el número de réplicas para el &lt;em&gt;ReplicaSet&lt;/em&gt; pode
 
 &lt;p&gt;Afortunadamente el lenguaje YAML es muy sencillo y basta con conocer un par de estructuras para crear los ficheros de configuración de Kubernetes.&lt;/p&gt;
 
-&lt;p&gt;&lt;/p&gt;
-
-&lt;p&gt;YAML es un lenguaje de marcado muy simple, basado en ficheros de texto plano legible por los humanos. Este formato se utiliza dentro del mundillo del software para almacenar información de tipo configuración.&lt;/p&gt;
-
-&lt;p&gt;YAML son las siglas de &lt;em&gt;Yet Another Markup Language&lt;/em&gt; (Otro lenguaje de marcado más) o &lt;em&gt;YAML Ain&amp;rsquo;t Markup Language&lt;/em&gt; (YAML no es un lenguaje de marcado), depende de a quién preguntes.&lt;/p&gt;
-
-&lt;p&gt;Usar YAML para las definiciones de Kubernetes proporciona las siguientes ventajas:&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;strong&gt;Conveniencia&lt;/strong&gt; No es necesario especificar todos los parámetros en la línea de comandos.&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Mantenimiento&lt;/strong&gt; Los ficheros YAML puede ser gestionados por un sistema de control de versiones, de manera que se pueden registrar los cambios.&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Flexibilidad&lt;/strong&gt; Es posible crear estructuras mucho más complejas usando YAML de lo que puede conseguirse desde la línea de comandos.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;YAML es un superconjunto de JSON, lo que significa que cualquier fichero JSON válido también es un fichero YAML válido.&lt;/p&gt;
-
-&lt;p&gt;Como consejos generales a la hora de crear un fichero YAML:&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;Usa siempre la codificación UTF-8 para evitar errores.&lt;/li&gt;
-&lt;li&gt;No uses &lt;strong&gt;nunca&lt;/strong&gt; tabulaciones&lt;/li&gt;
-&lt;li&gt;Usa una fuente monoespaciada para visualizar/editar el contenido de los ficheros YAML.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;Sólo necesitas conocer dos tipos de estructuras en YAML:&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;Listas&lt;/li&gt;
-&lt;li&gt;Mapas&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;A parte de los mapas y las listas, también te puede resultar útil saber que cualquier línea que comience con un &lt;code&gt;#&lt;/code&gt; se considera un comentario y es ignorada.&lt;/p&gt;
-
-&lt;h2 id=&#34;mapas-yaml&#34;&gt;Mapas YAML&lt;/h2&gt;
-
-&lt;p&gt;Los mapas te permiten asociar parejas de nombres y valores, lo que es conveniente cuando estás tratando con información relativa a configuraciones. Por ejemplo, puedes tener una configuración que empiece como:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-yml&#34;&gt;---
-apiVersion: v1
-kind: Pod
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;La primera línea es un separador, y es opcional a no ser que trates de definir múltiples estructuras en un solo fichero. En el fichero puedes ver que tenemos dos valores, &lt;code&gt;v1&lt;/code&gt; y &lt;code&gt;Pod&lt;/code&gt;, asociados a dos claves, &lt;code&gt;apiVersion&lt;/code&gt; y &lt;code&gt;kind&lt;/code&gt;.&lt;/p&gt;
-
-&lt;p&gt;No es necesario que los valores estén entrecomillados (con comillas simples o dobles), excepto para asegurarte de que no se interpreta algún caracter especial con un significado diferente a su valor literal.&lt;/p&gt;
-
-&lt;p&gt;Las parejas clave-valor contenidas en un mapa se almacenan sin orden, por lo que puedes especificarlas en el orden que quieras.&lt;/p&gt;
-
-&lt;p&gt;El fichero YAML anterior es equivalente a:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-yml&#34;&gt;---
-kind: Pod
-apiVersion: v1
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Podemos anidar mapas dentro de mapas para crear estructuras más complejas, como:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-yml&#34;&gt;---
-apiVersion: v1
-kind: Pod
-metadata:
-   name: rss-site
-   labels:
-      app: web
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;En este caso tenemos un mapa llamado &lt;code&gt;metadata&lt;/code&gt; que contiene otros dos mapas; el primero &lt;code&gt;name: rss-site&lt;/code&gt; y el segundo, &lt;code&gt;labels&lt;/code&gt;, contiene como valor otro mapa &lt;code&gt;app: web&lt;/code&gt;.&lt;/p&gt;
-
-&lt;p&gt;Puedes anidar tantos mapas dentro de mapas como quieras.&lt;/p&gt;
-
-&lt;p&gt;Para indicar que un mapa está contenido en otro, se usa la indentación. En el ejemplo anterior hemos usado una indentación de 3 espacios, pero el número de espacios no importa, siempre que sea &lt;strong&gt;consistente&lt;/strong&gt; en el fichero. El procesador de YAML interpreta las claves y valores en la misma profundidad de indentación como al mismo nivel (por ejemplo, &lt;code&gt;name&lt;/code&gt; y &lt;code&gt;labels&lt;/code&gt;), mientras que si están indentadas, interpreta que están &lt;em&gt;contenidas&lt;/em&gt; unos en otros (como en el caso de &lt;code&gt;labels&lt;/code&gt; y &lt;code&gt;app: web&lt;/code&gt;).&lt;/p&gt;
-
-&lt;h2 id=&#34;listas-en-yaml&#34;&gt;Listas en YAML&lt;/h2&gt;
-
-&lt;p&gt;Una lista, en YAML, es una secuencia de objetos, o lo que es lo mismo, una colección ordenada de valores. En este caso los valores no están asociados con una clave, sino con un índice posicional obtenido del orden en el que están especificados en la lista. Por ejemplo:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-yml&#34;&gt;args
-   - sleep
-   - 1000
-   - message
-   - &amp;quot;Hello World!&amp;quot;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Puede haber cualquier número de elementos en una lista.&lt;/p&gt;
-
-&lt;p&gt;Como en el caso de las parejas clave-valor, los elementos de una lista se encuentran indentados con el mismo número de espacios bajo el identificador (la clave) de la lista; cada elemento de la lista va precedido por un &lt;code&gt;-&lt;/code&gt;.&lt;/p&gt;
-
-&lt;p&gt;Del mismo modo que podemos anidar mapas en mapas, podemos anidar listas en listas, mapas en listas y cualquier combinación imaginable. Un ejemplo de mapas y listas anidados:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-yml&#34;&gt;# Configuracion ficticia
-spec:
-   containers:
-      - name: front-end
-        image: nginx
-        ports:
-           - containerPort: 80
-      - name: rss-reader
-        image: xavi/rss-reader
-        ports:
-           - containerPort: 80
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;En resumen, tenemos:&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;strong&gt;Mapas&lt;/strong&gt;, que son grupos no ordenados de parejas de clave y valor&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Listas&lt;/strong&gt;, que son colecciones ordenadas de elementos individuales&lt;/li&gt;
-&lt;li&gt;Mapas de mapas&lt;/li&gt;
-&lt;li&gt;Mapas de listas&lt;/li&gt;
-&lt;li&gt;Listas de mapas&lt;/li&gt;
-&lt;li&gt;Listas de listas&lt;/li&gt;
-&lt;li&gt;etc&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;Básicamente, cualquier estructura que puedas imaginar, se puede construir a partir de estos dos elementos.&lt;/p&gt;
-
-&lt;p&gt;Con estos conocimientos básicos, espero que ahora te resulte mucho más sencillo interpretar los ficheros de configuración de &lt;em&gt;pods&lt;/em&gt;, &lt;em&gt;deployments&lt;/em&gt;, etc. Y no sólo en Kubernetes; las configuraciones en formato YAML son usadas por un montón de productos diferentes.&lt;/p&gt;</description>
+&lt;p&gt;&lt;/p&gt;</description>
     </item>
     
     <item>
@@ -1260,60 +142,7 @@ spec:
 
 &lt;p&gt;Para tener los diferentes ficheros implicados en el proceso organizados de forma homogénea, me he autoimpuesto las siguientes reglas a la hora de estructurar los repositorios.&lt;/p&gt;
 
-&lt;p&gt;&lt;/p&gt;
-
-&lt;h2 id=&#34;dockerfile&#34;&gt;Dockerfile&lt;/h2&gt;
-
-&lt;p&gt;El primero paso para ejecutar un contenedor es crear la imagen en la que está basado. Para ello debes crear un fichero &lt;code&gt;Dockerfile&lt;/code&gt; en el que se indica la imagen base usada y los diferentes pasos de instalación de paquetes, configuración de usuarios, volúmenes y puertos expuestos.&lt;/p&gt;
-
-&lt;p&gt;En la creación de la imagen intervienen, además del fichero &lt;code&gt;Dockerfile&lt;/code&gt;, ficheros de configuración, etc que se copian a la imagen desde la carpeta donde se encuentra el fichero &lt;code&gt;Dockerfile&lt;/code&gt; (el llamado &lt;em&gt;contexto&lt;/em&gt;, ver &lt;a href=&#34;https://docs.docker.com/engine/reference/commandline/build/#options&#34;&gt;Documentación oficial de &lt;code&gt;docker build&lt;/code&gt;&lt;/a&gt;).&lt;/p&gt;
-
-&lt;p&gt;Para gestionar los cambios sobre estos ficheros, lo más sencillo es guardarlos en un repositorio y tener un registro de todos los cambios que se van introduciendo a lo largo del tiempo.&lt;/p&gt;
-
-&lt;p&gt;Todos los ficheros relacionados con la &lt;em&gt;creación&lt;/em&gt; de la imagen se colocan en una carpeta llamada &lt;code&gt;build&lt;/code&gt;, con el &lt;code&gt;Dockerfile&lt;/code&gt; y los ficheros de configuración, etc, agrupados en sus correspondientes carpetas.&lt;/p&gt;
-
-&lt;p&gt;En esta carpeta también se incluyen un fichero con instrucciones para la creación de la imagen (condiciones en las que reutilizar la cache, puntos a tener en cuenta, etc) y un &lt;em&gt;script&lt;/em&gt; para lanzar la creación de la imagen de forma siempre igual (quizás el script borra ficheros temporales o descargados en ejecuciones anteriores, por ejemplo).&lt;/p&gt;
-
-&lt;h2 id=&#34;construcción-de-la-imagen&#34;&gt;Construcción de la imagen&lt;/h2&gt;
-
-&lt;p&gt;Una vez creado el &lt;code&gt;Dockerfile&lt;/code&gt;, &lt;em&gt;construyes&lt;/em&gt; la imagen mediante &lt;code&gt;docker build&lt;/code&gt;. Aunque en general la construcción se realiza mediante un sólo comando de la forma &lt;code&gt;docker build -t {repositorio/etiqueta} .&lt;/code&gt;, puede ser interesante disponer de documentación con indicaciones sobre las reglas de etiquetado de la imagen definidas por la empresa o similar.&lt;/p&gt;
-
-&lt;h2 id=&#34;ejecución-del-contenedor&#34;&gt;Ejecución del contenedor&lt;/h2&gt;
-
-&lt;p&gt;Finalmente la creación de contenedores basados en la imagen se realiza mediante un comando &lt;code&gt;docker run&lt;/code&gt;.&lt;/p&gt;
-
-&lt;p&gt;A la hora de ejecutar el contenedor la instrucción puede incluir el nombre del contenedor final, la relación entre puertos del &lt;em&gt;host&lt;/em&gt; y el contenedor, el montaje de volúmenes, etc. En algunos casos, el contenedor admite parámetros que se pasan al comando definido en la instrucción &lt;code&gt;CMD&lt;/code&gt;.&lt;/p&gt;
-
-&lt;p&gt;Para evitar errores o simplemente para no teclear una y otra vez comandos larguísimos para ejecutar el contenedor, podemos crear un &lt;em&gt;script&lt;/em&gt; que lance el contenedor con los parámetros necesarios, así como documentación de la funcionalidad proporcionada por el contenedor, etc.&lt;/p&gt;
-
-&lt;p&gt;Estos ficheros se guardan en el carpeta llamada &lt;code&gt;run&lt;/code&gt;; básicamente el comando para lanzar la creación del contenedor de forma homogénea y las instrucciones con información sobre el uso del contenedor, volúmenes, etc.&lt;/p&gt;
-
-&lt;h2 id=&#34;carpetas&#34;&gt;Carpetas&lt;/h2&gt;
-
-&lt;p&gt;Para estructurar todos los ficheros implicados en el proceso de creación de un contenedor he definido la siguiente estructura de carpetas:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;./nombre-contenedor/
- |
- ├─Readme.md
- ├─build/
- | ├─Dockerfile
- | ├─build.sh
- | ├─Build-Instructions.md
- | ├─{context-files}/
- | ├─...
- | ├─{context-files}/
- ├─run/
- | ├─run.sh
- | ├─Run-Instructions.md
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;motivación&#34;&gt;Motivación&lt;/h2&gt;
-
-&lt;p&gt;No he encontrado ningún artículo sobre la organización de los ficheros implicados en el creación de imágenes o de los flujos de trabajo asociados a estos procesos. Tampoco sobre las normas a la hora de etiquetar las imágenes o si se realizan validaciones a la hora de obtener/subir imágenes de repositorios públicos.&lt;/p&gt;
-
-&lt;p&gt;Incluso en una empresa en la que el proceso de desarrollo y operación de las aplicaciones gire alrededor del concepto &lt;em&gt;DevOp&lt;/em&gt;, puede haber otros implicados en el proceso &lt;em&gt;administrativo&lt;/em&gt; del ciclo de vida de la aplicación: decisiones estratégicas, a nivel de seguridad, de &lt;em&gt;compliance&lt;/em&gt; con leyes como la protección de datos, etc.&lt;/p&gt;
-
-&lt;p&gt;En los artículos/conferencias lo habitual es explicar soluciones técnicas sin entrar nunca en estos procesos que relacionan IT con el resto de departamentos de la empresa.&lt;/p&gt;</description>
+&lt;p&gt;&lt;/p&gt;</description>
     </item>
     
     <item>
@@ -1328,43 +157,7 @@ spec:
 
 &lt;p&gt;Revisando el contenido de &lt;code&gt;/var/lib/kubernetes/pods/&lt;/code&gt; he visto que algunos &lt;em&gt;pods&lt;/em&gt; hacían referencia, todavía, a Flannel.&lt;/p&gt;
 
-&lt;p&gt;&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;...
-/var/lib/kubelet/pods/3a5e2819-21e5-11e7-bcfd-b827eb650fdb/volumes/kubernetes.io~configmap/wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_flannel-cfg.deleting~470691428.deleting~439642480.deleting~747926470.deleting~067946013.deleting~791070092.deleting~964331938.deleting~717873461.deleting~755129373.deleting~499171027
-/var/lib/kubelet/pods/3a5e2819-21e5-11e7-bcfd-b827eb650fdb/volumes/kubernetes.io~configmap/wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_flannel-cfg.deleting~504683568.deleting~184413472.deleting~138413964.deleting~985160408.deleting~943143520.deleting~459558341.deleting~578589077.deleting~501462031.deleting~769373718
-/var/lib/kubelet/pods/3a5e2819-21e5-11e7-bcfd-b827eb650fdb/volumes/kubernetes.io~configmap/wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_flannel-cfg.deleting~613861491.deleting~841547526.deleting~012178845.deleting~177797190.deleting~192052322.deleting~958792988.deleting~338401309.deleting~623810479.deleting~369130424
-/var/lib/kubelet/pods/3a5e2819-21e5-11e7-bcfd-b827eb650fdb/volumes/kubernetes.io~configmap/wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_flannel-cfg.deleting~470691428.deleting~288881360.deleting~534630955.deleting~520377076.deleting~598159984.deleting~426698803.deleting~142931759.deleting~872800923.deleting~808586860
-/var/lib/kubelet/pods/3a5e2819-21e5-11e7-bcfd-b827eb650fdb/volumes/kubernetes.io~configmap/wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_flannel-cfg.deleting~470691428.deleting~439642480.deleting~747926470.deleting~067946013.deleting~791070092.deleting~622848191.deleting~646325460.deleting~868409130.deleting~824166496
-/var/lib/kubelet/pods/3a5e2819-21e5-11e7-bcfd-b827eb650fdb/volumes/kubernetes.io~configmap/wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_flannel-cfg.deleting~668636622.deleting~334825066.deleting~737147422.deleting~055159245.deleting~572255670.deleting~485248219.deleting~690855316.deleting~753094008.deleting~457647557
-/var/lib/kubelet/pods/3a5e2819-21e5-11e7-bcfd-b827eb650fdb/volumes/kubernetes.io~configmap/wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_flannel-cfg.deleting~756292309.deleting~273222811.deleting~039503494.deleting~182629307.deleting~984614903.deleting~081831640.deleting~628560452.deleting~303652395.deleting~450650534
-/var/lib/kubelet/pods/3a5e2819-21e5-11e7-bcfd-b827eb650fdb/volumes/kubernetes.io~configmap/wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_flannel-cfg.deleting~883601122.deleting~535739903.deleting~385002935.deleting~558075878.deleting~174007749.deleting~757820208.deleting~194356513.deleting~813327027.deleting~485662152
-...
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Esta vez he detectado el problema al intentar calcular el espacio usado por esta carpeta, ya que la Raspberry Pi se ha quedado como &amp;ldquo;colgada&amp;rdquo;, aunque al lanzar &lt;em&gt;htop&lt;/em&gt; no se observaba un uso excesivo de CPU.&lt;/p&gt;
-
-&lt;p&gt;Finalmente, he usado el mismo sistema que la otra vez: eliminar todas las subcarpetas de cada uno de los &lt;em&gt;pods&lt;/em&gt; (dejando únicamente los que no se pueden borrar al estar en uso).&lt;/p&gt;
-
-&lt;p&gt;Después de la purga masiva de &lt;code&gt;rm -rf /var/lib/kubelet/pods/&lt;/code&gt; sólo han quedado dos carpetas &lt;em&gt;en uso&lt;/em&gt;; el número corresponde con el número de &lt;em&gt;pods&lt;/em&gt; planificados sobre el nodo &lt;strong&gt;k3&lt;/strong&gt; desde &lt;code&gt;kubectl&lt;/code&gt;:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ kubectl get pods --all-namespaces -o wide
-NAMESPACE     NAME                         READY     STATUS    RESTARTS   AGE       IP             NODE
-kube-system   etcd-k1                      1/1       Running   4          36d       192.168.1.11   k1
-kube-system   kube-apiserver-k1            1/1       Running   4          36d       192.168.1.11   k1
-kube-system   kube-controller-manager-k1   1/1       Running   4          36d       192.168.1.11   k1
-kube-system   kube-dns-279829092-1b27r     3/3       Running   12         36d       10.32.0.2      k1
-kube-system   kube-proxy-20t3b             1/1       Running   0          25m       192.168.1.13   k3
-kube-system   kube-proxy-3dggd             1/1       Running   4          36d       192.168.1.11   k1
-kube-system   kube-proxy-5b8k3             1/1       Running   2          12d       192.168.1.12   k2
-kube-system   kube-scheduler-k1            1/1       Running   4          36d       192.168.1.11   k1
-kube-system   weave-net-6qr0l              2/2       Running   8          36d       192.168.1.11   k1
-kube-system   weave-net-mxp2w              2/2       Running   0          25m       192.168.1.13   k3
-kube-system   weave-net-tmmdj              2/2       Running   4          12d       192.168.1.12   k2
-$
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Un reinicio y ¡listo!, problema -espero- resuelto de forma definitiva.&lt;/p&gt;</description>
+&lt;p&gt;&lt;/p&gt;</description>
     </item>
     
     <item>
@@ -1376,183 +169,7 @@ $
       <description>&lt;p&gt;En el artículo &lt;a href=&#34;https://onthedock.github.io/post/170506-habilita-el-acceso-remoto-via-api-a-docker/&#34;&gt;Habilita el API remoto de Docker&lt;/a&gt; explicaba cómo configurar el acceso remoto al API de Docker. El problema es que de esta forma no hay manera de restringir el acceso.&lt;/p&gt;
 
 &lt;p&gt;En este artículo protegemos el acceso usando TLS de manera que sólo se permitan conexiones que presenten un certificado firmado por una CA de confianza.
-&lt;/p&gt;
-
-&lt;p&gt;Seguiremos las instrucciones oficiales de Docker &lt;a href=&#34;https://docs.docker.com/engine/security/https/&#34;&gt;Protect the Docker daemon socket&lt;/a&gt;.&lt;/p&gt;
-
-&lt;h2 id=&#34;creamos-una-ca-claves-para-el-cliente-y-el-servidor-con-openssl&#34;&gt;Creamos una CA, claves para el cliente y el servidor con OpenSSL&lt;/h2&gt;
-
-&lt;p&gt;Primero, en la máquina &lt;em&gt;host&lt;/em&gt; del Docker &lt;em&gt;daemon&lt;/em&gt;, generamos las claves públicas y privadas de la CA (&lt;em&gt;Certification Authority&lt;/em&gt;, la entidad certificadora):&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;# openssl genrsa -aes256 -out ca-key.pem 4096
-Generating RSA private key, 4096 bit long modulus
-............................................................................................................................................................................................................................................++
-..........................++
-e is 65537 (0x10001)
-Enter pass phrase for ca-key.pem:
-Verifying - Enter pass phrase for ca-key.pem:
-#
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Y a continuación:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;# openssl req -new -x509 -days 365 -key ca-key.pem -sha256 -out ca.pem
-Enter pass phrase for ca-key.pem:
-You are about to be asked to enter information that will be incorporated
-into your certificate request.
-What you are about to enter is what is called a Distinguished Name or a DN.
-There are quite a few fields but you can leave some blank
-For some fields there will be a default value,
-If you enter &#39;.&#39;, the field will be left blank.
------
-Country Name (2 letter code) [AU]:ES
-State or Province Name (full name) [Some-State]:Barcelona
-Locality Name (eg, city) []:Barcelona
-Organization Name (eg, company) [Internet Widgits Pty Ltd]:Ameisin
-Organizational Unit Name (eg, section) []:DevOps
-Common Name (e.g. server FQDN or YOUR name) []:192.168.1.20
-Email Address []: {REDACTED}
-#
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Ahora que tenemos una CA, podemos crear la clave para el servidor y la petición de firmado del certificado (&lt;em&gt;certificate signing request&lt;/em&gt;, CSR). Por favor, verifica que &lt;code&gt;Common Name&lt;/code&gt; (es decir, el &lt;em&gt;FQDN&lt;/em&gt; o &lt;em&gt;YOUR Name&lt;/em&gt;) coincide con el nombre del &lt;em&gt;host&lt;/em&gt; que vas a usar para conectar a Docker.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;# openssl genrsa -out server-key.pem 4096
-Generating RSA private key, 4096 bit long modulus
-............................................................................................................................................................................................................................................................................................................................++
-...............................................................++
-e is 65537 (0x10001)
-# openssl req -subj &amp;quot;/CN=192.168.1.20&amp;quot; -sha256 -new -key server-key.pem -out server.csr
-#
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;A continuación vamos a firmar la clave pública con nuestra CA.&lt;/p&gt;
-
-&lt;p&gt;Como las conexiones TLS pueden realizarse usando la dirección IP o un nombre DNS, deben especificarse durante la creación del certificado.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;# echo subjectAltName = IP:192.168.1.20,IP:127.0.0.1 &amp;gt; extfile.cnf
-# openssl x509 -req -days 365 -sha256 -in server.csr -CA ca.pem -CAkey ca-key.pem \
-&amp;gt;   -CAcreateserial -out server-cert.pem -extfile extfile.cnf
-Signature ok
-subject=/CN=192.168.1.20
-Getting CA Private Key
-Enter pass phrase for ca-key.pem:
-#
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;autenticación-del-cliente&#34;&gt;Autenticación del cliente&lt;/h2&gt;
-
-&lt;p&gt;Para autenticar al cliente, crearemos una clave de cliente y una petición de firmado del certificado.&lt;/p&gt;
-
-&lt;blockquote&gt;
-&lt;p&gt;Para simplificar, los siguientes dos pasos pueden realizarse desde la máquina donde se encuentra el Docker &lt;em&gt;daemon&lt;/em&gt;.&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;# openssl genrsa -out key.pem 4096
-Generating RSA private key, 4096 bit long modulus
-...............................................................................++
-................................................................................................................................................................................++
-e is 65537 (0x10001)
-# openssl req -subj &#39;/CN=client&#39; -new -key key.pem -out client.csr
-#
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Para que la clave permita autenticar al cliente, creamos un fichero de configuración de extensiones:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;# echo extendedKeyUsage = clientAuth &amp;gt; extfile.cnf
-#
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Ahora firmamos la clave:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;# openssl x509 -req -days 365 -sha256 -in client.csr -CA ca.pem -CAkey ca-key.pem \
-&amp;gt;   -CAcreateserial -out cert.pem -extfile extfile.cnf
-Signature ok
-subject=/CN=client
-Getting CA Private Key
-Enter pass phrase for ca-key.pem:
-#
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Después de haber generado &lt;code&gt;cert.pem&lt;/code&gt; y &lt;code&gt;server-cert.pem&lt;/code&gt; podemos eliminar las peticiones de firmado:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;# ls
-ca-key.pem  ca.srl    client.csr  extfile.cnf  server-cert.pem	server-key.pem
-ca.pem	    cert.pem  key.pem     server.csr
-# rm -v client.csr server.csr
-removed ‘client.csr’
-removed ‘server.csr’
-#
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;protección-de-las-claves&#34;&gt;Protección de las claves&lt;/h2&gt;
-
-&lt;p&gt;Con una máscara &lt;code&gt;umask&lt;/code&gt; por defecto de &lt;code&gt;022&lt;/code&gt; las claves secretas que hemos generado dan a todo el mundo acceso de lectura y de escritura a tu usuario y tu grupo.&lt;/p&gt;
-
-&lt;p&gt;Para proteger las claves de daños accidentales, vamos a eliminar los permisos de escritura sobre ellas. Para hacerlas de sólo lectura para tu usuario, usamos:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;# chmod -v 0400 ca-key.pem key.pem server-key.pem
-mode of ‘ca-key.pem’ changed from 0644 (rw-r--r--) to 0400 (r--------)
-mode of ‘key.pem’ changed from 0644 (rw-r--r--) to 0400 (r--------)
-mode of ‘server-key.pem’ changed from 0644 (rw-r--r--) to 0400 (r--------)
-#
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Los certificados pueden ser leídos por todo el mundo, pero para evitar daños accidentales, mejor eliminamos los permisos de escritura:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;# chmod -v 0444 ca.pem server-cert.pem cert.pem
-mode of ‘ca.pem’ changed from 0644 (rw-r--r--) to 0444 (r--r--r--)
-mode of ‘server-cert.pem’ changed from 0644 (rw-r--r--) to 0444 (r--r--r--)
-mode of ‘cert.pem’ changed from 0644 (rw-r--r--) to 0444 (r--r--r--)
-#
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;configurando-el-api-de-acceso-remoto-de-forma-segura&#34;&gt;Configurando el API de acceso remoto de forma segura&lt;/h2&gt;
-
-&lt;p&gt;Para hacer que el Docker &lt;em&gt;daemon&lt;/em&gt; sólo acepte conexiones de clientes que proporcionen un certificado de confianza de tu CA.&lt;/p&gt;
-
-&lt;p&gt;Para ello, modificamos las opciones de arranque del &lt;em&gt;daemon&lt;/em&gt; de Docker:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;# nano /lib/systemd/system/docker.service
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Modificamos la línea:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-txt&#34;&gt;ExecStart=/usr/bin/dockerd -H fd:// -H=0.0.0.0:2375
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;De manera que quede como (lo he dividido en varias líneas por claridad):&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;ExecStart=/usr/bin/dockerd --tlsverify 		\
-         --tlscacert=/root/ca.pem 		\
-         --tlscert=/root/server-cert.pem 	\
-         --tlskey=/root/server-key.pem 		\
-         -H=0.0.0.0:2376 			\
-         -H fd://
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;A continuación, recargamos la configuración y reinciamos el servicio:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;# systemctl daemon-reload
-# systemctl restart docker
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;blockquote&gt;
-&lt;p&gt;Los primeros intentos de arrancar el &lt;em&gt;daemon&lt;/em&gt; han fallado; ha sido necesario especificar la ruta completa a los certificados y las claves para conseguir que el servicio arrancara.&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;Finalmente, comprobamos que podemos acceder usando el certificado con &lt;em&gt;curl&lt;/em&gt;:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;# curl https://192.168.1.20:2376/version --cert /root/cert.pem --key /root/key.pem --cacert /root/ca.pem
-{&amp;quot;Version&amp;quot;:&amp;quot;17.05.0-ce&amp;quot;,&amp;quot;ApiVersion&amp;quot;:&amp;quot;1.29&amp;quot;,&amp;quot;MinAPIVersion&amp;quot;:&amp;quot;1.12&amp;quot;,&amp;quot;GitCommit&amp;quot;:&amp;quot;89658be&amp;quot;,&amp;quot;GoVersion&amp;quot;:&amp;quot;go1.7.5&amp;quot;,&amp;quot;Os&amp;quot;:&amp;quot;linux&amp;quot;,&amp;quot;Arch&amp;quot;:&amp;quot;amd64&amp;quot;,&amp;quot;KernelVersion&amp;quot;:&amp;quot;3.16.0-4-amd64&amp;quot;,&amp;quot;BuildTime&amp;quot;:&amp;quot;2017-05-04T22:04:27.257991431+00:00&amp;quot;}
-#
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;A diferencia de lo que pasaba antes, cuando se intenta acceder a &lt;code&gt;https://192.168.1.9:2376/version&lt;/code&gt; desde otro equipo (sin usar el certificado), obtenemos un error:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-url&#34;&gt;This site can’t be reached
-192.168.1.9 refused to connect.
-&lt;/code&gt;&lt;/pre&gt;</description>
+&lt;/p&gt;</description>
     </item>
     
     <item>
@@ -1566,38 +183,7 @@ mode of ‘cert.pem’ changed from 0644 (rw-r--r--) to 0444 (r--r--r--)
 &lt;p&gt;En el artículo &lt;a href=&#34;https://onthedock.github.io/post/170506-habilita-el-acceso-remoto-via-api-a-docker/&#34;&gt;Habilita el API remoto de Docker&lt;/a&gt; habilitamos el acceso remoto al API de Docker Engine.&lt;/p&gt;
 
 &lt;p&gt;En este artículo configuramos &lt;strong&gt;Portainer&lt;/strong&gt; para conectar con un &lt;em&gt;endpoint&lt;/em&gt; remoto (el API expuesta de un Docker Engine).
-&lt;/p&gt;
-
-&lt;p&gt;Accede a &lt;strong&gt;Portainer&lt;/strong&gt; y selecciona &lt;em&gt;Endpoints&lt;/em&gt; en el panel izquierdo.&lt;/p&gt;
-
-&lt;p&gt;Para configurar el &lt;em&gt;endopoint&lt;/em&gt; remoto (no seguro) sólo necesitas proporcionar un nombre para el &lt;em&gt;endpoint&lt;/em&gt; y la URL de acceso:&lt;/p&gt;
-
-&lt;figure&gt;
-  &lt;amp-img src=&#34;https://onthedock.github.io/images/170506/1-configure-endpoint.png&#34; alt=&#34;Configura un endpoint remoto en Portainer images/170506/1-configure-endpoint.png&#34; width=935 height=660 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
-  
-  &lt;figcaption&gt;
-    
-    Configura un nuevo endpoint
-    
-  &lt;/figcaption&gt;
-  
-&lt;/figure&gt;
-
-
-&lt;p&gt;Para identificar qué Docker Engine estoy viendo en cada momento, indico la IP de la máquina, seguido de la plataforma y el &lt;em&gt;host&lt;/em&gt; en el que se encuentra.&lt;/p&gt;
-
-&lt;p&gt;Para cambiar entre los diferentes &lt;em&gt;endpoints&lt;/em&gt; definidos en &lt;strong&gt;Portainer&lt;/strong&gt;, selecciona el que quieres gestionar en el desplegable de la parte superior del panel lateral:&lt;/p&gt;
-
-&lt;figure&gt;
-  &lt;amp-img src=&#34;https://onthedock.github.io/images/170506/2-change-endpoint.png&#34; alt=&#34;Configura un endpoint remoto en Portainer images/170506/2-change-endpoint.png&#34; width=450 height=168 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
-  
-  &lt;figcaption&gt;
-    
-    Cambia entre los diferentes endpoints definidos
-    
-  &lt;/figcaption&gt;
-  
-&lt;/figure&gt;</description>
+&lt;/p&gt;</description>
     </item>
     
     <item>
@@ -1610,102 +196,7 @@ mode of ‘cert.pem’ changed from 0644 (rw-r--r--) to 0444 (r--r--r--)
 
 &lt;p&gt;A continuación indico cómo activar y verificar el acceso remoto al API de Docker Engine.&lt;/p&gt;
 
-&lt;p&gt;&lt;/p&gt;
-
-&lt;p&gt;Buscando en Google cómo habilitar el API remoto de Docker Engine probablemente encuentres el artículo
-&lt;a href=&#34;https://www.ivankrizsan.se/2016/05/18/enabling-docker-remote-api-on-ubuntu-16-04/&#34;&gt;Enabling Docker Remote API on Ubuntu 16.04&lt;/a&gt;. Como bien dice en el párrafo inicial, no es fácil encontrar unas instrucciones claras sobre cómo configurar el API de principio a fin.&lt;/p&gt;
-
-&lt;p&gt;Lanzando &lt;code&gt;docker man&lt;/code&gt;, vemos que la opción que buscamos es:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;-H, --host=[unix:///var/run/docker.sock]: tcp://[host]:[port][path] to bind or
-       unix://[/path/to/socket] to use.
-         The socket(s) to bind to in daemon mode specified using one or more
-         tcp://host:port/path, unix:///path/to/socket, fd://* or fd://socketfd.
-         If the tcp port is not specified, then it will default to either 2375 when
-         --tls is off, or 2376 when --tls is on, or --tlsverify is specified.
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Esta opción debe pasarse en el arranque del &lt;em&gt;daemon&lt;/em&gt; de Docker. Para configurar esta opción durante el arranque de Docker Engine tenemos dos opciones:&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;modificar el arranque del &lt;em&gt;daemon&lt;/em&gt; modificando la configuración de &lt;code&gt;/lib/systemd/system/docker.service&lt;/code&gt;&lt;/li&gt;
-&lt;li&gt;añadiendo las opciones en el fichero de configuración de Docker Engine. Para sistemas Linux con &lt;em&gt;systemd&lt;/em&gt;, la &lt;a href=&#34;https://docs.docker.com/engine/admin/systemd/#start-automatically-at-system-boot&#34;&gt;configuración del &lt;em&gt;daemon&lt;/em&gt; de Docker&lt;/a&gt; se realiza a través del fichero &lt;code&gt;daemon.json&lt;/code&gt; ubicado en &lt;code&gt;/etc/docker/&lt;/code&gt;.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;blockquote&gt;
-&lt;p&gt;He intentado configurar Docker Engine mediante el segundo método &lt;em&gt;daemon.json&lt;/em&gt; pero no he sido capaz de activar el API.&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;Primero, hacemos una copia de seguridad del fichero &lt;code&gt;/lib/systemd/system/docker.service&lt;/code&gt;:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;# cp /lib/systemd/system/docker.service /lib/systemd/system/docker.service.original
-#
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Editamos el fichero &lt;code&gt;/lib/systemd/system/docker.service&lt;/code&gt;&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;# nano /lib/systemd/system/docker.service
-[Unit]
-Description=Docker Application Container Engine
-Documentation=https://docs.docker.com
-After=network-online.target docker.socket firewalld.service
-Wants=network-online.target
-Requires=docker.socket
-
-[Service]
-Type=notify
-# the default is not to use systemd for cgroups because the delegate issues still
-# exists and systemd currently does not support the cgroup feature set required
-# for containers run by docker
-ExecStart=/usr/bin/dockerd -H fd:// 
-ExecReload=/bin/kill -s HUP $MAINPID
-LimitNOFILE=1048576
-# Having non-zero Limit*s causes performance problems due to accounting overhead
-# in the kernel. We recommend using cgroups to do container-local accounting.
-LimitNPROC=infinity
-LimitCORE=infinity
-# Uncomment TasksMax if your systemd version supports it.
-# Only systemd 226 and above support this version.
-#TasksMax=infinity
-TimeoutStartSec=0
-# set delegate yes so that systemd does not reset the cgroups of docker containers
-Delegate=yes
-# kill only the docker process, not all processes in the cgroup
-KillMode=process
-# restart the docker process if it exits prematurely
-Restart=on-failure
-StartLimitBurst=3
-StartLimitInterval=60s
-
-[Install]
-WantedBy=multi-user.target
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Modificamos la línea &lt;code&gt;ExecStart=/usr/bin/dockerd -H fd://&lt;/code&gt; y añadimos: &lt;code&gt;-H tcp://0.0.0.0:2375&lt;/code&gt; de manera que quede:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-txt&#34;&gt;ExecStart=/usr/bin/dockerd -H fd:// -H tcp://0.0.0.0:2375
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;blockquote&gt;
-&lt;p&gt;Esto hace que &lt;em&gt;dockerd&lt;/em&gt; escuche en todas las interfaces disponibles. En el caso de la máquina virtual en la que estoy probando, sólo tengo una, pero lo correcto sería especificar la dirección IP donde quieres que escuche &lt;em&gt;dockerd&lt;/em&gt;.&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;Guardamos los cambios.&lt;/p&gt;
-
-&lt;p&gt;Recargamos la configuración y reiniciamos el servicio.&lt;/p&gt;
-
-&lt;p&gt;Para comprobar que hemos el API funciona, lanzamos una consulta usando &lt;em&gt;curl&lt;/em&gt;:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;# systemctl daemon-reload
-# systemctl restart docker
-# curl http://localhost:2375/version
-{&amp;quot;Version&amp;quot;:&amp;quot;17.05.0-ce&amp;quot;,&amp;quot;ApiVersion&amp;quot;:&amp;quot;1.29&amp;quot;,&amp;quot;MinAPIVersion&amp;quot;:&amp;quot;1.12&amp;quot;,&amp;quot;GitCommit&amp;quot;:&amp;quot;89658be&amp;quot;,&amp;quot;GoVersion&amp;quot;:&amp;quot;go1.7.5&amp;quot;,&amp;quot;Os&amp;quot;:&amp;quot;linux&amp;quot;,&amp;quot;Arch&amp;quot;:&amp;quot;amd64&amp;quot;,&amp;quot;KernelVersion&amp;quot;:&amp;quot;3.16.0-4-amd64&amp;quot;,&amp;quot;BuildTime&amp;quot;:&amp;quot;2017-05-04T22:04:27.257991431+00:00&amp;quot;}
-#
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;blockquote&gt;
-&lt;p&gt;Debes tener en cuenta que esta configuración &lt;strong&gt;supone un riesgo de seguridad&lt;/strong&gt; al permitir el acceso al API de Docker Engine sin ningún tipo de control.&lt;/p&gt;
-&lt;/blockquote&gt;</description>
+&lt;p&gt;&lt;/p&gt;</description>
     </item>
     
     <item>
@@ -1718,109 +209,7 @@ WantedBy=multi-user.target
 
 &lt;p&gt;Ayer estuve &lt;em&gt;haciendo limpieza&lt;/em&gt; siguiendo &lt;em&gt;vagamente&lt;/em&gt; la recomendación de &lt;a href=&#34;https://github.com/kubernetes/kubernetes/issues/43593#issuecomment-288899231&#34;&gt;esta respuesta&lt;/a&gt; en el hilo &lt;a href=&#34;https://github.com/kubernetes/kubernetes/issues/43593#issuecomment-288899231&#34;&gt;Kubernetes memory consumption explosion&lt;/a&gt;.&lt;/p&gt;
 
-&lt;p&gt;&lt;/p&gt;
-
-&lt;p&gt;La solución de &lt;code&gt;RenaudWasTaken&lt;/code&gt; al problema de consumo excesivo de memoria (32GB) fue la realizar limpieza de las carpetas:&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;code&gt;/var/run/kubernetes&lt;/code&gt;&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;/var/lib/kubelet&lt;/code&gt;&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;/var/lib/etcd&lt;/code&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;Antes de empezar a borrar &lt;em&gt;a lo loco&lt;/em&gt;, revisé el contenido de estas carpetas.&lt;/p&gt;
-
-&lt;h2 id=&#34;var-run-kubernetes&#34;&gt;&lt;code&gt;/var/run/kubernetes&lt;/code&gt;&lt;/h2&gt;
-
-&lt;p&gt;En &lt;code&gt;/var/run/kubernetes&lt;/code&gt;:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ ls -la /var/run/kubernetes/
-total 8
-drwxr-xr-x  2 root root   80 May  5 18:43 .
-drwxr-xr-x 18 root root  600 May  5 18:43 ..
--rw-r--r--  1 root root 1082 May  5 18:43 kubelet.crt
--rw-------  1 root root 1679 May  5 18:43 kubelet.key
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Estos ficheros son certificados, por lo que no parecen implicados en el problema y decido no borrarlos.&lt;/p&gt;
-
-&lt;h2 id=&#34;var-lib-kubelet&#34;&gt;&lt;code&gt;/var/lib/kubelet&lt;/code&gt;&lt;/h2&gt;
-
-&lt;h3 id=&#34;nodo-k2&#34;&gt;Nodo &lt;strong&gt;k2&lt;/strong&gt;&lt;/h3&gt;
-
-&lt;p&gt;Al intentar listar el contenido de la carpeta &lt;code&gt;/var/lib/kubelet/pods&lt;/code&gt;, la Raspberry Pi 3 ha tardado una eternidad (en los primeros intentos he creído que había dejado de responder).&lt;/p&gt;
-
-&lt;p&gt;Finalmente, el resultado del comando ha mostrado una gran cantidad de carpetas dentro de esta carpeta:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ ls -la /var/lib/kubelet/pods
-...
-drwx------    2 root root    4096 May  4 23:11 wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_flannel-cfg.deleting~443381808.deleting~108562981.deleting~938554959.deleting~743974077.deleting~207819844.deleting~559419937.deleting~142152710.deleting~494766199.deleting~952339001
-drwx------    2 root root    4096 May  5 18:02 wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_flannel-cfg.deleting~443381808.deleting~108562981.deleting~938554959.deleting~743974077.deleting~274346355.deleting~274250693.deleting~987962315.deleting~680794233.deleting~917929467
-drwx------    2 root root    4096 May  4 23:37 wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_flannel-cfg.deleting~443381808.deleting~108562981.deleting~938554959.deleting~743974077.deleting~274346355.deleting~292131322.deleting~049606881.deleting~105942520.deleting~463246644
-drwx------    2 root root    4096 May  4 22:46 wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_flannel-cfg.deleting~443381808.deleting~119491600.deleting~962328406.deleting~220005477.deleting~309794961.deleting~392355244.deleting~378832104.deleting~159122214.deleting~324365539
-drwx------    2 root root    4096 Apr 15 20:39 wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_flannel-cfg.deleting~443381808.deleting~162549394.deleting~296869341.deleting~353223099.deleting~018715754.deleting~526835026.deleting~320404022.deleting~453576282.deleting~001809150
-...
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Parece como si algo no hubiera funcionado correctamente y hubiera entrado en un bucle, creando carpetas y más carpetas. Además, en el nombre de alguna de estas carpetas aparece &lt;code&gt;..._flannel-cfg...&lt;/code&gt;. Esta ha sido la pista que me ha convencido; al intentar instalar el &lt;em&gt;dashboard&lt;/em&gt; de Kubernetes, tuve problemas precisamente porque no tengo instalado Flannel. Eliminé el &lt;em&gt;pod&lt;/em&gt; y no le di más vueltas.&lt;/p&gt;
-
-&lt;p&gt;Sin embargo, la existencia de estas carpetas parece indicar que la eliminación no fue tan limpia como pensaba y que &lt;em&gt;algo&lt;/em&gt; se quedó atrapado en un bucle.&lt;/p&gt;
-
-&lt;p&gt;He lanzado &lt;code&gt;rm -rf /var/lib/kubelet/pods/&lt;/code&gt; y el comando ha fallado indicando que uno de los &lt;em&gt;pods&lt;/em&gt; estaba en uso. Así que he eliminado poco a poco los &lt;em&gt;pods&lt;/em&gt; hasta que al final:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ ls /var/lib/kubelet/pods/ -la
-total 24
-drwxr-x--- 4 root root 12288 May  5 18:40 .
-drwxr-x--- 4 root root  4096 Apr 15 09:08 ..
-drwxr-x--- 5 root root  4096 May  5 18:43 c0323b0f-31bd-11e7-a0ed-b827eb650fdb
-drwxr-x--- 5 root root  4096 May  5 18:43 f2da9dfb-31bd-11e7-a0ed-b827eb650fdb
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Estos &lt;em&gt;pods&lt;/em&gt;, sean los que sean, están en uso (no tengo nada desplegado en el clúster, así que deben ser &lt;em&gt;de sistema&lt;/em&gt;).&lt;/p&gt;
-
-&lt;p&gt;Tras la limpieza, he reiniciado el nodo.&lt;/p&gt;
-
-&lt;h3 id=&#34;nodo-k3&#34;&gt;Nodo &lt;strong&gt;k3&lt;/strong&gt;&lt;/h3&gt;
-
-&lt;p&gt;El nodo &lt;strong&gt;k3&lt;/strong&gt; no presentaba estas &lt;em&gt;carpetas sospechosas&lt;/em&gt;, pero también he realizado limpieza:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ rm -rf /var/lib/kubelet/pods/
-rm: cannot remove ‘/var/lib/kubelet/pods/3a5e2819-21e5-11e7-bcfd-b827eb650fdb/volumes/kubernetes.io~configmap’: Directory not empty
-rm: cannot remove ‘/var/lib/kubelet/pods/71290201-31bb-11e7-a0ed-b827eb650fdb/volumes/kubernetes.io~secret/kube-proxy-token-7zk2k’: Device or resource busy
-rm: cannot remove ‘/var/lib/kubelet/pods/ef887c6a-31ba-11e7-a0ed-b827eb650fdb/volumes/kubernetes.io~secret/weave-net-token-61scv’: Device or resource busy
-$
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Igual que en el nodo &lt;strong&gt;k2&lt;/strong&gt;, he reiniciado.&lt;/p&gt;
-
-&lt;h2 id=&#34;resultados&#34;&gt;Resultados&lt;/h2&gt;
-
-&lt;p&gt;Los nodos &lt;strong&gt;k2&lt;/strong&gt; y &lt;strong&gt;k3&lt;/strong&gt; siguen en estado &lt;code&gt;Ready&lt;/code&gt; tras unas siete y ocho horas, que es bastante más de lo que &lt;em&gt;aguantaban&lt;/em&gt; antes.&lt;/p&gt;
-
-&lt;p&gt;He comprobado que en la carpeta &lt;code&gt;/var/lib/kubelet/pods&lt;/code&gt; sólo aparecen dos &lt;em&gt;pods&lt;/em&gt; (en el nodo &lt;strong&gt;k2&lt;/strong&gt;):&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ ls -la /var/lib/kubelet/pods/
-total 24
-drwxr-x--- 4 root root 12288 May  5 18:40 .
-drwxr-x--- 4 root root  4096 Apr 15 09:08 ..
-drwxr-x--- 5 root root  4096 May  5 18:43 c0323b0f-31bd-11e7-a0ed-b827eb650fdb
-drwxr-x--- 5 root root  4096 May  5 18:43 f2da9dfb-31bd-11e7-a0ed-b827eb650fdb
-$
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;En el nodo &lt;strong&gt;k3&lt;/strong&gt;:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ ls -la /var/lib/kubelet/pods/
-total 28
-drwxr-x--- 5 root root 12288 May  5 19:44 .
-drwxr-x--- 4 root root  4096 Apr 15 14:10 ..
-drwxr-x--- 3 root root  4096 May  5 19:33 3a5e2819-21e5-11e7-bcfd-b827eb650fdb
-drwxr-x--- 5 root root  4096 May  5 19:37 514d4c93-31c9-11e7-a0ed-b827eb650fdb
-drwxr-x--- 5 root root  4096 May  5 19:37 c0b9753a-31c9-11e7-a0ed-b827eb650fdb
-$
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Más adelante actualizaré el artículo para verificar si los nodos siguen activos y sin problemas.&lt;/p&gt;</description>
+&lt;p&gt;&lt;/p&gt;</description>
     </item>
     
     <item>
@@ -1832,111 +221,207 @@ $
       <description>&lt;p&gt;Una de las cosas que más me sorprenden de Kubernetes es que es necesario instalar una &lt;em&gt;capa de red&lt;/em&gt; sobre el clúster.&lt;/p&gt;
 
 &lt;p&gt;En el caso concreto del que he obtenido las &lt;em&gt;capturas de pantalla&lt;/em&gt;, el clúster corre sobre máquinas virtuales con Debian Jessie.
-&lt;/p&gt;
+&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Troubleshooting Kubernetes (I)</title>
+      <link>https://onthedock.github.io/post/170430-troubleshooting-kubernetes-i/</link>
+      <pubDate>Sun, 30 Apr 2017 15:24:35 +0200</pubDate>
+      
+      <guid>https://onthedock.github.io/post/170430-troubleshooting-kubernetes-i/</guid>
+      <description>&lt;p&gt;Tras la alegría inicial pensando que la configuración de &lt;em&gt;rsyslog&lt;/em&gt; era la causante de los cuelgues de las dos RPi 3 (&lt;a href=&#34;https://onthedock.github.io/post/170430-k3-colgado-de-nuevo/&#34;&gt;El nodo k3 del clúster colgado de nuevo&lt;/a&gt;), pasadas unas horas los dos nodos &lt;strong&gt;k2&lt;/strong&gt; y &lt;strong&gt;k3&lt;/strong&gt; han dejado de responder de nuevo.&lt;/p&gt;
 
-&lt;p&gt;La instalación de Weave Net en Kubernetes consiste únicamente en una línea, como explica el artículo: &lt;a href=&#34;https://www.weave.works/weave-net-kubernetes-integration/&#34;&gt;Run Weave Net with Kubernetes in Just One Line&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Así que es el momento de atacar el problema de forma algo más sistemática. Para ello seguiré las instrucciones que proporcina la página de Kubernetes &lt;a href=&#34;https://kubernetes.io/docs/tasks/debug-application-cluster/debug-cluster/&#34;&gt;Troubleshooting Clusters&lt;/a&gt;.
+&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Errores sobre Orphaned pods en syslog</title>
+      <link>https://onthedock.github.io/post/170430-errores-sobre-orphaned-pods-en-syslog/</link>
+      <pubDate>Sun, 30 Apr 2017 12:55:44 +0200</pubDate>
+      
+      <guid>https://onthedock.github.io/post/170430-errores-sobre-orphaned-pods-en-syslog/</guid>
+      <description>&lt;p&gt;Los nodos &lt;strong&gt;k2&lt;/strong&gt; y &lt;strong&gt;k3&lt;/strong&gt; del clúster dejan de responder pasadas unas horas. La única manera de solucionarlo es reiniciar los nodos. Siguiendo con la revisión de logs, he encontrado que se genera una gran cantidad de entradas en &lt;em&gt;syslog&lt;/em&gt; en referencia a &lt;em&gt;orphaned pods&lt;/em&gt;. Además, el número de estos errores no para de crecer &lt;strong&gt;rápidamente&lt;/strong&gt;.&lt;/p&gt;
 
-&lt;p&gt;Antes de instalar la &lt;em&gt;red&lt;/em&gt; en el clúster (de momento, de un solo nodo), &lt;em&gt;kubectl&lt;/em&gt; indica que el estado del nodo es &lt;code&gt;NotReady&lt;/code&gt;:&lt;/p&gt;
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>El nodo k3 del clúster colgado de nuevo</title>
+      <link>https://onthedock.github.io/post/170430-k3-colgado-de-nuevo/</link>
+      <pubDate>Sun, 30 Apr 2017 11:39:20 +0200</pubDate>
+      
+      <guid>https://onthedock.github.io/post/170430-k3-colgado-de-nuevo/</guid>
+      <description>&lt;p&gt;En la entrada anterior &lt;a href=&#34;https://onthedock.github.io/post/170430-multiples-mensajes-action-17-suspended/&#34;&gt;Múltiples mensajes &amp;lsquo;action 17 suspended&amp;rsquo; en los logs&lt;/a&gt; comentaba que estaba a la espera de obtener resultados; después de apenas unas horas, ya los tengo: &lt;strong&gt;k3&lt;/strong&gt; se ha vuelto a &lt;em&gt;colgar&lt;/em&gt; mientras que &lt;strong&gt;k2&lt;/strong&gt; no.&lt;/p&gt;
 
-&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ kubectl get nodes
-NAME      STATUS     AGE       VERSION
-k8s       NotReady   5h        v1.6.1
-$
+&lt;p&gt;Este resultado parece demostrar que la mala configuración de &lt;em&gt;rsyslog&lt;/em&gt; es la causante de los &lt;em&gt;cuelgues&lt;/em&gt; de las RPi 3 en el clúster de Kubernetes.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Actualización&lt;/strong&gt;: El nodo &lt;strong&gt;k2&lt;/strong&gt; sobre RPi3 sigue colgándose :(&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Actualización II&lt;/strong&gt;: &lt;a href=&#34;https://onthedock.github.io/post/170506-troubleshooting-kubernetes-ii/&#34;&gt;Parece solucionado&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Múltiples mensajes &#39;action 17 suspended&#39; en los logs</title>
+      <link>https://onthedock.github.io/post/170430-multiples-mensajes-action-17-suspended/</link>
+      <pubDate>Sun, 30 Apr 2017 08:44:27 +0200</pubDate>
+      
+      <guid>https://onthedock.github.io/post/170430-multiples-mensajes-action-17-suspended/</guid>
+      <description>&lt;p&gt;Investigando las causas por las que los dos nodos con Raspberry Pi 3 se &lt;em&gt;cuelgan&lt;/em&gt;, he encontrado múltiples apariciones de este mensaje en &lt;code&gt;/var/log/messages&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-log&#34;&gt;Apr 30 06:40:42 k3 rsyslogd-2007: action &#39;action 17&#39; suspended, next retry is Sun Apr 30 06:41:12 2017 [try http://www.rsyslog.com/e/2007 ]
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;En la salida del comando tenemos que la versión de Kubernetes es la 1.6.1. Este dato será importante más adelante a la hora de escoger el comando de instalación de Weave Net.&lt;/p&gt;
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Portainer para gestionar tus contenedores en Docker</title>
+      <link>https://onthedock.github.io/post/170429-portainer-para-gestionar-tus-contenedores-en-docker/</link>
+      <pubDate>Sat, 29 Apr 2017 12:55:04 +0200</pubDate>
+      
+      <guid>https://onthedock.github.io/post/170429-portainer-para-gestionar-tus-contenedores-en-docker/</guid>
+      <description>&lt;p&gt;&lt;a href=&#34;http://portainer.io/&#34;&gt;Portainer&lt;/a&gt; es una herramienta ligera y &lt;em&gt;open-source&lt;/em&gt; de gestión de contenedores sobre Docker (o Docker Swarm). Portainer ofrece una interfaz gráfica para gestionar el &lt;em&gt;host&lt;/em&gt; Docker desde cualquier navegador, tiene soporte para Raspberry Pi y se puede desplegar como un simple contenedor.&lt;/p&gt;
 
-&lt;p&gt;Si obtenemos la lista de &lt;em&gt;pods&lt;/em&gt;, comprobamos que no tenemos ningún &lt;em&gt;pod de red&lt;/em&gt;:&lt;/p&gt;
+&lt;p&gt;Espero que este artículo ayude a todos aquellos que tengan ganas de probar Portainer y evitarles los problemas que me he encontrado yo.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Solución al error de instalación de Kubernetes en Debian Jessie (Missing cgroups: memory)</title>
+      <link>https://onthedock.github.io/post/170422-solucion-al-error-missing-cgroups-memory-en-debian-jessie/</link>
+      <pubDate>Sat, 22 Apr 2017 07:57:14 +0200</pubDate>
+      
+      <guid>https://onthedock.github.io/post/170422-solucion-al-error-missing-cgroups-memory-en-debian-jessie/</guid>
+      <description>&lt;p&gt;Al lanzar la inicialización del clúster con &lt;code&gt;kubeadm init&lt;/code&gt; en Debian Jessie, las comprobaciones inciales indican que no se encuentran los &lt;em&gt;cgroups&lt;/em&gt; para la memoria (échale un vistazo al artículo &lt;a href=&#34;https://onthedock.github.io/post/170417-instalacion-de-kubernetes-falla-missing-cgroups-memory/&#34;&gt;La instalación de Kubernetes falla en Debian Jessie (missing cgroups: memory)&lt;/a&gt;). Los &lt;em&gt;cgroups&lt;/em&gt; son una de las piezas fundamentales en las que se basa Docker para &lt;em&gt;aislar&lt;/em&gt; los procesos de los contenedores, por lo que la inicialización del clúster de Kubernetes se detiene.&lt;/p&gt;
 
-&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ kubectl get pods --all-namespaces
-NAMESPACE     NAME                          READY     STATUS    RESTARTS   AGE
-kube-system   etcd-k8s                      1/1       Running   0          5h
-kube-system   kube-apiserver-k8s            1/1       Running   0          5h
-kube-system   kube-controller-manager-k8s   1/1       Running   0          5h
-kube-system   kube-dns-3913472980-4nlg9     0/3       Pending   0          5h
-kube-system   kube-proxy-l02zn              1/1       Running   0          5h
-kube-system   kube-scheduler-k8s            1/1       Running   0          5h
-$
-&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;La solución es tan sencilla como habilitar los &lt;em&gt;cgroups&lt;/em&gt; durante el arranque.&lt;/p&gt;
 
-&lt;p&gt;Además, los &lt;em&gt;pods&lt;/em&gt; de &lt;em&gt;DNS&lt;/em&gt; &lt;code&gt;kube-dns-*&lt;/code&gt; están en estado &lt;code&gt;Pending&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Cómo agregar un nodo a un cluster Kubernetes</title>
+      <link>https://onthedock.github.io/post/170417-como-agregar-un-nodo-a-un-cluster-kubernetes/</link>
+      <pubDate>Sat, 15 Apr 2017 16:27:30 +0200</pubDate>
+      
+      <guid>https://onthedock.github.io/post/170417-como-agregar-un-nodo-a-un-cluster-kubernetes/</guid>
+      <description>&lt;p&gt;Después de realizar la instalación del nodo &lt;em&gt;master&lt;/em&gt; del clúster Kubernetes, el siguiente paso es agregar nodos adicionales al clúster. Es en estos nodos donde se van a planificar los &lt;em&gt;pods&lt;/em&gt; que realizan las funciones &lt;em&gt;productivas&lt;/em&gt; del clúster (en el nodo &lt;em&gt;master&lt;/em&gt; sólo realiza tareas de gestión del clúster).&lt;/p&gt;
 
-&lt;p&gt;Siguiendo las instrucciones del artículo de Weave Net, lanzamos el comando de instalación para versiones 1.6 (o superior):&lt;/p&gt;
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Error: The connection to the server localhost:8080 was refused</title>
+      <link>https://onthedock.github.io/post/170414-error_the-connection-to-the-server-was-refused/</link>
+      <pubDate>Fri, 14 Apr 2017 18:10:34 +0200</pubDate>
+      
+      <guid>https://onthedock.github.io/post/170414-error_the-connection-to-the-server-was-refused/</guid>
+      <description>&lt;p&gt;Después de &lt;a href=&#34;https://onthedock.github.io/post/170410-k8s-en-rpi-teaser/&#34;&gt;conseguir arrancar Kubernetes tras la instalación&lt;/a&gt;, al intentar ejecutar comandos vía &lt;code&gt;kubectl&lt;/code&gt; obtengo el mensaje de error &lt;code&gt;The connection to the server localhost:8080 was refused - did you specify the right host or port?&lt;/code&gt;&lt;/p&gt;
 
-&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ kubectl apply -f https://git.io/weave-kube-1.6
-clusterrole &amp;quot;weave-net&amp;quot; created
-serviceaccount &amp;quot;weave-net&amp;quot; created
-clusterrolebinding &amp;quot;weave-net&amp;quot; created
-daemonset &amp;quot;weave-net&amp;quot; created
-$
-&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;A continuación explico cómo solucionar el error y evitar que vuelva a mostrarse.&lt;/p&gt;
 
-&lt;p&gt;Obtenemos la lista de &lt;em&gt;pods&lt;/em&gt; de nuevo y observamos que se están creando dos nuevos contenedores:&lt;/p&gt;
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Kubernetes en la Raspberry Pi (teaser)</title>
+      <link>https://onthedock.github.io/post/170410-k8s-en-rpi-teaser/</link>
+      <pubDate>Mon, 10 Apr 2017 22:45:28 +0200</pubDate>
+      
+      <guid>https://onthedock.github.io/post/170410-k8s-en-rpi-teaser/</guid>
+      <description>&lt;figure&gt;
+  &lt;amp-img src=&#34;https://onthedock.github.io/images/170410/itsalive.jpg&#34; alt=&#34;Kubernetes en la Raspberry Pi (teaser) images/170410/itsalive.jpg&#34; width=400 height=292 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
+  
+&lt;/figure&gt;
 
-&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;operador@k8s:~$ kubectl get pods --all-namespaces
-NAMESPACE     NAME                          READY     STATUS              RESTARTS   AGE
-kube-system   etcd-k8s                      1/1       Running             0          5h
-kube-system   kube-apiserver-k8s            1/1       Running             0          5h
-kube-system   kube-controller-manager-k8s   1/1       Running             0          5h
-kube-system   kube-dns-3913472980-4nlg9     0/3       Pending             0          5h
-kube-system   kube-proxy-l02zn              1/1       Running             0          5h
-kube-system   kube-scheduler-k8s            1/1       Running             0          5h
-kube-system   weave-net-32ptg               0/2       ContainerCreating   0          12s
-operador@k8s:~$
-&lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;De hecho, se creado el &lt;em&gt;daemonset&lt;/em&gt; &amp;ldquo;weave-net&amp;rdquo;. Un &lt;em&gt;daemonset&lt;/em&gt; es un &lt;em&gt;pod&lt;/em&gt; que se crea en cada uno de los nodos del clúster automáticamente. Kubernetes se encarga de descargar la imagen desde DockerHub y arrancar un contenedor. Los nodos en la red creada por Weave Net forman una red &lt;em&gt;mesh&lt;/em&gt; que se configura automáticamente, de manera que es posible agregar nodos adicionales sin necesidad de cambiar ninguna configuración.&lt;/p&gt;
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Acciones previas a la instalación de Kubernetes en Raspberry Pi</title>
+      <link>https://onthedock.github.io/post/170409-acciones-previas-instalacion-rpi/</link>
+      <pubDate>Sun, 09 Apr 2017 21:34:16 +0200</pubDate>
+      
+      <guid>https://onthedock.github.io/post/170409-acciones-previas-instalacion-rpi/</guid>
+      <description>&lt;p&gt;Uno de los objetivos motivadores de la existencia de este blog es instalar un clúster de Kubernetes sobre Raspberry Pi. Este artículo se centra en las tareas previas a la instalación en sí.&lt;/p&gt;
 
-&lt;p&gt;Pasados unos segundos la creación de los nodos se ha completado:&lt;/p&gt;
+&lt;p&gt;Kubernetes requiere una instalación previa de Docker, una tarea simplificada gracias a HypriotOS, la &lt;em&gt;distro&lt;/em&gt; creada específicamente con este fin.&lt;/p&gt;
 
-&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$  kubectl get pods --all-namespaces
-NAMESPACE     NAME                          READY     STATUS         RESTARTS   AGE
-kube-system   etcd-k8s                      1/1       Running        0          5h
-kube-system   kube-apiserver-k8s            1/1       Running        0          5h
-kube-system   kube-controller-manager-k8s   1/1       Running        0          5h
-kube-system   kube-dns-3913472980-4nlg9     0/3       ErrImagePull   0          5h
-kube-system   kube-proxy-l02zn              1/1       Running        0          5h
-kube-system   kube-scheduler-k8s            1/1       Running        0          5h
-kube-system   weave-net-32ptg               2/2       Running        0          1m
-$
-&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;El siguiente paso, la instalación de Kubernetes en la Raspberry será objeto de otra(s) entrada(s). Pero sin duda esta tarea sería mucho más complicada sin las contribuciones del joven finlandés &lt;a href=&#34;https://www.cncf.io/blog/2016/11/29/diversity-scholarship-series-programming-journey-becoming-kubernetes-maintainer/&#34;&gt;Lucas Käldström&lt;/a&gt; y su proyecto -ahora integrado la rama principal- &lt;a href=&#34;https://github.com/luxas/kubernetes-on-arm&#34;&gt;Kubernetes on ARM&lt;/a&gt;.&lt;/p&gt;
 
-&lt;p&gt;Finalmente, verificamos que el primer nodo del clúster ya es operativo:&lt;/p&gt;
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Publica en Github Pages</title>
+      <link>https://onthedock.github.io/post/170403-publica-en-github-pages/</link>
+      <pubDate>Mon, 03 Apr 2017 22:38:35 +0200</pubDate>
+      
+      <guid>https://onthedock.github.io/post/170403-publica-en-github-pages/</guid>
+      <description>&lt;p&gt;Cómo publicar el sitio web generado con Hugo en GitHub Pages.&lt;/p&gt;
 
-&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ kubectl get nodes
-NAME      STATUS    AGE       VERSION
-k8s       Ready     5h        v1.6.1
-$
-&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>De Blogger a Hugo</title>
+      <link>https://onthedock.github.io/post/170401-de-blogger-a-hugo/</link>
+      <pubDate>Sat, 01 Apr 2017 18:10:12 +0200</pubDate>
+      
+      <guid>https://onthedock.github.io/post/170401-de-blogger-a-hugo/</guid>
+      <description>&lt;p&gt;Porqué me estoy planteando dejar Blogger y pasar a un sitio estático gracias a Hugo.&lt;/p&gt;
 
-&lt;p&gt;Además, una vez que tenemos la red instalada en el clúster, el &lt;em&gt;pod&lt;/em&gt; &lt;code&gt;kube-dns&lt;/code&gt; comienza la creación de los contenedores (quizás tengas que reiniciar):&lt;/p&gt;
+&lt;p&gt;Hugo es un &lt;em&gt;generador de sitios estáticos&lt;/em&gt; a partir de ficheros en formato &lt;em&gt;markdown&lt;/em&gt;. Hugo aplica una plantilla al contenido de los ficheros en formato &lt;em&gt;markdon&lt;/em&gt; y crea los ficheros HTML.&lt;/p&gt;
 
-&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ kubectl get pods --all-namespaces
-NAMESPACE     NAME                          READY     STATUS              RESTARTS   AGE
-kube-system   etcd-k8s                      1/1       Running             1          11d
-kube-system   kube-apiserver-k8s            1/1       Running             1          11d
-kube-system   kube-controller-manager-k8s   1/1       Running             1          11d
-kube-system   kube-dns-3913472980-4nlg9     0/3       ContainerCreating   0          11d
-kube-system   kube-proxy-l02zn              1/1       Running             1          11d
-kube-system   kube-scheduler-k8s            1/1       Running             1          11d
-kube-system   weave-net-32ptg               2/2       Running             3          10d
-&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Configura curl para usar un proxy</title>
+      <link>https://onthedock.github.io/post/170111-configura-curl-para-usar-proxy/</link>
+      <pubDate>Wed, 11 Jan 2017 08:22:56 +0100</pubDate>
+      
+      <guid>https://onthedock.github.io/post/170111-configura-curl-para-usar-proxy/</guid>
+      <description>&lt;p&gt;Cómo configurar &lt;code&gt;curl&lt;/code&gt; para salir a internet a través de un &lt;em&gt;proxy&lt;/em&gt; que requiere autenticación.&lt;/p&gt;
 
-&lt;p&gt;Tras unos segundos, tenemos todos los &lt;em&gt;pods&lt;/em&gt; del clúster funcionales:&lt;/p&gt;
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Instala Docker en Ubuntu Server 16.04</title>
+      <link>https://onthedock.github.io/post/170110-instala-docker-en-ubuntu-server-16.04/</link>
+      <pubDate>Tue, 10 Jan 2017 15:12:46 +0100</pubDate>
+      
+      <guid>https://onthedock.github.io/post/170110-instala-docker-en-ubuntu-server-16.04/</guid>
+      <description>&lt;p&gt;Cómo instalar Docker en Ubuntu Server 16.04.&lt;/p&gt;
 
-&lt;pre&gt;&lt;code class=&#34;language-shell&#34;&gt;$ kubectl get pods --all-namespaces
-NAMESPACE     NAME                          READY     STATUS    RESTARTS   AGE
-kube-system   etcd-k8s                      1/1       Running   1          11d
-kube-system   kube-apiserver-k8s            1/1       Running   1          11d
-kube-system   kube-controller-manager-k8s   1/1       Running   1          11d
-kube-system   kube-dns-3913472980-4nlg9     3/3       Running   0          11d
-kube-system   kube-proxy-l02zn              1/1       Running   1          11d
-kube-system   kube-scheduler-k8s            1/1       Running   1          11d
-kube-system   weave-net-32ptg               2/2       Running   3          10d
-$
-&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Configura el proxy para APT en Ubuntu Server 16.04</title>
+      <link>https://onthedock.github.io/post/170110-configura-apt-en-ubuntu-server-16.04/</link>
+      <pubDate>Tue, 10 Jan 2017 15:01:55 +0100</pubDate>
+      
+      <guid>https://onthedock.github.io/post/170110-configura-apt-en-ubuntu-server-16.04/</guid>
+      <description>&lt;p&gt;Cómo configurar &lt;code&gt;apt&lt;/code&gt; para salir a internet a través de un &lt;em&gt;proxy&lt;/em&gt; que requiere autenticación.&lt;/p&gt;
 
-&lt;p&gt;Ahora sólo tenemos que añadir nodos &lt;em&gt;worker&lt;/em&gt; y hacer crecer el clúster.&lt;/p&gt;</description>
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Introducción a Hypriot OS</title>
+      <link>https://onthedock.github.io/post/161105-introduccion-a-hypriotos/</link>
+      <pubDate>Sat, 05 Nov 2016 10:37:47 +0100</pubDate>
+      
+      <guid>https://onthedock.github.io/post/161105-introduccion-a-hypriotos/</guid>
+      <description>&lt;p&gt;&lt;a href=&#34;http://blog.hypriot.com/about/#hypriotos:6083a88ee3411b0d17ce02d738f69d47&#34;&gt;HypriotOS&lt;/a&gt; es un sistema operativo basado en &lt;a href=&#34;http://www.debian.org/&#34;&gt;Debian&lt;/a&gt; optimizado para ejecutar &lt;a href=&#34;http://www.docker.com/&#34;&gt;Docker&lt;/a&gt; en plataformas ARM como las &lt;a href=&#34;https://www.raspberrypi.org/&#34;&gt;Raspberry Pi&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;</description>
     </item>
     
   </channel>
