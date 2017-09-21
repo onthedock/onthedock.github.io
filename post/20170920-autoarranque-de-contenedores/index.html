@@ -11,13 +11,13 @@
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
 
-<link rel="canonical" href="https://onthedock.github.io/post/161105-introduccion-a-hypriotos/">
+<link rel="canonical" href="https://onthedock.github.io/post/20170920-autoarranque-de-contenedores/">
 
 
     
     <link href="https://fonts.googleapis.com/css?family=Lobster|Lato:400,700" rel="stylesheet">
     
-    <title>Introducción a Hypriot OS - On The Dock</title>
+    <title>Cómo arrancar contenedores durante el inicio del sistema - On The Dock</title>
     <style amp-boilerplate>body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}</style><noscript><style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style></noscript>
     <script async src="https://cdn.ampproject.org/v0.js"></script>
     
@@ -26,22 +26,22 @@
 <script async custom-element="amp-ad" src="https://cdn.ampproject.org/v0/amp-ad-0.1.js"></script>
 
     
-<meta name="description" content="&lt;p&gt;&lt;a href=&#34;http://blog.hypriot.com/about/#hypriotos:6083a88ee3411b0d17ce02d738f69d47&#34;&gt;HypriotOS&lt;/a&gt; es un sistema operativo basado en &lt;a href=&#34;http://www.debian.org/&#34;&gt;Debian&lt;/a&gt; optimizado para ejecutar &lt;a href=&#34;http://www.docker.com/&#34;&gt;Docker&lt;/a&gt; en plataformas ARM como las &lt;a href=&#34;https://www.raspberrypi.org/&#34;&gt;Raspberry Pi&lt;/a&gt;.&lt;/p&gt;&lt;p&gt;&lt;/p&gt;">
+<meta name="description" content="&lt;p&gt;Una de las desventajas de Docker respecto a Kubernetes, es que en caso de fallo del nodo donde corren los contenedores, éstos no arrancan automáticamente cuando el nodo se recupera. El caso más sencillo es cuando hay que apagar/reiniciar el nodo por algún motivo.&lt;/p&gt;&lt;p&gt;En mi caso, el &lt;em&gt;motivo de fallo&lt;/em&gt; del nodo ha sido que lo he apagado durante las vacaciones ;)&lt;/p&gt;&lt;p&gt;De todas formas, he decidido configurar los contenedores de forma que se inicien automáticamente con el arranque del sistema. En este artículo te explico cómo.&lt;/p&gt;&lt;p&gt;&lt;/p&gt;">
 
-<meta property="og:title" content="Introducción a Hypriot OS - On The Dock">
+<meta property="og:title" content="Cómo arrancar contenedores durante el inicio del sistema - On The Dock">
 <meta property="og:type" content="article">
-<meta property="og:url" content="https://onthedock.github.io/post/161105-introduccion-a-hypriotos/">
-<meta property="og:image" content="https://onthedock.github.io/images/hypriot.png">
+<meta property="og:url" content="https://onthedock.github.io/post/20170920-autoarranque-de-contenedores/">
+<meta property="og:image" content="https://onthedock.github.io/images/docker.png">
 <meta property="og:site_name" content="On The Dock">
-<meta property="og:description" content="&lt;p&gt;&lt;a href=&#34;http://blog.hypriot.com/about/#hypriotos:6083a88ee3411b0d17ce02d738f69d47&#34;&gt;HypriotOS&lt;/a&gt; es un sistema operativo basado en &lt;a href=&#34;http://www.debian.org/&#34;&gt;Debian&lt;/a&gt; optimizado para ejecutar &lt;a href=&#34;http://www.docker.com/&#34;&gt;Docker&lt;/a&gt; en plataformas ARM como las &lt;a href=&#34;https://www.raspberrypi.org/&#34;&gt;Raspberry Pi&lt;/a&gt;.&lt;/p&gt;&lt;p&gt;&lt;/p&gt;">
+<meta property="og:description" content="&lt;p&gt;Una de las desventajas de Docker respecto a Kubernetes, es que en caso de fallo del nodo donde corren los contenedores, éstos no arrancan automáticamente cuando el nodo se recupera. El caso más sencillo es cuando hay que apagar/reiniciar el nodo por algún motivo.&lt;/p&gt;&lt;p&gt;En mi caso, el &lt;em&gt;motivo de fallo&lt;/em&gt; del nodo ha sido que lo he apagado durante las vacaciones ;)&lt;/p&gt;&lt;p&gt;De todas formas, he decidido configurar los contenedores de forma que se inicien automáticamente con el arranque del sistema. En este artículo te explico cómo.&lt;/p&gt;&lt;p&gt;&lt;/p&gt;">
 <meta property="og:locale" content="ja_JP">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="On The Dock">
-<meta name="twitter:url" content="https://onthedock.github.io/post/161105-introduccion-a-hypriotos/">
-<meta name="twitter:title" content="Introducción a Hypriot OS - On The Dock">
-<meta name="twitter:description" content="&lt;p&gt;&lt;a href=&#34;http://blog.hypriot.com/about/#hypriotos:6083a88ee3411b0d17ce02d738f69d47&#34;&gt;HypriotOS&lt;/a&gt; es un sistema operativo basado en &lt;a href=&#34;http://www.debian.org/&#34;&gt;Debian&lt;/a&gt; optimizado para ejecutar &lt;a href=&#34;http://www.docker.com/&#34;&gt;Docker&lt;/a&gt; en plataformas ARM como las &lt;a href=&#34;https://www.raspberrypi.org/&#34;&gt;Raspberry Pi&lt;/a&gt;.&lt;/p&gt;&lt;p&gt;&lt;/p&gt;">
-<meta name="twitter:image" content="https://onthedock.github.io/images/hypriot.png">
+<meta name="twitter:url" content="https://onthedock.github.io/post/20170920-autoarranque-de-contenedores/">
+<meta name="twitter:title" content="Cómo arrancar contenedores durante el inicio del sistema - On The Dock">
+<meta name="twitter:description" content="&lt;p&gt;Una de las desventajas de Docker respecto a Kubernetes, es que en caso de fallo del nodo donde corren los contenedores, éstos no arrancan automáticamente cuando el nodo se recupera. El caso más sencillo es cuando hay que apagar/reiniciar el nodo por algún motivo.&lt;/p&gt;&lt;p&gt;En mi caso, el &lt;em&gt;motivo de fallo&lt;/em&gt; del nodo ha sido que lo he apagado durante las vacaciones ;)&lt;/p&gt;&lt;p&gt;De todas formas, he decidido configurar los contenedores de forma que se inicien automáticamente con el arranque del sistema. En este artículo te explico cómo.&lt;/p&gt;&lt;p&gt;&lt;/p&gt;">
+<meta name="twitter:image" content="https://onthedock.github.io/images/docker.png">
 
 
 <script type="application/ld+json">
@@ -52,15 +52,15 @@
       "@type": "WebPage",
       "@id":"https://onthedock.github.io/"
     },
-    "headline": "Introducción a Hypriot OS - On The Dock",
+    "headline": "Cómo arrancar contenedores durante el inicio del sistema - On The Dock",
     "image": {
       "@type": "ImageObject",
-      "url": "https://onthedock.github.io/images/hypriot.png",
+      "url": "https://onthedock.github.io/images/docker.png",
       "height": 800,
       "width": 800
     },
-    "datePublished": "2016-11-05T10:37:47JST",
-    "dateModified": "2016-11-05T10:37:47JST",
+    "datePublished": "2017-09-20T22:09:46JST",
+    "dateModified": "2017-09-20T22:09:46JST",
     "author": {
       "@type": "Person",
       "name": "On The Dock"
@@ -75,7 +75,11 @@
         "height": 60
       }
     },
-    "description": "<p><a href="http://blog.hypriot.com/about/#hypriotos:6083a88ee3411b0d17ce02d738f69d47">HypriotOS</a> es un sistema operativo basado en <a href="http://www.debian.org/">Debian</a> optimizado para ejecutar <a href="http://www.docker.com/">Docker</a> en plataformas ARM como las <a href="https://www.raspberrypi.org/">Raspberry Pi</a>.</p>
+    "description": "<p>Una de las desventajas de Docker respecto a Kubernetes, es que en caso de fallo del nodo donde corren los contenedores, éstos no arrancan automáticamente cuando el nodo se recupera. El caso más sencillo es cuando hay que apagar/reiniciar el nodo por algún motivo.</p>
+
+<p>En mi caso, el <em>motivo de fallo</em> del nodo ha sido que lo he apagado durante las vacaciones ;)</p>
+
+<p>De todas formas, he decidido configurar los contenedores de forma que se inicien automáticamente con el arranque del sistema. En este artículo te explico cómo.</p>
 
 <p></p>"
   }
@@ -106,14 +110,14 @@
     <main>
       
 <div class="l-container">
-  <article class="single article-6db4ecfe853552466ce5a71b1221a2a0">
+  <article class="single article-17f341044c3d14c9654d3c33feb7ac81">
   <div class="header-wrapper">
-    <a href="https://onthedock.github.io/post/161105-introduccion-a-hypriotos/" class="thumbnail" title="Introducción a Hypriot OS"></a>
+    <a href="https://onthedock.github.io/post/20170920-autoarranque-de-contenedores/" class="thumbnail" title="Cómo arrancar contenedores durante el inicio del sistema"></a>
     <header class="article-header">
       <div class="clearfix">
-        <h1 class="title">Introducción a Hypriot OS</h1>
+        <h1 class="title">Cómo arrancar contenedores durante el inicio del sistema</h1>
         <ul class="p-facts">
-          <li><time datetime="2016-11-05T10:37:47JST">5 Nov 2016</time></li>
+          <li><time datetime="2017-09-20T22:09:46JST">20 Sep 2017</time></li>
           <li><a href="https://onthedock.github.io/post/">post</a></li>
           
           <li>Xavier Aznar</li>
@@ -122,152 +126,103 @@
     </header>
   </div>
 
-  <div class="article-body"><p><a href="http://blog.hypriot.com/about/#hypriotos:6083a88ee3411b0d17ce02d738f69d47">HypriotOS</a> es un sistema operativo basado en <a href="http://www.debian.org/">Debian</a> optimizado para ejecutar <a href="http://www.docker.com/">Docker</a> en plataformas ARM como las <a href="https://www.raspberrypi.org/">Raspberry Pi</a>.</p>
+  <div class="article-body"><p>Una de las desventajas de Docker respecto a Kubernetes, es que en caso de fallo del nodo donde corren los contenedores, éstos no arrancan automáticamente cuando el nodo se recupera. El caso más sencillo es cuando hay que apagar/reiniciar el nodo por algún motivo.</p>
+
+<p>En mi caso, el <em>motivo de fallo</em> del nodo ha sido que lo he apagado durante las vacaciones ;)</p>
+
+<p>De todas formas, he decidido configurar los contenedores de forma que se inicien automáticamente con el arranque del sistema. En este artículo te explico cómo.</p>
 
 <p></p>
 
-<h1 id="hypriotos">HypriotOS</h1>
+<p>Como en Hypriot OS (un derivado de Debian) se usa <strong>systemd</strong> para gestionar el arranque, parada, etc de procesos del sistema operativo. Para conseguir que el contenedor arranque al iniciar el sistema crearemos un <code>unit file</code>, el fichero que define las propiedades del proceso que quieres ejecutar. En este caso, el &ldquo;proceso&rdquo; será el comando Docker que lanza un contenedor.</p>
 
-<p>Las características principales de HypriotOs son:</p>
+<p>systemd se organiza alrededor de dos conceptos: el <code>unit file</code> y el <code>target</code>. El <code>unit file</code> es el fichero de configuración que describe las propiedades del proceso, mientras que el <code>target</code> es el mecanismo para agrupar procesos y arrancarlos a la misma vez (durante los <em>init levels</em> del arranque del sistema).</p>
+
+<h2 id="creando-el-unit-file">Creando el <code>unit file</code></h2>
+
+<p>Los ficheros <code>unit file</code> se encuentran en <code>/etc/systemd/system</code>.</p>
+
+<p>Creamos un fichero <code>home-dns.service</code> para el  <a href="https://onthedock.github.io/post/20170827-dnsmasq-en-docker/">servicio de DNS creado en la entrada anterior</a> usando <strong>dnsmasq</strong>.</p>
+
+<pre><code class="language-shell">[Unit]
+Description=Home DNS (dnsmasq)
+After=docker.service
+Requieres=docker.service
+
+[Service]
+TimeoutStartSec=0
+ExecStartPre=/usr/bin/docker stop home-dns
+ExecStartPre=/usr/bin/docker rm home-dns
+ExecStart=/usr/bin/docker run --name home-dns -p 53:53 -p 53:53/udp --cap-add=NET_ADMIN -v /home/pirate/rpi-alpine-dnsmasq/dnsmasq.conf:/etc/dnsmasq.conf -v /home/pirate/rpi-alpine-dnsmasq/hosts:/etc/hosts xaviaznar/rpi-dnsmasq
+
+[Install]
+WantedBy=multi-user.target
+</code></pre>
+
+<p>El fichero está dividido en tres secciones:</p>
 
 <ul>
-<li>Sistema operativo basado de Debian: la mayor parte de la gente saber cómo usar Debian y las distribuciones basadas en Ubuntu.</li>
-<li>Optimizado para Docker: Todo en HypriotOS está orientado a conseguir que Docker se ejecute de maravilla, desde las configuraciones del kernel de Linux hasta el sistema de ficheros.</li>
-<li>Versiones actualizadas de Docker: Hypriot se actualiza cada vez que se publica una nueva versión de Docker.</li>
-<li>Listo para usar: descargar, <em>flashear</em> y arrancar, es lo único que hace falta para ponerse en marcha con HypriotOS.</li>
+<li><p><code>Unit</code> Indica en qué orden debe lanzarse el proceso, en este caso, después del arranque del servicio <code>docker.service</code>. Para que el proceso funcione también especificamos que se requiere <code>docker.service</code>. En cuanto a <code>Description</code>, el valor indicado aparece en los <em>logs</em> de sistema, etc.</p></li>
+
+<li><p><code>Service</code> En esta sección del fichero se describe el proceso:</p>
+
+<ul>
+<li><code>ExecStartPre</code> son tareas que se realizan <strong>antes</strong> de la ejecución del proceso. Del mismo modo tenemos <code>ExceStartPost</code>, para ejecutar tareas <strong>después</strong> de arrancar el proceso. Si usamos <code>=-</code> en vez de <code>=</code>, systemd ignorará los errores que devuelva la tarea especificada.</li>
+<li><code>ExecStart</code>es donde especificamos el comando a ejecutar. En nuestro caso, un comando <code>docker run</code>.</li>
+</ul></li>
 </ul>
 
-<h2 id="instalación-de-hypriotos">Instalación de HypriotOS</h2>
-
-<p>La instalación de HypriotOS en la Raspberry Pi es muy sencilla.</p>
-
-<p>En el blog de Hypriot tienes información para grabar la imagen en una tarjeta SD tanto si usas <a href="http://blog.hypriot.com/getting-started-with-docker-on-your-arm-device/">Windows, Linux o Mac</a>.</p>
-
-<p>En mi caso, he usado un equipo con Windows para pasar la imagen a la tarjeta SD siguiendo los siguientes pasos:</p>
-
-<ol>
-<li>Descarga la imagen con Hypriot en formato comprimido desde <a href="http://blog.hypriot.com/downloads/">sección de descargas del blog de Hypriot</a>).</li>
-<li>Descomprime el <em>zip</em>.</li>
-<li>Usa <a href="http://sourceforge.net/projects/win32diskimager/">Win32DiskImager</a> para pasar la imagen descomprimida a la tarjeta SD.</li>
-</ol>
-
-<p>¡Eso es todo!</p>
-
-<p>El siguiente paso es colocar de nuevo la tarjeta SD en la Raspberry Pi y arrancar.</p>
-
-<h2 id="obtener-la-dirección-ip-de-la-raspberry-pi">Obtener la dirección IP de la Raspberry Pi</h2>
-
-<p>Por defecto, la Raspberry Pi con HypriotOS obtiene una dirección IP del DHCP local. En el blog de Hypriot recomiendan usar un programa para escanear tu red local y obtener la dirección asignada a la Raspberry Pi (<a href="http://sourceforge.net/projects/nmap.mirror/?source=typ_redirect">ZenMap</a> o <a href="http://angryip.org/download/#windows">Angry IP Scanner</a>, en los comentarios). En mi caso, he accedido a la lista de clientes a los cuales el DHCP les ha asignado una dirección IP y he obtenido la dirección asignada al equipo llamado <em>black-pearl</em>.</p>
-
-<p>Una vez obtenida la dirección IP, conéctate usando <a href="http://the.earth.li/~sgtatham/putty/latest/x86/putty.exe"><em>Putty</em></a>.</p>
-
-<p>Introduce la IP asignada a la Raspberry Pi en el campo <em>Host Name (or IP address)</em> y verifica que el puerto es el 22.</p>
-
-<p>La primera vez que conectes a la dirección IP de la Raspberry Pi obtendrás un mensaje de aviso indicando si quieres confiar en el equipo.</p>
-
-<p>Puedes iniciar sesión en la Raspberry Pi usando el nombre de usuario <code>pirate</code> y el password  <code>hypriot</code>.</p>
-
-<p>Finalmente, para verificar que Docker se encuentra presente, ejecuta <code>docker info</code>. La salida de este comando te devolverá las versiones de cliente y servidor instaladas.</p>
-
-<h2 id="crea-tu-primer-contenedor">Crea tu primer contenedor</h2>
-
-<p>Ya está todo listo para ejecutar tu primer contenedor. Y es tan sencillo como lanzar el comando:</p>
-
-<pre><code class="language-sh">docker run -d -p 80:80 hypriot/rpi-busybox-httpd
-</code></pre>
-
-<p>Este comando ejecuta un contendor (<code>docker run</code>) en segundo plano, de forma no interactiva (<code>-d</code>, <em>dettached</em>), conectando el puerto 80 (web) de tu equipo local con el puerto 80 del contenedor. El contenedor se creará a partir de la imagen <code>hypriot/rpi-busybox-httpd</code>.</p>
-
-<p>Cuando Docker intenta crear el contenedor, busca la imagen indicada en su registro local. Si no lo encuentra, se conecta a un registro público -por defecto Docker Hub- y busca la imagen allí.</p>
-
-<p>Una vez localizada la imagen, descarga en el registro local una copia de la imagen y finalmente arranca un contenedor basado en esa imagen.</p>
-
-<pre><code class="language-sh">$ docker run -d -p  80:80 hypriot/rpi-busybox-httpd
-Unable to find image 'hypriot/rpi-busybox-httpd:latest' locally
-latest: Pulling from hypriot/rpi-busybox-httpd
-c74a9c6a645f: Pull complete
-6f1938f6d8ae: Pull complete
-e1347d4747a6: Pull complete
-a3ed95caeb02: Pull complete
-Digest: sha256:c00342f952d97628bf5dda457d3b409c37df687c859df82b9424f61264f54cd1
-Status: Downloaded newer image for hypriot/rpi-busybox-httpd:latest
-19d131999ea3142d44a83a6e943c9052d8defa43f7da372bd08ec441ee55f31b
-</code></pre>
-
-<p>La imagen descargada contiene <code>busybox</code> y un servidor web minimalista. Puedes acceder al servidor arrancado en el contenedor a través de un navegador, indicando la IP de la Raspberry Pi.</p>
-
-<h3 id="un-contenedor-más-útil">Un contenedor más útil</h3>
-
-<p>Como ejemplo de primer contenedor y de lo fácil que es lanzar contenedores con Docker, el ejemplo anterior no está mal.</p>
-
-<p>Sin embargo, vamos a seguir los mismos pasos para crear un contenedor que proporciona un entorno web de gestión de Docker:</p>
-
-<pre><code class="language-sh">docker run -d -p 9000:9000 -v /var/run/docker.sock:/var/run/docker.sock hypriot/rpi-dockerui
-</code></pre>
-
-<p>En este caso observamos que, además de las instrucciones que hemos visto en el caso anterior, tenemos un nuevo parámetro <code>-v</code>, que permite <em>montar</em> una ruta local del equipo <em>host</em> en el contenedor. Sin embargo, no te preocupes si ahora no entindes todos los detalles.</p>
-
-<p>Una vez arrancado el contenedor, accede a través de un navegador a <code>http://{IP-equipo-docker}:9000</code>. Desde este entorno web puedes controlar el estado de tu instalación de Docker vía web gracias a <a href="https://github.com/kevana/ui-for-docker">UI-for-Docker</a>.</p>
-
-<h2 id="asigna-una-ip-estática">Asigna una IP estática</h2>
-
-<p>En el apartado anterior hemos visto cómo instalar Docker y hemos lanzado los primeros contenedores. Pero la Raspberry Pi sigue con la configuración de la dirección IP dinámica, por lo que puede que la próxima vez que intentes acceder a la RPi, su dirección haya cambiado.</p>
-
-<p>Para evitar estos problemas, vamos a asignar la IP -estática- 192.168.1.51.</p>
-
-<p>Abrimos el fichero <code>/etc/network/interfaces</code> y encontramos que se hace referencia a una carpeta de configuración:</p>
-
-<pre><code class="language-config"># interfaces(5) file used by ifup(8) and ifdown(8)
-# Include files from /etc/network/interfaces.d:
-source-directory /etc/network/interfaces.d
-</code></pre>
-
-<p>Abrimos el fichero de configuración de la tarjeta de red <code>eth0</code>:</p>
-
-<pre><code class="language-config">allow-hotplug eth0
-iface eth0 inet dhcp
-</code></pre>
-
-<p>Vemos que está configurada en modo <code>DHCP</code>, por lo que comentamos la segunda línea y especificamos la configuración de IP estática:</p>
-
-<pre><code class="language-config"># iface eth0 inet dhcp
-
-# Set static IP
-iface eth0 inet static
-address 192.168.1.51
-gateway 192.168.1.1
-domain_name_servers=8.8.8.8, 8.8.4.4
-</code></pre>
-
-<p>Por supuesto, debes indicar la configuración de red de tu entorno.</p>
-
-<p>Guardamos los cambios y reiniciamos el servicio de red mediante:</p>
-
-<pre><code class="language-sh">$ sudo $ sudo /etc/init.d/networking restart
-[....] Restarting networking (via systemctl): networking.service
-. ok
-</code></pre>
-
 <blockquote>
-<p>Como la IP de la Raspberry Pi ha cambiado, la conexión remota desde tu equipo se perderá.</p>
-
-<p>Debes conectar de nuevo con la Raspberry Pi usando la IP que acabas de asignar.</p>
+<p>No hay que usar la opción <code>-d</code> en <code>docker run</code> para evitar que el proceso pase a segundo plano, lo que haría que el contenedor no fuera un descendiente de proceso <code>systemd</code>; esto se interpretaría como que ha fallado y el <em>daemon</em> se detendría.</p>
 </blockquote>
 
-<h3 id="encontrando-tu-raspberry-pi-en-la-red-gracias-a-avahi">Encontrando tu Raspberry Pi en la red gracias a Avahi</h3>
+<ul>
+<li><code>Install</code> En esta sección del fichero se indica en qué grupo se iniciará el proceso especificado en la sección anterior.</li>
+</ul>
 
-<p>Desde la versión 0.3 <em>Jack</em>, HypriotOS usa <a href="https://en.wikipedia.org/wiki/Avahi_(software)">Avahi</a>, el sistema que permite a los programas publicar y descubrir servicios y hosts en una red local. De esta forma puedes acceder a los servicios publicados por los contenedores vía web (o hacer un ping) usando el nombre del sistema: <strong><code>black-pearl</code></strong> (por defecto).</p>
+<p>Para crerar el nuevo <em>servicio</em>, habilitamos la nueva <em>unit</em> y lo arrancamos:</p>
 
-<blockquote>
-<p>He comprobado que funciona desde un equipo Mac; falta comprobarlo desde un equipo Windows.</p>
-</blockquote></div>
+<pre><code class="language-shell">sudo systemctl enable home-dns.service
+sudo systemctl start home-dns
+</code></pre>
+
+<p>Puedes verificar que el contenedor ha arrancado mediante <code>docker ps</code>, por ejemplo.</p>
+
+<p>Podemos ampliar el fichero <code>unit</code> incluyendo también comandos para la acción <code>stop</code>:</p>
+
+<pre><code class="language-shell">[Unit]
+Description=Home DNS (dnsmasq)
+After=docker.service
+Requieres=docker.service
+
+[Service]
+TimeoutStartSec=0
+ExecStartPre=-/usr/bin/docker stop home-dns
+ExecStartPre=-/usr/bin/docker rm home-dns
+ExecStart=/usr/bin/docker run --name home-dns -p 53:53 -p 53:53/udp --cap-add=NET_ADMIN -v /home/pirate/rpi-alpine-dnsmasq/dnsmasq.conf:/etc/dnsmasq.conf -v /home/pirate/rpi-alpine-dnsmasq/hosts:/etc/hosts xaviaznar/rpi-dnsmasq
+ExecStop=/usr/bin/docker stop home-dns
+ExecStopPost=/usr/bin/docker rm home-dns
+
+[Install]
+WantedBy=multi-user.target
+</code></pre>
+
+<p>Ahora, al arrancar el equipo, el servicio de DNS arrancará como un servicio más del sistema operativo.</p>
+
+<p>Puedes leer más sobre los <code>unit files</code> en:</p>
+
+<ul>
+<li><a href="https://coreos.com/os/docs/latest/getting-started-with-systemd.html#unit-file">Getting started with systemd</a></li>
+<li><a href="https://www.freedesktop.org/software/systemd/man/systemd.service.html">man page para systemd</a></li>
+<li><a href="https://www.digitalocean.com/community/tutorials/how-to-use-systemctl-to-manage-systemd-services-and-units">How To Use Systemctl to Manage Systemd Services and Units</a></li>
+</ul></div>
 
   <aside class="p-share">
-  <a href="http://b.hatena.ne.jp/add?mode=confirm&url=https%3a%2f%2fonthedock.github.io%2fpost%2f161105-introduccion-a-hypriotos%2f&title=Introducci%c3%b3n%20a%20Hypriot%20OS" title="はてなブックマーク" class="ht" target="_blank" rel="nofollow"></a>
-  <a href="http://www.facebook.com/sharer.php?u=https%3a%2f%2fonthedock.github.io%2fpost%2f161105-introduccion-a-hypriotos%2f&t=Introducci%c3%b3n%20a%20Hypriot%20OS" title="Facebookでシェア" class="fb" target="_blank" rel="nofollow"></a>
-  <a href="http://twitter.com/intent/tweet?url=https%3a%2f%2fonthedock.github.io%2fpost%2f161105-introduccion-a-hypriotos%2f&text=Introducci%c3%b3n%20a%20Hypriot%20OS&tw_p=tweetbutton" title="Twitterでシェア" class="tw" target="_blank" rel="nofollow"></a>
-  <a href="https://plus.google.com/share?url=https%3a%2f%2fonthedock.github.io%2fpost%2f161105-introduccion-a-hypriotos%2f" title="Google Plusでシェア" class="gp" target="_blank" rel="nofollow"></a>
-  <a href="http://line.me/R/msg/text/?Introducci%c3%b3n%20a%20Hypriot%20OS https%3a%2f%2fonthedock.github.io%2fpost%2f161105-introduccion-a-hypriotos%2f" title="LINEでシェア" class="ln" target="_blank" rel="nofollow"></a>
+  <a href="http://b.hatena.ne.jp/add?mode=confirm&url=https%3a%2f%2fonthedock.github.io%2fpost%2f20170920-autoarranque-de-contenedores%2f&title=C%c3%b3mo%20arrancar%20contenedores%20durante%20el%20inicio%20del%20sistema" title="はてなブックマーク" class="ht" target="_blank" rel="nofollow"></a>
+  <a href="http://www.facebook.com/sharer.php?u=https%3a%2f%2fonthedock.github.io%2fpost%2f20170920-autoarranque-de-contenedores%2f&t=C%c3%b3mo%20arrancar%20contenedores%20durante%20el%20inicio%20del%20sistema" title="Facebookでシェア" class="fb" target="_blank" rel="nofollow"></a>
+  <a href="http://twitter.com/intent/tweet?url=https%3a%2f%2fonthedock.github.io%2fpost%2f20170920-autoarranque-de-contenedores%2f&text=C%c3%b3mo%20arrancar%20contenedores%20durante%20el%20inicio%20del%20sistema&tw_p=tweetbutton" title="Twitterでシェア" class="tw" target="_blank" rel="nofollow"></a>
+  <a href="https://plus.google.com/share?url=https%3a%2f%2fonthedock.github.io%2fpost%2f20170920-autoarranque-de-contenedores%2f" title="Google Plusでシェア" class="gp" target="_blank" rel="nofollow"></a>
+  <a href="http://line.me/R/msg/text/?C%c3%b3mo%20arrancar%20contenedores%20durante%20el%20inicio%20del%20sistema https%3a%2f%2fonthedock.github.io%2fpost%2f20170920-autoarranque-de-contenedores%2f" title="LINEでシェア" class="ln" target="_blank" rel="nofollow"></a>
 </aside>
 
 
@@ -278,7 +233,7 @@ domain_name_servers=8.8.8.8, 8.8.4.4
         
         <li itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb"><a href="https://onthedock.github.io/post/" itemprop="url"><span itemprop="title">post</span></a></li>
         
-        <li>Introducción a Hypriot OS</li>
+        <li>Cómo arrancar contenedores durante el inicio del sistema</li>
       </ol>
 
       
@@ -288,6 +243,8 @@ domain_name_servers=8.8.8.8, 8.8.4.4
         <li>
           <header><a href="https://onthedock.github.io/categories/">categories</a></header>
           <ul>
+            
+            <li><a href="https://onthedock.github.io/categories/dev/">dev</a></li>
             
             <li><a href="https://onthedock.github.io/categories/ops/">ops</a></li>
             
@@ -301,10 +258,6 @@ domain_name_servers=8.8.8.8, 8.8.4.4
         <li>
           <header><a href="https://onthedock.github.io/tags/">tags</a></header>
           <ul>
-            
-            <li><a href="https://onthedock.github.io/tags/raspberry-pi/">raspberry pi</a></li>
-            
-            <li><a href="https://onthedock.github.io/tags/hypriot-os/">hypriot os</a></li>
             
             <li><a href="https://onthedock.github.io/tags/docker/">docker</a></li>
             
@@ -324,22 +277,7 @@ domain_name_servers=8.8.8.8, 8.8.4.4
   <section>
     <header><span>Latests</span></header>
     <ul class="p-articles thin">
-      <li><article class="li sm article-17f341044c3d14c9654d3c33feb7ac81">
-  <div class="header-wrapper">
-    <a href="https://onthedock.github.io/post/20170920-autoarranque-de-contenedores/" class="thumbnail" title="Cómo arrancar contenedores durante el inicio del sistema"></a>
-    <header class="article-header">
-      <div class="clearfix">
-        <h2 class="title"><a href="https://onthedock.github.io/post/20170920-autoarranque-de-contenedores/">Cómo arrancar contenedores durante el inicio del sistema</a></h2>
-        <ul class="p-facts">
-          <li><time datetime="2017-09-20T22:09:46JST">20 Sep 2017</time></li>
-          <li><a href="https://onthedock.github.io/post/">post</a></li>
-          
-        </ul>
-      </div>
-    </header>
-  </div>
-</article>
-</li><li><article class="li sm article-583a77cc8522d685af2babbc4b37048b">
+      <li><article class="li sm article-583a77cc8522d685af2babbc4b37048b">
   <div class="header-wrapper">
     <a href="https://onthedock.github.io/post/20170827-dnsmasq-en-docker/" class="thumbnail" title="dnsmasq en Docker"></a>
     <header class="article-header">
@@ -377,6 +315,21 @@ domain_name_servers=8.8.8.8, 8.8.4.4
         <h2 class="title"><a href="https://onthedock.github.io/post/170819-usando-un-contenedor-sidecar/">Usando un contenedor sidecar para el almacenamiento</a></h2>
         <ul class="p-facts">
           <li><time datetime="2017-08-19T09:51:23JST">19 Aug 2017</time></li>
+          <li><a href="https://onthedock.github.io/post/">post</a></li>
+          
+        </ul>
+      </div>
+    </header>
+  </div>
+</article>
+</li><li><article class="li sm article-d1e335a06f765bffda53d2e123044b27">
+  <div class="header-wrapper">
+    <a href="https://onthedock.github.io/post/170818-play-with-k8s/" class="thumbnail" title="Play With Kubernetes"></a>
+    <header class="article-header">
+      <div class="clearfix">
+        <h2 class="title"><a href="https://onthedock.github.io/post/170818-play-with-k8s/">Play With Kubernetes</a></h2>
+        <ul class="p-facts">
+          <li><time datetime="2017-08-18T20:25:31JST">18 Aug 2017</time></li>
           <li><a href="https://onthedock.github.io/post/">post</a></li>
           
         </ul>
