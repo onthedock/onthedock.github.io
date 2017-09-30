@@ -11,13 +11,13 @@
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
 
-<link rel="canonical" href="https://onthedock.github.io/post/170819-usando-un-contenedor-sidecar/">
+<link rel="canonical" href="https://onthedock.github.io/post/20170924-dokuwiki_en_un_contenedor_notas/">
 
 
     
     <link href="https://fonts.googleapis.com/css?family=Lobster|Lato:400,700" rel="stylesheet">
     
-    <title>Usando un contenedor sidecar para el almacenamiento - On The Dock</title>
+    <title>Dokuwiki en un contenedor: notas sobre el proceso - On The Dock</title>
     <style amp-boilerplate>body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}</style><noscript><style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style></noscript>
     <script async src="https://cdn.ampproject.org/v0.js"></script>
     
@@ -26,22 +26,22 @@
 <script async custom-element="amp-ad" src="https://cdn.ampproject.org/v0/amp-ad-0.1.js"></script>
 
     
-<meta name="description" content="&lt;p&gt;Como indicaba en la entrada la anterior entrada &lt;a href=&#34;https://onthedock.github.io/post/170817-almacenamiento-en-k8s-problema-abierto/&#34;&gt;Almacenamiento en Kubernetes: problema abierto&lt;/a&gt;, el problema de proporcionar almacenamiento persistente para las aplicaciones desplegadas en Kubernetes sigue sin tener una solución general.&lt;/p&gt;&lt;p&gt;En este artículo comento una solución particular al problema del almacenamiento basada en el uso de un contenedor &lt;em&gt;sidecar&lt;/em&gt;.&lt;/p&gt;&lt;p&gt;&lt;/p&gt;">
+<meta name="description" content="&lt;p&gt;Antes de convertir todas las Raspberry Pi de casa en &lt;em&gt;hosts&lt;/em&gt; de Docker, usaba la Raspberry Pi B&#43; como wiki casero. En él documentaba todo lo que iba aprendiendo sobre las diferentes tecnologías de mi día a día.&lt;/p&gt;&lt;p&gt;Hoy he vuelto a instalar Dokuwiki, aunque esta vez usando un contenedor. En este artículo comento algunos de los puntos relevantes que han surgido durante el proceso.&lt;/p&gt;&lt;p&gt;&lt;/p&gt;">
 
-<meta property="og:title" content="Usando un contenedor sidecar para el almacenamiento - On The Dock">
+<meta property="og:title" content="Dokuwiki en un contenedor: notas sobre el proceso - On The Dock">
 <meta property="og:type" content="article">
-<meta property="og:url" content="https://onthedock.github.io/post/170819-usando-un-contenedor-sidecar/">
-<meta property="og:image" content="https://onthedock.github.io/images/kubernetes.png">
+<meta property="og:url" content="https://onthedock.github.io/post/20170924-dokuwiki_en_un_contenedor_notas/">
+<meta property="og:image" content="https://onthedock.github.io/images/docker.png">
 <meta property="og:site_name" content="On The Dock">
-<meta property="og:description" content="&lt;p&gt;Como indicaba en la entrada la anterior entrada &lt;a href=&#34;https://onthedock.github.io/post/170817-almacenamiento-en-k8s-problema-abierto/&#34;&gt;Almacenamiento en Kubernetes: problema abierto&lt;/a&gt;, el problema de proporcionar almacenamiento persistente para las aplicaciones desplegadas en Kubernetes sigue sin tener una solución general.&lt;/p&gt;&lt;p&gt;En este artículo comento una solución particular al problema del almacenamiento basada en el uso de un contenedor &lt;em&gt;sidecar&lt;/em&gt;.&lt;/p&gt;&lt;p&gt;&lt;/p&gt;">
+<meta property="og:description" content="&lt;p&gt;Antes de convertir todas las Raspberry Pi de casa en &lt;em&gt;hosts&lt;/em&gt; de Docker, usaba la Raspberry Pi B&#43; como wiki casero. En él documentaba todo lo que iba aprendiendo sobre las diferentes tecnologías de mi día a día.&lt;/p&gt;&lt;p&gt;Hoy he vuelto a instalar Dokuwiki, aunque esta vez usando un contenedor. En este artículo comento algunos de los puntos relevantes que han surgido durante el proceso.&lt;/p&gt;&lt;p&gt;&lt;/p&gt;">
 <meta property="og:locale" content="ja_JP">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="On The Dock">
-<meta name="twitter:url" content="https://onthedock.github.io/post/170819-usando-un-contenedor-sidecar/">
-<meta name="twitter:title" content="Usando un contenedor sidecar para el almacenamiento - On The Dock">
-<meta name="twitter:description" content="&lt;p&gt;Como indicaba en la entrada la anterior entrada &lt;a href=&#34;https://onthedock.github.io/post/170817-almacenamiento-en-k8s-problema-abierto/&#34;&gt;Almacenamiento en Kubernetes: problema abierto&lt;/a&gt;, el problema de proporcionar almacenamiento persistente para las aplicaciones desplegadas en Kubernetes sigue sin tener una solución general.&lt;/p&gt;&lt;p&gt;En este artículo comento una solución particular al problema del almacenamiento basada en el uso de un contenedor &lt;em&gt;sidecar&lt;/em&gt;.&lt;/p&gt;&lt;p&gt;&lt;/p&gt;">
-<meta name="twitter:image" content="https://onthedock.github.io/images/kubernetes.png">
+<meta name="twitter:url" content="https://onthedock.github.io/post/20170924-dokuwiki_en_un_contenedor_notas/">
+<meta name="twitter:title" content="Dokuwiki en un contenedor: notas sobre el proceso - On The Dock">
+<meta name="twitter:description" content="&lt;p&gt;Antes de convertir todas las Raspberry Pi de casa en &lt;em&gt;hosts&lt;/em&gt; de Docker, usaba la Raspberry Pi B&#43; como wiki casero. En él documentaba todo lo que iba aprendiendo sobre las diferentes tecnologías de mi día a día.&lt;/p&gt;&lt;p&gt;Hoy he vuelto a instalar Dokuwiki, aunque esta vez usando un contenedor. En este artículo comento algunos de los puntos relevantes que han surgido durante el proceso.&lt;/p&gt;&lt;p&gt;&lt;/p&gt;">
+<meta name="twitter:image" content="https://onthedock.github.io/images/docker.png">
 
 
 <script type="application/ld+json">
@@ -52,15 +52,15 @@
       "@type": "WebPage",
       "@id":"https://onthedock.github.io/"
     },
-    "headline": "Usando un contenedor sidecar para el almacenamiento - On The Dock",
+    "headline": "Dokuwiki en un contenedor: notas sobre el proceso - On The Dock",
     "image": {
       "@type": "ImageObject",
-      "url": "https://onthedock.github.io/images/kubernetes.png",
+      "url": "https://onthedock.github.io/images/docker.png",
       "height": 800,
       "width": 800
     },
-    "datePublished": "2017-08-19T09:51:23JST",
-    "dateModified": "2017-08-19T09:51:23JST",
+    "datePublished": "2017-09-24T22:43:01JST",
+    "dateModified": "2017-09-24T22:43:01JST",
     "author": {
       "@type": "Person",
       "name": "On The Dock"
@@ -75,9 +75,9 @@
         "height": 60
       }
     },
-    "description": "<p>Como indicaba en la entrada la anterior entrada <a href="https://onthedock.github.io/post/170817-almacenamiento-en-k8s-problema-abierto/">Almacenamiento en Kubernetes: problema abierto</a>, el problema de proporcionar almacenamiento persistente para las aplicaciones desplegadas en Kubernetes sigue sin tener una solución general.</p>
+    "description": "<p>Antes de convertir todas las Raspberry Pi de casa en <em>hosts</em> de Docker, usaba la Raspberry Pi B+ como wiki casero. En él documentaba todo lo que iba aprendiendo sobre las diferentes tecnologías de mi día a día.</p>
 
-<p>En este artículo comento una solución particular al problema del almacenamiento basada en el uso de un contenedor <em>sidecar</em>.</p>
+<p>Hoy he vuelto a instalar Dokuwiki, aunque esta vez usando un contenedor. En este artículo comento algunos de los puntos relevantes que han surgido durante el proceso.</p>
 
 <p></p>"
   }
@@ -108,14 +108,14 @@
     <main>
       
 <div class="l-container">
-  <article class="single article-b20735633157cb1e57eb0c1d05406149">
+  <article class="single article-5cc41de3b52937b75f69a54b7698ecda">
   <div class="header-wrapper">
-    <a href="https://onthedock.github.io/post/170819-usando-un-contenedor-sidecar/" class="thumbnail" title="Usando un contenedor sidecar para el almacenamiento"></a>
+    <a href="https://onthedock.github.io/post/20170924-dokuwiki_en_un_contenedor_notas/" class="thumbnail" title="Dokuwiki en un contenedor: notas sobre el proceso"></a>
     <header class="article-header">
       <div class="clearfix">
-        <h1 class="title">Usando un contenedor sidecar para el almacenamiento</h1>
+        <h1 class="title">Dokuwiki en un contenedor: notas sobre el proceso</h1>
         <ul class="p-facts">
-          <li><time datetime="2017-08-19T09:51:23JST">19 Aug 2017</time></li>
+          <li><time datetime="2017-09-24T22:43:01JST">24 Sep 2017</time></li>
           <li><a href="https://onthedock.github.io/post/">post</a></li>
           
           <li>Xavier Aznar</li>
@@ -124,114 +124,153 @@
     </header>
   </div>
 
-  <div class="article-body"><p>Como indicaba en la entrada la anterior entrada <a href="https://onthedock.github.io/post/170817-almacenamiento-en-k8s-problema-abierto/">Almacenamiento en Kubernetes: problema abierto</a>, el problema de proporcionar almacenamiento persistente para las aplicaciones desplegadas en Kubernetes sigue sin tener una solución general.</p>
+  <div class="article-body"><p>Antes de convertir todas las Raspberry Pi de casa en <em>hosts</em> de Docker, usaba la Raspberry Pi B+ como wiki casero. En él documentaba todo lo que iba aprendiendo sobre las diferentes tecnologías de mi día a día.</p>
 
-<p>En este artículo comento una solución particular al problema del almacenamiento basada en el uso de un contenedor <em>sidecar</em>.</p>
+<p>Hoy he vuelto a instalar Dokuwiki, aunque esta vez usando un contenedor. En este artículo comento algunos de los puntos relevantes que han surgido durante el proceso.</p>
 
 <p></p>
 
-<h1 id="opciones-disponibles">Opciones disponibles</h1>
+<h1 id="un-poco-de-historia">Un poco de historia</h1>
 
-<p>En esta fase inicial de aprendizaje de Kubernetes el uso de almacenamiento en la nube (AWS, GCE, etc) no es una opción debido a los costes.</p>
+<p>Aquel wiki casero del que hablaba en la intro fue creciendo hasta convertirse en parte de mi <em>memoria extendida</em>: instalé <a href="https://ngrok.com/">Ngrok</a> para poder acceder desde cualquier sitio a la información contenida en el wiki.</p>
 
-<p>Las opciones como Gluster o Ceph requieren hardware adicional (como mínimo, dos nuevas máquinas). El coste de incorporar dos nuevas RPi al clúster no sería excesivo, sólo Ceph parece que <a href="http://ceph.com/arm/">está trabajando</a> en dar soporte a ARM mientras que para Gluster no he encontrado nada (a parte de una entrada en su blog del 2012).</p>
+<p>Con Ngrok sólo podía crear un túnel hacia la RPi, lo que impedía que mis compañeros de trabajo pudieran consultar el wiki. Ahí fue donde empecé mi andadura con los contenedores, replicando el wiki en Red Hat Cloud: <a href="http://wiki-ameisin.rhcloud.com/">Wiki-Ameisin</a>. Pero tenía dificultades para mantener mi <em>copia local</em>, en la RPi y la <em>copia en la nube</em> (en RHCloud) sincronizadas, por lo que la versión online se fue quedando cada vez más desactualizada.</p>
 
-<p>En cuanto a NFS, requeriría &ldquo;sólo&rdquo; una máquina adicional, pero no he encontrado demasiada información al respecto (en cuanto a cómo usar NFS con Kubernetes). Se asume un conocimiento de Linux y de cómo funciona NFS que debería obtener, lo que supone invertir tiempo en un concepto interesante, pero marginal en cuanto a Kubernetes.</p>
+<p>Después de un cambio de trabajo, el wiki fue perdiendo relevancia hasta que empecé a usar Docker y Kubernetes como <em>hobby</em>. Pero como he canalizado gran parte del aprendizaje hacia este blog, la necesidad de disponer de un wiki  no resultaba apremiante. Además, siempre estaba presente el problema con el almacenamiento (especialmente en Kubernetes, como he comentado en <a href="https://onthedock.github.io/post/170819-usando-un-contenedor-sidecar/">otras</a> <a href="https://onthedock.github.io/post/170817-almacenamiento-en-k8s-problema-abierto/">ocasiones</a>).</p>
 
-<p>Mi intención es encontrar una solución lo más relacionada con Kubernetes como sea posible. En este sentido he estado revisando <a href="https://www.minio.io/">Minio</a>, que proporciona una API 100% compatible con el almacenamiento de Amazon S3. De esta forma, es posible usar tanto una solución local (con Minio) como una en el <em>cloud</em> (usando S3).</p>
+<h2 id="problemas-de-concepto">Problemas de <em>concepto</em></h2>
 
-<p>El problema es que la aplicación debería usar el cliente de Minio para poder acceder al almacenamiento. Esto no es posible sin modificar la aplicación.</p>
+<h3 id="docker-o-kubernetes">Docker o Kubernetes</h3>
 
-<p>En los repositorios de Minio en Github he encontrado el proyecto <a href="https://github.com/minio/minfs">MinioFS</a> cuya descripción es justo lo que necesito:</p>
+<p>Mi objetivo inicial era crear un wiki en Kubernetes. Al no tener resuelto el problema del almacenamiento nativo sobre el clúster, la única vía disponible es la del almacenamiento local (en uno de los nodos) del clúster. Pero eso significa que el <em>pod</em> debe estar ligado al nodo donde se encuentra el almacenamiento.</p>
 
-<blockquote>
-<p>MinFS is a fuse driver for Amazon S3 compatible object storage server. MinFS lets you mount a remote bucket (from a S3 compatible object store), as if it were a local directory. This allows you to read and write from the remote bucket just by operating on the local mount directory.</p>
+<p>Aunque se puede conseguir especificando afinidad con uno de los nodos, es más sencillo crear el contenedor en Docker, sin usar el clúster.</p>
 
-<p>MinFS helps legacy applications use modern object stores with minimal config changes. MinFS uses BoltDB for caching and saving metadata, list of files, permissions, owners etc.</p>
-</blockquote>
+<h3 id="un-contenedor-o-varios">Un contenedor o varios</h3>
 
-<p>Desgraciadamente, no tiene soporte -todavía- para ARM (issue #26 <a href="https://github.com/minio/minfs/issues/26">ARM support for MinFS</a>).</p>
+<p>La filosofía de los contenedores es que cada contenedor debe ejecutar un solo proceso. Así que había pensado en <em>conectar</em> varios contenedores: uno para el servidor web, otro para el <em>middleware</em>, PHP y finalmente otro con los datos. En el caso de Dokuwiki, los datos se almacenan en ficheros de texto plano, por lo que no es necesaria una base de datos o nada por el estilo.</p>
 
-<h1 id="una-opción-viable">Una opción viable</h1>
+<p>El problema de esta configuración es que el servidor web se ejecuta usando un usuario (por ejemplo <code>www-data</code>), mientras que el contenedor de PHP es probable que use otro usuario&hellip; Cuando he intentado esta configuración en el pasado, he acabado con muchos problemas de permisos.</p>
 
-<p>Dándole vueltas a la posibilidad de usar Minio, he decidido cambiar el problema: si la aplicación no puede escribir sobre el almacenamiento de Minio, que sea el propio Minio el que obtenga la información de la aplicación. La solución que me ha venido a la cabeza tiene que ver con el <em>pattern</em> del <strong>contenedor sidecar</strong>: <a href="http://blog.kubernetes.io/2015/06/the-distributed-system-toolkit-patterns.html">The Distributed System ToolKit: Patterns for Composite Containers</a>.</p>
+<p>Así que he seguido el camino inverso y he decidido <em>meterlo todo</em> en un solo contenedor: servidor web, PHP y datos.</p>
 
-<figure>
-  <amp-img src="https://onthedock.github.io/images/170819/example-1-sidecar-container.png" alt="Usando un contenedor sidecar para el almacenamiento images/170819/example-1-sidecar-container.png" width=640 height=400 layout="responsive"></amp-img>
-  
-  <figcaption>
-    
-    Ejemplo 1 Contenedor sidecar
-    
-  </figcaption>
-  
-</figure>
+<h3 id="configuración-inicial-de-dokuwiki">Configuración inicial de Dokuwiki</h3>
 
+<p>No ha sido difícil crear una imagen base con Nginx, PHP (y PHP-FPM), pero todavía quedaba la parte difícil: configurarlo todo para que funcionase.</p>
 
-<p>Buscando en Google hace unos días encontré el artículo <a href="http://larmog.github.io/2017/03/16/minio-simple-storage-for-your-cluster/">Minio, simple storage for your cluster</a> donde se exponía la idea del uso de un contenedor sidecar para realizar las tareas de replicado de la información del <em>pod</em>, aunque la solución final me pareció, en su momento, demasiado complicada.</p>
+<p>He realizado algunas pruebas de configuración de PHP en Nginx, sin éxito.</p>
 
-<h2 id="el-contenedor-sidecar">El contenedor sidecar</h2>
+<p>En cualquier caso, mirando un poco más allá, he pensado que en la primera ejecución del wiki se lanza <code>install.php</code> para configurar el wiki. Si los ficheros se encuentran en la imagen base, no pueden ser modificados, lo que significa que en cada ejecución del wiki se deberían reconfigurar de nuevo.</p>
 
-<p>El contenedor <em>sidecar</em> reside junto al contenedor de la aplicación y realiza una función auxiliar a la del contenedor principal. En mi caso, el contenedor sidecar contendría el cliente de Minio <code>mc</code>.</p>
+<p>Sacando los ficheros del contenedor podría solucionarse el problema, por ejemplo creando un contenedor de datos o colocando los ficheros del wiki en un volumen del <em>host</em>.</p>
 
-<p>El contenedor principal lee y escribe sobre un volumen local (en el <em>pod</em>). El contenedor sidecar se encarga de copiar ficheros del pod hacia el exterior (hacia el <em>bucket</em> definido en el servidor de Minio).</p>
+<p>También habría que apartarse de la <a href="https://www.dokuwiki.org/install:nginx">configuración recomendada del Dokuwiki para Nginx</a>, que entre otras cosas impide el acceso al fichero <code>install.php</code>.</p>
 
-<figure>
-  <amp-img src="https://onthedock.github.io/images/170819/k8s-pod-sidecar-pattern.svg" alt="Usando un contenedor sidecar para el almacenamiento images/170819/k8s-pod-sidecar-pattern.svg" width=640 height=400 layout="responsive"></amp-img>
-  
-</figure>
+<p>Al final he decidido realizar algunos cambios:</p>
 
+<ul>
+<li>usar Caddy, con una <a href="https://github.com/caddyserver/examples/tree/master/dokuwiki">configuración de PHP específica para Dokuwiki</a> más sencilla</li>
+<li><em>montar</em> los ficheros de Dokuwiki desde una carpeta en el <em>host</em>.</li>
+</ul>
 
-<p>Al tratarse de volúmenes locales al <em>pod</em>, el <em>scheduler</em> los crea junto con el <em>pod</em> (a partir de la definición en el <em>deployment</em>). Kubernetes los crea automáticamente, sin ninguna dependencia de los <em>plugins</em> de almacenamiento ni de si permiten provisionamiento dinámico o no. Así podemos escalar la aplicación sin necesidad de provisionar nuevos <em>PersistentVolumes</em>.</p>
+<h3 id="caddy-y-php">Caddy y PHP</h3>
 
-<p>Cuando se crea un nuevo <em>pod</em>, el volumen inicialmente está vacío, por lo que hay que &ldquo;descargar&rdquo; los ficheros desde el almacenamiento remoto. Esta tarea de configuración inicial es justo el objetivo de los <a href="https://kubernetes.io/docs/concepts/workloads/pods/init-containers/">contenedores init</a>.</p>
+<p>He empezado con un <code>Dockerfile</code> lo más sencillo posible, instalando únicamente lo esencial. He usado <a href="https://bitbucket.org/yobasystems/alpine-caddy/overview">este <code>Dockerfile</code></a> como inspiración.</p>
 
-<p>Una vez que ha finalizado la copia inicial de la información desde el <em>bucket</em> remoto al volumen local, se lanzan los contenedores de la aplicación y el sidecar, en paralelo.</p>
+<p>Inicialmente, sólo instalo Caddy, PHP y las bibliotecas de funciones requeridas por Dokuwiki:</p>
 
-<p>A partir de la &ldquo;puesta en marcha&rdquo; del <em>pod</em> (cuando el contenedor <em>init</em> finaliza con éxito), el contenedor sidecar se encarga de ir sincronizando el contenido del volumen con el del <em>bucket</em> remoto.</p>
+<pre><code class="language-Dockerfile">FROM alpine:3.6
 
-<p>El servidor de Minio se puede desplegar sobre Docker como un contenedor.</p>
+RUN apk add --no-cache caddy php7 php7-fpm php7-gd
+</code></pre>
 
-<figure>
-  <amp-img src="https://onthedock.github.io/images/170819/k8-storage-solution-minio.svg" alt="Usando un contenedor sidecar para el almacenamiento images/170819/k8-storage-solution-minio.svg" width=640 height=400 layout="responsive"></amp-img>
-  
-</figure>
+<p>Siguiendo las buenas prácticas de Docker, he decidido usar un usuario <em>no-root</em> llamado <code>caddy</code> (el usuario y el grupo se crear durante la instalación de Caddy).</p>
 
+<p>También he optado por copiar la línea de configuración de <code>php-fpm</code>:</p>
 
-<p>Para garantizar que en todo momento tenemos un servidor de Minio capaz de atender las peticiones desde cualquiera de los clientes, podemos desplegarlo en forma <em>deployment</em>. Para evitar que el <em>scheduler</em> lo planifique en un nodo diferente al que tiene montado, tendremos que definir afinidad con el nodo en el que se encuentra.</p>
+<pre><code class="language-Dockerfile">RUN echo &quot;clear_env = no&quot; &gt;&gt; /etc/php7/php7-fpm.conf
 
-<figure>
-  <amp-img src="https://onthedock.github.io/images/170819/k8s-storage-solution.svg" alt="Usando un contenedor sidecar para el almacenamiento images/170819/k8s-storage-solution.svg" width=640 height=400 layout="responsive"></amp-img>
-  
-</figure>
+RUN chown -R caddy:caddy /var/www /var/log
 
+WORKDIR /var/www
+</code></pre>
 
-<p>Aunque esta última variante sólo proporciona balanceo para el servidor de Minio, el almacenamiento no está replicado y un fallo del hardware subyacente nos deja sin datos.</p>
+<p>Aunque en el <code>Dockerfile</code> se usa la instrucción <code>WORKDIR</code> para cambiar al directorio base que usará Caddy, yo prefiero especificarlo en el fichero de configuración. Aunque en este caso es redundante, he preferido dejarlo para establecer un directorio por defecto para el servidor en la imagen (que quiero utilizar como base para otras aplicaciones basadas en PHP).</p>
 
-<p>Con esta configuración es posible proporcionar almacenamiento local de un nodo como almacenamiento &ldquo;<em>cloud local</em>&rdquo;, es decir, desde cualquier nodo del clúster, externo a la aplicación. El servidor de Minio actúa como <em>proxy</em> del almacenamiento local del nodo. Este contenedor sidecar puede usarse con cualquier aplicación sin necesidad de modificación, ya que el cliente de Minio es el que se relaciona con el almacenamiento externo (la aplicación trabaja sobre el almacenamiento local en el <em>pod</em>). Cuando el <em>pod</em> se planifica en cualquier otro nodo del clúster, el contenedor <em>init</em> recupera la información desde el servidor antes de la creación de los contenedores de la aplicación y el cliente de Minio. Una vez inicializado, el <em>pod</em> opera con normalidad, la aplicación leyendo y escribiendo ficheros en el volumen local del <em>pod</em> y el cliente Minio sincronizándolos contra el <em>bucket</em> remoto en el servidor de Minio.</p>
+<p>A continuación he copiado el fichero de configuración de Caddy y el fichero <code>info.php</code>, que contienen la instrucción <a href="http://php.net/manual/es/function.phpinfo.php"><code>phpinfo();</code></a>.</p>
 
-<p>El siguiente gif animado describe este proceso:</p>
+<p>Para acabar, exponemos el puerto en el que escucha Caddy por defecto, cambiamos al usuario <code>caddy</code> y especificamos el <code>ENTRYPOINT</code> y el <code>CMD</code>:</p>
 
-<figure>
-  <amp-img src="https://onthedock.github.io/images/170819/k8s-minio-localstorage-proxy.gif" alt="Usando un contenedor sidecar para el almacenamiento images/170819/k8s-minio-localstorage-proxy.gif" width=640 height=400 layout="responsive"></amp-img>
-  
-  <figcaption>
-    
-    Pod keeps persistent storage across nodes
-    
-  </figcaption>
-  
-</figure>
+<pre><code class="language-Dockerfile">EXPOSE 2015
+USER caddy
+ENTRYPOINT [&quot;/usr/sbin/caddy&quot;]
+CMD [&quot;--conf&quot;, &quot;/etc/Caddyfile&quot;]
+</code></pre>
 
+<h3 id="fichero-de-configuración-caddyfile">Fichero de configuración <code>Caddyfile</code></h3>
 
-<p>El siguiente paso es probar la viabilidad de esta idea a la práctica.</p></div>
+<p>El fichero de configuración de Caddy es mucho más sencillo que el Nginx; sin embargo, he tenido problemas (por no leer la documentación).</p>
+
+<pre><code class="language-Dockerfile">0.0.0.0
+root /var/www/wiki
+gzip
+startup php-fpm7
+
+fastcgi / 127.0.0.1:9000 php {
+  index index.php index.htm doku.php
+}
+
+log stdout
+errors stdout
+</code></pre>
+
+<p>Caddy por defecto escucha en el puerto 2015, no en el 80 como suele ser habitual. Esto es fácil de detectar, porque el usuario <code>caddy</code> no tiene permisos para usar un puerto por debajo de 1024. Así que al modificar la primera línea del fichero <code>Caddyfile</code> de <code>0.0.0.0</code> a <code>0.0.0.0:80</code>, el contenedor falla.</p>
+
+<p>He dudado entre usar <code>0.0.0.0</code> o <code>localhost</code>, pero no he observado ninguna diferencia al usar uno u otro -en el contenedor- y al final he dejado <code>0.0.0.0</code>.</p>
+
+<p>Otro punto que me ha tenido bastante <em>ocupado</em> ha sido la línea <code>startup php-fpm</code>. No sabía que <code>php-fpm</code> debía arrancarse, ya que pensaba que se llamaba desde el servidor web cuando hacía falta (para interpretar código php).</p>
+
+<p>La configuración de los parámetros <code>root</code> y <code>fastcgi</code> también me han dado problemas, de nuevo, por no haber leído la documentación. El parámetro <code>root</code> indica a Caddy la ruta en el sistema de ficheros donde encontrar los ficheros a publicar vía web. En <code>fastcgi</code> la ruta es relativa a la URL.</p>
+
+<p>Otro punto que me ha despistado es que el fichero inicial de pruebas <code>index.htm</code> incluye un fragmento de código en PHP, pero que no he conseguido que se interprete (por eso hay una copia del mismo fichero pero con extensión <code>php</code>). Finalmente he podido validar el funcionamiento de Caddy y PHP usando el fichero <code>info.php</code>.</p>
+
+<h2 id="ejecutando-el-contenedor">Ejecutando el contenedor</h2>
+
+<p>Una vez he conseguido crear un contenedor con Caddy y PHP funcional (verificado a partir de <code>$BASEURL/info.php</code>), el siguiente paso era <em>conectarlo</em> con los ficheros de Dokuwiki. La manera más sencilla ha sido creando una carpeta local en la Raspberry Pi y montarla en el contenedor como un volumen.</p>
+
+<p>He descargado y descomprimido la última versión estable de Dokuwiki en la carpeta <code>~/dokuwiki</code> y la he montado en el contenedor:</p>
+
+<pre><code class="language-shell">docker run -d --name wiki -p 8910:2015 -v /home/operador/dokuwiki:/var/www xaviaznar/alpine-caddy-php
+</code></pre>
+
+<h3 id="permisos">Permisos</h3>
+
+<p>Como el usuario con el que se ejecuta Caddy en el contenedor no existe en el sistema local, he cambiado los permisos de <code>~/dokuwiki</code> a <code>777</code> (todo el mundo tiene acceso). A diferencia del usuario <code>root</code>, el usuario <code>caddy</code> no existe en el <em>host</em> (en la Raspberry Pi), por lo que no tendría problemas para &ldquo;salir&rdquo; de la carpeta <code>dokuwiki</code> y acceder a otras partes del sistema más sensibles.</p>
+
+<h3 id="librerías-adicionales">Librerías adicionales</h3>
+
+<p>Dado que he optado por reducir al mínimo las <em>librerías</em> de PHP incluidas en el contenedor, al arrancar Dokuwiki he encontrado algunos errores en el funcionamiento del mismo.</p>
+
+<p>Al final, he tenido que añadir <code>php7-session php7-xm</code> para arrancar Dokuwiki sin errores, y <code>php7-openssl php7-zlib</code> cuando he intentado añadir <em>plugins</em>, con lo que la línea definitiva en el <code>Dockerfile</code> ha quedado:</p>
+
+<pre><code class="language-Dockerfile">RUN apk add --no-cache caddy php7 php7-fpm php7-gd \
+    php7-session php7-xml php7-openssl php7-zlib
+</code></pre>
+
+<h2 id="ficheros-auxiliares">Ficheros auxiliares</h2>
+
+<p>Dado que todo el proceso por el que he pasado ha sido el resultado de innumerables iteraciones, en cierto punto he decidido <em>automatizar</em> parte del proceso.</p>
+
+<p>He creado unos scripts auxiliares para construir la imagen, parar y eliminar el contenedor y para ejecutarlo de nuevo. Para poder conectar al contenedor y revisar la configuración, la correcta ubicación de los ficheros (o si el proceso <code>php-fpm</code> estaba funcionando), también he credo un script para conectar al contenedor y ejecutar una terminal.</p>
+
+<p>Obviamente dista mucho de ser un <em>pipeline</em> de integración continua, pero es un primer paso en la dirección correcta ;)</p></div>
 
   <aside class="p-share">
-  <a href="http://b.hatena.ne.jp/add?mode=confirm&url=https%3a%2f%2fonthedock.github.io%2fpost%2f170819-usando-un-contenedor-sidecar%2f&title=Usando%20un%20contenedor%20sidecar%20para%20el%20almacenamiento" title="はてなブックマーク" class="ht" target="_blank" rel="nofollow"></a>
-  <a href="http://www.facebook.com/sharer.php?u=https%3a%2f%2fonthedock.github.io%2fpost%2f170819-usando-un-contenedor-sidecar%2f&t=Usando%20un%20contenedor%20sidecar%20para%20el%20almacenamiento" title="Facebookでシェア" class="fb" target="_blank" rel="nofollow"></a>
-  <a href="http://twitter.com/intent/tweet?url=https%3a%2f%2fonthedock.github.io%2fpost%2f170819-usando-un-contenedor-sidecar%2f&text=Usando%20un%20contenedor%20sidecar%20para%20el%20almacenamiento&tw_p=tweetbutton" title="Twitterでシェア" class="tw" target="_blank" rel="nofollow"></a>
-  <a href="https://plus.google.com/share?url=https%3a%2f%2fonthedock.github.io%2fpost%2f170819-usando-un-contenedor-sidecar%2f" title="Google Plusでシェア" class="gp" target="_blank" rel="nofollow"></a>
-  <a href="http://line.me/R/msg/text/?Usando%20un%20contenedor%20sidecar%20para%20el%20almacenamiento https%3a%2f%2fonthedock.github.io%2fpost%2f170819-usando-un-contenedor-sidecar%2f" title="LINEでシェア" class="ln" target="_blank" rel="nofollow"></a>
+  <a href="http://b.hatena.ne.jp/add?mode=confirm&url=https%3a%2f%2fonthedock.github.io%2fpost%2f20170924-dokuwiki_en_un_contenedor_notas%2f&title=Dokuwiki%20en%20un%20contenedor%3a%20notas%20sobre%20el%20proceso" title="はてなブックマーク" class="ht" target="_blank" rel="nofollow"></a>
+  <a href="http://www.facebook.com/sharer.php?u=https%3a%2f%2fonthedock.github.io%2fpost%2f20170924-dokuwiki_en_un_contenedor_notas%2f&t=Dokuwiki%20en%20un%20contenedor%3a%20notas%20sobre%20el%20proceso" title="Facebookでシェア" class="fb" target="_blank" rel="nofollow"></a>
+  <a href="http://twitter.com/intent/tweet?url=https%3a%2f%2fonthedock.github.io%2fpost%2f20170924-dokuwiki_en_un_contenedor_notas%2f&text=Dokuwiki%20en%20un%20contenedor%3a%20notas%20sobre%20el%20proceso&tw_p=tweetbutton" title="Twitterでシェア" class="tw" target="_blank" rel="nofollow"></a>
+  <a href="https://plus.google.com/share?url=https%3a%2f%2fonthedock.github.io%2fpost%2f20170924-dokuwiki_en_un_contenedor_notas%2f" title="Google Plusでシェア" class="gp" target="_blank" rel="nofollow"></a>
+  <a href="http://line.me/R/msg/text/?Dokuwiki%20en%20un%20contenedor%3a%20notas%20sobre%20el%20proceso https%3a%2f%2fonthedock.github.io%2fpost%2f20170924-dokuwiki_en_un_contenedor_notas%2f" title="LINEでシェア" class="ln" target="_blank" rel="nofollow"></a>
 </aside>
 
 
@@ -242,7 +281,7 @@
         
         <li itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb"><a href="https://onthedock.github.io/post/" itemprop="url"><span itemprop="title">post</span></a></li>
         
-        <li>Usando un contenedor sidecar para el almacenamiento</li>
+        <li>Dokuwiki en un contenedor: notas sobre el proceso</li>
       </ol>
 
       
@@ -253,7 +292,7 @@
           <header><a href="https://onthedock.github.io/categories/">categories</a></header>
           <ul>
             
-            <li><a href="https://onthedock.github.io/categories/ops/">ops</a></li>
+            <li><a href="https://onthedock.github.io/categories/dev/">dev</a></li>
             
           </ul>
         </li>
@@ -268,7 +307,11 @@
             
             <li><a href="https://onthedock.github.io/tags/linux/">linux</a></li>
             
-            <li><a href="https://onthedock.github.io/tags/kubernetes/">kubernetes</a></li>
+            <li><a href="https://onthedock.github.io/tags/alpine/">alpine</a></li>
+            
+            <li><a href="https://onthedock.github.io/tags/docker/">docker</a></li>
+            
+            <li><a href="https://onthedock.github.io/tags/dokuwiki/">dokuwiki</a></li>
             
           </ul>
         </li>
@@ -286,22 +329,7 @@
   <section>
     <header><span>Latests</span></header>
     <ul class="p-articles thin">
-      <li><article class="li sm article-5cc41de3b52937b75f69a54b7698ecda">
-  <div class="header-wrapper">
-    <a href="https://onthedock.github.io/post/20170924-dokuwiki_en_un_contenedor_notas/" class="thumbnail" title="Dokuwiki en un contenedor: notas sobre el proceso"></a>
-    <header class="article-header">
-      <div class="clearfix">
-        <h2 class="title"><a href="https://onthedock.github.io/post/20170924-dokuwiki_en_un_contenedor_notas/">Dokuwiki en un contenedor: notas sobre el proceso</a></h2>
-        <ul class="p-facts">
-          <li><time datetime="2017-09-24T22:43:01JST">24 Sep 2017</time></li>
-          <li><a href="https://onthedock.github.io/post/">post</a></li>
-          
-        </ul>
-      </div>
-    </header>
-  </div>
-</article>
-</li><li><article class="li sm article-17f341044c3d14c9654d3c33feb7ac81">
+      <li><article class="li sm article-17f341044c3d14c9654d3c33feb7ac81">
   <div class="header-wrapper">
     <a href="https://onthedock.github.io/post/20170920-autoarranque-de-contenedores/" class="thumbnail" title="Cómo arrancar contenedores durante el inicio del sistema"></a>
     <header class="article-header">
@@ -339,6 +367,21 @@
         <h2 class="title"><a href="https://onthedock.github.io/post/170820-probando-minio/">Probando Minio</a></h2>
         <ul class="p-facts">
           <li><time datetime="2017-08-20T21:28:20JST">20 Aug 2017</time></li>
+          <li><a href="https://onthedock.github.io/post/">post</a></li>
+          
+        </ul>
+      </div>
+    </header>
+  </div>
+</article>
+</li><li><article class="li sm article-b20735633157cb1e57eb0c1d05406149">
+  <div class="header-wrapper">
+    <a href="https://onthedock.github.io/post/170819-usando-un-contenedor-sidecar/" class="thumbnail" title="Usando un contenedor sidecar para el almacenamiento"></a>
+    <header class="article-header">
+      <div class="clearfix">
+        <h2 class="title"><a href="https://onthedock.github.io/post/170819-usando-un-contenedor-sidecar/">Usando un contenedor sidecar para el almacenamiento</a></h2>
+        <ul class="p-facts">
+          <li><time datetime="2017-08-19T09:51:23JST">19 Aug 2017</time></li>
           <li><a href="https://onthedock.github.io/post/">post</a></li>
           
         </ul>
