@@ -11,13 +11,13 @@
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
 
-<link rel="canonical" href="https://onthedock.github.io/post/170819-usando-un-contenedor-sidecar/">
+<link rel="canonical" href="https://onthedock.github.io/post/171104-apiserver-detenido/">
 
 
     
     <link href="https://fonts.googleapis.com/css?family=Lobster|Lato:400,700" rel="stylesheet">
     
-    <title>Usando un contenedor sidecar para el almacenamiento - On The Dock</title>
+    <title>API server detenido: The connection to the server was refused - On The Dock</title>
     <style amp-boilerplate>body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}</style><noscript><style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style></noscript>
     <script async src="https://cdn.ampproject.org/v0.js"></script>
     
@@ -26,21 +26,21 @@
 <script async custom-element="amp-ad" src="https://cdn.ampproject.org/v0/amp-ad-0.1.js"></script>
 
     
-<meta name="description" content="&lt;p&gt;Como indicaba en la entrada la anterior entrada &lt;a href=&#34;https://onthedock.github.io/post/170817-almacenamiento-en-k8s-problema-abierto/&#34;&gt;Almacenamiento en Kubernetes: problema abierto&lt;/a&gt;, el problema de proporcionar almacenamiento persistente para las aplicaciones desplegadas en Kubernetes sigue sin tener una solución general.&lt;/p&gt;&lt;p&gt;En este artículo comento una solución particular al problema del almacenamiento basada en el uso de un contenedor &lt;em&gt;sidecar&lt;/em&gt;.&lt;/p&gt;&lt;p&gt;&lt;/p&gt;">
+<meta name="description" content="&lt;p&gt;Hoy, al intentar lanzar un comando con &lt;code&gt;kubectl&lt;/code&gt;, he obtenido el típico mensaje indicando que no se puede conectar con el servidor. El problema está en el servidor de API, que es el que actua como intermediario entre el usuario y Kubernetes. Últimamente he encontrado el mismo error y lo he solucionado reiniciando el nodo &lt;em&gt;master&lt;/em&gt; del clúster. Pero hoy he investigado un poco&amp;hellip; Y lo que he encontrado no me ha gustado demasiado.&lt;/p&gt;&lt;p&gt;&lt;/p&gt;">
 
-<meta property="og:title" content="Usando un contenedor sidecar para el almacenamiento - On The Dock">
+<meta property="og:title" content="API server detenido: The connection to the server was refused - On The Dock">
 <meta property="og:type" content="article">
-<meta property="og:url" content="https://onthedock.github.io/post/170819-usando-un-contenedor-sidecar/">
+<meta property="og:url" content="https://onthedock.github.io/post/171104-apiserver-detenido/">
 <meta property="og:image" content="https://onthedock.github.io/images/kubernetes.png">
 <meta property="og:site_name" content="On The Dock">
-<meta property="og:description" content="&lt;p&gt;Como indicaba en la entrada la anterior entrada &lt;a href=&#34;https://onthedock.github.io/post/170817-almacenamiento-en-k8s-problema-abierto/&#34;&gt;Almacenamiento en Kubernetes: problema abierto&lt;/a&gt;, el problema de proporcionar almacenamiento persistente para las aplicaciones desplegadas en Kubernetes sigue sin tener una solución general.&lt;/p&gt;&lt;p&gt;En este artículo comento una solución particular al problema del almacenamiento basada en el uso de un contenedor &lt;em&gt;sidecar&lt;/em&gt;.&lt;/p&gt;&lt;p&gt;&lt;/p&gt;">
+<meta property="og:description" content="&lt;p&gt;Hoy, al intentar lanzar un comando con &lt;code&gt;kubectl&lt;/code&gt;, he obtenido el típico mensaje indicando que no se puede conectar con el servidor. El problema está en el servidor de API, que es el que actua como intermediario entre el usuario y Kubernetes. Últimamente he encontrado el mismo error y lo he solucionado reiniciando el nodo &lt;em&gt;master&lt;/em&gt; del clúster. Pero hoy he investigado un poco&amp;hellip; Y lo que he encontrado no me ha gustado demasiado.&lt;/p&gt;&lt;p&gt;&lt;/p&gt;">
 <meta property="og:locale" content="ja_JP">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="On The Dock">
-<meta name="twitter:url" content="https://onthedock.github.io/post/170819-usando-un-contenedor-sidecar/">
-<meta name="twitter:title" content="Usando un contenedor sidecar para el almacenamiento - On The Dock">
-<meta name="twitter:description" content="&lt;p&gt;Como indicaba en la entrada la anterior entrada &lt;a href=&#34;https://onthedock.github.io/post/170817-almacenamiento-en-k8s-problema-abierto/&#34;&gt;Almacenamiento en Kubernetes: problema abierto&lt;/a&gt;, el problema de proporcionar almacenamiento persistente para las aplicaciones desplegadas en Kubernetes sigue sin tener una solución general.&lt;/p&gt;&lt;p&gt;En este artículo comento una solución particular al problema del almacenamiento basada en el uso de un contenedor &lt;em&gt;sidecar&lt;/em&gt;.&lt;/p&gt;&lt;p&gt;&lt;/p&gt;">
+<meta name="twitter:url" content="https://onthedock.github.io/post/171104-apiserver-detenido/">
+<meta name="twitter:title" content="API server detenido: The connection to the server was refused - On The Dock">
+<meta name="twitter:description" content="&lt;p&gt;Hoy, al intentar lanzar un comando con &lt;code&gt;kubectl&lt;/code&gt;, he obtenido el típico mensaje indicando que no se puede conectar con el servidor. El problema está en el servidor de API, que es el que actua como intermediario entre el usuario y Kubernetes. Últimamente he encontrado el mismo error y lo he solucionado reiniciando el nodo &lt;em&gt;master&lt;/em&gt; del clúster. Pero hoy he investigado un poco&amp;hellip; Y lo que he encontrado no me ha gustado demasiado.&lt;/p&gt;&lt;p&gt;&lt;/p&gt;">
 <meta name="twitter:image" content="https://onthedock.github.io/images/kubernetes.png">
 
 
@@ -52,15 +52,15 @@
       "@type": "WebPage",
       "@id":"https://onthedock.github.io/"
     },
-    "headline": "Usando un contenedor sidecar para el almacenamiento - On The Dock",
+    "headline": "API server detenido: The connection to the server was refused - On The Dock",
     "image": {
       "@type": "ImageObject",
       "url": "https://onthedock.github.io/images/kubernetes.png",
       "height": 800,
       "width": 800
     },
-    "datePublished": "2017-08-19T09:51:23JST",
-    "dateModified": "2017-08-19T09:51:23JST",
+    "datePublished": "2017-11-04T21:58:52JST",
+    "dateModified": "2017-11-04T21:58:52JST",
     "author": {
       "@type": "Person",
       "name": "On The Dock"
@@ -75,9 +75,7 @@
         "height": 60
       }
     },
-    "description": "<p>Como indicaba en la entrada la anterior entrada <a href="https://onthedock.github.io/post/170817-almacenamiento-en-k8s-problema-abierto/">Almacenamiento en Kubernetes: problema abierto</a>, el problema de proporcionar almacenamiento persistente para las aplicaciones desplegadas en Kubernetes sigue sin tener una solución general.</p>
-
-<p>En este artículo comento una solución particular al problema del almacenamiento basada en el uso de un contenedor <em>sidecar</em>.</p>
+    "description": "<p>Hoy, al intentar lanzar un comando con <code>kubectl</code>, he obtenido el típico mensaje indicando que no se puede conectar con el servidor. El problema está en el servidor de API, que es el que actua como intermediario entre el usuario y Kubernetes. Últimamente he encontrado el mismo error y lo he solucionado reiniciando el nodo <em>master</em> del clúster. Pero hoy he investigado un poco&hellip; Y lo que he encontrado no me ha gustado demasiado.</p>
 
 <p></p>"
   }
@@ -108,14 +106,14 @@
     <main>
       
 <div class="l-container">
-  <article class="single article-b20735633157cb1e57eb0c1d05406149">
+  <article class="single article-f831baebaad56b8e3d70750749393da3">
   <div class="header-wrapper">
-    <a href="https://onthedock.github.io/post/170819-usando-un-contenedor-sidecar/" class="thumbnail" title="Usando un contenedor sidecar para el almacenamiento"></a>
+    <a href="https://onthedock.github.io/post/171104-apiserver-detenido/" class="thumbnail" title="API server detenido: The connection to the server was refused"></a>
     <header class="article-header">
       <div class="clearfix">
-        <h1 class="title">Usando un contenedor sidecar para el almacenamiento</h1>
+        <h1 class="title">API server detenido: The connection to the server was refused</h1>
         <ul class="p-facts">
-          <li><time datetime="2017-08-19T09:51:23JST">19 Aug 2017</time></li>
+          <li><time datetime="2017-11-04T21:58:52JST">4 Nov 2017</time></li>
           <li><a href="https://onthedock.github.io/post/">post</a></li>
           
           <li>Xavier Aznar</li>
@@ -124,114 +122,152 @@
     </header>
   </div>
 
-  <div class="article-body"><p>Como indicaba en la entrada la anterior entrada <a href="https://onthedock.github.io/post/170817-almacenamiento-en-k8s-problema-abierto/">Almacenamiento en Kubernetes: problema abierto</a>, el problema de proporcionar almacenamiento persistente para las aplicaciones desplegadas en Kubernetes sigue sin tener una solución general.</p>
-
-<p>En este artículo comento una solución particular al problema del almacenamiento basada en el uso de un contenedor <em>sidecar</em>.</p>
+  <div class="article-body"><p>Hoy, al intentar lanzar un comando con <code>kubectl</code>, he obtenido el típico mensaje indicando que no se puede conectar con el servidor. El problema está en el servidor de API, que es el que actua como intermediario entre el usuario y Kubernetes. Últimamente he encontrado el mismo error y lo he solucionado reiniciando el nodo <em>master</em> del clúster. Pero hoy he investigado un poco&hellip; Y lo que he encontrado no me ha gustado demasiado.</p>
 
 <p></p>
 
-<h1 id="opciones-disponibles">Opciones disponibles</h1>
+<p>El problema se observa en cuanto intentas lanzar un comando con <code>kubectl</code>:</p>
 
-<p>En esta fase inicial de aprendizaje de Kubernetes el uso de almacenamiento en la nube (AWS, GCE, etc) no es una opción debido a los costes.</p>
+<pre><code class="language-shell">$ kubectl get nodes
+The connection to the server 192.168.1.11:6443 was refused - did you specify the right host or port?
+</code></pre>
 
-<p>Las opciones como Gluster o Ceph requieren hardware adicional (como mínimo, dos nuevas máquinas). El coste de incorporar dos nuevas RPi al clúster no sería excesivo, sólo Ceph parece que <a href="http://ceph.com/arm/">está trabajando</a> en dar soporte a ARM mientras que para Gluster no he encontrado nada (a parte de una entrada en su blog del 2012).</p>
+<p>Como no hay forma de comunicar con Kubernetes, uso <code>docker ps</code> para observar el estado de los diferentes contenedores del <em>control plane</em> de Kubernetes:</p>
 
-<p>En cuanto a NFS, requeriría &ldquo;sólo&rdquo; una máquina adicional, pero no he encontrado demasiada información al respecto (en cuanto a cómo usar NFS con Kubernetes). Se asume un conocimiento de Linux y de cómo funciona NFS que debería obtener, lo que supone invertir tiempo en un concepto interesante, pero marginal en cuanto a Kubernetes.</p>
+<pre><code class="language-shell">$ docker ps -a
+CONTAINER ID        IMAGE                                                  COMMAND                  CREATED             STATUS                     PORTS               NAMES
+6ef208ad4c36        gcr.io/google_containers/kube-apiserver-arm            &quot;kube-apiserver --...&quot;   3 days ago          Exited (255) 3 days ago                        k8s_kube-apiserver_kube-apiserver-k1_kube-system_c0f77be12d1bf28aaecf7cc373a774b6_5
+45cee0251e6e        gcr.io/google_containers/k8s-dns-sidecar-arm           &quot;/sidecar --v=2 --...&quot;   9 days ago          Up 9 days                                      k8s_sidecar_kube-dns-66ffd5c588-5gvsc_kube-system_5ef537a4-b67c-11e7-8cb3-b827eb650fdb_1
+a832db03112d        gcr.io/google_containers/k8s-dns-dnsmasq-nanny-arm     &quot;/dnsmasq-nanny -v...&quot;   9 days ago          Up 9 days                                      k8s_dnsmasq_kube-dns-66ffd5c588-5gvsc_kube-system_5ef537a4-b67c-11e7-8cb3-b827eb650fdb_1
+288ab144f5c5        gcr.io/google_containers/k8s-dns-kube-dns-arm          &quot;/kube-dns --domai...&quot;   9 days ago          Up 9 days
+...
+</code></pre>
 
-<p>Mi intención es encontrar una solución lo más relacionada con Kubernetes como sea posible. En este sentido he estado revisando <a href="https://www.minio.io/">Minio</a>, que proporciona una API 100% compatible con el almacenamiento de Amazon S3. De esta forma, es posible usar tanto una solución local (con Minio) como una en el <em>cloud</em> (usando S3).</p>
+<p>Como puede observarse en la salida del comando, el contenedor del API server falló hace tres días (he estado fuera 4 días). He intentado arrancar el contenedor mediante <code>docker start</code>, pero no ha funcionado.</p>
 
-<p>El problema es que la aplicación debería usar el cliente de Minio para poder acceder al almacenamiento. Esto no es posible sin modificar la aplicación.</p>
+<p>He intentado obtener los logs del contenedor, pero tampoco he tenido éxito, precisamente porque no puedo conectar con el API server:</p>
 
-<p>En los repositorios de Minio en Github he encontrado el proyecto <a href="https://github.com/minio/minfs">MinioFS</a> cuya descripción es justo lo que necesito:</p>
+<pre><code class="language-shell">$ kubectl logs 6ef208ad4c36
+The connection to the server 192.168.1.11:6443 was refused - did you specify the right host or port?
+</code></pre>
+
+<p>Así que, de nuevo, he intentado usar Docker directamente:</p>
+
+<pre><code class="language-shell">$ docker logs 6ef208ad4c36
+Error response from daemon: stat /var/lib/docker/overlay2/1d2dd8b0acc2ec2c153faf571fd80c27b8ff113ece23a97860a5b049f9d3b183: no such file or directory
+</code></pre>
+
+<p>Sin información de qué es lo que le ha pasado al contenedor, no puedo avanzar mucho. En la documentación oficial de Kubernetes, en la <a href="https://kubernetes.io/docs/tasks/debug-application-cluster/debug-cluster/">sección de <em>troubleshooting</em></a> se indica que los <em>logs</em> se encuentran en:</p>
 
 <blockquote>
-<p>MinFS is a fuse driver for Amazon S3 compatible object storage server. MinFS lets you mount a remote bucket (from a S3 compatible object store), as if it were a local directory. This allows you to read and write from the remote bucket just by operating on the local mount directory.</p>
+<p>Master</p>
 
-<p>MinFS helps legacy applications use modern object stores with minimal config changes. MinFS uses BoltDB for caching and saving metadata, list of files, permissions, owners etc.</p>
+<ul>
+<li>/var/log/kube-apiserver.log - API Server, responsible for serving the API</li>
+<li>/var/log/kube-scheduler.log - Scheduler, responsible for making scheduling decisions</li>
+<li>/var/log/kube-controller-manager.log - Controller that manages replication controllers</li>
+</ul>
+
+<p>Worker Nodes</p>
+
+<ul>
+<li>/var/log/kubelet.log - Kubelet, responsible for running containers on the node</li>
+<li>/var/log/kube-proxy.log - Kube Proxy, responsible for service load balancing</li>
+</ul>
 </blockquote>
 
-<p>Desgraciadamente, no tiene soporte -todavía- para ARM (issue #26 <a href="https://github.com/minio/minfs/issues/26">ARM support for MinFS</a>).</p>
+<p>Sin embargo, los logs no se encuentran en la ubicación indicada:</p>
 
-<h1 id="una-opción-viable">Una opción viable</h1>
+<pre><code class="language-shell">$ ls /var/log/kube-*
+ls: cannot access /var/log/kube-*: No such file or directory
+</code></pre>
 
-<p>Dándole vueltas a la posibilidad de usar Minio, he decidido cambiar el problema: si la aplicación no puede escribir sobre el almacenamiento de Minio, que sea el propio Minio el que obtenga la información de la aplicación. La solución que me ha venido a la cabeza tiene que ver con el <em>pattern</em> del <strong>contenedor sidecar</strong>: <a href="http://blog.kubernetes.io/2015/06/the-distributed-system-toolkit-patterns.html">The Distributed System ToolKit: Patterns for Composite Containers</a>.</p>
+<p>Para encontrar dónde se encuentra el fichero, busco usando:</p>
 
-<figure>
-  <amp-img src="https://onthedock.github.io/images/170819/example-1-sidecar-container.png" alt="Usando un contenedor sidecar para el almacenamiento images/170819/example-1-sidecar-container.png" width=640 height=400 layout="responsive"></amp-img>
-  
-  <figcaption>
-    
-    Ejemplo 1 Contenedor sidecar
-    
-  </figcaption>
-  
-</figure>
+<pre><code class="language-shell">$ sudo find / -iname &quot;kube*log&quot;
+/var/log/pods/dda418d2bc54e897654d295f2156b331/kube-controller-manager_0.log
+/var/log/pods/c0f77be12d1bf28aaecf7cc373a774b6/kube-apiserver_0.log
+/var/log/pods/864488f96fd16d6c70d1eb754228dd63/kube-scheduler_0.log
+/var/log/pods/5ef537a4-b67c-11e7-8cb3-b827eb650fdb/kubedns_0.log
+/var/log/pods/5ef6f558-b67c-11e7-8cb3-b827eb650fdb/kube-proxy_0.log
+/var/log/containers/kube-dns-66ffd5c588-5gvsc_kube-system_kubedns-627ae5eebc9e0d261033f323820b1b2c58a03b7bbaaf7d510e8cb242e80bde1f.log
+/var/log/containers/kube-apiserver-k1_kube-system_kube-apiserver-e2f69b23c5ed6c30c440bd2974362a4b66ef1e03bf24a91c8d45386cb7465074.log
+/var/log/containers/kube-proxy-g9wg2_kube-system_kube-proxy-e71af338d9df5606c6c1925dbda3315221f203ef46e28f3a36b7393937231167.log
+/var/log/containers/kube-apiserver-k1_kube-system_kube-apiserver-6ef208ad4c36ac7dae20a7f4d1bbd23725027c5505d71a41e2476d6bfc0fa826.log
+/var/log/containers/kube-dns-66ffd5c588-5gvsc_kube-system_sidecar-07fb05e5e076de09c4ca8e898865cf7d23e120ba2d4a1f12168bacf5a358fb1c.log
+/var/log/containers/kube-dns-66ffd5c588-5gvsc_kube-system_dnsmasq-198e2648d2aeab19642c386ddae02d373af6950bc68ce82121785fd41ae0e64f.log
+</code></pre>
 
+<p>Entre los resultados observo que se encuentra el fichero <code>kube-appiserver_0.log</code>, que es lo más parecido al log que busco.</p>
 
-<p>Buscando en Google hace unos días encontré el artículo <a href="http://larmog.github.io/2017/03/16/minio-simple-storage-for-your-cluster/">Minio, simple storage for your cluster</a> donde se exponía la idea del uso de un contenedor sidecar para realizar las tareas de replicado de la información del <em>pod</em>, aunque la solución final me pareció, en su momento, demasiado complicada.</p>
+<pre><code class="language-shell">$ sudo !!
+sudo tail /var/log/pods/c0f77be12d1bf28aaecf7cc373a774b6/kube-apiserver_0.log
+{&quot;log&quot;:&quot;I1023 01:18:42.960933       1 trace.go:76] Trace[337274143]: \&quot;Get /api/v1/namespaces/kube-system\&quot; (started: 2017-10-23 01:18:42.38724446 +0000 UTC) (total time: 573.403754ms):\n&quot;,&quot;stream&quot;:&quot;stderr&quot;,&quot;time&quot;:&quot;2017-10-23T01:18:42.961947592Z&quot;}
+{&quot;log&quot;:&quot;Trace[337274143]: [572.874013ms] [572.800003ms] About to write a response\n&quot;,&quot;stream&quot;:&quot;stderr&quot;,&quot;time&quot;:&quot;2017-10-23T01:18:42.962312802Z&quot;}
+{&quot;log&quot;:&quot;I1023 02:42:38.361259       1 trace.go:76] Trace[1274919061]: \&quot;GuaranteedUpdate etcd3: *api.Endpoints\&quot; (started: 2017-10-23 02:42:37.785909186 +0000 UTC) (total time: 575.108669ms):\n&quot;,&quot;stream&quot;:&quot;stderr&quot;,&quot;time&quot;:&quot;2017-10-23T02:42:38.36211817Z&quot;}
+{&quot;log&quot;:&quot;Trace[1274919061]: [574.898772ms] [573.472622ms] Transaction committed\n&quot;,&quot;stream&quot;:&quot;stderr&quot;,&quot;time&quot;:&quot;2017-10-23T02:42:38.362468223Z&quot;}
+{&quot;log&quot;:&quot;I1023 02:42:38.362198       1 trace.go:76] Trace[103451536]: \&quot;Update /api/v1/namespaces/kube-system/endpoints/kube-scheduler\&quot; (started: 2017-10-23 02:42:37.785238299 +0000 UTC) (total time: 576.700235ms):\n&quot;,&quot;stream&quot;:&quot;stderr&quot;,&quot;time&quot;:&quot;2017-10-23T02:42:38.362646088Z&quot;}
+{&quot;log&quot;:&quot;Trace[103451536]: [576.161015ms] [575.766326ms] Object stored in database\n&quot;,&quot;stream&quot;:&quot;stderr&quot;,&quot;time&quot;:&quot;2017-10-23T02:42:38.362784474Z&quot;}
+{&quot;log&quot;:&quot;I1023 03:12:12.811461       1 trace.go:76] Trace[1516791138]: \&quot;GuaranteedUpdate etcd3: *api.Node\&quot; (started: 2017-10-23 03:12:12.280394866 +0000 UTC) (total time: 530.751679ms):\n&quot;,&quot;stream&quot;:&quot;stderr&quot;,&quot;time&quot;:&quot;2017-10-23T03:12:12.812799938Z&quot;}
+{&quot;log&quot;:&quot;Trace[1516791138]: [529.976416ms] [509.72492ms] Transaction committed\n&quot;,&quot;stream&quot;:&quot;stderr&quot;,&quot;time&quot;:&quot;2017-10-23T03:12:12.813138273Z&quot;}
+{&quot;log&quot;:&quot;I1023 04:13:09.997217       1 trace.go:76] Trace[745949868]: \&quot;GuaranteedUpdate etcd3: *api.Node\&quot; (started: 2017-10-23 04:13:09.329786766 +0000 UTC) (total time: 659.869359ms):\n&quot;,&quot;stream&quot;:&quot;stderr&quot;,&quot;time&quot;:&quot;2017-10-23T04:13:09.99824922Z&quot;}
+{&quot;log&quot;:&quot;Trace[745949868]: [650.270324ms] [649.75251ms] Transaction prepared\n&quot;,&quot;stream&quot;:&quot;stderr&quot;,&quot;time&quot;:&quot;2017-10-23T04:13:09.998615002Z&quot;}
+</code></pre>
 
-<h2 id="el-contenedor-sidecar">El contenedor sidecar</h2>
+<p>Pero la información contenida en el fichero de log no coincide -por fechas- con los <em>últimos momentos de vida</em> del <em>pod</em> c0f77be12d1bf28aaecf7cc373a774b6.</p>
 
-<p>El contenedor <em>sidecar</em> reside junto al contenedor de la aplicación y realiza una función auxiliar a la del contenedor principal. En mi caso, el contenedor sidecar contendría el cliente de Minio <code>mc</code>.</p>
+<p>Si embargo, siguiendo la pista de la misma página <a href="https://kubernetes.io/docs/tasks/debug-application-cluster/debug-cluster/">https://kubernetes.io/docs/tasks/debug-application-cluster/debug-cluster/</a>, se indica que en las distribuciones que usen <code>systemd</code> hay que usar <code>journalctl</code>.</p>
 
-<p>El contenedor principal lee y escribe sobre un volumen local (en el <em>pod</em>). El contenedor sidecar se encarga de copiar ficheros del pod hacia el exterior (hacia el <em>bucket</em> definido en el servidor de Minio).</p>
+<p>Usando <code>journalctl</code> fue tan sencillo como lanzar <code>sudo journalctl | grep apiserver | less</code>. Entre la salida del comando se observa un patrón de mensajes:</p>
 
-<figure>
-  <amp-img src="https://onthedock.github.io/images/170819/k8s-pod-sidecar-pattern.svg" alt="Usando un contenedor sidecar para el almacenamiento images/170819/k8s-pod-sidecar-pattern.svg" width=640 height=400 layout="responsive"></amp-img>
-  
-</figure>
+<pre><code class="language-log">...
+Nov 05 06:07:57 k1 kubelet[319]: E1105 06:07:57.028616     319 reflector.go:205] k8s.io/kubernetes/pkg/kubelet/config/apiserver.go:47: Failed to list *v1.Pod: Get https://192.168.1.11:6443/api/v1/pods?fieldSelector=spec.nodeName%3Dk1&amp;resourceVersion=0: dial tcp 192.168.1.11:6443: getsockopt: connection refused
+Nov 05 06:07:57 k1 kubelet[319]: E1105 06:07:57.076083     319 kuberuntime_manager.go:840] PodSandboxStatus of sandbox &quot;7d9ec7433434e66bee7d0458ece2e142e80a5825884cca2f5f17a5f0ca548d2a&quot; for pod &quot;kube-apiserver-k1_kube-system(c0f77be12d1bf28aaecf7cc373a774b6)&quot; error: rpc error: code = Unknown desc = Error response from daemon: open /var/lib/docker/overlay2/74217d05e7d37d111ce00a444c0a4237618a5474a8ca72393feeea664532d30b/lower: structure needs cleaning
+Nov 05 06:07:57 k1 kubelet[319]: E1105 06:07:57.076376     319 generic.go:241] PLEG: Ignoring events for pod kube-apiserver-k1/kube-system: rpc error: code = Unknown desc = Error response from daemon: open /var/lib/docker/overlay2/74217d05e7d37d111ce00a444c0a4237618a5474a8ca72393feeea664532d30b/lower: structure needs cleaning
+Nov 05 06:07:57 k1 kubelet[319]: E1105 06:07:57.236495     319 kuberuntime_manager.go:840] PodSandboxStatus of sandbox &quot;7d9ec7433434e66bee7d0458ece2e142e80a5825884cca2f5f17a5f0ca548d2a&quot; for pod &quot;kube-apiserver-k1_kube-system(c0f77be12d1bf28aaecf7cc373a774b6)&quot; error: rpc error: code = Unknown desc = Error response from daemon: open /var/lib/docker/overlay2/74217d05e7d37d111ce00a444c0a4237618a5474a8ca72393feeea664532d30b/lower: structure needs cleaning
+...
+</code></pre>
 
+<p>En primer lugar, el mensaje de <em>connection refused</em> que se obtiene al intentar ejecutar cualquier comando con <em>kubectl</em>. A continuación, mensajes de errores de RPC del <em>pod</em> donde se ejecuta el API Server: <em>Error response from daemon</em>. Y la causa parece ser que al intentar abrir <code>/var/lib/docker/overlay2/74217d05e7d37d111ce00a444c0a4237618a5474a8ca72393feeea664532d30b/lower</code> se produce un error <code>structure needs cleaning</code>.</p>
 
-<p>Al tratarse de volúmenes locales al <em>pod</em>, el <em>scheduler</em> los crea junto con el <em>pod</em> (a partir de la definición en el <em>deployment</em>). Kubernetes los crea automáticamente, sin ninguna dependencia de los <em>plugins</em> de almacenamiento ni de si permiten provisionamiento dinámico o no. Así podemos escalar la aplicación sin necesidad de provisionar nuevos <em>PersistentVolumes</em>.</p>
+<p>Al intentar averiguar qué le pasa al fichero, lanzo <code>sudo ls -la  /var/lib/docker/overlay2/74217d05e7d37d111ce00a444c0a4237618a5474a8ca72393feeea664532d30b/</code> y la salida es preocupante:</p>
 
-<p>Cuando se crea un nuevo <em>pod</em>, el volumen inicialmente está vacío, por lo que hay que &ldquo;descargar&rdquo; los ficheros desde el almacenamiento remoto. Esta tarea de configuración inicial es justo el objetivo de los <a href="https://kubernetes.io/docs/concepts/workloads/pods/init-containers/">contenedores init</a>.</p>
+<pre><code class="language-shell">$ sudo ls -la  /var/lib/docker/overlay2/74217d05e7d37d111ce00a444c0a4237618a5474a8ca72393feeea664532d30b/
+ls: cannot access /var/lib/docker/overlay2/74217d05e7d37d111ce00a444c0a4237618a5474a8ca72393feeea664532d30b/link: Structure needs cleaning
+ls: cannot access /var/lib/docker/overlay2/74217d05e7d37d111ce00a444c0a4237618a5474a8ca72393feeea664532d30b/lower: Structure needs cleaning
+total 32
+drwx------  5 root root  4096 Oct 23 04:17 .
+drwx------ 95 root root 16384 Nov  1 06:48 ..
+drwxr-xr-x  2 root root  4096 Oct 23 04:17 diff
+-?????????  ? ?    ?        ?            ? link
+-?????????  ? ?    ?        ?            ? lower
+drwxr-xr-x  1 root root  4096 Oct 23 04:17 merged
+drwx------  3 root root  4096 Oct 23 04:17 work
+</code></pre>
 
-<p>Una vez que ha finalizado la copia inicial de la información desde el <em>bucket</em> remoto al volumen local, se lanzan los contenedores de la aplicación y el sidecar, en paralelo.</p>
+<p>El sistema operativo no sabe qué son los fichero <code>link</code> o <code>lower</code>. Si intentas inspeccionar su contenido:</p>
 
-<p>A partir de la &ldquo;puesta en marcha&rdquo; del <em>pod</em> (cuando el contenedor <em>init</em> finaliza con éxito), el contenedor sidecar se encarga de ir sincronizando el contenido del volumen con el del <em>bucket</em> remoto.</p>
+<pre><code class="language-shell">$ sudo cat /var/lib/docker/overlay2/74217d05e7d37d111ce00a444c0a4237618a5474a8ca72393feeea664532d30b/lower
+cat: /var/lib/docker/overlay2/74217d05e7d37d111ce00a444c0a4237618a5474a8ca72393feeea664532d30b/lower: Structure needs cleaning
+</code></pre>
 
-<p>El servidor de Minio se puede desplegar sobre Docker como un contenedor.</p>
+<p>Al buscar en Google <code>Structure needs cleaning</code> todas las respuestas apuntan a una corrupción del sistema de ficheros (por ejemplo: <a href="https://www.reddit.com/r/linuxquestions/comments/4b47r2/has_anyone_ever_gotten_structure_needs_cleaning/">Has anyone ever gotten &ldquo;structure needs cleaning&rdquo; errors on their EXT4 file system?</a> o <a href="https://unix.stackexchange.com/questions/330742/cannot-remove-file-structure-needs-cleaning">Cannot remove file: “Structure needs cleaning”</a>).</p>
 
-<figure>
-  <amp-img src="https://onthedock.github.io/images/170819/k8-storage-solution-minio.svg" alt="Usando un contenedor sidecar para el almacenamiento images/170819/k8-storage-solution-minio.svg" width=640 height=400 layout="responsive"></amp-img>
-  
-</figure>
+<p>Aunque todas las soluciones apuntan de una forma u otra a ejecutar un <code>fsck</code>, siempre se refieren a particiones diferentes a <code>/</code>, que al estar montada no puede analizarse (o que puede provocar más problemas de los que soluciona).
+Así que he optado por marcar el sistema de ficheros como <code>dirty</code> y reiniciar, con la esperanza de que el propio sistema realice la limpieza. Después del reinicio -y de que el <em>control plane</em> arranque-, he podido ejecutar de nuevo los comandos vía <em>kubectl</em>.</p>
 
+<p>Como no estaba seguro de si se había ejecutado la limpieza, he seguido las instrucciones en <a href="https://www.cyberciti.biz/faq/linux-force-fsck-on-the-next-reboot-or-boot-sequence/">Linux Force fsck on the Next Reboot or Boot Sequence</a> para <strong>forzar</strong> la limpieza del disco después del reinicio.</p>
 
-<p>Para garantizar que en todo momento tenemos un servidor de Minio capaz de atender las peticiones desde cualquiera de los clientes, podemos desplegarlo en forma <em>deployment</em>. Para evitar que el <em>scheduler</em> lo planifique en un nodo diferente al que tiene montado, tendremos que definir afinidad con el nodo en el que se encuentra.</p>
+<p>Y de nuevo, después de volver a arrancar, el sistema responde y no encuentro problemas con el API server.</p>
 
-<figure>
-  <amp-img src="https://onthedock.github.io/images/170819/k8s-storage-solution.svg" alt="Usando un contenedor sidecar para el almacenamiento images/170819/k8s-storage-solution.svg" width=640 height=400 layout="responsive"></amp-img>
-  
-</figure>
-
-
-<p>Aunque esta última variante sólo proporciona balanceo para el servidor de Minio, el almacenamiento no está replicado y un fallo del hardware subyacente nos deja sin datos.</p>
-
-<p>Con esta configuración es posible proporcionar almacenamiento local de un nodo como almacenamiento &ldquo;<em>cloud local</em>&rdquo;, es decir, desde cualquier nodo del clúster, externo a la aplicación. El servidor de Minio actúa como <em>proxy</em> del almacenamiento local del nodo. Este contenedor sidecar puede usarse con cualquier aplicación sin necesidad de modificación, ya que el cliente de Minio es el que se relaciona con el almacenamiento externo (la aplicación trabaja sobre el almacenamiento local en el <em>pod</em>). Cuando el <em>pod</em> se planifica en cualquier otro nodo del clúster, el contenedor <em>init</em> recupera la información desde el servidor antes de la creación de los contenedores de la aplicación y el cliente de Minio. Una vez inicializado, el <em>pod</em> opera con normalidad, la aplicación leyendo y escribiendo ficheros en el volumen local del <em>pod</em> y el cliente Minio sincronizándolos contra el <em>bucket</em> remoto en el servidor de Minio.</p>
-
-<p>El siguiente gif animado describe este proceso:</p>
-
-<figure>
-  <amp-img src="https://onthedock.github.io/images/170819/k8s-minio-localstorage-proxy.gif" alt="Usando un contenedor sidecar para el almacenamiento images/170819/k8s-minio-localstorage-proxy.gif" width=640 height=400 layout="responsive"></amp-img>
-  
-  <figcaption>
-    
-    Pod keeps persistent storage across nodes
-    
-  </figcaption>
-  
-</figure>
-
-
-<p>El siguiente paso es probar la viabilidad de esta idea a la práctica.</p></div>
+<p>Durante los próximos días revisaré si el problema con el <em>pod</em> del API server se reproduce o si se ha solucionado definitivamente después de ejecutar el <em>fsck</em>.</p></div>
 
   <aside class="p-share">
-  <a href="http://b.hatena.ne.jp/add?mode=confirm&url=https%3a%2f%2fonthedock.github.io%2fpost%2f170819-usando-un-contenedor-sidecar%2f&title=Usando%20un%20contenedor%20sidecar%20para%20el%20almacenamiento" title="はてなブックマーク" class="ht" target="_blank" rel="nofollow"></a>
-  <a href="http://www.facebook.com/sharer.php?u=https%3a%2f%2fonthedock.github.io%2fpost%2f170819-usando-un-contenedor-sidecar%2f&t=Usando%20un%20contenedor%20sidecar%20para%20el%20almacenamiento" title="Facebookでシェア" class="fb" target="_blank" rel="nofollow"></a>
-  <a href="http://twitter.com/intent/tweet?url=https%3a%2f%2fonthedock.github.io%2fpost%2f170819-usando-un-contenedor-sidecar%2f&text=Usando%20un%20contenedor%20sidecar%20para%20el%20almacenamiento&tw_p=tweetbutton" title="Twitterでシェア" class="tw" target="_blank" rel="nofollow"></a>
-  <a href="https://plus.google.com/share?url=https%3a%2f%2fonthedock.github.io%2fpost%2f170819-usando-un-contenedor-sidecar%2f" title="Google Plusでシェア" class="gp" target="_blank" rel="nofollow"></a>
-  <a href="http://line.me/R/msg/text/?Usando%20un%20contenedor%20sidecar%20para%20el%20almacenamiento https%3a%2f%2fonthedock.github.io%2fpost%2f170819-usando-un-contenedor-sidecar%2f" title="LINEでシェア" class="ln" target="_blank" rel="nofollow"></a>
+  <a href="http://b.hatena.ne.jp/add?mode=confirm&url=https%3a%2f%2fonthedock.github.io%2fpost%2f171104-apiserver-detenido%2f&title=API%20server%20detenido%3a%20The%20connection%20to%20the%20server%20was%20refused" title="はてなブックマーク" class="ht" target="_blank" rel="nofollow"></a>
+  <a href="http://www.facebook.com/sharer.php?u=https%3a%2f%2fonthedock.github.io%2fpost%2f171104-apiserver-detenido%2f&t=API%20server%20detenido%3a%20The%20connection%20to%20the%20server%20was%20refused" title="Facebookでシェア" class="fb" target="_blank" rel="nofollow"></a>
+  <a href="http://twitter.com/intent/tweet?url=https%3a%2f%2fonthedock.github.io%2fpost%2f171104-apiserver-detenido%2f&text=API%20server%20detenido%3a%20The%20connection%20to%20the%20server%20was%20refused&tw_p=tweetbutton" title="Twitterでシェア" class="tw" target="_blank" rel="nofollow"></a>
+  <a href="https://plus.google.com/share?url=https%3a%2f%2fonthedock.github.io%2fpost%2f171104-apiserver-detenido%2f" title="Google Plusでシェア" class="gp" target="_blank" rel="nofollow"></a>
+  <a href="http://line.me/R/msg/text/?API%20server%20detenido%3a%20The%20connection%20to%20the%20server%20was%20refused https%3a%2f%2fonthedock.github.io%2fpost%2f171104-apiserver-detenido%2f" title="LINEでシェア" class="ln" target="_blank" rel="nofollow"></a>
 </aside>
 
 
@@ -242,7 +278,7 @@
         
         <li itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb"><a href="https://onthedock.github.io/post/" itemprop="url"><span itemprop="title">post</span></a></li>
         
-        <li>Usando un contenedor sidecar para el almacenamiento</li>
+        <li>API server detenido: The connection to the server was refused</li>
       </ol>
 
       
@@ -266,8 +302,6 @@
           <header><a href="https://onthedock.github.io/tags/">tags</a></header>
           <ul>
             
-            <li><a href="https://onthedock.github.io/tags/linux/">linux</a></li>
-            
             <li><a href="https://onthedock.github.io/tags/kubernetes/">kubernetes</a></li>
             
           </ul>
@@ -286,22 +320,7 @@
   <section>
     <header><span>Latests</span></header>
     <ul class="p-articles thin">
-      <li><article class="li sm article-f831baebaad56b8e3d70750749393da3">
-  <div class="header-wrapper">
-    <a href="https://onthedock.github.io/post/171104-apiserver-detenido/" class="thumbnail" title="API server detenido: The connection to the server was refused"></a>
-    <header class="article-header">
-      <div class="clearfix">
-        <h2 class="title"><a href="https://onthedock.github.io/post/171104-apiserver-detenido/">API server detenido: The connection to the server was refused</a></h2>
-        <ul class="p-facts">
-          <li><time datetime="2017-11-04T21:58:52JST">4 Nov 2017</time></li>
-          <li><a href="https://onthedock.github.io/post/">post</a></li>
-          
-        </ul>
-      </div>
-    </header>
-  </div>
-</article>
-</li><li><article class="li sm article-df14f92fc6edab1c8632e66ef7c7e5a6">
+      <li><article class="li sm article-df14f92fc6edab1c8632e66ef7c7e5a6">
   <div class="header-wrapper">
     <a href="https://onthedock.github.io/post/171002-trucos-para-la-linea-de-comandos/" class="thumbnail" title="Trucos para para línea de comandos"></a>
     <header class="article-header">
@@ -339,6 +358,21 @@
         <h2 class="title"><a href="https://onthedock.github.io/post/170930-nuevos-problemas-para-construir-la-imagen-para-rpi/">Nuevos problemas al construir la imagen con Caddy y PHP, ahora para Raspberry Pi</a></h2>
         <ul class="p-facts">
           <li><time datetime="2017-09-30T17:30:45JST">30 Sep 2017</time></li>
+          <li><a href="https://onthedock.github.io/post/">post</a></li>
+          
+        </ul>
+      </div>
+    </header>
+  </div>
+</article>
+</li><li><article class="li sm article-0b9c6f0820f2306f6cc2bfd170dccb8e">
+  <div class="header-wrapper">
+    <a href="https://onthedock.github.io/post/170924-dokuwiki_en_un_contenedor_notas/" class="thumbnail" title="Dokuwiki en un contenedor: notas sobre el proceso"></a>
+    <header class="article-header">
+      <div class="clearfix">
+        <h2 class="title"><a href="https://onthedock.github.io/post/170924-dokuwiki_en_un_contenedor_notas/">Dokuwiki en un contenedor: notas sobre el proceso</a></h2>
+        <ul class="p-facts">
+          <li><time datetime="2017-09-24T22:43:01JST">24 Sep 2017</time></li>
           <li><a href="https://onthedock.github.io/post/">post</a></li>
           
         </ul>
