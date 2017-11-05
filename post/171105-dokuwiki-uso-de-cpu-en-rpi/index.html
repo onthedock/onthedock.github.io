@@ -11,13 +11,13 @@
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
 
-<link rel="canonical" href="https://onthedock.github.io/post/170507-protege-el-acceso-remoto-via-api-a-docker/">
+<link rel="canonical" href="https://onthedock.github.io/post/171105-dokuwiki-uso-de-cpu-en-rpi/">
 
 
     
     <link href="https://fonts.googleapis.com/css?family=Lobster|Lato:400,700" rel="stylesheet">
     
-    <title>Protege el acceso remoto via API a Docker - On The Dock</title>
+    <title>Dokuwiki en Docker - Uso de CPU en Raspberry Pi - On The Dock</title>
     <style amp-boilerplate>body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}</style><noscript><style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style></noscript>
     <script async src="https://cdn.ampproject.org/v0.js"></script>
     
@@ -26,22 +26,22 @@
 <script async custom-element="amp-ad" src="https://cdn.ampproject.org/v0/amp-ad-0.1.js"></script>
 
     
-<meta name="description" content="&lt;p&gt;En el artículo &lt;a href=&#34;https://onthedock.github.io/post/170506-habilita-el-acceso-remoto-via-api-a-docker/&#34;&gt;Habilita el API remoto de Docker&lt;/a&gt; explicaba cómo configurar el acceso remoto al API de Docker. El problema es que de esta forma no hay manera de restringir el acceso.&lt;/p&gt;&lt;p&gt;En este artículo protegemos el acceso usando TLS de manera que sólo se permitan conexiones que presenten un certificado firmado por una CA de confianza.&lt;/p&gt;">
+<meta name="description" content="&lt;p&gt;En la entrada anterior &lt;a href=&#34;https://onthedock.github.io/post/170930-como-crear-una-imagen-con-caddy-y-php/&#34;&gt;Cómo crear una imagen con Caddy y PHP&lt;/a&gt; explicaba el proceso para conseguir &lt;em&gt;containerizar&lt;/em&gt; Dokuwiki y ejecutarlo sobre Docker.&lt;/p&gt;&lt;p&gt;Sin embargo, la potencia de la Rapsberry Pi (1) es insuficiente para poder usar Dokuwiki de forma cómoda de esta forma.&lt;/p&gt;">
 
-<meta property="og:title" content="Protege el acceso remoto via API a Docker - On The Dock">
+<meta property="og:title" content="Dokuwiki en Docker - Uso de CPU en Raspberry Pi - On The Dock">
 <meta property="og:type" content="article">
-<meta property="og:url" content="https://onthedock.github.io/post/170507-protege-el-acceso-remoto-via-api-a-docker/">
-<meta property="og:image" content="https://onthedock.github.io/images/docker.png">
+<meta property="og:url" content="https://onthedock.github.io/post/171105-dokuwiki-uso-de-cpu-en-rpi/">
+<meta property="og:image" content="https://onthedock.github.io/images/dokuwiki-on-docker.png">
 <meta property="og:site_name" content="On The Dock">
-<meta property="og:description" content="&lt;p&gt;En el artículo &lt;a href=&#34;https://onthedock.github.io/post/170506-habilita-el-acceso-remoto-via-api-a-docker/&#34;&gt;Habilita el API remoto de Docker&lt;/a&gt; explicaba cómo configurar el acceso remoto al API de Docker. El problema es que de esta forma no hay manera de restringir el acceso.&lt;/p&gt;&lt;p&gt;En este artículo protegemos el acceso usando TLS de manera que sólo se permitan conexiones que presenten un certificado firmado por una CA de confianza.&lt;/p&gt;">
+<meta property="og:description" content="&lt;p&gt;En la entrada anterior &lt;a href=&#34;https://onthedock.github.io/post/170930-como-crear-una-imagen-con-caddy-y-php/&#34;&gt;Cómo crear una imagen con Caddy y PHP&lt;/a&gt; explicaba el proceso para conseguir &lt;em&gt;containerizar&lt;/em&gt; Dokuwiki y ejecutarlo sobre Docker.&lt;/p&gt;&lt;p&gt;Sin embargo, la potencia de la Rapsberry Pi (1) es insuficiente para poder usar Dokuwiki de forma cómoda de esta forma.&lt;/p&gt;">
 <meta property="og:locale" content="ja_JP">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="On The Dock">
-<meta name="twitter:url" content="https://onthedock.github.io/post/170507-protege-el-acceso-remoto-via-api-a-docker/">
-<meta name="twitter:title" content="Protege el acceso remoto via API a Docker - On The Dock">
-<meta name="twitter:description" content="&lt;p&gt;En el artículo &lt;a href=&#34;https://onthedock.github.io/post/170506-habilita-el-acceso-remoto-via-api-a-docker/&#34;&gt;Habilita el API remoto de Docker&lt;/a&gt; explicaba cómo configurar el acceso remoto al API de Docker. El problema es que de esta forma no hay manera de restringir el acceso.&lt;/p&gt;&lt;p&gt;En este artículo protegemos el acceso usando TLS de manera que sólo se permitan conexiones que presenten un certificado firmado por una CA de confianza.&lt;/p&gt;">
-<meta name="twitter:image" content="https://onthedock.github.io/images/docker.png">
+<meta name="twitter:url" content="https://onthedock.github.io/post/171105-dokuwiki-uso-de-cpu-en-rpi/">
+<meta name="twitter:title" content="Dokuwiki en Docker - Uso de CPU en Raspberry Pi - On The Dock">
+<meta name="twitter:description" content="&lt;p&gt;En la entrada anterior &lt;a href=&#34;https://onthedock.github.io/post/170930-como-crear-una-imagen-con-caddy-y-php/&#34;&gt;Cómo crear una imagen con Caddy y PHP&lt;/a&gt; explicaba el proceso para conseguir &lt;em&gt;containerizar&lt;/em&gt; Dokuwiki y ejecutarlo sobre Docker.&lt;/p&gt;&lt;p&gt;Sin embargo, la potencia de la Rapsberry Pi (1) es insuficiente para poder usar Dokuwiki de forma cómoda de esta forma.&lt;/p&gt;">
+<meta name="twitter:image" content="https://onthedock.github.io/images/dokuwiki-on-docker.png">
 
 
 <script type="application/ld+json">
@@ -52,15 +52,15 @@
       "@type": "WebPage",
       "@id":"https://onthedock.github.io/"
     },
-    "headline": "Protege el acceso remoto via API a Docker - On The Dock",
+    "headline": "Dokuwiki en Docker - Uso de CPU en Raspberry Pi - On The Dock",
     "image": {
       "@type": "ImageObject",
-      "url": "https://onthedock.github.io/images/docker.png",
+      "url": "https://onthedock.github.io/images/dokuwiki-on-docker.png",
       "height": 800,
       "width": 800
     },
-    "datePublished": "2017-05-07T18:33:16JST",
-    "dateModified": "2017-05-07T18:33:16JST",
+    "datePublished": "2017-11-05T12:22:00JST",
+    "dateModified": "2017-11-05T12:22:00JST",
     "author": {
       "@type": "Person",
       "name": "On The Dock"
@@ -75,9 +75,9 @@
         "height": 60
       }
     },
-    "description": "<p>En el artículo <a href="https://onthedock.github.io/post/170506-habilita-el-acceso-remoto-via-api-a-docker/">Habilita el API remoto de Docker</a> explicaba cómo configurar el acceso remoto al API de Docker. El problema es que de esta forma no hay manera de restringir el acceso.</p>
+    "description": "<p>En la entrada anterior <a href="https://onthedock.github.io/post/170930-como-crear-una-imagen-con-caddy-y-php/">Cómo crear una imagen con Caddy y PHP</a> explicaba el proceso para conseguir <em>containerizar</em> Dokuwiki y ejecutarlo sobre Docker.</p>
 
-<p>En este artículo protegemos el acceso usando TLS de manera que sólo se permitan conexiones que presenten un certificado firmado por una CA de confianza.
+<p>Sin embargo, la potencia de la Rapsberry Pi (1) es insuficiente para poder usar Dokuwiki de forma cómoda de esta forma.
 </p>"
   }
 </script>
@@ -107,14 +107,14 @@
     <main>
       
 <div class="l-container">
-  <article class="single article-59e1fe22eaedce05afe517780f87cc98">
+  <article class="single article-156dcec052e59d7d9f0de2250fda46f4">
   <div class="header-wrapper">
-    <a href="https://onthedock.github.io/post/170507-protege-el-acceso-remoto-via-api-a-docker/" class="thumbnail" title="Protege el acceso remoto via API a Docker"></a>
+    <a href="https://onthedock.github.io/post/171105-dokuwiki-uso-de-cpu-en-rpi/" class="thumbnail" title="Dokuwiki en Docker - Uso de CPU en Raspberry Pi"></a>
     <header class="article-header">
       <div class="clearfix">
-        <h1 class="title">Protege el acceso remoto via API a Docker</h1>
+        <h1 class="title">Dokuwiki en Docker - Uso de CPU en Raspberry Pi</h1>
         <ul class="p-facts">
-          <li><time datetime="2017-05-07T18:33:16JST">7 May 2017</time></li>
+          <li><time datetime="2017-11-05T12:22:00JST">5 Nov 2017</time></li>
           <li><a href="https://onthedock.github.io/post/">post</a></li>
           
           <li>Xavier Aznar</li>
@@ -123,193 +123,44 @@
     </header>
   </div>
 
-  <div class="article-body"><p>En el artículo <a href="https://onthedock.github.io/post/170506-habilita-el-acceso-remoto-via-api-a-docker/">Habilita el API remoto de Docker</a> explicaba cómo configurar el acceso remoto al API de Docker. El problema es que de esta forma no hay manera de restringir el acceso.</p>
+  <div class="article-body"><p>En la entrada anterior <a href="https://onthedock.github.io/post/170930-como-crear-una-imagen-con-caddy-y-php/">Cómo crear una imagen con Caddy y PHP</a> explicaba el proceso para conseguir <em>containerizar</em> Dokuwiki y ejecutarlo sobre Docker.</p>
 
-<p>En este artículo protegemos el acceso usando TLS de manera que sólo se permitan conexiones que presenten un certificado firmado por una CA de confianza.
+<p>Sin embargo, la potencia de la Rapsberry Pi (1) es insuficiente para poder usar Dokuwiki de forma cómoda de esta forma.
 </p>
 
-<p>Seguiremos las instrucciones oficiales de Docker <a href="https://docs.docker.com/engine/security/https/">Protect the Docker daemon socket</a>.</p>
+<p>En las pruebas que he estado realizando -configurando usuarios, instalando extensiones, etc- Dokuwiki respondía de forma bastante lenta.</p>
 
-<h1 id="creamos-una-ca-claves-para-el-cliente-y-el-servidor-con-openssl">Creamos una CA, claves para el cliente y el servidor con OpenSSL</h1>
+<p>He analizado el uso de CPU y RAM del contenedor usando Portainer y en las gráficas se ve claramente cómo cada vez que Dokuwiki tiene que <em>renderizar</em> una página, el consumos de la CPU sube hasta el 80%. El uso de memoria se mantiene más o menos estable entre los 35-50 MB, por lo que el factor limitante es la escasa potencia del primer modelo de la Raspberry Pi.</p>
 
-<p>Primero, en la máquina <em>host</em> del Docker <em>daemon</em>, generamos las claves públicas y privadas de la CA (<em>Certification Authority</em>, la entidad certificadora):</p>
+<figure>
+  <amp-img src="https://onthedock.github.io/images/171105/cpu-usage.png" alt="Dokuwiki en Docker - Uso de CPU en Raspberry Pi images/171105/cpu-usage.png" width=640 height=400 layout="responsive"></amp-img>
+  
+</figure>
 
-<pre><code class="language-sh"># openssl genrsa -aes256 -out ca-key.pem 4096
-Generating RSA private key, 4096 bit long modulus
-............................................................................................................................................................................................................................................++
-..........................++
-e is 65537 (0x10001)
-Enter pass phrase for ca-key.pem:
-Verifying - Enter pass phrase for ca-key.pem:
-#
-</code></pre>
 
-<p>Y a continuación:</p>
+<p>Como referencia y contraste, el consumo de CPU del contenedor cuando no se está usando Dokuwiki está por debajo del 0.02% de la CPU.</p>
 
-<pre><code class="language-sh"># openssl req -new -x509 -days 365 -key ca-key.pem -sha256 -out ca.pem
-Enter pass phrase for ca-key.pem:
-You are about to be asked to enter information that will be incorporated
-into your certificate request.
-What you are about to enter is what is called a Distinguished Name or a DN.
-There are quite a few fields but you can leave some blank
-For some fields there will be a default value,
-If you enter '.', the field will be left blank.
------
-Country Name (2 letter code) [AU]:ES
-State or Province Name (full name) [Some-State]:Barcelona
-Locality Name (eg, city) []:Barcelona
-Organization Name (eg, company) [Internet Widgits Pty Ltd]:Ameisin
-Organizational Unit Name (eg, section) []:DevOps
-Common Name (e.g. server FQDN or YOUR name) []:192.168.1.20
-Email Address []: {REDACTED}
-#
-</code></pre>
+<figure>
+  <amp-img src="https://onthedock.github.io/images/171105/cpu-usage-iddle.png" alt="Dokuwiki en Docker - Uso de CPU en Raspberry Pi images/171105/cpu-usage-iddle.png" width=640 height=400 layout="responsive"></amp-img>
+  
+</figure>
 
-<p>Ahora que tenemos una CA, podemos crear la clave para el servidor y la petición de firmado del certificado (<em>certificate signing request</em>, CSR). Por favor, verifica que <code>Common Name</code> (es decir, el <em>FQDN</em> o <em>YOUR Name</em>) coincide con el nombre del <em>host</em> que vas a usar para conectar a Docker.</p>
 
-<pre><code class="language-sh"># openssl genrsa -out server-key.pem 4096
-Generating RSA private key, 4096 bit long modulus
-............................................................................................................................................................................................................................................................................................................................++
-...............................................................++
-e is 65537 (0x10001)
-# openssl req -subj &quot;/CN=192.168.1.20&quot; -sha256 -new -key server-key.pem -out server.csr
-#
-</code></pre>
+<p>Este uso intensivo de la CPU por parte del contenedor hace que, aunque no use Dokuwiki de forma intensiva, sí que supone un ejercicio de paciencia a la hora de previsualizar/guardar los cambios en la página, tomando cada acción entre uno y dos segundos.</p>
 
-<p>A continuación vamos a firmar la clave pública con nuestra CA.</p>
+<p>En el siguiente GIF he intentado capturar el comportamiento del Wiki en un uso simulado de login, edición de una página y guardado de los cambios:</p>
 
-<p>Como las conexiones TLS pueden realizarse usando la dirección IP o un nombre DNS, deben especificarse durante la creación del certificado.</p>
-
-<pre><code class="language-sh"># echo subjectAltName = IP:192.168.1.20,IP:127.0.0.1 &gt; extfile.cnf
-# openssl x509 -req -days 365 -sha256 -in server.csr -CA ca.pem -CAkey ca-key.pem \
-&gt;   -CAcreateserial -out server-cert.pem -extfile extfile.cnf
-Signature ok
-subject=/CN=192.168.1.20
-Getting CA Private Key
-Enter pass phrase for ca-key.pem:
-#
-</code></pre>
-
-<h1 id="autenticación-del-cliente">Autenticación del cliente</h1>
-
-<p>Para autenticar al cliente, crearemos una clave de cliente y una petición de firmado del certificado.</p>
-
-<blockquote>
-<p>Para simplificar, los siguientes dos pasos pueden realizarse desde la máquina donde se encuentra el Docker <em>daemon</em>.</p>
-</blockquote>
-
-<pre><code class="language-sh"># openssl genrsa -out key.pem 4096
-Generating RSA private key, 4096 bit long modulus
-...............................................................................++
-................................................................................................................................................................................++
-e is 65537 (0x10001)
-# openssl req -subj '/CN=client' -new -key key.pem -out client.csr
-#
-</code></pre>
-
-<p>Para que la clave permita autenticar al cliente, creamos un fichero de configuración de extensiones:</p>
-
-<pre><code class="language-sh"># echo extendedKeyUsage = clientAuth &gt; extfile.cnf
-#
-</code></pre>
-
-<p>Ahora firmamos la clave:</p>
-
-<pre><code class="language-sh"># openssl x509 -req -days 365 -sha256 -in client.csr -CA ca.pem -CAkey ca-key.pem \
-&gt;   -CAcreateserial -out cert.pem -extfile extfile.cnf
-Signature ok
-subject=/CN=client
-Getting CA Private Key
-Enter pass phrase for ca-key.pem:
-#
-</code></pre>
-
-<p>Después de haber generado <code>cert.pem</code> y <code>server-cert.pem</code> podemos eliminar las peticiones de firmado:</p>
-
-<pre><code class="language-sh"># ls
-ca-key.pem  ca.srl    client.csr  extfile.cnf  server-cert.pem	server-key.pem
-ca.pem	    cert.pem  key.pem     server.csr
-# rm -v client.csr server.csr
-removed ‘client.csr’
-removed ‘server.csr’
-#
-</code></pre>
-
-<h1 id="protección-de-las-claves">Protección de las claves</h1>
-
-<p>Con una máscara <code>umask</code> por defecto de <code>022</code> las claves secretas que hemos generado dan a todo el mundo acceso de lectura y de escritura a tu usuario y tu grupo.</p>
-
-<p>Para proteger las claves de daños accidentales, vamos a eliminar los permisos de escritura sobre ellas. Para hacerlas de sólo lectura para tu usuario, usamos:</p>
-
-<pre><code class="language-sh"># chmod -v 0400 ca-key.pem key.pem server-key.pem
-mode of ‘ca-key.pem’ changed from 0644 (rw-r--r--) to 0400 (r--------)
-mode of ‘key.pem’ changed from 0644 (rw-r--r--) to 0400 (r--------)
-mode of ‘server-key.pem’ changed from 0644 (rw-r--r--) to 0400 (r--------)
-#
-</code></pre>
-
-<p>Los certificados pueden ser leídos por todo el mundo, pero para evitar daños accidentales, mejor eliminamos los permisos de escritura:</p>
-
-<pre><code class="language-sh"># chmod -v 0444 ca.pem server-cert.pem cert.pem
-mode of ‘ca.pem’ changed from 0644 (rw-r--r--) to 0444 (r--r--r--)
-mode of ‘server-cert.pem’ changed from 0644 (rw-r--r--) to 0444 (r--r--r--)
-mode of ‘cert.pem’ changed from 0644 (rw-r--r--) to 0444 (r--r--r--)
-#
-</code></pre>
-
-<h1 id="configurando-el-api-de-acceso-remoto-de-forma-segura">Configurando el API de acceso remoto de forma segura</h1>
-
-<p>Para hacer que el Docker <em>daemon</em> sólo acepte conexiones de clientes que proporcionen un certificado de confianza de tu CA.</p>
-
-<p>Para ello, modificamos las opciones de arranque del <em>daemon</em> de Docker:</p>
-
-<pre><code class="language-sh"># nano /lib/systemd/system/docker.service
-</code></pre>
-
-<p>Modificamos la línea:</p>
-
-<pre><code class="language-txt">ExecStart=/usr/bin/dockerd -H fd:// -H=0.0.0.0:2375
-</code></pre>
-
-<p>De manera que quede como (lo he dividido en varias líneas por claridad):</p>
-
-<pre><code class="language-sh">ExecStart=/usr/bin/dockerd --tlsverify 		\
-         --tlscacert=/root/ca.pem 		\
-         --tlscert=/root/server-cert.pem 	\
-         --tlskey=/root/server-key.pem 		\
-         -H=0.0.0.0:2376 			\
-         -H fd://
-</code></pre>
-
-<p>A continuación, recargamos la configuración y reinciamos el servicio:</p>
-
-<pre><code class="language-sh"># systemctl daemon-reload
-# systemctl restart docker
-</code></pre>
-
-<blockquote>
-<p>Los primeros intentos de arrancar el <em>daemon</em> han fallado; ha sido necesario especificar la ruta completa a los certificados y las claves para conseguir que el servicio arrancara.</p>
-</blockquote>
-
-<p>Finalmente, comprobamos que podemos acceder usando el certificado con <em>curl</em>:</p>
-
-<pre><code class="language-sh"># curl https://192.168.1.20:2376/version --cert /root/cert.pem --key /root/key.pem --cacert /root/ca.pem
-{&quot;Version&quot;:&quot;17.05.0-ce&quot;,&quot;ApiVersion&quot;:&quot;1.29&quot;,&quot;MinAPIVersion&quot;:&quot;1.12&quot;,&quot;GitCommit&quot;:&quot;89658be&quot;,&quot;GoVersion&quot;:&quot;go1.7.5&quot;,&quot;Os&quot;:&quot;linux&quot;,&quot;Arch&quot;:&quot;amd64&quot;,&quot;KernelVersion&quot;:&quot;3.16.0-4-amd64&quot;,&quot;BuildTime&quot;:&quot;2017-05-04T22:04:27.257991431+00:00&quot;}
-#
-</code></pre>
-
-<p>A diferencia de lo que pasaba antes, cuando se intenta acceder a <code>https://192.168.1.9:2376/version</code> desde otro equipo (sin usar el certificado), obtenemos un error:</p>
-
-<pre><code class="language-url">This site can’t be reached
-192.168.1.9 refused to connect.
-</code></pre></div>
+<figure>
+  <amp-img src="https://onthedock.github.io/images/171105/using-dokuwiki.gif" alt="Dokuwiki en Docker - Uso de CPU en Raspberry Pi images/171105/using-dokuwiki.gif" width=875 height=950 layout="responsive"></amp-img>
+  
+</figure></div>
 
   <aside class="p-share">
-  <a href="http://b.hatena.ne.jp/add?mode=confirm&url=https%3a%2f%2fonthedock.github.io%2fpost%2f170507-protege-el-acceso-remoto-via-api-a-docker%2f&title=Protege%20el%20acceso%20remoto%20via%20API%20a%20Docker" title="はてなブックマーク" class="ht" target="_blank" rel="nofollow"></a>
-  <a href="http://www.facebook.com/sharer.php?u=https%3a%2f%2fonthedock.github.io%2fpost%2f170507-protege-el-acceso-remoto-via-api-a-docker%2f&t=Protege%20el%20acceso%20remoto%20via%20API%20a%20Docker" title="Facebookでシェア" class="fb" target="_blank" rel="nofollow"></a>
-  <a href="http://twitter.com/intent/tweet?url=https%3a%2f%2fonthedock.github.io%2fpost%2f170507-protege-el-acceso-remoto-via-api-a-docker%2f&text=Protege%20el%20acceso%20remoto%20via%20API%20a%20Docker&tw_p=tweetbutton" title="Twitterでシェア" class="tw" target="_blank" rel="nofollow"></a>
-  <a href="https://plus.google.com/share?url=https%3a%2f%2fonthedock.github.io%2fpost%2f170507-protege-el-acceso-remoto-via-api-a-docker%2f" title="Google Plusでシェア" class="gp" target="_blank" rel="nofollow"></a>
-  <a href="http://line.me/R/msg/text/?Protege%20el%20acceso%20remoto%20via%20API%20a%20Docker https%3a%2f%2fonthedock.github.io%2fpost%2f170507-protege-el-acceso-remoto-via-api-a-docker%2f" title="LINEでシェア" class="ln" target="_blank" rel="nofollow"></a>
+  <a href="http://b.hatena.ne.jp/add?mode=confirm&url=https%3a%2f%2fonthedock.github.io%2fpost%2f171105-dokuwiki-uso-de-cpu-en-rpi%2f&title=Dokuwiki%20en%20Docker%20-%20Uso%20de%20CPU%20en%20Raspberry%20Pi" title="はてなブックマーク" class="ht" target="_blank" rel="nofollow"></a>
+  <a href="http://www.facebook.com/sharer.php?u=https%3a%2f%2fonthedock.github.io%2fpost%2f171105-dokuwiki-uso-de-cpu-en-rpi%2f&t=Dokuwiki%20en%20Docker%20-%20Uso%20de%20CPU%20en%20Raspberry%20Pi" title="Facebookでシェア" class="fb" target="_blank" rel="nofollow"></a>
+  <a href="http://twitter.com/intent/tweet?url=https%3a%2f%2fonthedock.github.io%2fpost%2f171105-dokuwiki-uso-de-cpu-en-rpi%2f&text=Dokuwiki%20en%20Docker%20-%20Uso%20de%20CPU%20en%20Raspberry%20Pi&tw_p=tweetbutton" title="Twitterでシェア" class="tw" target="_blank" rel="nofollow"></a>
+  <a href="https://plus.google.com/share?url=https%3a%2f%2fonthedock.github.io%2fpost%2f171105-dokuwiki-uso-de-cpu-en-rpi%2f" title="Google Plusでシェア" class="gp" target="_blank" rel="nofollow"></a>
+  <a href="http://line.me/R/msg/text/?Dokuwiki%20en%20Docker%20-%20Uso%20de%20CPU%20en%20Raspberry%20Pi https%3a%2f%2fonthedock.github.io%2fpost%2f171105-dokuwiki-uso-de-cpu-en-rpi%2f" title="LINEでシェア" class="ln" target="_blank" rel="nofollow"></a>
 </aside>
 
 
@@ -320,7 +171,7 @@ mode of ‘cert.pem’ changed from 0644 (rw-r--r--) to 0444 (r--r--r--)
         
         <li itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb"><a href="https://onthedock.github.io/post/" itemprop="url"><span itemprop="title">post</span></a></li>
         
-        <li>Protege el acceso remoto via API a Docker</li>
+        <li>Dokuwiki en Docker - Uso de CPU en Raspberry Pi</li>
       </ol>
 
       
@@ -330,8 +181,6 @@ mode of ‘cert.pem’ changed from 0644 (rw-r--r--) to 0444 (r--r--r--)
         <li>
           <header><a href="https://onthedock.github.io/categories/">categories</a></header>
           <ul>
-            
-            <li><a href="https://onthedock.github.io/categories/ops/">ops</a></li>
             
           </ul>
         </li>
@@ -343,12 +192,6 @@ mode of ‘cert.pem’ changed from 0644 (rw-r--r--) to 0444 (r--r--r--)
         <li>
           <header><a href="https://onthedock.github.io/tags/">tags</a></header>
           <ul>
-            
-            <li><a href="https://onthedock.github.io/tags/linux/">linux</a></li>
-            
-            <li><a href="https://onthedock.github.io/tags/debian/">debian</a></li>
-            
-            <li><a href="https://onthedock.github.io/tags/docker/">docker</a></li>
             
           </ul>
         </li>
@@ -366,22 +209,7 @@ mode of ‘cert.pem’ changed from 0644 (rw-r--r--) to 0444 (r--r--r--)
   <section>
     <header><span>Latests</span></header>
     <ul class="p-articles thin">
-      <li><article class="li sm article-156dcec052e59d7d9f0de2250fda46f4">
-  <div class="header-wrapper">
-    <a href="https://onthedock.github.io/post/171105-dokuwiki-uso-de-cpu-en-rpi/" class="thumbnail" title="Dokuwiki en Docker - Uso de CPU en Raspberry Pi"></a>
-    <header class="article-header">
-      <div class="clearfix">
-        <h2 class="title"><a href="https://onthedock.github.io/post/171105-dokuwiki-uso-de-cpu-en-rpi/">Dokuwiki en Docker - Uso de CPU en Raspberry Pi</a></h2>
-        <ul class="p-facts">
-          <li><time datetime="2017-11-05T12:22:00JST">5 Nov 2017</time></li>
-          <li><a href="https://onthedock.github.io/post/">post</a></li>
-          
-        </ul>
-      </div>
-    </header>
-  </div>
-</article>
-</li><li><article class="li sm article-f831baebaad56b8e3d70750749393da3">
+      <li><article class="li sm article-f831baebaad56b8e3d70750749393da3">
   <div class="header-wrapper">
     <a href="https://onthedock.github.io/post/171104-apiserver-detenido/" class="thumbnail" title="API server detenido: The connection to the server was refused"></a>
     <header class="article-header">
@@ -419,6 +247,21 @@ mode of ‘cert.pem’ changed from 0644 (rw-r--r--) to 0444 (r--r--r--)
         <h2 class="title"><a href="https://onthedock.github.io/post/170930-como-crear-una-imagen-con-caddy-y-php/">Cómo crear una imagen con Caddy y PHP</a></h2>
         <ul class="p-facts">
           <li><time datetime="2017-09-30T21:36:58JST">30 Sep 2017</time></li>
+          <li><a href="https://onthedock.github.io/post/">post</a></li>
+          
+        </ul>
+      </div>
+    </header>
+  </div>
+</article>
+</li><li><article class="li sm article-d1ead2ec3d26cb7f91ef8234915eb13f">
+  <div class="header-wrapper">
+    <a href="https://onthedock.github.io/post/170930-nuevos-problemas-para-construir-la-imagen-para-rpi/" class="thumbnail" title="Nuevos problemas al construir la imagen con Caddy y PHP, ahora para Raspberry Pi"></a>
+    <header class="article-header">
+      <div class="clearfix">
+        <h2 class="title"><a href="https://onthedock.github.io/post/170930-nuevos-problemas-para-construir-la-imagen-para-rpi/">Nuevos problemas al construir la imagen con Caddy y PHP, ahora para Raspberry Pi</a></h2>
+        <ul class="p-facts">
+          <li><time datetime="2017-09-30T17:30:45JST">30 Sep 2017</time></li>
           <li><a href="https://onthedock.github.io/post/">post</a></li>
           
         </ul>
