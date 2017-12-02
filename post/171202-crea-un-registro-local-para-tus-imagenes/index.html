@@ -11,13 +11,13 @@
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
 
-<link rel="canonical" href="https://onthedock.github.io/post/170604-instalacion-de-alpine-linux/">
+<link rel="canonical" href="https://onthedock.github.io/post/171202-crea-un-registro-local-para-tus-imagenes/">
 
 
     
     <link href="https://fonts.googleapis.com/css?family=Lobster|Lato:400,700" rel="stylesheet">
     
-    <title>Instalación de Alpine linux - On The Dock</title>
+    <title>Crea un registro local para tus imágenes - On The Dock</title>
     <style amp-boilerplate>body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}</style><noscript><style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style></noscript>
     <script async src="https://cdn.ampproject.org/v0.js"></script>
     
@@ -26,22 +26,22 @@
 <script async custom-element="amp-ad" src="https://cdn.ampproject.org/v0/amp-ad-0.1.js"></script>
 
     
-<meta name="description" content="&lt;p&gt;Alpine Linux se ha convertido en la distribución por defecto con la que construir contenedores.&lt;/p&gt;&lt;p&gt;Alpine tiene sus propias particularidades, ya que no deriva de otra distribución, de manera que he pensado que sería una buena idea tener una máquina virtual con la que entrenarme.&lt;/p&gt;&lt;p&gt;En este artículo explico qué diferencias he encontrado en Alpine.&lt;/p&gt;&lt;p&gt;&lt;/p&gt;">
+<meta name="description" content="&lt;p&gt;El registro por defecto donde almacenar y compartir las imágenes Docker es &lt;a href=&#34;https://hub.docker.com&#34;&gt;Docker Hub&lt;/a&gt;. Desde un punto de vista empresarial, descargar imágenes desde un registro público supone un riesgo de seguridad.&lt;/p&gt;&lt;p&gt;En esta entrada indico cómo lanzar el registro oficial de Docker en nuestra infraestructura. Una vez en marcha, veremos cómo almacenar las imágenes en el registro local y cómo lanzar contenedores usando las imágenes desde nuestro registro.&lt;/p&gt;&lt;p&gt;&lt;/p&gt;">
 
-<meta property="og:title" content="Instalación de Alpine linux - On The Dock">
+<meta property="og:title" content="Crea un registro local para tus imágenes - On The Dock">
 <meta property="og:type" content="article">
-<meta property="og:url" content="https://onthedock.github.io/post/170604-instalacion-de-alpine-linux/">
-<meta property="og:image" content="https://onthedock.github.io/images/alpine.png">
+<meta property="og:url" content="https://onthedock.github.io/post/171202-crea-un-registro-local-para-tus-imagenes/">
+<meta property="og:image" content="https://onthedock.github.io/images/docker.png">
 <meta property="og:site_name" content="On The Dock">
-<meta property="og:description" content="&lt;p&gt;Alpine Linux se ha convertido en la distribución por defecto con la que construir contenedores.&lt;/p&gt;&lt;p&gt;Alpine tiene sus propias particularidades, ya que no deriva de otra distribución, de manera que he pensado que sería una buena idea tener una máquina virtual con la que entrenarme.&lt;/p&gt;&lt;p&gt;En este artículo explico qué diferencias he encontrado en Alpine.&lt;/p&gt;&lt;p&gt;&lt;/p&gt;">
+<meta property="og:description" content="&lt;p&gt;El registro por defecto donde almacenar y compartir las imágenes Docker es &lt;a href=&#34;https://hub.docker.com&#34;&gt;Docker Hub&lt;/a&gt;. Desde un punto de vista empresarial, descargar imágenes desde un registro público supone un riesgo de seguridad.&lt;/p&gt;&lt;p&gt;En esta entrada indico cómo lanzar el registro oficial de Docker en nuestra infraestructura. Una vez en marcha, veremos cómo almacenar las imágenes en el registro local y cómo lanzar contenedores usando las imágenes desde nuestro registro.&lt;/p&gt;&lt;p&gt;&lt;/p&gt;">
 <meta property="og:locale" content="ja_JP">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="On The Dock">
-<meta name="twitter:url" content="https://onthedock.github.io/post/170604-instalacion-de-alpine-linux/">
-<meta name="twitter:title" content="Instalación de Alpine linux - On The Dock">
-<meta name="twitter:description" content="&lt;p&gt;Alpine Linux se ha convertido en la distribución por defecto con la que construir contenedores.&lt;/p&gt;&lt;p&gt;Alpine tiene sus propias particularidades, ya que no deriva de otra distribución, de manera que he pensado que sería una buena idea tener una máquina virtual con la que entrenarme.&lt;/p&gt;&lt;p&gt;En este artículo explico qué diferencias he encontrado en Alpine.&lt;/p&gt;&lt;p&gt;&lt;/p&gt;">
-<meta name="twitter:image" content="https://onthedock.github.io/images/alpine.png">
+<meta name="twitter:url" content="https://onthedock.github.io/post/171202-crea-un-registro-local-para-tus-imagenes/">
+<meta name="twitter:title" content="Crea un registro local para tus imágenes - On The Dock">
+<meta name="twitter:description" content="&lt;p&gt;El registro por defecto donde almacenar y compartir las imágenes Docker es &lt;a href=&#34;https://hub.docker.com&#34;&gt;Docker Hub&lt;/a&gt;. Desde un punto de vista empresarial, descargar imágenes desde un registro público supone un riesgo de seguridad.&lt;/p&gt;&lt;p&gt;En esta entrada indico cómo lanzar el registro oficial de Docker en nuestra infraestructura. Una vez en marcha, veremos cómo almacenar las imágenes en el registro local y cómo lanzar contenedores usando las imágenes desde nuestro registro.&lt;/p&gt;&lt;p&gt;&lt;/p&gt;">
+<meta name="twitter:image" content="https://onthedock.github.io/images/docker.png">
 
 
 <script type="application/ld+json">
@@ -52,15 +52,15 @@
       "@type": "WebPage",
       "@id":"https://onthedock.github.io/"
     },
-    "headline": "Instalación de Alpine linux - On The Dock",
+    "headline": "Crea un registro local para tus imágenes - On The Dock",
     "image": {
       "@type": "ImageObject",
-      "url": "https://onthedock.github.io/images/alpine.png",
+      "url": "https://onthedock.github.io/images/docker.png",
       "height": 800,
       "width": 800
     },
-    "datePublished": "2017-06-04T18:26:48JST",
-    "dateModified": "2017-06-04T18:26:48JST",
+    "datePublished": "2017-12-02T13:48:17JST",
+    "dateModified": "2017-12-02T13:48:17JST",
     "author": {
       "@type": "Person",
       "name": "On The Dock"
@@ -75,11 +75,9 @@
         "height": 60
       }
     },
-    "description": "<p>Alpine Linux se ha convertido en la distribución por defecto con la que construir contenedores.</p>
+    "description": "<p>El registro por defecto donde almacenar y compartir las imágenes Docker es <a href="https://hub.docker.com">Docker Hub</a>. Desde un punto de vista empresarial, descargar imágenes desde un registro público supone un riesgo de seguridad.</p>
 
-<p>Alpine tiene sus propias particularidades, ya que no deriva de otra distribución, de manera que he pensado que sería una buena idea tener una máquina virtual con la que entrenarme.</p>
-
-<p>En este artículo explico qué diferencias he encontrado en Alpine.</p>
+<p>En esta entrada indico cómo lanzar el registro oficial de Docker en nuestra infraestructura. Una vez en marcha, veremos cómo almacenar las imágenes en el registro local y cómo lanzar contenedores usando las imágenes desde nuestro registro.</p>
 
 <p></p>"
   }
@@ -110,14 +108,14 @@
     <main>
       
 <div class="l-container">
-  <article class="single article-85dee6c250520e561ebc93740f1d514f">
+  <article class="single article-2a7b6b0759e163accb88c9261e4c0bbf">
   <div class="header-wrapper">
-    <a href="https://onthedock.github.io/post/170604-instalacion-de-alpine-linux/" class="thumbnail" title="Instalación de Alpine linux"></a>
+    <a href="https://onthedock.github.io/post/171202-crea-un-registro-local-para-tus-imagenes/" class="thumbnail" title="Crea un registro local para tus imágenes"></a>
     <header class="article-header">
       <div class="clearfix">
-        <h1 class="title">Instalación de Alpine linux</h1>
+        <h1 class="title">Crea un registro local para tus imágenes</h1>
         <ul class="p-facts">
-          <li><time datetime="2017-06-04T18:26:48JST">4 Jun 2017</time></li>
+          <li><time datetime="2017-12-02T13:48:17JST">2 Dec 2017</time></li>
           <li><a href="https://onthedock.github.io/post/">post</a></li>
           
           <li>Xavier Aznar</li>
@@ -126,117 +124,140 @@
     </header>
   </div>
 
-  <div class="article-body"><p>Alpine Linux se ha convertido en la distribución por defecto con la que construir contenedores.</p>
+  <div class="article-body"><p>El registro por defecto donde almacenar y compartir las imágenes Docker es <a href="https://hub.docker.com">Docker Hub</a>. Desde un punto de vista empresarial, descargar imágenes desde un registro público supone un riesgo de seguridad.</p>
 
-<p>Alpine tiene sus propias particularidades, ya que no deriva de otra distribución, de manera que he pensado que sería una buena idea tener una máquina virtual con la que entrenarme.</p>
-
-<p>En este artículo explico qué diferencias he encontrado en Alpine.</p>
+<p>En esta entrada indico cómo lanzar el registro oficial de Docker en nuestra infraestructura. Una vez en marcha, veremos cómo almacenar las imágenes en el registro local y cómo lanzar contenedores usando las imágenes desde nuestro registro.</p>
 
 <p></p>
 
-<h1 id="descargando-alpine-linux">Descargando Alpine Linux</h1>
+<p>El <a href="https://docs.docker.com/registry/">registro oficial de Docker</a> es <em>open source</em> bajo <a href="http://en.wikipedia.org/wiki/Apache_License">licencia Apache</a> y se distribuye como una imagen que puedes obtener desde Docker Hub.</p>
 
-<p>La primera diferencia respecto al resto de distribuciones es el tamaño de la ISO de instalación. En la <a href="https://alpinelinux.org/downloads/">página de descarga</a> de Alpine Linux, tienes varias versiones para descargar. Además de las habituales, en función de la arquitectura (x86, x86-64, Raspberry Pi, Generic ARM), tienes disponibles versiones orientadas a entornos virtuales, para Xen, etc.</p>
+<h2 id="arranca-tu-registro-local">Arranca tu registro local</h2>
 
-<p>En mi caso he descargado la versión <code>Virtual</code>, orientada a sistemas virtuales y la imagen de instalación ocupa 35MB!.</p>
+<p>Para arrancar una copia local del registro, descarga la imagen <a href="https://hub.docker.com/r/library/registry/">registry</a> desde Docker Hub y lanza un contenedor mediante:</p>
 
-<h1 id="máquina-virtual">Máquina virtual</h1>
-
-<p>He creado una máquina virtual y he conectado la ISO.</p>
-
-<p>Al arrancar la máquina, el sistema arranca en modo <em>live-CD</em>, ejecutándose completamente en memoria.</p>
-
-<p>Para acceder al sistema, teclea <code>root</code>.</p>
-
-<p>Mi primera sorpresa ha sido que no se ha solicitado la contraseña.</p>
-
-<p>Una vez dentro, ara configurar el sistema, lanza la utilidad <code>setup-alpine</code>.</p>
-
-<pre><code class="language-sh">Welcome to Alpine!
-
-The Alpine Wiki contains a large amount of how-to guides and general
-information about administrating Alpine systems.
-See &lt;http://wiki.alpinelinux.org&gt;.
-
-You can setup the system with the command: setup-alpine
-
-You may change this message by editing /etc/motd.
+<pre><code class="language-shell">docker run -d --name registry -p 5000:5000 registry:2.6
 </code></pre>
 
-<p>El teclado, por defecto, está en inglés, por lo que el <code>-</code> se encuentra bajo la tecla <code>?</code> en un teclado en castellano.</p>
+<p>En la <a href="https://docs.docker.com/registry/">página del registro oficial de Docker</a> se usa la imagen con la etiqueta <code>registry:2</code>, aunque en mi caso he preferido <em>afinar</em> un poco más y elegir la versión 2.6.</p>
 
-<p>El script de instalación pasa por los diferentes pasos de configuración:</p>
+<h2 id="usa-tu-registro-local">Usa tu registro local</h2>
 
-<ul>
-<li>teclado: <code>es</code></li>
-<li>variacion de teclado: <code>es-cat</code></li>
-<li>nombre del equipo: <code>alpine</code></li>
-<li>inicializar interfaz: <code>eth0</code></li>
-<li>configuración de IP: <code>dhcp</code></li>
-<li>¿quieres realizar alguna configuración de red manual?: <code>no</code></li>
-<li>establecer el password del <code>root</code>:</li>
-<li>zona horaria: <code>CET</code></li>
-<li>Proxy: <code>none</code></li>
-<li>Elección del <em>mirror</em>: <code>f</code> (se selecciona el más rápido)</li>
-<li>instalación de servidor de SSH: <code>openssh</code> (opción por defecto)</li>
-<li>cliente NTP: <code>chrony</code> (opción por defecto)</li>
-<li>selección de disco: <code>sda</code></li>
-<li>uso del disco: <code>sys</code> (selecciona <code>?</code> para ver las diferencias entre las opciones presentadas)</li>
-<li>confirmar el borrado del disco: <code>y</code></li>
-</ul>
+<p>Para <em>almacenar</em> una imagen en tu registro local, únicamente tienes que etiquetar la imagen de forma habitual, pero con el nombre de la imagen precedido por la url y puerto de acceso al registro.</p>
 
-<p>Y ¡ya está! Sólo queda reiniciar.</p>
+<p>Obtengo una lista de las imágenes descargadas; observa que tenemos la imagen oficial de <code>alpine</code> descargada.</p>
 
-<p>En mi caso, he escrito <code>reboot</code> y el sistema se ha reiniciado al cabo de unos pocos segundos.</p>
-
-<p>Al hacer login de nuevo, me ha sorprendido que no se me haya solicitado el password y que se haya perdido la configuración introducida :(</p>
-
-<p>Alpine Linux es una distribución tan ligera -y en la máquina de laboratorio tengo un SSD- que me ha costado un momento darme cuenta de que, al reiniciar, la máquina virtual no ha perdido la configuración, sino que ha arrancado de nuevo la versión del <em>live-CD</em>.</p>
-
-<p>Una vez expulsada la ISO, he reiniciado de nuevo y he accedido al sistema ya instalado en la VM ;)</p>
-
-<h1 id="acceso-remoto-vía-ssh">Acceso remoto vía SSH</h1>
-
-<p>Por comodidad, prefiero trabajar desde la consola del Mac, pero no quiero crear un nuevo usuario.</p>
-
-<p>Por defecto, OpenSSH no permite la conexión remota del usuario <code>root</code>, así que el siguiente paso es modificar el fichero de configuración.</p>
-
-<pre><code class="language-sh">vi /etc/ssh/sshd_config
+<pre><code class="language-shell">$ docker images
+REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+registry            2.6                 177391bcf802        19 hours ago        33.3MB
+gogs/gogs           0.11.33             279915be8b49        12 days ago         139MB
+gogs/gogs           latest              279915be8b49        12 days ago         139MB
+openjdk             7-jdk-alpine        b6bec13008bd        4 weeks ago         142MB
+alpine              3.6                 053cde6e8953        4 weeks ago         3.97MB
 </code></pre>
 
-<ul>
-<li>Desplázate hasta la línea <code>PermitRootLogin</code></li>
-<li>Pulsa <code>i</code> para entrar en el modo interactivo de Vi</li>
-<li>Escribe en una nueva línea: <code>PermitRootLogin yes</code></li>
-<li>Pulsa <code>ESC</code> para volver al modo de comandos</li>
-<li>Escribe <code>:wq</code> (<em>write</em>, <em>quit</em>) para guardar los cambios y salir de Vi.</li>
-</ul>
+<p>Vamos a almacenarla en la copia local del registro; para ello, primero la etiquetamos indicando la url del registro:</p>
 
-<p>Para que los cambios tengan efecto, reinicia el servicio SSH:</p>
-
-<pre><code class="language-txt"># service sshd restart
+<pre><code class="language-shell">$ docker tag alpine:3.6 localhost:5000/alpine:3.6
+$ docker images
+REPOSITORY              TAG                 IMAGE ID            CREATED             SIZE
+...
+alpine                  3.6                 053cde6e8953        4 weeks ago         3.97MB
+localhost:5000/alpine   3.6                 053cde6e8953        4 weeks ago         3.97MB
 </code></pre>
 
-<h1 id="siguientes-pasos">Siguientes pasos</h1>
+<p>Una vez etiquetada, la <em>subimos</em> al registro:</p>
 
-<p>A continuación realizaré la instalación de algunos paquetes.</p>
+<pre><code class="language-shell">$ docker push localhost:5000/alpine:3.6
+The push refers to a repository [localhost:5000/alpine]
+2aebd096e0e2: Pushed
+3.6: digest: sha256:4b8ffaaa896d40622ac10dc6662204f429f1c8c5714be62a6493a7895f664098 size: 528
+</code></pre>
 
-<p>El objetivo es probar el proceso que se realiza durante la creación de una imagen en Docker, pero en un entorno donde poder observar la salida de los comandos ejecutados, etc.</p>
+<p>De esta forma tenemos un registro local, aunque únicamente es accesible desde <code>localhost</code>. Para poder acceder al registro desde otros equipos corriendo Docker, debemos configurar TLS o deshabilitar la seguridad (cosa que <strong>siempre</strong> es una <strong>mala idea</strong>).</p>
+
+<p>Al intentar subir una imagen desde otro equipo (por ejemplo, desde la RPi), obtenemos un mensaje indicando que debemos usar HTTPS:</p>
+
+<pre><code class="language-shell">$ docker tag arm32v6/alpine:3.6 192.168.1.10:5000/arm32v6/alpine:3.6
+$ docker push 192.168.1.10:5000/arm32v6/alpine:3.6
+The push refers to a repository [192.168.1.10:5000/arm32v6/alpine]
+Get https://192.168.1.10:5000/v1/_ping: http: server gave HTTP response to HTTPS client
+</code></pre>
+
+<p>En función de las políticas en la empresa el acceso <em>directo</em> al registro local puede estar limitado a un determinado grupo de usuarios. En un entorno de este estilo lo más habitual es usar LDAP para la autenticación (acceso) y autorización (permisos). Si estás interesado en un escenario de este tipo, revisa las &ldquo;recetas&rdquo; <a href="https://docs.docker.com/registry/recipes/apache/">Authenticate proxy with apache</a> o <a href="https://docs.docker.com/registry/recipes/nginx/">Authenticate proxy with nginx</a>.</p>
+
+<p>Para entornos de desarrollo o en escenarios en los que el registro es accesible únicamente a personas de confianza, revisa <a href="https://docs.docker.com/registry/insecure/">Test an insecure registry</a>.</p>
+
+<h2 id="usando-el-registro-local-de-forma-insegura">Usando el registro local de forma insegura</h2>
+
+<p>Modificamos la configuración del <em>daemon</em> de Docker en la Raspberry Pi para poder acceder al registro local en la máquina 192.168.1.10.</p>
+
+<ol>
+<li><p>Comprobamos que el fichero <code>/etc/docker/daemon.json</code> no existe:</p>
+
+<pre><code class="language-shell">$ sudo ls /etc/docker
+key.json
+</code></pre></li>
+
+<li><p>Creamos el fichero como se indica en <a href="https://docs.docker.com/registry/insecure/">Test an insecure registry</a>:</p>
+
+<pre><code class="language-shell">sudo nano /etc/docker/daemon.json
+</code></pre></li>
+
+<li><p>Añadimos la URL y puerto del registro (inseguro):</p>
+
+<pre><code class="language-json">{
+  &quot;insecure-registries&quot; : [&quot;192.168.1.10.com:5000&quot;]
+}
+</code></pre></li>
+
+<li><p>Reiniciamos el <em>daemon</em> de Docker para que los cambios surtan efecto:</p>
+
+<pre><code class="language-shell">sudo systemctl restart docker
+</code></pre></li>
+
+<li><p>Reintentamos la <em>subida</em> de la imagen al registro:</p>
+
+<pre><code class="language-shell">$ docker push 192.168.1.10:5000/arm32v6/alpine:3.6
+The push refers to a repository [192.168.1.10:5000/arm32v6/alpine]
+e3dc37acd2b3: Pushed
+35ba648445df: Pushed
+3.6: digest: sha256:a3345a99c99c28312732ae697dbe8b27884f88f0f982e2fab53c99992b411c4a size: 736
+</code></pre></li>
+</ol>
+
+<p>Y en el equipo 192.168.1.10, si revisamos las imágenes almacenadas en el registro usando la API:</p>
+
+<pre><code class="language-shell">$ wget -qO - localhost:5000/v2/_catalog
+{&quot;repositories&quot;:[&quot;alpine&quot;,&quot;arm32v6/alpine&quot;]}
+</code></pre>
+
+<p>Como vemos, tenemos la imagen <code>alpine</code> subida desde el equipo local y la que hemos subido desde la RPi (llamada <code>arm32v6/alpine</code>).</p>
+
+<p>De la misma forma podemos obtener la lista de tags existente para cualquier imagen; por ejemplo, para <code>arm32v6/alpine</code>:</p>
+
+<pre><code class="language-shell">$ wget -qO - http://192.168.1.10:5000/v2/arm32v6/alpine/tags/list
+{&quot;name&quot;:&quot;arm32v6/alpine&quot;,&quot;tags&quot;:[&quot;3.6&quot;]}
+</code></pre>
+
+<p>La lista completa de operaciones soportadas por la API de Docker las puedes encontrar en <a href="https://docs.docker.com/registry/spec/api/">Docker Registry HTTP API V2</a>.</p>
+
+<p>Gestionar tu registro privado desde la línea de comando usando la API no es un escenario común. Afortunadamente, la buena gente de SUSE ha desarrollado <a href="http://port.us.org">Portus</a>, un interfaz web <em>open source</em> para registros privados al que quizás quieras echarle un vistazo.</p>
 
 <h1 id="resumen">Resumen</h1>
 
-<p>En este artículo hemos instalado Alpine Linux en una máquina virtual.</p>
+<p>En esta entrada he creado un registro local y he mencionado algunas de las opciones para <em>securizar</em> el acceso (vía TLS o usando Apache o Nginx como <em>proxy</em>). He lanzado un contenedor a partir de la imagen oficial para el <strong>Regystry</strong> de Docker y he &ldquo;subido&rdquo; y &ldquo;descargado&rdquo; imágenes desde el equipo al registro local.</p>
 
-<p>También hemos modificado el servidor SSH para poder conectar remotamente como <code>root</code> (por comodidad, en un entorno seguro de laboratorio).</p>
+<p>Por defecto, el registro sólo es accesible usando TLS. Para poder demostrar cómo usar el registro desde otro equipo, he deshabilitado la seguridad y he lanzado <code>docker push</code> contra el registro privado.</p>
 
-<p>En los próximos artículos seguiremos familiarizándonos con Alpine Linux.</p></div>
+<p>Finalmente, he comprobado cómo usar la API del registro para validar que se han almacenado las imágenes en el registro local y he apuntado a Portus, para gestionar el registro local a través de un interfaz web.</p></div>
 
   <aside class="p-share">
-  <a href="http://b.hatena.ne.jp/add?mode=confirm&url=https%3a%2f%2fonthedock.github.io%2fpost%2f170604-instalacion-de-alpine-linux%2f&title=Instalaci%c3%b3n%20de%20Alpine%20linux" title="はてなブックマーク" class="ht" target="_blank" rel="nofollow"></a>
-  <a href="http://www.facebook.com/sharer.php?u=https%3a%2f%2fonthedock.github.io%2fpost%2f170604-instalacion-de-alpine-linux%2f&t=Instalaci%c3%b3n%20de%20Alpine%20linux" title="Facebookでシェア" class="fb" target="_blank" rel="nofollow"></a>
-  <a href="http://twitter.com/intent/tweet?url=https%3a%2f%2fonthedock.github.io%2fpost%2f170604-instalacion-de-alpine-linux%2f&text=Instalaci%c3%b3n%20de%20Alpine%20linux&tw_p=tweetbutton" title="Twitterでシェア" class="tw" target="_blank" rel="nofollow"></a>
-  <a href="https://plus.google.com/share?url=https%3a%2f%2fonthedock.github.io%2fpost%2f170604-instalacion-de-alpine-linux%2f" title="Google Plusでシェア" class="gp" target="_blank" rel="nofollow"></a>
-  <a href="http://line.me/R/msg/text/?Instalaci%c3%b3n%20de%20Alpine%20linux https%3a%2f%2fonthedock.github.io%2fpost%2f170604-instalacion-de-alpine-linux%2f" title="LINEでシェア" class="ln" target="_blank" rel="nofollow"></a>
+  <a href="http://b.hatena.ne.jp/add?mode=confirm&url=https%3a%2f%2fonthedock.github.io%2fpost%2f171202-crea-un-registro-local-para-tus-imagenes%2f&title=Crea%20un%20registro%20local%20para%20tus%20im%c3%a1genes" title="はてなブックマーク" class="ht" target="_blank" rel="nofollow"></a>
+  <a href="http://www.facebook.com/sharer.php?u=https%3a%2f%2fonthedock.github.io%2fpost%2f171202-crea-un-registro-local-para-tus-imagenes%2f&t=Crea%20un%20registro%20local%20para%20tus%20im%c3%a1genes" title="Facebookでシェア" class="fb" target="_blank" rel="nofollow"></a>
+  <a href="http://twitter.com/intent/tweet?url=https%3a%2f%2fonthedock.github.io%2fpost%2f171202-crea-un-registro-local-para-tus-imagenes%2f&text=Crea%20un%20registro%20local%20para%20tus%20im%c3%a1genes&tw_p=tweetbutton" title="Twitterでシェア" class="tw" target="_blank" rel="nofollow"></a>
+  <a href="https://plus.google.com/share?url=https%3a%2f%2fonthedock.github.io%2fpost%2f171202-crea-un-registro-local-para-tus-imagenes%2f" title="Google Plusでシェア" class="gp" target="_blank" rel="nofollow"></a>
+  <a href="http://line.me/R/msg/text/?Crea%20un%20registro%20local%20para%20tus%20im%c3%a1genes https%3a%2f%2fonthedock.github.io%2fpost%2f171202-crea-un-registro-local-para-tus-imagenes%2f" title="LINEでシェア" class="ln" target="_blank" rel="nofollow"></a>
 </aside>
 
 
@@ -247,7 +268,7 @@ You may change this message by editing /etc/motd.
         
         <li itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb"><a href="https://onthedock.github.io/post/" itemprop="url"><span itemprop="title">post</span></a></li>
         
-        <li>Instalación de Alpine linux</li>
+        <li>Crea un registro local para tus imágenes</li>
       </ol>
 
       
@@ -257,6 +278,8 @@ You may change this message by editing /etc/motd.
         <li>
           <header><a href="https://onthedock.github.io/categories/">categories</a></header>
           <ul>
+            
+            <li><a href="https://onthedock.github.io/categories/dev/">dev</a></li>
             
             <li><a href="https://onthedock.github.io/categories/ops/">ops</a></li>
             
@@ -271,9 +294,7 @@ You may change this message by editing /etc/motd.
           <header><a href="https://onthedock.github.io/tags/">tags</a></header>
           <ul>
             
-            <li><a href="https://onthedock.github.io/tags/linux/">linux</a></li>
-            
-            <li><a href="https://onthedock.github.io/tags/alpine/">alpine</a></li>
+            <li><a href="https://onthedock.github.io/tags/docker/">docker</a></li>
             
           </ul>
         </li>
@@ -291,22 +312,7 @@ You may change this message by editing /etc/motd.
   <section>
     <header><span>Latests</span></header>
     <ul class="p-articles thin">
-      <li><article class="li sm article-2a7b6b0759e163accb88c9261e4c0bbf">
-  <div class="header-wrapper">
-    <a href="https://onthedock.github.io/post/171202-crea-un-registro-local-para-tus-imagenes/" class="thumbnail" title="Crea un registro local para tus imágenes"></a>
-    <header class="article-header">
-      <div class="clearfix">
-        <h2 class="title"><a href="https://onthedock.github.io/post/171202-crea-un-registro-local-para-tus-imagenes/">Crea un registro local para tus imágenes</a></h2>
-        <ul class="p-facts">
-          <li><time datetime="2017-12-02T13:48:17JST">2 Dec 2017</time></li>
-          <li><a href="https://onthedock.github.io/post/">post</a></li>
-          
-        </ul>
-      </div>
-    </header>
-  </div>
-</article>
-</li><li><article class="li sm article-340e5d68f76888b0b8debb38ef25d46b">
+      <li><article class="li sm article-340e5d68f76888b0b8debb38ef25d46b">
   <div class="header-wrapper">
     <a href="https://onthedock.github.io/post/171126-usando-contenedores-como-herramienta-de-desarrollo/" class="thumbnail" title="Usando contenedores como herramienta de desarrollo"></a>
     <header class="article-header">
@@ -344,6 +350,21 @@ You may change this message by editing /etc/motd.
         <h2 class="title"><a href="https://onthedock.github.io/post/171111-snc-en-rpi3/">Single node cluster en la RPi3</a></h2>
         <ul class="p-facts">
           <li><time datetime="2017-11-11T12:08:36JST">11 Nov 2017</time></li>
+          <li><a href="https://onthedock.github.io/post/">post</a></li>
+          
+        </ul>
+      </div>
+    </header>
+  </div>
+</article>
+</li><li><article class="li sm article-f81b2bb759a18deaa3b5575087686fe7">
+  <div class="header-wrapper">
+    <a href="https://onthedock.github.io/post/171106-gogs-como-crear-tu-propio-servicio-de-hospedaje-de-repos-git/" class="thumbnail" title="Gogs - Cómo crear tu propio servicio de hospedaje de repositorios Git"></a>
+    <header class="article-header">
+      <div class="clearfix">
+        <h2 class="title"><a href="https://onthedock.github.io/post/171106-gogs-como-crear-tu-propio-servicio-de-hospedaje-de-repos-git/">Gogs - Cómo crear tu propio servicio de hospedaje de repositorios Git</a></h2>
+        <ul class="p-facts">
+          <li><time datetime="2017-11-06T22:11:26JST">6 Nov 2017</time></li>
           <li><a href="https://onthedock.github.io/post/">post</a></li>
           
         </ul>
