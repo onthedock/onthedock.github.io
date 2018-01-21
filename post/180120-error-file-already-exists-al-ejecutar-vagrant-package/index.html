@@ -11,13 +11,13 @@
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
 
-<link rel="canonical" href="https://onthedock.github.io/post/170430-errores-sobre-orphaned-pods-en-syslog/">
+<link rel="canonical" href="https://onthedock.github.io/post/180120-error-file-already-exists-al-ejecutar-vagrant-package/">
 
 
     
     <link href="https://fonts.googleapis.com/css?family=Lobster|Lato:400,700" rel="stylesheet">
     
-    <title>Errores sobre Orphaned pods en syslog - On The Dock</title>
+    <title>Error `File already exists` al ejecutar vagrant package - On The Dock</title>
     <style amp-boilerplate>body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}</style><noscript><style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style></noscript>
     <script async src="https://cdn.ampproject.org/v0.js"></script>
     
@@ -26,22 +26,22 @@
 <script async custom-element="amp-ad" src="https://cdn.ampproject.org/v0/amp-ad-0.1.js"></script>
 
     
-<meta name="description" content="&lt;p&gt;Los nodos &lt;strong&gt;k2&lt;/strong&gt; y &lt;strong&gt;k3&lt;/strong&gt; del clúster dejan de responder pasadas unas horas. La única manera de solucionarlo es reiniciar los nodos. Siguiendo con la revisión de logs, he encontrado que se genera una gran cantidad de entradas en &lt;em&gt;syslog&lt;/em&gt; en referencia a &lt;em&gt;orphaned pods&lt;/em&gt;. Además, el número de estos errores no para de crecer &lt;strong&gt;rápidamente&lt;/strong&gt;.&lt;/p&gt;&lt;p&gt;&lt;/p&gt;">
+<meta name="description" content="&lt;p&gt;La manera más sencilla de crear una &lt;em&gt;box&lt;/em&gt; personalizada para Vagrant es reutilizar una máquina virtual ya creada con Vagrant. Para facilitar este proceso, Vagrant proporciona el comando &lt;code&gt;package&lt;/code&gt;, que &lt;em&gt;empaqueta&lt;/em&gt; una máquina virtual existente en el formato &lt;em&gt;box&lt;/em&gt; de Vagrant.&lt;/p&gt;&lt;p&gt;En esta entrada comento los pasos que hay que realizar paso a paso para crear una &lt;em&gt;box&lt;/em&gt; personalizada. También indico el origen y cómo solucionar el error &lt;code&gt;File already exists&lt;/code&gt; que he encontrado al ejecutar &lt;code&gt;vagrant package&lt;/code&gt;.&lt;/p&gt;&lt;p&gt;&lt;/p&gt;">
 
-<meta property="og:title" content="Errores sobre Orphaned pods en syslog - On The Dock">
+<meta property="og:title" content="Error `File already exists` al ejecutar vagrant package - On The Dock">
 <meta property="og:type" content="article">
-<meta property="og:url" content="https://onthedock.github.io/post/170430-errores-sobre-orphaned-pods-en-syslog/">
-<meta property="og:image" content="https://onthedock.github.io/images/raspberry_pi.png">
+<meta property="og:url" content="https://onthedock.github.io/post/180120-error-file-already-exists-al-ejecutar-vagrant-package/">
+<meta property="og:image" content="https://onthedock.github.io/images/vagrant.png">
 <meta property="og:site_name" content="On The Dock">
-<meta property="og:description" content="&lt;p&gt;Los nodos &lt;strong&gt;k2&lt;/strong&gt; y &lt;strong&gt;k3&lt;/strong&gt; del clúster dejan de responder pasadas unas horas. La única manera de solucionarlo es reiniciar los nodos. Siguiendo con la revisión de logs, he encontrado que se genera una gran cantidad de entradas en &lt;em&gt;syslog&lt;/em&gt; en referencia a &lt;em&gt;orphaned pods&lt;/em&gt;. Además, el número de estos errores no para de crecer &lt;strong&gt;rápidamente&lt;/strong&gt;.&lt;/p&gt;&lt;p&gt;&lt;/p&gt;">
+<meta property="og:description" content="&lt;p&gt;La manera más sencilla de crear una &lt;em&gt;box&lt;/em&gt; personalizada para Vagrant es reutilizar una máquina virtual ya creada con Vagrant. Para facilitar este proceso, Vagrant proporciona el comando &lt;code&gt;package&lt;/code&gt;, que &lt;em&gt;empaqueta&lt;/em&gt; una máquina virtual existente en el formato &lt;em&gt;box&lt;/em&gt; de Vagrant.&lt;/p&gt;&lt;p&gt;En esta entrada comento los pasos que hay que realizar paso a paso para crear una &lt;em&gt;box&lt;/em&gt; personalizada. También indico el origen y cómo solucionar el error &lt;code&gt;File already exists&lt;/code&gt; que he encontrado al ejecutar &lt;code&gt;vagrant package&lt;/code&gt;.&lt;/p&gt;&lt;p&gt;&lt;/p&gt;">
 <meta property="og:locale" content="ja_JP">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="On The Dock">
-<meta name="twitter:url" content="https://onthedock.github.io/post/170430-errores-sobre-orphaned-pods-en-syslog/">
-<meta name="twitter:title" content="Errores sobre Orphaned pods en syslog - On The Dock">
-<meta name="twitter:description" content="&lt;p&gt;Los nodos &lt;strong&gt;k2&lt;/strong&gt; y &lt;strong&gt;k3&lt;/strong&gt; del clúster dejan de responder pasadas unas horas. La única manera de solucionarlo es reiniciar los nodos. Siguiendo con la revisión de logs, he encontrado que se genera una gran cantidad de entradas en &lt;em&gt;syslog&lt;/em&gt; en referencia a &lt;em&gt;orphaned pods&lt;/em&gt;. Además, el número de estos errores no para de crecer &lt;strong&gt;rápidamente&lt;/strong&gt;.&lt;/p&gt;&lt;p&gt;&lt;/p&gt;">
-<meta name="twitter:image" content="https://onthedock.github.io/images/raspberry_pi.png">
+<meta name="twitter:url" content="https://onthedock.github.io/post/180120-error-file-already-exists-al-ejecutar-vagrant-package/">
+<meta name="twitter:title" content="Error `File already exists` al ejecutar vagrant package - On The Dock">
+<meta name="twitter:description" content="&lt;p&gt;La manera más sencilla de crear una &lt;em&gt;box&lt;/em&gt; personalizada para Vagrant es reutilizar una máquina virtual ya creada con Vagrant. Para facilitar este proceso, Vagrant proporciona el comando &lt;code&gt;package&lt;/code&gt;, que &lt;em&gt;empaqueta&lt;/em&gt; una máquina virtual existente en el formato &lt;em&gt;box&lt;/em&gt; de Vagrant.&lt;/p&gt;&lt;p&gt;En esta entrada comento los pasos que hay que realizar paso a paso para crear una &lt;em&gt;box&lt;/em&gt; personalizada. También indico el origen y cómo solucionar el error &lt;code&gt;File already exists&lt;/code&gt; que he encontrado al ejecutar &lt;code&gt;vagrant package&lt;/code&gt;.&lt;/p&gt;&lt;p&gt;&lt;/p&gt;">
+<meta name="twitter:image" content="https://onthedock.github.io/images/vagrant.png">
 
 
 <script type="application/ld+json">
@@ -52,15 +52,15 @@
       "@type": "WebPage",
       "@id":"https://onthedock.github.io/"
     },
-    "headline": "Errores sobre Orphaned pods en syslog - On The Dock",
+    "headline": "Error `File already exists` al ejecutar vagrant package - On The Dock",
     "image": {
       "@type": "ImageObject",
-      "url": "https://onthedock.github.io/images/raspberry_pi.png",
+      "url": "https://onthedock.github.io/images/vagrant.png",
       "height": 800,
       "width": 800
     },
-    "datePublished": "2017-04-30T12:55:44JST",
-    "dateModified": "2017-04-30T12:55:44JST",
+    "datePublished": "2018-01-20T22:01:35JST",
+    "dateModified": "2018-01-20T22:01:35JST",
     "author": {
       "@type": "Person",
       "name": "On The Dock"
@@ -75,7 +75,9 @@
         "height": 60
       }
     },
-    "description": "<p>Los nodos <strong>k2</strong> y <strong>k3</strong> del clúster dejan de responder pasadas unas horas. La única manera de solucionarlo es reiniciar los nodos. Siguiendo con la revisión de logs, he encontrado que se genera una gran cantidad de entradas en <em>syslog</em> en referencia a <em>orphaned pods</em>. Además, el número de estos errores no para de crecer <strong>rápidamente</strong>.</p>
+    "description": "<p>La manera más sencilla de crear una <em>box</em> personalizada para Vagrant es reutilizar una máquina virtual ya creada con Vagrant. Para facilitar este proceso, Vagrant proporciona el comando <code>package</code>, que <em>empaqueta</em> una máquina virtual existente en el formato <em>box</em> de Vagrant.</p>
+
+<p>En esta entrada comento los pasos que hay que realizar paso a paso para crear una <em>box</em> personalizada. También indico el origen y cómo solucionar el error <code>File already exists</code> que he encontrado al ejecutar <code>vagrant package</code>.</p>
 
 <p></p>"
   }
@@ -106,14 +108,14 @@
     <main>
       
 <div class="l-container">
-  <article class="single article-857a5f627557e7d92f1386f7c6e04dee">
+  <article class="single article-88a2b37925efc71e7f9ec017570e19f0">
   <div class="header-wrapper">
-    <a href="https://onthedock.github.io/post/170430-errores-sobre-orphaned-pods-en-syslog/" class="thumbnail" title="Errores sobre Orphaned pods en syslog"></a>
+    <a href="https://onthedock.github.io/post/180120-error-file-already-exists-al-ejecutar-vagrant-package/" class="thumbnail" title="Error `File already exists` al ejecutar vagrant package"></a>
     <header class="article-header">
       <div class="clearfix">
-        <h1 class="title">Errores sobre Orphaned pods en syslog</h1>
+        <h1 class="title">Error `File already exists` al ejecutar vagrant package</h1>
         <ul class="p-facts">
-          <li><time datetime="2017-04-30T12:55:44JST">30 Apr 2017</time></li>
+          <li><time datetime="2018-01-20T22:01:35JST">20 Jan 2018</time></li>
           <li><a href="https://onthedock.github.io/post/">post</a></li>
           
           <li>Xavier Aznar</li>
@@ -122,38 +124,144 @@
     </header>
   </div>
 
-  <div class="article-body"><p>Los nodos <strong>k2</strong> y <strong>k3</strong> del clúster dejan de responder pasadas unas horas. La única manera de solucionarlo es reiniciar los nodos. Siguiendo con la revisión de logs, he encontrado que se genera una gran cantidad de entradas en <em>syslog</em> en referencia a <em>orphaned pods</em>. Además, el número de estos errores no para de crecer <strong>rápidamente</strong>.</p>
+  <div class="article-body"><p>La manera más sencilla de crear una <em>box</em> personalizada para Vagrant es reutilizar una máquina virtual ya creada con Vagrant. Para facilitar este proceso, Vagrant proporciona el comando <code>package</code>, que <em>empaqueta</em> una máquina virtual existente en el formato <em>box</em> de Vagrant.</p>
+
+<p>En esta entrada comento los pasos que hay que realizar paso a paso para crear una <em>box</em> personalizada. También indico el origen y cómo solucionar el error <code>File already exists</code> que he encontrado al ejecutar <code>vagrant package</code>.</p>
 
 <p></p>
 
-<pre><code class="language-sh">$ grep &quot;kubelet_volumes.go:114] Orphaned pod&quot; /var/log/syslog | wc -l
-118938
-$ grep &quot;kubelet_volumes.go:114] Orphaned pod&quot; /var/log/syslog | wc -l
-119022
-$ grep &quot;kubelet_volumes.go:114] Orphaned pod&quot; /var/log/syslog | wc -l
-119170
+<p>Partimos de una máquina creada con Vagrant mediante el comando <code>vagrant up</code>. En esta nueva máquina, nos conectamos mediante <code>vagrant ssh</code> y realizamos las modificaciones necesarias para personalizar y adecuar la VM a nuestras necesidades.</p>
+
+<p>En mi caso, la idea es incorporar a la imagen base la instalación de Docker CE, en vez de instalar vía script de <em>provisioning</em> después de crear la máquina (como vimos en la entrada anterior <a href="{{ref &quot;180114-instalando-docker-ce-usando-vagrant-shell-provisioning.md&quot;}}">Instalando Docker-CE usando Vagrant shell provisioning</a>). También he aprovechado para actualizar la imagen base. Para ello, he conectado a la máquina mediante <code>vagrant ssh</code> y a continuación:</p>
+
+<pre><code class="language-shell">$ sudo apt-get update &amp;&amp; sudo apt-get upgrade -y
+...
+$ sudo apt-get autoremove
+...
+$ sudo apt-get dist-upgrade
 </code></pre>
 
-<p>Revisando las últimas entradas del log:</p>
+<h2 id="pasos-previos">Pasos previos</h2>
 
-<pre><code class="language-log">Apr 30 10:57:57 k2 kubelet[3619]: E0430 10:57:57.186318    3619 kubelet_volumes.go:114] Orphaned pod &quot;5064b9d9-2c9e-11e7-a7ae-b827eb650fdb&quot; found, but volume paths are still present on disk.
-Apr 30 10:58:01 k2 kubelet[3619]: E0430 10:58:01.759595    3619 kubelet_volumes.go:114] Orphaned pod &quot;6c601e9c-2c9c-11e7-a7ae-b827eb650fdb&quot; found, but volume paths are still present on disk.
-Apr 30 10:58:03 k2 kubelet[3619]: E0430 10:58:03.226372    3619 kubelet.go:1549] Unable to mount volumes for pod &quot;weave-net-bs9bs_kube-system(4461d51d-2d93-11e7-a7ae-b827eb650fdb)&quot;: timeout expired waiting for volumes to attach/mount for pod &quot;kube-system&quot;/&quot;weave-net-bs9bs&quot;. list of unattached/unmounted volumes=[weavedb cni-bin cni-bin2 cni-conf dbus lib-modules weave-net-token-61scv]; skipping pod
-Apr 30 10:58:03 k2 kubelet[3619]: E0430 10:58:03.238315    3619 pod_workers.go:182] Error syncing pod 4461d51d-2d93-11e7-a7ae-b827eb650fdb (&quot;weave-net-bs9bs_kube-system(4461d51d-2d93-11e7-a7ae-b827eb650fdb)&quot;), skipping: timeout expired waiting for volumes to attach/mount for pod &quot;kube-system&quot;/&quot;weave-net-bs9bs&quot;. list of unattached/unmounted volumes=[weavedb cni-bin cni-bin2 cni-conf dbus lib-modules weave-net-token-61scv]
-Apr 30 10:58:05 k2 kubelet[3619]: E0430 10:58:05.830432    3619 kubelet_volumes.go:114] Orphaned pod &quot;bb4d3ea6-2b80-11e7-9388-b827eb650fdb&quot; found, but volume paths are still present on disk.
-Apr 30 10:58:08 k2 kubelet[3619]: E0430 10:58:08.435567    3619 kubelet_volumes.go:114] Orphaned pod &quot;cb23be0d-2d7e-11e7-a7ae-b827eb650fdb&quot; found, but volume paths are still present on disk.
+<p>Para preparar la VM para su <em>re-empaquetado</em>, Vagrant recomienda rellenar con ceros para mejorar la compresión del disco. En Ubuntu los comandos son:</p>
+
+<pre><code class="language-shell">vagrant@debian9-docker:~$ sudo dd if=/dev/zero of=/EMPTY bs=1M
+dd: error writing '/EMPTY': No space left on device
+25700+0 records in
+25699+0 records out
+26947764224 bytes (27 GB, 25 GiB) copied, 37.9167 s, 711 MB/s
+vagrant@debian9-docker:~$ sudo rm -f /EMPTY
 </code></pre>
 
-<p>Todas estas entradas se encuentran en los logs del nodo <strong>k2</strong>, donde no hay ningún <em>pod</em> en ejecución (a parte de los propios de  Kubernetes que el clúster planifica en los diferentes nodos).</p>
+<p>En este caso, no parece que haya funcionado.</p>
 
-<p><strong>Actualización</strong>: <a href="https://onthedock.github.io/post/170506-troubleshooting-kubernetes-ii/">Troubleshooting Kubernetes (II)</a></p></div>
+<h2 id="limpiar-historial-de-comandos">Limpiar historial de comandos</h2>
+
+<p>A continuación, eliminamos los ficheros con el registro de comandos:</p>
+
+<pre><code class="language-shell">vagrant@debian9-docker:~$ cat /dev/null &gt; ~/.bash_history &amp;&amp; history -c &amp;&amp; exit
+logout
+Connection to 192.168.1.245 closed.
+</code></pre>
+
+<h2 id="empaquetando-la-vm">Empaquetando la VM</h2>
+
+<p>Siguendo la documentación, la opción para preparar una nueva <em>box</em> debería ser tan sencilla como lanzar el comando <code>vagrant package --output $nombreBox.box</code>.</p>
+
+<p>Sin embargo, al lanzar el comando:</p>
+
+<pre><code class="language-shell">&gt; vagrant package --output debian9docker.box
+==&gt; default: Verifying Hyper-V is enabled...
+==&gt; default: Attempting graceful shutdown of VM...
+==&gt; default: off
+==&gt; default: Exporting VM...
+An error occurred while executing a PowerShell script. This error
+is shown below. Please read the error message and see if this is
+a configuration error with your system. If it is not, then please
+report a bug.
+
+Script: export_vm.ps1
+Error:
+
+Export-VM : Failed to copy file during export.
+Failed to copy file from 'M:\VMS\vagrant-vms\debian-docker\.vagrant\machines\default\hyperv\Virtual Hard Disks\generic-debian9-hyperv.vhdx' to
+'C:\Users\Xavi\.vagrant.d\tmp\vagrant-package-20180120-7844-1j6hx2d\debian9-docker\Virtual Hard Disks\generic-debian9-hyperv.vhdx': The file exists. (0x80070050).
+At C:\HashiCorp\Vagrant\embedded\gems\gems\vagrant-2.0.1\plugins\providers\hyperv\scripts\export_vm.ps1:9 char:7
++ $vm | Export-VM -Path $Path
++       ~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:) [Export-VM], VirtualizationException
+    + FullyQualifiedErrorId : OperationFailed,Microsoft.HyperV.PowerShell.Commands.ExportVM
+</code></pre>
+
+<h3 id="investigando-el-error">Investigando el error</h3>
+
+<p>El script de exportación falla con el mensaje de error de que el disco ya existe (¿?). Al lanzar el comando <code>vagrant package</code>, Vagrant crea una carpeta temporal con un nombre aleatorio en la carpeta <code>C:\Users\$USERNAME\.vagrant.d\tmp\</code> y se establece como destino de la exportación de la máquina virtual.</p>
+
+<p>El error parece indicar que el script intenta copiar la máquina exportada en la carpeta original de la máquina y que por ello se produce el error. Sin embargo, esta explicación no tiene demasiado sentido, ya que un error <em>de bulto</em> en el funcionamiento de <code>vagrant package</code> se habría descubierto -y solucionado- hace mucho. Buscando en internet no encontré nada al respecto, lo que confirmaba mi hipótesis de que la causa debía ser otra.</p>
+
+<p>Como las rutas -tanto de la ubicación inicial de la VM como la de exportación- contienen carpetas cuyo nombre empieza por un punto, pensé que ésta podría ser la causa. Para comprobarlo, copié el disco a la ruta <code>m:\vms\vagrant-vms\</code> y modifiqué la configuración de la VM en Hyper-V. Sin embargo, <code>vagrant package</code> falló de nuevo con el mismo mensaje de error.</p>
+
+<p>Intenté avanzar realizando manualmente la exportación de la máquina virtual directamente desde Hyper-V, pero de nuevo la exportación falló con el mismo mensaje de error. Esto significa que el error proviene del proceso de exportación de Hyper-V y no del script de Vagrant.</p>
+
+<p>El proceso de exportar una VM desde Hyper-V funcionaba sin problemas para otras máquinas &ldquo;no Vagrant&rdquo;, lo que reforzaba mi idea del problema con las carpetas con nombres que empezaban por puntos&hellip; Pero después de más pruebas y más búsquedas en internet, la ausencia de resultados me indicaba que no podía ser un fallo de Hyper-V o Vagrant, sino algo más específico de las máquinas creadas.</p>
+
+<h2 id="solución">Solución</h2>
+
+<p>Después de revisar el fichero <code>Vagrantfile</code>, he caído en la cuenta de que los discos de las máquinas virtuales los configuré <em>differencing disks</em> siguiendo los consejos de <a href="https://blogs.technet.microsoft.com/virtualization/2017/07/06/vagrant-and-hyper-v-tips-and-tricks/#comment-146355">Vagrant and Hyper-V — Tips and Tricks</a>, en particular la Tip 5.</p>
+
+<blockquote>
+<p>He dejado un comentario en la entrada advirtiendo del problema de usar <em>differencing disks</em> y <code>vagrant package</code>.</p>
+</blockquote>
+
+<p>He modificado el parámetro a <code>config.vm.provider.differencing_disk = false</code> y he repetido los pasos para actualizar la máquina, rellenar de ceros el disco y borrar la historia.</p>
+
+<p>Al lanzar de nuevo el comando <code>vagrant package</code>, esta vez la exportación y la creación de la nueva <em>box</em> funciona sin problemas:</p>
+
+<pre><code class="language-shell">M:\VMS\vagrant-vms\debian-docker&gt; vagrant package --output debian9docker17.12.box
+==&gt; default: Verifying Hyper-V is enabled...
+==&gt; default: Attempting graceful shutdown of VM...
+==&gt; default: off
+==&gt; default: Exporting VM...
+==&gt; default: Compressing package to: M:/VMS/vagrant-vms/debian-docker/debian9docker17.12.box
+M:\VMS\vagrant-vms\debian-docker&gt;
+</code></pre>
+
+<h2 id="añadir-la-box-personalizada-a-nuestro-inventario">Añadir la box personalizada a nuestro inventario</h2>
+
+<p>Ya sólo queda el paso final, que es añadir la nueva <em>box</em> al repositorio local para ser reutilizada:</p>
+
+<pre><code class="language-shell">M:\VMS\vagrant-vms\debian-docker&gt; vagrant box add debian9docker17.12 debian9docker17.12.box
+==&gt; box: Box file was not detected as metadata. Adding it directly...
+==&gt; box: Adding box 'debian9docker17.12' (v0) for provider:
+    box: Unpacking necessary files from: file://M:/VMS/vagrant-vms/debian-docker/debian9docker17.12.box
+    box: Progress: 100% (Rate: 551M/s, Estimated time remaining: --:--:--)
+==&gt; box: Successfully added box 'debian9docker17.12' (v0) for 'hyperv'!
+M:\VMS\vagrant-vms\debian-docker&gt;
+</code></pre>
+
+<p>Comprobamos que se ha añadido correctamente mediante:</p>
+
+<pre><code class="language-shell">M:\VMS\vagrant-vms\debian-docker&gt; vagrant box list
+debian9docker17.12 (hyperv, 0)
+generic/alpine36   (hyperv, 1.3.30)
+generic/debian9    (hyperv, 1.3.30)
+M:\VMS\vagrant-vms\debian-docker&gt;
+</code></pre>
+
+<h1 id="resumen">Resumen</h1>
+
+<p>En esta entrada hemos visto cómo reutilizar una <em>box</em> existente para crear una <em>box</em> personalizada.</p>
+
+<p>Hemos visto el error que se produce al usar discos diferenciales en la máquina virtual y cómo solucionarlo.</p>
+
+<p>Finalmente, hemos añadido la <em>box</em> personalizada a nuestro repositorio local.</p></div>
 
   <aside class="p-share">
-  <a href="http://b.hatena.ne.jp/add?mode=confirm&url=https%3a%2f%2fonthedock.github.io%2fpost%2f170430-errores-sobre-orphaned-pods-en-syslog%2f&title=Errores%20sobre%20Orphaned%20pods%20en%20syslog" title="はてなブックマーク" class="ht" target="_blank" rel="nofollow"></a>
-  <a href="http://www.facebook.com/sharer.php?u=https%3a%2f%2fonthedock.github.io%2fpost%2f170430-errores-sobre-orphaned-pods-en-syslog%2f&t=Errores%20sobre%20Orphaned%20pods%20en%20syslog" title="Facebookでシェア" class="fb" target="_blank" rel="nofollow"></a>
-  <a href="http://twitter.com/intent/tweet?url=https%3a%2f%2fonthedock.github.io%2fpost%2f170430-errores-sobre-orphaned-pods-en-syslog%2f&text=Errores%20sobre%20Orphaned%20pods%20en%20syslog&tw_p=tweetbutton" title="Twitterでシェア" class="tw" target="_blank" rel="nofollow"></a>
-  <a href="https://plus.google.com/share?url=https%3a%2f%2fonthedock.github.io%2fpost%2f170430-errores-sobre-orphaned-pods-en-syslog%2f" title="Google Plusでシェア" class="gp" target="_blank" rel="nofollow"></a>
-  <a href="http://line.me/R/msg/text/?Errores%20sobre%20Orphaned%20pods%20en%20syslog https%3a%2f%2fonthedock.github.io%2fpost%2f170430-errores-sobre-orphaned-pods-en-syslog%2f" title="LINEでシェア" class="ln" target="_blank" rel="nofollow"></a>
+  <a href="http://b.hatena.ne.jp/add?mode=confirm&url=https%3a%2f%2fonthedock.github.io%2fpost%2f180120-error-file-already-exists-al-ejecutar-vagrant-package%2f&title=Error%20%60File%20already%20exists%60%20al%20ejecutar%20vagrant%20package" title="はてなブックマーク" class="ht" target="_blank" rel="nofollow"></a>
+  <a href="http://www.facebook.com/sharer.php?u=https%3a%2f%2fonthedock.github.io%2fpost%2f180120-error-file-already-exists-al-ejecutar-vagrant-package%2f&t=Error%20%60File%20already%20exists%60%20al%20ejecutar%20vagrant%20package" title="Facebookでシェア" class="fb" target="_blank" rel="nofollow"></a>
+  <a href="http://twitter.com/intent/tweet?url=https%3a%2f%2fonthedock.github.io%2fpost%2f180120-error-file-already-exists-al-ejecutar-vagrant-package%2f&text=Error%20%60File%20already%20exists%60%20al%20ejecutar%20vagrant%20package&tw_p=tweetbutton" title="Twitterでシェア" class="tw" target="_blank" rel="nofollow"></a>
+  <a href="https://plus.google.com/share?url=https%3a%2f%2fonthedock.github.io%2fpost%2f180120-error-file-already-exists-al-ejecutar-vagrant-package%2f" title="Google Plusでシェア" class="gp" target="_blank" rel="nofollow"></a>
+  <a href="http://line.me/R/msg/text/?Error%20%60File%20already%20exists%60%20al%20ejecutar%20vagrant%20package https%3a%2f%2fonthedock.github.io%2fpost%2f180120-error-file-already-exists-al-ejecutar-vagrant-package%2f" title="LINEでシェア" class="ln" target="_blank" rel="nofollow"></a>
 </aside>
 
 
@@ -164,7 +272,7 @@ Apr 30 10:58:08 k2 kubelet[3619]: E0430 10:58:08.435567    3619 kubelet_volumes.
         
         <li itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb"><a href="https://onthedock.github.io/post/" itemprop="url"><span itemprop="title">post</span></a></li>
         
-        <li>Errores sobre Orphaned pods en syslog</li>
+        <li>Error `File already exists` al ejecutar vagrant package</li>
       </ol>
 
       
@@ -175,7 +283,7 @@ Apr 30 10:58:08 k2 kubelet[3619]: E0430 10:58:08.435567    3619 kubelet_volumes.
           <header><a href="https://onthedock.github.io/categories/">categories</a></header>
           <ul>
             
-            <li><a href="https://onthedock.github.io/categories/ops/">ops</a></li>
+            <li><a href="https://onthedock.github.io/categories/dev/">dev</a></li>
             
           </ul>
         </li>
@@ -188,13 +296,13 @@ Apr 30 10:58:08 k2 kubelet[3619]: E0430 10:58:08.435567    3619 kubelet_volumes.
           <header><a href="https://onthedock.github.io/tags/">tags</a></header>
           <ul>
             
-            <li><a href="https://onthedock.github.io/tags/raspberry-pi/">raspberry pi</a></li>
+            <li><a href="https://onthedock.github.io/tags/windows/">windows</a></li>
             
-            <li><a href="https://onthedock.github.io/tags/hypriot-os/">hypriot os</a></li>
+            <li><a href="https://onthedock.github.io/tags/hyper-v/">hyper-v</a></li>
             
-            <li><a href="https://onthedock.github.io/tags/kubernetes/">kubernetes</a></li>
+            <li><a href="https://onthedock.github.io/tags/vagrant/">vagrant</a></li>
             
-            <li><a href="https://onthedock.github.io/tags/troubleshoting-kubernetes/">troubleshoting kubernetes</a></li>
+            <li><a href="https://onthedock.github.io/tags/automation/">automation</a></li>
             
           </ul>
         </li>
@@ -232,22 +340,7 @@ Apr 30 10:58:08 k2 kubelet[3619]: E0430 10:58:08.435567    3619 kubelet_volumes.
   <section>
     <header><span>Latests</span></header>
     <ul class="p-articles thin">
-      <li><article class="li sm article-88a2b37925efc71e7f9ec017570e19f0">
-  <div class="header-wrapper">
-    <a href="https://onthedock.github.io/post/180120-error-file-already-exists-al-ejecutar-vagrant-package/" class="thumbnail" title="Error `File already exists` al ejecutar vagrant package"></a>
-    <header class="article-header">
-      <div class="clearfix">
-        <h2 class="title"><a href="https://onthedock.github.io/post/180120-error-file-already-exists-al-ejecutar-vagrant-package/">Error `File already exists` al ejecutar vagrant package</a></h2>
-        <ul class="p-facts">
-          <li><time datetime="2018-01-20T22:01:35JST">20 Jan 2018</time></li>
-          <li><a href="https://onthedock.github.io/post/">post</a></li>
-          
-        </ul>
-      </div>
-    </header>
-  </div>
-</article>
-</li><li><article class="li sm article-f22b7fd29e14db2fbd6cd579c2a0d5c9">
+      <li><article class="li sm article-f22b7fd29e14db2fbd6cd579c2a0d5c9">
   <div class="header-wrapper">
     <a href="https://onthedock.github.io/post/180114-instalando-docker-ce-usando-vagrant-shell-provisioning/" class="thumbnail" title="Instalando Docker-CE usando Vagrant shell provisioning"></a>
     <header class="article-header">
@@ -285,6 +378,21 @@ Apr 30 10:58:08 k2 kubelet[3619]: E0430 10:58:08.435567    3619 kubelet_volumes.
         <h2 class="title"><a href="https://onthedock.github.io/post/171208-ignorar-el-dns-asignado-por-el-servidor-dhcp/">Ignorar el DNS asignado por el servidor DHCP</a></h2>
         <ul class="p-facts">
           <li><time datetime="2017-12-08T08:39:09JST">8 Dec 2017</time></li>
+          <li><a href="https://onthedock.github.io/post/">post</a></li>
+          
+        </ul>
+      </div>
+    </header>
+  </div>
+</article>
+</li><li><article class="li sm article-9e27e7f162c2feae804cbc006c1c9349">
+  <div class="header-wrapper">
+    <a href="https://onthedock.github.io/post/171206-dime-que-opinas/" class="thumbnail" title="Dime qué opinas"></a>
+    <header class="article-header">
+      <div class="clearfix">
+        <h2 class="title"><a href="https://onthedock.github.io/post/171206-dime-que-opinas/">Dime qué opinas</a></h2>
+        <ul class="p-facts">
+          <li><time datetime="2017-12-06T08:22:03JST">6 Dec 2017</time></li>
           <li><a href="https://onthedock.github.io/post/">post</a></li>
           
         </ul>
