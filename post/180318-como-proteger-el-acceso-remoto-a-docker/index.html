@@ -11,13 +11,13 @@
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
 
-<link rel="canonical" href="https://onthedock.github.io/post/180120-error-file-already-exists-al-ejecutar-vagrant-package/">
+<link rel="canonical" href="https://onthedock.github.io/post/180318-como-proteger-el-acceso-remoto-a-docker/">
 
 
     
     <link href="https://fonts.googleapis.com/css?family=Lobster|Lato:400,700" rel="stylesheet">
     
-    <title>Error `File already exists` al ejecutar vagrant package - On The Dock</title>
+    <title>Cómo proteger el acceso remoto a Docker - On The Dock</title>
     <style amp-boilerplate>body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}</style><noscript><style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style></noscript>
     <script async src="https://cdn.ampproject.org/v0.js"></script>
     
@@ -26,22 +26,22 @@
 <script async custom-element="amp-ad" src="https://cdn.ampproject.org/v0/amp-ad-0.1.js"></script>
 
     
-<meta name="description" content="&lt;p&gt;La manera más sencilla de crear una &lt;em&gt;box&lt;/em&gt; personalizada para Vagrant es reutilizar una máquina virtual ya creada con Vagrant. Para facilitar este proceso, Vagrant proporciona el comando &lt;code&gt;package&lt;/code&gt;, que &lt;em&gt;empaqueta&lt;/em&gt; una máquina virtual existente en el formato &lt;em&gt;box&lt;/em&gt; de Vagrant.&lt;/p&gt;&lt;p&gt;En esta entrada comento los pasos que hay que realizar paso a paso para crear una &lt;em&gt;box&lt;/em&gt; personalizada. También indico el origen y cómo solucionar el error &lt;code&gt;File already exists&lt;/code&gt; que he encontrado al ejecutar &lt;code&gt;vagrant package&lt;/code&gt;.&lt;/p&gt;&lt;p&gt;&lt;/p&gt;">
+<meta name="description" content="&lt;p&gt;En la entrada  &lt;a href=&#34;https://onthedock.github.io/post/180317-portainer/&#34;&gt;Portainer: gestión de servidores Docker&lt;/a&gt; comentaba la necesidad de habilitar el acceso remoto al API de Docker &lt;strong&gt;de manera segura&lt;/strong&gt;, apuntando a la documentación oficial de Docker sobre cómo realizar esta configuración.&lt;/p&gt;&lt;p&gt;En esta entrada indico cómo proteger el acceso remoto a un servidor de Docker a través de la API, siguiendo las indicaciones de la documentación oficial en &lt;a href=&#34;https://docs.docker.com/engine/security/https/&#34;&gt;Protect the Docker daemon socket&lt;/a&gt;.&lt;/p&gt;&lt;p&gt;&lt;/p&gt;">
 
-<meta property="og:title" content="Error `File already exists` al ejecutar vagrant package - On The Dock">
+<meta property="og:title" content="Cómo proteger el acceso remoto a Docker - On The Dock">
 <meta property="og:type" content="article">
-<meta property="og:url" content="https://onthedock.github.io/post/180120-error-file-already-exists-al-ejecutar-vagrant-package/">
-<meta property="og:image" content="https://onthedock.github.io/images/vagrant.png">
+<meta property="og:url" content="https://onthedock.github.io/post/180318-como-proteger-el-acceso-remoto-a-docker/">
+<meta property="og:image" content="https://onthedock.github.io/images/docker.png">
 <meta property="og:site_name" content="On The Dock">
-<meta property="og:description" content="&lt;p&gt;La manera más sencilla de crear una &lt;em&gt;box&lt;/em&gt; personalizada para Vagrant es reutilizar una máquina virtual ya creada con Vagrant. Para facilitar este proceso, Vagrant proporciona el comando &lt;code&gt;package&lt;/code&gt;, que &lt;em&gt;empaqueta&lt;/em&gt; una máquina virtual existente en el formato &lt;em&gt;box&lt;/em&gt; de Vagrant.&lt;/p&gt;&lt;p&gt;En esta entrada comento los pasos que hay que realizar paso a paso para crear una &lt;em&gt;box&lt;/em&gt; personalizada. También indico el origen y cómo solucionar el error &lt;code&gt;File already exists&lt;/code&gt; que he encontrado al ejecutar &lt;code&gt;vagrant package&lt;/code&gt;.&lt;/p&gt;&lt;p&gt;&lt;/p&gt;">
+<meta property="og:description" content="&lt;p&gt;En la entrada  &lt;a href=&#34;https://onthedock.github.io/post/180317-portainer/&#34;&gt;Portainer: gestión de servidores Docker&lt;/a&gt; comentaba la necesidad de habilitar el acceso remoto al API de Docker &lt;strong&gt;de manera segura&lt;/strong&gt;, apuntando a la documentación oficial de Docker sobre cómo realizar esta configuración.&lt;/p&gt;&lt;p&gt;En esta entrada indico cómo proteger el acceso remoto a un servidor de Docker a través de la API, siguiendo las indicaciones de la documentación oficial en &lt;a href=&#34;https://docs.docker.com/engine/security/https/&#34;&gt;Protect the Docker daemon socket&lt;/a&gt;.&lt;/p&gt;&lt;p&gt;&lt;/p&gt;">
 <meta property="og:locale" content="ja_JP">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="On The Dock">
-<meta name="twitter:url" content="https://onthedock.github.io/post/180120-error-file-already-exists-al-ejecutar-vagrant-package/">
-<meta name="twitter:title" content="Error `File already exists` al ejecutar vagrant package - On The Dock">
-<meta name="twitter:description" content="&lt;p&gt;La manera más sencilla de crear una &lt;em&gt;box&lt;/em&gt; personalizada para Vagrant es reutilizar una máquina virtual ya creada con Vagrant. Para facilitar este proceso, Vagrant proporciona el comando &lt;code&gt;package&lt;/code&gt;, que &lt;em&gt;empaqueta&lt;/em&gt; una máquina virtual existente en el formato &lt;em&gt;box&lt;/em&gt; de Vagrant.&lt;/p&gt;&lt;p&gt;En esta entrada comento los pasos que hay que realizar paso a paso para crear una &lt;em&gt;box&lt;/em&gt; personalizada. También indico el origen y cómo solucionar el error &lt;code&gt;File already exists&lt;/code&gt; que he encontrado al ejecutar &lt;code&gt;vagrant package&lt;/code&gt;.&lt;/p&gt;&lt;p&gt;&lt;/p&gt;">
-<meta name="twitter:image" content="https://onthedock.github.io/images/vagrant.png">
+<meta name="twitter:url" content="https://onthedock.github.io/post/180318-como-proteger-el-acceso-remoto-a-docker/">
+<meta name="twitter:title" content="Cómo proteger el acceso remoto a Docker - On The Dock">
+<meta name="twitter:description" content="&lt;p&gt;En la entrada  &lt;a href=&#34;https://onthedock.github.io/post/180317-portainer/&#34;&gt;Portainer: gestión de servidores Docker&lt;/a&gt; comentaba la necesidad de habilitar el acceso remoto al API de Docker &lt;strong&gt;de manera segura&lt;/strong&gt;, apuntando a la documentación oficial de Docker sobre cómo realizar esta configuración.&lt;/p&gt;&lt;p&gt;En esta entrada indico cómo proteger el acceso remoto a un servidor de Docker a través de la API, siguiendo las indicaciones de la documentación oficial en &lt;a href=&#34;https://docs.docker.com/engine/security/https/&#34;&gt;Protect the Docker daemon socket&lt;/a&gt;.&lt;/p&gt;&lt;p&gt;&lt;/p&gt;">
+<meta name="twitter:image" content="https://onthedock.github.io/images/docker.png">
 
 
 <script type="application/ld+json">
@@ -52,15 +52,15 @@
       "@type": "WebPage",
       "@id":"https://onthedock.github.io/"
     },
-    "headline": "Error `File already exists` al ejecutar vagrant package - On The Dock",
+    "headline": "Cómo proteger el acceso remoto a Docker - On The Dock",
     "image": {
       "@type": "ImageObject",
-      "url": "https://onthedock.github.io/images/vagrant.png",
+      "url": "https://onthedock.github.io/images/docker.png",
       "height": 800,
       "width": 800
     },
-    "datePublished": "2018-01-20T22:01:35JST",
-    "dateModified": "2018-01-20T22:01:35JST",
+    "datePublished": "2018-03-18T11:33:24JST",
+    "dateModified": "2018-03-18T11:33:24JST",
     "author": {
       "@type": "Person",
       "name": "On The Dock"
@@ -75,9 +75,9 @@
         "height": 60
       }
     },
-    "description": "<p>La manera más sencilla de crear una <em>box</em> personalizada para Vagrant es reutilizar una máquina virtual ya creada con Vagrant. Para facilitar este proceso, Vagrant proporciona el comando <code>package</code>, que <em>empaqueta</em> una máquina virtual existente en el formato <em>box</em> de Vagrant.</p>
+    "description": "<p>En la entrada  <a href="https://onthedock.github.io/post/180317-portainer/">Portainer: gestión de servidores Docker</a> comentaba la necesidad de habilitar el acceso remoto al API de Docker <strong>de manera segura</strong>, apuntando a la documentación oficial de Docker sobre cómo realizar esta configuración.</p>
 
-<p>En esta entrada comento los pasos que hay que realizar paso a paso para crear una <em>box</em> personalizada. También indico el origen y cómo solucionar el error <code>File already exists</code> que he encontrado al ejecutar <code>vagrant package</code>.</p>
+<p>En esta entrada indico cómo proteger el acceso remoto a un servidor de Docker a través de la API, siguiendo las indicaciones de la documentación oficial en <a href="https://docs.docker.com/engine/security/https/">Protect the Docker daemon socket</a>.</p>
 
 <p></p>"
   }
@@ -108,14 +108,14 @@
     <main>
       
 <div class="l-container">
-  <article class="single article-88a2b37925efc71e7f9ec017570e19f0">
+  <article class="single article-5dd2fbecd3c1861b16d6ccbae8458692">
   <div class="header-wrapper">
-    <a href="https://onthedock.github.io/post/180120-error-file-already-exists-al-ejecutar-vagrant-package/" class="thumbnail" title="Error `File already exists` al ejecutar vagrant package"></a>
+    <a href="https://onthedock.github.io/post/180318-como-proteger-el-acceso-remoto-a-docker/" class="thumbnail" title="Cómo proteger el acceso remoto a Docker"></a>
     <header class="article-header">
       <div class="clearfix">
-        <h1 class="title">Error `File already exists` al ejecutar vagrant package</h1>
+        <h1 class="title">Cómo proteger el acceso remoto a Docker</h1>
         <ul class="p-facts">
-          <li><time datetime="2018-01-20T22:01:35JST">20 Jan 2018</time></li>
+          <li><time datetime="2018-03-18T11:33:24JST">18 Mar 2018</time></li>
           <li><a href="https://onthedock.github.io/post/">post</a></li>
           
           <li>Xavier Aznar</li>
@@ -124,144 +124,260 @@
     </header>
   </div>
 
-  <div class="article-body"><p>La manera más sencilla de crear una <em>box</em> personalizada para Vagrant es reutilizar una máquina virtual ya creada con Vagrant. Para facilitar este proceso, Vagrant proporciona el comando <code>package</code>, que <em>empaqueta</em> una máquina virtual existente en el formato <em>box</em> de Vagrant.</p>
+  <div class="article-body"><p>En la entrada  <a href="https://onthedock.github.io/post/180317-portainer/">Portainer: gestión de servidores Docker</a> comentaba la necesidad de habilitar el acceso remoto al API de Docker <strong>de manera segura</strong>, apuntando a la documentación oficial de Docker sobre cómo realizar esta configuración.</p>
 
-<p>En esta entrada comento los pasos que hay que realizar paso a paso para crear una <em>box</em> personalizada. También indico el origen y cómo solucionar el error <code>File already exists</code> que he encontrado al ejecutar <code>vagrant package</code>.</p>
+<p>En esta entrada indico cómo proteger el acceso remoto a un servidor de Docker a través de la API, siguiendo las indicaciones de la documentación oficial en <a href="https://docs.docker.com/engine/security/https/">Protect the Docker daemon socket</a>.</p>
 
 <p></p>
 
-<p>Partimos de una máquina creada con Vagrant mediante el comando <code>vagrant up</code>. En esta nueva máquina, nos conectamos mediante <code>vagrant ssh</code> y realizamos las modificaciones necesarias para personalizar y adecuar la VM a nuestras necesidades.</p>
+<p>Básicamente, esta entrada es una traducción comentada de la página oficial de Docker, por lo que en caso de duda, consulta la fuente original.</p>
 
-<p>En mi caso, la idea es incorporar a la imagen base la instalación de Docker CE, en vez de instalar vía script de <em>provisioning</em> después de crear la máquina (como vimos en la entrada anterior <a href="{{ref &quot;180114-instalando-docker-ce-usando-vagrant-shell-provisioning.md&quot;}}">Instalando Docker-CE usando Vagrant shell provisioning</a>). También he aprovechado para actualizar la imagen base. Para ello, he conectado a la máquina mediante <code>vagrant ssh</code> y a continuación:</p>
+<h2 id="escenario">Escenario</h2>
 
-<pre><code class="language-shell">$ sudo apt-get update &amp;&amp; sudo apt-get upgrade -y
-...
-$ sudo apt-get autoremove
-...
-$ sudo apt-get dist-upgrade
-</code></pre>
+<p>Vamos a habilitar el acceso remoto a un <em>host</em> donde se ejecuta Docker de manera que otras aplicaciones puedan realizar acciones usando la API de forma segura.</p>
 
-<h2 id="pasos-previos">Pasos previos</h2>
+<p>En el siguiente diagrama se muestra el equipo <em>Docker remoto</em> a la izquierda; el objetivo es conectar Portainer a través de TLS para poder gestionar los contenedores en el <em>host remoto</em>. La autenticación de la aplicación se realizará a través de los certificados que vamos a generar en esta entrada para proteger el acceso remoto a Docker.</p>
 
-<p>Para preparar la VM para su <em>re-empaquetado</em>, Vagrant recomienda rellenar con ceros para mejorar la compresión del disco. En Ubuntu los comandos son:</p>
+<p>Portainer corre en otro servidor Docker &ldquo;local&rdquo; (a la derecha, en el diagrama), aunque este hecho no es relevante para la protección del servidor remoto.</p>
 
-<pre><code class="language-shell">vagrant@debian9-docker:~$ sudo dd if=/dev/zero of=/EMPTY bs=1M
-dd: error writing '/EMPTY': No space left on device
-25700+0 records in
-25699+0 records out
-26947764224 bytes (27 GB, 25 GiB) copied, 37.9167 s, 711 MB/s
-vagrant@debian9-docker:~$ sudo rm -f /EMPTY
-</code></pre>
+<figure>
+  <amp-img src="https://onthedock.github.io/images/180318/docker-remote-secure-configuration.png" alt="Cómo proteger el acceso remoto a Docker images/180318/docker-remote-secure-configuration.png" width=640 height=323 layout="responsive"></amp-img>
+  
+</figure>
 
-<p>En este caso, no parece que haya funcionado.</p>
 
-<h2 id="limpiar-historial-de-comandos">Limpiar historial de comandos</h2>
-
-<p>A continuación, eliminamos los ficheros con el registro de comandos:</p>
-
-<pre><code class="language-shell">vagrant@debian9-docker:~$ cat /dev/null &gt; ~/.bash_history &amp;&amp; history -c &amp;&amp; exit
-logout
-Connection to 192.168.1.245 closed.
-</code></pre>
-
-<h2 id="empaquetando-la-vm">Empaquetando la VM</h2>
-
-<p>Siguendo la documentación, la opción para preparar una nueva <em>box</em> debería ser tan sencilla como lanzar el comando <code>vagrant package --output $nombreBox.box</code>.</p>
-
-<p>Sin embargo, al lanzar el comando:</p>
-
-<pre><code class="language-shell">&gt; vagrant package --output debian9docker.box
-==&gt; default: Verifying Hyper-V is enabled...
-==&gt; default: Attempting graceful shutdown of VM...
-==&gt; default: off
-==&gt; default: Exporting VM...
-An error occurred while executing a PowerShell script. This error
-is shown below. Please read the error message and see if this is
-a configuration error with your system. If it is not, then please
-report a bug.
-
-Script: export_vm.ps1
-Error:
-
-Export-VM : Failed to copy file during export.
-Failed to copy file from 'M:\VMS\vagrant-vms\debian-docker\.vagrant\machines\default\hyperv\Virtual Hard Disks\generic-debian9-hyperv.vhdx' to
-'C:\Users\Xavi\.vagrant.d\tmp\vagrant-package-20180120-7844-1j6hx2d\debian9-docker\Virtual Hard Disks\generic-debian9-hyperv.vhdx': The file exists. (0x80070050).
-At C:\HashiCorp\Vagrant\embedded\gems\gems\vagrant-2.0.1\plugins\providers\hyperv\scripts\export_vm.ps1:9 char:7
-+ $vm | Export-VM -Path $Path
-+       ~~~~~~~~~~~~~~~~~~~~~
-    + CategoryInfo          : NotSpecified: (:) [Export-VM], VirtualizationException
-    + FullyQualifiedErrorId : OperationFailed,Microsoft.HyperV.PowerShell.Commands.ExportVM
-</code></pre>
-
-<h3 id="investigando-el-error">Investigando el error</h3>
-
-<p>El script de exportación falla con el mensaje de error de que el disco ya existe (¿?). Al lanzar el comando <code>vagrant package</code>, Vagrant crea una carpeta temporal con un nombre aleatorio en la carpeta <code>C:\Users\$USERNAME\.vagrant.d\tmp\</code> y se establece como destino de la exportación de la máquina virtual.</p>
-
-<p>El error parece indicar que el script intenta copiar la máquina exportada en la carpeta original de la máquina y que por ello se produce el error. Sin embargo, esta explicación no tiene demasiado sentido, ya que un error <em>de bulto</em> en el funcionamiento de <code>vagrant package</code> se habría descubierto -y solucionado- hace mucho. Buscando en internet no encontré nada al respecto, lo que confirmaba mi hipótesis de que la causa debía ser otra.</p>
-
-<p>Como las rutas -tanto de la ubicación inicial de la VM como la de exportación- contienen carpetas cuyo nombre empieza por un punto, pensé que ésta podría ser la causa. Para comprobarlo, copié el disco a la ruta <code>m:\vms\vagrant-vms\</code> y modifiqué la configuración de la VM en Hyper-V. Sin embargo, <code>vagrant package</code> falló de nuevo con el mismo mensaje de error.</p>
-
-<p>Intenté avanzar realizando manualmente la exportación de la máquina virtual directamente desde Hyper-V, pero de nuevo la exportación falló con el mismo mensaje de error. Esto significa que el error proviene del proceso de exportación de Hyper-V y no del script de Vagrant.</p>
-
-<p>El proceso de exportar una VM desde Hyper-V funcionaba sin problemas para otras máquinas &ldquo;no Vagrant&rdquo;, lo que reforzaba mi idea del problema con las carpetas con nombres que empezaban por puntos&hellip; Pero después de más pruebas y más búsquedas en internet, la ausencia de resultados me indicaba que no podía ser un fallo de Hyper-V o Vagrant, sino algo más específico de las máquinas creadas.</p>
-
-<h2 id="solución">Solución</h2>
-
-<p>Después de revisar el fichero <code>Vagrantfile</code>, he caído en la cuenta de que los discos de las máquinas virtuales los configuré <em>differencing disks</em> siguiendo los consejos de <a href="https://blogs.technet.microsoft.com/virtualization/2017/07/06/vagrant-and-hyper-v-tips-and-tricks/#comment-146355">Vagrant and Hyper-V — Tips and Tricks</a>, en particular la Tip 5.</p>
+<h2 id="crea-una-entidad-certificadora-ca">Crea una entidad certificadora (CA)</h2>
 
 <blockquote>
-<p>He dejado un comentario en la entrada advirtiendo del problema de usar <em>differencing disks</em> y <code>vagrant package</code>.</p>
+<p>Estos comandos deben ejecutarse en la máquina con el servidor Docker, es decir, donde corre el <em>Docker daemon, dockerd</em>. Esta es la máquina &ldquo;Docker remote&rdquo;.</p>
 </blockquote>
 
-<p>He modificado el parámetro a <code>config.vm.provider.differencing_disk = false</code> y he repetido los pasos para actualizar la máquina, rellenar de ceros el disco y borrar la historia.</p>
+<p>Generamos las claves privadas y públicas de la entidad certificadora (CA):</p>
 
-<p>Al lanzar de nuevo el comando <code>vagrant package</code>, esta vez la exportación y la creación de la nueva <em>box</em> funciona sin problemas:</p>
+<pre><code class="language-shell">$ openssl genrsa -aes256 -out ca-key.pem 4096
+Generating RSA private key, 4096 bit long modulus
+...........................................++
+..................................................................................................................++
+e is 65537 (0x10001)
+Enter pass phrase for ca-key.pem:
+Verifying - Enter pass phrase for ca-key.pem:
+$ ls
+ca-key.pem
 
-<pre><code class="language-shell">M:\VMS\vagrant-vms\debian-docker&gt; vagrant package --output debian9docker17.12.box
-==&gt; default: Verifying Hyper-V is enabled...
-==&gt; default: Attempting graceful shutdown of VM...
-==&gt; default: off
-==&gt; default: Exporting VM...
-==&gt; default: Compressing package to: M:/VMS/vagrant-vms/debian-docker/debian9docker17.12.box
-M:\VMS\vagrant-vms\debian-docker&gt;
+$ openssl req -new -x509 -days 365 -key ca-key.pem -sha256 -out ca.pem
+Enter pass phrase for ca-key.pem:
+You are about to be asked to enter information that will be incorporated
+into your certificate request.
+What you are about to enter is what is called a Distinguished Name or a DN.
+There are quite a few fields but you can leave some blank
+For some fields there will be a default value,
+If you enter '.', the field will be left blank.
+-----
+Country Name (2 letter code) [AU]:ES
+State or Province Name (full name) [Some-State]:Barcelona
+Locality Name (eg, city) []:
+Organization Name (eg, company) [Internet Widgits Pty Ltd]:Ameisin Labs
+Organizational Unit Name (eg, section) []:Development
+Common Name (e.g. server FQDN or YOUR name) []:192.168.1.24
+Email Address []:xavi.aznar@xxxxxxxxxxxx.xxx
+operador@docker-api:~$ openssl genrsa -out server-key.pem 4096
+Generating RSA private key, 4096 bit long modulus
+.......................................++
+..............................................................................................................................................................++
+e is 65537 (0x10001)
 </code></pre>
 
-<h2 id="añadir-la-box-personalizada-a-nuestro-inventario">Añadir la box personalizada a nuestro inventario</h2>
+<h2 id="crea-una-clave-para-el-servidor-y-una-petición-de-firma-del-certificado-csr">Crea una clave para el servidor y una petición de firma del certificado (CSR)</h2>
 
-<p>Ya sólo queda el paso final, que es añadir la nueva <em>box</em> al repositorio local para ser reutilizada:</p>
+<p>Una vez tenemos la entidad certificadora, creamos una clave para el servidor y una <em>certificate signing request</em> (CSR). Como indica la documentación de Docker, asegúrate que el &ldquo;Common Name&rdquo; coincide con el <em>hostname</em> que se usará para conectar al servidor remoto de Docker.</p>
 
-<pre><code class="language-shell">M:\VMS\vagrant-vms\debian-docker&gt; vagrant box add debian9docker17.12 debian9docker17.12.box
-==&gt; box: Box file was not detected as metadata. Adding it directly...
-==&gt; box: Adding box 'debian9docker17.12' (v0) for provider:
-    box: Unpacking necessary files from: file://M:/VMS/vagrant-vms/debian-docker/debian9docker17.12.box
-    box: Progress: 100% (Rate: 551M/s, Estimated time remaining: --:--:--)
-==&gt; box: Successfully added box 'debian9docker17.12' (v0) for 'hyperv'!
-M:\VMS\vagrant-vms\debian-docker&gt;
+<p>En este ejemplo usaremos la IP del servidor remoto para el <em>common name (CN)</em>, ya que no está dado de alta en el DNS.</p>
+
+<pre><code class="language-shell">$ openssl genrsa -out server-key.pem 4096
+Generating RSA private key, 4096 bit long modulus
+.......................................++
+..............................................................................................................................................................++
+e is 65537 (0x10001)
+$ openssl req -subj &quot;/CN=192.168.1.24&quot; -sha256 -new -key server-key.pem -out server.csr
+$ ls
+ca-key.pem  ca.pem  server-key.pem  server.csr
 </code></pre>
 
-<p>Comprobamos que se ha añadido correctamente mediante:</p>
+<h2 id="firma-la-petición-de-firma-del-certificado-csr">Firma la petición de firma del certificado (CSR)</h2>
 
-<pre><code class="language-shell">M:\VMS\vagrant-vms\debian-docker&gt; vagrant box list
-debian9docker17.12 (hyperv, 0)
-generic/alpine36   (hyperv, 1.3.30)
-generic/debian9    (hyperv, 1.3.30)
-M:\VMS\vagrant-vms\debian-docker&gt;
+<p>Las conexiones TLS se pueden realizar usando la IP o el <em>hostname</em>, por lo que debemos especificar los dos métodos en la creación del certificado.</p>
+
+<blockquote>
+<p>En mi caso el equipo remoto no está dado de alta en el DNS; pero para no modificar demasiado las instrucciones de la página de Docker, he indicado la IP como &ldquo;nombre&rdquo; DNS del equipo.</p>
+</blockquote>
+
+<p>Como direcciones IP usamos tanto la IP privada asignada al equipo, como la dirección de bucle local, <em>localhost</em>, 127.0.0.1.</p>
+
+<pre><code class="language-shell">$ echo subjectAltName = DNS:192.168.1.24,IP:192.168.1.24,IP:127.0.0.1 &gt;&gt; extfile.cnf
 </code></pre>
+
+<p>A continuación indicamos en los atributos extendidos de la clave del servidor que únicamente se usará para autenticación del servidor</p>
+
+<pre><code class="language-shell">$ echo extendedKeyUsage = serverAuth &gt;&gt; extfile.cnf
+</code></pre>
+
+<p>El contenido del fichero <code>extfile.cnf</code>  queda:</p>
+
+<pre><code class="language-shell">$ cat extfile.cnf
+subjectAltName = DNS:192.168.1.24,IP:192.168.1.24,IP:127.0.0.1
+extendedKeyUsage = serverAuth
+</code></pre>
+
+<p>Ahora, firmamos el CSR (con una validez de 1 año):</p>
+
+<pre><code class="language-shell">$ openssl x509 -req -days 365 -sha256 -in server.csr -CA ca.pem -CAkey ca-key.pem \
+&gt;   -CAcreateserial -out server-cert.pem -extfile extfile.cnf
+Signature ok
+subject=/CN=192.168.1.24
+Getting CA Private Key
+Enter pass phrase for ca-key.pem:
+</code></pre>
+
+<h2 id="crea-la-clave-para-el-cliente-y-la-petición-de-firma-del-certificado-csr">Crea la clave para el cliente y la petición de firma del certificado (CSR)</h2>
+
+<blockquote>
+<p>Los siguientes comandos se pueden ejecutar, por comodidad, en la máquina del servidor de Docker</p>
+</blockquote>
+
+<pre><code class="language-shell">$ openssl genrsa -out key.pem 4096
+Generating RSA private key, 4096 bit long modulus
+............++
+.......++
+e is 65537 (0x10001)
+$ openssl req -subj '/CN=client' -new -key key.pem -out client.csr
+</code></pre>
+
+<p>Para que la clave generada pueda ser usada para autenticar a un cliente, creamos un fichero de configuración de extensiones:</p>
+
+<pre><code class="language-shell">$ echo extendedKeyUsage = clientAuth &gt;&gt; extfile.cnf
+</code></pre>
+
+<p>Ahora ya podemos firmar el certificado:</p>
+
+<pre><code class="language-shell">$ openssl x509 -req -days 365 -sha256 -in client.csr -CA ca.pem -CAkey ca-key.pem \
+&gt;   -CAcreateserial -out cert.pem -extfile extfile.cnf
+Signature ok
+subject=/CN=client
+Getting CA Private Key
+Enter pass phrase for ca-key.pem:
+</code></pre>
+
+<p>Una vez generados los certificados <code>cert.pem</code>  y <code>server-cert.pem</code>, podemos borrarlos las peticiones de firma CSR:</p>
+
+<pre><code class="language-shell">$ rm -v client.csr server.csr
+removed 'client.csr'
+removed 'server.csr'
+</code></pre>
+
+<h2 id="protege-las-claves-secretas">Protege las claves secretas</h2>
+
+<p>Para proteger los ficheros con las claves secretas en el servidor el siguiente paso es cambiar los permisos de manera que sólo sean legibles por tu usuario:</p>
+
+<pre><code class="language-shell">$ chmod -v 0400 ca-key.pem key.pem server-key.pem
+mode of 'ca-key.pem' changed from 0664 (rw-rw-r--) to 0400 (r--------)
+mode of 'key.pem' changed from 0664 (rw-rw-r--) to 0400 (r--------)
+mode of 'server-key.pem' changed from 0664 (rw-rw-r--) to 0400 (r--------)
+</code></pre>
+
+<h1 id="configura-el-daemon-de-docker">Configura el <em>daemon</em> de Docker</h1>
+
+<p>Hasta ahora hemos generado los diferentes certificados para poder proteger las conexiones con Docker.</p>
+
+<p>El siguiente paso es configurar Docker para aceptar únicamente conexiones desde clientes que proporcionen certificados firmados por la CA creada al principio de este artículo.</p>
+
+<p>Edita el fichero <code>/etc/systemd/system/docker.service.d/override.conf</code> de manera que a línea <code>ExecStart</code> incluya los parámetros de configuración de TLS:</p>
+
+<pre><code class="language-shell">ExecStart=/usr/bin/dockerd --tlsverify --tlscacert=/home/operador/ca.pem --tlscert=/home/operador/server-cert.pem  --tlskey=/home/operador/server-key.pem -H fd:// -H tcp://0.0.0.0:2376
+</code></pre>
+
+<ul>
+<li><code>—tlsverify</code> Habilita la validación de los clientes usando TLS</li>
+<li><code>—tlscacert</code> y <code>—tlscert</code> certificados de la CA y del servidor</li>
+<li><code>--tlskey</code> clave privada del servidor</li>
+<li><code>-H fd://</code> seguimos usando escuchando conexiones a través del <em>socket</em> de Docker (suponemos que los usuarios &ldquo;locales&rdquo; -o vía SSH- al servidor son de confianza)</li>
+<li><code>-H tcp://0.0.0.0:2376</code> escuchamos conexiones en cualquier IP del <em>host</em> vía TCP en el puerto 2376 (el puerto elegido por convención para las conexiones cifradas)</li>
+</ul>
+
+<p>Después de guardar los cambios realizados en el fichero <code>override.conf</code>, recargamos la configuración del <em>daemon</em> de Docker y reiniciamos el servicio para que tenga efecto:</p>
+
+<pre><code class="language-shell">$ sudo systemctl daemon-reload
+$ sudo systemctl restart docker
+</code></pre>
+
+<h2 id="conecta-usando-tls">Conecta usando TLS</h2>
+
+<p>Para probar que Docker acepta conexiones protegidas por TLS, copia los ficheros <code>ca.pem</code>, <code>cert.pem</code> y <code>key.pem</code> al equipo desde donde deben realizarse las conexiones.</p>
+
+<blockquote>
+<p>Disponiendo de las claves cualquier usuario puede realizar operaciones en el equipo remoto donde se ejecuta Docker. Como un usuario con permisos de ejecución de Docker tiene permisos equivalentes a los del <em>root</em>, las claves deben protegerse del mismo modo que el password de <code>root</code>.</p>
+</blockquote>
+
+<p>Para validar que todo funciona como debe, ejecuta <code>docker version</code> usando TLS:</p>
+
+<pre><code class="language-shell">$ docker --tlsverify --tlscacert=ca.pem --tlscert=cert.pem --tlskey=key.pem \
+&gt;   -H=192.168.1.24:2376 version
+Client:
+ Version:	17.12.1-ce
+ API version:	1.35
+ Go version:	go1.9.4
+ Git commit:	7390fc6
+ Built:	Tue Feb 27 22:17:40 2018
+ OS/Arch:	linux/amd64
+
+Server:
+ Engine:
+  Version:	17.12.1-ce
+  API version:	1.35 (minimum version 1.12)
+  Go version:	go1.9.4
+  Git commit:	7390fc6
+  Built:	Tue Feb 27 22:16:13 2018
+  OS/Arch:	linux/amd64
+  Experimental:	false
+</code></pre>
+
+<h2 id="configura-un-endpoint-seguro-desde-portainer">Configura un <em>endpoint</em> seguro desde Portainer</h2>
+
+<p>Si recuedas el escenario descrito al inicio de la entrada, el objetivo era utilizar las conexiones remotas <strong>seguras</strong> desde Portainer para gestionar los contenedores en el servidor de Docker remoto:</p>
+
+<figure>
+  <amp-img src="https://onthedock.github.io/images/180318/docker-remote-secure-configuration.png" alt="Cómo proteger el acceso remoto a Docker images/180318/docker-remote-secure-configuration.png" width=640 height=323 layout="responsive"></amp-img>
+  
+</figure>
+
+
+<p>Después de configurar el servidor de Docker remoto para aceptar únicamente conexiones remotas protegidas por TLS, ahora creamos un nuevo <em>endpoint</em> en Portainer. Habilitamos TLS y seleccionamos la opción <em>TLS with server and client verification</em>, para lo que tenemos que subir a la aplicación los certificados  <code>ca.pem</code>, <code>cert.pem</code> y <code>key.pem</code> :</p>
+
+<figure>
+  <amp-img src="https://onthedock.github.io/images/180318/portainer-tls-config.png" alt="Cómo proteger el acceso remoto a Docker images/180318/portainer-tls-config.png" width=640 height=834 layout="responsive"></amp-img>
+  
+</figure>
+
+
+<p>Después de configurar el <em>endpoint</em> seguro, validamos que podemos visualizar la información usando Portainer:</p>
+
+<figure>
+  <amp-img src="https://onthedock.github.io/images/180318/portainer-connected-via-tls.png" alt="Cómo proteger el acceso remoto a Docker images/180318/portainer-connected-via-tls.png" width=640 height=365 layout="responsive"></amp-img>
+  
+</figure>
+
 
 <h1 id="resumen">Resumen</h1>
 
-<p>En esta entrada hemos visto cómo reutilizar una <em>box</em> existente para crear una <em>box</em> personalizada.</p>
+<p>En esta entrada se indican los pasos a seguir para configurar el acceso remoto a un servidor Docker usando la API http protegida por TLS.</p>
 
-<p>Hemos visto el error que se produce al usar discos diferenciales en la máquina virtual y cómo solucionarlo.</p>
-
-<p>Finalmente, hemos añadido la <em>box</em> personalizada a nuestro repositorio local.</p></div>
+<p>La primera parte del artículo se centra en la creación de los certificados, mientras que en la segunda se configura el Docker <em>daemon</em> para aceptar conexiones cifradas con TLS. Al final, se indica cómo configurar Portainer para conectar usando TLS con el servidor Docker.</p></div>
 
   <aside class="p-share">
-  <a href="http://b.hatena.ne.jp/add?mode=confirm&url=https%3a%2f%2fonthedock.github.io%2fpost%2f180120-error-file-already-exists-al-ejecutar-vagrant-package%2f&title=Error%20%60File%20already%20exists%60%20al%20ejecutar%20vagrant%20package" title="はてなブックマーク" class="ht" target="_blank" rel="nofollow"></a>
-  <a href="http://www.facebook.com/sharer.php?u=https%3a%2f%2fonthedock.github.io%2fpost%2f180120-error-file-already-exists-al-ejecutar-vagrant-package%2f&t=Error%20%60File%20already%20exists%60%20al%20ejecutar%20vagrant%20package" title="Facebookでシェア" class="fb" target="_blank" rel="nofollow"></a>
-  <a href="http://twitter.com/intent/tweet?url=https%3a%2f%2fonthedock.github.io%2fpost%2f180120-error-file-already-exists-al-ejecutar-vagrant-package%2f&text=Error%20%60File%20already%20exists%60%20al%20ejecutar%20vagrant%20package&tw_p=tweetbutton" title="Twitterでシェア" class="tw" target="_blank" rel="nofollow"></a>
-  <a href="https://plus.google.com/share?url=https%3a%2f%2fonthedock.github.io%2fpost%2f180120-error-file-already-exists-al-ejecutar-vagrant-package%2f" title="Google Plusでシェア" class="gp" target="_blank" rel="nofollow"></a>
-  <a href="http://line.me/R/msg/text/?Error%20%60File%20already%20exists%60%20al%20ejecutar%20vagrant%20package https%3a%2f%2fonthedock.github.io%2fpost%2f180120-error-file-already-exists-al-ejecutar-vagrant-package%2f" title="LINEでシェア" class="ln" target="_blank" rel="nofollow"></a>
+  <a href="http://b.hatena.ne.jp/add?mode=confirm&url=https%3a%2f%2fonthedock.github.io%2fpost%2f180318-como-proteger-el-acceso-remoto-a-docker%2f&title=C%c3%b3mo%20proteger%20el%20acceso%20remoto%20a%20Docker" title="はてなブックマーク" class="ht" target="_blank" rel="nofollow"></a>
+  <a href="http://www.facebook.com/sharer.php?u=https%3a%2f%2fonthedock.github.io%2fpost%2f180318-como-proteger-el-acceso-remoto-a-docker%2f&t=C%c3%b3mo%20proteger%20el%20acceso%20remoto%20a%20Docker" title="Facebookでシェア" class="fb" target="_blank" rel="nofollow"></a>
+  <a href="http://twitter.com/intent/tweet?url=https%3a%2f%2fonthedock.github.io%2fpost%2f180318-como-proteger-el-acceso-remoto-a-docker%2f&text=C%c3%b3mo%20proteger%20el%20acceso%20remoto%20a%20Docker&tw_p=tweetbutton" title="Twitterでシェア" class="tw" target="_blank" rel="nofollow"></a>
+  <a href="https://plus.google.com/share?url=https%3a%2f%2fonthedock.github.io%2fpost%2f180318-como-proteger-el-acceso-remoto-a-docker%2f" title="Google Plusでシェア" class="gp" target="_blank" rel="nofollow"></a>
+  <a href="http://line.me/R/msg/text/?C%c3%b3mo%20proteger%20el%20acceso%20remoto%20a%20Docker https%3a%2f%2fonthedock.github.io%2fpost%2f180318-como-proteger-el-acceso-remoto-a-docker%2f" title="LINEでシェア" class="ln" target="_blank" rel="nofollow"></a>
 </aside>
 
 
@@ -272,7 +388,7 @@ M:\VMS\vagrant-vms\debian-docker&gt;
         
         <li itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb"><a href="https://onthedock.github.io/post/" itemprop="url"><span itemprop="title">post</span></a></li>
         
-        <li>Error `File already exists` al ejecutar vagrant package</li>
+        <li>Cómo proteger el acceso remoto a Docker</li>
       </ol>
 
       
@@ -283,7 +399,7 @@ M:\VMS\vagrant-vms\debian-docker&gt;
           <header><a href="https://onthedock.github.io/categories/">categories</a></header>
           <ul>
             
-            <li><a href="https://onthedock.github.io/categories/dev/">dev</a></li>
+            <li><a href="https://onthedock.github.io/categories/ops/">ops</a></li>
             
           </ul>
         </li>
@@ -296,13 +412,13 @@ M:\VMS\vagrant-vms\debian-docker&gt;
           <header><a href="https://onthedock.github.io/tags/">tags</a></header>
           <ul>
             
-            <li><a href="https://onthedock.github.io/tags/windows/">windows</a></li>
+            <li><a href="https://onthedock.github.io/tags/linux/">linux</a></li>
             
-            <li><a href="https://onthedock.github.io/tags/hyper-v/">hyper-v</a></li>
+            <li><a href="https://onthedock.github.io/tags/debian/">debian</a></li>
             
-            <li><a href="https://onthedock.github.io/tags/vagrant/">vagrant</a></li>
+            <li><a href="https://onthedock.github.io/tags/docker/">docker</a></li>
             
-            <li><a href="https://onthedock.github.io/tags/automation/">automation</a></li>
+            <li><a href="https://onthedock.github.io/tags/portainer/">portainer</a></li>
             
           </ul>
         </li>
@@ -340,22 +456,7 @@ M:\VMS\vagrant-vms\debian-docker&gt;
   <section>
     <header><span>Latests</span></header>
     <ul class="p-articles thin">
-      <li><article class="li sm article-5dd2fbecd3c1861b16d6ccbae8458692">
-  <div class="header-wrapper">
-    <a href="https://onthedock.github.io/post/180318-como-proteger-el-acceso-remoto-a-docker/" class="thumbnail" title="Cómo proteger el acceso remoto a Docker"></a>
-    <header class="article-header">
-      <div class="clearfix">
-        <h2 class="title"><a href="https://onthedock.github.io/post/180318-como-proteger-el-acceso-remoto-a-docker/">Cómo proteger el acceso remoto a Docker</a></h2>
-        <ul class="p-facts">
-          <li><time datetime="2018-03-18T11:33:24JST">18 Mar 2018</time></li>
-          <li><a href="https://onthedock.github.io/post/">post</a></li>
-          
-        </ul>
-      </div>
-    </header>
-  </div>
-</article>
-</li><li><article class="li sm article-d27ecb2023ff85d0423abc98d4d8ded4">
+      <li><article class="li sm article-d27ecb2023ff85d0423abc98d4d8ded4">
   <div class="header-wrapper">
     <a href="https://onthedock.github.io/post/180317-portainer/" class="thumbnail" title="Portainer: gestión de servidores Docker"></a>
     <header class="article-header">
@@ -393,6 +494,21 @@ M:\VMS\vagrant-vms\debian-docker&gt;
         <h2 class="title"><a href="https://onthedock.github.io/post/180207-instalacion-de-powershell-en-debian-9/">Instalación de Powershell en Debian 9</a></h2>
         <ul class="p-facts">
           <li><time datetime="2018-02-07T19:58:18JST">7 Feb 2018</time></li>
+          <li><a href="https://onthedock.github.io/post/">post</a></li>
+          
+        </ul>
+      </div>
+    </header>
+  </div>
+</article>
+</li><li><article class="li sm article-88a2b37925efc71e7f9ec017570e19f0">
+  <div class="header-wrapper">
+    <a href="https://onthedock.github.io/post/180120-error-file-already-exists-al-ejecutar-vagrant-package/" class="thumbnail" title="Error `File already exists` al ejecutar vagrant package"></a>
+    <header class="article-header">
+      <div class="clearfix">
+        <h2 class="title"><a href="https://onthedock.github.io/post/180120-error-file-already-exists-al-ejecutar-vagrant-package/">Error `File already exists` al ejecutar vagrant package</a></h2>
+        <ul class="p-facts">
+          <li><time datetime="2018-01-20T22:01:35JST">20 Jan 2018</time></li>
           <li><a href="https://onthedock.github.io/post/">post</a></li>
           
         </ul>
