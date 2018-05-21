@@ -11,13 +11,13 @@
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
 
-<link rel="canonical" href="https://onthedock.github.io/post/171104-apiserver-detenido/">
+<link rel="canonical" href="https://onthedock.github.io/post/180521-subiendo-el-codigo-a-gogs/">
 
 
     
     <link href="https://fonts.googleapis.com/css?family=Lobster|Lato:400,700" rel="stylesheet">
     
-    <title>API server detenido: The connection to the server was refused - On The Dock</title>
+    <title>Pipeline - Subiendo el código a Gogs - On The Dock</title>
     <style amp-boilerplate>body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}</style><noscript><style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style></noscript>
     <script async src="https://cdn.ampproject.org/v0.js"></script>
     
@@ -26,22 +26,22 @@
 <script async custom-element="amp-ad" src="https://cdn.ampproject.org/v0/amp-ad-0.1.js"></script>
 
     
-<meta name="description" content="&lt;p&gt;Hoy, al intentar lanzar un comando con &lt;code&gt;kubectl&lt;/code&gt;, he obtenido el típico mensaje indicando que no se puede conectar con el servidor. El problema está en el servidor de API, que es el que actua como intermediario entre el usuario y Kubernetes. Últimamente he encontrado el mismo error y lo he solucionado reiniciando el nodo &lt;em&gt;master&lt;/em&gt; del clúster. Pero hoy he investigado un poco&amp;hellip; Y lo que he encontrado no me ha gustado demasiado.&lt;/p&gt;&lt;p&gt;&lt;/p&gt;">
+<meta name="description" content="&lt;p&gt;Ya hemos instalado &lt;a href=&#34;https://onthedock.github.io/post/180520-pipeline-gogs-el-repositorio-de-codigo/&#34;&gt;Gogs&lt;/a&gt; y &lt;a href=&#34;https://onthedock.github.io/post/180520-pipeline-instalacion-y-actualizacion-de-jenkins/&#34;&gt;Jenkins&lt;/a&gt; en nuestro sistema; ahora es el momento de empezar a subir código y ver qué podemos hacer con él.&lt;/p&gt;">
 
-<meta property="og:title" content="API server detenido: The connection to the server was refused - On The Dock">
+<meta property="og:title" content="Pipeline - Subiendo el código a Gogs - On The Dock">
 <meta property="og:type" content="article">
-<meta property="og:url" content="https://onthedock.github.io/post/171104-apiserver-detenido/">
-<meta property="og:image" content="https://onthedock.github.io/images/kubernetes.png">
+<meta property="og:url" content="https://onthedock.github.io/post/180521-subiendo-el-codigo-a-gogs/">
+<meta property="og:image" content="https://onthedock.github.io/images/gogs.png">
 <meta property="og:site_name" content="On The Dock">
-<meta property="og:description" content="&lt;p&gt;Hoy, al intentar lanzar un comando con &lt;code&gt;kubectl&lt;/code&gt;, he obtenido el típico mensaje indicando que no se puede conectar con el servidor. El problema está en el servidor de API, que es el que actua como intermediario entre el usuario y Kubernetes. Últimamente he encontrado el mismo error y lo he solucionado reiniciando el nodo &lt;em&gt;master&lt;/em&gt; del clúster. Pero hoy he investigado un poco&amp;hellip; Y lo que he encontrado no me ha gustado demasiado.&lt;/p&gt;&lt;p&gt;&lt;/p&gt;">
+<meta property="og:description" content="&lt;p&gt;Ya hemos instalado &lt;a href=&#34;https://onthedock.github.io/post/180520-pipeline-gogs-el-repositorio-de-codigo/&#34;&gt;Gogs&lt;/a&gt; y &lt;a href=&#34;https://onthedock.github.io/post/180520-pipeline-instalacion-y-actualizacion-de-jenkins/&#34;&gt;Jenkins&lt;/a&gt; en nuestro sistema; ahora es el momento de empezar a subir código y ver qué podemos hacer con él.&lt;/p&gt;">
 <meta property="og:locale" content="ja_JP">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="On The Dock">
-<meta name="twitter:url" content="https://onthedock.github.io/post/171104-apiserver-detenido/">
-<meta name="twitter:title" content="API server detenido: The connection to the server was refused - On The Dock">
-<meta name="twitter:description" content="&lt;p&gt;Hoy, al intentar lanzar un comando con &lt;code&gt;kubectl&lt;/code&gt;, he obtenido el típico mensaje indicando que no se puede conectar con el servidor. El problema está en el servidor de API, que es el que actua como intermediario entre el usuario y Kubernetes. Últimamente he encontrado el mismo error y lo he solucionado reiniciando el nodo &lt;em&gt;master&lt;/em&gt; del clúster. Pero hoy he investigado un poco&amp;hellip; Y lo que he encontrado no me ha gustado demasiado.&lt;/p&gt;&lt;p&gt;&lt;/p&gt;">
-<meta name="twitter:image" content="https://onthedock.github.io/images/kubernetes.png">
+<meta name="twitter:url" content="https://onthedock.github.io/post/180521-subiendo-el-codigo-a-gogs/">
+<meta name="twitter:title" content="Pipeline - Subiendo el código a Gogs - On The Dock">
+<meta name="twitter:description" content="&lt;p&gt;Ya hemos instalado &lt;a href=&#34;https://onthedock.github.io/post/180520-pipeline-gogs-el-repositorio-de-codigo/&#34;&gt;Gogs&lt;/a&gt; y &lt;a href=&#34;https://onthedock.github.io/post/180520-pipeline-instalacion-y-actualizacion-de-jenkins/&#34;&gt;Jenkins&lt;/a&gt; en nuestro sistema; ahora es el momento de empezar a subir código y ver qué podemos hacer con él.&lt;/p&gt;">
+<meta name="twitter:image" content="https://onthedock.github.io/images/gogs.png">
 
 
 <script type="application/ld+json">
@@ -52,15 +52,15 @@
       "@type": "WebPage",
       "@id":"https://onthedock.github.io/"
     },
-    "headline": "API server detenido: The connection to the server was refused - On The Dock",
+    "headline": "Pipeline - Subiendo el código a Gogs - On The Dock",
     "image": {
       "@type": "ImageObject",
-      "url": "https://onthedock.github.io/images/kubernetes.png",
+      "url": "https://onthedock.github.io/images/gogs.png",
       "height": 800,
       "width": 800
     },
-    "datePublished": "2017-11-04T21:58:52JST",
-    "dateModified": "2017-11-04T21:58:52JST",
+    "datePublished": "2018-05-21T09:03:13JST",
+    "dateModified": "2018-05-21T09:03:13JST",
     "author": {
       "@type": "Person",
       "name": "On The Dock"
@@ -75,9 +75,8 @@
         "height": 60
       }
     },
-    "description": "<p>Hoy, al intentar lanzar un comando con <code>kubectl</code>, he obtenido el típico mensaje indicando que no se puede conectar con el servidor. El problema está en el servidor de API, que es el que actua como intermediario entre el usuario y Kubernetes. Últimamente he encontrado el mismo error y lo he solucionado reiniciando el nodo <em>master</em> del clúster. Pero hoy he investigado un poco&hellip; Y lo que he encontrado no me ha gustado demasiado.</p>
-
-<p></p>"
+    "description": "<p>Ya hemos instalado <a href="https://onthedock.github.io/post/180520-pipeline-gogs-el-repositorio-de-codigo/">Gogs</a> y <a href="https://onthedock.github.io/post/180520-pipeline-instalacion-y-actualizacion-de-jenkins/">Jenkins</a> en nuestro sistema; ahora es el momento de empezar a subir código y ver qué podemos hacer con él.
+</p>"
   }
 </script>
 
@@ -106,14 +105,14 @@
     <main>
       
 <div class="l-container">
-  <article class="single article-f831baebaad56b8e3d70750749393da3">
+  <article class="single article-8fd0d0535b25566772d8bfcab456999e">
   <div class="header-wrapper">
-    <a href="https://onthedock.github.io/post/171104-apiserver-detenido/" class="thumbnail" title="API server detenido: The connection to the server was refused"></a>
+    <a href="https://onthedock.github.io/post/180521-subiendo-el-codigo-a-gogs/" class="thumbnail" title="Pipeline - Subiendo el código a Gogs"></a>
     <header class="article-header">
       <div class="clearfix">
-        <h1 class="title">API server detenido: The connection to the server was refused</h1>
+        <h1 class="title">Pipeline - Subiendo el código a Gogs</h1>
         <ul class="p-facts">
-          <li><time datetime="2017-11-04T21:58:52JST">4 Nov 2017</time></li>
+          <li><time datetime="2018-05-21T09:03:13JST">21 May 2018</time></li>
           <li><a href="https://onthedock.github.io/post/">post</a></li>
           
           <li>Xavier Aznar</li>
@@ -122,152 +121,100 @@
     </header>
   </div>
 
-  <div class="article-body"><p>Hoy, al intentar lanzar un comando con <code>kubectl</code>, he obtenido el típico mensaje indicando que no se puede conectar con el servidor. El problema está en el servidor de API, que es el que actua como intermediario entre el usuario y Kubernetes. Últimamente he encontrado el mismo error y lo he solucionado reiniciando el nodo <em>master</em> del clúster. Pero hoy he investigado un poco&hellip; Y lo que he encontrado no me ha gustado demasiado.</p>
+  <div class="article-body"><p>Ya hemos instalado <a href="https://onthedock.github.io/post/180520-pipeline-gogs-el-repositorio-de-codigo/">Gogs</a> y <a href="https://onthedock.github.io/post/180520-pipeline-instalacion-y-actualizacion-de-jenkins/">Jenkins</a> en nuestro sistema; ahora es el momento de empezar a subir código y ver qué podemos hacer con él.
+</p>
 
-<p></p>
+<p>Gogs, como repositorio de código, es el punto de partida del proceso de integración continua.</p>
 
-<p>El problema se observa en cuanto intentas lanzar un comando con <code>kubectl</code>:</p>
+<p>Como mis habilidades programando son limitadas, usaremos el código fuente del tutorial sobre Maven ofrecido por los desarrolladores del <em>framework</em> para Java <strong>Sping</strong>: <a href="https://spring.io/guides/gs/maven/">Building Java Projects with Maven</a>. El código fuente se encuentra publicado en GitHub: <a href="https://github.com/spring-guides/gs-maven">spring-guides/gs-maven
+</a>.</p>
 
-<pre><code class="language-shell">$ kubectl get nodes
-The connection to the server 192.168.1.11:6443 was refused - did you specify the right host or port?
+<p>Clonamos el repositorio en una máquina de desarrollo (en <code>~/gs-maven</code>) mediante :</p>
+
+<pre><code class="language-shell">$ git clone https://github.com/spring-guides/gs-maven.git
+Cloning into 'gs-maven'...
+remote: Counting objects: 478, done.
+remote: Total 478 (delta 0), reused 0 (delta 0), pack-reused 478
+Receiving objects: 100% (478/478), 140.22 KiB | 0 bytes/s, done.
+Resolving deltas: 100% (238/238), done.
+$
 </code></pre>
 
-<p>Como no hay forma de comunicar con Kubernetes, uso <code>docker ps</code> para observar el estado de los diferentes contenedores del <em>control plane</em> de Kubernetes:</p>
+<h1 id="creación-del-repositorio">Creación del repositorio</h1>
 
-<pre><code class="language-shell">$ docker ps -a
-CONTAINER ID        IMAGE                                                  COMMAND                  CREATED             STATUS                     PORTS               NAMES
-6ef208ad4c36        gcr.io/google_containers/kube-apiserver-arm            &quot;kube-apiserver --...&quot;   3 days ago          Exited (255) 3 days ago                        k8s_kube-apiserver_kube-apiserver-k1_kube-system_c0f77be12d1bf28aaecf7cc373a774b6_5
-45cee0251e6e        gcr.io/google_containers/k8s-dns-sidecar-arm           &quot;/sidecar --v=2 --...&quot;   9 days ago          Up 9 days                                      k8s_sidecar_kube-dns-66ffd5c588-5gvsc_kube-system_5ef537a4-b67c-11e7-8cb3-b827eb650fdb_1
-a832db03112d        gcr.io/google_containers/k8s-dns-dnsmasq-nanny-arm     &quot;/dnsmasq-nanny -v...&quot;   9 days ago          Up 9 days                                      k8s_dnsmasq_kube-dns-66ffd5c588-5gvsc_kube-system_5ef537a4-b67c-11e7-8cb3-b827eb650fdb_1
-288ab144f5c5        gcr.io/google_containers/k8s-dns-kube-dns-arm          &quot;/kube-dns --domai...&quot;   9 days ago          Up 9 days
-...
-</code></pre>
+<p>En primer lugar, accedemos a Gogs y creamos un repositorio para nuestro código:</p>
 
-<p>Como puede observarse en la salida del comando, el contenedor del API server falló hace tres días (he estado fuera 4 días). He intentado arrancar el contenedor mediante <code>docker start</code>, pero no ha funcionado.</p>
+<figure>
+  <amp-img src="https://onthedock.github.io/images/180521/gogs-new-repo.png" alt="Pipeline - Subiendo el código a Gogs images/180521/gogs-new-repo.png" width=320 height=205 layout="responsive"></amp-img>
+  
+  <figcaption>
+    
+    Gogs - New repository
+    
+  </figcaption>
+  
+</figure>
 
-<p>He intentado obtener los logs del contenedor, pero tampoco he tenido éxito, precisamente porque no puedo conectar con el API server:</p>
 
-<pre><code class="language-shell">$ kubectl logs 6ef208ad4c36
-The connection to the server 192.168.1.11:6443 was refused - did you specify the right host or port?
-</code></pre>
-
-<p>Así que, de nuevo, he intentado usar Docker directamente:</p>
-
-<pre><code class="language-shell">$ docker logs 6ef208ad4c36
-Error response from daemon: stat /var/lib/docker/overlay2/1d2dd8b0acc2ec2c153faf571fd80c27b8ff113ece23a97860a5b049f9d3b183: no such file or directory
-</code></pre>
-
-<p>Sin información de qué es lo que le ha pasado al contenedor, no puedo avanzar mucho. En la documentación oficial de Kubernetes, en la <a href="https://kubernetes.io/docs/tasks/debug-application-cluster/debug-cluster/">sección de <em>troubleshooting</em></a> se indica que los <em>logs</em> se encuentran en:</p>
+<p>Le damos un nombre como <code>gs-maven</code> y tras la creación del repositorio, se nos indica cómo añadir un repositorio existente en el repositorio recién creado:</p>
 
 <blockquote>
-<p>Master</p>
-
-<ul>
-<li>/var/log/kube-apiserver.log - API Server, responsible for serving the API</li>
-<li>/var/log/kube-scheduler.log - Scheduler, responsible for making scheduling decisions</li>
-<li>/var/log/kube-controller-manager.log - Controller that manages replication controllers</li>
-</ul>
-
-<p>Worker Nodes</p>
-
-<ul>
-<li>/var/log/kubelet.log - Kubelet, responsible for running containers on the node</li>
-<li>/var/log/kube-proxy.log - Kube Proxy, responsible for service load balancing</li>
-</ul>
+<p>Como el nombre <code>origin</code> se ha añadido automáticamente al clonar el repositorio desde GitHub, cambiamos el nombre del <em>remoto</em> en Gogs por <code>gogs-origin</code>:</p>
 </blockquote>
 
-<p>Sin embargo, los logs no se encuentran en la ubicación indicada:</p>
-
-<pre><code class="language-shell">$ ls /var/log/kube-*
-ls: cannot access /var/log/kube-*: No such file or directory
+<pre><code class="language-shel">git remote add gogs-origin http://192.168.1.209:10080/operador/gs-maven.git
+git push -u gogs-origin master
 </code></pre>
 
-<p>Para encontrar dónde se encuentra el fichero, busco usando:</p>
+<h1 id="configuración-del-remoto-gogs-origin-y-subida-del-código">Configuración del remoto <code>gogs-origin</code> y subida del código</h1>
 
-<pre><code class="language-shell">$ sudo find / -iname &quot;kube*log&quot;
-/var/log/pods/dda418d2bc54e897654d295f2156b331/kube-controller-manager_0.log
-/var/log/pods/c0f77be12d1bf28aaecf7cc373a774b6/kube-apiserver_0.log
-/var/log/pods/864488f96fd16d6c70d1eb754228dd63/kube-scheduler_0.log
-/var/log/pods/5ef537a4-b67c-11e7-8cb3-b827eb650fdb/kubedns_0.log
-/var/log/pods/5ef6f558-b67c-11e7-8cb3-b827eb650fdb/kube-proxy_0.log
-/var/log/containers/kube-dns-66ffd5c588-5gvsc_kube-system_kubedns-627ae5eebc9e0d261033f323820b1b2c58a03b7bbaaf7d510e8cb242e80bde1f.log
-/var/log/containers/kube-apiserver-k1_kube-system_kube-apiserver-e2f69b23c5ed6c30c440bd2974362a4b66ef1e03bf24a91c8d45386cb7465074.log
-/var/log/containers/kube-proxy-g9wg2_kube-system_kube-proxy-e71af338d9df5606c6c1925dbda3315221f203ef46e28f3a36b7393937231167.log
-/var/log/containers/kube-apiserver-k1_kube-system_kube-apiserver-6ef208ad4c36ac7dae20a7f4d1bbd23725027c5505d71a41e2476d6bfc0fa826.log
-/var/log/containers/kube-dns-66ffd5c588-5gvsc_kube-system_sidecar-07fb05e5e076de09c4ca8e898865cf7d23e120ba2d4a1f12168bacf5a358fb1c.log
-/var/log/containers/kube-dns-66ffd5c588-5gvsc_kube-system_dnsmasq-198e2648d2aeab19642c386ddae02d373af6950bc68ce82121785fd41ae0e64f.log
+<p>Siguiendo las instrucciones proporcionadas por Gogs convenientemente modificadas, subimos el código desde la máquina de desarrollo a Gogs:</p>
+
+<pre><code class="language-shell">$ git remote add gogs-origin http://192.168.1.209:10080/operador/gs-maven.git
+$
 </code></pre>
 
-<p>Entre los resultados observo que se encuentra el fichero <code>kube-appiserver_0.log</code>, que es lo más parecido al log que busco.</p>
+<p>Verificamos que se ha añadido el remoto correctamente:</p>
 
-<pre><code class="language-shell">$ sudo !!
-sudo tail /var/log/pods/c0f77be12d1bf28aaecf7cc373a774b6/kube-apiserver_0.log
-{&quot;log&quot;:&quot;I1023 01:18:42.960933       1 trace.go:76] Trace[337274143]: \&quot;Get /api/v1/namespaces/kube-system\&quot; (started: 2017-10-23 01:18:42.38724446 +0000 UTC) (total time: 573.403754ms):\n&quot;,&quot;stream&quot;:&quot;stderr&quot;,&quot;time&quot;:&quot;2017-10-23T01:18:42.961947592Z&quot;}
-{&quot;log&quot;:&quot;Trace[337274143]: [572.874013ms] [572.800003ms] About to write a response\n&quot;,&quot;stream&quot;:&quot;stderr&quot;,&quot;time&quot;:&quot;2017-10-23T01:18:42.962312802Z&quot;}
-{&quot;log&quot;:&quot;I1023 02:42:38.361259       1 trace.go:76] Trace[1274919061]: \&quot;GuaranteedUpdate etcd3: *api.Endpoints\&quot; (started: 2017-10-23 02:42:37.785909186 +0000 UTC) (total time: 575.108669ms):\n&quot;,&quot;stream&quot;:&quot;stderr&quot;,&quot;time&quot;:&quot;2017-10-23T02:42:38.36211817Z&quot;}
-{&quot;log&quot;:&quot;Trace[1274919061]: [574.898772ms] [573.472622ms] Transaction committed\n&quot;,&quot;stream&quot;:&quot;stderr&quot;,&quot;time&quot;:&quot;2017-10-23T02:42:38.362468223Z&quot;}
-{&quot;log&quot;:&quot;I1023 02:42:38.362198       1 trace.go:76] Trace[103451536]: \&quot;Update /api/v1/namespaces/kube-system/endpoints/kube-scheduler\&quot; (started: 2017-10-23 02:42:37.785238299 +0000 UTC) (total time: 576.700235ms):\n&quot;,&quot;stream&quot;:&quot;stderr&quot;,&quot;time&quot;:&quot;2017-10-23T02:42:38.362646088Z&quot;}
-{&quot;log&quot;:&quot;Trace[103451536]: [576.161015ms] [575.766326ms] Object stored in database\n&quot;,&quot;stream&quot;:&quot;stderr&quot;,&quot;time&quot;:&quot;2017-10-23T02:42:38.362784474Z&quot;}
-{&quot;log&quot;:&quot;I1023 03:12:12.811461       1 trace.go:76] Trace[1516791138]: \&quot;GuaranteedUpdate etcd3: *api.Node\&quot; (started: 2017-10-23 03:12:12.280394866 +0000 UTC) (total time: 530.751679ms):\n&quot;,&quot;stream&quot;:&quot;stderr&quot;,&quot;time&quot;:&quot;2017-10-23T03:12:12.812799938Z&quot;}
-{&quot;log&quot;:&quot;Trace[1516791138]: [529.976416ms] [509.72492ms] Transaction committed\n&quot;,&quot;stream&quot;:&quot;stderr&quot;,&quot;time&quot;:&quot;2017-10-23T03:12:12.813138273Z&quot;}
-{&quot;log&quot;:&quot;I1023 04:13:09.997217       1 trace.go:76] Trace[745949868]: \&quot;GuaranteedUpdate etcd3: *api.Node\&quot; (started: 2017-10-23 04:13:09.329786766 +0000 UTC) (total time: 659.869359ms):\n&quot;,&quot;stream&quot;:&quot;stderr&quot;,&quot;time&quot;:&quot;2017-10-23T04:13:09.99824922Z&quot;}
-{&quot;log&quot;:&quot;Trace[745949868]: [650.270324ms] [649.75251ms] Transaction prepared\n&quot;,&quot;stream&quot;:&quot;stderr&quot;,&quot;time&quot;:&quot;2017-10-23T04:13:09.998615002Z&quot;}
+<pre><code class="language-shell">$ git remote -v
+gogs-origin http://192.168.1.209:10080/operador/gs-maven.git (fetch)
+gogs-origin http://192.168.1.209:10080/operador/gs-maven.git (push)
+origin https://github.com/spring-guides/gs-maven.git (fetch)
+origin https://github.com/spring-guides/gs-maven.git (push)
 </code></pre>
 
-<p>Pero la información contenida en el fichero de log no coincide -por fechas- con los <em>últimos momentos de vida</em> del <em>pod</em> c0f77be12d1bf28aaecf7cc373a774b6.</p>
+<p>Observamos que se muestra tanto el remoto en GitHub <em>origin</em> como en Gogs <em>gogs-origin</em>.</p>
 
-<p>Si embargo, siguiendo la pista de la misma página <a href="https://kubernetes.io/docs/tasks/debug-application-cluster/debug-cluster/">https://kubernetes.io/docs/tasks/debug-application-cluster/debug-cluster/</a>, se indica que en las distribuciones que usen <code>systemd</code> hay que usar <code>journalctl</code>.</p>
+<p>Ahora ya sólo tenemos que subir el código mediante:</p>
 
-<p>Usando <code>journalctl</code> fue tan sencillo como lanzar <code>sudo journalctl | grep apiserver | less</code>. Entre la salida del comando se observa un patrón de mensajes:</p>
-
-<pre><code class="language-log">...
-Nov 05 06:07:57 k1 kubelet[319]: E1105 06:07:57.028616     319 reflector.go:205] k8s.io/kubernetes/pkg/kubelet/config/apiserver.go:47: Failed to list *v1.Pod: Get https://192.168.1.11:6443/api/v1/pods?fieldSelector=spec.nodeName%3Dk1&amp;resourceVersion=0: dial tcp 192.168.1.11:6443: getsockopt: connection refused
-Nov 05 06:07:57 k1 kubelet[319]: E1105 06:07:57.076083     319 kuberuntime_manager.go:840] PodSandboxStatus of sandbox &quot;7d9ec7433434e66bee7d0458ece2e142e80a5825884cca2f5f17a5f0ca548d2a&quot; for pod &quot;kube-apiserver-k1_kube-system(c0f77be12d1bf28aaecf7cc373a774b6)&quot; error: rpc error: code = Unknown desc = Error response from daemon: open /var/lib/docker/overlay2/74217d05e7d37d111ce00a444c0a4237618a5474a8ca72393feeea664532d30b/lower: structure needs cleaning
-Nov 05 06:07:57 k1 kubelet[319]: E1105 06:07:57.076376     319 generic.go:241] PLEG: Ignoring events for pod kube-apiserver-k1/kube-system: rpc error: code = Unknown desc = Error response from daemon: open /var/lib/docker/overlay2/74217d05e7d37d111ce00a444c0a4237618a5474a8ca72393feeea664532d30b/lower: structure needs cleaning
-Nov 05 06:07:57 k1 kubelet[319]: E1105 06:07:57.236495     319 kuberuntime_manager.go:840] PodSandboxStatus of sandbox &quot;7d9ec7433434e66bee7d0458ece2e142e80a5825884cca2f5f17a5f0ca548d2a&quot; for pod &quot;kube-apiserver-k1_kube-system(c0f77be12d1bf28aaecf7cc373a774b6)&quot; error: rpc error: code = Unknown desc = Error response from daemon: open /var/lib/docker/overlay2/74217d05e7d37d111ce00a444c0a4237618a5474a8ca72393feeea664532d30b/lower: structure needs cleaning
-...
+<pre><code class="language-shell">$ git status
+On branch master
+Your branch is up-to-date with 'origin/master'.
+nothing to commit, working tree clean
+$ git push gogs-origin master
+Counting objects: 478, done.
+Delta compression using up to 2 threads.
+Compressing objects: 100% (214/214), done.
+Writing objects: 100% (478/478), 140.24 KiB | 0 bytes/s, done.
+Total 478 (delta 238), reused 478 (delta 238)
+Username for 'http://192.168.1.209:10080': operador
+Password for 'http://operador@192.168.1.209:10080':
+remote: Resolving deltas: 100% (238/238), done.
+To http://192.168.1.209:10080/operador/gs-maven.git
+ * [new branch]      master -&gt; master
+$
 </code></pre>
 
-<p>En primer lugar, el mensaje de <em>connection refused</em> que se obtiene al intentar ejecutar cualquier comando con <em>kubectl</em>. A continuación, mensajes de errores de RPC del <em>pod</em> donde se ejecuta el API Server: <em>Error response from daemon</em>. Y la causa parece ser que al intentar abrir <code>/var/lib/docker/overlay2/74217d05e7d37d111ce00a444c0a4237618a5474a8ca72393feeea664532d30b/lower</code> se produce un error <code>structure needs cleaning</code>.</p>
+<p>Primero comprobamos con <code>git status</code> que no hay cambios pendientes que añadir. A continuación añadimos el código a <code>gogs-origin</code>.</p>
 
-<p>Al intentar averiguar qué le pasa al fichero, lanzo <code>sudo ls -la  /var/lib/docker/overlay2/74217d05e7d37d111ce00a444c0a4237618a5474a8ca72393feeea664532d30b/</code> y la salida es preocupante:</p>
-
-<pre><code class="language-shell">$ sudo ls -la  /var/lib/docker/overlay2/74217d05e7d37d111ce00a444c0a4237618a5474a8ca72393feeea664532d30b/
-ls: cannot access /var/lib/docker/overlay2/74217d05e7d37d111ce00a444c0a4237618a5474a8ca72393feeea664532d30b/link: Structure needs cleaning
-ls: cannot access /var/lib/docker/overlay2/74217d05e7d37d111ce00a444c0a4237618a5474a8ca72393feeea664532d30b/lower: Structure needs cleaning
-total 32
-drwx------  5 root root  4096 Oct 23 04:17 .
-drwx------ 95 root root 16384 Nov  1 06:48 ..
-drwxr-xr-x  2 root root  4096 Oct 23 04:17 diff
--?????????  ? ?    ?        ?            ? link
--?????????  ? ?    ?        ?            ? lower
-drwxr-xr-x  1 root root  4096 Oct 23 04:17 merged
-drwx------  3 root root  4096 Oct 23 04:17 work
-</code></pre>
-
-<p>El sistema operativo no sabe qué son los fichero <code>link</code> o <code>lower</code>. Si intentas inspeccionar su contenido:</p>
-
-<pre><code class="language-shell">$ sudo cat /var/lib/docker/overlay2/74217d05e7d37d111ce00a444c0a4237618a5474a8ca72393feeea664532d30b/lower
-cat: /var/lib/docker/overlay2/74217d05e7d37d111ce00a444c0a4237618a5474a8ca72393feeea664532d30b/lower: Structure needs cleaning
-</code></pre>
-
-<p>Al buscar en Google <code>Structure needs cleaning</code> todas las respuestas apuntan a una corrupción del sistema de ficheros (por ejemplo: <a href="https://www.reddit.com/r/linuxquestions/comments/4b47r2/has_anyone_ever_gotten_structure_needs_cleaning/">Has anyone ever gotten &ldquo;structure needs cleaning&rdquo; errors on their EXT4 file system?</a> o <a href="https://unix.stackexchange.com/questions/330742/cannot-remove-file-structure-needs-cleaning">Cannot remove file: “Structure needs cleaning”</a>).</p>
-
-<p>Aunque todas las soluciones apuntan de una forma u otra a ejecutar un <code>fsck</code>, siempre se refieren a particiones diferentes a <code>/</code>, que al estar montada no puede analizarse (o que puede provocar más problemas de los que soluciona).
-Así que he optado por marcar el sistema de ficheros como <code>dirty</code> y reiniciar, con la esperanza de que el propio sistema realice la limpieza. Después del reinicio -y de que el <em>control plane</em> arranque-, he podido ejecutar de nuevo los comandos vía <em>kubectl</em>.</p>
-
-<p>Como no estaba seguro de si se había ejecutado la limpieza, he seguido las instrucciones en <a href="https://www.cyberciti.biz/faq/linux-force-fsck-on-the-next-reboot-or-boot-sequence/">Linux Force fsck on the Next Reboot or Boot Sequence</a> para <strong>forzar</strong> la limpieza del disco después del reinicio.</p>
-
-<p>Y de nuevo, después de volver a arrancar, el sistema responde y no encuentro problemas con el API server.</p>
-
-<p>Durante los próximos días revisaré si el problema con el <em>pod</em> del API server se reproduce o si se ha solucionado definitivamente después de ejecutar el <em>fsck</em>.</p></div>
+<p>Accediendo a Gogs podemos validar que el código se ha subido correctamente.</p></div>
 
   <aside class="p-share">
-  <a href="http://b.hatena.ne.jp/add?mode=confirm&url=https%3a%2f%2fonthedock.github.io%2fpost%2f171104-apiserver-detenido%2f&title=API%20server%20detenido%3a%20The%20connection%20to%20the%20server%20was%20refused" title="はてなブックマーク" class="ht" target="_blank" rel="nofollow"></a>
-  <a href="http://www.facebook.com/sharer.php?u=https%3a%2f%2fonthedock.github.io%2fpost%2f171104-apiserver-detenido%2f&t=API%20server%20detenido%3a%20The%20connection%20to%20the%20server%20was%20refused" title="Facebookでシェア" class="fb" target="_blank" rel="nofollow"></a>
-  <a href="http://twitter.com/intent/tweet?url=https%3a%2f%2fonthedock.github.io%2fpost%2f171104-apiserver-detenido%2f&text=API%20server%20detenido%3a%20The%20connection%20to%20the%20server%20was%20refused&tw_p=tweetbutton" title="Twitterでシェア" class="tw" target="_blank" rel="nofollow"></a>
-  <a href="https://plus.google.com/share?url=https%3a%2f%2fonthedock.github.io%2fpost%2f171104-apiserver-detenido%2f" title="Google Plusでシェア" class="gp" target="_blank" rel="nofollow"></a>
-  <a href="http://line.me/R/msg/text/?API%20server%20detenido%3a%20The%20connection%20to%20the%20server%20was%20refused https%3a%2f%2fonthedock.github.io%2fpost%2f171104-apiserver-detenido%2f" title="LINEでシェア" class="ln" target="_blank" rel="nofollow"></a>
+  <a href="http://b.hatena.ne.jp/add?mode=confirm&url=https%3a%2f%2fonthedock.github.io%2fpost%2f180521-subiendo-el-codigo-a-gogs%2f&title=Pipeline%20-%20Subiendo%20el%20c%c3%b3digo%20a%20Gogs" title="はてなブックマーク" class="ht" target="_blank" rel="nofollow"></a>
+  <a href="http://www.facebook.com/sharer.php?u=https%3a%2f%2fonthedock.github.io%2fpost%2f180521-subiendo-el-codigo-a-gogs%2f&t=Pipeline%20-%20Subiendo%20el%20c%c3%b3digo%20a%20Gogs" title="Facebookでシェア" class="fb" target="_blank" rel="nofollow"></a>
+  <a href="http://twitter.com/intent/tweet?url=https%3a%2f%2fonthedock.github.io%2fpost%2f180521-subiendo-el-codigo-a-gogs%2f&text=Pipeline%20-%20Subiendo%20el%20c%c3%b3digo%20a%20Gogs&tw_p=tweetbutton" title="Twitterでシェア" class="tw" target="_blank" rel="nofollow"></a>
+  <a href="https://plus.google.com/share?url=https%3a%2f%2fonthedock.github.io%2fpost%2f180521-subiendo-el-codigo-a-gogs%2f" title="Google Plusでシェア" class="gp" target="_blank" rel="nofollow"></a>
+  <a href="http://line.me/R/msg/text/?Pipeline%20-%20Subiendo%20el%20c%c3%b3digo%20a%20Gogs https%3a%2f%2fonthedock.github.io%2fpost%2f180521-subiendo-el-codigo-a-gogs%2f" title="LINEでシェア" class="ln" target="_blank" rel="nofollow"></a>
 </aside>
 
 
@@ -278,7 +225,7 @@ Así que he optado por marcar el sistema de ficheros como <code>dirty</code> y r
         
         <li itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb"><a href="https://onthedock.github.io/post/" itemprop="url"><span itemprop="title">post</span></a></li>
         
-        <li>API server detenido: The connection to the server was refused</li>
+        <li>Pipeline - Subiendo el código a Gogs</li>
       </ol>
 
       
@@ -288,6 +235,8 @@ Así que he optado por marcar el sistema de ficheros como <code>dirty</code> y r
         <li>
           <header><a href="https://onthedock.github.io/categories/">categories</a></header>
           <ul>
+            
+            <li><a href="https://onthedock.github.io/categories/dev/">dev</a></li>
             
             <li><a href="https://onthedock.github.io/categories/ops/">ops</a></li>
             
@@ -302,7 +251,11 @@ Así que he optado por marcar el sistema de ficheros como <code>dirty</code> y r
           <header><a href="https://onthedock.github.io/tags/">tags</a></header>
           <ul>
             
-            <li><a href="https://onthedock.github.io/tags/kubernetes/">kubernetes</a></li>
+            <li><a href="https://onthedock.github.io/tags/linux/">linux</a></li>
+            
+            <li><a href="https://onthedock.github.io/tags/gogs/">gogs</a></li>
+            
+            <li><a href="https://onthedock.github.io/tags/integracion-continua/">integracion continua</a></li>
             
           </ul>
         </li>
@@ -340,22 +293,7 @@ Así que he optado por marcar el sistema de ficheros como <code>dirty</code> y r
   <section>
     <header><span>Latests</span></header>
     <ul class="p-articles thin">
-      <li><article class="li sm article-8fd0d0535b25566772d8bfcab456999e">
-  <div class="header-wrapper">
-    <a href="https://onthedock.github.io/post/180521-subiendo-el-codigo-a-gogs/" class="thumbnail" title="Pipeline - Subiendo el código a Gogs"></a>
-    <header class="article-header">
-      <div class="clearfix">
-        <h2 class="title"><a href="https://onthedock.github.io/post/180521-subiendo-el-codigo-a-gogs/">Pipeline - Subiendo el código a Gogs</a></h2>
-        <ul class="p-facts">
-          <li><time datetime="2018-05-21T09:03:13JST">21 May 2018</time></li>
-          <li><a href="https://onthedock.github.io/post/">post</a></li>
-          
-        </ul>
-      </div>
-    </header>
-  </div>
-</article>
-</li><li><article class="li sm article-9d852d24f77755909ea56d2ce72cb408">
+      <li><article class="li sm article-9d852d24f77755909ea56d2ce72cb408">
   <div class="header-wrapper">
     <a href="https://onthedock.github.io/post/180520-pipeline-instalacion-y-actualizacion-de-jenkins/" class="thumbnail" title="Pipeline - Instalacion y actualizacion de Jenkins"></a>
     <header class="article-header">
@@ -393,6 +331,21 @@ Así que he optado por marcar el sistema de ficheros como <code>dirty</code> y r
         <h2 class="title"><a href="https://onthedock.github.io/post/180520-pipeline-aplicaciones-auxiliares/">Pipeline: Aplicaciones auxiliares</a></h2>
         <ul class="p-facts">
           <li><time datetime="2018-05-20T07:08:04JST">20 May 2018</time></li>
+          <li><a href="https://onthedock.github.io/post/">post</a></li>
+          
+        </ul>
+      </div>
+    </header>
+  </div>
+</article>
+</li><li><article class="li sm article-56679bf127fa712be78799b59e8ebcbe">
+  <div class="header-wrapper">
+    <a href="https://onthedock.github.io/post/180519-pipeline-consideraciones-generales/" class="thumbnail" title="Pipeline: Consideraciones Generales"></a>
+    <header class="article-header">
+      <div class="clearfix">
+        <h2 class="title"><a href="https://onthedock.github.io/post/180519-pipeline-consideraciones-generales/">Pipeline: Consideraciones Generales</a></h2>
+        <ul class="p-facts">
+          <li><time datetime="2018-05-19T20:12:47JST">19 May 2018</time></li>
           <li><a href="https://onthedock.github.io/post/">post</a></li>
           
         </ul>
