@@ -9,15 +9,15 @@
 <meta name="generator" content="Hugo 0.40.3" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
-<link rel="alternate" type="application/rss+xml" title="RSS" href="https://onthedock.github.io/categories/linux/index.xml">
 
-<link rel="canonical" href="https://onthedock.github.io/categories/linux/">
+
+<link rel="canonical" href="https://onthedock.github.io/post/180521-pipeline-creacion-del-job-en-jenkins/">
 
 
     
     <link href="https://fonts.googleapis.com/css?family=Lobster|Lato:400,700" rel="stylesheet">
     
-    <title>Linux - On The Dock</title>
+    <title>Pipeline - Creacion del job en Jenkins - On The Dock</title>
     <style amp-boilerplate>body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}</style><noscript><style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style></noscript>
     <script async src="https://cdn.ampproject.org/v0.js"></script>
     
@@ -26,6 +26,61 @@
 <script async custom-element="amp-ad" src="https://cdn.ampproject.org/v0/amp-ad-0.1.js"></script>
 
     
+<meta name="description" content="&lt;p&gt;Una vez tenemos código en el repositorio de &lt;a href=&#34;https://onthedock.github.io/post/180521-subiendo-el-codigo-a-gogs/&#34;&gt;Gogs&lt;/a&gt;, para poder avanzar tenemos que definir y configurar el &lt;em&gt;pipeline&lt;/em&gt; en Jenkins.&lt;/p&gt;">
+
+<meta property="og:title" content="Pipeline - Creacion del job en Jenkins - On The Dock">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://onthedock.github.io/post/180521-pipeline-creacion-del-job-en-jenkins/">
+<meta property="og:image" content="https://onthedock.github.io/images/jenkins.png">
+<meta property="og:site_name" content="On The Dock">
+<meta property="og:description" content="&lt;p&gt;Una vez tenemos código en el repositorio de &lt;a href=&#34;https://onthedock.github.io/post/180521-subiendo-el-codigo-a-gogs/&#34;&gt;Gogs&lt;/a&gt;, para poder avanzar tenemos que definir y configurar el &lt;em&gt;pipeline&lt;/em&gt; en Jenkins.&lt;/p&gt;">
+<meta property="og:locale" content="ja_JP">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="On The Dock">
+<meta name="twitter:url" content="https://onthedock.github.io/post/180521-pipeline-creacion-del-job-en-jenkins/">
+<meta name="twitter:title" content="Pipeline - Creacion del job en Jenkins - On The Dock">
+<meta name="twitter:description" content="&lt;p&gt;Una vez tenemos código en el repositorio de &lt;a href=&#34;https://onthedock.github.io/post/180521-subiendo-el-codigo-a-gogs/&#34;&gt;Gogs&lt;/a&gt;, para poder avanzar tenemos que definir y configurar el &lt;em&gt;pipeline&lt;/em&gt; en Jenkins.&lt;/p&gt;">
+<meta name="twitter:image" content="https://onthedock.github.io/images/jenkins.png">
+
+
+<script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "NewsArticle",
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id":"https://onthedock.github.io/"
+    },
+    "headline": "Pipeline - Creacion del job en Jenkins - On The Dock",
+    "image": {
+      "@type": "ImageObject",
+      "url": "https://onthedock.github.io/images/jenkins.png",
+      "height": 800,
+      "width": 800
+    },
+    "datePublished": "2018-05-21T12:03:50JST",
+    "dateModified": "2018-05-21T12:03:50JST",
+    "author": {
+      "@type": "Person",
+      "name": "On The Dock"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "On The Dock",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://onthedock.github.io/images/logo.png",
+        "width": 600,
+        "height": 60
+      }
+    },
+    "description": "<p>Una vez tenemos código en el repositorio de <a href="https://onthedock.github.io/post/180521-subiendo-el-codigo-a-gogs/">Gogs</a>, para poder avanzar tenemos que definir y configurar el <em>pipeline</em> en Jenkins.
+</p>"
+  }
+</script>
+
+
     <style amp-custom>
       html { font-size: 18px;}@media (max-width: 768px) { html { font-size: 15px; }}body { font-family: Lato,'Hiragino Kaku Gothic Pro',メイリオ,Meiryo,sans-serif; font-size: inherit; margin: 0; color: #263238;}html, body { margin: 0;}a { text-decoration: none; color: #e91e63;}p { margin: 0;}ul,ol { margin: 0; padding: 0;}h1, h2, h3, h4, h5, h6 { margin: 0; font-weight: 700;}h1 { font-size: 1.8rem; line-height: 2rem; margin: 1.5rem 0; }h2 { font-size: 1.4rem; line-height: 2rem; margin: 1.5rem 0; }h3 { font-size: 1.2rem; line-height: 1.5rem; margin: 1.5rem 0; }h4, h5, h6 { font-size: 1rem; line-height: 1.5rem; margin: 1.5rem 0; }.clearfix::after { content: ''; display: block; clear: both;}main { display: block;}/* Layouts */.l-header { padding: .5rem 0; margin-bottom: 2rem; border-bottom: 1px dashed #cfd8dc; text-align: center;}.l-footer { font-size: .8rem; padding: 1rem 0; border-top: 1px dashed #cfd8dc;}.l-footer .copyright-notice,.l-footer .attribution { text-align: center;}.l-container { max-width: 42rem; margin: 0 auto; padding: 0 1rem;}/* Parts:logo */.p-logo { font-family: Lobster, cursive;}.p-logo a { color: #000; font-size: 1.6rem; line-height: 2rem;}/* Parts:section */section { border-top: 2px solid #eceff1; padding: 1.5rem 0;}section>header { text-transform: uppercase; font-weight: 700; margin-bottom: 2rem; text-align: center;}section>header span { display: inline-block; background-color: #000; color: #fff; letter-spacing: 3px; font-size: .7rem; padding: .5rem .75rem;}/* Parts:facts */.p-facts { list-style: none; font-size: .8rem; margin-bottom: 1rem;}.p-facts:last-child { margin-bottom: 0;}.p-facts li { display: inline-block; margin-right: .5rem; text-transform: uppercase;}.p-facts li header { margin-bottom: .25rem; font-weight: 700;}.p-facts li header a { color: #000; text-decoration: underline;}.p-facts li li { display: inline-block; margin-right: .5rem;}.p-facts li li::after { content: ',';}.p-facts li li:last-child::after { content: '';}/* Parts:crumb */.p-crumb { list-style: none; margin-bottom: 1rem; font-size: .8rem; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}.p-crumb:last-child { margin-bottom: 0;}.p-crumb li { display: inline;}.p-crumb li::after { content: '›'; margin: 0 .5rem;}.p-crumb li:last-child::after { content: '';}/* Parts:page-title */.p-page-title { margin-bottom: 2rem;}.p-page-title .title { margin-bottom: .5rem;}/* Parts:share */.p-share { margin-bottom: 1.5rem;}.p-share a { display: inline-block; text-align: center; padding: .5rem .5rem; margin-right: .25rem; font-size: .6rem; background-color: #eceff1; font-weight: 700;}.p-share a.ht { color: #00a4de; }.p-share a.fb { color: #3b5998; }.p-share a.tw { color: #1da1f2; }.p-share a.gp { color: #dd4b39; }.p-share a.ln { color: #00c300; }.p-share a.ht::before { content: 'Hatena'; }.p-share a.fb::before { content: 'Facebook'; }.p-share a.tw::before { content: 'Twitter'; }.p-share a.gp::before { content: 'Google+'; }.p-share a.ln::before { content: 'LINE'; }/* Parts:terms */.p-terms { padding-left: 2rem;}/* Parts:paginator */.p-paginator { text-align: center; margin-bottom: 3rem; padding-top: 2rem;}.p-paginator a { display: inline-block; border: 2px solid #eceff1; color: #263238; line-height: 2rem; padding: 0 1rem;}/* Parts:article */.p-articles { list-style: none;}.p-articles>li { margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px dashed #cfd8dc;}.p-articles>li:last-child { border-bottom: none; padding-bottom: 0;}.p-articles.thin>li { margin-bottom: 1rem; padding-bottom: 1rem;}article .article-header { display: table-cell; height: 6rem; vertical-align: middle;}article .title { margin: 0; margin-bottom: .5rem; font-size: 1.4rem; line-height: 2rem;}article .title a { color: #000;}article .header-wrapper { margin-bottom: 1.5rem;}article .thumbnail { display: block; background-position: center; background-size: cover; background-image: url(https://onthedock.github.io/images/default.jpg); width: 6rem; height: 6rem; border-radius: 50%; box-shadow: 0 0 3px 0 #333 inset; float: left; margin-right: 1rem;}article .summary { margin-bottom: 1.5rem;}article .readmore { text-align: center;}article .readmore a { font-size: .8rem; color: #000; text-decoration: underline;}article.li.sm .header-wrapper { margin-bottom: 0;}.article-body h2 { padding: 1rem 0; color: #55bbbb; border-bottom: 2px solid #eceff1;}.article-body h2:first-child { margin-top: 0; }.article-body h3 { color: #8997e4; font-style: italic;}.article-body h4 { border-left: solid .25rem #cddc39; padding: 0 .5rem;}.article-body p { margin: 1.5rem 0; line-height: 1.5rem;}.article-body a { text-decoration: underline;}.article-body ul,.article-body ol { padding-left: 1.5rem;}.article-body li { line-height: 2rem;}.article-body code { display: inline-block; font-family: Menlo, consolas, monospace; background-color: #eceff1; font-size: .8rem; padding: 0 .5rem; line-height: 1.5rem;}.article-body pre { margin: 1.5rem 0; padding: 1.5rem; font-size: .8rem; background-color: #263238; color: #fff; overflow: auto;}.article-body pre code { background-color: transparent;}.article-body blockquote { /* margin: 1.2rem 0; padding: .5rem 0; */ /*font-size: .8rem;*/ border-top: 1px solid #eceff1; border-bottom: 1px solid #eceff1; color: #607d8b;}.article-body blockquote p { margin: .5rem 0; line-height: 1.5rem;}.article-body strong { /*box-shadow: 0 -.5rem 0 0 #f06292 inset;*/ font-style: bold; font-weight: 700; color: #ff5722;}.article-body em { font-style: normal; /*font-weight: 700;*/ color: #00c300;}.article-body figure { margin: 1.5rem -2rem; }.article-body figure.left,.article-body figure.right { width: 15rem; height: 12rem; margin-top: 0; margin-left: 0; margin-right: 0;}.article-body figure.left { float: left; margin-right: 1rem; margin-left: -2rem; }.article-body figure.right { float: right; margin-left: 1rem; margin-right: -2rem; }@media (max-width: 768px) { .article-body figure { margin: 1.5rem -1rem; } .article-body figure.left, .article-body figure.right { float: none; margin: 0 -1rem; width: auto; height: auto; }}.article-body figcaption { padding: .5rem 0; font-size: .8rem; text-align: center;}.article-body figcaption a { color: #263238;}
 
@@ -50,64 +105,340 @@
     <main>
       
 <div class="l-container">
-  
-  <header class="p-page-title">
-    <h1 class="title">Linux</h1>
-  </header>
-  
-
-  <img src="https://onthedock.github.io//images/MabelAmber-mini.png" class="p-articles" width="100%">
-  
-  <p style="text-align: right"><small><a href="https://www.pexels.com/photo/jetty-feet-sign-wooden-128299/">Photo</a> by <a href="https://www.pexels.com/u/mabelamber/">Mabel Amber</a></small></p>
-   
-  <ul class="p-articles">
-    <li><article class="li article-d68e08dcca5eafff4ae0d8d06280bf02">
+  <article class="single article-92e6838a86f3c412b36d6abbbb0f3f77">
   <div class="header-wrapper">
-    <a href="https://onthedock.github.io/post/170417-instalacion-de-kubernetes-falla-missing-cgroups-memory/" class="thumbnail" title="La instalación de Kubernetes falla en Debian Jessie (Missing cgroups: memory)"></a>
+    <a href="https://onthedock.github.io/post/180521-pipeline-creacion-del-job-en-jenkins/" class="thumbnail" title="Pipeline - Creacion del job en Jenkins"></a>
     <header class="article-header">
       <div class="clearfix">
-        <h2 class="title"><a href="https://onthedock.github.io/post/170417-instalacion-de-kubernetes-falla-missing-cgroups-memory/">La instalación de Kubernetes falla en Debian Jessie (Missing cgroups: memory)</a></h2>
+        <h1 class="title">Pipeline - Creacion del job en Jenkins</h1>
         <ul class="p-facts">
-          <li><time datetime="2017-04-17T19:38:11JST">17 Apr 2017</time></li>
+          <li><time datetime="2018-05-21T12:03:50JST">21 May 2018</time></li>
           <li><a href="https://onthedock.github.io/post/">post</a></li>
-          <li>Xavier Aznar</li>
           
+          <li>Xavier Aznar</li>
         </ul>
       </div>
     </header>
   </div>
-  <div class="article-body summary"><p>La instalación de Kubernetes se realiza de forma casi automática gracias al <em>script</em> <code>kubeadm</code>. Sólo hay que seguir las instrucciones de <a href="https://kubernetes.io/docs/getting-started-guides/kubeadm/">Installing Kubernetes on Linux with kubeadm</a> y la salida por pantalla del propio <em>script</em>.</p>
 
-<p></p></div>
-  <footer class="readmore"><a href="https://onthedock.github.io/post/170417-instalacion-de-kubernetes-falla-missing-cgroups-memory/">LEER M&Aacute;S</a></footer>
+  <div class="article-body"><p>Una vez tenemos código en el repositorio de <a href="https://onthedock.github.io/post/180521-subiendo-el-codigo-a-gogs/">Gogs</a>, para poder avanzar tenemos que definir y configurar el <em>pipeline</em> en Jenkins.
+</p>
+
+<ol>
+<li>Accedemos a Jenkins y pulsamos sobre el enlace <em>New item</em> en el panel lateral.</li>
+<li>Especificamos un nombre para el nuevo <em>job</em>; por ejemplo <code>Hello World</code>.</li>
+<li>Seleccionamos <em>Pipeline</em> en la lista de tipos de proyectos.</li>
+<li>Pulsamos <em>Ok</em> para crear el <em>job</em>.</li>
+</ol>
+
+<p>No configuramos nada y pulsamos <em>Save</em>.</p>
+
+<p>Hemos creado un <em>job</em> en Jenkins, aunque todavía no hace nada.</p>
+
+<h1 id="configuración-de-credenciales">Configuración de credenciales</h1>
+
+<p>Primero configuramos las credenciales que necesitamos para conectar con Gogs (se trata de un repositorio <em>privado</em>).</p>
+
+<ol>
+<li>Desde la página principal de Jenkins, pulsamos sobre <em>Credentials</em> en el panel lateral.</li>
+<li>Pulsamos sobre el almacén global de credencials (llamado <em>Jenkins</em>).</li>
+<li>Pulsamos sobre <em>Global credentials (unrestricted)</em> y seleccionamos la opción <em>Add credentials</em>.
+
+<ol>
+<li>En el desplegable para el tipo de credencial, seleccionamos <em>Username with password</em> (es la opción por defecto).</li>
+<li>En el <em>scope</em>, seleccionamos <em>Global</em>.</li>
+<li>En el campo <em>Username</em>, especificamos el usuario con permisos de acceso al repositorio donde se encuentra el código. En nuestro caso, el usuario <code>operador</code>.</li>
+<li>En el campo <em>Password</em>, introducimos la contraseña del usuario.</li>
+<li>Podemos dejar el campo <em>ID</em> en blanco; Jenkins genera un ID aleatorio. Para facilitarnos la tarea de identificar las credenciales guardadas -para su uso en scripts, por ejemplo, podemos especificar un <em>ID</em> específico (siempre que sea <strong>único</strong> en Jenkins).</li>
+<li>En el campo <em>Description</em> podemos dar una descripción detallada de las credenciales, normas de uso, etc.</li>
+</ol></li>
+<li>Tras especificar los campos necesarios para definir las credenciales, pulsamos el botón <em>Ok</em>. Esta descripción se muestra junto al nombre de usuario de las credenciales guardadas.</li>
+</ol>
+
+<h1 id="borrador-del-pipeline">Borrador del pipeline</h1>
+
+<p>En el job, pulsamos sobre <em>Configure</em> en el panel lateral y vamos a la sección <em>Pipeline</em>.</p>
+
+<p>Para empezar con un armazón de <em>pipeline</em> como referencia, usamos el ejemplo de la página de Jenkins <a href="https://jenkins.io/doc/book/pipeline/jenkinsfile/#creating-a-jenkinsfile">Using a Jenkinsfile</a>:</p>
+
+<pre><code class="language-shell">pipeline {
+    agent any
+
+    stages {
+        stage('Build') {
+            steps {
+                echo 'Building..'
+            }
+        }
+        stage('Test') {
+            steps {
+                echo 'Testing..'
+            }
+        }
+        stage('Deploy') {
+            steps {
+                echo 'Deploying....'
+            }
+        }
+    }
+}
+</code></pre>
+
+<p>Copiamos esta <em>pipeline</em> en el apartado <em>Pipeline</em> del job <em>Hello World</em> y pulsamos <em>Apply</em> para guardar los cambios.</p>
+
+<p>Puedes ejecutar este job para comprobar que funciona mediante la opción <em>Build Now</em>:</p>
+
+<figure>
+  <amp-img src="https://onthedock.github.io/images/180521/jenkins-pipeline-first-run.png" alt="Pipeline - Creacion del job en Jenkins images/180521/jenkins-pipeline-first-run.png" width=1042 height=714 layout="responsive"></amp-img>
+  
+  <figcaption>
+    
+    Job - First run
+    
+  </figcaption>
+  
+</figure>
+
+
+<h2 id="checkout-del-código-desde-jenkins">Checkout del código desde Jenkins</h2>
+
+<p>Para generar el artefacto a partir del código, el primer paso es que Jenkins descargue el código desde el repositorio. Para ello, definimos el primer paso en el <em>pipeline</em> como <em>checkout: General SCM</em>.</p>
+
+<blockquote>
+<p>Seleccionamos el job <em>Hello World</em> y pulsamos sobre el enlace <em>Pipeline Syntax</em> en el panel lateral. Usaremos la herramienta <em>Snipper Generator</em> de Jenkins para ayudarnos a construir el <em>pipeline</em>.</p>
+</blockquote>
+
+<p>Como <em>SCM</em> (<em>source control method</em>) especificamos <em>Git</em>. En el campo <em>Repository URL</em> indicamos la URL al repositorio en Gogs: <code>http://192.168.1.209:10080/operador/gs-maven.git</code>. En <em>Credentials</em>, seleccionamos las credenciales definidas en el apartado anterior para el usuario <em>operador</em>.</p>
+
+<p>Al pulsar sobre <em>Generate Pipeline Script</em>, se genera el código a incluir en el <em>pipeline</em>:</p>
+
+<pre><code class="language-shell">checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'e49daa75-9d6a-4f7b-8ccc-d85288708053', url: 'http://192.168.1.209:10080/operador/gs-maven.git']]])
+</code></pre>
+
+<p>En nuestro <em>pipeline</em>, incluimos un nuevo <em>stage</em> para hacer el <em>checkout</em> del código. También podríamos haberlo añadido como un <em>step</em> adicional en el <em>stage</em> <strong><em>Build</em></strong>.</p>
+
+<pre><code class="language-shell">pipeline {
+    agent any
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'e49daa75-9d6a-4f7b-8ccc-d85288708053', url: 'http://192.168.1.209:10080/operador/gs-maven.git']]])
+            }
+        }
+        stage('Build') {
+            steps {
+                echo 'Building..'
+            }
+        }
+        stage('Test') {
+            steps {
+                echo 'Testing..'
+            }
+        }
+        stage('Deploy') {
+            steps {
+                echo 'Deploying....'
+            }
+        }
+    }
+}
+</code></pre>
+
+<h1 id="fichero-jenkinsfile">Fichero <code>Jenkinsfile</code>`</h1>
+
+<p>En vez de editar el <em>pipeline</em> directamente desde Jenkins, es una buena práctica crear el fichero <code>Jenkinsfile</code> y tenerlo controlado en un  repositorio; en nuestro caso, lo colocamos en la raíz del repositorio de código Java.</p>
+
+<p>Accedemos a la máquina de desarrollo y creamos el fichero <code>Jenkinsfile</code> con el contenido del campo <code>Pipeline</code> del job en Jenkins:</p>
+
+<pre><code class="language-shell">vi Jenkinsfile
+</code></pre>
+
+<p>Pegamos el contenido en el fichero y lo guardamos.</p>
+
+<blockquote>
+<p>Para obtener el <em>pipeline</em> contenido en el fichero <code>Jenkinsfile</code>, Jenkins hace un <em>checkout</em> del repositorio, por lo que eliminamos del <code>Jenkinsfile</code> el paso de <em>checkout</em> introducido anteriormente.</p>
+</blockquote>
+
+<p>Finalmente, lo guardamos en el repositorio:</p>
+
+<pre><code class="language-shell">$ git add Jenkinsfile
+$ git commit Jenkinsfile -m &quot;Añadido Jenkinsfile al repositorio.&quot;
+$ git commit -m &quot;Añadido Jenkinsfile al repositorio.&quot;
+On branch master
+Your branch is ahead of 'origin/master' by 1 commit.
+  (use &quot;git push&quot; to publish your local commits)
+nothing to commit, working tree clean
+$ git push gogs-origin master
+Counting objects: 3, done.
+Delta compression using up to 2 threads.
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 598 bytes | 0 bytes/s, done.
+Total 3 (delta 1), reused 0 (delta 0)
+Username for 'http://192.168.1.209:10080': operador
+Password for 'http://operador@192.168.1.209:10080':
+To http://192.168.1.209:10080/operador/gs-maven.git
+   c2bf553..ec7fc8e  master -&gt; master
+$
+</code></pre>
+
+<p>Una vez modificado el <code>Jenkinsfile</code> y subido a Gogs, debemos modificar la configuración del job para indicar la ubicación del fichero.</p>
+
+<p>En la sección de <em>Pipeline</em> del job, en el desplegable seleccionamos <em>Pipeline script from SCM</em>.</p>
+
+<p>Indicamos que el SCM usado es Git y especificamos la URL y credenciales de acceso. En el campo <em>Script Path</em>, como hemos guardado el <code>Jenkinsfile</code> en la raíz del repositorio, dejamos <code>Jenkinsfile</code>.</p>
+
+<p>Guardamos los cambios y comprobamos que el job se sigue ejecutando con éxito.</p></div>
+
+  <aside class="p-share">
+  <a href="http://b.hatena.ne.jp/add?mode=confirm&url=https%3a%2f%2fonthedock.github.io%2fpost%2f180521-pipeline-creacion-del-job-en-jenkins%2f&title=Pipeline%20-%20Creacion%20del%20job%20en%20Jenkins" title="はてなブックマーク" class="ht" target="_blank" rel="nofollow"></a>
+  <a href="http://www.facebook.com/sharer.php?u=https%3a%2f%2fonthedock.github.io%2fpost%2f180521-pipeline-creacion-del-job-en-jenkins%2f&t=Pipeline%20-%20Creacion%20del%20job%20en%20Jenkins" title="Facebookでシェア" class="fb" target="_blank" rel="nofollow"></a>
+  <a href="http://twitter.com/intent/tweet?url=https%3a%2f%2fonthedock.github.io%2fpost%2f180521-pipeline-creacion-del-job-en-jenkins%2f&text=Pipeline%20-%20Creacion%20del%20job%20en%20Jenkins&tw_p=tweetbutton" title="Twitterでシェア" class="tw" target="_blank" rel="nofollow"></a>
+  <a href="https://plus.google.com/share?url=https%3a%2f%2fonthedock.github.io%2fpost%2f180521-pipeline-creacion-del-job-en-jenkins%2f" title="Google Plusでシェア" class="gp" target="_blank" rel="nofollow"></a>
+  <a href="http://line.me/R/msg/text/?Pipeline%20-%20Creacion%20del%20job%20en%20Jenkins https%3a%2f%2fonthedock.github.io%2fpost%2f180521-pipeline-creacion-del-job-en-jenkins%2f" title="LINEでシェア" class="ln" target="_blank" rel="nofollow"></a>
+</aside>
+
+
+  <footer class="article-footer">
+    <section>
+      <ol class="p-crumb">
+        <li><a href="https://onthedock.github.io/">On The Dock</a></li>
+        
+        <li itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb"><a href="https://onthedock.github.io/post/" itemprop="url"><span itemprop="title">post</span></a></li>
+        
+        <li>Pipeline - Creacion del job en Jenkins</li>
+      </ol>
+
+      
+      
+      
+      <ul class="p-facts">
+        <li>
+          <header><a href="https://onthedock.github.io/categories/">categories</a></header>
+          <ul>
+            
+            <li><a href="https://onthedock.github.io/categories/dev/">dev</a></li>
+            
+            <li><a href="https://onthedock.github.io/categories/ops/">ops</a></li>
+            
+          </ul>
+        </li>
+      </ul>
+      
+      
+      
+      <ul class="p-facts">
+        <li>
+          <header><a href="https://onthedock.github.io/tags/">tags</a></header>
+          <ul>
+            
+            <li><a href="https://onthedock.github.io/tags/linux/">linux</a></li>
+            
+            <li><a href="https://onthedock.github.io/tags/integracion-continua/">integracion continua</a></li>
+            
+            <li><a href="https://onthedock.github.io/tags/jenkins/">jenkins</a></li>
+            
+          </ul>
+        </li>
+      </ul>
+      
+      
+    </section>
+  </footer>
 </article>
-</li><li><article class="li article-2e821bde62a219fe0b94f62e989269e7">
+
+<article>
+  <div id="disqus_thread"></div>
+  <script>
+  
+  
+
+  
+
+  (function() { 
+  var d = document, s = d.createElement('script');
+  s.src = 'https://onthedock.disqus.com/embed.js';
+  s.setAttribute('data-timestamp', +new Date());
+  (d.head || d.body).appendChild(s);
+  })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+                              
+
+</article>
+
+
+
+  
+  
+  <section>
+    <header><span>Latests</span></header>
+    <ul class="p-articles thin">
+      <li><article class="li sm article-8fd0d0535b25566772d8bfcab456999e">
   <div class="header-wrapper">
-    <a href="https://onthedock.github.io/post/170410-docker-engine_vs_docker.io/" class="thumbnail" title="Docker-engine vs Docker.io"></a>
+    <a href="https://onthedock.github.io/post/180521-subiendo-el-codigo-a-gogs/" class="thumbnail" title="Pipeline - Subiendo el código a Gogs"></a>
     <header class="article-header">
       <div class="clearfix">
-        <h2 class="title"><a href="https://onthedock.github.io/post/170410-docker-engine_vs_docker.io/">Docker-engine vs Docker.io</a></h2>
+        <h2 class="title"><a href="https://onthedock.github.io/post/180521-subiendo-el-codigo-a-gogs/">Pipeline - Subiendo el código a Gogs</a></h2>
         <ul class="p-facts">
-          <li><time datetime="2017-04-10T21:30:31JST">10 Apr 2017</time></li>
+          <li><time datetime="2018-05-21T09:03:13JST">21 May 2018</time></li>
           <li><a href="https://onthedock.github.io/post/">post</a></li>
-          <li>Xavier Aznar</li>
           
         </ul>
       </div>
     </header>
   </div>
-  <div class="article-body summary"><p>En función de la distribución que uses, verás que el paquete de instalación de Docker es <code>docker-engine</code> o <code>docker.io</code>.</p>
-
-<p>¿Cuál es la diferencia entre uno y otro?</p>
-
-<p></p></div>
-  <footer class="readmore"><a href="https://onthedock.github.io/post/170410-docker-engine_vs_docker.io/">LEER M&Aacute;S</a></footer>
+</article>
+</li><li><article class="li sm article-9d852d24f77755909ea56d2ce72cb408">
+  <div class="header-wrapper">
+    <a href="https://onthedock.github.io/post/180520-pipeline-instalacion-y-actualizacion-de-jenkins/" class="thumbnail" title="Pipeline - Instalacion y actualizacion de Jenkins"></a>
+    <header class="article-header">
+      <div class="clearfix">
+        <h2 class="title"><a href="https://onthedock.github.io/post/180520-pipeline-instalacion-y-actualizacion-de-jenkins/">Pipeline - Instalacion y actualizacion de Jenkins</a></h2>
+        <ul class="p-facts">
+          <li><time datetime="2018-05-20T07:43:06JST">20 May 2018</time></li>
+          <li><a href="https://onthedock.github.io/post/">post</a></li>
+          
+        </ul>
+      </div>
+    </header>
+  </div>
+</article>
+</li><li><article class="li sm article-015f92caa0da0be71b6008713be0e15f">
+  <div class="header-wrapper">
+    <a href="https://onthedock.github.io/post/180520-pipeline-gogs-el-repositorio-de-codigo/" class="thumbnail" title="Pipeline: Gogs - El repositorio de código"></a>
+    <header class="article-header">
+      <div class="clearfix">
+        <h2 class="title"><a href="https://onthedock.github.io/post/180520-pipeline-gogs-el-repositorio-de-codigo/">Pipeline: Gogs - El repositorio de código</a></h2>
+        <ul class="p-facts">
+          <li><time datetime="2018-05-20T07:30:49JST">20 May 2018</time></li>
+          <li><a href="https://onthedock.github.io/post/">post</a></li>
+          
+        </ul>
+      </div>
+    </header>
+  </div>
+</article>
+</li><li><article class="li sm article-b40404c5768e20c9cf4a0ef9b40d5d8c">
+  <div class="header-wrapper">
+    <a href="https://onthedock.github.io/post/180520-pipeline-aplicaciones-auxiliares/" class="thumbnail" title="Pipeline: Aplicaciones auxiliares"></a>
+    <header class="article-header">
+      <div class="clearfix">
+        <h2 class="title"><a href="https://onthedock.github.io/post/180520-pipeline-aplicaciones-auxiliares/">Pipeline: Aplicaciones auxiliares</a></h2>
+        <ul class="p-facts">
+          <li><time datetime="2018-05-20T07:08:04JST">20 May 2018</time></li>
+          <li><a href="https://onthedock.github.io/post/">post</a></li>
+          
+        </ul>
+      </div>
+    </header>
+  </div>
 </article>
 </li>
-  </ul>
+    </ul>
+  </section>
+  
 </div>
-
-
 
 
     </main>
