@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html ⚡>
+  <head>
+    <meta charset="utf-8">
+<meta name="pinterest" content="nopin">
+<meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
+<meta name="theme-color" content="#263238">
+
+<meta name="generator" content="Hugo 0.49.2" />
+
+<link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
+
+
+<link rel="canonical" href="https://onthedock.github.io/post/181216-automatizando-la-configuracion-previa-de-una-vm-para-ansible/">
+
+
+    
+    <link href="https://fonts.googleapis.com/css?family=Lobster|Lato:400,700" rel="stylesheet">
+    
+    <title>Automatizando la configuracion de una VM para Ansible - On The Dock</title>
+    <style amp-boilerplate>body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}</style><noscript><style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style></noscript>
+    <script async src="https://cdn.ampproject.org/v0.js"></script>
+    
+    <script async custom-element="amp-twitter" src="https://cdn.ampproject.org/v0/amp-twitter-0.1.js"></script>
+<script async custom-element="amp-iframe" src="https://cdn.ampproject.org/v0/amp-iframe-0.1.js"></script>
+<script async custom-element="amp-ad" src="https://cdn.ampproject.org/v0/amp-ad-0.1.js"></script>
+
+    
+<meta name="description" content="&lt;p&gt;Con Ansible podemos automatizar la gestión de la configuración de las máquinas virtuales (o no) que creamos. Pero para poder explotar la potencia de Ansible necesitamos que la máquina gestionada cumpla unos requisitos previos: disponer de Python 2.6 o superior y que Ansible pueda conectar con la máquina.&lt;/p&gt;&lt;p&gt;Todas estas tareas se pueden automatizar, así que vamos a ver cómo conseguirlo.&lt;/p&gt;">
+
+<meta property="og:title" content="Automatizando la configuracion de una VM para Ansible - On The Dock">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://onthedock.github.io/post/181216-automatizando-la-configuracion-previa-de-una-vm-para-ansible/">
+<meta property="og:image" content="https://onthedock.github.io/images/ansible.png">
+<meta property="og:site_name" content="On The Dock">
+<meta property="og:description" content="&lt;p&gt;Con Ansible podemos automatizar la gestión de la configuración de las máquinas virtuales (o no) que creamos. Pero para poder explotar la potencia de Ansible necesitamos que la máquina gestionada cumpla unos requisitos previos: disponer de Python 2.6 o superior y que Ansible pueda conectar con la máquina.&lt;/p&gt;&lt;p&gt;Todas estas tareas se pueden automatizar, así que vamos a ver cómo conseguirlo.&lt;/p&gt;">
+<meta property="og:locale" content="ja_JP">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="On The Dock">
+<meta name="twitter:url" content="https://onthedock.github.io/post/181216-automatizando-la-configuracion-previa-de-una-vm-para-ansible/">
+<meta name="twitter:title" content="Automatizando la configuracion de una VM para Ansible - On The Dock">
+<meta name="twitter:description" content="&lt;p&gt;Con Ansible podemos automatizar la gestión de la configuración de las máquinas virtuales (o no) que creamos. Pero para poder explotar la potencia de Ansible necesitamos que la máquina gestionada cumpla unos requisitos previos: disponer de Python 2.6 o superior y que Ansible pueda conectar con la máquina.&lt;/p&gt;&lt;p&gt;Todas estas tareas se pueden automatizar, así que vamos a ver cómo conseguirlo.&lt;/p&gt;">
+<meta name="twitter:image" content="https://onthedock.github.io/images/ansible.png">
+
+
+<script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "NewsArticle",
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id":"https://onthedock.github.io/"
+    },
+    "headline": "Automatizando la configuracion de una VM para Ansible - On The Dock",
+    "image": {
+      "@type": "ImageObject",
+      "url": "https://onthedock.github.io/images/ansible.png",
+      "height": 800,
+      "width": 800
+    },
+    "datePublished": "2018-12-16T13:55:30JST",
+    "dateModified": "2018-12-16T13:55:30JST",
+    "author": {
+      "@type": "Person",
+      "name": "On The Dock"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "On The Dock",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://onthedock.github.io/images/logo.png",
+        "width": 600,
+        "height": 60
+      }
+    },
+    "description": "<p>Con Ansible podemos automatizar la gestión de la configuración de las máquinas virtuales (o no) que creamos. Pero para poder explotar la potencia de Ansible necesitamos que la máquina gestionada cumpla unos requisitos previos: disponer de Python 2.6 o superior y que Ansible pueda conectar con la máquina.</p>
+
+<p>Todas estas tareas se pueden automatizar, así que vamos a ver cómo conseguirlo.
+</p>"
+  }
+</script>
+
+
+    <style amp-custom>
+      html { font-size: 18px;}@media (max-width: 768px) { html { font-size: 15px; }}body { font-family: Lato,'Hiragino Kaku Gothic Pro',メイリオ,Meiryo,sans-serif; font-size: inherit; margin: 0; color: #263238;}html, body { margin: 0;}a { text-decoration: none; color: #e91e63;}p { margin: 0;}ul,ol { margin: 0; padding: 0;}h1, h2, h3, h4, h5, h6 { margin: 0; font-weight: 700;}h1 { font-size: 1.8rem; line-height: 2rem; margin: 1.5rem 0; }h2 { font-size: 1.4rem; line-height: 2rem; margin: 1.5rem 0; }h3 { font-size: 1.2rem; line-height: 1.5rem; margin: 1.5rem 0; }h4, h5, h6 { font-size: 1rem; line-height: 1.5rem; margin: 1.5rem 0; }.clearfix::after { content: ''; display: block; clear: both;}main { display: block;}/* Layouts */.l-header { padding: .5rem 0; margin-bottom: 2rem; border-bottom: 1px dashed #cfd8dc; text-align: center;}.l-footer { font-size: .8rem; padding: 1rem 0; border-top: 1px dashed #cfd8dc;}.l-footer .copyright-notice,.l-footer .attribution { text-align: center;}.l-container { max-width: 42rem; margin: 0 auto; padding: 0 1rem;}/* Parts:logo */.p-logo { font-family: Lobster, cursive;}.p-logo a { color: #000; font-size: 1.6rem; line-height: 2rem;}/* Parts:section */section { border-top: 2px solid #eceff1; padding: 1.5rem 0;}section>header { text-transform: uppercase; font-weight: 700; margin-bottom: 2rem; text-align: center;}section>header span { display: inline-block; background-color: #000; color: #fff; letter-spacing: 3px; font-size: .7rem; padding: .5rem .75rem;}/* Parts:facts */.p-facts { list-style: none; font-size: .8rem; margin-bottom: 1rem;}.p-facts:last-child { margin-bottom: 0;}.p-facts li { display: inline-block; margin-right: .5rem; text-transform: uppercase;}.p-facts li header { margin-bottom: .25rem; font-weight: 700;}.p-facts li header a { color: #000; text-decoration: underline;}.p-facts li li { display: inline-block; margin-right: .5rem;}.p-facts li li::after { content: ',';}.p-facts li li:last-child::after { content: '';}/* Parts:crumb */.p-crumb { list-style: none; margin-bottom: 1rem; font-size: .8rem; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}.p-crumb:last-child { margin-bottom: 0;}.p-crumb li { display: inline;}.p-crumb li::after { content: '›'; margin: 0 .5rem;}.p-crumb li:last-child::after { content: '';}/* Parts:page-title */.p-page-title { margin-bottom: 2rem;}.p-page-title .title { margin-bottom: .5rem;}/* Parts:share */.p-share { margin-bottom: 1.5rem;}.p-share a { display: inline-block; text-align: center; padding: .5rem .5rem; margin-right: .25rem; font-size: .6rem; background-color: #eceff1; font-weight: 700;}.p-share a.ht { color: #00a4de; }.p-share a.fb { color: #3b5998; }.p-share a.tw { color: #1da1f2; }.p-share a.gp { color: #dd4b39; }.p-share a.ln { color: #00c300; }.p-share a.ht::before { content: 'Hatena'; }.p-share a.fb::before { content: 'Facebook'; }.p-share a.tw::before { content: 'Twitter'; }.p-share a.gp::before { content: 'Google+'; }.p-share a.ln::before { content: 'LINE'; }/* Parts:terms */.p-terms { padding-left: 2rem;}/* Parts:paginator */.p-paginator { text-align: center; margin-bottom: 3rem; padding-top: 2rem;}.p-paginator a { display: inline-block; border: 2px solid #eceff1; color: #263238; line-height: 2rem; padding: 0 1rem;}/* Parts:article */.p-articles { list-style: none;}.p-articles>li { margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px dashed #cfd8dc;}.p-articles>li:last-child { border-bottom: none; padding-bottom: 0;}.p-articles.thin>li { margin-bottom: 1rem; padding-bottom: 1rem;}article .article-header { display: table-cell; height: 6rem; vertical-align: middle;}article .title { margin: 0; margin-bottom: .5rem; font-size: 1.4rem; line-height: 2rem;}article .title a { color: #000;}article .header-wrapper { margin-bottom: 1.5rem;}article .thumbnail { display: block; background-position: center; background-size: cover; background-image: url(https://onthedock.github.io/images/default.jpg); width: 6rem; height: 6rem; border-radius: 50%; box-shadow: 0 0 3px 0 #333 inset; float: left; margin-right: 1rem;}article .summary { margin-bottom: 1.5rem;}article .readmore { text-align: center;}article .readmore a { font-size: .8rem; color: #000; text-decoration: underline;}article.li.sm .header-wrapper { margin-bottom: 0;}.article-body h2 { padding: 1rem 0; color: #55bbbb; border-bottom: 2px solid #eceff1;}.article-body h2:first-child { margin-top: 0; }.article-body h3 { color: #8997e4; font-style: italic;}.article-body h4 { border-left: solid .25rem #cddc39; padding: 0 .5rem;}.article-body p { margin: 1.5rem 0; line-height: 1.5rem;}.article-body a { text-decoration: underline;}.article-body ul,.article-body ol { padding-left: 1.5rem;}.article-body li { line-height: 2rem;}.article-body code { display: inline-block; font-family: Menlo, consolas, monospace; background-color: #eceff1; font-size: .8rem; padding: 0 .5rem; line-height: 1.5rem;}.article-body pre { margin: 1.5rem 0; padding: 1.5rem; font-size: .8rem; background-color: #263238; color: #fff; overflow: auto;}.article-body pre code { background-color: transparent;}.article-body blockquote { /* margin: 1.2rem 0; padding: .5rem 0; */ /*font-size: .8rem;*/ border-top: 1px solid #eceff1; border-bottom: 1px solid #eceff1; color: #607d8b;}.article-body blockquote p { margin: .5rem 0; line-height: 1.5rem;}.article-body strong { /*box-shadow: 0 -.5rem 0 0 #f06292 inset;*/ font-style: bold; font-weight: 700; color: #ff5722;}.article-body em { font-style: normal; /*font-weight: 700;*/ color: #00c300;}.article-body figure { margin: 1.5rem -2rem; }.article-body figure.left,.article-body figure.right { width: 15rem; height: 12rem; margin-top: 0; margin-left: 0; margin-right: 0;}.article-body figure.left { float: left; margin-right: 1rem; margin-left: -2rem; }.article-body figure.right { float: right; margin-left: 1rem; margin-right: -2rem; }@media (max-width: 768px) { .article-body figure { margin: 1.5rem -1rem; } .article-body figure.left, .article-body figure.right { float: none; margin: 0 -1rem; width: auto; height: auto; }}.article-body figcaption { padding: .5rem 0; font-size: .8rem; text-align: center;}.article-body figcaption a { color: #263238;}
+
+       .article-1f90092555e2ba74f132561ef66df1d5 .thumbnail { background-image: url(https://onthedock.github.io/images/ansible.png);  }  .article-c302c3eac83525b1f2b78d46f9c7f430 .thumbnail { background-image: url(https://onthedock.github.io/images/181124/roadmap.png);  }  .article-fe261e0b7d326a141c1ff662c1caf421 .thumbnail { background-image: url(https://onthedock.github.io/images/cloud-init.png);  }  .article-2fc7b42f0ad38b1d0c3bda16184154ed .thumbnail { background-image: url(https://onthedock.github.io/images/kubernetes.png);  }  .article-9a5a658f072f34635bd665eae7d0d498 .thumbnail { background-image: url(https://onthedock.github.io/images/docker-compose.jpg);  }  .article-f8770956a383aeb68930a558bae85310 .thumbnail { background-image: url(https://onthedock.github.io/images/automation.png);  }  .article-d27d7b7a4057230acbe88420832d3a67 .thumbnail { background-image: url(https://onthedock.github.io/images/gitea.jpg);  }  .article-365473b8c27877be27245e38a5feb95c .thumbnail { background-image: url(https://onthedock.github.io/images/kubernetes.png);  }  .article-8da35239d2403351cd1910b3939787f6 .thumbnail { background-image: url(https://onthedock.github.io/images/jenkins.png);  }  .article-4f389af4c69dce1f727b95af66218cc0 .thumbnail { background-image: url(https://onthedock.github.io/images/docker.png);  }  .article-b63b63041915fd06eb96d2d6b298ac9b .thumbnail { background-image: url(https://onthedock.github.io/images/sonarqube.png);  }  .article-db94723578a25efdcd1489b628ae77c9 .thumbnail { background-image: url(https://onthedock.github.io/images/sonarqube.png);  }  .article-92e6838a86f3c412b36d6abbbb0f3f77 .thumbnail { background-image: url(https://onthedock.github.io/images/jenkins.png);  }  .article-8fd0d0535b25566772d8bfcab456999e .thumbnail { background-image: url(https://onthedock.github.io/images/gogs.png);  }  .article-9d852d24f77755909ea56d2ce72cb408 .thumbnail { background-image: url(https://onthedock.github.io/images/jenkins.png);  }  .article-015f92caa0da0be71b6008713be0e15f .thumbnail { background-image: url(https://onthedock.github.io/images/gogs.png);  }  .article-b40404c5768e20c9cf4a0ef9b40d5d8c .thumbnail { background-image: url(https://onthedock.github.io/images/jenkins.png);  }  .article-56679bf127fa712be78799b59e8ebcbe .thumbnail { background-image: url(https://onthedock.github.io/images/jenkins.png);  }  .article-c926846ccb5ddda2e607d41a7eed1e7e .thumbnail { background-image: url(https://onthedock.github.io/images/jenkins.png);  }  .article-439d0c4b480f76cd3e4e59c497020808 .thumbnail { background-image: url(https://onthedock.github.io/images/linux.png);  }  .article-ca9a82a3e9074b202ea71b79b8f06d72 .thumbnail { background-image: url(https://onthedock.github.io/images/linux.png);  }  .article-5dd2fbecd3c1861b16d6ccbae8458692 .thumbnail { background-image: url(https://onthedock.github.io/images/docker.png);  }  .article-d27ecb2023ff85d0423abc98d4d8ded4 .thumbnail { background-image: url(https://onthedock.github.io/images/portainer.png);  }  .article-82fdfab1e200b6fc1a28801ee717993c .thumbnail { background-image: url(https://onthedock.github.io/images/jenkins.png);  }  .article-ff3cf8144aa52ea6d7195126da8ce676 .thumbnail { background-image: url(https://onthedock.github.io/images/linux.png);  }  .article-88a2b37925efc71e7f9ec017570e19f0 .thumbnail { background-image: url(https://onthedock.github.io/images/vagrant.png);  }  .article-f22b7fd29e14db2fbd6cd579c2a0d5c9 .thumbnail { background-image: url(https://onthedock.github.io/images/vagrant.png);  }  .article-fc9c9a2b1dcd0c5683f7adbafda8f7c8 .thumbnail { background-image: url(https://onthedock.github.io/images/vagrant.png);  }  .article-a45fe2c1cdbadc45cbf34a63ab37ebcc .thumbnail { background-image: url(https://onthedock.github.io/images/linux.png);  }  .article-9e27e7f162c2feae804cbc006c1c9349 .thumbnail { background-image: url(https://onthedock.github.io/images/MabelAmber-mini.png);  }  .article-2a7b6b0759e163accb88c9261e4c0bbf .thumbnail { background-image: url(https://onthedock.github.io/images/docker.png);  }  .article-340e5d68f76888b0b8debb38ef25d46b .thumbnail { background-image: url(https://onthedock.github.io/images/docker.png);  }  .article-2fc73bdfb18aaf2eb89944fb4f7d53de .thumbnail { background-image: url(https://onthedock.github.io/images/gogs.png);  }  .article-70a1a0028c7c78526f004c0e3218a2b3 .thumbnail { background-image: url(https://onthedock.github.io/images/kubernetes.png);  }  .article-f81b2bb759a18deaa3b5575087686fe7 .thumbnail { background-image: url(https://onthedock.github.io/images/gogs.png);  }  .article-156dcec052e59d7d9f0de2250fda46f4 .thumbnail { background-image: url(https://onthedock.github.io/images/dokuwiki-on-docker.png);  }  .article-f831baebaad56b8e3d70750749393da3 .thumbnail { background-image: url(https://onthedock.github.io/images/kubernetes.png);  }  .article-df14f92fc6edab1c8632e66ef7c7e5a6 .thumbnail { background-image: url(https://onthedock.github.io/images/linux.png);  }  .article-516ab75e14eb7886aaab03ff75dbfc6b .thumbnail { background-image: url(https://onthedock.github.io/images/docker.png);  }  .article-d1ead2ec3d26cb7f91ef8234915eb13f .thumbnail { background-image: url(https://onthedock.github.io/images/docker.png);  }  .article-0b9c6f0820f2306f6cc2bfd170dccb8e .thumbnail { background-image: url(https://onthedock.github.io/images/docker.png);  }  .article-1cbc9cfd0ad3798b23d19eac020b3153 .thumbnail { background-image: url(https://onthedock.github.io/images/docker.png);  }  .article-a32274b07ce43fef61c7f19e4b68f650 .thumbnail { background-image: url(https://onthedock.github.io/images/linux.png);  }  .article-9b0b3a180af20b5c091134d23cb6d383 .thumbnail { background-image: url(https://onthedock.github.io/images/minio.jpg);  }  .article-b20735633157cb1e57eb0c1d05406149 .thumbnail { background-image: url(https://onthedock.github.io/images/kubernetes.png);  }  .article-d1e335a06f765bffda53d2e123044b27 .thumbnail { background-image: url(https://onthedock.github.io/images/kubernetes.png);  }  .article-c36c64b9d6ce0d2c95381976831c3160 .thumbnail { background-image: url(https://onthedock.github.io/images/kubernetes.png);  }  .article-ee7d8acecc9de179b9d1cecb3d253215 .thumbnail { background-image: url(https://onthedock.github.io/images/kubernetes.png);  }  .article-2480be47fe45cfc13b07c86c32ed8cda .thumbnail { background-image: url(https://onthedock.github.io/images/kubernetes.png);  }  .article-99a6578fdc273f40a61d182bcb5917c4 .thumbnail { background-image: url(https://onthedock.github.io/images/kubernetes.png);  }  .article-3ffff09a2dd1f953bbb8624d88756829 .thumbnail { background-image: url(https://onthedock.github.io/images/kubernetes.png);  }  .article-0a9cef5c4637bd946188e37439fef69c .thumbnail { background-image: url(https://onthedock.github.io/images/kubernetes.png);  }  .article-42a206d287914317761f7749b964ddb2 .thumbnail { background-image: url(https://onthedock.github.io/images/alpine.png);  }  .article-85dee6c250520e561ebc93740f1d514f .thumbnail { background-image: url(https://onthedock.github.io/images/alpine.png);  }  .article-a65000ba68f97000bb927be3f88f75bd .thumbnail { background-image: url(https://onthedock.github.io/images/kubernetes.png);  }  .article-2de6ff3b0144ea18b2ef056107448a33 .thumbnail { background-image: url(https://onthedock.github.io/images/yaml.png);  }  .article-a8aea2191f0d8d238ab6217feba51ac3 .thumbnail { background-image: url(https://onthedock.github.io/images/vagrant.png);  }  .article-67cd76b76e108b6604b344e92a3c329a .thumbnail { background-image: url(https://onthedock.github.io/images/docker.png);  }  .article-d341a5f8cd54b9da7a3a6d1168365c25 .thumbnail { background-image: url(https://onthedock.github.io/images/kubernetes.png);  }  .article-59e1fe22eaedce05afe517780f87cc98 .thumbnail { background-image: url(https://onthedock.github.io/images/docker.png);  }  .article-87ee3835fe3b255e8566c3bfed2bd38b .thumbnail { background-image: url(https://onthedock.github.io/images/portainer.png);  }  .article-086bb6242700303c8a958c5e74df0ca9 .thumbnail { background-image: url(https://onthedock.github.io/images/docker.png);  }  .article-4c6b9124141ca1a8135b9177248b7e15 .thumbnail { background-image: url(https://onthedock.github.io/images/hugo.png);  }  .article-911698c11286b3ef9eb1a11440c09845 .thumbnail { background-image: url(https://onthedock.github.io/images/kubernetes.png);  }  .article-6a0861472d6f0696079c81e3710d5fe8 .thumbnail { background-image: url(https://onthedock.github.io/images/kubernetes.png);  }  .article-40b8655184d8e4a2ca3650aece49e845 .thumbnail { background-image: url(https://onthedock.github.io/images/kubernetes.png);  }  .article-857a5f627557e7d92f1386f7c6e04dee .thumbnail { background-image: url(https://onthedock.github.io/images/raspberry_pi.png);  }  .article-4db85da082f771e8fb9029adad4173ec .thumbnail { background-image: url(https://onthedock.github.io/images/raspberry_pi.png);  }  .article-b69159ccecf58bff548bbd08481b6e15 .thumbnail { background-image: url(https://onthedock.github.io/images/raspberry_pi.png);  }  .article-da222607e970c37b0b59d8011a2e3398 .thumbnail { background-image: url(https://onthedock.github.io/images/portainer.png);  }  .article-7b36708a64c36890ceb1bf481f3de1fa .thumbnail { background-image: url(https://onthedock.github.io/images/kubernetes.png);  }  .article-d68e08dcca5eafff4ae0d8d06280bf02 .thumbnail { background-image: url(https://onthedock.github.io/images/kubernetes.png);  }  .article-8ff87e4d24c357bbee842dd088ef4cde .thumbnail { background-image: url(https://onthedock.github.io/images/kubernetes.png);  }  .article-d0ca4b0abe6c0c6d22baa800e3fc9935 .thumbnail { background-image: url(https://onthedock.github.io/images/kubernetes.png);  }  .article-63c13529eb1936073e0adc09d7e35b59 .thumbnail { background-image: url(https://onthedock.github.io/images/kubernetes.png);  }  .article-2e821bde62a219fe0b94f62e989269e7 .thumbnail { background-image: url(https://onthedock.github.io/images/docker.png);  }  .article-df564c824db9099fd85c925ad9635cda .thumbnail { background-image: url(https://onthedock.github.io/images/raspberry_pi.png);  }  .article-203d2d443889d9d70ca2ad9abcca49aa .thumbnail { background-image: url(https://onthedock.github.io/images/docker.png);  }  .article-526bade0815ac377e81216604b97c5f7 .thumbnail { background-image: url(https://onthedock.github.io/images/github.png);  }  .article-3d9c586728a0009cb0621b0368120462 .thumbnail { background-image: url(https://onthedock.github.io/images/hugo.png);  }  .article-160ee3ec04bb73e590f125b42640b34b .thumbnail { background-image: url(https://onthedock.github.io/images/hugo.png);  }  .article-c862ac2fb3511b386b4247a80aa6b90b .thumbnail { background-image: url(https://onthedock.github.io/images/linux.png);  }  .article-8a50a2d4216b1a3b2b46c646bd24c5e9 .thumbnail { background-image: url(https://onthedock.github.io/images/linux.png);  }  .article-f027d2889032f918da8e3cc9c03169e0 .thumbnail { background-image: url(https://onthedock.github.io/images/linux.png);  }  .article-6db4ecfe853552466ce5a71b1221a2a0 .thumbnail { background-image: url(https://onthedock.github.io/images/hypriot.png);  } 
+    </style>
+  </head>
+
+  <body>
+    
+    
+    
+
+    <header class="l-header">
+      <div class="l-container">
+        <div class="h-logo p-logo">
+          <a href="https://onthedock.github.io/" class="h-logo">On The Dock</a>
+          <p class="h-logo">Un blog sobre Docker, Kubernetes, DevOps y Raspberry Pi por Xavier Aznar</p>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      
+<div class="l-container">
+  <article class="single article-1f90092555e2ba74f132561ef66df1d5">
+  <div class="header-wrapper">
+    <a href="https://onthedock.github.io/post/181216-automatizando-la-configuracion-previa-de-una-vm-para-ansible/" class="thumbnail" title="Automatizando la configuracion de una VM para Ansible"></a>
+    <header class="article-header">
+      <div class="clearfix">
+        <h1 class="title">Automatizando la configuracion de una VM para Ansible</h1>
+        <ul class="p-facts">
+          <li><time datetime="2018-12-16T13:55:30JST">16 Dec 2018</time></li>
+          <li><a href="https://onthedock.github.io/post/">post</a></li>
+          
+          <li>Xavier Aznar</li>
+        </ul>
+      </div>
+    </header>
+  </div>
+
+  <div class="article-body"><p>Con Ansible podemos automatizar la gestión de la configuración de las máquinas virtuales (o no) que creamos. Pero para poder explotar la potencia de Ansible necesitamos que la máquina gestionada cumpla unos requisitos previos: disponer de Python 2.6 o superior y que Ansible pueda conectar con la máquina.</p>
+
+<p>Todas estas tareas se pueden automatizar, así que vamos a ver cómo conseguirlo.
+</p>
+
+<p>En mi caso he estado haciendo pruebas con máquinas generadas usando Vagrant, con IP dinámica asignada a través de DHCP.</p>
+
+<p>El script de configuración se encuentra en un repositorio de Git, por lo que en la máquina gestionada tenemos que descargarlo -usando <code>curl</code> o <code>wget</code>- y convertirlo en ejecutable (<code>chmod +x vmconfig4ansible.sh</code>).</p>
+
+<p>Asumo que &ldquo;de alguna manera&rdquo; tienes forma de conectar a la máquina recién creada y que conoces las credenciales para poder acceder (y elevar permisos una vez conectado).</p>
+
+<h2 id="conexión-a-la-máquina-gestionada">Conexión a la máquina gestionada</h2>
+
+<p>Tras crear la máquina con Vagrant, obtendo la IP asignada por DHCP consultando el hipervisor. Supongamos que esta IP es 192.168.1.221.
+Al tratarse de una máquina Vagrant, el usuario <code>vagrant</code> tiene contraseña <code>vagrant</code>, aunque también puedes acceder usando el comando <code>vagrant ssh</code>.</p>
+
+<blockquote>
+<p>En las máquinas Vagrant el usuario <code>vagrant</code> tiene permisos para elevar permisos sin necesidad de introducir el password, por lo que el <em>script</em> funciona sin interrupción al ejecutar las instrucciones <code>sudo ...</code>.</p>
+</blockquote>
+
+<h2 id="instalando-python">Instalando Python</h2>
+
+<p>El script empieza instalando Python 3 y actualizando la ubicación del intérprete de Python en la máquina gestionada.</p>
+
+<pre><code class="language-bash"># Always install Python 3
+sudo apt install python3 -y
+# Update Python location
+sudo ln -sf /usr/bin/python3 /usr/bin/python
+</code></pre>
+
+<p>En mi caso, la máquina Vagrant (con Debian 9) tenía instalado tanto Python 2.7 como Python 3.5. Sin embargo, <code>/usr/bin/python</code> apuntaba a la versión 2.7. En las primeras versiones, el script validaba la versión de Python para comprobar si era necesario actualizar, pero de esta forma el script es más sencillo. Al no tener requerimientos específicos respecto a la versión de Python, he optado por usar Python 3 por defecto.</p>
+
+<blockquote>
+<p>En la documentación de Ansible se indica la posibilidad de usar el módulo <code>raw</code> para instalar Python en aquellas máquinas que no tengan una versión soportada. Échale un vistazo a los <a href="https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html#managed-node-requirements">requerimientos para máquinas gestionadas</a>.</p>
+</blockquote>
+
+<h2 id="usuario-para-ansible">Usuario para Ansible</h2>
+
+<p>Para simplificar el mantenimiento de los sistemas las tareas de gestión realizadas desde la máquina de control de Ansible, usaremos un usuario dedicado; en mi caso le he llamado <code>ansible</code>:</p>
+
+<pre><code class="language-bash"># Create ansible user
+echo &quot;Adding user $ANSIBLE_USER ...&quot;
+sudo useradd $ANSIBLE_USER
+</code></pre>
+
+<p>Ansible se conectará usando este usuario a los diferentes sistemas usando claves SSH. Para poder conectar sin problemas, añadimos la clave pública al fichero <code>authorized_keys</code> en la carpeta <code>.ssh</code> del usuario <code>$ANSIBLE_USER</code>:</p>
+
+<pre><code class="language-bash"># Create .ssh folder
+echo &quot;Configuring user $ANSIBLE_USER authorized_keys&quot;
+sudo mkdir -p /home/$ANSIBLE_USER/.ssh
+# Copy PUBKEY to authorized_keys for $ANSIBLE_USER
+echo $PUBKEY &gt;&gt; authorized_keys
+sudo mv authorized_keys /home/$ANSIBLE_USER/.ssh/authorized_keys
+sudo chown ansible:ansible -R /home/$ANSIBLE_USER/
+sudo chmod 600 /home/$ANSIBLE_USER/.ssh/authorized_keys
+</code></pre>
+
+<p>Después de copiar el fichero, ajustamos los permisos de manera que sólo el usuario pueda leer y escribir en este fichero.</p>
+
+<h2 id="elevación-de-privilegios-sin-password">Elevación de privilegios sin password</h2>
+
+<p>En vez de modificar el fichero <code>/etc/sudoers</code> aprovechamos que <code>sudo</code> procesa este fichero hasta encontrar la directiva <code>#includedir /etc/sudoers.d</code>. A partir de este punto se incluyen los ficheros en la ruta especificada. Esto nos permite crear un fichero por usuario, por ejemplo y así tener mejor organizados los permisos.</p>
+
+<blockquote>
+<p>El <code>#</code> <strong>no es un comentario</strong> y <strong>no debe eliminarse</strong>.</p>
+</blockquote>
+
+<p>Creamos un fichero llamado <code>user-ansible</code> en <code>/etc/sudoers.d/</code> y añadimos la directiva de manera que el usuario pueda ejecutar cualquier comando sin necesidad de proporcionar la contraseña:</p>
+
+<pre><code class="language-bash"># Passwordless sudo
+echo &quot;Configuring passwordless sudo...&quot;
+echo &quot;$ANSIBLE_USER ALL=NOPASSWD: ALL&quot; &gt;&gt; user-$ANSIBLE_USER
+# Fix permissions
+sudo chown root:root user-$ANSIBLE_USER
+sudo mv user-$ANSIBLE_USER /etc/sudoers.d/
+</code></pre>
+
+<p>Finalmente, ajustamos el propietario del fichero al usuario <code>root</code> (en caso contrario, se produce un error al intentar acceder desde la máquina de control).</p>
+
+<p>Subimos el fichero a un repositorio desde donde podamos usarlo siempre que sea necesario (en mi caso, un repositorio de un Git local).</p>
+
+<h2 id="comprobación-en-una-nueva-máquina-vagrant">Comprobación en una nueva máquina Vagrant</h2>
+
+<p>Creamos una nueva máquina virtual (<code>vagrant destroy -f</code>, <code>vagrant up</code>) y accedemos a ella (por ejemplo, mediante <code>vagrant ssh</code>).</p>
+
+<p>Descargamos el fichero, lo convertimos en ejecutable y lo lanzamos:</p>
+
+<pre><code class="language-bash">vagrant@scratch:~$ wget http://gitea.local:3000/xavi/vmconfig4ansible/raw/branch/master/vmconfig4ansible.sh
+--2018-12-16 04:52:03--  http://gitea.local:3000/xavi/vmconfig4ansible/raw/branch/master/vmconfig4ansible.sh
+Connecting to gitea.local:3000... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 1235 (1.2K) [text/plain]
+Saving to: 'vmconfig4ansible.sh'
+
+vmconfig4ansible.sh   100%[=======================&gt;]   1.21K  --.-KB/s    in 0s
+
+2018-12-16 04:52:03 (124 MB/s) - 'vmconfig4ansible.sh' saved [1235/1235]
+
+vagrant@scratch:~$ chmod +x vmconfig4ansible.sh
+vagrant@scratch:~$ ./vmconfig4ansible.sh
+Reading package lists... Done
+Building dependency tree
+Reading state information... Done
+python3 is already the newest version (3.5.3-1).
+python3 set to manually installed.
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+Adding user ansible ...
+Configuring user ansible authorized_keys
+Configuring passwordless sudo...
+</code></pre>
+
+<p>Tras haber realizado la configuración previa, verificamos que desde Ansible podamos lanzar un <em>playbook</em>.</p>
+
+<h2 id="comprobación-desde-ansible">Comprobación desde Ansible</h2>
+
+<p>Conectado en la máquina de control con Ansible, creamos un fichero de inventario temporal para realizar la validación de la configuración realizada por el <em>script</em> en la máquina gestionada. En el fichero de inventario, añadimos el nombre e IP de la máquina Vagrant de test:</p>
+
+<pre><code class="language-bash">:~$ nano temp-vagrant
+[vagrant]
+192.168.1.221
+</code></pre>
+
+<p>A continuación, lanzamos un <em>ping</em> sobre la máquina con etiqueta <code>vagrant</code> (usando este <em>inventario</em> de ejemplo):</p>
+
+<pre><code class="language-bash">:~$ ansible vagrant -i vagrant-test -m ping
+The authenticity of host '192.168.1.221 (192.168.1.221)' can't be established.
+ECDSA key fingerprint is SHA256:EWnDBzCe7HyElk5vKD+nhEKVyPMIe0/MpO1S94Eus0c.
+Are you sure you want to continue connecting (yes/no)? yes
+192.168.1.221 | SUCCESS =&gt; {
+    &quot;changed&quot;: false,
+    &quot;ping&quot;: &quot;pong&quot;
+}
+</code></pre>
+
+<p>Observa que cuando Ansible intenta conectar con la máquina gestionada vía SSH por primera vez, se muestra una alerta indicando que no se puede validar la autenticidad del <em>host</em> remoto. Obviamente, esto detiene la ejecución del <em>playbook</em> hasta que se responde la pregunta. Si quieres evitar esta pregunta -la primera vez que conectas a una máquina remota- puedes configurar la variable <code>host_key_checking = False</code> (a través del fichero de configuración en <code>/etc/ansible/ansible.cfg</code> o <code>~/.ansible.cfg</code> o mediante la variable de entorno <code>$ export ANSIBLE_HOST_KEY_CHECKING=False</code>) según se indica en la sección <a href="https://docs.ansible.com/ansible/latest/user_guide/intro_getting_started.html#host-key-checking">Host Key Checking</a> de la documentación oficial de Ansible.</p>
+
+<p>Una vez verificado que Ansible puede conectar con la máquina gestionada, podemos incluirla en el fichero de <em>inventario real</em> para realizar las configuraciones adicionales que deseemos:</p>
+
+<pre><code class="language-bash">:~$ ansible-playbook -i vagrant-test playbooks/update-all/update-server.yml
+
+PLAY [all] ***************************************************************************
+
+TASK [Gathering Facts] ***************************************************************
+ok: [192.168.1.221]
+
+TASK [update and upgrade] ************************************************************
+ok: [192.168.1.221]
+
+PLAY RECAP ***************************************************************************
+192.168.1.221              : ok=2    changed=0    unreachable=0    failed=0
+</code></pre></div>
+
+  <aside class="p-share">
+  <a href="http://b.hatena.ne.jp/add?mode=confirm&url=https%3a%2f%2fonthedock.github.io%2fpost%2f181216-automatizando-la-configuracion-previa-de-una-vm-para-ansible%2f&title=Automatizando%20la%20configuracion%20de%20una%20VM%20para%20Ansible" title="はてなブックマーク" class="ht" target="_blank" rel="nofollow"></a>
+  <a href="http://www.facebook.com/sharer.php?u=https%3a%2f%2fonthedock.github.io%2fpost%2f181216-automatizando-la-configuracion-previa-de-una-vm-para-ansible%2f&t=Automatizando%20la%20configuracion%20de%20una%20VM%20para%20Ansible" title="Facebookでシェア" class="fb" target="_blank" rel="nofollow"></a>
+  <a href="http://twitter.com/intent/tweet?url=https%3a%2f%2fonthedock.github.io%2fpost%2f181216-automatizando-la-configuracion-previa-de-una-vm-para-ansible%2f&text=Automatizando%20la%20configuracion%20de%20una%20VM%20para%20Ansible&tw_p=tweetbutton" title="Twitterでシェア" class="tw" target="_blank" rel="nofollow"></a>
+  <a href="https://plus.google.com/share?url=https%3a%2f%2fonthedock.github.io%2fpost%2f181216-automatizando-la-configuracion-previa-de-una-vm-para-ansible%2f" title="Google Plusでシェア" class="gp" target="_blank" rel="nofollow"></a>
+  <a href="http://line.me/R/msg/text/?Automatizando%20la%20configuracion%20de%20una%20VM%20para%20Ansible https%3a%2f%2fonthedock.github.io%2fpost%2f181216-automatizando-la-configuracion-previa-de-una-vm-para-ansible%2f" title="LINEでシェア" class="ln" target="_blank" rel="nofollow"></a>
+</aside>
+
+
+  <footer class="article-footer">
+    <section>
+      <ol class="p-crumb">
+        <li><a href="https://onthedock.github.io/">On The Dock</a></li>
+        
+        <li itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb"><a href="https://onthedock.github.io/post/" itemprop="url"><span itemprop="title">post</span></a></li>
+        
+        <li>Automatizando la configuracion de una VM para Ansible</li>
+      </ol>
+
+      
+      
+      
+      <ul class="p-facts">
+        <li>
+          <header><a href="https://onthedock.github.io/categories/">categories</a></header>
+          <ul>
+            
+            <li><a href="https://onthedock.github.io/categories/dev/">dev</a></li>
+            
+          </ul>
+        </li>
+      </ul>
+      
+      
+      
+      <ul class="p-facts">
+        <li>
+          <header><a href="https://onthedock.github.io/tags/">tags</a></header>
+          <ul>
+            
+            <li><a href="https://onthedock.github.io/tags/linux/">linux</a></li>
+            
+            <li><a href="https://onthedock.github.io/tags/virtual-machine/">virtual machine</a></li>
+            
+            <li><a href="https://onthedock.github.io/tags/ansible/">ansible</a></li>
+            
+            <li><a href="https://onthedock.github.io/tags/automation/">automation</a></li>
+            
+          </ul>
+        </li>
+      </ul>
+      
+      
+    </section>
+  </footer>
+</article>
+
+<article>
+  <div id="disqus_thread"></div>
+  <script>
+  
+  
+
+  
+
+  (function() { 
+  var d = document, s = d.createElement('script');
+  s.src = 'https://onthedock.disqus.com/embed.js';
+  s.setAttribute('data-timestamp', +new Date());
+  (d.head || d.body).appendChild(s);
+  })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+                              
+
+</article>
+
+
+
+  
+  
+  <section>
+    <header><span>Latests</span></header>
+    <ul class="p-articles thin">
+      <li><article class="li sm article-c302c3eac83525b1f2b78d46f9c7f430">
+  <div class="header-wrapper">
+    <a href="https://onthedock.github.io/post/281128-roadmap/" class="thumbnail" title="Roadmap"></a>
+    <header class="article-header">
+      <div class="clearfix">
+        <h2 class="title"><a href="https://onthedock.github.io/post/281128-roadmap/">Roadmap</a></h2>
+        <ul class="p-facts">
+          <li><time datetime="2018-11-24T11:53:53JST">24 Nov 2018</time></li>
+          <li><a href="https://onthedock.github.io/post/">post</a></li>
+          
+        </ul>
+      </div>
+    </header>
+  </div>
+</article>
+</li><li><article class="li sm article-fe261e0b7d326a141c1ff662c1caf421">
+  <div class="header-wrapper">
+    <a href="https://onthedock.github.io/post/181009-cloud-init/" class="thumbnail" title="Automatizando la personalización de máquinas virtuales con cloud-init"></a>
+    <header class="article-header">
+      <div class="clearfix">
+        <h2 class="title"><a href="https://onthedock.github.io/post/181009-cloud-init/">Automatizando la personalización de máquinas virtuales con cloud-init</a></h2>
+        <ul class="p-facts">
+          <li><time datetime="2018-10-10T20:11:56JST">10 Oct 2018</time></li>
+          <li><a href="https://onthedock.github.io/post/">post</a></li>
+          
+        </ul>
+      </div>
+    </header>
+  </div>
+</article>
+</li><li><article class="li sm article-2fc7b42f0ad38b1d0c3bda16184154ed">
+  <div class="header-wrapper">
+    <a href="https://onthedock.github.io/post/180810-generando-un-machine-id-unico/" class="thumbnail" title="Generando un machine-id único"></a>
+    <header class="article-header">
+      <div class="clearfix">
+        <h2 class="title"><a href="https://onthedock.github.io/post/180810-generando-un-machine-id-unico/">Generando un machine-id único</a></h2>
+        <ul class="p-facts">
+          <li><time datetime="2018-08-10T18:10:27JST">10 Aug 2018</time></li>
+          <li><a href="https://onthedock.github.io/post/">post</a></li>
+          
+        </ul>
+      </div>
+    </header>
+  </div>
+</article>
+</li><li><article class="li sm article-9a5a658f072f34635bd665eae7d0d498">
+  <div class="header-wrapper">
+    <a href="https://onthedock.github.io/post/180715-automatizando-gitea-con-docker-compose/" class="thumbnail" title="Automatizando la instalación de Gitea (con Docker Compose)"></a>
+    <header class="article-header">
+      <div class="clearfix">
+        <h2 class="title"><a href="https://onthedock.github.io/post/180715-automatizando-gitea-con-docker-compose/">Automatizando la instalación de Gitea (con Docker Compose)</a></h2>
+        <ul class="p-facts">
+          <li><time datetime="2018-07-15T11:35:54JST">15 Jul 2018</time></li>
+          <li><a href="https://onthedock.github.io/post/">post</a></li>
+          
+        </ul>
+      </div>
+    </header>
+  </div>
+</article>
+</li>
+    </ul>
+  </section>
+  
+</div>
+
+
+    </main>
+
+    
+
+    <footer class="l-footer">
+      <div class="l-container">
+        <p class="copyright-notice">Handmade with &#9829; by Xavi Aznar</p>
+        <aside>
+          <p class="attribution">Powered by <a href="https://gohugo.io/">Hugo</a> using <a href="https://github.com/dim0627/hugo_theme_aglaus" class="h-logo">Aglaus</a> (designed by <a href="http://yet.unresolved.xyz/">Daisuke Tsuji</a>).</p>
+        </aside>
+      </div>
+    </footer>
+
+    <a href="#" class="p-movetop" title="ページ上部へ戻る" rel="nofollow"></a>
+  </body>
+</html>
+
