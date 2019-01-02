@@ -204,6 +204,22 @@ network-interfaces: |
 sudo systemctl start network
 </code></pre>
 
+<h1 id="haciendo-las-cosas-bien-actualización">Haciendo las cosas bien (actualización)</h1>
+
+<p>En la primera prueba con Amazon Linux 2 cometí el error de especificar una IP que estaba siendo usada por una máquina Vagrant. Al tener una IP duplicada, la máquina virtual con Amazon Linux 2 no podía levantar la red.</p>
+
+<p>Una vez descubierto el problema (que documento paso a paso más abajo), he repetido los pasos necesarios para arrancar una máquina virtual con Amazon Linux 2 y no he tenido ningún problema.</p>
+
+<p>Es necesario habilitar la red después del primer arranque, aunque esto es una característica que Amazon Linux 2 hereda de RHEL/CentOS.</p>
+
+<p>Una vez habilitado el servicio de red, se puede <em>levantar</em> sin más.</p>
+
+<blockquote>
+<p>El problema para levantar la red se deben a que la IP que había especificado en el fichero de configuración <code>meta-data</code> estaba duplicada :(</p>
+</blockquote>
+
+<h2 id="diagnosticando-el-problema-de-red-spoiler-ip-duplicada">Diagnosticando el problema de red (spoiler: IP duplicada)</h2>
+
 <p>De nuevo, error, aunque esta vez <strong>Failed to start LSB: Bring up/down</strong>. El <a href="https://unix.stackexchange.com/questions/278155/network-service-failed-to-start-lsb-bring-up-down-networking-centos-7">primer resultado en Google</a> apunta a que la causa puede ser que no existe el fichero <code>/etc/sysconfig/network</code>.</p>
 
 <blockquote>
