@@ -128,13 +128,13 @@
 
 <p>KVM es un hipervisor desarrollado originalmente por Qumranet, una starup que más tarde fue adquirida por RedHat. KVM usa una versión modificada de QEMU como <em>front-end</em>. El uso de QEMU -asociado al mal recuerdo del rendimiento que obtuve con QEMU en el pasado- me habían mantenido alejado de KVM hasta que hace un par de semanas decidí darle una oportunidad.</p>
 
-<p>Mi objetivo era convertir el laboratorio casero a un entorno 100% linux, eliminando Hyper-V como hipervisor. Estuve jugando con la idea de volver a Xen, e incluso estuve tentado de usar una distribución con escritorio y usar un entorno con Vagrant/VirtualBox. Pero decidí salir completamente de mi zona de confort y empezar con algo completamente desconocido como KVM.</p>
+<p>Mi objetivo era convertir el laboratorio casero a un entorno 100% linux, eliminando Hyper-V como hipervisor. Estuve dando vueltas a la idea de volver a Xen, e incluso me tentó la opción de usar una distribución de escritorio y optar por la vía Vagrant/VirtualBox. Al final decidí salir completamente de mi zona de confort y empezar con algo desconocido como KVM.</p>
 
 <p>Amazon empezó a migrar en 2017 toda su infraestructura a <a href="https://aws.amazon.com/es/ec2/faqs/#ec2-hypervisor">Nitro</a>, basado en KVM así que aprender cómo funciona KVM también me serviría en mi avance hacia obtener un conocimiento profundo del <em>cloud</em> a todos los niveles.</p>
 
 <h2 id="firmware-bug">Firmware Bug</h2>
 
-<p>Al intentar instalar Ubuntu Server, encontré el siguiente error:</p>
+<p>Al intentar instalar Ubuntu Server 18.04.1, me topé con el siguiente mensaje:</p>
 
 <pre><code class="language-bash">...
 [Firmware Bug]: AMD-Vi: IOAPIC[0] not in IVRS table
@@ -143,22 +143,22 @@ AMD-Vi: Disabling interrupt remapping
 ...
 </code></pre>
 
-<p>El error se produce al arrancar el instalador de Ubuntu; el instalador fallaba, se quedaba la pantalla en negro y finalmente el equipo se reiniciaba. Tras el reinicio, el equipo se quedaba congelado en la pantalla de POST.</p>
+<p>El error se produce al arrancar el instalador de Ubuntu; la pantalla se queda en negro y el equipo se reinicia. A continuación el equipo se queda congelado en la pantalla de POST.</p>
 
 <p>Encontré información relativa al error en múltiples sitios de internet (como por ejemplo <a href="https://superuser.com/questions/1052023/ioapic0-not-in-ivrs-table">IOAPIC[0] not in IVRS table</a>), pero incluso tras haber actualizado la BIOS a la última versión disponible en la web del fabricante, seguía obteniendo el mismo error.</p>
 
 <p>A partir de aquí estuve probando varias distribuciones, como Xubuntu, que pude instalar sin problemas. Pero los tutoriales que seguía para instalar KVM hacían referencia a otras distribuciones &ldquo;de servidor&rdquo;, por lo que me sentía remando a contracorriente y dedicando mucho más tiempo del necesario para instalar el hipervisor y configurar la tarjeta de red en modo <em>bridge</em>.</p>
 
-<p>Antes de darme por vencido, decidí probar con otra distribución &ldquo;de servidor&rdquo;; descargué e instalé CentOS 6 sin problemas. Aunque al arrancar el instalador se mostraba el error, el instalador en modo texto continuaba, permitiendo la instalación del sistema operativo.</p>
+<p>Antes de darme por vencido, decidí probar con otra distribución &ldquo;de servidor&rdquo;; descargué e instalé CentOS 6 sin problemas. Aunque al arrancar el proceso de instalación se mostraba el error, la instalación continuaba permitiendo instalar el sistema operativo con normalidad.</p>
 
-<p>No estoy demasiado familizarizado con distros basadas en RPM (como CentOS/RHEL), pero la documentación (y Google) me ayudaron a ir solucionando todas las dudas que tenía. Después de leer en múltiples sitios que la actualización de versión <em>major</em> de CentOS es complicada (y que se recomienda instalar desde 0), decidí que ya que me ponía, lo haría con CentOS 7 (y así me ahorraba el problema de actualizar en el futuro).</p>
+<p>No estoy demasiado familizarizado con distros basadas en RPM (como CentOS/RHEL), pero la documentación (y Google) me ayudaron a ir solucionando todas las dudas que surgían. Después de leer en múltiples sitios que la actualización de versión <em>major</em> de CentOS es complicada (y que se recomienda instalar desde 0), decidí que ya que me ponía, lo haría con CentOS 7 (y así me ahorraba el problema de actualizar en el futuro).</p>
 
-<p>Sin embargo, la instalación de CentOS 7 ya no es en modo texto, sino de forma gráfica. Y fue así, buscando la forma de instalar el sistema operativo en modo texto cuando descubrí que podía usar las opciones de configuración para &ldquo;forzar&rdquo; el modo texto y realizar la instalación pese al fallo del instalador en modo gráfico.</p>
+<p>Sin embargo, la instalación de CentOS 7 ya no es en modo texto, sino de forma gráfica. Y fue así, buscando la forma de lanzar la el instalador en modo texto cuando descubrí que podía usar las opciones de configuración para &ldquo;forzarlo&rdquo; y continuar con la instalación pese al fallo del instalador en modo gráfico.</p>
 
-<p>Aunque conseguí instalar CentOS 7, decidí probar el &ldquo;truco&rdquo; del instalador en modo texto con Ubuntu Server (<a href="https://help.ubuntu.com/community/BootOptions">BootOptions</a>) y finalmente conseguí instalar Ubuntu Server 18.04.1 LTS (Bionic Beaver).</p>
+<p>Aunque finalmente instalé CentOS 7, decidí darle una nueva oportunidad a Ubuntu Server usando el &ldquo;truco&rdquo; del instalador en modo texto (<a href="https://help.ubuntu.com/community/BootOptions">BootOptions</a>). Así, después de mucho ensayo y error, finalmente conseguí instalar Ubuntu Server 18.04.1 LTS (Bionic Beaver).</p>
 
 <blockquote>
-<p>Una vez instalado el sistema operativo, el error sigue apareciendo en los logs, pero no afecta -hasta donde he podido comprobar- el funcionamiento del sistema.</p>
+<p>El error sigue apareciendo en los logs, pero no afecta -hasta donde he podido comprobar- el funcionamiento del sistema.</p>
 </blockquote>
 
 <h2 id="configurar-la-red-bridge">Configurar la red <em>bridge</em></h2>
@@ -180,7 +180,7 @@ AMD-Vi: Disabling interrupt remapping
 <p>Eliminamos la configuración automática de la tarjeta de red mediante DHCP y añadimos un <em>bridge</em>:</p>
 
 <blockquote>
-<p>Es recomendable realizar la configuración de forma local, ya que al aplicar los cambios cambia la dirección de IP asignadas y se perderá la conexión vía SSH.</p>
+<p>Es recomendable realizar la configuración de forma local, ya que al aplicar los cambios, el equipo cambia de dirección de IP y se pierde la conexión vía SSH.</p>
 </blockquote>
 
 <pre><code class="language-yaml">network:
@@ -220,7 +220,7 @@ AMD-Vi: Disabling interrupt remapping
        valid_lft forever preferred_lft forever
 </code></pre>
 
-<h2 id="instalar-de-kvm">Instalar de KVM</h2>
+<h2 id="instalar-kvm">Instalar KVM</h2>
 
 <h3 id="comprobar-soporte-de-virtualización">Comprobar soporte de virtualización</h3>
 
@@ -261,7 +261,7 @@ $
 <p>Mi objetivo es realizar una gestión de las VMs lo más desatendida posible; para ello quiero poder gestionar todas las operaciones a realizar sobre las  máquinas virtuales desde la línea de comandos o desde scripts, en remoto.</p>
 
 <blockquote>
-<p>Para realizar la instalación desde la ISO del fabricante del SO he creado la máquina localmente, pero para completar todos los pasos de configuración desde el instalador he usado Virtual Machine Manager desde el equipo remoto.</p>
+<p>Para realizar la instalación desde la ISO del fabricante del sistema operativo he creado la máquina localmente, pero para completar todos los pasos de configuración desde el instalador he usado Virtual Machine Manager desde el equipo remoto.</p>
 </blockquote>
 
 <h3 id="virtinstall"><code>virtinstall</code></h3>
@@ -271,10 +271,10 @@ $
 <pre><code class="language-bash">virt-install --name userver --vcpus 1 --memory 2048 --cdrom /var/lib/libvirt/images/ubuntu-server-18.04.1-amd64.iso --disk size=10 --network bridge:br0
 </code></pre>
 
-<p>Esta máquina tiene 1 vPUD, 2GB de RAM, un disco de 10GB y está conectada a la red <em>bridge</em> <code>bridge:br0</code>; hemos conectado el CD de instalación de Ubuntu Server en la unidad de CD virtual del equipo.</p>
+<p>Esta máquina tiene 1 vPUD, 2GB de RAM, un disco de 10GB y está conectada a la red <em>bridge</em> <code>bridge:br0</code>; la ISO de instalación de Ubuntu Server está conectada a la unidad virtual de CDROM de la VM.</p>
 
 <blockquote>
-<p>Para realizar la configuración del sistema operativo mediante el instalador, necesitas una máquina con un entorno gráfico.</p>
+<p>Para realizar la configuración del sistema operativo mediante el instalador, necesitas una máquina con entorno gráfico.</p>
 </blockquote>
 
 <h2 id="virtual-machine-manager">Virtual Machine Manager</h2>
@@ -293,7 +293,7 @@ $
 
 <h1 id="siguientes-pasos">Siguientes pasos</h1>
 
-<p>Este documento no es más que unas notas &ldquo;pasadas a limpio&rdquo; sobre el proceso de instalación y configuración de KVM sobre Ubuntu Server 18.04.</p>
+<p>Esta entrada no es más que unas notas &ldquo;pasadas a limpio&rdquo; sobre el proceso de instalación y configuración de KVM sobre Ubuntu Server 18.04.</p>
 
 <p>La instalación se realiza con los paquetes mínimos y sin incluir, al menos inicialmente, <code>virtinstall</code>. Más adelante fue necesario instalarlo para poder crear una máquina virtual &ldquo;desde cero&rdquo;.</p>
 
