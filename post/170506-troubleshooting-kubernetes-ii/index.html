@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.55.2" />
+<meta name="generator" content="Hugo 0.55.5" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -96,7 +96,7 @@
       <div class="l-container">
         <div class="h-logo p-logo">
           <a href="https://onthedock.github.io/" class="h-logo">On The Dock</a>
-          <p class="h-logo">Un blog sobre Docker, Kubernetes, DevOps y Raspberry Pi por Xavier Aznar</p>
+          <p class="h-logo">Un blog sobre el Cloud, Kubernetes, DevOps, Docker y Raspberry Pi por Xavier Aznar</p>
         </div>
       </div>
     </header>
@@ -137,12 +137,15 @@
 <h1 id="var-run-kubernetes"><code>/var/run/kubernetes</code></h1>
 
 <p>En <code>/var/run/kubernetes</code>:</p>
-<div class="highlight"><pre class="chroma"><code class="language-sh" data-lang="sh">$ ls -la /var/run/kubernetes/
-total <span class="m">8</span>
-drwxr-xr-x  <span class="m">2</span> root root   <span class="m">80</span> May  <span class="m">5</span> <span class="m">18</span>:43 .
-drwxr-xr-x <span class="m">18</span> root root  <span class="m">600</span> May  <span class="m">5</span> <span class="m">18</span>:43 ..
--rw-r--r--  <span class="m">1</span> root root <span class="m">1082</span> May  <span class="m">5</span> <span class="m">18</span>:43 kubelet.crt
--rw-------  <span class="m">1</span> root root <span class="m">1679</span> May  <span class="m">5</span> <span class="m">18</span>:43 kubelet.key</code></pre></div>
+
+<pre><code class="language-sh">$ ls -la /var/run/kubernetes/
+total 8
+drwxr-xr-x  2 root root   80 May  5 18:43 .
+drwxr-xr-x 18 root root  600 May  5 18:43 ..
+-rw-r--r--  1 root root 1082 May  5 18:43 kubelet.crt
+-rw-------  1 root root 1679 May  5 18:43 kubelet.key
+</code></pre>
+
 <p>Estos ficheros son certificados, por lo que no parecen implicados en el problema y decido no borrarlos.</p>
 
 <h1 id="var-lib-kubelet"><code>/var/lib/kubelet</code></h1>
@@ -152,25 +155,31 @@ drwxr-xr-x <span class="m">18</span> root root  <span class="m">600</span> May  
 <p>Al intentar listar el contenido de la carpeta <code>/var/lib/kubelet/pods</code>, la Raspberry Pi 3 ha tardado una eternidad (en los primeros intentos he creído que había dejado de responder).</p>
 
 <p>Finalmente, el resultado del comando ha mostrado una gran cantidad de carpetas dentro de esta carpeta:</p>
-<div class="highlight"><pre class="chroma"><code class="language-sh" data-lang="sh">$ ls -la /var/lib/kubelet/pods
+
+<pre><code class="language-sh">$ ls -la /var/lib/kubelet/pods
 ...
-drwx------    <span class="m">2</span> root root    <span class="m">4096</span> May  <span class="m">4</span> <span class="m">23</span>:11 wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_flannel-cfg.deleting~443381808.deleting~108562981.deleting~938554959.deleting~743974077.deleting~207819844.deleting~559419937.deleting~142152710.deleting~494766199.deleting~952339001
-drwx------    <span class="m">2</span> root root    <span class="m">4096</span> May  <span class="m">5</span> <span class="m">18</span>:02 wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_flannel-cfg.deleting~443381808.deleting~108562981.deleting~938554959.deleting~743974077.deleting~274346355.deleting~274250693.deleting~987962315.deleting~680794233.deleting~917929467
-drwx------    <span class="m">2</span> root root    <span class="m">4096</span> May  <span class="m">4</span> <span class="m">23</span>:37 wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_flannel-cfg.deleting~443381808.deleting~108562981.deleting~938554959.deleting~743974077.deleting~274346355.deleting~292131322.deleting~049606881.deleting~105942520.deleting~463246644
-drwx------    <span class="m">2</span> root root    <span class="m">4096</span> May  <span class="m">4</span> <span class="m">22</span>:46 wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_flannel-cfg.deleting~443381808.deleting~119491600.deleting~962328406.deleting~220005477.deleting~309794961.deleting~392355244.deleting~378832104.deleting~159122214.deleting~324365539
-drwx------    <span class="m">2</span> root root    <span class="m">4096</span> Apr <span class="m">15</span> <span class="m">20</span>:39 wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_flannel-cfg.deleting~443381808.deleting~162549394.deleting~296869341.deleting~353223099.deleting~018715754.deleting~526835026.deleting~320404022.deleting~453576282.deleting~001809150
-...</code></pre></div>
+drwx------    2 root root    4096 May  4 23:11 wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_flannel-cfg.deleting~443381808.deleting~108562981.deleting~938554959.deleting~743974077.deleting~207819844.deleting~559419937.deleting~142152710.deleting~494766199.deleting~952339001
+drwx------    2 root root    4096 May  5 18:02 wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_flannel-cfg.deleting~443381808.deleting~108562981.deleting~938554959.deleting~743974077.deleting~274346355.deleting~274250693.deleting~987962315.deleting~680794233.deleting~917929467
+drwx------    2 root root    4096 May  4 23:37 wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_flannel-cfg.deleting~443381808.deleting~108562981.deleting~938554959.deleting~743974077.deleting~274346355.deleting~292131322.deleting~049606881.deleting~105942520.deleting~463246644
+drwx------    2 root root    4096 May  4 22:46 wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_flannel-cfg.deleting~443381808.deleting~119491600.deleting~962328406.deleting~220005477.deleting~309794961.deleting~392355244.deleting~378832104.deleting~159122214.deleting~324365539
+drwx------    2 root root    4096 Apr 15 20:39 wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_flannel-cfg.deleting~443381808.deleting~162549394.deleting~296869341.deleting~353223099.deleting~018715754.deleting~526835026.deleting~320404022.deleting~453576282.deleting~001809150
+...
+</code></pre>
+
 <p>Parece como si algo no hubiera funcionado correctamente y hubiera entrado en un bucle, creando carpetas y más carpetas. Además, en el nombre de alguna de estas carpetas aparece <code>..._flannel-cfg...</code>. Esta ha sido la pista que me ha convencido; al intentar instalar el <em>dashboard</em> de Kubernetes, tuve problemas precisamente porque no tengo instalado Flannel. Eliminé el <em>pod</em> y no le di más vueltas.</p>
 
 <p>Sin embargo, la existencia de estas carpetas parece indicar que la eliminación no fue tan limpia como pensaba y que <em>algo</em> se quedó atrapado en un bucle.</p>
 
 <p>He lanzado <code>rm -rf /var/lib/kubelet/pods/</code> y el comando ha fallado indicando que uno de los <em>pods</em> estaba en uso. Así que he eliminado poco a poco los <em>pods</em> hasta que al final:</p>
-<div class="highlight"><pre class="chroma"><code class="language-sh" data-lang="sh">$ ls /var/lib/kubelet/pods/ -la
-total <span class="m">24</span>
-drwxr-x--- <span class="m">4</span> root root <span class="m">12288</span> May  <span class="m">5</span> <span class="m">18</span>:40 .
-drwxr-x--- <span class="m">4</span> root root  <span class="m">4096</span> Apr <span class="m">15</span> <span class="m">09</span>:08 ..
-drwxr-x--- <span class="m">5</span> root root  <span class="m">4096</span> May  <span class="m">5</span> <span class="m">18</span>:43 c0323b0f-31bd-11e7-a0ed-b827eb650fdb
-drwxr-x--- <span class="m">5</span> root root  <span class="m">4096</span> May  <span class="m">5</span> <span class="m">18</span>:43 f2da9dfb-31bd-11e7-a0ed-b827eb650fdb</code></pre></div>
+
+<pre><code class="language-sh">$ ls /var/lib/kubelet/pods/ -la
+total 24
+drwxr-x--- 4 root root 12288 May  5 18:40 .
+drwxr-x--- 4 root root  4096 Apr 15 09:08 ..
+drwxr-x--- 5 root root  4096 May  5 18:43 c0323b0f-31bd-11e7-a0ed-b827eb650fdb
+drwxr-x--- 5 root root  4096 May  5 18:43 f2da9dfb-31bd-11e7-a0ed-b827eb650fdb
+</code></pre>
+
 <p>Estos <em>pods</em>, sean los que sean, están en uso (no tengo nada desplegado en el clúster, así que deben ser <em>de sistema</em>).</p>
 
 <p>Tras la limpieza, he reiniciado el nodo.</p>
@@ -178,11 +187,14 @@ drwxr-x--- <span class="m">5</span> root root  <span class="m">4096</span> May  
 <h2 id="nodo-k3">Nodo <strong>k3</strong></h2>
 
 <p>El nodo <strong>k3</strong> no presentaba estas <em>carpetas sospechosas</em>, pero también he realizado limpieza:</p>
-<div class="highlight"><pre class="chroma"><code class="language-sh" data-lang="sh">$ rm -rf /var/lib/kubelet/pods/
+
+<pre><code class="language-sh">$ rm -rf /var/lib/kubelet/pods/
 rm: cannot remove ‘/var/lib/kubelet/pods/3a5e2819-21e5-11e7-bcfd-b827eb650fdb/volumes/kubernetes.io~configmap’: Directory not empty
 rm: cannot remove ‘/var/lib/kubelet/pods/71290201-31bb-11e7-a0ed-b827eb650fdb/volumes/kubernetes.io~secret/kube-proxy-token-7zk2k’: Device or resource busy
 rm: cannot remove ‘/var/lib/kubelet/pods/ef887c6a-31ba-11e7-a0ed-b827eb650fdb/volumes/kubernetes.io~secret/weave-net-token-61scv’: Device or resource busy
-$</code></pre></div>
+$
+</code></pre>
+
 <p>Igual que en el nodo <strong>k2</strong>, he reiniciado.</p>
 
 <h1 id="resultados">Resultados</h1>
@@ -190,22 +202,28 @@ $</code></pre></div>
 <p>Los nodos <strong>k2</strong> y <strong>k3</strong> siguen en estado <code>Ready</code> tras unas siete y ocho horas, que es bastante más de lo que <em>aguantaban</em> antes.</p>
 
 <p>He comprobado que en la carpeta <code>/var/lib/kubelet/pods</code> sólo aparecen dos <em>pods</em> (en el nodo <strong>k2</strong>):</p>
-<div class="highlight"><pre class="chroma"><code class="language-sh" data-lang="sh">$ ls -la /var/lib/kubelet/pods/
-total <span class="m">24</span>
-drwxr-x--- <span class="m">4</span> root root <span class="m">12288</span> May  <span class="m">5</span> <span class="m">18</span>:40 .
-drwxr-x--- <span class="m">4</span> root root  <span class="m">4096</span> Apr <span class="m">15</span> <span class="m">09</span>:08 ..
-drwxr-x--- <span class="m">5</span> root root  <span class="m">4096</span> May  <span class="m">5</span> <span class="m">18</span>:43 c0323b0f-31bd-11e7-a0ed-b827eb650fdb
-drwxr-x--- <span class="m">5</span> root root  <span class="m">4096</span> May  <span class="m">5</span> <span class="m">18</span>:43 f2da9dfb-31bd-11e7-a0ed-b827eb650fdb
-$</code></pre></div>
+
+<pre><code class="language-sh">$ ls -la /var/lib/kubelet/pods/
+total 24
+drwxr-x--- 4 root root 12288 May  5 18:40 .
+drwxr-x--- 4 root root  4096 Apr 15 09:08 ..
+drwxr-x--- 5 root root  4096 May  5 18:43 c0323b0f-31bd-11e7-a0ed-b827eb650fdb
+drwxr-x--- 5 root root  4096 May  5 18:43 f2da9dfb-31bd-11e7-a0ed-b827eb650fdb
+$
+</code></pre>
+
 <p>En el nodo <strong>k3</strong>:</p>
-<div class="highlight"><pre class="chroma"><code class="language-sh" data-lang="sh">$ ls -la /var/lib/kubelet/pods/
-total <span class="m">28</span>
-drwxr-x--- <span class="m">5</span> root root <span class="m">12288</span> May  <span class="m">5</span> <span class="m">19</span>:44 .
-drwxr-x--- <span class="m">4</span> root root  <span class="m">4096</span> Apr <span class="m">15</span> <span class="m">14</span>:10 ..
-drwxr-x--- <span class="m">3</span> root root  <span class="m">4096</span> May  <span class="m">5</span> <span class="m">19</span>:33 3a5e2819-21e5-11e7-bcfd-b827eb650fdb
-drwxr-x--- <span class="m">5</span> root root  <span class="m">4096</span> May  <span class="m">5</span> <span class="m">19</span>:37 514d4c93-31c9-11e7-a0ed-b827eb650fdb
-drwxr-x--- <span class="m">5</span> root root  <span class="m">4096</span> May  <span class="m">5</span> <span class="m">19</span>:37 c0b9753a-31c9-11e7-a0ed-b827eb650fdb
-$</code></pre></div>
+
+<pre><code class="language-sh">$ ls -la /var/lib/kubelet/pods/
+total 28
+drwxr-x--- 5 root root 12288 May  5 19:44 .
+drwxr-x--- 4 root root  4096 Apr 15 14:10 ..
+drwxr-x--- 3 root root  4096 May  5 19:33 3a5e2819-21e5-11e7-bcfd-b827eb650fdb
+drwxr-x--- 5 root root  4096 May  5 19:37 514d4c93-31c9-11e7-a0ed-b827eb650fdb
+drwxr-x--- 5 root root  4096 May  5 19:37 c0b9753a-31c9-11e7-a0ed-b827eb650fdb
+$
+</code></pre>
+
 <p>Más adelante actualizaré el artículo para verificar si los nodos siguen activos y sin problemas.</p></div>
 
   <aside class="p-share">

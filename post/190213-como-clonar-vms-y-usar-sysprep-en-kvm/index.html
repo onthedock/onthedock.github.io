@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.55.2" />
+<meta name="generator" content="Hugo 0.55.5" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -96,7 +96,7 @@
       <div class="l-container">
         <div class="h-logo p-logo">
           <a href="https://onthedock.github.io/" class="h-logo">On The Dock</a>
-          <p class="h-logo">Un blog sobre Docker, Kubernetes, DevOps y Raspberry Pi por Xavier Aznar</p>
+          <p class="h-logo">Un blog sobre el Cloud, Kubernetes, DevOps, Docker y Raspberry Pi por Xavier Aznar</p>
         </div>
       </div>
     </header>
@@ -137,8 +137,11 @@
 <p>En nuestro caso, supomemos que hemos configurado a nuestro gusto la máquina virtual <code>debian9</code>.</p>
 
 <p>En primer apagamos la máquina virtual:</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">$ virsh shutdown debian9
-Domain debian9 is being shutdown</code></pre></div>
+
+<pre><code class="language-bash">$ virsh shutdown debian9
+Domain debian9 is being shutdown
+</code></pre>
+
 <p>Usaremos esta máquina virtual como base para crear la <em>machine image</em> que usaremos como plantilla para crear el resto de máquinas virtuales. Para clonar la máquina usamos <code>virt-clone</code>.</p>
 
 <blockquote>
@@ -146,19 +149,26 @@ Domain debian9 is being shutdown</code></pre></div>
 </blockquote>
 
 <p>Puedes usar <code>--auto-clone</code> para que <code>virt-clone</code> genere un nombre de disco automáticamente (añadiendo <code>-clone</code> al nombre del disco):</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">$ virt-clone --original debian9 --name debian-machine-image --auto-clone
-Allocating <span class="s1">&#39;vdisk-u39572-clone.qcow2&#39;</span>                 <span class="p">|</span>  <span class="m">10</span> GB  <span class="m">00</span>:00:02
 
-Clone <span class="s1">&#39;debian-machine-image&#39;</span> created successfully.</code></pre></div>
+<pre><code class="language-bash">$ virt-clone --original debian9 --name debian-machine-image --auto-clone
+Allocating 'vdisk-u39572-clone.qcow2'                 |  10 GB  00:00:02
+
+Clone 'debian-machine-image' created successfully.
+</code></pre>
+
 <p>Al tratarse de una <em>machine image</em>, es recomendable especificar un nombre significativo para el disco que permita identificarlo fácilmente; para ello, usamos el parámetro <code>--file</code> y especificamos el nombre de disco que deseamos:</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">$ virt-clone --original debian9 --name debian-machine-image2 --file /var/lib/libvirt/images/debian-machine-image.qcow2
-Allocating <span class="s1">&#39;debian-machine-image.qcow2&#39;</span>                                     <span class="p">|</span>  <span class="m">10</span> GB  <span class="m">00</span>:00:02
 
-Clone <span class="s1">&#39;debian-machine-image2&#39;</span> created successfully.</code></pre></div>
+<pre><code class="language-bash">$ virt-clone --original debian9 --name debian-machine-image2 --file /var/lib/libvirt/images/debian-machine-image.qcow2
+Allocating 'debian-machine-image.qcow2'                                     |  10 GB  00:00:02
+
+Clone 'debian-machine-image2' created successfully.
+</code></pre>
+
 <blockquote>
 <p>Cambiamos el nombre de las máquinas virtuales por estética:</p>
 </blockquote>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">$ virsh domrename debian-machine-image debian-machine-image-funny-disk-name
+
+<pre><code class="language-bash">$ virsh domrename debian-machine-image debian-machine-image-funny-disk-name
 Domain successfully renamed
 $ virsh domrename debian-machine-image2 debian-machine-image
 Domain successfully renamed
@@ -167,113 +177,136 @@ Id    Name                                 State
 ----------------------------------------------------
 -     debian-machine-image                 shut off
 -     debian-machine-image-funny-disk-name shut off
--     debian9                              shut off</code></pre></div>
+-     debian9                              shut off
+</code></pre>
+
 <p>Lanzamos <code>virt-sysprep</code> para generalizar la máquina <code>debian-machine-image</code>; <code>virt-sysprep</code> también puede realizar algunas operaciones, como establecer el <code>hostname</code>de la máquina o la contraseña de los usuarios, entre otras muchas acciones:</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">sudo virt-sysprep -d debian-machine-image --hostname debian-machine-image --root-password password:Sup3rs3cr3tp@55w0rd!
-<span class="o">[</span>sudo<span class="o">]</span> password <span class="k">for</span> operador:
-<span class="o">[</span>   <span class="m">0</span>.0<span class="o">]</span> Examining the guest ...
-<span class="o">[</span>   <span class="m">9</span>.1<span class="o">]</span> Performing <span class="s2">&#34;abrt-data&#34;</span> ...
-<span class="o">[</span>   <span class="m">9</span>.1<span class="o">]</span> Performing <span class="s2">&#34;backup-files&#34;</span> ...
-<span class="o">[</span>   <span class="m">9</span>.4<span class="o">]</span> Performing <span class="s2">&#34;bash-history&#34;</span> ...
-<span class="o">[</span>   <span class="m">9</span>.4<span class="o">]</span> Performing <span class="s2">&#34;blkid-tab&#34;</span> ...
-<span class="o">[</span>   <span class="m">9</span>.4<span class="o">]</span> Performing <span class="s2">&#34;crash-data&#34;</span> ...
-<span class="o">[</span>   <span class="m">9</span>.4<span class="o">]</span> Performing <span class="s2">&#34;cron-spool&#34;</span> ...
-<span class="o">[</span>   <span class="m">9</span>.4<span class="o">]</span> Performing <span class="s2">&#34;dhcp-client-state&#34;</span> ...
-<span class="o">[</span>   <span class="m">9</span>.4<span class="o">]</span> Performing <span class="s2">&#34;dhcp-server-state&#34;</span> ...
-<span class="o">[</span>   <span class="m">9</span>.4<span class="o">]</span> Performing <span class="s2">&#34;dovecot-data&#34;</span> ...
-<span class="o">[</span>   <span class="m">9</span>.4<span class="o">]</span> Performing <span class="s2">&#34;logfiles&#34;</span> ...
-<span class="o">[</span>   <span class="m">9</span>.5<span class="o">]</span> Performing <span class="s2">&#34;machine-id&#34;</span> ...
-<span class="o">[</span>   <span class="m">9</span>.5<span class="o">]</span> Performing <span class="s2">&#34;mail-spool&#34;</span> ...
-<span class="o">[</span>   <span class="m">9</span>.5<span class="o">]</span> Performing <span class="s2">&#34;net-hostname&#34;</span> ...
-<span class="o">[</span>   <span class="m">9</span>.5<span class="o">]</span> Performing <span class="s2">&#34;net-hwaddr&#34;</span> ...
-<span class="o">[</span>   <span class="m">9</span>.5<span class="o">]</span> Performing <span class="s2">&#34;pacct-log&#34;</span> ...
-<span class="o">[</span>   <span class="m">9</span>.5<span class="o">]</span> Performing <span class="s2">&#34;package-manager-cache&#34;</span> ...
-<span class="o">[</span>   <span class="m">9</span>.5<span class="o">]</span> Performing <span class="s2">&#34;pam-data&#34;</span> ...
-<span class="o">[</span>   <span class="m">9</span>.5<span class="o">]</span> Performing <span class="s2">&#34;passwd-backups&#34;</span> ...
-<span class="o">[</span>   <span class="m">9</span>.5<span class="o">]</span> Performing <span class="s2">&#34;puppet-data-log&#34;</span> ...
-<span class="o">[</span>   <span class="m">9</span>.5<span class="o">]</span> Performing <span class="s2">&#34;rh-subscription-manager&#34;</span> ...
-<span class="o">[</span>   <span class="m">9</span>.5<span class="o">]</span> Performing <span class="s2">&#34;rhn-systemid&#34;</span> ...
-<span class="o">[</span>   <span class="m">9</span>.5<span class="o">]</span> Performing <span class="s2">&#34;rpm-db&#34;</span> ...
-<span class="o">[</span>   <span class="m">9</span>.5<span class="o">]</span> Performing <span class="s2">&#34;samba-db-log&#34;</span> ...
-<span class="o">[</span>   <span class="m">9</span>.5<span class="o">]</span> Performing <span class="s2">&#34;script&#34;</span> ...
-<span class="o">[</span>   <span class="m">9</span>.5<span class="o">]</span> Performing <span class="s2">&#34;smolt-uuid&#34;</span> ...
-<span class="o">[</span>   <span class="m">9</span>.5<span class="o">]</span> Performing <span class="s2">&#34;ssh-hostkeys&#34;</span> ...
-<span class="o">[</span>   <span class="m">9</span>.5<span class="o">]</span> Performing <span class="s2">&#34;ssh-userdir&#34;</span> ...
-<span class="o">[</span>   <span class="m">9</span>.5<span class="o">]</span> Performing <span class="s2">&#34;sssd-db-log&#34;</span> ...
-<span class="o">[</span>   <span class="m">9</span>.5<span class="o">]</span> Performing <span class="s2">&#34;tmp-files&#34;</span> ...
-<span class="o">[</span>   <span class="m">9</span>.5<span class="o">]</span> Performing <span class="s2">&#34;udev-persistent-net&#34;</span> ...
-<span class="o">[</span>   <span class="m">9</span>.5<span class="o">]</span> Performing <span class="s2">&#34;utmp&#34;</span> ...
-<span class="o">[</span>   <span class="m">9</span>.5<span class="o">]</span> Performing <span class="s2">&#34;yum-uuid&#34;</span> ...
-<span class="o">[</span>   <span class="m">9</span>.5<span class="o">]</span> Performing <span class="s2">&#34;customize&#34;</span> ...
-<span class="o">[</span>   <span class="m">9</span>.5<span class="o">]</span> Setting a random seed
-<span class="o">[</span>   <span class="m">9</span>.5<span class="o">]</span> Setting the machine ID in /etc/machine-id
-<span class="o">[</span>   <span class="m">9</span>.5<span class="o">]</span> Setting the hostname: debian-machine-image
-<span class="o">[</span>  <span class="m">10</span>.3<span class="o">]</span> Setting passwords
-<span class="o">[</span>  <span class="m">11</span>.1<span class="o">]</span> Performing <span class="s2">&#34;lvm-uuids&#34;</span> ...</code></pre></div>
+
+<pre><code class="language-bash">sudo virt-sysprep -d debian-machine-image --hostname debian-machine-image --root-password password:Sup3rs3cr3tp@55w0rd!
+[sudo] password for operador:
+[   0.0] Examining the guest ...
+[   9.1] Performing &quot;abrt-data&quot; ...
+[   9.1] Performing &quot;backup-files&quot; ...
+[   9.4] Performing &quot;bash-history&quot; ...
+[   9.4] Performing &quot;blkid-tab&quot; ...
+[   9.4] Performing &quot;crash-data&quot; ...
+[   9.4] Performing &quot;cron-spool&quot; ...
+[   9.4] Performing &quot;dhcp-client-state&quot; ...
+[   9.4] Performing &quot;dhcp-server-state&quot; ...
+[   9.4] Performing &quot;dovecot-data&quot; ...
+[   9.4] Performing &quot;logfiles&quot; ...
+[   9.5] Performing &quot;machine-id&quot; ...
+[   9.5] Performing &quot;mail-spool&quot; ...
+[   9.5] Performing &quot;net-hostname&quot; ...
+[   9.5] Performing &quot;net-hwaddr&quot; ...
+[   9.5] Performing &quot;pacct-log&quot; ...
+[   9.5] Performing &quot;package-manager-cache&quot; ...
+[   9.5] Performing &quot;pam-data&quot; ...
+[   9.5] Performing &quot;passwd-backups&quot; ...
+[   9.5] Performing &quot;puppet-data-log&quot; ...
+[   9.5] Performing &quot;rh-subscription-manager&quot; ...
+[   9.5] Performing &quot;rhn-systemid&quot; ...
+[   9.5] Performing &quot;rpm-db&quot; ...
+[   9.5] Performing &quot;samba-db-log&quot; ...
+[   9.5] Performing &quot;script&quot; ...
+[   9.5] Performing &quot;smolt-uuid&quot; ...
+[   9.5] Performing &quot;ssh-hostkeys&quot; ...
+[   9.5] Performing &quot;ssh-userdir&quot; ...
+[   9.5] Performing &quot;sssd-db-log&quot; ...
+[   9.5] Performing &quot;tmp-files&quot; ...
+[   9.5] Performing &quot;udev-persistent-net&quot; ...
+[   9.5] Performing &quot;utmp&quot; ...
+[   9.5] Performing &quot;yum-uuid&quot; ...
+[   9.5] Performing &quot;customize&quot; ...
+[   9.5] Setting a random seed
+[   9.5] Setting the machine ID in /etc/machine-id
+[   9.5] Setting the hostname: debian-machine-image
+[  10.3] Setting passwords
+[  11.1] Performing &quot;lvm-uuids&quot; ...
+</code></pre>
+
 <p>Como vemos, <code>virt-sysprep</code> ha eliminado todas aquellas configuraciones específicas para la máquina, de manera que podemos usar esta VM como base para generar nuevas máquinas virtuales.</p>
 
 <h2 id="generar-una-vm-a-partir-de-la-machine-image">Generar una VM a partir de la <em>machine image</em></h2>
 
 <p>Generamos una máquina virtual a partir de la <em>machine image</em> generalizada:</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">$ virt-clone --original debian-machine-image --name vm-debian-01 --file vm-debian-01.qcow2
-Allocating <span class="s1">&#39;vm-debian-01.qcow2&#39;</span>                                         <span class="p">|</span>  <span class="m">10</span> GB  <span class="m">00</span>:00:02
 
-Clone <span class="s1">&#39;vm-debian-01&#39;</span> created successfully.</code></pre></div>
+<pre><code class="language-bash">$ virt-clone --original debian-machine-image --name vm-debian-01 --file vm-debian-01.qcow2
+Allocating 'vm-debian-01.qcow2'                                         |  10 GB  00:00:02
+
+Clone 'vm-debian-01' created successfully.
+</code></pre>
+
 <p>El siguiente paso es personalizar esta nueva instancia aprovechando la potencia de <code>virt-customize</code>; usando las opciones que proporciona <a href="http://libguestfs.org/virt-customize.1.html"><code>virt-customize</code></a> puedes generar máquinas personalizadas sin necesidad de recurrir a otras opciones como <a href="https://cloudinit.readthedocs.io/en/latest/">Cloud-Init</a>.</p>
 
 <p>Mediante <code>virt-customize</code> puedes establecer el <em>hostname</em> de la nueva VM, inyectar claves SSH, instalar paquetes, etc&hellip;</p>
 
 <p>En el siguiente ejemplo, personalizamos la máquina <code>vm-debian-01</code> (creada a partir de la <em>machine image</em>) estableciendo el <em>hostname</em> y la contraseña del usuario <em>operador</em>:</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">$ sudo virt-customize -d vm-debian-01 --hostname vm-debian-01 --password operador:password:SecretPasswrd!
-<span class="o">[</span>   <span class="m">0</span>.0<span class="o">]</span> Examining the guest ...
-<span class="o">[</span>   <span class="m">2</span>.8<span class="o">]</span> Setting a random seed
-<span class="o">[</span>   <span class="m">2</span>.8<span class="o">]</span> Setting the hostname: vm-debian-01
-<span class="o">[</span>   <span class="m">3</span>.6<span class="o">]</span> Setting passwords
-<span class="o">[</span>   <span class="m">4</span>.4<span class="o">]</span> Finishing off</code></pre></div>
+
+<pre><code class="language-bash">$ sudo virt-customize -d vm-debian-01 --hostname vm-debian-01 --password operador:password:SecretPasswrd!
+[   0.0] Examining the guest ...
+[   2.8] Setting a random seed
+[   2.8] Setting the hostname: vm-debian-01
+[   3.6] Setting passwords
+[   4.4] Finishing off
+</code></pre>
+
 <h3 id="problemas-con-el-acceso-ssh">Problemas con el acceso SSH</h3>
 
 <p>Al intentar acceder remotamente a la máquina recién clonada, se produce un error de <em>connection refused</em>.
 Después de comprobar que el puerto 22 está abierto, al revisar el estado del servicio SSH (<code>sudo systemctl status sshd</code>) se observan varios errores indicando que no se encuentran las claves de <em>host</em>:</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">...
-debian sshd<span class="o">[</span><span class="m">387</span><span class="o">]</span>: Server listening on <span class="m">0</span>.0.0.0 port <span class="m">22</span>.
-debian sshd<span class="o">[</span><span class="m">387</span><span class="o">]</span>: Server listening on :: port <span class="m">22</span>.
-debian sshd<span class="o">[</span><span class="m">473</span><span class="o">]</span>: error: Could not load host key: /etc/ssh/ssh_host_rsa_key
-debian sshd<span class="o">[</span><span class="m">473</span><span class="o">]</span>: error: Could not load host key: /etc/ssh/ssh_host_ecdsa_key
-debian sshd<span class="o">[</span><span class="m">473</span><span class="o">]</span>: error: Could not load host key: /etc/ssh/ssh_host_ed25519_key
-debian sshd<span class="o">[</span><span class="m">473</span><span class="o">]</span>: fatal: No supported key exchange algorithms <span class="o">[</span>preauth<span class="o">]</span>
-...</code></pre></div>
+
+<pre><code class="language-bash">...
+debian sshd[387]: Server listening on 0.0.0.0 port 22.
+debian sshd[387]: Server listening on :: port 22.
+debian sshd[473]: error: Could not load host key: /etc/ssh/ssh_host_rsa_key
+debian sshd[473]: error: Could not load host key: /etc/ssh/ssh_host_ecdsa_key
+debian sshd[473]: error: Could not load host key: /etc/ssh/ssh_host_ed25519_key
+debian sshd[473]: fatal: No supported key exchange algorithms [preauth]
+...
+</code></pre>
+
 <p>Revisando la salida del comando <code>virt-sysprep</code> se puede ver que estas claves se han borrado:</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">...
-Performing <span class="s2">&#34;smolt-uuid&#34;</span> ...
-Performing <span class="s2">&#34;ssh-hostkeys&#34;</span> ... &lt;-- Oops, ssh-hostkeys have been deleted :<span class="o">(</span>
-Performing <span class="s2">&#34;ssh-userdir&#34;</span> ...
-...</code></pre></div>
+
+<pre><code class="language-bash">...
+Performing &quot;smolt-uuid&quot; ...
+Performing &quot;ssh-hostkeys&quot; ... &lt;-- Oops, ssh-hostkeys have been deleted :(
+Performing &quot;ssh-userdir&quot; ...
+...
+</code></pre>
+
 <p>La solución es volver a generar las diferentes claves de forma manual:</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">$ sudo ssh-keygen -f /etc/ssh/ssh_host_rsa_key -N <span class="s1">&#39;&#39;</span> -t rsa
+
+<pre><code class="language-bash">$ sudo ssh-keygen -f /etc/ssh/ssh_host_rsa_key -N '' -t rsa
 Generating public/private rsa key pair.
 Your identification has been saved in /etc/ssh/ssh_host_rsa_key.
 Your public key has been saved in /etc/ssh/ssh_host_rsa_key.pub.
 The key fingerprint is:
 SHA256:3nXA97TIi1HLJViqpNb/7OFiMXm4UTCmZw5F3jWa8NU root@vm-debian-02
-The key<span class="err">&#39;</span>s randomart image is:
-+---<span class="o">[</span>RSA <span class="m">2048</span><span class="o">]</span>----+
-<span class="p">|</span>          .o . +.<span class="p">|</span>
-<span class="p">|</span>          .*B <span class="o">=</span> E<span class="p">|</span>
-<span class="p">|</span>         .++<span class="o">=</span>B...<span class="p">|</span>
-<span class="p">|</span>        +o.o++<span class="o">=</span>o.<span class="p">|</span>
-<span class="p">|</span>       <span class="nv">oSo</span><span class="o">=</span>.<span class="o">==</span>...<span class="p">|</span>
-<span class="p">|</span>      .. ..Ooo.  <span class="p">|</span>
-<span class="p">|</span>        . .o*o   <span class="p">|</span>
-<span class="p">|</span>           ++ .  <span class="p">|</span>
-<span class="p">|</span>          . <span class="nv">o</span><span class="o">=</span>   <span class="p">|</span>
-+----<span class="o">[</span>SHA256<span class="o">]</span>-----+</code></pre></div>
+The key's randomart image is:
++---[RSA 2048]----+
+|          .o . +.|
+|          .*B = E|
+|         .++=B...|
+|        +o.o++=o.|
+|       oSo=.==...|
+|      .. ..Ooo.  |
+|        . .o*o   |
+|           ++ .  |
+|          . o=   |
++----[SHA256]-----+
+</code></pre>
+
 <p>(Referencia: <a href="https://www.cloudvps.com/helpcenter/knowledgebase/linux-vps-configuration/regenerating-ssh-host-keys">Regenerating SSH host keys</a>)</p>
 
 <p>Tras reiniciar el servicio SSH (<code>sudo systemctl restart sshd</code>) se puede conectar vía SSH a la máquina.</p>
 
 <p><strong>Actualización</strong>: Todas las claves SSH para el host eliminadas por <code>virt-sysprep</code> se pueden regenerar <strong>a la vez</strong> mediante <code>sudo ssh-keygen -A</code>.</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">$ sudo ssh-keygen -A
-ssh-keygen: generating new host keys: RSA DSA ECDSA ED25519</code></pre></div>
+
+<pre><code class="language-bash">$ sudo ssh-keygen -A
+ssh-keygen: generating new host keys: RSA DSA ECDSA ED25519
+</code></pre>
+
 <p>En la documentación <a href="http://libguestfs.org/virt-sysprep.1.html#ssh-hostkeys">virt-sysprep - Reset, unconfigure or customize a virtual machine so clones can be made</a> se indica que las claves SSH para el <em>host</em> se deberían recrear automáticamente al arrancar de nuevo la máquina.</p>
 
 <p>En la instalación de Debian 9.6 que estoy usando es necesario recrear las <em>host keys</em> manualmente, aunque quizás se trate de un error específico de mi instalación.</p>
@@ -283,22 +316,25 @@ ssh-keygen: generating new host keys: RSA DSA ECDSA ED25519</code></pre></div>
 <h3 id="mensaje-remote-host-identification-has-changed-en-equipos-cliente">Mensaje &ldquo;Remote host identification has changed!&rdquo; en equipos cliente</h3>
 
 <p>Al regenerar las claves en el <em>host</em> es necesario actualizarlas también en los ficheros <code>.ssh/known_hosts</code> de los equipos en los que se haya agregado alguna de las claves anteriores. Si no se actualiza, se mostrará un mensaje como:</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">ssh operador@192.168.1.237
+
+<pre><code class="language-bash">ssh operador@192.168.1.237
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 @    WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!     @
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 IT IS POSSIBLE THAT SOMEONE IS DOING SOMETHING NASTY!
-Someone could be eavesdropping on you right now <span class="o">(</span>man-in-the-middle attack<span class="o">)</span>!
+Someone could be eavesdropping on you right now (man-in-the-middle attack)!
 It is also possible that a host key has just been changed.
-The fingerprint <span class="k">for</span> the ECDSA key sent by the remote host is
+The fingerprint for the ECDSA key sent by the remote host is
 SHA256:On5KdKaywnbsXiq/D/OJPiN0PegGO9DrVfaBIdFCLg4.
 Please contact your system administrator.
 Add correct host key in /home/xavi/.ssh/known_hosts to get rid of this message.
 Offending ECDSA key in /home/xavi/.ssh/known_hosts:4
   remove with:
-  ssh-keygen -f <span class="s2">&#34;/home/xavi/.ssh/known_hosts&#34;</span> -R <span class="s2">&#34;192.168.1.237&#34;</span>
-ECDSA host key <span class="k">for</span> <span class="m">192</span>.168.1.237 has changed and you have requested strict checking.
-Host key verification failed.</code></pre></div>
+  ssh-keygen -f &quot;/home/xavi/.ssh/known_hosts&quot; -R &quot;192.168.1.237&quot;
+ECDSA host key for 192.168.1.237 has changed and you have requested strict checking.
+Host key verification failed.
+</code></pre>
+
 <h1 id="resumen">Resumen</h1>
 
 <p>En esta entrada hemos visto cómo clonar máquinas virtuales desde la línea de comandos usando <code>virt-clone</code>.</p>

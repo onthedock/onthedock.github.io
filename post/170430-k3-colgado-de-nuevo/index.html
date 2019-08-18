@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.55.2" />
+<meta name="generator" content="Hugo 0.55.5" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -96,7 +96,7 @@
       <div class="l-container">
         <div class="h-logo p-logo">
           <a href="https://onthedock.github.io/" class="h-logo">On The Dock</a>
-          <p class="h-logo">Un blog sobre Docker, Kubernetes, DevOps y Raspberry Pi por Xavier Aznar</p>
+          <p class="h-logo">Un blog sobre el Cloud, Kubernetes, DevOps, Docker y Raspberry Pi por Xavier Aznar</p>
         </div>
       </div>
     </header>
@@ -129,20 +129,26 @@
 <p><strong>Actualización II</strong>: <a href="https://onthedock.github.io/post/170506-troubleshooting-kubernetes-ii/">Parece solucionado</a></p>
 
 <p>A modo de recordatorio, los cambios realizados en los dos nodos sobre Raspberry Pi 3 han sido (incluyo el nodo <strong>k1</strong> con RPi2):</p>
-<div class="highlight"><pre class="chroma"><code class="language-txt" data-lang="txt">                                |  k1  |  k2  |  k3  |
+
+<pre><code class="language-txt">                                |  k1  |  k2  |  k3  |
                                 | RPi2 | RPi3 | RPi3 |
  -------------------------------|------|------|------|
 | Modificada conf. de rsyslog   |  No  |  Sí  |  No  |
 | Actualización a versión 1.6.2 |  Sí  |  Sí  |  Sí  |
- ----------------------------------------------------</code></pre></div>
+ ----------------------------------------------------
+</code></pre>
+
 <p>Hasta ahora, los únicos nodos que se <em>colgaban</em> eran el <strong>k2</strong> y el <strong>k3</strong> (sobre RPi3).</p>
 
 <p>Al modificar la configuración en de <em>rsyslog</em> en <strong>k2</strong> y pasadas unas horas, el único nodo que se sigue colgando es el <strong>k3</strong>.</p>
-<div class="highlight"><pre class="chroma"><code class="language-sh" data-lang="sh">$ kubectl get nodes
+
+<pre><code class="language-sh">$ kubectl get nodes
 NAME      STATUS     AGE       VERSION
 k1        Ready      19d       v1.6.2
 k2        Ready      14d       v1.6.2
-k3        NotReady   14d       v1.6.2</code></pre></div>
+k3        NotReady   14d       v1.6.2
+</code></pre>
+
 <p>Es decir, el fallo a la hora de redirigir los mensajes a <code>/dev/xconsole</code>:</p>
 
 <ul>
@@ -156,12 +162,13 @@ k3        NotReady   14d       v1.6.2</code></pre></div>
 <li>Abre <code>/etc/rsyslog.conf</code></li>
 
 <li><p>Modifica las últimas líneas (al final del fichero) y coméntalas:</p>
-<div class="highlight"><pre class="chroma"><code class="language-txt" data-lang="txt"># The named pipe /dev/xconsole is for the `xconsole&#39; utility.  To use it,
-# you must invoke `xconsole&#39; with the `-file&#39; option:
+
+<pre><code class="language-txt"># The named pipe /dev/xconsole is for the `xconsole' utility.  To use it,
+# you must invoke `xconsole' with the `-file' option:
 #
 #    $ xconsole -file /dev/xconsole [...]
 #
-# NOTE: adjust the list below, or you&#39;ll go crazy if you have a reasonably
+# NOTE: adjust the list below, or you'll go crazy if you have a reasonably
 #      busy site..
 #
 daemon.*;mail.*;\
@@ -174,10 +181,14 @@ deben quedar como:
 #daemon.*;mail.*;\
 #        news.err;\
 #        *.=debug;*.=info;\
-#        *.=notice;*.=warn       |/dev/xconsole</code></pre></div>
-<p>Podrías comentar la redirección <code>|/dev/xconsole</code>, pero en este caso el bloque no tendría ninguna funcionalidad, por lo que creo que es <em>más limpio</em> comentar todo el bloque.</p></li>
+#        *.=notice;*.=warn       |/dev/xconsole
+</code></pre>
 
-<li><p>Reinicia el equipo mediante <code>reboot</code>.</p></li>
+<p>Podrías comentar la redirección <code>|/dev/xconsole</code>, pero en este caso el bloque no tendría ninguna funcionalidad, por lo que creo que es <em>más limpio</em> comentar todo el bloque.</p>
+
+<ol>
+<li>Reinicia el equipo mediante <code>reboot</code>.</li>
+</ol></li>
 </ol></div>
 
   <aside class="p-share">

@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.55.2" />
+<meta name="generator" content="Hugo 0.55.5" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -96,7 +96,7 @@
       <div class="l-container">
         <div class="h-logo p-logo">
           <a href="https://onthedock.github.io/" class="h-logo">On The Dock</a>
-          <p class="h-logo">Un blog sobre Docker, Kubernetes, DevOps y Raspberry Pi por Xavier Aznar</p>
+          <p class="h-logo">Un blog sobre el Cloud, Kubernetes, DevOps, Docker y Raspberry Pi por Xavier Aznar</p>
         </div>
       </div>
     </header>
@@ -160,9 +160,12 @@
 <h1 id="mapas-yaml">Mapas YAML</h1>
 
 <p>Los mapas te permiten asociar parejas de nombres y valores, lo que es conveniente cuando estás tratando con información relativa a configuraciones. Por ejemplo, puedes tener una configuración que empiece como:</p>
-<div class="highlight"><pre class="chroma"><code class="language-yaml" data-lang="yaml">---<span class="w">
-</span><span class="w"></span>apiVersion<span class="p">:</span><span class="w"> </span>v1<span class="w">
-</span><span class="w"></span>kind<span class="p">:</span><span class="w"> </span>Pod</code></pre></div>
+
+<pre><code class="language-yaml">---
+apiVersion: v1
+kind: Pod
+</code></pre>
+
 <p>La primera línea es un separador, y es opcional a no ser que trates de definir múltiples estructuras en un solo fichero. En el fichero puedes ver que tenemos dos valores, <code>v1</code> y <code>Pod</code>, asociados a dos claves, <code>apiVersion</code> y <code>kind</code>.</p>
 
 <p>No es necesario que los valores estén entrecomillados (con comillas simples o dobles), excepto para asegurarte de que no se interpreta algún caracter especial con un significado diferente a su valor literal.</p>
@@ -170,17 +173,23 @@
 <p>Las parejas clave-valor contenidas en un mapa se almacenan sin orden, por lo que puedes especificarlas en el orden que quieras.</p>
 
 <p>El fichero YAML anterior es equivalente a:</p>
-<div class="highlight"><pre class="chroma"><code class="language-yaml" data-lang="yaml">---<span class="w">
-</span><span class="w"></span>kind<span class="p">:</span><span class="w"> </span>Pod<span class="w">
-</span><span class="w"></span>apiVersion<span class="p">:</span><span class="w"> </span>v1</code></pre></div>
+
+<pre><code class="language-yaml">---
+kind: Pod
+apiVersion: v1
+</code></pre>
+
 <p>Podemos anidar mapas dentro de mapas para crear estructuras más complejas, como:</p>
-<div class="highlight"><pre class="chroma"><code class="language-yaml" data-lang="yaml">---<span class="w">
-</span><span class="w"></span>apiVersion<span class="p">:</span><span class="w"> </span>v1<span class="w">
-</span><span class="w"></span>kind<span class="p">:</span><span class="w"> </span>Pod<span class="w">
-</span><span class="w"></span>metadata<span class="p">:</span><span class="w">
-</span><span class="w">   </span>name<span class="p">:</span><span class="w"> </span>rss-site<span class="w">
-</span><span class="w">   </span>labels<span class="p">:</span><span class="w">
-</span><span class="w">      </span>app<span class="p">:</span><span class="w"> </span>web</code></pre></div>
+
+<pre><code class="language-yaml">---
+apiVersion: v1
+kind: Pod
+metadata:
+   name: rss-site
+   labels:
+      app: web
+</code></pre>
+
 <p>En este caso tenemos un mapa llamado <code>metadata</code> que contiene otros dos mapas; el primero <code>name: rss-site</code> y el segundo, <code>labels</code>, contiene como valor otro mapa <code>app: web</code>.</p>
 
 <p>Puedes anidar tantos mapas dentro de mapas como quieras.</p>
@@ -190,27 +199,33 @@
 <h1 id="listas-en-yaml">Listas en YAML</h1>
 
 <p>Una lista, en YAML, es una secuencia de objetos, o lo que es lo mismo, una colección ordenada de valores. En este caso los valores no están asociados con una clave, sino con un índice posicional obtenido del orden en el que están especificados en la lista. Por ejemplo:</p>
-<div class="highlight"><pre class="chroma"><code class="language-yaml" data-lang="yaml">args<span class="w">
-</span><span class="w">   </span>-<span class="w"> </span>sleep<span class="w">
-</span><span class="w">   </span>-<span class="w"> </span><span class="m">1000</span><span class="w">
-</span><span class="w">   </span>-<span class="w"> </span>message<span class="w">
-</span><span class="w">   </span>-<span class="w"> </span><span class="s2">&#34;Hello World!&#34;</span></code></pre></div>
+
+<pre><code class="language-yaml">args
+   - sleep
+   - 1000
+   - message
+   - &quot;Hello World!&quot;
+</code></pre>
+
 <p>Puede haber cualquier número de elementos en una lista.</p>
 
 <p>Como en el caso de las parejas clave-valor, los elementos de una lista se encuentran indentados con el mismo número de espacios bajo el identificador (la clave) de la lista; cada elemento de la lista va precedido por un <code>-</code>.</p>
 
 <p>Del mismo modo que podemos anidar mapas en mapas, podemos anidar listas en listas, mapas en listas y cualquier combinación imaginable. Un ejemplo de mapas y listas anidados:</p>
-<div class="highlight"><pre class="chroma"><code class="language-yaml" data-lang="yaml"><span class="c"># Configuracion ficticia</span><span class="w">
-</span><span class="w"></span>spec<span class="p">:</span><span class="w">
-</span><span class="w">   </span>containers<span class="p">:</span><span class="w">
-</span><span class="w">      </span>-<span class="w"> </span>name<span class="p">:</span><span class="w"> </span>front-end<span class="w">
-</span><span class="w">        </span>image<span class="p">:</span><span class="w"> </span>nginx<span class="w">
-</span><span class="w">        </span>ports<span class="p">:</span><span class="w">
-</span><span class="w">           </span>-<span class="w"> </span>containerPort<span class="p">:</span><span class="w"> </span><span class="m">80</span><span class="w">
-</span><span class="w">      </span>-<span class="w"> </span>name<span class="p">:</span><span class="w"> </span>rss-reader<span class="w">
-</span><span class="w">        </span>image<span class="p">:</span><span class="w"> </span>xavi/rss-reader<span class="w">
-</span><span class="w">        </span>ports<span class="p">:</span><span class="w">
-</span><span class="w">           </span>-<span class="w"> </span>containerPort<span class="p">:</span><span class="w"> </span><span class="m">80</span></code></pre></div>
+
+<pre><code class="language-yaml"># Configuracion ficticia
+spec:
+   containers:
+      - name: front-end
+        image: nginx
+        ports:
+           - containerPort: 80
+      - name: rss-reader
+        image: xavi/rss-reader
+        ports:
+           - containerPort: 80
+</code></pre>
+
 <p>En resumen, tenemos:</p>
 
 <ul>

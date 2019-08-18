@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.55.2" />
+<meta name="generator" content="Hugo 0.55.5" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -96,7 +96,7 @@
       <div class="l-container">
         <div class="h-logo p-logo">
           <a href="https://onthedock.github.io/" class="h-logo">On The Dock</a>
-          <p class="h-logo">Un blog sobre Docker, Kubernetes, DevOps y Raspberry Pi por Xavier Aznar</p>
+          <p class="h-logo">Un blog sobre el Cloud, Kubernetes, DevOps, Docker y Raspberry Pi por Xavier Aznar</p>
         </div>
       </div>
     </header>
@@ -133,7 +133,10 @@
 <p>En Docker, este riesgo se encuentra <em>aislado</em> <strong>dentro</strong> del contenedor. Pese a todo, se recomienda cambiar a un usuario con menos privilegios siempre que sea posible.</p>
 
 <p>Si le echas un vistazo a la <a href="https://github.com/nginxinc/docker-nginx/blob/0c7611139f2ce7c5a6b1febbfd5b436c8c7d2d53/mainline/alpine/nginx.conf">configuración del contenedor oficial de Nginx</a> verás que la primera instrucción es:</p>
-<div class="highlight"><pre class="chroma"><code class="language-sh" data-lang="sh">user nginx<span class="p">;</span></code></pre></div>
+
+<pre><code class="language-sh">user nginx;
+</code></pre>
+
 <p>Es decir, que lo primero que hace Nginx es cambiar a un usuario <em>no-root</em> cuando se ejecuta.</p>
 
 <p>El proceso es el siguiente: el contenedor arranca con el usuario <code>root</code> y cuando se lanza el proceso <code>nginx</code>, se cambia al usuario <em>nginx</em> (eliminando los privilegios del usuario <em>root</em>).</p>
@@ -159,7 +162,10 @@
 <p>Considera el siguiente caso; hemos creado una imagen con Dokuwiki, por ejemplo, usando como base la imagen de Nginx siguiendo las buenas prácticas de seguridad. Hemos minimizado el riesgo ante un eventual ataque usando un usuario sin privilegios llamado <em>nginx</em>. Como estamos muy orgullosos de nuestra imagen, la subimos a DockerHub: <code>xaviaznar/nginx-dokuwiki-seguro</code>.</p>
 
 <p>Un usuario se descarga esta imagen y lanza un contenedor, montando una carpeta local de su <em>host</em> desde la que quiere servir su propia wiki. Para ello lanza un comando como:</p>
-<div class="highlight"><pre class="chroma"><code class="language-sh" data-lang="sh">docker run -d --name miwiki -p <span class="m">80</span>:80 -v /wiki:/dokuwiki/data/pages xaviaznar/nginx-dokuwiki-seguro</code></pre></div>
+
+<pre><code class="language-sh">docker run -d --name miwiki -p 80:80 -v /wiki:/dokuwiki/data/pages xaviaznar/nginx-dokuwiki-seguro
+</code></pre>
+
 <p>(Es sólo un ejemplo ilustrativo, este <em>montaje</em> de <a href="https://www.dokuwiki.org/devel:dirlayout">carpetas</a> no es una buena idea).</p>
 
 <p>El contenedor arranca sin problemas, pero cuando quiere crear o modificar una página en el wiki, no funciona.</p>

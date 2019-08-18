@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.55.2" />
+<meta name="generator" content="Hugo 0.55.5" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -96,7 +96,7 @@
       <div class="l-container">
         <div class="h-logo p-logo">
           <a href="https://onthedock.github.io/" class="h-logo">On The Dock</a>
-          <p class="h-logo">Un blog sobre Docker, Kubernetes, DevOps y Raspberry Pi por Xavier Aznar</p>
+          <p class="h-logo">Un blog sobre el Cloud, Kubernetes, DevOps, Docker y Raspberry Pi por Xavier Aznar</p>
         </div>
       </div>
     </header>
@@ -155,9 +155,12 @@
 <h3 id="preinstalación-de-plugins">Preinstalación de plugins</h3>
 
 <p>Para preinstalar <em>plugins</em> en Jenkins, debes crear una imagen personalizada. En la imagen, puedes usar el script <code>install-plugins.sh</code> para descargar los plugins indicados. Puedes pasar una lista de plugins a instalar al script mediante:</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">...
+
+<pre><code class="language-shell">...
 COPY plugins.txt /usr/share/jenkins/ref/plugins.txt
-RUN /usr/local/bin/install-plugins.sh &lt; /usr/share/jenkins/ref/plugins.txt</code></pre></div>
+RUN /usr/local/bin/install-plugins.sh &lt; /usr/share/jenkins/ref/plugins.txt
+</code></pre>
+
 <p>Cuando el contenedor de Jenkins arranca, comprueba si los <em>plugins</em> indicados existen en <code>JENKINS_HOME</code> y los copia si es necesario. <strong>No sobrescribirá los ficheros</strong>, por lo que si has actualizado los <em>plugins</em> desde la interfaz web, no los modificará.</p>
 
 <p>Es posible <strong>sobrescribir</strong> los <em>plugins</em> si lo necesitas; para ello debes añadir <code>.override</code> al nombre del <em>plugin</em> que quieras sobrescribir.</p>
@@ -172,7 +175,8 @@ RUN /usr/local/bin/install-plugins.sh &lt; /usr/share/jenkins/ref/plugins.txt</c
 </figure>
 
 <p>Jenkins genera una contraseña segura en <code>/var/jenkins_home/secrets/initialAdminPassword</code>. Puedes obtener esta contraseña inicial de diferentes maneras, pero la más sencilla es revisando los logs de arranque de Jenkins:</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">$ docker logs jenkins
+
+<pre><code class="language-shell">$ docker logs jenkins
 ...
 
 Jenkins initial setup is required. An admin user has been created and a password generated.
@@ -186,28 +190,36 @@ This may also be found at: /var/jenkins_home/secrets/initialAdminPassword
 *************************************************************
 *************************************************************
 
-Mar <span class="m">17</span>, <span class="m">2018</span> <span class="m">5</span>:42:29 AM hudson.model.UpdateSite updateData
-INFO: Obtained the latest update center data file <span class="k">for</span> UpdateSource default
-Mar <span class="m">17</span>, <span class="m">2018</span> <span class="m">5</span>:42:29 AM hudson.model.DownloadService<span class="nv">$Downloadable</span> load
-INFO: Obtained the updated data file <span class="k">for</span> hudson.tasks.Maven.MavenInstaller
-Mar <span class="m">17</span>, <span class="m">2018</span> <span class="m">5</span>:42:31 AM hudson.model.DownloadService<span class="nv">$Downloadable</span> load
-INFO: Obtained the updated data file <span class="k">for</span> hudson.tools.JDKInstaller
-Mar <span class="m">17</span>, <span class="m">2018</span> <span class="m">5</span>:42:31 AM hudson.model.AsyncPeriodicWork<span class="nv">$1</span> run
-INFO: Finished Download metadata. <span class="m">8</span>,990 ms
-Mar <span class="m">17</span>, <span class="m">2018</span> <span class="m">5</span>:42:31 AM hudson.model.UpdateSite updateData
-INFO: Obtained the latest update center data file <span class="k">for</span> UpdateSource default
-Mar <span class="m">17</span>, <span class="m">2018</span> <span class="m">5</span>:42:31 AM hudson.WebAppMain<span class="nv">$3</span> run
+Mar 17, 2018 5:42:29 AM hudson.model.UpdateSite updateData
+INFO: Obtained the latest update center data file for UpdateSource default
+Mar 17, 2018 5:42:29 AM hudson.model.DownloadService$Downloadable load
+INFO: Obtained the updated data file for hudson.tasks.Maven.MavenInstaller
+Mar 17, 2018 5:42:31 AM hudson.model.DownloadService$Downloadable load
+INFO: Obtained the updated data file for hudson.tools.JDKInstaller
+Mar 17, 2018 5:42:31 AM hudson.model.AsyncPeriodicWork$1 run
+INFO: Finished Download metadata. 8,990 ms
+Mar 17, 2018 5:42:31 AM hudson.model.UpdateSite updateData
+INFO: Obtained the latest update center data file for UpdateSource default
+Mar 17, 2018 5:42:31 AM hudson.WebAppMain$3 run
 INFO: Jenkins is fully up and running
---&gt; setting agent port <span class="k">for</span> jnlp
---&gt; setting agent port <span class="k">for</span> jnlp... <span class="k">done</span></code></pre></div>
-<p>Personalmente considero más útil aprovechar que el password inicial se encuentra en el fichero <code>/var/jenkins_home/secrets/initialAdminPassword</code> y obtenerlo usando <code>cat /var/jenkins_home/secrets/initialAdminPassword</code> mediante <code>docker exec</code>.</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">$ docker <span class="nb">exec</span> jenkins cat /var/jenkins_home/secrets/initialAdminPassword
-cb6e558c91e946ab8f06cf085c9cf88b</code></pre></div>
-<p>De esta forma puedes guardar el password en una variable de entorno y usarlo en un script, para acceder desde otra aplicación usando la API, etc.</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">$ <span class="nv">JENKINS_InitialPassword</span><span class="o">=</span><span class="k">$(</span>docker <span class="nb">exec</span> jenkins cat /var/jenkins_home/secrets/initialAdminPassword<span class="k">)</span>
+--&gt; setting agent port for jnlp
+--&gt; setting agent port for jnlp... done
+</code></pre>
 
-$ <span class="nb">echo</span> <span class="nv">$JENKINS_InitialPassword</span>
-cb6e558c91e946ab8f06cf085c9cf88b</code></pre></div>
+<p>Personalmente considero más útil aprovechar que el password inicial se encuentra en el fichero <code>/var/jenkins_home/secrets/initialAdminPassword</code> y obtenerlo usando <code>cat /var/jenkins_home/secrets/initialAdminPassword</code> mediante <code>docker exec</code>.</p>
+
+<pre><code class="language-shell">$ docker exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword
+cb6e558c91e946ab8f06cf085c9cf88b
+</code></pre>
+
+<p>De esta forma puedes guardar el password en una variable de entorno y usarlo en un script, para acceder desde otra aplicación usando la API, etc.</p>
+
+<pre><code class="language-shell">$ JENKINS_InitialPassword=$(docker exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword)
+
+$ echo $JENKINS_InitialPassword
+cb6e558c91e946ab8f06cf085c9cf88b
+</code></pre>
+
 <p>Copia el password e introdúcelo para acceder a Jenkins.</p>
 
 <h2 id="instalación-de-plugins">Instalación de plugins</h2>

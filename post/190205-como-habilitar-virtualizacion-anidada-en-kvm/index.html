@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.55.2" />
+<meta name="generator" content="Hugo 0.55.5" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -96,7 +96,7 @@
       <div class="l-container">
         <div class="h-logo p-logo">
           <a href="https://onthedock.github.io/" class="h-logo">On The Dock</a>
-          <p class="h-logo">Un blog sobre Docker, Kubernetes, DevOps y Raspberry Pi por Xavier Aznar</p>
+          <p class="h-logo">Un blog sobre el Cloud, Kubernetes, DevOps, Docker y Raspberry Pi por Xavier Aznar</p>
         </div>
       </div>
     </header>
@@ -129,8 +129,11 @@
 </blockquote>
 
 <p>Una vez <a href="https://onthedock.github.io/post/190124-kvm-en-ubuntu-server/">instalado KVM</a> en el equipo, el primer paso es comprobar si esta característica está soportada. Para ello seguimos las instrucciones de la sección <a href="https://docs.fedoraproject.org/en-US/quick-docs/using-nested-virtualization-in-kvm/">Checking if nested virtualization is supported</a>:</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">$ cat /sys/module/kvm_amd/parameters/nested
-<span class="m">1</span></code></pre></div>
+
+<pre><code class="language-bash">$ cat /sys/module/kvm_amd/parameters/nested
+1
+</code></pre>
+
 <p>Si el fichero muestra <code>1</code> o <code>yes</code>, el equipo soporta virtualización anidada.</p>
 
 <blockquote>
@@ -145,14 +148,23 @@
 
 <ol>
 <li><p>Descargamos el módulo <code>kvm_probe</code></p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">modprobe -r kvm_amd</code></pre></div></li>
 
-<li><p>Activamos la virtualización anidada:</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">modprobe kvm_amd <span class="nv">nested</span><span class="o">=</span><span class="m">1</span></code></pre></div></li>
+<pre><code class="language-bash">modprobe -r kvm_amd
+</code></pre>
+
+<ol>
+<li>Activamos la virtualización anidada:
+<code>bash
+modprobe kvm_amd nested=1
+</code></li>
+</ol></li>
 </ol>
 
 <p>Estas modificaciones habilitan la <em>nested virtualization</em> hasta que el sistema se reinicia. Para que la virtualización anidada esté disponible de forma permanente, editamos el fichero de configuración de KVM <code>/etc/modprobe.d/kvm.conf</code>:</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">options kvm_amd <span class="nv">nested</span><span class="o">=</span><span class="m">1</span></code></pre></div>
+
+<pre><code class="language-bash">options kvm_amd nested=1
+</code></pre>
+
 <h2 id="configurar-virtualización-anidada-en-virt-manager">Configurar virtualización anidada en Virt-Manager</h2>
 
 <p>Para habilitar <em>nested virtualization</em> en una máquina virtual, en Virt-Manager:</p>

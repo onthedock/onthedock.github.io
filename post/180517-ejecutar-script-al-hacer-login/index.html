@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.55.2" />
+<meta name="generator" content="Hugo 0.55.5" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -96,7 +96,7 @@
       <div class="l-container">
         <div class="h-logo p-logo">
           <a href="https://onthedock.github.io/" class="h-logo">On The Dock</a>
-          <p class="h-logo">Un blog sobre Docker, Kubernetes, DevOps y Raspberry Pi por Xavier Aznar</p>
+          <p class="h-logo">Un blog sobre el Cloud, Kubernetes, DevOps, Docker y Raspberry Pi por Xavier Aznar</p>
         </div>
       </div>
     </header>
@@ -129,45 +129,57 @@
 <p>La interacción con el equipo se realizará en general a través del interfaz web de Transmission, por lo que los logins en el equipo serán muy esporádicos.</p>
 
 <p>Sería interesante saber el estado de los discos y de Transmission al hacer login.</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">$ ssh operador@192.168.1.101
-operador@192.168.1.101<span class="s1">&#39;s password:
-</span><span class="s1">Welcome to Ubuntu 17.10 (GNU/Linux 4.13.0-41-generic i686)
-</span><span class="s1">
-</span><span class="s1"> * Documentation:  https://help.ubuntu.com
-</span><span class="s1"> * Management:     https://landscape.canonical.com
-</span><span class="s1"> * Support:        https://ubuntu.com/advantage
-</span><span class="s1">
-</span><span class="s1">3 packages can be updated.
-</span><span class="s1">3 updates are security updates.
-</span><span class="s1">
-</span><span class="s1">New release &#39;</span><span class="m">18</span>.04 LTS<span class="s1">&#39; available.
-</span><span class="s1">Run &#39;</span><span class="k">do</span>-release-upgrade<span class="err">&#39;</span> to upgrade to it.
 
-Last login: Wed May <span class="m">16</span> <span class="m">22</span>:09:31 <span class="m">2018</span> from <span class="m">192</span>.168.1.100
+<pre><code class="language-shell">$ ssh operador@192.168.1.101
+operador@192.168.1.101's password:
+Welcome to Ubuntu 17.10 (GNU/Linux 4.13.0-41-generic i686)
+
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/advantage
+
+3 packages can be updated.
+3 updates are security updates.
+
+New release '18.04 LTS' available.
+Run 'do-release-upgrade' to upgrade to it.
+
+Last login: Wed May 16 22:09:31 2018 from 192.168.1.100
 Disk usage
 ----------
-/dev/sda1        37G  <span class="m">3</span>.6G   31G  <span class="m">11</span>% /
-/dev/sdb1       110G   14G   91G  <span class="m">13</span>% /samba
+/dev/sda1        37G  3.6G   31G  11% /
+/dev/sdb1       110G   14G   91G  13% /samba
 
 Transmission en ejecución.
 
-$</code></pre></div>
+$
+</code></pre>
+
 <h1 id="creación-del-script">Creación del script</h1>
 
 <p>Creamos el script para mostrar la información que nos interesa.</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">touch monitor.sh
-nano monitor.sh</code></pre></div>
+
+<pre><code class="language-shell">touch monitor.sh
+nano monitor.sh
+</code></pre>
+
 <p>La información de uso de los discos se obtiene mediante el comando <code>df</code>. Sin embargo, el resultado del comando muestra mucha más información de la que necesitamos.</p>
 
 <p>Para filtrar la salida del comando, usaremos <code>grep</code>, de manera que sólo se muestre la información de las particiones en los discos físicos (<code>/dev/sda1</code> y <code>/dev/sdb1</code> en nuestro caso):</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">$ df -h <span class="p">|</span> grep <span class="s1">&#39;/dev/sd&#39;</span>
-/dev/sda1        37G  <span class="m">3</span>.6G   31G  <span class="m">11</span>% /
-/dev/sdb1       110G   14G   91G  <span class="m">13</span>% /samba</code></pre></div>
+
+<pre><code class="language-shell">$ df -h | grep '/dev/sd'
+/dev/sda1        37G  3.6G   31G  11% /
+/dev/sdb1       110G   14G   91G  13% /samba
+</code></pre>
+
 <p>La información sobre si el proceso de Transmission está en ejecución la obtenemos mediante el comando <code>ps</code>.</p>
 
 <p>Usamos <code>-u debian-transmission</code> para obtener los procesos ejecutados por este usuario y filtramos para encontrar el proceso <code>transmission-daemon</code>:</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">$ ps -u debian-transmission <span class="p">|</span> grep transmission
-<span class="m">5445</span> ?        <span class="m">00</span>:09:22 transmission-da</code></pre></div>
+
+<pre><code class="language-shell">$ ps -u debian-transmission | grep transmission
+5445 ?        00:09:22 transmission-da
+</code></pre>
+
 <blockquote>
 <p>La salida del comando corta el nombre del proceso, por lo que sólo filtramos por <code>transmision</code> y no <code>transmission-daemon</code>.</p>
 </blockquote>
@@ -175,17 +187,20 @@ nano monitor.sh</code></pre></div>
 <p>Cuando el proceso esté parado, este comando no dará ningún resultado. Para poder distinguir el resultado, lo más sencillo es contar el número de caracteres de la salida del comando usando el comando <code>wc -c</code>.</p>
 
 <p>Usando estos comandos en el script:</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="cp">#!/bin/sh
-</span><span class="cp"></span><span class="nv">DISK_USAGE</span><span class="o">=</span><span class="k">$(</span>df -h <span class="p">|</span> grep /dev/sd<span class="k">)</span>
-<span class="nv">TRANSMISSION</span><span class="o">=</span><span class="k">$(</span>ps -u debian-transmission <span class="p">|</span> grep transmission <span class="p">|</span> wc -c<span class="k">)</span>
 
-<span class="nb">echo</span>  <span class="s2">&#34;Disk usage\n----------\n</span><span class="nv">$DISK_USAGE</span><span class="s2">&#34;</span>
+<pre><code class="language-shell">#!/bin/sh
+DISK_USAGE=$(df -h | grep /dev/sd)
+TRANSMISSION=$(ps -u debian-transmission | grep transmission | wc -c)
 
-<span class="k">if</span> <span class="o">[</span> <span class="nv">$TRANSMISSION</span> -eq <span class="m">0</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
-  <span class="nb">echo</span> <span class="s2">&#34;\033[0;31m********************\nTransmission parado!\n********************\033[0m&#34;</span>
-<span class="k">else</span>
-  <span class="nb">echo</span> <span class="s2">&#34;\nTransmission en ejecución.\n&#34;</span>
-<span class="k">fi</span></code></pre></div>
+echo  &quot;Disk usage\n----------\n$DISK_USAGE&quot;
+
+if [ $TRANSMISSION -eq 0 ]; then
+  echo &quot;\033[0;31m********************\nTransmission parado!\n********************\033[0m&quot;
+else
+  echo &quot;\nTransmission en ejecución.\n&quot;
+fi
+</code></pre>
+
 <blockquote>
 <p>Los códigos <code>\033[0;31m</code> y <code>\033[0m</code> son para cambiar el color de la salida por consola.</p>
 </blockquote>
@@ -197,13 +212,15 @@ nano monitor.sh</code></pre></div>
 <p>En primer lugar, lo convertimos en ejecutable con <code>chmod +x monitor.sh</code>.</p>
 
 <p>Editamos el fichero <code>~/.profile</code> y añadimos el script al final:</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">...
-<span class="c1"># set PATH so it includes user&#39;s private bin if it exists</span>
-<span class="k">if</span> <span class="o">[</span> -d <span class="s2">&#34;</span><span class="nv">$HOME</span><span class="s2">/bin&#34;</span> <span class="o">]</span> <span class="p">;</span> <span class="k">then</span>
-    <span class="nv">PATH</span><span class="o">=</span><span class="s2">&#34;</span><span class="nv">$HOME</span><span class="s2">/bin:</span><span class="nv">$PATH</span><span class="s2">&#34;</span>
-<span class="k">fi</span>
 
-./monitor.sh</code></pre></div></div>
+<pre><code class="language-shell">...
+# set PATH so it includes user's private bin if it exists
+if [ -d &quot;$HOME/bin&quot; ] ; then
+    PATH=&quot;$HOME/bin:$PATH&quot;
+fi
+
+./monitor.sh
+</code></pre></div>
 
   <aside class="p-share">
   <a href="http://b.hatena.ne.jp/add?mode=confirm&url=https%3a%2f%2fonthedock.github.io%2fpost%2f180517-ejecutar-script-al-hacer-login%2f&title=Ejecutar%20script%20al%20hacer%20login%20en%20el%20sistema" title="はてなブックマーク" class="ht" target="_blank" rel="nofollow"></a>

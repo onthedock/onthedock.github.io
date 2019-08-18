@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.55.2" />
+<meta name="generator" content="Hugo 0.55.5" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -96,7 +96,7 @@
       <div class="l-container">
         <div class="h-logo p-logo">
           <a href="https://onthedock.github.io/" class="h-logo">On The Dock</a>
-          <p class="h-logo">Un blog sobre Docker, Kubernetes, DevOps y Raspberry Pi por Xavier Aznar</p>
+          <p class="h-logo">Un blog sobre el Cloud, Kubernetes, DevOps, Docker y Raspberry Pi por Xavier Aznar</p>
         </div>
       </div>
     </header>
@@ -168,22 +168,28 @@
 <h2 id="crea-tu-primer-contenedor">Crea tu primer contenedor</h2>
 
 <p>Ya está todo listo para ejecutar tu primer contenedor. Y es tan sencillo como lanzar el comando:</p>
-<div class="highlight"><pre class="chroma"><code class="language-sh" data-lang="sh">docker run -d -p <span class="m">80</span>:80 hypriot/rpi-busybox-httpd</code></pre></div>
+
+<pre><code class="language-sh">docker run -d -p 80:80 hypriot/rpi-busybox-httpd
+</code></pre>
+
 <p>Este comando ejecuta un contendor (<code>docker run</code>) en segundo plano, de forma no interactiva (<code>-d</code>, <em>dettached</em>), conectando el puerto 80 (web) de tu equipo local con el puerto 80 del contenedor. El contenedor se creará a partir de la imagen <code>hypriot/rpi-busybox-httpd</code>.</p>
 
 <p>Cuando Docker intenta crear el contenedor, busca la imagen indicada en su registro local. Si no lo encuentra, se conecta a un registro público -por defecto Docker Hub- y busca la imagen allí.</p>
 
 <p>Una vez localizada la imagen, descarga en el registro local una copia de la imagen y finalmente arranca un contenedor basado en esa imagen.</p>
-<div class="highlight"><pre class="chroma"><code class="language-sh" data-lang="sh">$ docker run -d -p  <span class="m">80</span>:80 hypriot/rpi-busybox-httpd
-Unable to find image <span class="s1">&#39;hypriot/rpi-busybox-httpd:latest&#39;</span> locally
+
+<pre><code class="language-sh">$ docker run -d -p  80:80 hypriot/rpi-busybox-httpd
+Unable to find image 'hypriot/rpi-busybox-httpd:latest' locally
 latest: Pulling from hypriot/rpi-busybox-httpd
-c74a9c6a645f: Pull <span class="nb">complete</span>
-6f1938f6d8ae: Pull <span class="nb">complete</span>
-e1347d4747a6: Pull <span class="nb">complete</span>
-a3ed95caeb02: Pull <span class="nb">complete</span>
+c74a9c6a645f: Pull complete
+6f1938f6d8ae: Pull complete
+e1347d4747a6: Pull complete
+a3ed95caeb02: Pull complete
 Digest: sha256:c00342f952d97628bf5dda457d3b409c37df687c859df82b9424f61264f54cd1
-Status: Downloaded newer image <span class="k">for</span> hypriot/rpi-busybox-httpd:latest
-19d131999ea3142d44a83a6e943c9052d8defa43f7da372bd08ec441ee55f31b</code></pre></div>
+Status: Downloaded newer image for hypriot/rpi-busybox-httpd:latest
+19d131999ea3142d44a83a6e943c9052d8defa43f7da372bd08ec441ee55f31b
+</code></pre>
+
 <p>La imagen descargada contiene <code>busybox</code> y un servidor web minimalista. Puedes acceder al servidor arrancado en el contenedor a través de un navegador, indicando la IP de la Raspberry Pi.</p>
 
 <h3 id="un-contenedor-más-útil">Un contenedor más útil</h3>
@@ -191,7 +197,10 @@ Status: Downloaded newer image <span class="k">for</span> hypriot/rpi-busybox-ht
 <p>Como ejemplo de primer contenedor y de lo fácil que es lanzar contenedores con Docker, el ejemplo anterior no está mal.</p>
 
 <p>Sin embargo, vamos a seguir los mismos pasos para crear un contenedor que proporciona un entorno web de gestión de Docker:</p>
-<div class="highlight"><pre class="chroma"><code class="language-sh" data-lang="sh">docker run -d -p <span class="m">9000</span>:9000 -v /var/run/docker.sock:/var/run/docker.sock hypriot/rpi-dockerui</code></pre></div>
+
+<pre><code class="language-sh">docker run -d -p 9000:9000 -v /var/run/docker.sock:/var/run/docker.sock hypriot/rpi-dockerui
+</code></pre>
+
 <p>En este caso observamos que, además de las instrucciones que hemos visto en el caso anterior, tenemos un nuevo parámetro <code>-v</code>, que permite <em>montar</em> una ruta local del equipo <em>host</em> en el contenedor. Sin embargo, no te preocupes si ahora no entindes todos los detalles.</p>
 
 <p>Una vez arrancado el contenedor, accede a través de un navegador a <code>http://{IP-equipo-docker}:9000</code>. Desde este entorno web puedes controlar el estado de tu instalación de Docker vía web gracias a <a href="https://github.com/kevana/ui-for-docker">UI-for-Docker</a>.</p>
@@ -203,26 +212,38 @@ Status: Downloaded newer image <span class="k">for</span> hypriot/rpi-busybox-ht
 <p>Para evitar estos problemas, vamos a asignar la IP -estática- 192.168.1.51.</p>
 
 <p>Abrimos el fichero <code>/etc/network/interfaces</code> y encontramos que se hace referencia a una carpeta de configuración:</p>
-<div class="highlight"><pre class="chroma"><code class="language-config" data-lang="config"># interfaces(5) file used by ifup(8) and ifdown(8)
+
+<pre><code class="language-config"># interfaces(5) file used by ifup(8) and ifdown(8)
 # Include files from /etc/network/interfaces.d:
-source-directory /etc/network/interfaces.d</code></pre></div>
+source-directory /etc/network/interfaces.d
+</code></pre>
+
 <p>Abrimos el fichero de configuración de la tarjeta de red <code>eth0</code>:</p>
-<div class="highlight"><pre class="chroma"><code class="language-config" data-lang="config">allow-hotplug eth0
-iface eth0 inet dhcp</code></pre></div>
+
+<pre><code class="language-config">allow-hotplug eth0
+iface eth0 inet dhcp
+</code></pre>
+
 <p>Vemos que está configurada en modo <code>DHCP</code>, por lo que comentamos la segunda línea y especificamos la configuración de IP estática:</p>
-<div class="highlight"><pre class="chroma"><code class="language-config" data-lang="config"># iface eth0 inet dhcp
+
+<pre><code class="language-config"># iface eth0 inet dhcp
 
 # Set static IP
 iface eth0 inet static
 address 192.168.1.51
 gateway 192.168.1.1
-domain_name_servers=8.8.8.8, 8.8.4.4</code></pre></div>
+domain_name_servers=8.8.8.8, 8.8.4.4
+</code></pre>
+
 <p>Por supuesto, debes indicar la configuración de red de tu entorno.</p>
 
 <p>Guardamos los cambios y reiniciamos el servicio de red mediante:</p>
-<div class="highlight"><pre class="chroma"><code class="language-sh" data-lang="sh">$ sudo $ sudo /etc/init.d/networking restart
-<span class="o">[</span>....<span class="o">]</span> Restarting networking <span class="o">(</span>via systemctl<span class="o">)</span>: networking.service
-. ok</code></pre></div>
+
+<pre><code class="language-sh">$ sudo $ sudo /etc/init.d/networking restart
+[....] Restarting networking (via systemctl): networking.service
+. ok
+</code></pre>
+
 <blockquote>
 <p>Como la IP de la Raspberry Pi ha cambiado, la conexión remota desde tu equipo se perderá.</p>
 

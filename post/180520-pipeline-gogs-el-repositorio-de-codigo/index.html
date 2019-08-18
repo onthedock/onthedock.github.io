@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.55.2" />
+<meta name="generator" content="Hugo 0.55.5" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -96,7 +96,7 @@
       <div class="l-container">
         <div class="h-logo p-logo">
           <a href="https://onthedock.github.io/" class="h-logo">On The Dock</a>
-          <p class="h-logo">Un blog sobre Docker, Kubernetes, DevOps y Raspberry Pi por Xavier Aznar</p>
+          <p class="h-logo">Un blog sobre el Cloud, Kubernetes, DevOps, Docker y Raspberry Pi por Xavier Aznar</p>
         </div>
       </div>
     </header>
@@ -153,185 +153,230 @@
 <p>La alternativa es usar una <em>red puente definida por el usuario (user-defined bridge network</em>). Esta es la forma recomendada en la documentación de MySQL para desplegar MySQL en Linux con Docker: <a href="https://dev.mysql.com/doc/mysql-installation-excerpt/5.7/en/docker-mysql-more-topics.html#docker-app-in-another-container">Connect to MySQL from an Application in Another Docker Container</a>.</p>
 
 <p>Creamos la red <em>bridge</em> a la que llamamos <code>backend-gogs</code>:</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">$ sudo docker network create backend-gogs
+
+<pre><code class="language-shell">$ sudo docker network create backend-gogs
 3e38ebb671bf595201f0d3cb37e6a6138d0f05025c1f581e3bd8cc84c844c79f
-$</code></pre></div>
+$
+</code></pre>
+
 <p>Comprobamos que además de las redes creadas por defecto por Docker, ahora tenemos una red <em>bridge</em> adicional:</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">$ sudo docker network ls
+
+<pre><code class="language-shell">$ sudo docker network ls
 NETWORK ID          NAME                DRIVER              SCOPE
-f53cd8a2520d        bridge              bridge              <span class="nb">local</span>
-3cb879caa2f8        host                host                <span class="nb">local</span>
-3e38ebb671bf        backend-gogs        bridge              <span class="nb">local</span>
-30f938dfeaa1        none                null                <span class="nb">local</span>
-$</code></pre></div>
+f53cd8a2520d        bridge              bridge              local
+3cb879caa2f8        host                host                local
+3e38ebb671bf        backend-gogs        bridge              local
+30f938dfeaa1        none                null                local
+$
+</code></pre>
+
 <h1 id="instalación-de-mysql">Instalación de MySQL</h1>
 
 <h2 id="creación-del-volumen-para-la-base-de-datos">Creación del volumen para la base de datos</h2>
 
 <p>Para almacenar los datos de la base de datos, creamos un volumen llamado <code>data-mysql-gogs</code>:</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">$ sudo docker volume create data-mysql-gogs
-data-mysql</code></pre></div>
+
+<pre><code class="language-shell">$ sudo docker volume create data-mysql-gogs
+data-mysql
+</code></pre>
+
 <h2 id="creación-del-contenedor-con-el-motor-de-base-de-datos-mysql">Creación del contenedor con el motor de base de datos MySQL</h2>
 
 <p>Descargamos la imagen de MySQL</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">$ sudo docker pull mysql:5.7
-<span class="m">5</span>.7: Pulling from library/mysql
-2a72cbf407d6: Pull <span class="nb">complete</span>
-38680a9b47a8: Pull <span class="nb">complete</span>
-4c732aa0eb1b: Pull <span class="nb">complete</span>
-c5317a34eddd: Pull <span class="nb">complete</span>
-f92be680366c: Pull <span class="nb">complete</span>
-e8ecd8bec5ab: Pull <span class="nb">complete</span>
-2a650284a6a8: Pull <span class="nb">complete</span>
-5b5108d08c6d: Pull <span class="nb">complete</span>
-beaff1261757: Pull <span class="nb">complete</span>
-c1a55c6375b5: Pull <span class="nb">complete</span>
-8181cde51c65: Pull <span class="nb">complete</span>
+
+<pre><code class="language-shell">$ sudo docker pull mysql:5.7
+5.7: Pulling from library/mysql
+2a72cbf407d6: Pull complete
+38680a9b47a8: Pull complete
+4c732aa0eb1b: Pull complete
+c5317a34eddd: Pull complete
+f92be680366c: Pull complete
+e8ecd8bec5ab: Pull complete
+2a650284a6a8: Pull complete
+5b5108d08c6d: Pull complete
+beaff1261757: Pull complete
+c1a55c6375b5: Pull complete
+8181cde51c65: Pull complete
 Digest: sha256:691c55aabb3c4e3b89b953dd2f022f7ea845e5443954767d321d5f5fa394e28c
-Status: Downloaded newer image <span class="k">for</span> mysql:5.7
-$</code></pre></div>
+Status: Downloaded newer image for mysql:5.7
+$
+</code></pre>
+
 <p>Lanzamos el contenedor con <em>MySQL</em> usando el volumen que hemos creado anteriormente:</p>
 
 <blockquote>
 <p>Siguiendo la <a href="https://docs.docker.com/storage/volumes/#choose-the--v-or---mount-flag">recomendación de Docker</a>, usamos <code>--mount</code> en vez de <code>-v</code> o <code>—volume</code> para montar el volumen en el contenedor.</p>
 </blockquote>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">$ sudo docker run -d --name mysql-gogs <span class="se">\
-</span><span class="se"></span>   --mount <span class="nv">source</span><span class="o">=</span>data-mysql-gogs,target<span class="o">=</span>/var/lib/mysql <span class="se">\
-</span><span class="se"></span>   -e <span class="nv">MYSQL_ROOT_PASSWORD</span><span class="o">=</span>ESmCg2g7dnNQeOY <span class="se">\
-</span><span class="se"></span>   -e <span class="nv">MYSQL_DATABASE</span><span class="o">=</span>gogs <span class="se">\
-</span><span class="se"></span>   -e <span class="nv">MYSQL_USER</span><span class="o">=</span>usrgogs -e <span class="nv">MYSQL_PASSWORD</span><span class="o">=</span>Zskkd6jygnK7 <span class="se">\
-</span><span class="se"></span>   mysql:5.7
-4426d99884ae84ec4814dbfc8e5cc357fa2616a31b2104ec8b259e9f61c7e98d</code></pre></div>
+
+<pre><code class="language-shell">$ sudo docker run -d --name mysql-gogs \
+   --mount source=data-mysql-gogs,target=/var/lib/mysql \
+   -e MYSQL_ROOT_PASSWORD=ESmCg2g7dnNQeOY \
+   -e MYSQL_DATABASE=gogs \
+   -e MYSQL_USER=usrgogs -e MYSQL_PASSWORD=Zskkd6jygnK7 \
+   mysql:5.7
+4426d99884ae84ec4814dbfc8e5cc357fa2616a31b2104ec8b259e9f61c7e98d
+</code></pre>
+
 <blockquote>
 <p>No hemos conectado el contenedor a la red <code>backend-gogs</code> para mostrar más adelante cómo hacerlo con el contenedor en marcha.</p>
 </blockquote>
 
 <p>Podemos comprobar que se ha creado una base de datos llamada <code>gogs</code> en MySQL  y que el usuario <code>usrgogs</code> puede conectarse. Para ello, conectamos al contenedor y revisamos las bases de datos existentes:</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">$ sudo docker <span class="nb">exec</span> -it  mysql-gogs mysql -u usrgogs -p
-Enter password:
-Welcome to the MySQL monitor.  Commands end with <span class="p">;</span> or <span class="se">\g</span>.
-Your MySQL connection id is <span class="m">2</span>
-Server version: <span class="m">5</span>.7.21 MySQL Community Server <span class="o">(</span>GPL<span class="o">)</span>
 
-Copyright <span class="o">(</span>c<span class="o">)</span> <span class="m">2000</span>, <span class="m">2018</span>, Oracle and/or its affiliates. All rights reserved.
+<pre><code class="language-shell">$ sudo docker exec -it  mysql-gogs mysql -u usrgogs -p
+Enter password:
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 2
+Server version: 5.7.21 MySQL Community Server (GPL)
+
+Copyright (c) 2000, 2018, Oracle and/or its affiliates. All rights reserved.
 
 Oracle is a registered trademark of Oracle Corporation and/or its
 affiliates. Other names may be trademarks of their respective
 owners.
 
-Type <span class="s1">&#39;help;&#39;</span> or <span class="s1">&#39;\h&#39;</span> <span class="k">for</span> help. Type <span class="s1">&#39;\c&#39;</span> to clear the current input statement.
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
 
-mysql&gt; show databases<span class="p">;</span>
+mysql&gt; show databases;
 +--------------------+
-<span class="p">|</span> Database           <span class="p">|</span>
+| Database           |
 +--------------------+
-<span class="p">|</span> information_schema <span class="p">|</span>
-<span class="p">|</span> gogs               <span class="p">|</span>
+| information_schema |
+| gogs               |
 +--------------------+
-<span class="m">2</span> rows in <span class="nb">set</span> <span class="o">(</span><span class="m">0</span>.01 sec<span class="o">)</span>
+2 rows in set (0.01 sec)
 
-mysql&gt;</code></pre></div>
+mysql&gt;
+</code></pre>
+
 <p>También podemos comprobar que el usuario <code>usrgogs</code> tiene permisos completos sobre la base de datos recién creada:</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">mysql&gt; show grants <span class="k">for</span> usrgogs<span class="p">;</span>
+
+<pre><code class="language-shell">mysql&gt; show grants for usrgogs;
 +---------------------------------------------------+
-<span class="p">|</span> Grants <span class="k">for</span> usrgogs@%                              <span class="p">|</span>
+| Grants for usrgogs@%                              |
 +---------------------------------------------------+
-<span class="p">|</span> GRANT USAGE ON *.* TO <span class="s1">&#39;usrgogs&#39;</span>@<span class="s1">&#39;%&#39;</span>               <span class="p">|</span>
-<span class="p">|</span> GRANT ALL PRIVILEGES ON <span class="sb">`</span>gogs<span class="sb">`</span>.* TO <span class="s1">&#39;usrgogs&#39;</span>@<span class="s1">&#39;%&#39;</span> <span class="p">|</span>
+| GRANT USAGE ON *.* TO 'usrgogs'@'%'               |
+| GRANT ALL PRIVILEGES ON `gogs`.* TO 'usrgogs'@'%' |
 +---------------------------------------------------+
-<span class="m">2</span> rows in <span class="nb">set</span> <span class="o">(</span><span class="m">0</span>.01 sec<span class="o">)</span></code></pre></div>
+2 rows in set (0.01 sec)
+</code></pre>
+
 <p>Salimos de la consola de MySQL con <code>exit</code>.</p>
 
 <h3 id="conexión-del-contenedor-mysql-gogs-a-la-red-backend-gogs">Conexión del contenedor <code>mysql-gogs</code> a la red <code>backend-gogs</code>`</h3>
 
 <p>Aunque lo correcto sería conectar el contenedor a la red al crearlo, podemos <a href="https://docs.docker.com/network/bridge/#connect-a-container-to-the-default-bridge-network">conectar un contenedor en marcha</a> a una red mediante:</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">$ sudo docker network connect backend-gogs mysql-gogs
-$</code></pre></div>
+
+<pre><code class="language-shell">$ sudo docker network connect backend-gogs mysql-gogs
+$
+</code></pre>
+
 <p>Mediante <code>docker inspect</code> podemos revisar la configuración de red del contenedor y comprobar que está conectado a la red <code>bridge</code> y a la red <code>backend-gogs</code>:</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">...
-<span class="s2">&#34;Networks&#34;</span>: <span class="o">{</span>
-                <span class="s2">&#34;bridge&#34;</span>: <span class="o">{</span>
+
+<pre><code class="language-shell">...
+&quot;Networks&quot;: {
+                &quot;bridge&quot;: {
                     ...
-                    <span class="s2">&#34;Links&#34;</span>: null,
-                    <span class="s2">&#34;Aliases&#34;</span>: null,
+                    &quot;Links&quot;: null,
+                    &quot;Aliases&quot;: null,
                     ...
-                    <span class="s2">&#34;Gateway&#34;</span>: <span class="s2">&#34;172.17.0.1&#34;</span>,
-                    <span class="s2">&#34;IPAddress&#34;</span>: <span class="s2">&#34;172.17.0.2&#34;</span>,
-                    <span class="s2">&#34;IPPrefixLen&#34;</span>: <span class="m">16</span>,
+                    &quot;Gateway&quot;: &quot;172.17.0.1&quot;,
+                    &quot;IPAddress&quot;: &quot;172.17.0.2&quot;,
+                    &quot;IPPrefixLen&quot;: 16,
                     ...
-                <span class="o">}</span>,
-                <span class="s2">&#34;backend-gogs&#34;</span>: <span class="o">{</span>
+                },
+                &quot;backend-gogs&quot;: {
                     ...
-                    <span class="s2">&#34;Links&#34;</span>: null,
-                    <span class="s2">&#34;Aliases&#34;</span>: <span class="o">[</span>
-                        <span class="s2">&#34;5621d1b86dd2&#34;</span>
-                    <span class="o">]</span>,
+                    &quot;Links&quot;: null,
+                    &quot;Aliases&quot;: [
+                        &quot;5621d1b86dd2&quot;
+                    ],
                     ...
-                    <span class="s2">&#34;Gateway&#34;</span>: <span class="s2">&#34;172.18.0.1&#34;</span>,
-                    <span class="s2">&#34;IPAddress&#34;</span>: <span class="s2">&#34;172.18.0.2&#34;</span>,
-                    <span class="s2">&#34;IPPrefixLen&#34;</span>: <span class="m">16</span>,
+                    &quot;Gateway&quot;: &quot;172.18.0.1&quot;,
+                    &quot;IPAddress&quot;: &quot;172.18.0.2&quot;,
+                    &quot;IPPrefixLen&quot;: 16,
                     ...
-                <span class="o">}</span>
-            <span class="o">}</span>
-...</code></pre></div>
+                }
+            }
+...
+</code></pre>
+
 <h1 id="instalación-de-gogs">Instalación de Gogs</h1>
 
 <h2 id="creación-del-volumen-para-los-repositorios-y-configuración-de-gogs">Creación del volumen para los repositorios y configuración de Gogs</h2>
 
 <p>Para almacenar los datos usados por Gogs, creamos un volumen <code>data-gogs</code>:</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">$ sudo docker volume create data-gogs
-data-gogs</code></pre></div>
+
+<pre><code class="language-shell">$ sudo docker volume create data-gogs
+data-gogs
+</code></pre>
+
 <p>Verificamos que se ha creado correctamente:</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">$ sudo docker volume ls
+
+<pre><code class="language-shell">$ sudo docker volume ls
 DRIVER              VOLUME NAME
-<span class="nb">local</span>               data-gogs
-<span class="nb">local</span>               data-mysql-gogs
-$</code></pre></div>
+local               data-gogs
+local               data-mysql-gogs
+$
+</code></pre>
+
 <h2 id="creación-del-contenedor-con-gogs">Creación del contenedor con Gogs</h2>
 
 <p>Descargamos la imagen:</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">$ sudo docker pull gogs/gogs:0.11.43
-<span class="m">0</span>.11.43: Pulling from gogs/gogs
-550fe1bea624: Pull <span class="nb">complete</span>
-d4768cab464c: Pull <span class="nb">complete</span>
-a09a9b9a1b84: Pull <span class="nb">complete</span>
-e96e27ca5c6f: Pull <span class="nb">complete</span>
-610b4353a17a: Pull <span class="nb">complete</span>
-e1d24556ad31: Pull <span class="nb">complete</span>
-a8aa7b0b6f56: Pull <span class="nb">complete</span>
-8dec4c0e4bba: Pull <span class="nb">complete</span>
-7b83320ea32c: Pull <span class="nb">complete</span>
-6a575b348264: Pull <span class="nb">complete</span>
-1c038aa19116: Pull <span class="nb">complete</span>
+
+<pre><code class="language-shell">$ sudo docker pull gogs/gogs:0.11.43
+0.11.43: Pulling from gogs/gogs
+550fe1bea624: Pull complete
+d4768cab464c: Pull complete
+a09a9b9a1b84: Pull complete
+e96e27ca5c6f: Pull complete
+610b4353a17a: Pull complete
+e1d24556ad31: Pull complete
+a8aa7b0b6f56: Pull complete
+8dec4c0e4bba: Pull complete
+7b83320ea32c: Pull complete
+6a575b348264: Pull complete
+1c038aa19116: Pull complete
 Digest: sha256:1180a8381b40d2c64c09898058dba477483c581096cdce68284b30c91ec1f2a9
-Status: Downloaded newer image <span class="k">for</span> gogs/gogs:0.11.43
-$</code></pre></div>
+Status: Downloaded newer image for gogs/gogs:0.11.43
+$
+</code></pre>
+
 <p>Ahora lanzamos el contenedor para GoGS (conectándolo a la red <code>backend-gogs</code> para que pueda usar MySQL):</p>
 
 <blockquote>
 <p>Siguendo la <a href="https://docs.docker.com/storage/volumes/#choose-the--v-or---mount-flag">recomendación de Docker</a>, usamos <code>--mount</code> en vez de <code>-v</code> o <code>—volume</code> para montar el volumen en el contenedor.</p>
 </blockquote>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">$ sudo docker run -d --name gogs <span class="se">\
-</span><span class="se"></span>   --mount <span class="nv">source</span><span class="o">=</span>data-gogs,target<span class="o">=</span>/data <span class="se">\
-</span><span class="se"></span>   -p <span class="m">10022</span>:22 -p <span class="m">10080</span>:3000 <span class="se">\
-</span><span class="se"></span>   --network backend-gogs <span class="se">\
-</span><span class="se"></span>   gogs/gogs:0.11.43
-787565af362b2e7f1cd4fe2355720cd64e5a7dffee3d23cddec97fcd69ab6f0b</code></pre></div>
+
+<pre><code class="language-shell">$ sudo docker run -d --name gogs \
+   --mount source=data-gogs,target=/data \
+   -p 10022:22 -p 10080:3000 \
+   --network backend-gogs \
+   gogs/gogs:0.11.43
+787565af362b2e7f1cd4fe2355720cd64e5a7dffee3d23cddec97fcd69ab6f0b
+</code></pre>
+
 <blockquote>
 <p>Hemos conectado el contenedor a la red <code>backend-gogs</code> usando <code>--network backend-gogs</code> como parámetro en el comando <code>docker run</code>.</p>
 </blockquote>
 
 <p>Validamos que el contenedor sigue corriendo:</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">$ sudo docker ps
+
+<pre><code class="language-shell">$ sudo docker ps
 CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS                                            NAMES
-787565af362b        gogs/gogs:0.11.43   <span class="s2">&#34;/app/gogs/docker/st…&#34;</span>   <span class="m">56</span> seconds ago      Up <span class="m">55</span> seconds       <span class="m">0</span>.0.0.0:10022-&gt;22/tcp, <span class="m">0</span>.0.0.0:10080-&gt;3000/tcp   gogs
-5621d1b86dd2        mysql:5.7           <span class="s2">&#34;docker-entrypoint.s…&#34;</span>   About an hour ago   Up About an hour    <span class="m">3306</span>/tcp                                         mysql
-$</code></pre></div>
+787565af362b        gogs/gogs:0.11.43   &quot;/app/gogs/docker/st…&quot;   56 seconds ago      Up 55 seconds       0.0.0.0:10022-&gt;22/tcp, 0.0.0.0:10080-&gt;3000/tcp   gogs
+5621d1b86dd2        mysql:5.7           &quot;docker-entrypoint.s…&quot;   About an hour ago   Up About an hour    3306/tcp                                         mysql
+$
+</code></pre>
+
 <p>Si todo ha funcionado correctamente, podemos acceder a la interfaz web de GoGS a través del puerto 10080 (el puerto 10022 es para las conexiones vía SSH).</p>
 
 <p>Desde la línea de comandos verificamos que al acceder a GoGS (por primera vez) se ejecuta el asistente de configuración:</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">$ curl localhost:10080
-&lt;a <span class="nv">href</span><span class="o">=</span><span class="s2">&#34;/install&#34;</span>&gt;Found&lt;/a&gt;.</code></pre></div>
+
+<pre><code class="language-shell">$ curl localhost:10080
+&lt;a href=&quot;/install&quot;&gt;Found&lt;/a&gt;.
+</code></pre>
+
 <blockquote>
 <p>Puedes obtener la IP del <em>host</em> con Docker vía <code>ip address show</code> y revisar la IP asignada al interfaz de red (habitualmente, el <code>eth0</code>).</p>
 </blockquote>
@@ -464,20 +509,29 @@ $</code></pre></div>
 </blockquote>
 
 <p>Conectamos al contenedor y editamos el fichero (después de hacer una copia de seguridad):</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">$ sudo docker <span class="nb">exec</span> -it gogs /bin/sh
-/app/gogs/build <span class="c1"># cp /data/gogs/conf/app.ini /data/gogs/conf/app.ini.bkp</span>
-/app/gogs/build <span class="c1"># vi /data/gogs/conf/app.ini</span></code></pre></div>
+
+<pre><code class="language-shell">$ sudo docker exec -it gogs /bin/sh
+/app/gogs/build # cp /data/gogs/conf/app.ini /data/gogs/conf/app.ini.bkp
+/app/gogs/build # vi /data/gogs/conf/app.ini
+</code></pre>
+
 <p>Editamos la sección <code>[mailer]</code> de la configuración añadiendo el parámetro <code>SKIP_VERIFY = true</code>:</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="o">[</span>mailer<span class="o">]</span>
-<span class="nv">ENABLED</span> <span class="o">=</span> <span class="nb">true</span>
-<span class="nv">HOST</span>    <span class="o">=</span> <span class="m">192</span>.168.1.209:10025
-<span class="nv">FROM</span>    <span class="o">=</span> gogs-notify@local.dev
-<span class="nv">USER</span>    <span class="o">=</span> gogs-notify@local.dev
-<span class="nv">PASSWD</span>  <span class="o">=</span>
-<span class="nv">SKIP_VERIFY</span> <span class="o">=</span> true</code></pre></div>
+
+<pre><code class="language-shell">[mailer]
+ENABLED = true
+HOST    = 192.168.1.209:10025
+FROM    = gogs-notify@local.dev
+USER    = gogs-notify@local.dev
+PASSWD  =
+SKIP_VERIFY = true
+</code></pre>
+
 <p>Guardamos y salimos del contenedor. Para que los efectos surtan efecto, reiniciamos el servidor:</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">$ sudo docker restart gogs
-gogs</code></pre></div>
+
+<pre><code class="language-shell">$ sudo docker restart gogs
+gogs
+</code></pre>
+
 <p>Tras el reinicio, al enviar una prueba de correo:</p>
 
 <figure>

@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.55.2" />
+<meta name="generator" content="Hugo 0.55.5" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -96,7 +96,7 @@
       <div class="l-container">
         <div class="h-logo p-logo">
           <a href="https://onthedock.github.io/" class="h-logo">On The Dock</a>
-          <p class="h-logo">Un blog sobre Docker, Kubernetes, DevOps y Raspberry Pi por Xavier Aznar</p>
+          <p class="h-logo">Un blog sobre el Cloud, Kubernetes, DevOps, Docker y Raspberry Pi por Xavier Aznar</p>
         </div>
       </div>
     </header>
@@ -122,19 +122,24 @@
 
   <div class="article-body"><p>Los nodos <strong>k2</strong> y <strong>k3</strong> del clúster dejan de responder pasadas unas horas. La única manera de solucionarlo es reiniciar los nodos. Siguiendo con la revisión de logs, he encontrado que se genera una gran cantidad de entradas en <em>syslog</em> en referencia a <em>orphaned pods</em>. Además, el número de estos errores no para de crecer <strong>rápidamente</strong>.</p>
 
-<div class="highlight"><pre class="chroma"><code class="language-sh" data-lang="sh">$ grep <span class="s2">&#34;kubelet_volumes.go:114] Orphaned pod&#34;</span> /var/log/syslog <span class="p">|</span> wc -l
-<span class="m">118938</span>
-$ grep <span class="s2">&#34;kubelet_volumes.go:114] Orphaned pod&#34;</span> /var/log/syslog <span class="p">|</span> wc -l
-<span class="m">119022</span>
-$ grep <span class="s2">&#34;kubelet_volumes.go:114] Orphaned pod&#34;</span> /var/log/syslog <span class="p">|</span> wc -l
-<span class="m">119170</span></code></pre></div>
+<pre><code class="language-sh">$ grep &quot;kubelet_volumes.go:114] Orphaned pod&quot; /var/log/syslog | wc -l
+118938
+$ grep &quot;kubelet_volumes.go:114] Orphaned pod&quot; /var/log/syslog | wc -l
+119022
+$ grep &quot;kubelet_volumes.go:114] Orphaned pod&quot; /var/log/syslog | wc -l
+119170
+</code></pre>
+
 <p>Revisando las últimas entradas del log:</p>
-<div class="highlight"><pre class="chroma"><code class="language-log" data-lang="log">Apr 30 10:57:57 k2 kubelet[3619]: E0430 10:57:57.186318    3619 kubelet_volumes.go:114] Orphaned pod &#34;5064b9d9-2c9e-11e7-a7ae-b827eb650fdb&#34; found, but volume paths are still present on disk.
-Apr 30 10:58:01 k2 kubelet[3619]: E0430 10:58:01.759595    3619 kubelet_volumes.go:114] Orphaned pod &#34;6c601e9c-2c9c-11e7-a7ae-b827eb650fdb&#34; found, but volume paths are still present on disk.
-Apr 30 10:58:03 k2 kubelet[3619]: E0430 10:58:03.226372    3619 kubelet.go:1549] Unable to mount volumes for pod &#34;weave-net-bs9bs_kube-system(4461d51d-2d93-11e7-a7ae-b827eb650fdb)&#34;: timeout expired waiting for volumes to attach/mount for pod &#34;kube-system&#34;/&#34;weave-net-bs9bs&#34;. list of unattached/unmounted volumes=[weavedb cni-bin cni-bin2 cni-conf dbus lib-modules weave-net-token-61scv]; skipping pod
-Apr 30 10:58:03 k2 kubelet[3619]: E0430 10:58:03.238315    3619 pod_workers.go:182] Error syncing pod 4461d51d-2d93-11e7-a7ae-b827eb650fdb (&#34;weave-net-bs9bs_kube-system(4461d51d-2d93-11e7-a7ae-b827eb650fdb)&#34;), skipping: timeout expired waiting for volumes to attach/mount for pod &#34;kube-system&#34;/&#34;weave-net-bs9bs&#34;. list of unattached/unmounted volumes=[weavedb cni-bin cni-bin2 cni-conf dbus lib-modules weave-net-token-61scv]
-Apr 30 10:58:05 k2 kubelet[3619]: E0430 10:58:05.830432    3619 kubelet_volumes.go:114] Orphaned pod &#34;bb4d3ea6-2b80-11e7-9388-b827eb650fdb&#34; found, but volume paths are still present on disk.
-Apr 30 10:58:08 k2 kubelet[3619]: E0430 10:58:08.435567    3619 kubelet_volumes.go:114] Orphaned pod &#34;cb23be0d-2d7e-11e7-a7ae-b827eb650fdb&#34; found, but volume paths are still present on disk.</code></pre></div>
+
+<pre><code class="language-log">Apr 30 10:57:57 k2 kubelet[3619]: E0430 10:57:57.186318    3619 kubelet_volumes.go:114] Orphaned pod &quot;5064b9d9-2c9e-11e7-a7ae-b827eb650fdb&quot; found, but volume paths are still present on disk.
+Apr 30 10:58:01 k2 kubelet[3619]: E0430 10:58:01.759595    3619 kubelet_volumes.go:114] Orphaned pod &quot;6c601e9c-2c9c-11e7-a7ae-b827eb650fdb&quot; found, but volume paths are still present on disk.
+Apr 30 10:58:03 k2 kubelet[3619]: E0430 10:58:03.226372    3619 kubelet.go:1549] Unable to mount volumes for pod &quot;weave-net-bs9bs_kube-system(4461d51d-2d93-11e7-a7ae-b827eb650fdb)&quot;: timeout expired waiting for volumes to attach/mount for pod &quot;kube-system&quot;/&quot;weave-net-bs9bs&quot;. list of unattached/unmounted volumes=[weavedb cni-bin cni-bin2 cni-conf dbus lib-modules weave-net-token-61scv]; skipping pod
+Apr 30 10:58:03 k2 kubelet[3619]: E0430 10:58:03.238315    3619 pod_workers.go:182] Error syncing pod 4461d51d-2d93-11e7-a7ae-b827eb650fdb (&quot;weave-net-bs9bs_kube-system(4461d51d-2d93-11e7-a7ae-b827eb650fdb)&quot;), skipping: timeout expired waiting for volumes to attach/mount for pod &quot;kube-system&quot;/&quot;weave-net-bs9bs&quot;. list of unattached/unmounted volumes=[weavedb cni-bin cni-bin2 cni-conf dbus lib-modules weave-net-token-61scv]
+Apr 30 10:58:05 k2 kubelet[3619]: E0430 10:58:05.830432    3619 kubelet_volumes.go:114] Orphaned pod &quot;bb4d3ea6-2b80-11e7-9388-b827eb650fdb&quot; found, but volume paths are still present on disk.
+Apr 30 10:58:08 k2 kubelet[3619]: E0430 10:58:08.435567    3619 kubelet_volumes.go:114] Orphaned pod &quot;cb23be0d-2d7e-11e7-a7ae-b827eb650fdb&quot; found, but volume paths are still present on disk.
+</code></pre>
+
 <p>Todas estas entradas se encuentran en los logs del nodo <strong>k2</strong>, donde no hay ningún <em>pod</em> en ejecución (a parte de los propios de  Kubernetes que el clúster planifica en los diferentes nodos).</p>
 
 <p><strong>Actualización</strong>: <a href="https://onthedock.github.io/post/170506-troubleshooting-kubernetes-ii/">Troubleshooting Kubernetes (II)</a></p></div>

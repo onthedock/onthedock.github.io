@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.55.2" />
+<meta name="generator" content="Hugo 0.55.5" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -96,7 +96,7 @@
       <div class="l-container">
         <div class="h-logo p-logo">
           <a href="https://onthedock.github.io/" class="h-logo">On The Dock</a>
-          <p class="h-logo">Un blog sobre Docker, Kubernetes, DevOps y Raspberry Pi por Xavier Aznar</p>
+          <p class="h-logo">Un blog sobre el Cloud, Kubernetes, DevOps, Docker y Raspberry Pi por Xavier Aznar</p>
         </div>
       </div>
     </header>
@@ -138,38 +138,50 @@
 <h1 id="soporte-para-arm">Soporte para ARM</h1>
 
 <p>En el apartado para obtener Portainer de la web, sólo se indica el comando:</p>
-<div class="highlight"><pre class="chroma"><code class="language-sh" data-lang="sh">docker run -d -p <span class="m">9000</span>:9000 portainer/portainer</code></pre></div>
+
+<pre><code class="language-sh">docker run -d -p 9000:9000 portainer/portainer
+</code></pre>
+
 <p>Por muy minimalista que quiera ser la página, la verdad es que no les hubiera costado nada indicar que existen diferentes versiones disponibles de la imagen (como por ejemplo, la que proporciona soporte para ARM).</p>
 
 <p>Además, lanzando el comando <em>tal cual</em>, si quieres configurar Portainer para monitorizar el nodo <em>local</em>, <strong>no funcionará</strong> (requiere montar <code>/var/run/docker.sock</code> en el contenedor).</p>
 
 <p>El artículo de Hypriot apunta a una imagen llamada <code>portainer/portainer:arm</code>, que ya no existe en DockerHub. Revisando las <a href="https://hub.docker.com/r/portainer/portainer/tags/">etiquetas disponibles para las imágenes de Portainer</a>, encontramos:</p>
-<div class="highlight"><pre class="chroma"><code class="language-sh" data-lang="sh">TagName                Compressed Size    Last Updated
-ppc64le                  <span class="m">4</span> MB             <span class="m">16</span> days ago
-demo                     <span class="m">4</span> MB             <span class="m">23</span> days ago
-latest                   <span class="m">0</span> B              <span class="m">23</span> days ago
-<span class="m">1</span>.12.4                   <span class="m">0</span> B              <span class="m">23</span> days ago
-windows-amd64          <span class="m">337</span> MB             <span class="m">23</span> days ago
-windows-amd64-1.12.4   <span class="m">337</span> MB             <span class="m">23</span> days ago
-linux-arm64              <span class="m">4</span> MB             <span class="m">23</span> days ago
-linux-arm64-1.12.4       <span class="m">4</span> MB             <span class="m">23</span> days ago
-linux-arm                <span class="m">4</span> MB             <span class="m">23</span> days ago
-linux-arm-1.12.4         <span class="m">4</span> MB             <span class="m">23</span> days ago
-linux-amd64              <span class="m">4</span> MB             <span class="m">23</span> days ago
-linux-amd64-1.12.4       <span class="m">4</span> MB             <span class="m">23</span> days ago</code></pre></div>
+
+<pre><code class="language-sh">TagName                Compressed Size    Last Updated
+ppc64le                  4 MB             16 days ago
+demo                     4 MB             23 days ago
+latest                   0 B              23 days ago
+1.12.4                   0 B              23 days ago
+windows-amd64          337 MB             23 days ago
+windows-amd64-1.12.4   337 MB             23 days ago
+linux-arm64              4 MB             23 days ago
+linux-arm64-1.12.4       4 MB             23 days ago
+linux-arm                4 MB             23 days ago
+linux-arm-1.12.4         4 MB             23 days ago
+linux-amd64              4 MB             23 days ago
+linux-amd64-1.12.4       4 MB             23 days ago
+</code></pre>
+
 <p>Seleccionamos la versión adecuada para nuestra Raspberry Pi y la descargamos mediante:</p>
-<div class="highlight"><pre class="chroma"><code class="language-sh" data-lang="sh">$ docker pull portainer/portainer:linux-arm-1.12.4
+
+<pre><code class="language-sh">$ docker pull portainer/portainer:linux-arm-1.12.4
 linux-arm-1.12.4: Pulling from portainer/portainer
-a3ed95caeb02: Pull <span class="nb">complete</span>
-802d894958a2: Pull <span class="nb">complete</span>
-30fb5c96d238: Pull <span class="nb">complete</span>
+a3ed95caeb02: Pull complete
+802d894958a2: Pull complete
+30fb5c96d238: Pull complete
 Digest: sha256:5269fd824014fac1dee29e2cf74aa5c337cf5c0ceb7cae2634c1e054f5e2763f
-Status: Downloaded newer image <span class="k">for</span> portainer/portainer:linux-arm-1.12.4
-$</code></pre></div>
+Status: Downloaded newer image for portainer/portainer:linux-arm-1.12.4
+$
+</code></pre>
+
 <p>A continuación he lanzado la creación del contenedor usando:</p>
-<div class="highlight"><pre class="chroma"><code class="language-sh" data-lang="sh">$ docker run -d -p <span class="m">9000</span>:9000 --name portainer portainer/portainer:linux-arm-1.12.4
+
+<pre><code class="language-sh">$ docker run -d -p 9000:9000 --name portainer portainer/portainer:linux-arm-1.12.4
 d5ad5764788a932cd19942dcb0e70471101173c8d14801b0ce7c172ef9ac72ff
-$</code></pre></div>
+$
+</code></pre>
+
 <h2 id="acceso-a-portainer">Acceso a Portainer</h2>
 
 <p>Abre un navegador y accede a <code>http://IP-nodo:9000/</code>.</p>
@@ -207,15 +219,21 @@ $</code></pre></div>
 <p>Así que es necesario detener el contenedor -y eliminarlo, si quieres reusar el nombre- y volver a lanzar el proceso de configuración.</p>
 
 <p>No son más que unos pocos comandos en Linux (o en tu Mac), pero sin duda es una molestia que podría evitarse dando algo más de información. Mucho más grave es si el sistema operativo de tu <em>host</em> es Windows, ya que <strong>esta opción no está disponible</strong>.</p>
-<div class="highlight"><pre class="chroma"><code class="language-sh" data-lang="sh">$ docker stop portainer
+
+<pre><code class="language-sh">$ docker stop portainer
 portainer
 $ docker rm portainer
-portainer</code></pre></div>
+portainer
+</code></pre>
+
 <h2 id="acceso-a-portainer-segundo-intento">Acceso a Portainer (segundo intento)</h2>
 
 <p>Lanzamos el contenedor de Portainer montando <code>docker.sock</code> y pasamos por los mismos pasos que en intento anterior:</p>
-<div class="highlight"><pre class="chroma"><code class="language-sh" data-lang="sh">$ docker run -d -p <span class="m">9000</span>:9000 --name portainer -v <span class="s2">&#34;/var/run/docker.sock:/var/run/docker.sock&#34;</span> portainer/portainer:linux-arm-1.12.4
-3f0ad98393ed5c67cda864737d83fe098a13d1317e1f6c299419ab1a3c1d153c</code></pre></div>
+
+<pre><code class="language-sh">$ docker run -d -p 9000:9000 --name portainer -v &quot;/var/run/docker.sock:/var/run/docker.sock&quot; portainer/portainer:linux-arm-1.12.4
+3f0ad98393ed5c67cda864737d83fe098a13d1317e1f6c299419ab1a3c1d153c
+</code></pre>
+
 <p>Después de validarnos, podemos conectar con el <em>docker-engine</em> local y visualizar el <em>dashboard</em>:</p>
 
 <figure>

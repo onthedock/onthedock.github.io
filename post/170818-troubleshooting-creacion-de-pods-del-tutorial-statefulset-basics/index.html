@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.55.2" />
+<meta name="generator" content="Hugo 0.55.5" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -96,7 +96,7 @@
       <div class="l-container">
         <div class="h-logo p-logo">
           <a href="https://onthedock.github.io/" class="h-logo">On The Dock</a>
-          <p class="h-logo">Un blog sobre Docker, Kubernetes, DevOps y Raspberry Pi por Xavier Aznar</p>
+          <p class="h-logo">Un blog sobre el Cloud, Kubernetes, DevOps, Docker y Raspberry Pi por Xavier Aznar</p>
         </div>
       </div>
     </header>
@@ -134,33 +134,44 @@
 
 <ol>
 <li><p>Creamos la carpeta que contiene el <em>PersistentVolume</em>:</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">mkdir /tmp/data/pv001 -p</code></pre></div></li>
 
-<li><p>Definimos el <em>PersistentVolume</em> (<code>vi pv001.yaml</code>):</p>
-<div class="highlight"><pre class="chroma"><code class="language-yaml" data-lang="yaml">kind<span class="p">:</span><span class="w"> </span>PersistentVolume<span class="w">
-</span><span class="w"></span>apiVersion<span class="p">:</span><span class="w"> </span>v1<span class="w">
-</span><span class="w"></span>metadata<span class="p">:</span><span class="w">
-</span><span class="w">    </span>name<span class="p">:</span><span class="w"> </span>pv001<span class="w">
-</span><span class="w">    </span>labels<span class="p">:</span><span class="w">
-</span><span class="w">        </span>type<span class="p">:</span><span class="w"> </span>local<span class="w">
-</span><span class="w"></span>spec<span class="p">:</span><span class="w">
-</span><span class="w">    </span>storageClassName<span class="p">:</span><span class="w"> </span>manual<span class="w">
-</span><span class="w">    </span>capacity<span class="p">:</span><span class="w">
-</span><span class="w">        </span>storage<span class="p">:</span><span class="w"> </span>1Gi<span class="w">
-</span><span class="w">    </span>accessModes<span class="p">:</span><span class="w">
-</span><span class="w">    </span>-<span class="w"> </span>ReadWriteOnce<span class="w">
-</span><span class="w">    </span>hostPath<span class="p">:</span><span class="w">
-</span><span class="w">        </span>path<span class="p">:</span><span class="w"> </span><span class="s2">&#34;/tmp/data/pv001&#34;</span></code></pre></div></li>
+<pre><code class="language-shell">mkdir /tmp/data/pv001 -p
+</code></pre>
+
+<ol>
+<li>Definimos el <em>PersistentVolume</em> (<code>vi pv001.yaml</code>):</li>
+</ol>
+
+<pre><code class="language-yaml">kind: PersistentVolume
+apiVersion: v1
+metadata:
+    name: pv001
+    labels:
+        type: local
+spec:
+    storageClassName: manual
+    capacity:
+        storage: 1Gi
+    accessModes:
+    - ReadWriteOnce
+    hostPath:
+        path: &quot;/tmp/data/pv001&quot;
+</code></pre></li>
 
 <li><p>Creamos el <em>PersistentVolume</em></p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">$ kubectl apply -f pv001.yaml
-persistentvolume <span class="s2">&#34;pv001&#34;</span> created
+
+<pre><code class="language-shell">$ kubectl apply -f pv001.yaml
+persistentvolume &quot;pv001&quot; created
 $ kubectl get pv
 NAME      CAPACITY   ACCESSMODES   RECLAIMPOLICY   STATUS      CLAIM     STORAGECLASS   REASON    AGE
-pv001     1Gi        RWO           Retain          Available             manual                   10s</code></pre></div></li>
+pv001     1Gi        RWO           Retain          Available             manual                   10s
+</code></pre>
 
-<li><p>Definimos un <em>PersistentVolumeClaim</em> (<code>pv001claim.yaml</code>)</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">$ vi pv001-claim.yaml
+<ol>
+<li>Definimos un <em>PersistentVolumeClaim</em> (<code>pv001claim.yaml</code>)</li>
+</ol>
+
+<pre><code class="language-shell">$ vi pv001-claim.yaml
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
@@ -171,16 +182,23 @@ spec:
     - ReadWriteOnce
     resources:
         requests:
-            storage: 1Gi</code></pre></div></li>
+            storage: 1Gi
+</code></pre></li>
 
 <li><p>Creamos el <em>PersistentVolumeClaim</em></p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">$ kubectl apply -f pv001-claim.yaml
-persistentvolumeclaim <span class="s2">&#34;pv001claim&#34;</span> created</code></pre></div></li>
 
-<li><p>Verificamos que el <em>PVClaim</em> ha quedado ligado al <em>PV</em>:</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">$ kubectl get pvc
+<pre><code class="language-shell">$ kubectl apply -f pv001-claim.yaml
+persistentvolumeclaim &quot;pv001claim&quot; created
+</code></pre>
+
+<ol>
+<li>Verificamos que el <em>PVClaim</em> ha quedado ligado al <em>PV</em>:</li>
+</ol>
+
+<pre><code class="language-shell">$ kubectl get pvc
 NAME         STATUS    VOLUME    CAPACITY   ACCESSMODES   STORAGECLASS   AGE
-pv001claim   Bound     pv001     1Gi        RWO           manual         43s</code></pre></div></li>
+pv001claim   Bound     pv001     1Gi        RWO           manual         43s
+</code></pre></li>
 </ol>
 
 <h2 id="creación-del-statefulset">Creación del <em>StatefulSet</em></h2>
@@ -190,152 +208,167 @@ pv001claim   Bound     pv001     1Gi        RWO           manual         43s</co
 <ol>
 <li>Definimos el <em>headless service</em> <code>nginx</code></li>
 </ol>
-<div class="highlight"><pre class="chroma"><code class="language-yaml" data-lang="yaml">kind<span class="p">:</span><span class="w"> </span>Service<span class="w">
-</span><span class="w"></span>apiVersion<span class="p">:</span><span class="w"> </span>v1<span class="w">
-</span><span class="w"></span>metadata<span class="p">:</span><span class="w">
-</span><span class="w">    </span>name<span class="p">:</span><span class="w"> </span>nginx<span class="w">
-</span><span class="w">    </span>labels<span class="p">:</span><span class="w">
-</span><span class="w">        </span>app<span class="p">:</span><span class="w"> </span>nginx<span class="w">
-</span><span class="w"></span>spec<span class="p">:</span><span class="w">
-</span><span class="w">    </span>ports<span class="p">:</span><span class="w">
-</span><span class="w"></span>-<span class="w"> </span>port<span class="p">:</span><span class="w"> </span><span class="m">80</span><span class="w">
-</span><span class="w"></span>name<span class="p">:</span><span class="w"> </span>web<span class="w">
-</span><span class="w"></span>clusterIP<span class="p">:</span><span class="w"> </span>None<span class="w"> </span><span class="c"># Headless Service</span><span class="w">
-</span><span class="w"></span>selector<span class="p">:</span><span class="w">
-</span><span class="w">    </span>app<span class="p">:</span><span class="w"> </span>nginx</code></pre></div>
+
+<pre><code class="language-yaml">kind: Service
+apiVersion: v1
+metadata:
+    name: nginx
+    labels:
+        app: nginx
+spec:
+    ports:
+- port: 80
+name: web
+clusterIP: None # Headless Service
+selector:
+    app: nginx
+</code></pre>
+
 <ol>
-<li>Creamos el servicio:
-<code>shell
-$ kubectl apply -f nginx_svc.yaml
+<li><p>Creamos el servicio:</p>
+
+<pre><code class="language-shell">$ kubectl apply -f nginx_svc.yaml
 service &quot;nginx&quot; created
-</code></li>
-</ol>
+</code></pre>
 
 <h2 id="definición-del-statefulset">Definición del <em>StatefulSet</em></h2>
 
 <ol>
-<li><p>Definimos el <em>StatefulSet</em></p>
-<div class="highlight"><pre class="chroma"><code class="language-yaml" data-lang="yaml">kind<span class="p">:</span><span class="w"> </span>StatefulSet<span class="w">
-</span><span class="w"></span>apiVersion<span class="p">:</span><span class="w"> </span>apps/v1beta1<span class="w">
-</span><span class="w"></span>metadata<span class="p">:</span><span class="w">
-</span><span class="w">    </span>name<span class="p">:</span><span class="w"> </span>web<span class="w">
-</span><span class="w"></span>spec<span class="p">:</span><span class="w">
-</span><span class="w">    </span>serviceName<span class="p">:</span><span class="w"> </span><span class="s2">&#34;nginx&#34;</span><span class="w">
-</span><span class="w">    </span>replicas<span class="p">:</span><span class="w"> </span><span class="m">2</span><span class="w">
-</span><span class="w">    </span>template<span class="p">:</span><span class="w">
-</span><span class="w">        </span>metadata<span class="p">:</span><span class="w">
-</span><span class="w">            </span>labels<span class="p">:</span><span class="w">
-</span><span class="w">                </span>app<span class="p">:</span><span class="w"> </span>nginx<span class="w">
-</span><span class="w">        </span>spec<span class="p">:</span><span class="w">
-</span><span class="w">            </span>containers<span class="p">:</span><span class="w">
-</span><span class="w">            </span>-<span class="w"> </span>name<span class="p">:</span><span class="w"> </span>nginx<span class="w">
-</span><span class="w">            </span>image<span class="p">:</span><span class="w"> </span>gcr.io/google_containers/nginx-slim<span class="p">:</span><span class="m">0.8</span><span class="w">
-</span><span class="w">            </span>ports<span class="p">:</span><span class="w">
-</span><span class="w">            </span>-<span class="w"> </span>containerPort<span class="p">:</span><span class="w"> </span><span class="m">80</span><span class="w">
-</span><span class="w">                </span>name<span class="p">:</span><span class="w"> </span>web<span class="w">
-</span><span class="w">            </span>volumeMounts<span class="p">:</span><span class="w">
-</span><span class="w">            </span>-<span class="w"> </span>name<span class="p">:</span><span class="w"> </span>www<span class="w">
-</span><span class="w">            </span>mountPath<span class="p">:</span><span class="w"> </span>/usr/shere/nginx/html<span class="w">
-</span><span class="w">    </span>volumeClaimTemplates<span class="p">:</span><span class="w">
-</span><span class="w">    </span>-<span class="w"> </span>metadata<span class="p">:</span><span class="w">
-</span><span class="w">        </span>name<span class="p">:</span><span class="w"> </span>www<span class="w">
-</span><span class="w">    </span>spec<span class="p">:</span><span class="w">
-</span><span class="w">        </span>accessModes<span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s2">&#34;ReadWriteOnce&#34;</span><span class="w"> </span><span class="p">]</span><span class="w">
-</span><span class="w">        </span>resources<span class="p">:</span><span class="w">
-</span><span class="w">            </span>requests<span class="p">:</span><span class="w">
-</span><span class="w">                </span>storage<span class="p">:</span><span class="w"> </span>1Gi</code></pre></div></li>
+<li>Definimos el <em>StatefulSet</em></li>
+</ol>
+
+<pre><code class="language-yaml">kind: StatefulSet
+apiVersion: apps/v1beta1
+metadata:
+    name: web
+spec:
+    serviceName: &quot;nginx&quot;
+    replicas: 2
+    template:
+        metadata:
+            labels:
+                app: nginx
+        spec:
+            containers:
+            - name: nginx
+            image: gcr.io/google_containers/nginx-slim:0.8
+            ports:
+            - containerPort: 80
+                name: web
+            volumeMounts:
+            - name: www
+            mountPath: /usr/shere/nginx/html
+    volumeClaimTemplates:
+    - metadata:
+        name: www
+    spec:
+        accessModes: [ &quot;ReadWriteOnce&quot; ]
+        resources:
+            requests:
+                storage: 1Gi
+</code></pre></li>
 
 <li><p>Creamos el <em>StatefulSet</em>:</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">$ kubectl apply -f statefulset.yaml
-statefulset <span class="s2">&#34;web&#34;</span> created</code></pre></div></li>
 
+<pre><code class="language-shell">$ kubectl apply -f statefulset.yaml
+statefulset &quot;web&quot; created
+</code></pre>
+
+<ol>
 <li><p>Verificamos:</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">$ kubectl get statefulset
+
+<pre><code class="language-shell">$ kubectl get statefulset
 NAME      DESIRED   CURRENT   AGE
-web       <span class="m">2</span>         <span class="m">1</span>         53s
+web       2         1         53s
 $ kubectl describe statefulset web
 Name:                   web
 Namespace:              default
-CreationTimestamp:      Thu, <span class="m">17</span> Aug <span class="m">2017</span> <span class="m">09</span>:55:10 +0000
-Selector:               <span class="nv">app</span><span class="o">=</span>nginx
-Labels:                 <span class="nv">app</span><span class="o">=</span>nginx
-Annotations:            kubectl.kubernetes.io/last-applied-configuration<span class="o">={</span><span class="s2">&#34;apiVersion&#34;</span>:<span class="s2">&#34;apps/v1beta1&#34;</span>,<span class="s2">&#34;kind&#34;</span>:<span class="s2">&#34;StatefulSet&#34;</span>,<span class="s2">&#34;metadata&#34;</span>:<span class="o">{</span><span class="s2">&#34;annotations&#34;</span>:<span class="o">{}</span>,<span class="s2">&#34;name&#34;</span>:<span class="s2">&#34;web&#34;</span>,<span class="s2">&#34;namespace&#34;</span>:<span class="s2">&#34;default&#34;</span><span class="o">}</span>,<span class="s2">&#34;spec&#34;</span>:<span class="o">{</span><span class="s2">&#34;replicas&#34;</span>:2,<span class="s2">&#34;serviceName&#34;</span>:<span class="s2">&#34;...
-</span><span class="s2">Replicas:               2 desired | 1 total
-</span><span class="s2">Pods Status:            0 Running / 1 Waiting / 0 Succeeded / 0 Failed
-</span><span class="s2">Pod Template:
-</span><span class="s2">Labels:       app=nginx
-</span><span class="s2">Containers:
-</span><span class="s2">nginx:
-</span><span class="s2">    Image:              gcr.io/google_containers/nginx-slim:0.8
-</span><span class="s2">    Port:               80/TCP
-</span><span class="s2">    Environment:        &lt;none&gt;
-</span><span class="s2">    Mounts:
-</span><span class="s2">    /usr/shere/nginx/html from www (rw)
-</span><span class="s2">Volumes:      &lt;none&gt;
-</span><span class="s2">Volume Claims:
-</span><span class="s2">Name:         www
-</span><span class="s2">StorageClass:
-</span><span class="s2">Labels:       &lt;none&gt;
-</span><span class="s2">Annotations:  &lt;none&gt;
-</span><span class="s2">Capacity:     1Gi
-</span><span class="s2">Access Modes: [ReadWriteOnce]
-</span><span class="s2">Events:
-</span><span class="s2">FirstSeen     LastSeen        Count   From            SubObjectPath   Type            Reason                  Message
-</span><span class="s2">---------     --------        -----   ----            -------------   --------        ------                  -------
-</span><span class="s2">2m            2m              1       statefulset                     Normal          SuccessfulCreate        create Claim www-web-0 Pod web-0 in StatefulSet web success
-</span><span class="s2">2m            2m              1       statefulset                     Normal          SuccessfulCreate        create Pod web-0 in StatefulSet web successful
-</span><span class="s2"></span>$</code></pre></div>
+CreationTimestamp:      Thu, 17 Aug 2017 09:55:10 +0000
+Selector:               app=nginx
+Labels:                 app=nginx
+Annotations:            kubectl.kubernetes.io/last-applied-configuration={&quot;apiVersion&quot;:&quot;apps/v1beta1&quot;,&quot;kind&quot;:&quot;StatefulSet&quot;,&quot;metadata&quot;:{&quot;annotations&quot;:{},&quot;name&quot;:&quot;web&quot;,&quot;namespace&quot;:&quot;default&quot;},&quot;spec&quot;:{&quot;replicas&quot;:2,&quot;serviceName&quot;:&quot;...
+Replicas:               2 desired | 1 total
+Pods Status:            0 Running / 1 Waiting / 0 Succeeded / 0 Failed
+Pod Template:
+Labels:       app=nginx
+Containers:
+nginx:
+Image:              gcr.io/google_containers/nginx-slim:0.8
+Port:               80/TCP
+Environment:        &lt;none&gt;
+Mounts:
+/usr/shere/nginx/html from www (rw)
+Volumes:      &lt;none&gt;
+Volume Claims:
+Name:         www
+StorageClass:
+Labels:       &lt;none&gt;
+Annotations:  &lt;none&gt;
+Capacity:     1Gi
+Access Modes: [ReadWriteOnce]
+Events:
+FirstSeen     LastSeen        Count   From            SubObjectPath   Type            Reason                  Message
+---------     --------        -----   ----            -------------   --------        ------                  -------
+2m            2m              1       statefulset                     Normal          SuccessfulCreate        create Claim www-web-0 Pod web-0 in StatefulSet web success
+2m            2m              1       statefulset                     Normal          SuccessfulCreate        create Pod web-0 in StatefulSet web successful
+$
+</code></pre>
+
 <p>Observamos que hay 1 <em>pod</em> en <em>waiting</em>.</p>
 
 <p>Revisamos los <em>pods</em></p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">kubectl get pods
+
+<pre><code class="language-shell">kubectl get pods
 NAME      READY     STATUS    RESTARTS   AGE
-web-0     <span class="m">0</span>/1       Pending   <span class="m">0</span>          5m
+web-0     0/1       Pending   0          5m
 $ kubectl describe pod web-0
 Name:           web-0
 Namespace:      default
 Node:           &lt;none&gt;
-Labels:         <span class="nv">app</span><span class="o">=</span>nginx
-                controller-revision-hash<span class="o">=</span>web-3274782773
-Annotations:    kubernetes.io/created-by<span class="o">={</span><span class="s2">&#34;kind&#34;</span>:<span class="s2">&#34;SerializedReference&#34;</span>,<span class="s2">&#34;apiVersion&#34;</span>:<span class="s2">&#34;v1&#34;</span>,<span class="s2">&#34;reference&#34;</span>:<span class="o">{</span><span class="s2">&#34;kind&#34;</span>:<span class="s2">&#34;StatefulSet&#34;</span>,<span class="s2">&#34;namespace&#34;</span>:<span class="s2">&#34;default&#34;</span>,<span class="s2">&#34;name&#34;</span>:<span class="s2">&#34;web&#34;</span>,<span class="s2">&#34;uid&#34;</span>:<span class="s2">&#34;27fe7496-8332-11e7-9fc4-024216ac27e1&#34;</span>,<span class="s2">&#34;apiVersion&#34;</span>:...
+Labels:         app=nginx
+            controller-revision-hash=web-3274782773
+Annotations:    kubernetes.io/created-by={&quot;kind&quot;:&quot;SerializedReference&quot;,&quot;apiVersion&quot;:&quot;v1&quot;,&quot;reference&quot;:{&quot;kind&quot;:&quot;StatefulSet&quot;,&quot;namespace&quot;:&quot;default&quot;,&quot;name&quot;:&quot;web&quot;,&quot;uid&quot;:&quot;27fe7496-8332-11e7-9fc4-024216ac27e1&quot;,&quot;apiVersion&quot;:...
 Status:         Pending
 IP:
 Created By:     StatefulSet/web
 Controlled By:  StatefulSet/web
 Containers:
 nginx:
-    Image:              gcr.io/google_containers/nginx-slim:0.8
-    Port:               <span class="m">80</span>/TCP
-    Environment:        &lt;none&gt;
-    Mounts:
-    /usr/shere/nginx/html from www <span class="o">(</span>rw<span class="o">)</span>
-    /var/run/secrets/kubernetes.io/serviceaccount from default-token-klj21 <span class="o">(</span>ro<span class="o">)</span>
+Image:              gcr.io/google_containers/nginx-slim:0.8
+Port:               80/TCP
+Environment:        &lt;none&gt;
+Mounts:
+/usr/shere/nginx/html from www (rw)
+/var/run/secrets/kubernetes.io/serviceaccount from default-token-klj21 (ro)
 Conditions:
 Type          Status
 PodScheduled  False
 Volumes:
 www:
-    Type:       PersistentVolumeClaim <span class="o">(</span>a reference to a PersistentVolumeClaim in the same namespace<span class="o">)</span>
-    ClaimName:  www-web-0
-    ReadOnly:   <span class="nb">false</span>
+Type:       PersistentVolumeClaim (a reference to a PersistentVolumeClaim in the same namespace)
+ClaimName:  www-web-0
+ReadOnly:   false
 default-token-klj21:
-    Type:       Secret <span class="o">(</span>a volume populated by a Secret<span class="o">)</span>
-    SecretName: default-token-klj21
-    Optional:   <span class="nb">false</span>
+Type:       Secret (a volume populated by a Secret)
+SecretName: default-token-klj21
+Optional:   false
 QoS Class:      BestEffort
 Node-Selectors: &lt;none&gt;
-Tolerations:    node.alpha.kubernetes.io/notReady:NoExecute <span class="k">for</span> 300s
-                node.alpha.kubernetes.io/unreachable:NoExecute <span class="k">for</span> 300s
+Tolerations:    node.alpha.kubernetes.io/notReady:NoExecute for 300s
+            node.alpha.kubernetes.io/unreachable:NoExecute for 300s
 Events:
 FirstSeen     LastSeen        Count   From                    SubObjectPath   Type            Reason                  Message
 ---------     --------        -----   ----                    -------------   --------        ------                  -------
-7m            7s              <span class="m">29</span>      default-scheduler                       Warning         FailedScheduling        PersistentVolumeClaim is not bound:<span class="s2">&#34;www-web-0&#34;</span>
-$</code></pre></div>
-<p>El problema está en que no consigue <em>montar</em> el <em>PersistentVolumeClaim</em>. En la salida del comando el <em>ClaimName</em> es <code>www-web-0</code>.</p></li>
+7m            7s              29      default-scheduler                       Warning         FailedScheduling        PersistentVolumeClaim is not bound:&quot;www-web-0&quot;
+$
+</code></pre></li>
+</ol>
 
-<li><p>Troubleshooting del primer <em>pod</em></p>
+<p>El problema está en que no consigue <em>montar</em> el <em>PersistentVolumeClaim</em>. En la salida del comando el <em>ClaimName</em> es <code>www-web-0</code>.</p>
 
 <ol>
+<li><p>Troubleshooting del primer <em>pod</em></p></li>
+
 <li><p>Cambio de nombre del <em>PVClaim</em></p>
 
 <p>No parece ser posible actualizar un <em>PVClaim</em>, por lo que borramos y creamos uno con el nombre <code>www</code>. No hay ninguna diferencia.</p>
@@ -347,8 +380,9 @@ $</code></pre></div>
 <li><p>Eliminar <em>StorageClassName</em> del <em>PV</em></p>
 
 <p>El <em>PVClaim</em> creado automáticamente con el <em>StatefulSet</em> no especifica una <em>StorageClassName</em>. Vamos a crear un nuevo <em>PV</em> <strong>sin <em>StorageClassName</em></strong>. Tras unos segundos, el <em>PVClaim</em> enlaza con el nuevo <em>PV</em> automáticamente.</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">$ kubectl apply -f pv001.yaml
-persistentvolume <span class="s2">&#34;pv001&#34;</span> created
+
+<pre><code class="language-shell">$ kubectl apply -f pv001.yaml
+persistentvolume &quot;pv001&quot; created
 $ kubectl get pvc
 NAME        STATUS    VOLUME    CAPACITY   ACCESSMODES   STORAGECLASS   AGE
 www         Pending                                      manual         8m
@@ -360,72 +394,92 @@ www-web-0   Pending                                                     22m
 $ kubectl get pvc
 NAME        STATUS    VOLUME    CAPACITY   ACCESSMODES   STORAGECLASS   AGE
 www         Pending                                      manual         8m
-www-web-0   Bound     pv001     1Gi        RWO                          22m</code></pre></div>
+www-web-0   Bound     pv001     1Gi        RWO                          22m
+</code></pre>
+
 <p>Eliminamos el <em>PVClaim</em> creado manualmente.</p>
 
 <p>Revisamos qué ha pasado con los <em>pods</em> pendientes de creación.</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">$ kubectl get pods
+
+<pre><code class="language-shell">$ kubectl get pods
 NAME      READY     STATUS    RESTARTS   AGE
-web-0     <span class="m">0</span>/1       Pending   <span class="m">0</span>          24m
+web-0     0/1       Pending   0          24m
 $ kubectl describe pod web-0
 ...
 Events:
 FirstSeen     LastSeen        Count   From                    SubObjectPath   Type            Reason                  Message
 ---------     --------        -----   ----                    -------------   --------        ------                  -------
-25m           3m              <span class="m">78</span>      default-scheduler                       Warning         FailedScheduling        PersistentVolumeClaim is not bound:<span class="s2">&#34;www-web-0&#34;</span>
-2m            11s             <span class="m">14</span>      default-scheduler                       Warning         FailedScheduling        No nodes are available that match all of the following predicates:: PodToleratesNodeTaints <span class="o">(</span><span class="m">1</span><span class="o">)</span>.</code></pre></div>
+25m           3m              78      default-scheduler                       Warning         FailedScheduling        PersistentVolumeClaim is not bound:&quot;www-web-0&quot;
+2m            11s             14      default-scheduler                       Warning         FailedScheduling        No nodes are available that match all of the following predicates:: PodToleratesNodeTaints (1).
+</code></pre>
+
 <p>Parece que el mensaje de error se debe a que no hay nodos disponibles donde planificar el <em>pod</em>. Aunque estoy haciendo las pruebas con un clúster de un solo nodo, he aplicado el <em>taint</em> para poder planificar <em>pods</em> en el nodo <strong>master</strong>. Por si acaso, aplicamos de nuevo:</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">$ kubectl taint nodes --all node-role.kubernetes.io/master-
-node <span class="s2">&#34;node1&#34;</span> untainted</code></pre></div>
+
+<pre><code class="language-shell">$ kubectl taint nodes --all node-role.kubernetes.io/master-
+node &quot;node1&quot; untainted
+</code></pre>
+
 <p>Revisamos los <em>pods</em> de nuevo:</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">$ kubectl describe pod web-0
+
+<pre><code class="language-shell">$ kubectl describe pod web-0
 ...
 Events:
 FirstSeen     LastSeen        Count   From                    SubObjectPath           Type            Reason                  Message
 ---------     --------        -----   ----                    -------------           --------        ------                  -------
-33m           11m             <span class="m">78</span>      default-scheduler                               Warning         FailedScheduling        PersistentVolumeClaim is not bound: <span class="s2">&#34;www-web-0&#34;</span>
-10m           1m              <span class="m">36</span>      default-scheduler                               Warning         FailedScheduling        No nodes are available that match all of the following predicates:: PodToleratesNodeTaints <span class="o">(</span><span class="m">1</span><span class="o">)</span>.
-33s           33s             <span class="m">1</span>       default-scheduler                               Normal          Scheduled               Successfully assigned web-0 to node1
-33s           33s             <span class="m">1</span>       kubelet, node1                                  Normal          SuccessfulMountVolume   MountVolume.SetUp succeeded <span class="k">for</span> volume <span class="s2">&#34;pv001&#34;</span>
-33s           33s             <span class="m">1</span>       kubelet, node1                                  Normal          SuccessfulMountVolume   MountVolume.SetUp succeeded <span class="k">for</span> volume <span class="s2">&#34;default-token-klj21&#34;</span>
-32s           32s             <span class="m">1</span>       kubelet, node1          spec.containers<span class="o">{</span>nginx<span class="o">}</span>  Normal          Pulling                 pulling image <span class="s2">&#34;gcr.io/google_containers/nginx-slim:0.8&#34;</span>
-26s           26s             <span class="m">1</span>       kubelet, node1          spec.containers<span class="o">{</span>nginx<span class="o">}</span>  Normal          Pulled                  Successfully pulled image<span class="s2">&#34;gcr.io/google_containers/nginx-slim:0.8&#34;</span>
-26s           26s             <span class="m">1</span>       kubelet, node1          spec.containers<span class="o">{</span>nginx<span class="o">}</span>  Normal          Created                 Created container
-26s           26s             <span class="m">1</span>       kubelet, node1          spec.containers<span class="o">{</span>nginx<span class="o">}</span>  Normal          Started                 Started container
-$</code></pre></div></li>
-</ol></li>
+33m           11m             78      default-scheduler                               Warning         FailedScheduling        PersistentVolumeClaim is not bound: &quot;www-web-0&quot;
+10m           1m              36      default-scheduler                               Warning         FailedScheduling        No nodes are available that match all of the following predicates:: PodToleratesNodeTaints (1).
+33s           33s             1       default-scheduler                               Normal          Scheduled               Successfully assigned web-0 to node1
+33s           33s             1       kubelet, node1                                  Normal          SuccessfulMountVolume   MountVolume.SetUp succeeded for volume &quot;pv001&quot;
+33s           33s             1       kubelet, node1                                  Normal          SuccessfulMountVolume   MountVolume.SetUp succeeded for volume &quot;default-token-klj21&quot;
+32s           32s             1       kubelet, node1          spec.containers{nginx}  Normal          Pulling                 pulling image &quot;gcr.io/google_containers/nginx-slim:0.8&quot;
+26s           26s             1       kubelet, node1          spec.containers{nginx}  Normal          Pulled                  Successfully pulled image&quot;gcr.io/google_containers/nginx-slim:0.8&quot;
+26s           26s             1       kubelet, node1          spec.containers{nginx}  Normal          Created                 Created container
+26s           26s             1       kubelet, node1          spec.containers{nginx}  Normal          Started                 Started container
+$
+</code></pre></li>
 
-<li><p>Troubleshooting del segundo <em>pod</em></p>
+<li><p>Troubleshooting del segundo <em>pod</em></p></li>
+</ol>
 
 <p>Ya tenemos un <em>pod</em> corriendo&hellip; Pero todavía nos falta otro :(</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">$ kubectl get pods
+
+<pre><code class="language-shell">$ kubectl get pods
 NAME      READY     STATUS    RESTARTS   AGE
-web-0     <span class="m">1</span>/1       Running   <span class="m">0</span>          34m
-web-1     <span class="m">0</span>/1       Pending   <span class="m">0</span>          1m
+web-0     1/1       Running   0          34m
+web-1     0/1       Pending   0          1m
 $ kubectl describe pod web-1
 ...
-                node.alpha.kubernetes.io/unreachable:NoExecute <span class="k">for</span> 300s
+                node.alpha.kubernetes.io/unreachable:NoExecute for 300s
 Events:
 FirstSeen     LastSeen        Count   From                    SubObjectPath   Type            Reason                  Message
 ---------     --------        -----   ----                    -------------   --------        ------                  -------
-2m            1s              <span class="m">9</span>       default-scheduler                       Warning         FailedScheduling        PersistentVolumeClaim is not bound: <span class="s2">&#34;www-web-1&#34;</span></code></pre></div>
+2m            1s              9       default-scheduler                       Warning         FailedScheduling        PersistentVolumeClaim is not bound: &quot;www-web-1&quot;
+</code></pre>
+
 <p>Seguimos teniendo el problema de que no tenemos el <em>PVClaim</em> enlazado con un <em>PV</em>. Parece claro que el la causa es que sólo hemos creado un <em>PV</em> y necesitamos otro para el segundo <em>pod</em>.</p>
 
 <p>Creamos un segundo <em>PV</em> (sin especificar <em>StorageClassName</em>):</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">mkdir /tmp/data/pv002 -p
+
+<pre><code class="language-shell">mkdir /tmp/data/pv002 -p
 cp pv001.yaml pv002.yaml
-vi pv002.yaml</code></pre></div>
+vi pv002.yaml
+</code></pre>
+
 <p>Modificamos el fichero de definición del <code>pv002</code> para cambiar el nombre y la ruta a la carpeta donde se almacenarán los ficheros.</p>
 
 <p>Creamos el <code>pv002</code>:</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">$ kubectl apply -f pv002.yaml
-persistentvolume <span class="s2">&#34;pv002&#34;</span> created</code></pre></div>
+
+<pre><code class="language-shell">$ kubectl apply -f pv002.yaml
+persistentvolume &quot;pv002&quot; created
+</code></pre>
+
 <p>Revisamos de nuevo el estado del segundo <em>pod</em>:</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">$ kubectl get pods
+
+<pre><code class="language-shell">$ kubectl get pods
 NAME      READY     STATUS    RESTARTS   AGE
-web-0     <span class="m">1</span>/1       Running   <span class="m">0</span>          42m
-web-1     <span class="m">1</span>/1       Running   <span class="m">0</span>          9m</code></pre></div></li>
-</ol>
+web-0     1/1       Running   0          42m
+web-1     1/1       Running   0          9m
+</code></pre>
 
 <h2 id="resumen">Resumen</h2>
 
@@ -436,7 +490,8 @@ web-1     <span class="m">1</span>/1       Running   <span class="m">0</span>   
 <li>Hay que crear tantos <em>PersistentVolumes</em> como <em>pods</em> existan en el <em>StatefulSet</em>.</li>
 </ol>
 
-<p>Queda pendiente crear una guía de creación de los <em>PersistentVolumes</em> para ser consumidos por los <em>pods</em>.</p></div>
+<p>Queda pendiente crear una guía de creación de los <em>PersistentVolumes</em> para ser consumidos por los <em>pods</em>.</p></li>
+</ol></div>
 
   <aside class="p-share">
   <a href="http://b.hatena.ne.jp/add?mode=confirm&url=https%3a%2f%2fonthedock.github.io%2fpost%2f170818-troubleshooting-creacion-de-pods-del-tutorial-statefulset-basics%2f&title=Troubleshooting%3a%20Creaci%c3%b3n%20de%20pods%20del%20tutorial%20%27StatefulSet%20Basics%27" title="はてなブックマーク" class="ht" target="_blank" rel="nofollow"></a>

@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.55.2" />
+<meta name="generator" content="Hugo 0.55.5" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -96,7 +96,7 @@
       <div class="l-container">
         <div class="h-logo p-logo">
           <a href="https://onthedock.github.io/" class="h-logo">On The Dock</a>
-          <p class="h-logo">Un blog sobre Docker, Kubernetes, DevOps y Raspberry Pi por Xavier Aznar</p>
+          <p class="h-logo">Un blog sobre el Cloud, Kubernetes, DevOps, Docker y Raspberry Pi por Xavier Aznar</p>
         </div>
       </div>
     </header>
@@ -141,8 +141,11 @@
 <h2 id="verificar-la-instalación">Verificar la instalación</h2>
 
 <p>Para verificar si Vagrant se ha instalado correctamente, abre un terminal y escribe:</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">&gt; vagrant -v
-Vagrant <span class="m">2</span>.0.1</code></pre></div>
+
+<pre><code class="language-shell">&gt; vagrant -v
+Vagrant 2.0.1
+</code></pre>
+
 <p>Esto demuestra que Vagrant está correctamente instalado en la máquina.</p>
 
 <p>El siguiente paso es verificar si empezar a usar Hyper-V como <em>provider</em> de máquinas virtuales.</p>
@@ -150,27 +153,36 @@ Vagrant <span class="m">2</span>.0.1</code></pre></div>
 <h2 id="configuración-del-proyecto">Configuración del proyecto</h2>
 
 <p>Siguiendo las indicaciones de la página del sitio de Vagrant <a href="https://www.vagrantup.com/intro/getting-started/project_setup.html">Project Setup</a>, creo una carpeta para lanzar <code>vagrant init</code>.</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">m:&gt; mkdir vagrant
-m:&gt; <span class="nb">cd</span> vagrant
-m:<span class="se">\v</span>ms<span class="se">\v</span>agrant&gt;</code></pre></div>
+
+<pre><code class="language-shell">m:&gt; mkdir vagrant
+m:&gt; cd vagrant
+m:\vms\vagrant&gt;
+</code></pre>
+
 <p>Lanzamos <code>vagrant init</code>:</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">m:<span class="se">\v</span>ms<span class="se">\v</span>agrant&gt;vagrant init
-A <span class="sb">`</span>Vagrantfile<span class="sb">`</span> has been placed in this directory. You are now
-ready to <span class="sb">`</span>vagrant up<span class="sb">`</span> your first virtual environment! Please <span class="nb">read</span>
+
+<pre><code class="language-shell">m:\vms\vagrant&gt;vagrant init
+A `Vagrantfile` has been placed in this directory. You are now
+ready to `vagrant up` your first virtual environment! Please read
 the comments in the Vagrantfile as well as documentation on
-<span class="sb">`</span>vagrantup.com<span class="sb">`</span> <span class="k">for</span> more information on using Vagrant.</code></pre></div>
+`vagrantup.com` for more information on using Vagrant.
+</code></pre>
+
 <h2 id="revisión-del-fichero-vagrantfile">Revisión del fichero <code>Vagrantfile</code></h2>
 
 <p>Si abrimos el fichero <code>Vagrantfile</code> con un editor de texto, observamos que contiene una gran cantidad de comentarios, con las opciones más comunes para configurar las <code>boxes</code>, que es la manera en las que Vagrant denomina las máquinas virtuales.</p>
 
 <p>El contenido del fichero, sin la mayoría de los comentarios, es simplemente:</p>
-<div class="highlight"><pre class="chroma"><code class="language-Vagrantfile" data-lang="Vagrantfile">Vagrant.configure(&#34;2&#34;) do |config|
+
+<pre><code class="language-Vagrantfile">Vagrant.configure(&quot;2&quot;) do |config|
 
   # Every Vagrant development environment requires a box. You can search for
   # boxes at https://vagrantcloud.com/search.
-  config.vm.box = &#34;base&#34;
+  config.vm.box = &quot;base&quot;
 
-end</code></pre></div>
+end
+</code></pre>
+
 <p>Antes de lanzar <code>vagrant up</code> es necesario sustituir <code>base</code> por el nombre de una imagen base válida.</p>
 
 <h2 id="boxes">Boxes</h2>
@@ -190,167 +202,206 @@ end</code></pre></div>
 <p>Al usar Hyper-V, debo filtrar las imágenes base para el <em>provider</em> <code>hyperv</code>: <a href="https://app.vagrantup.com/boxes/search?provider=hyperv">Vagrant Cloud + provider=hyperv</a></p>
 
 <p>En mi caso voy a probar con la <em>box</em> <a href="https://app.vagrantup.com/generic/boxes/alpine36"><code>generic/alpine36</code></a> (actualmente en la versión v1.3.30).</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">M:<span class="se">\V</span>MS<span class="se">\v</span>agrant&gt;vagrant box add generic/alpine36
-<span class="o">==</span>&gt; box: Loading metadata <span class="k">for</span> box <span class="s1">&#39;generic/alpine36&#39;</span>
+
+<pre><code class="language-shell">M:\VMS\vagrant&gt;vagrant box add generic/alpine36
+==&gt; box: Loading metadata for box 'generic/alpine36'
     box: URL: https://vagrantcloud.com/generic/alpine36
 This box can work with multiple providers! The providers that it
 can work with are listed below. Please review the list and choose
 the provider you will be working with.
 
-<span class="m">1</span><span class="o">)</span> hyperv
-<span class="m">2</span><span class="o">)</span> libvirt
-<span class="m">3</span><span class="o">)</span> virtualbox
-<span class="m">4</span><span class="o">)</span> vmware_desktop
+1) hyperv
+2) libvirt
+3) virtualbox
+4) vmware_desktop
 
-Enter your choice: <span class="nv">1</span>
-<span class="o">==</span>&gt; box: Adding box <span class="s1">&#39;generic/alpine36&#39;</span> <span class="o">(</span>v1.3.30<span class="o">)</span> <span class="k">for</span> provider: hyperv
+Enter your choice: 1
+==&gt; box: Adding box 'generic/alpine36' (v1.3.30) for provider: hyperv
     box: Downloading: https://vagrantcloud.com/generic/boxes/alpine36/versions/1.3.30/providers/hyperv.box
-    box: Progress: <span class="m">100</span>% <span class="o">(</span>Rate: <span class="m">20</span>.7M/s, Estimated <span class="nb">time</span> remaining: --:--:--<span class="o">)</span>
-<span class="o">==</span>&gt; box: Successfully added box <span class="s1">&#39;generic/alpine36&#39;</span> <span class="o">(</span>v1.3.30<span class="o">)</span> <span class="k">for</span> <span class="s1">&#39;hyperv&#39;</span>!
+    box: Progress: 100% (Rate: 20.7M/s, Estimated time remaining: --:--:--)
+==&gt; box: Successfully added box 'generic/alpine36' (v1.3.30) for 'hyperv'!
 
-M:<span class="se">\V</span>MS<span class="se">\v</span>agrant&gt;</code></pre></div>
+M:\VMS\vagrant&gt;
+</code></pre>
+
 <p>La imagen base está disponible para diferentes <em>providers</em>, por lo que el comando <code>vagrant box add</code> requiere que seleccionemos el gestor de máquinas virtuales que preferimos.</p>
 
 <p>Para evitar esta interrupción del script, usaremos el parámetro <code>--provider hyperv</code> al lanzar <code>vagrant &lt;cmd&gt;</code>:</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">&gt; vagrant box add generic/alpine36 --provider hyperv</code></pre></div>
+
+<pre><code class="language-shell">&gt; vagrant box add generic/alpine36 --provider hyperv
+</code></pre>
+
 <h2 id="usando-la-box-en-vagrant">Usando la <em>box</em> en Vagrant</h2>
 
 <p>Para usar la <em>box</em> en Vagrant, la especificamos en el fichero <code>Vagrantfile</code>.</p>
 
 <p>En Windows 10 con Hyper-V debemos especificar el <em>provider</em> (por defecto se considera Virtual Box). Para evitar incluirlo en la línea de comandos cada vez que queramos realizar una operación con la <em>box</em>, podemos especificarlo en el <code>Vagrantfile</code>:</p>
-<div class="highlight"><pre class="chroma"><code class="language-Vagrantfile" data-lang="Vagrantfile">Vagrant.configure(&#34;2&#34;) do |config|
-  config.vm.box = &#34;generic/alpine36&#34;
-  config.vm.provider = &#34;hyperv&#34;
-end</code></pre></div>
+
+<pre><code class="language-Vagrantfile">Vagrant.configure(&quot;2&quot;) do |config|
+  config.vm.box = &quot;generic/alpine36&quot;
+  config.vm.provider = &quot;hyperv&quot;
+end
+</code></pre>
+
 <p>Vagrant no sabe cómo configurar la red para Hyper-V, por lo que es necesario especificar manualmente Hyper-V de manera que Vagrant funcione. La manera más sencilla de conseguirlo es usando un <em>vSwitch</em> con conectividad externa.</p>
 
 <p>El <code>Vagrantfile</code> queda finalmente:</p>
-<div class="highlight"><pre class="chroma"><code class="language-Vagrantfile" data-lang="Vagrantfile">Vagrant.configure(&#34;2&#34;) do |config|
-  config.vm.box = &#34;generic/alpine36&#34;
-  config.vm.provider = &#34;hyperv&#34;
-  config.vm.network = &#34;public_network&#34;
-end</code></pre></div>
+
+<pre><code class="language-Vagrantfile">Vagrant.configure(&quot;2&quot;) do |config|
+  config.vm.box = &quot;generic/alpine36&quot;
+  config.vm.provider = &quot;hyperv&quot;
+  config.vm.network = &quot;public_network&quot;
+end
+</code></pre>
+
 <h2 id="configuraciones-específicas-de-hyper-v">Configuraciones específicas de Hyper-V</h2>
 
 <p>Una de las recomendaciones para usar Vagrant con Hyper-V es la activar las <em>extensiones de virtualización</em> y los discos diferenciales.</p>
-<div class="highlight"><pre class="chroma"><code class="language-Vagrantfile" data-lang="Vagrantfile">config.vm.provider &#34;hyperv&#34; do |h|
+
+<pre><code class="language-Vagrantfile">config.vm.provider &quot;hyperv&quot; do |h|
   h.enable_virtualization_extensions = true
   h.differencing_disk = true
-end</code></pre></div>
-<p>De esta forma, el fichero de configuración queda:</p>
-<div class="highlight"><pre class="chroma"><code class="language-Vagrantfile" data-lang="Vagrantfile">Vagrant.configure(&#34;2&#34;) do |config|
-   config.vm.box = &#34;generic/alpine36&#34;
-   config.vm.provider = &#34;hyperv&#34;
-   config.vm.network &#34;public_network&#34;
+end
+</code></pre>
 
-   config.vm.provider &#34;hyperv&#34; do |h|
+<p>De esta forma, el fichero de configuración queda:</p>
+
+<pre><code class="language-Vagrantfile">Vagrant.configure(&quot;2&quot;) do |config|
+   config.vm.box = &quot;generic/alpine36&quot;
+   config.vm.provider = &quot;hyperv&quot;
+   config.vm.network &quot;public_network&quot;
+
+   config.vm.provider &quot;hyperv&quot; do |h|
       h.enable_virtualization_extensions = true
       h.differencing_disk = true
    end
-end</code></pre></div>
+end
+</code></pre>
+
 <h2 id="usar-hyper-v-como-proveedor-por-defecto">Usar Hyper-V como proveedor por defecto</h2>
 
 <p>Podemos especificar Hyper-V como <em>provider</em> por defecto estableciendo la variable de entorno <code>VAGRANT_DEFAULT_PROVIDER</code> tal y como se especifica en <a href="https://www.vagrantup.com/docs/providers/basic_usage.html">Basic Provider Usage</a>, por ejemplo, desde PowerShell:</p>
-<div class="highlight"><pre class="chroma"><code class="language-Powershell" data-lang="Powershell"><span class="no">[Environment]</span><span class="p">::</span><span class="n">SetEnvironmentVariable</span><span class="p">(</span><span class="s2">&#34;VAGRANT_DEFAULT_PROVIDER&#34;</span><span class="p">,</span> <span class="s2">&#34;hyperv&#34;</span><span class="p">,</span> <span class="s2">&#34;User&#34;</span><span class="p">)</span></code></pre></div>
+
+<pre><code class="language-Powershell">[Environment]::SetEnvironmentVariable(&quot;VAGRANT_DEFAULT_PROVIDER&quot;, &quot;hyperv&quot;, &quot;User&quot;)
+</code></pre>
+
 <h2 id="arrancando-la-máquina">Arrancando la máquina</h2>
 
 <p>Una vez configurada la máquina, es el momento de arrancarla usando <code>vagrant up</code> (desde carpeta donde se encuentra el fichero <code>Vagrantfile</code>).</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">M:<span class="se">\V</span>MS<span class="se">\v</span>agrant&gt;vagrant up
-No usable default provider could be found <span class="k">for</span> your system.
+
+<pre><code class="language-shell">M:\VMS\vagrant&gt;vagrant up
+No usable default provider could be found for your system.
 
 Vagrant relies on interactions with 3rd party systems, known as
-<span class="s2">&#34;providers&#34;</span>, to provide Vagrant with resources to run development
+&quot;providers&quot;, to provide Vagrant with resources to run development
 environments. Examples are VirtualBox, VMware, Hyper-V.
 
 The easiest solution to this message is to install VirtualBox, which
-is available <span class="k">for</span> free on all major platforms.
+is available for free on all major platforms.
 
 If you believe you already have a provider available, make sure it
 is properly installed and configured. You can see more details about
-why a particular provider isn<span class="err">&#39;</span>t working by forcing usage with
-<span class="sb">`</span>vagrant up --provider<span class="o">=</span>PROVIDER<span class="sb">`</span>, which should give you a more specific
-error message <span class="k">for</span> that particular provider.</code></pre></div>
+why a particular provider isn't working by forcing usage with
+`vagrant up --provider=PROVIDER`, which should give you a more specific
+error message for that particular provider.
+</code></pre>
+
 <p>Como vemos, pese a que en el fichero <code>Vagrantfile</code> se especifica el <em>provider</em>, Vagrant no parece capaz de encontrarlo.</p>
 
 <p>Lo intento de nuevo, especificando el proveedor desde la línea de comandos:</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">M:<span class="se">\V</span>MS<span class="se">\v</span>agrant&gt;vagrant up --provider<span class="o">=</span>hyperv
-The provider <span class="s1">&#39;hyperv&#39;</span> that was requested to back the machine
-<span class="s1">&#39;default&#39;</span> is reporting that it isn<span class="err">&#39;</span>t usable on this system. The
+
+<pre><code class="language-shell">M:\VMS\vagrant&gt;vagrant up --provider=hyperv
+The provider 'hyperv' that was requested to back the machine
+'default' is reporting that it isn't usable on this system. The
 reason is shown below:
 
 The Hyper-V provider requires that Vagrant be run with
 administrative privileges. This is a limitation of Hyper-V itself.
-Hyper-V requires administrative privileges <span class="k">for</span> management
+Hyper-V requires administrative privileges for management
 commands. Please restart your console with administrative
-privileges and try again.</code></pre></div>
+privileges and try again.
+</code></pre>
+
 <p>Ahora el problema es que Hyper-V requiere que Vagrant se lance con permisos de administrador (como indica la documentación: <a href="https://www.vagrantup.com/docs/hyperv/usage.html">Providers &gt; Hyper-V &gt; Usage</a>).</p>
 
 <p>En el tercer intento, después de lanzar una consola con permisos de administrador, el mensaje de error indica:</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">M:<span class="se">\V</span>MS<span class="se">\v</span>agrant&gt; vagrant up
-Bringing machine <span class="s1">&#39;default&#39;</span> up with <span class="s1">&#39;hyperv&#39;</span> provider...
-<span class="o">==</span>&gt; default: Verifying Hyper-V is enabled...
+
+<pre><code class="language-shell">M:\VMS\vagrant&gt; vagrant up
+Bringing machine 'default' up with 'hyperv' provider...
+==&gt; default: Verifying Hyper-V is enabled...
 There are errors in the configuration of this machine. Please fix
 the following errors and try again:
 
 vm:
-* The following settings shouldn<span class="err">&#39;</span>t exist: provider</code></pre></div>
+* The following settings shouldn't exist: provider
+</code></pre>
+
 <p>Comento la línea relativa al proveedor y lo intento de nuevo:</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">M:<span class="se">\V</span>MS<span class="se">\v</span>agrant&gt; vagrant up
-Bringing machine <span class="s1">&#39;default&#39;</span> up with <span class="s1">&#39;hyperv&#39;</span> provider...
-<span class="o">==</span>&gt; default: Verifying Hyper-V is enabled...
-<span class="o">==</span>&gt; default: Configured Dynamic memory allocation, maxmemory is <span class="nv">2048</span>
-<span class="o">==</span>&gt; default: Configured startup memory is <span class="nv">2048</span>
-<span class="o">==</span>&gt; default: Configured cpus number is <span class="nv">2</span>
-<span class="o">==</span>&gt; default: Configured <span class="nb">enable</span> virtualization extensions is <span class="nb">true</span>
-<span class="o">==</span>&gt; default: Configured differencing disk instead of <span class="nv">cloning</span>
-<span class="o">==</span>&gt; default: Importing a Hyper-V instance
+
+<pre><code class="language-shell">M:\VMS\vagrant&gt; vagrant up
+Bringing machine 'default' up with 'hyperv' provider...
+==&gt; default: Verifying Hyper-V is enabled...
+==&gt; default: Configured Dynamic memory allocation, maxmemory is 2048
+==&gt; default: Configured startup memory is 2048
+==&gt; default: Configured cpus number is 2
+==&gt; default: Configured enable virtualization extensions is true
+==&gt; default: Configured differencing disk instead of cloning
+==&gt; default: Importing a Hyper-V instance
     default: Please choose a switch to attach to your Hyper-V instance.
     default: If none of these are appropriate, please open the Hyper-V manager
     default: to create a new virtual switch.
     default:
-    default: <span class="m">1</span><span class="o">)</span> Default Switch
-    default: <span class="m">2</span><span class="o">)</span> EXTERNAL-vSwitch
+    default: 1) Default Switch
+    default: 2) EXTERNAL-vSwitch
     default:
-    default: What switch would you like to use? <span class="m">2</span>
+    default: What switch would you like to use? 2
     default: Cloning virtual hard drive...
     default: Creating and registering the VM...
     default: Setting VM Integration Services
     default: Successfully imported a VM with name: generic-alpine36-hyperv
-<span class="o">==</span>&gt; default: Starting the machine...
-<span class="o">==</span>&gt; default: Waiting <span class="k">for</span> the machine to report its IP address...
-    default: Timeout: <span class="m">120</span> seconds
-    default: IP: <span class="m">192</span>.168.1.228
-<span class="o">==</span>&gt; default: Waiting <span class="k">for</span> machine to boot. This may take a few minutes...
-    default: SSH address: <span class="m">192</span>.168.1.228:22
+==&gt; default: Starting the machine...
+==&gt; default: Waiting for the machine to report its IP address...
+    default: Timeout: 120 seconds
+    default: IP: 192.168.1.228
+==&gt; default: Waiting for machine to boot. This may take a few minutes...
+    default: SSH address: 192.168.1.228:22
     default: SSH username: vagrant
     default: SSH auth method: private key
     default:
     default: Vagrant insecure key detected. Vagrant will automatically replace
-    default: this with a newly generated keypair <span class="k">for</span> better security.
+    default: this with a newly generated keypair for better security.
     default:
     default: Inserting generated public key within guest...
-    default: Removing insecure key from the guest <span class="k">if</span> it<span class="err">&#39;</span>s present...
+    default: Removing insecure key from the guest if it's present...
     default: Key inserted! Disconnecting and reconnecting using new SSH key...
-<span class="o">==</span>&gt; default: Machine booted and ready!</code></pre></div>
+==&gt; default: Machine booted and ready!
+</code></pre>
+
 <p>Esta vez arranca, aunque hay que especificar manualmente el <em>vSwitch</em> (de los existentes en Hyper-V, aunque sólo hay uno conectado a la red pública). El <em>provider</em> para Hyper-V no permite configurar la red en Vagrant; esta es una de las <a href="https://www.vagrantup.com/docs/hyperv/limitations.html">limitaciones conocidas</a> para Hyper-V.</p>
 
 <h3 id="workaround">Workaround</h3>
 
 <p>En este <a href="https://github.com/hashicorp/vagrant/issues/7915#issuecomment-286874774">comentario</a> del hilo <a href="https://github.com/hashicorp/vagrant/issues/7915">enhancement: hyper-v provider vswitch customization parameter #7915</a> se indica un <em>workaround</em> para conseguir que Vagrant seleccione automáticamente el vSwitch:</p>
-<div class="highlight"><pre class="chroma"><code class="language-Vagrantfile" data-lang="Vagrantfile">   config.vm.network &#34;public_network&#34;, bridge: &#34;&lt;vSwitchName&gt;&#34;</code></pre></div>
+
+<pre><code class="language-Vagrantfile">   config.vm.network &quot;public_network&quot;, bridge: &quot;&lt;vSwitchName&gt;&quot;
+</code></pre>
+
 <h2 id="conexión-a-la-vm">Conexión a la VM</h2>
 
 <p>Para conectar a la máquina virtual se indica que hay que usar <code>ssh</code> y la clave privada asociada al usuario <code>vagrant</code>.</p>
 
 <p>Revisando los subcomandos de <code>vagrant</code>, vemos que podemos conectar a la máquina virtual usando <code>vagrant ssh default</code> (donde <code>default</code> es el nombre de la <em>box</em>):</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">M:<span class="se">\V</span>MS<span class="se">\v</span>agrant<span class="se">\&gt;</span> vagrant ssh default
+
+<pre><code class="language-shell">M:\VMS\vagrant\&gt; vagrant ssh default
 bazinga:~$ cat /etc/os-release
-<span class="nv">NAME</span><span class="o">=</span><span class="s2">&#34;Alpine Linux&#34;</span>
-<span class="nv">ID</span><span class="o">=</span>alpine
-<span class="nv">VERSION_ID</span><span class="o">=</span><span class="m">3</span>.6.2
-<span class="nv">PRETTY_NAME</span><span class="o">=</span><span class="s2">&#34;Alpine Linux v3.6&#34;</span>
-<span class="nv">HOME_URL</span><span class="o">=</span><span class="s2">&#34;http://alpinelinux.org&#34;</span>
-<span class="nv">BUG_REPORT_URL</span><span class="o">=</span><span class="s2">&#34;http://bugs.alpinelinux.org&#34;</span></code></pre></div>
+NAME=&quot;Alpine Linux&quot;
+ID=alpine
+VERSION_ID=3.6.2
+PRETTY_NAME=&quot;Alpine Linux v3.6&quot;
+HOME_URL=&quot;http://alpinelinux.org&quot;
+BUG_REPORT_URL=&quot;http://bugs.alpinelinux.org&quot;
+</code></pre>
+
 <blockquote>
 <p>Cuando probé Vagrant la primera vez pensaba que el comando <code>vagrant ssh &lt;vm&gt;</code> no funcionaría desde Windows al no existir un cliente SSH. Sin embargo, Vagrant incorpora un cliente SSH con el que conectar a las máquinas en la instalación.</p>
 </blockquote>
@@ -374,17 +425,23 @@ bazinga:~$ cat /etc/os-release
 </blockquote>
 
 <p>Al intentar conectar con PuTTY, usando la clave privada directamente:</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">Unable to use key file <span class="s2">&#34;M:\VMS\vagrant\.vagrant\machines\default\hyperv\private_key&#34;</span> <span class="o">(</span>OpenSSH SSH-2 private key <span class="o">(</span>old PEM format<span class="o">))</span>
+
+<pre><code class="language-shell">Unable to use key file &quot;M:\VMS\vagrant\.vagrant\machines\default\hyperv\private_key&quot; (OpenSSH SSH-2 private key (old PEM format))
 login as: vagrant
-vagrant@192.168.1.228<span class="err">&#39;</span>s password:</code></pre></div>
+vagrant@192.168.1.228's password:
+</code></pre>
+
 <p>Es decir, no podemos usar la clave directamente en PuTTY.</p>
 
 <p>Para poder usar una clave privada generada por SSH en PuTTY debemos convertirla usando PuTTYgen.</p>
 
 <p>Cargamos la clave <code>private_key</code> y la guardamos en el formato <code>ppk</code> usado por PuTTY. Ahora podemos conectar a la máquina virtual usando este fichero con la clave privada (en <em>Connection &gt; SSH &gt; Auth</em>, en el campo <em>Private key file for authentication:</em>).</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">login as: vagrant
-Authenticating with public key <span class="s2">&#34;alpine&#34;</span>
-bazinga:~$</code></pre></div>
+
+<pre><code class="language-shell">login as: vagrant
+Authenticating with public key &quot;alpine&quot;
+bazinga:~$
+</code></pre>
+
 <h2 id="mejoras">Mejoras</h2>
 
 <p>Es probable que querramos definir propiedades específicas para las VMs, como el <em>hostname</em>, el nombre de la VM o su IP&hellip; A continuación se indica cómo realizar las configuraciones en Hyper-V.</p>
@@ -396,11 +453,14 @@ bazinga:~$</code></pre></div>
 <h3 id="especificar-recursos-de-la-vm">Especificar recursos de la VM</h3>
 
 <p>Dentro de la sección general de configuración de la VM, asignamos los recursos asignados a la VM:</p>
-<div class="highlight"><pre class="chroma"><code class="language-Vagrantfile" data-lang="Vagrantfile">   # Configuración de recursos de la VM
+
+<pre><code class="language-Vagrantfile">   # Configuración de recursos de la VM
    config.vm.provider :hyperv do |v, override|
       v.cpus = 2
       v.memory = 2048
-      v.maxmemory = 2048</code></pre></div>
+      v.maxmemory = 2048
+</code></pre>
+
 <h3 id="asignar-ip-estática-a-la-vm">Asignar IP estática a la VM</h3>
 
 <p>En la versión actual 2.0.1 no es posible especificar una IP estática al sistema operativo <em>guest</em> de la VM para el <em>provider</em> Hyper-V.</p>
@@ -437,16 +497,22 @@ There are some differences with virtual networking for second-level virtual mach
 <h2 id="provisioning-integrado-en-vagrant-vía-shell">Provisioning integrado en Vagrant vía shell</h2>
 
 <p>La <em>box</em> base que estoy usando corre Alpine Linux, por lo que he creado el siguiente <em>shell script</em> para instalar Git:</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">sudo apk update
+
+<pre><code class="language-shell">sudo apk update
 sudo apk upgrade
-sudo apk add git</code></pre></div>
+sudo apk add git
+</code></pre>
+
 <p>He llamado <code>bootstrap.sh</code> al fichero y lo he guardado en la misma carpeta en la que se encuentra el fichero <code>Vagrantfile</code>.</p>
 
 <p>Modifico el <code>Vagrantfile</code> añadiendo la ruta al fichero de aprovisionamiento:</p>
-<div class="highlight"><pre class="chroma"><code class="language-Vagrantfile" data-lang="Vagrantfile">...
-   config.vm.provision &#34;shell&#34; do |s|
-      s.path= &#34;bootstrap.sh&#34;
-   end</code></pre></div>
+
+<pre><code class="language-Vagrantfile">...
+   config.vm.provision &quot;shell&quot; do |s|
+      s.path= &quot;bootstrap.sh&quot;
+   end
+</code></pre>
+
 <p>Referencia: <a href="https://www.vagrantup.com/docs/provisioning/shell.html">Shell Provisioner</a></p>
 
 <p>Este script sólo se ejecuta durante la creación de la máquina virtual. Para que se ejecute una vez la máquina ya ha sido creada, hay que especificar el parámetro <code>--provision</code>: <code>vagrant reload --provision</code>. Esta acción apaga la máquina y la vuelve a arrancar.</p>
@@ -456,32 +522,35 @@ sudo apk add git</code></pre></div>
 </blockquote>
 
 <p>La salida del comando <code>vagrant reload --provision</code> se muestra a continuación:</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">M:<span class="se">\V</span>MS<span class="se">\v</span>agrant<span class="se">\a</span>lpine&gt; vagrant reload --provision
-<span class="o">==</span>&gt; default: Attempting graceful shutdown of VM...
-<span class="o">==</span>&gt; default: Starting the machine...
-<span class="o">==</span>&gt; default: Waiting <span class="k">for</span> the machine to report its IP address...
-    default: Timeout: <span class="m">120</span> seconds
-    default: IP: <span class="m">192</span>.168.1.235
-<span class="o">==</span>&gt; default: Waiting <span class="k">for</span> machine to boot. This may take a few minutes...
-    default: SSH address: <span class="m">192</span>.168.1.235:22
+
+<pre><code class="language-shell">M:\VMS\vagrant\alpine&gt; vagrant reload --provision
+==&gt; default: Attempting graceful shutdown of VM...
+==&gt; default: Starting the machine...
+==&gt; default: Waiting for the machine to report its IP address...
+    default: Timeout: 120 seconds
+    default: IP: 192.168.1.235
+==&gt; default: Waiting for machine to boot. This may take a few minutes...
+    default: SSH address: 192.168.1.235:22
     default: SSH username: vagrant
-    default: SSH auth method: private <span class="nv">key</span>
-<span class="o">==</span>&gt; default: Machine booted and ready!
-<span class="o">==</span>&gt; default: Running provisioner: shell...
+    default: SSH auth method: private key
+==&gt; default: Machine booted and ready!
+==&gt; default: Running provisioner: shell...
     default: Running: C:/Users/Xavi/AppData/Local/Temp/vagrant-shell20180106-7468-5nbvly.sh
 
     default: fetch https://dl-3.alpinelinux.org/alpine/v3.6/main/x86_64/APKINDEX.tar.gz
     default: fetch https://mirror.leaseweb.com/alpine/v3.6/main/x86_64/APKINDEX.tar.gz
-    default: v3.6.2-240-geb8d8205d9 <span class="o">[</span>https://dl-3.alpinelinux.org/alpine/v3.6/main<span class="o">]</span>
-    default: v3.6.2-240-geb8d8205d9 <span class="o">[</span>https://mirror.leaseweb.com/alpine/v3.6/main<span class="o">]</span>
-    default: OK: <span class="m">5553</span> distinct packages available
-    default: OK: <span class="m">164</span> MiB in <span class="m">68</span> packages
-    default: <span class="o">(</span><span class="m">1</span>/2<span class="o">)</span> Installing expat <span class="o">(</span><span class="m">2</span>.2.0-r1<span class="o">)</span>
-    default: <span class="o">(</span><span class="m">2</span>/2<span class="o">)</span> Installing git <span class="o">(</span><span class="m">2</span>.13.5-r0<span class="o">)</span>
+    default: v3.6.2-240-geb8d8205d9 [https://dl-3.alpinelinux.org/alpine/v3.6/main]
+    default: v3.6.2-240-geb8d8205d9 [https://mirror.leaseweb.com/alpine/v3.6/main]
+    default: OK: 5553 distinct packages available
+    default: OK: 164 MiB in 68 packages
+    default: (1/2) Installing expat (2.2.0-r1)
+    default: (2/2) Installing git (2.13.5-r0)
     default: Executing busybox-1.26.2-r9.trigger
-    default: OK: <span class="m">183</span> MiB in <span class="m">70</span> packages
+    default: OK: 183 MiB in 70 packages
 
-M:<span class="se">\V</span>MS<span class="se">\v</span>agrant<span class="se">\a</span>lpine&gt;</code></pre></div>
+M:\VMS\vagrant\alpine&gt;
+</code></pre>
+
 <p>(En la salida por consola, los comandos ejecutados desde el <em>script</em> de aprovisionamiento se muestran en otro color).</p>
 
 <h2 id="averiguar-la-ip-de-una-box">Averiguar la IP de una <em>box</em></h2>
@@ -499,12 +568,13 @@ M:<span class="se">\V</span>MS<span class="se">\v</span>agrant<span class="se">\
 <p>Vagrant permite definir múltiples máquinas virtuales en un solo fichero <code>Vagrantfile</code> usando el método <code>config.vm.define</code>. Esto permite insertar un fichero de configuración dentro de otro fichero de configuración. El contenido <em>fuera</em> del bloque <code>define</code> es común para todas las máquinas en el <code>Vagrantfile</code>, mientras los parámetros dentro del bloque <code>define</code> se aplican a la máquina especificada.</p>
 
 <p>En el siguiente ejemplo, las tres máquinas parten de la imagen base <code>generic/debian9</code> y están conectadas a la red pública. Los recursos asignados a las tres máquinas son los mismos. La configuración específica para las máquinas virtuales se limita a especificar el nombre de la VM y el <em>hostname</em>.</p>
-<div class="highlight"><pre class="chroma"><code class="language-Vagrantfile" data-lang="Vagrantfile">Vagrant.configure(&#34;2&#34;) do |config|
-   config.vm.box = &#34;generic/debian9&#34;
-   config.vm.network &#34;public_network&#34;, bridge: &#34;EXTERNAL-vSwitch&#34;
+
+<pre><code class="language-Vagrantfile">Vagrant.configure(&quot;2&quot;) do |config|
+   config.vm.box = &quot;generic/debian9&quot;
+   config.vm.network &quot;public_network&quot;, bridge: &quot;EXTERNAL-vSwitch&quot;
 
    # Configuración de recursos de la VM
-   config.vm.provider &#34;hyperv&#34; do |v, override|
+   config.vm.provider &quot;hyperv&quot; do |v, override|
       v.cpus = 2
       v.memory = 2048
       v.maxmemory = 2048
@@ -512,27 +582,29 @@ M:<span class="se">\V</span>MS<span class="se">\v</span>agrant<span class="se">\
       v.differencing_disk = true
    end
 
-   config.vm.define &#34;k0&#34; do |k0|
-      k0.vm.hostname = &#34;k0&#34;
-      config.vm.provider &#34;hyperv&#34; do |h0|
-         h0.vmname = &#34;k0&#34;
+   config.vm.define &quot;k0&quot; do |k0|
+      k0.vm.hostname = &quot;k0&quot;
+      config.vm.provider &quot;hyperv&quot; do |h0|
+         h0.vmname = &quot;k0&quot;
       end
    end
 
-   config.vm.define &#34;k1&#34; do |k1|
-      k1.vm.hostname = &#34;k1&#34;
-      config.vm.provider &#34;hyperv&#34; do |h1|
-         h1.vmname = &#34;k1&#34;
+   config.vm.define &quot;k1&quot; do |k1|
+      k1.vm.hostname = &quot;k1&quot;
+      config.vm.provider &quot;hyperv&quot; do |h1|
+         h1.vmname = &quot;k1&quot;
       end
    end
 
-   config.vm.define &#34;k2&#34; do |k2|
-      k1.vm.hostname = &#34;k2&#34;
-      config.vm.provider &#34;hyperv&#34; do |h2|
-         h1.vmname = &#34;k2&#34;
+   config.vm.define &quot;k2&quot; do |k2|
+      k1.vm.hostname = &quot;k2&quot;
+      config.vm.provider &quot;hyperv&quot; do |h2|
+         h1.vmname = &quot;k2&quot;
       end
    end
-end</code></pre></div>
+end
+</code></pre>
+
 <p>En general, cada máquina parte de una imagen base diferente.</p>
 
 <p>Mi objetivo es crear un clúster de Kuberentes, por lo que a partir de la instalación base con Debian habría que instalar Docker y después Kubernetes (en el mejor de los casos, usando <code>kubeadm</code>). Sin embargo, realizar la misma instalación una y otra vez no es la manera más eficiente de construir el clúster. En vez de ello, lo ideal es crear una imagen base (<em>box</em>) personalizada, con Docker y Kubernetes preinstalado y configurado.</p>

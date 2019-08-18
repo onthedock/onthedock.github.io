@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.55.2" />
+<meta name="generator" content="Hugo 0.55.5" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -96,7 +96,7 @@
       <div class="l-container">
         <div class="h-logo p-logo">
           <a href="https://onthedock.github.io/" class="h-logo">On The Dock</a>
-          <p class="h-logo">Un blog sobre Docker, Kubernetes, DevOps y Raspberry Pi por Xavier Aznar</p>
+          <p class="h-logo">Un blog sobre el Cloud, Kubernetes, DevOps, Docker y Raspberry Pi por Xavier Aznar</p>
         </div>
       </div>
     </header>
@@ -212,15 +212,18 @@
 <p>Como en el contenedor de Jenkins tenemos instalado Java, usaremos la versión <em>Any</em> de SonarQube Scanner: <a href="https://docs.sonarqube.org/display/SCAN/Analyzing+with+SonarQube+Scanner">Analyzing with SonarQube Scanner</a>.</p>
 
 <p>Para instalar SonarQube Scanner, entramos en el contenedor mediante <code>docker exec</code>, lo descargamos y descomprimimos en la carpeta ´/var/jenkins_home/tools/sonar-scanner/` que hemos creado en el volumen:</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">$ sudo docker <span class="nb">exec</span> -it jenkins /bin/sh
-<span class="c1"># cd /var/jenkins_home/</span>
-<span class="c1"># mkdir tools</span>
-<span class="c1"># cd tools</span>
-<span class="c1"># wget https://sonarsource.bintray.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-3.1.0.1141.zip</span>
-<span class="c1"># unzip sonar-scanner-cli-3.1.0.1141.zip</span>
-<span class="c1"># mv sonar-scaner--cli-3.1.0.1141 sonar-scanner</span>
-<span class="c1"># exit</span>
-$</code></pre></div>
+
+<pre><code class="language-shell">$ sudo docker exec -it jenkins /bin/sh
+# cd /var/jenkins_home/
+# mkdir tools
+# cd tools
+# wget https://sonarsource.bintray.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-3.1.0.1141.zip
+# unzip sonar-scanner-cli-3.1.0.1141.zip
+# mv sonar-scaner--cli-3.1.0.1141 sonar-scanner
+# exit
+$
+</code></pre>
+
 <h2 id="configuración-de-sonarqube-scanner">Configuración de SonarQube Scanner</h2>
 
 <ol>
@@ -237,12 +240,15 @@ $</code></pre></div>
 <h2 id="creación-del-fichero-sonar-project-properties">Creación del fichero <code>sonar-project.properties</code></h2>
 
 <p>Creamos el fichero <code>sonar-project.properties</code> en la raíz del repositorio:</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">sonar.host.url<span class="o">=</span>http://192.168.1.209:9000
-sonar.projectKey<span class="o">=</span>mvn:tutorial
-sonar.projectName<span class="o">=</span>GS Maven
-sonar.projectVersion<span class="o">=</span><span class="m">1</span>.0
-sonar.sources<span class="o">=</span>.
-sonar.java.binaries<span class="o">=</span>.</code></pre></div>
+
+<pre><code class="language-shell">sonar.host.url=http://192.168.1.209:9000
+sonar.projectKey=mvn:tutorial
+sonar.projectName=GS Maven
+sonar.projectVersion=1.0
+sonar.sources=.
+sonar.java.binaries=.
+</code></pre>
+
 <p>Este fichero especica una serie de <em>metadatos</em> de configuración del análisis de código, como la clave y nombre del proyecto, la versión, etc.</p>
 
 <blockquote>
@@ -262,17 +268,23 @@ sonar.java.binaries<span class="o">=</span>.</code></pre></div>
 <h2 id="volumen-de-datos-para-las-extensiones-de-sonarqube">Volumen de datos para las extensiones de SonarQube</h2>
 
 <p>Creamos el volumen para las extensiones:</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">$ sudo docker volume create data-sonarqube-plugins
-data-sonarqube-plugins</code></pre></div>
+
+<pre><code class="language-shell">$ sudo docker volume create data-sonarqube-plugins
+data-sonarqube-plugins
+</code></pre>
+
 <p>Paramos el contenedor de SonarQube y lo lanzamos de nuevo, montando ahora también el volumen para los <em>plugins</em>:</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">sudo docker run -d --name sonarqube -p <span class="m">9000</span>:9000 <span class="se">\
-</span><span class="se"></span>  --mount <span class="nv">source</span><span class="o">=</span>data-sonarqube,target<span class="o">=</span>/opt/sonarqube/data <span class="se">\
-</span><span class="se"></span>  --mount <span class="nv">source</span><span class="o">=</span>data-sonarqube-plugins,target<span class="o">=</span>/opt/sonarqube/extensions <span class="se">\
-</span><span class="se"></span>  -e <span class="nv">SONARQUBE_JDBC_USERNAME</span><span class="o">=</span>sonar <span class="se">\
-</span><span class="se"></span>  -e <span class="nv">SONARQUBE_JDBC_PASSWORD</span><span class="o">=</span>cF68nTVgP8Nq <span class="se">\
-</span><span class="se"></span>  -e <span class="nv">SONARQUBE_JDBC_URL</span><span class="o">=</span><span class="s1">&#39;jdbc:mysql://mysql-sonarqube:3306/sonar?useUnicode=true&amp;characterEncoding=utf8&amp;rewriteBatchedStatements=true&amp;useConfigs=maxPerformance&amp;useSSL=false&#39;</span> <span class="se">\
-</span><span class="se"></span>  --network backend-sonarqube <span class="se">\
-</span><span class="se"></span>  sonarqube:7.1-alpine</code></pre></div>
+
+<pre><code class="language-shell">sudo docker run -d --name sonarqube -p 9000:9000 \
+  --mount source=data-sonarqube,target=/opt/sonarqube/data \
+  --mount source=data-sonarqube-plugins,target=/opt/sonarqube/extensions \
+  -e SONARQUBE_JDBC_USERNAME=sonar \
+  -e SONARQUBE_JDBC_PASSWORD=cF68nTVgP8Nq \
+  -e SONARQUBE_JDBC_URL='jdbc:mysql://mysql-sonarqube:3306/sonar?useUnicode=true&amp;characterEncoding=utf8&amp;rewriteBatchedStatements=true&amp;useConfigs=maxPerformance&amp;useSSL=false' \
+  --network backend-sonarqube \
+  sonarqube:7.1-alpine
+</code></pre>
+
 <p>Como tarda un poco en arrancar, revisamos los logs mediante <code>sudo docker logs sonarqube -f</code> hasta que vemos el mensaje <em>SonarQube is up</em>.</p>
 
 <h2 id="instalación-del-plugin-de-análisis-de-código-de-java">Instalación del plugin de análisis de código de Java</h2>
@@ -282,15 +294,18 @@ data-sonarqube-plugins</code></pre></div>
 <p>Una vez instalado, es necesario reiniciar SonarQube.</p>
 
 <p>Tras el reinicio, accedemos a Jenkins para relanzar el job.</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">...
-INFO: Task total time: <span class="m">9</span>.372 s
+
+<pre><code class="language-shell">...
+INFO: Task total time: 9.372 s
 INFO: ------------------------------------------------------------------------
 INFO: EXECUTION SUCCESS
 INFO: ------------------------------------------------------------------------
-INFO: Total time: <span class="m">12</span>.367s
+INFO: Total time: 12.367s
 INFO: Final Memory: 12M/137M
 INFO: ------------------------------------------------------------------------
-...</code></pre></div>
+...
+</code></pre>
+
 <p>El <em>pipeline</em> se muestra en verde, indicando que todos los pasos se han ejecutado con éxito:</p>
 
 <figure>

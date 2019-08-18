@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.55.2" />
+<meta name="generator" content="Hugo 0.55.5" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -96,7 +96,7 @@
       <div class="l-container">
         <div class="h-logo p-logo">
           <a href="https://onthedock.github.io/" class="h-logo">On The Dock</a>
-          <p class="h-logo">Un blog sobre Docker, Kubernetes, DevOps y Raspberry Pi por Xavier Aznar</p>
+          <p class="h-logo">Un blog sobre el Cloud, Kubernetes, DevOps, Docker y Raspberry Pi por Xavier Aznar</p>
         </div>
       </div>
     </header>
@@ -181,15 +181,21 @@
 <p>Los <a href="https://docs.docker.com/storage/volumes/">volúmenes</a> son el mecanismo preferido para persistir los datos generados y usados por los contenedores. Los volúmenes montados directamente sobre el <em>host</em> dependen de la estructura de ficheros del sistema, mientras que los volúmenes son gestionados directamente por Docker.</p>
 
 <p>En la versión 18.03.1-ce de Docker, todavía no hay comandos para renombrar volúmenes o para copiar el contenido de un volumen a otro. Para migrar el contenido de la base de datos de Gogs del volumen de base de datos compartida a la base de datos específica, he tenido que montar el volumen inicial y el de destino en un contenedor intermedio.</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">docker volume create data-mysql-gogs
+
+<pre><code class="language-shell">docker volume create data-mysql-gogs
 docker run --rm -it
-   --mount <span class="nv">source</span><span class="o">=</span>data-mysql,target<span class="o">=</span>/in <span class="se">\
-</span><span class="se"></span>   --mount <span class="nv">source</span><span class="o">=</span>data-mysql-gogs,target<span class="o">=</span>/out <span class="se">\
-</span><span class="se"></span>   mysql:5.7 /bin/sh</code></pre></div>
+   --mount source=data-mysql,target=/in \
+   --mount source=data-mysql-gogs,target=/out \
+   mysql:5.7 /bin/sh
+</code></pre>
+
 <p>Una vez montados los contenedores, he lanzado una copia del contenido de un volumen a otro:</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="c1"># cd /in</span>
-<span class="c1"># cp -a . /out</span>
-<span class="c1"># exit</span></code></pre></div>
+
+<pre><code class="language-shell"># cd /in
+# cp -a . /out
+# exit
+</code></pre>
+
 <p>(Referencia: <a href="https://askubuntu.com/questions/86822/how-can-i-copy-the-contents-of-a-folder-to-another-folder-in-a-different-directo">How can I copy the contents of a folder to another folder in a different directory using terminal?</a>)</p>
 
 <p>Finalmente, montamos el volumen de datos en el nuevo contenedor de la base de datos.</p>

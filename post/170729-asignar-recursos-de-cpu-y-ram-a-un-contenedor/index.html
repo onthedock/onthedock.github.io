@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.55.2" />
+<meta name="generator" content="Hugo 0.55.5" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -96,7 +96,7 @@
       <div class="l-container">
         <div class="h-logo p-logo">
           <a href="https://onthedock.github.io/" class="h-logo">On The Dock</a>
-          <p class="h-logo">Un blog sobre Docker, Kubernetes, DevOps y Raspberry Pi por Xavier Aznar</p>
+          <p class="h-logo">Un blog sobre el Cloud, Kubernetes, DevOps, Docker y Raspberry Pi por Xavier Aznar</p>
         </div>
       </div>
     </header>
@@ -147,7 +147,10 @@
 <p>Los recursos de CPU se miden en <strong>cpus</strong>. Se admiten valores fraccionados. Puedes usar el sufijo <em>m</em> para indicar &ldquo;mili&rdquo;; por ejemplo, <code>100m cpu</code> son <code>100 milicpu</code> o <code>0.1 cpu</code>.</p>
 
 <p>Los recursos de RAM se miden en <strong>bytes</strong>. Puedes indicar la RAM como un entero usando alguno de los siguientes sufijos: <code>E</code>, <code>P</code>, <code>T</code>, <code>G</code>, <code>M</code>, <code>Ei</code>, <code>Pi</code>,<code>Ti</code>, <code>Gi</code>, <code>Mi</code>y <code>Ki</code>. Por ejemplo, las siguientes cantidades representan aproximadamente el mismo valor:</p>
-<div class="highlight"><pre class="chroma"><code class="language-txt" data-lang="txt">128974848, 129e6, 129M , 123Mi</code></pre></div>
+
+<pre><code class="language-txt">128974848, 129e6, 129M , 123Mi
+</code></pre>
+
 <p>Si no conoces por adelantado los recursos que reservar para un <em>pod</em> puedes lanzar la aplicación sin especificar límites, usar el monitor de uso de recursos y determinar los valores apropiados.</p>
 
 <p>Si un contenedor excede los límites establecidos de RAM, se elimina al quedarse sin memoria disponible: <code>out-of-memory</code>. Debes especificar un valor ligeramente superior al valor esperado para dar un poco de margen al <em>pod</em>.</p>
@@ -155,21 +158,24 @@
 <p>Si especificas una reserva (<code>request</code>), el <em>pod</em> tendrá garantizado disponer de la cantidad reservada del recurso. El <em>pod</em> puede usar más recursos que los reservados, pero nunca más del límite establecido.</p>
 
 <p>En el siguiene ejemplo, especificamos tanto una reserva como el límite de recursos de los que puede disponer un <em>pod</em>:</p>
-<div class="highlight"><pre class="chroma"><code class="language-yaml" data-lang="yaml">apiVersion<span class="p">:</span><span class="w"> </span>v1<span class="w">
-</span><span class="w"></span>kind<span class="p">:</span><span class="w"> </span>Pod<span class="w">
-</span><span class="w"></span>metadata<span class="p">:</span><span class="w">
-</span><span class="w">  </span>name<span class="p">:</span><span class="w"> </span>cpu-ram-demo<span class="w">
-</span><span class="w"></span>spec<span class="p">:</span><span class="w">
-</span><span class="w">  </span>containers<span class="p">:</span><span class="w">
-</span><span class="w">  </span>-<span class="w"> </span>name<span class="p">:</span><span class="w"> </span>cpu-ram-demo-container<span class="w">
-</span><span class="w">    </span>image<span class="p">:</span><span class="w"> </span>gcr.io/google-samples/node-hello<span class="p">:</span><span class="m">1.0</span><span class="w">
-</span><span class="w">    </span>resources<span class="p">:</span><span class="w">
-</span><span class="w">      </span>requests<span class="p">:</span><span class="w">
-</span><span class="w">        </span>memory<span class="p">:</span><span class="w"> </span><span class="s2">&#34;64Mi&#34;</span><span class="w">
-</span><span class="w">        </span>cpu<span class="p">:</span><span class="w"> </span><span class="s2">&#34;250m&#34;</span><span class="w">
-</span><span class="w">      </span>limits<span class="p">:</span><span class="w">
-</span><span class="w">        </span>memory<span class="p">:</span><span class="w"> </span><span class="s2">&#34;128Mi&#34;</span><span class="w">
-</span><span class="w">        </span>cpu<span class="p">:</span><span class="w"> </span><span class="s2">&#34;1&#34;</span></code></pre></div>
+
+<pre><code class="language-yaml">apiVersion: v1
+kind: Pod
+metadata:
+  name: cpu-ram-demo
+spec:
+  containers:
+  - name: cpu-ram-demo-container
+    image: gcr.io/google-samples/node-hello:1.0
+    resources:
+      requests:
+        memory: &quot;64Mi&quot;
+        cpu: &quot;250m&quot;
+      limits:
+        memory: &quot;128Mi&quot;
+        cpu: &quot;1&quot;
+</code></pre>
+
 <p>El <em>pod</em> reserva 64Mi de RAM y 0.25 cpus, pero puede llegar a usar hasta el doble de RAM y toda una CPU.</p>
 
 <h1 id="si-no-especificas-reservas-o-límites">Si no especificas reservas o límites</h1>

@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.55.2" />
+<meta name="generator" content="Hugo 0.55.5" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -96,7 +96,7 @@
       <div class="l-container">
         <div class="h-logo p-logo">
           <a href="https://onthedock.github.io/" class="h-logo">On The Dock</a>
-          <p class="h-logo">Un blog sobre Docker, Kubernetes, DevOps y Raspberry Pi por Xavier Aznar</p>
+          <p class="h-logo">Un blog sobre el Cloud, Kubernetes, DevOps, Docker y Raspberry Pi por Xavier Aznar</p>
         </div>
       </div>
     </header>
@@ -129,38 +129,56 @@
 <p>Para instalar Ansible en Debian, seguimos los pasos indicados en la documentación oficial <a href="https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html#latest-releases-via-apt-debian">Installation Guide</a>.</p>
 
 <p>En primer lugar, añadimos el repositorio de Ubuntu. En mi caso, prefiero añadir el repositorio en un fichero separado, en <code>/etc/apt/sources.list.d/</code> en vez de hacerlo directamente en <code>/etc/apt/sources.list</code>:</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">sudo nano /etc/apt/sources.list.d/ubuntu-trusty.list</code></pre></div>
+
+<pre><code class="language-bash">sudo nano /etc/apt/sources.list.d/ubuntu-trusty.list
+</code></pre>
+
 <p>Añade la línea <code>deb http://ppa.launchpad.net/ansible/ansible/ubuntu trusty main</code> y guarda los cambios.</p>
 
 <p>Antes de lanzar <code>apt update</code> e instalar Ansible, debemos incorporar la clave del repositorio a nuestro sistema:</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 93C4A3FD7BB9C367
+
+<pre><code class="language-bash">sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 93C4A3FD7BB9C367
 sudo apt-get update
-sudo apt-get install ansible</code></pre></div>
+sudo apt-get install ansible
+</code></pre>
+
 <p>En mi caso, no es posible recuperar la clave:</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">$ sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 93C4A3FD7BB9C367
+
+<pre><code class="language-bash">$ sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 93C4A3FD7BB9C367
 Executing: /tmp/apt-key-gpghome.mI9WEO81of/gpg.1.sh --keyserver keyserver.ubuntu.com --recv-keys 93C4A3FD7BB9C367
-gpg: failed to start the dirmngr <span class="s1">&#39;/usr/bin/dirmngr&#39;</span>: No such file or directory
-gpg: connecting dirmngr at <span class="s1">&#39;/tmp/apt-key-gpghome.mI9WEO81of/S.dirmngr&#39;</span> failed: No such file or directory
-gpg: keyserver receive failed: No dirmngr</code></pre></div>
+gpg: failed to start the dirmngr '/usr/bin/dirmngr': No such file or directory
+gpg: connecting dirmngr at '/tmp/apt-key-gpghome.mI9WEO81of/S.dirmngr' failed: No such file or directory
+gpg: keyserver receive failed: No dirmngr
+</code></pre>
+
 <p>La solución pasa por instalar primero <code>dirmngr</code> usando <code>sudo apt install dirmngr</code>.</p>
 
 <p>Una vez solucionado, recuperamos la clave pública del repositorio:</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">$ sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 93C4A3FD7BB9C367
+
+<pre><code class="language-bash">$ sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 93C4A3FD7BB9C367
 Executing: /tmp/apt-key-gpghome.kkjSRhUytC/gpg.1.sh --keyserver keyserver.ubuntu.com --recv-keys 93C4A3FD7BB9C367
-gpg: key 93C4A3FD7BB9C367: public key <span class="s2">&#34;Launchpad PPA for Ansible, Inc.&#34;</span> imported
-gpg: Total number processed: <span class="m">1</span>
-gpg:               imported: <span class="m">1</span></code></pre></div>
+gpg: key 93C4A3FD7BB9C367: public key &quot;Launchpad PPA for Ansible, Inc.&quot; imported
+gpg: Total number processed: 1
+gpg:               imported: 1
+</code></pre>
+
 <p>Ahora sí, <code>update</code> e <code>install</code>:</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">sudo apt update
-sudo apt install ansible</code></pre></div>
+
+<pre><code class="language-bash">sudo apt update
+sudo apt install ansible
+</code></pre>
+
 <p>Validamos que Ansible está instalado mediante:</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">$ ansible --version
-ansible <span class="m">2</span>.7.10
-  config <span class="nv">file</span> <span class="o">=</span> /etc/ansible/ansible.cfg
-  configured module search <span class="nv">path</span> <span class="o">=</span> <span class="o">[</span>u<span class="s1">&#39;/home/operador/.ansible/plugins/modules&#39;</span>, u<span class="s1">&#39;/usr/share/ansible/plugins/modules&#39;</span><span class="o">]</span>
-  ansible python module <span class="nv">location</span> <span class="o">=</span> /usr/lib/python2.7/dist-packages/ansible
-  executable <span class="nv">location</span> <span class="o">=</span> /usr/bin/ansible
-  python <span class="nv">version</span> <span class="o">=</span> <span class="m">2</span>.7.13 <span class="o">(</span>default, Sep <span class="m">26</span> <span class="m">2018</span>, <span class="m">18</span>:42:22<span class="o">)</span> <span class="o">[</span>GCC <span class="m">6</span>.3.0 <span class="m">20170516</span><span class="o">]</span></code></pre></div>
+
+<pre><code class="language-bash">$ ansible --version
+ansible 2.7.10
+  config file = /etc/ansible/ansible.cfg
+  configured module search path = [u'/home/operador/.ansible/plugins/modules', u'/usr/share/ansible/plugins/modules']
+  ansible python module location = /usr/lib/python2.7/dist-packages/ansible
+  executable location = /usr/bin/ansible
+  python version = 2.7.13 (default, Sep 26 2018, 18:42:22) [GCC 6.3.0 20170516]
+</code></pre>
+
 <h2 id="usuario-de-gestión-para-ansible">Usuario de gestión para Ansible</h2>
 
 <p>Vamos a generar un usuario específico para Ansible, que se autenticará en las máquinas gestionadas usando un par de claves SSH.</p>
@@ -170,24 +188,27 @@ ansible <span class="m">2</span>.7.10
 <blockquote>
 <p>Si usas el comando <code>useradd</code>, sólo se crea el usuario (no se crea la carpeta <code>$home</code>, no se establece una contraseña para el usuario, etc).</p>
 </blockquote>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">$ sudo adduser ansible-service-account
-Adding user <span class="sb">`</span>ansible-service-account<span class="s1">&#39; ...
-</span><span class="s1">Adding new group `ansible-service-account&#39;</span> <span class="o">(</span><span class="m">1001</span><span class="o">)</span> ...
-Adding new user <span class="sb">`</span>ansible-service-account<span class="s1">&#39; (1001) with group `ansible-service-account&#39;</span> ...
-Creating home directory <span class="sb">`</span>/home/ansible-service-account<span class="s1">&#39; ...
-</span><span class="s1">Copying files from `/etc/skel&#39;</span> ...
+
+<pre><code class="language-bash">$ sudo adduser ansible-service-account
+Adding user `ansible-service-account' ...
+Adding new group `ansible-service-account' (1001) ...
+Adding new user `ansible-service-account' (1001) with group `ansible-service-account' ...
+Creating home directory `/home/ansible-service-account' ...
+Copying files from `/etc/skel' ...
 Enter new UNIX password:
 Retype new UNIX password:
 passwd: password updated successfully
-Changing the user information <span class="k">for</span> ansible-service-account
-Enter the new value, or press ENTER <span class="k">for</span> the default
-   Full Name <span class="o">[]</span>: Ansible Service Account
-   Room Number <span class="o">[]</span>:
-   Work Phone <span class="o">[]</span>:
-   Home Phone <span class="o">[]</span>:
-   Other <span class="o">[]</span>:
-Is the information correct? <span class="o">[</span>Y/n<span class="o">]</span> y
-$</code></pre></div>
+Changing the user information for ansible-service-account
+Enter the new value, or press ENTER for the default
+   Full Name []: Ansible Service Account
+   Room Number []:
+   Work Phone []:
+   Home Phone []:
+   Other []:
+Is the information correct? [Y/n] y
+$
+</code></pre>
+
 <p>Usando <code>sudo su ansible-service-account</code> cambiamos de identidad y nos convertimos en el usuario especificado.</p>
 
 <h2 id="generar-la-clave-ssh">Generar la clave SSH</h2>
@@ -200,33 +221,39 @@ Esta cuenta se usará para realizar acciones automatizadas, por lo que no especi
 <blockquote>
 <p>Usamos la opción <code>-C</code> para añadir un comentario que permita identificar fácilmente el par de claves generado.</p>
 </blockquote>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">$ ssh-keygen -o -a <span class="m">100</span> -t ed25519 -C ansible-service-account
+
+<pre><code class="language-bash">$ ssh-keygen -o -a 100 -t ed25519 -C ansible-service-account
 Generating public/private ed25519 key pair.
-Enter file in which to save the key <span class="o">(</span>/home/ansible-service-account/.ssh/id_ed25519<span class="o">)</span>:
-Created directory <span class="s1">&#39;/home/ansible-service-account/.ssh&#39;</span>.
-Enter passphrase <span class="o">(</span>empty <span class="k">for</span> no passphrase<span class="o">)</span>:
+Enter file in which to save the key (/home/ansible-service-account/.ssh/id_ed25519):
+Created directory '/home/ansible-service-account/.ssh'.
+Enter passphrase (empty for no passphrase):
 Enter same passphrase again:
 Your identification has been saved in /home/ansible-service-account/.ssh/id_ed25519.
 Your public key has been saved in /home/ansible-service-account/.ssh/id_ed25519.pub.
 The key fingerprint is:
 SHA256:4Zp/sQr0n3wvwMkQaUt3aqnGvnfIWdicuYEFCW7WFes ansible-service-account
-The key<span class="err">&#39;</span>s randomart image is:
-+--<span class="o">[</span>ED25519 <span class="m">256</span><span class="o">]</span>--+
-<span class="p">|</span>        .o .o.   <span class="p">|</span>
-<span class="p">|</span>       .<span class="o">=</span>.+...   <span class="p">|</span>
-<span class="p">|</span>       <span class="nv">o</span><span class="o">=</span>+.<span class="o">=</span>.    <span class="p">|</span>
-<span class="p">|</span>       +o.+..    <span class="p">|</span>
-<span class="p">|</span>      ..S* BEo   <span class="p">|</span>
-<span class="p">|</span>     . ++ O B    <span class="p">|</span>
-<span class="p">|</span>      +o.. B o   <span class="p">|</span>
-<span class="p">|</span>       o.oB.<span class="o">=</span>    <span class="p">|</span>
-<span class="p">|</span>        +<span class="o">=</span>+o o.  <span class="p">|</span>
-+----<span class="o">[</span>SHA256<span class="o">]</span>-----+</code></pre></div>
+The key's randomart image is:
++--[ED25519 256]--+
+|        .o .o.   |
+|       .=.+...   |
+|       o=+.=.    |
+|       +o.+..    |
+|      ..S* BEo   |
+|     . ++ O B    |
+|      +o.. B o   |
+|       o.oB.=    |
+|        +=+o o.  |
++----[SHA256]-----+
+</code></pre>
+
 <p>En la carpeta <code>.ssh</code> recién creada se encuentran el par de claves SSH, tanto la privada (que debes mantener privada) como la pública.</p>
 
 <p>Puedes verificarlo mediante:</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">$ ls ~/.ssh/
-id_ed25519  id_ed25519.pub</code></pre></div>
+
+<pre><code class="language-bash">$ ls ~/.ssh/
+id_ed25519  id_ed25519.pub
+</code></pre>
+
 <p>La parte pública de la clave únicamente <em>encaja</em> con la parte privada (que sólo tiene el usuario <em>ansible-service-account</em>), por lo que el siguiente paso es copiar esta clave pública en los máquinas gestionadas por Ansible.</p>
 
 <p>El usuario <em>ansible-service-account</em> realizará tareas de administración, por lo que debemos proporcionar la capacidad de elevar permisos en las máquinas gestionadas.</p>
@@ -244,21 +271,27 @@ Este script se encuentra en GitHub <a href="https://github.com/onthedock/vmconfi
 <h3 id="crear-el-usuario-de-gestión-en-la-máquina-gestionada">Crear el usuario de gestión en la máquina gestionada</h3>
 
 <p>Creamos el usuario local en la máquina gestionada mediante <code>useradd</code>; esto no crea la carpeta <code>$home</code> del usuario, ni establece grupos o una contraseña para el usuario.</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="c1"># Create ansible user</span>
-<span class="nb">echo</span> <span class="s2">&#34;Adding user </span><span class="nv">$ANSIBLE_USER</span><span class="s2"> ...&#34;</span>
-sudo useradd <span class="nv">$ANSIBLE_USER</span></code></pre></div>
+
+<pre><code class="language-bash"># Create ansible user
+echo &quot;Adding user $ANSIBLE_USER ...&quot;
+sudo useradd $ANSIBLE_USER
+</code></pre>
+
 <h3 id="crear-la-carpeta-home-ansible-user-manualmente">Crear la carpeta <code>$home/$ANSIBLE_USER</code> manualmente</h3>
 
 <p>El sistema remoto buscará si la parte pública de la clave presentada al conectar por SSH se encuentra en el fichero <code>$home/.ssh/authorized_keys</code>.
 Como el comando <code>useradd</code> no ha creado la carpeta <code>$home</code>, la creamos manualmente:</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="c1"># Create .ssh folder</span>
-<span class="nb">echo</span> <span class="s2">&#34;Configuring user </span><span class="nv">$ANSIBLE_USER</span><span class="s2"> authorized_keys&#34;</span>
-sudo mkdir -p /home/<span class="nv">$ANSIBLE_USER</span>/.ssh
-<span class="c1"># Copy PUBKEY to authorized_keys for $ANSIBLE_USER</span>
-<span class="nb">echo</span> <span class="nv">$PUBKEY</span> &gt;&gt; authorized_keys
-sudo mv authorized_keys /home/<span class="nv">$ANSIBLE_USER</span>/.ssh/authorized_keys
-sudo chown <span class="nv">$ANSIBLE_USER</span>:<span class="nv">$ANSIBLE_USER</span> -R /home/<span class="nv">$ANSIBLE_USER</span>/
-sudo chmod <span class="m">600</span> /home/<span class="nv">$ANSIBLE_USER</span>/.ssh/authorized_keys</code></pre></div>
+
+<pre><code class="language-bash"># Create .ssh folder
+echo &quot;Configuring user $ANSIBLE_USER authorized_keys&quot;
+sudo mkdir -p /home/$ANSIBLE_USER/.ssh
+# Copy PUBKEY to authorized_keys for $ANSIBLE_USER
+echo $PUBKEY &gt;&gt; authorized_keys
+sudo mv authorized_keys /home/$ANSIBLE_USER/.ssh/authorized_keys
+sudo chown $ANSIBLE_USER:$ANSIBLE_USER -R /home/$ANSIBLE_USER/
+sudo chmod 600 /home/$ANSIBLE_USER/.ssh/authorized_keys
+</code></pre>
+
 <blockquote>
 <p>Si tienes problemas para conectar, revisa que tanto la autenticación con clave pública como los permisos sobre <code>~/.ssh</code> y <code>~/.ssh/*</code> sean los correctos (Referencia: <a href="https://serverfault.com/a/55458">Can&rsquo;t get SSH public key authentication to work [closed]</a>)</p>
 </blockquote>
@@ -275,12 +308,15 @@ En cualquier caso, SSH requiere que únicamente el usuario <code>ansible-service
 <p>Podemos hacer que el <em>script</em> solicite la contraseña cuando tenga que <em>elevar</em> permisos, pero va en contra de la idea de &ldquo;automatizar&rdquo;, por lo que configuramos el usuario usado por Ansible para que pueda convertirse en <code>root</code> sin contraseña.</p>
 
 <p>Hay varias formas de hacer que un usuario pueda elevarse sus privilegios usando <code>sudo</code>; la manera más sencilla es incluir el usuario en el grupo <code>sudo</code> (o <code>admin</code>, en algunas distribuciones), pero creo que es más adecuado añadir el usuario al fichero de <em>sudoers</em>.</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="c1"># Passwordless sudo</span>
-<span class="nb">echo</span> <span class="s2">&#34;Configuring passwordless sudo...&#34;</span>
-<span class="nb">echo</span> <span class="s2">&#34;</span><span class="nv">$ANSIBLE_USER</span><span class="s2"> ALL=NOPASSWD: ALL&#34;</span> &gt;&gt; <span class="nv">$ANSIBLE_USER</span>
-<span class="c1"># Fix permissions</span>
-sudo chown root:root <span class="nv">$ANSIBLE_USER</span>
-sudo mv <span class="nv">$ANSIBLE_USER</span> /etc/sudoers.d/</code></pre></div>
+
+<pre><code class="language-bash"># Passwordless sudo
+echo &quot;Configuring passwordless sudo...&quot;
+echo &quot;$ANSIBLE_USER ALL=NOPASSWD: ALL&quot; &gt;&gt; $ANSIBLE_USER
+# Fix permissions
+sudo chown root:root $ANSIBLE_USER
+sudo mv $ANSIBLE_USER /etc/sudoers.d/
+</code></pre>
+
 <p>Creamos un fichero con el nombre del usuario usado por Ansible y lo colocamos en <code>/etc/sudoers.d/</code>, de manera que <code>sudo</code> lo leerá como si formara parte del fichero <code>/etc/sudoers</code>, pero así mantenemos el fichero original sin modificaciones.</p>
 
 <p>A través del fichero <em>sudoers</em> podemos restringir qué comandos puede ejecutar el usuario (y en qué máquinas), cosa que no podemos hacer si agregamos el usuario al grupo <code>sudo</code>.
@@ -293,23 +329,32 @@ Puedes obtener más información sobre cómo configurar <code>sudo</code> de for
 <p>En Debian 9, por ejemplo, está instalado tanto Python 2.7 como Python 3.5, por lo que el Python que se usa lo determina el enlace desde <code>/usr/bin/python</code>.</p>
 
 <p>Instalamos la última versión de Python 3 y cambiamos el enlace para que el sistema use la versión recién instalada:</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="c1"># Always install Python 3</span>
+
+<pre><code class="language-bash"># Always install Python 3
 sudo apt install python3 -y
-<span class="c1"># Update Python location</span>
-sudo ln -sf /usr/bin/python3 /usr/bin/python</code></pre></div>
+# Update Python location
+sudo ln -sf /usr/bin/python3 /usr/bin/python
+</code></pre>
+
 <h2 id="test-de-ansible">Test de Ansible</h2>
 
 <p>Después de instalar Ansible tanto en la máquina de control como en las máquinas gestionadas, es hora de validar que todo funciona.</p>
 
 <p>Crea o edita el fichero <code>/etc/ansible/hosts</code> siguiendo las instrucciones de <a href="https://docs.ansible.com/ansible/latest/user_guide/intro_getting_started.html#your-first-commands">Your first commands</a> e incluye la IP o el nombre de la(s) máquina(s) gestionada(s).</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">sudo nano /etc/ansible/hosts</code></pre></div>
+
+<pre><code class="language-bash">sudo nano /etc/ansible/hosts
+</code></pre>
+
 <p>A continuación, cambia al usuario configurado para Ansible y ejecuta el módulo <em>ping</em> sobre todas (<em>all</em>) las máquinas configuradas en el inventorio (el fichero <code>/etc/ansible/hosts</code>):</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">operador@ansible:~$ sudo su ansible-service-account
+
+<pre><code class="language-bash">operador@ansible:~$ sudo su ansible-service-account
 ansible-service-account@ansible:~$ ansible all -m ping
-<span class="m">192</span>.168.1.215 <span class="p">|</span> <span class="nv">SUCCESS</span> <span class="o">=</span>&gt; <span class="o">{</span>
-    <span class="s2">&#34;changed&#34;</span>: false,
-    <span class="s2">&#34;ping&#34;</span>: <span class="s2">&#34;pong&#34;</span>
-<span class="o">}</span></code></pre></div>
+192.168.1.215 | SUCCESS =&gt; {
+    &quot;changed&quot;: false,
+    &quot;ping&quot;: &quot;pong&quot;
+}
+</code></pre>
+
 <p>Como puedes ver, Ansible se ha conectado al equipo remoto con IP 192.168.1.215, donde ha ejecutado el módulo <em>ping</em>, que ha devuelto <em>pong</em>, indicando que todo ha funcionado correctamente.</p>
 
 <h2 id="resumen">Resumen</h2>

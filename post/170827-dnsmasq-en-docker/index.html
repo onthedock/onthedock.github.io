@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.55.2" />
+<meta name="generator" content="Hugo 0.55.5" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -96,7 +96,7 @@
       <div class="l-container">
         <div class="h-logo p-logo">
           <a href="https://onthedock.github.io/" class="h-logo">On The Dock</a>
-          <p class="h-logo">Un blog sobre Docker, Kubernetes, DevOps y Raspberry Pi por Xavier Aznar</p>
+          <p class="h-logo">Un blog sobre el Cloud, Kubernetes, DevOps, Docker y Raspberry Pi por Xavier Aznar</p>
         </div>
       </div>
     </header>
@@ -137,11 +137,14 @@
 <p>Mi objetivo es usar <strong>dnsmasq</strong> como un complemento al resto de pruebas que estoy realizando, por lo que voy a instalarlo como contenedor en una de las Raspberry Pi.</p>
 
 <p>Creo el fichero <code>Dockerfile</code>:</p>
-<div class="highlight"><pre class="chroma"><code class="language-Dockerfile" data-lang="Dockerfile"><span class="k">FROM</span><span class="s"> xaviaznar/rpi-alpine-base</span><span class="err">
-</span><span class="err">
-</span><span class="err"></span><span class="k">RUN</span> apk --no-cache add dnsmasq<span class="err">
-</span><span class="err"></span><span class="k">EXPOSE</span><span class="s"> 53 53/udp</span><span class="err">
-</span><span class="err"></span><span class="k">ENTRYPOINT</span><span class="s"> [&#34;dnsmasq&#34;, &#34;-k&#34;]</span></code></pre></div>
+
+<pre><code class="language-Dockerfile">FROM xaviaznar/rpi-alpine-base
+
+RUN apk --no-cache add dnsmasq
+EXPOSE 53 53/udp
+ENTRYPOINT [&quot;dnsmasq&quot;, &quot;-k&quot;]
+</code></pre>
+
 <blockquote>
 <p>En Dockerhub he encontrado la imagen de Andy Shinn para dnsmasq: <a href="https://hub.docker.com/r/andyshinn/dnsmasq/">andyshinn/dnsmasq</a>, que he usado como referencia.</p>
 </blockquote>
@@ -149,7 +152,10 @@
 <p>El fichero <code>Dockerfile</code> parte de mi <a href="https://hub.docker.com/r/xaviaznar/rpi-alpine-base/">imagen con Alpine Linux para Raspbery Pi</a>. A continuación instalo <strong>dnsmasq</strong> y expongo los puertos, lanzando <code>dnsmasq</code> con la <a href="http://www.thekelleys.org.uk/dnsmasq/docs/dnsmasq-man.html">opción <code>-k</code></a>, que hace que se ejecute &ldquo;en primer plano&rdquo; y no como &ldquo;servicio/demonio&rdquo;.</p>
 
 <p>Creamos la imagen:</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">docker build xaviaznar/rpi-dnsmasq .</code></pre></div>
+
+<pre><code class="language-shell">docker build xaviaznar/rpi-dnsmasq .
+</code></pre>
+
 <h2 id="configuración">Configuración</h2>
 
 <p><strong>dnsmasq</strong> se configura a través del fichero <code>/etc/dnsmasq.conf</code>. Como <em>almacén</em> para los nombres e IPs asociadas usa el fichero <code>/etc/hosts</code> de la máquina en la que está instalada.</p>
@@ -157,7 +163,8 @@
 <h3 id="dnsmasq-conf"><code>dnsmasq.conf</code></h3>
 
 <p>El fichero <code>dnsmasq.conf</code> es <strong>muy</strong> extenso, pero en mi caso únicamente modificaré unas pocas opciones (el resto las he dejado por defecto). Puedes encontrar el fichero completo en el repositorio <a href="https://github.com/onthedock/rpi-dnsmasq">onthedock/rpi-dnsmasq</a> de GitHub:</p>
-<div class="highlight"><pre class="chroma"><code class="language-txt" data-lang="txt"># Configuration file for dnsmasq.
+
+<pre><code class="language-txt"># Configuration file for dnsmasq.
 ...
 
 # Never forward plain names (without a dot or domain part)
@@ -175,13 +182,18 @@ local=/ameisin.local/
 # The example below send any host in double-click.net to a local
 # web-server.
 #address=/double-click.net/127.0.0.1
-...</code></pre></div>
+...
+</code></pre>
+
 <p>La opción <code>#address=/double-click.net/127.0.0.1</code> permite deshacerse de anuncios y otras plagas de internet. Aunque si estás interesado en usar la Raspberry Pi para filtrar el contenido quizás te interese echar un vistazo a <a href="https://pi-hole.net">PI-HOLE&reg;: A BLACK HOLE FOR INTERNET ADVERTISEMENTS</a>.</p>
 
 <blockquote>
 <p>Si el contenedor no arranca debido a que no encuentra la ruta <code>/etc/dnsmasq.d/</code> comenta la siguiente línea en el fichero <code>dnsmasq.conf</code>:</p>
-<div class="highlight"><pre class="chroma"><code class="language-txt" data-lang="txt">   # Include all files in a directory which end in .conf
-   #conf-dir=/etc/dnsmasq.d/,*.conf</code></pre></div></blockquote>
+
+<pre><code class="language-txt">   # Include all files in a directory which end in .conf
+   #conf-dir=/etc/dnsmasq.d/,*.conf
+</code></pre>
+</blockquote>
 
 <h2 id="fichero-hosts">Fichero <code>hosts</code></h2>
 
@@ -192,20 +204,26 @@ local=/ameisin.local/
 <h2 id="lanzar-el-contedor">Lanzar el contedor</h2>
 
 <p>Hay varias cosas a tener en cuenta al lanzar el contenedor para <strong>dnsmasq</strong>. En primer lugar, debe lanzarse con el <a href="https://docs.docker.com/engine/reference/run/#runtime-privilege-and-linux-capabilities">privilegio sobre la gestión de la red</a> mediante la opción:</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">--cap-add<span class="o">=</span>NET_ADMIN</code></pre></div>
+
+<pre><code class="language-shell">--cap-add=NET_ADMIN
+</code></pre>
+
 <p>Otro punto a tener en cuenta es que estamos montando ficheros en el contenedor. A diferencia de cuando montamos carpetas, en las que los cambios realizados sobre los ficheros contenidos en esas carpetas se actualizan automáticamente en el contenedor, cuando montamos ficheros no sucede así.</p>
 
 <p>Al montar el fichero en el contenedor, se copia del <em>host</em> al contenedor, pero los cambios realizados mientras el contenedor está en ejecución no se reflejan en el fichero montado en el contenedor. Por tanto, para que los cambios realizados sobre el fichero <code>hosts</code> tengan efecto, es necesario reiniciar el contenedor (parándolo y arrancándolo de nuevo).</p>
 
 <p>Para simplificar esta tarea, he creado el script <code>run-home-dns.sh</code>:</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">docker stop home-dns
+
+<pre><code class="language-shell">docker stop home-dns
 docker rm home-dns
-docker run -d --name home-dns <span class="se">\
-</span><span class="se"></span>   -p <span class="m">53</span>:53 -p <span class="m">53</span>:53/udp <span class="se">\
-</span><span class="se"></span>   --cap-add<span class="o">=</span>NET_ADMIN <span class="se">\
-</span><span class="se"></span>   -v /home/pirate/home-dns/dnsmasq.conf:/etc/dnsmasq.conf <span class="se">\
-</span><span class="se"></span>   -v /home/pirate/home-dns/hosts:/etc/hosts <span class="se">\
-</span><span class="se"></span>   xaviaznar/rpi-dnsmasq</code></pre></div>
+docker run -d --name home-dns \
+   -p 53:53 -p 53:53/udp \
+   --cap-add=NET_ADMIN \
+   -v /home/pirate/home-dns/dnsmasq.conf:/etc/dnsmasq.conf \
+   -v /home/pirate/home-dns/hosts:/etc/hosts \
+   xaviaznar/rpi-dnsmasq
+</code></pre>
+
 <h2 id="repositorio-con-los-ficheros-de-configuración-y-el-dockerfile">Repositorio con los ficheros de configuración y el <code>Dockerfile</code></h2>
 
 <p>El fichero <code>Dockerfile</code> y los ficheros de configuración están disponibles en el repositorio <a href="https://github.com/onthedock/rpi-dnsmasq">onthedock/rpi-dnsmasq</a> en GitHub.</p>
@@ -217,7 +235,10 @@ docker run -d --name home-dns <span class="se">\
 <p>En el caso de las máquinas con sistema operativo Linux, la resolución de nombres se gestiona desde el fichero <code>/etc/resolv.conf</code>.</p>
 
 <p>Edita el fichero especificando la dirección del <em>host</em> donde se encuentra el contenedor <code>rpi-dnsmasq</code>. En mi caso:</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">nameserver <span class="m">192</span>.168.1.9</code></pre></div>
+
+<pre><code class="language-shell">nameserver 192.168.1.9
+</code></pre>
+
 <h3 id="el-fichero-resolv-conf-se-sobrescribe-en-cada-reinicio">El fichero <code>resolv.conf</code> se sobrescribe en cada reinicio</h3>
 
 <p>Si el fichero de configuración se sobrescribe al reiniciar la máquina (o el servicio de red), edita el fichero <code>/usr/share/udhcpc/default.script</code> y modifica la línea:</p>

@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.55.2" />
+<meta name="generator" content="Hugo 0.55.5" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -96,7 +96,7 @@
       <div class="l-container">
         <div class="h-logo p-logo">
           <a href="https://onthedock.github.io/" class="h-logo">On The Dock</a>
-          <p class="h-logo">Un blog sobre Docker, Kubernetes, DevOps y Raspberry Pi por Xavier Aznar</p>
+          <p class="h-logo">Un blog sobre el Cloud, Kubernetes, DevOps, Docker y Raspberry Pi por Xavier Aznar</p>
         </div>
       </div>
     </header>
@@ -131,9 +131,12 @@
 <p>En general, suele ser un problema tener instaladas diferentes versiones de las librerías o frameworks de desarrollo. Al <em>empaquetar</em> las diferentes versiones en un contenedor, solucionamos las incompatibilidades entre diferentes versiones. Como el espacio y recursos requeridos por un contenedor es <strong>muy</strong> inferior al de una máquina virtual, el desarrollador dispone de un mayor abanico de opciones de cara al desarrollo.</p>
 
 <p>Como ejemplo, el tamaño del contenedor de la versión del JDK versión 7 para Java -basado en Alpine Linux- ocupa sólo 142MB, frente a las decenas de <em>gigas</em> que ocuparía una máquina virtual:</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">$ docker images
+
+<pre><code class="language-shell">$ docker images
 REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
-openjdk             <span class="m">7</span>-jdk-alpine        b6bec13008bd        <span class="m">3</span> weeks ago         142MB</code></pre></div>
+openjdk             7-jdk-alpine        b6bec13008bd        3 weeks ago         142MB
+</code></pre>
+
 <p>A diferencia de lo que ocurre en una máquina virtual, usando el contenedor con las herramientas de compilación el desarrollador puede seguir usando su IDE preferido, en vez de tener que usar el que haya proporcionado la empresa en la máquina virtual.</p>
 
 <p>Y cuando la empresa apruebe el uso de una nueva versión como base de los desarrollos, la actualización resulta tan sencilla como ejecutar <code>docker pull</code> usando la etiqueta correspondiente y dejar que Docker descargue la nueva versión.</p>
@@ -141,8 +144,9 @@ openjdk             <span class="m">7</span>-jdk-alpine        b6bec13008bd     
 <h2 id="ejemplo-compilar-un-programa-java">Ejemplo: compilar un programa java</h2>
 
 <p>En la máquina de desarrollo verificamos que java no está instalado:</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">$ javac
-The program <span class="s1">&#39;javac&#39;</span> can be found in the following packages:
+
+<pre><code class="language-shell">$ javac
+The program 'javac' can be found in the following packages:
  * default-jdk
  * ecj
  * gcj-5-jdk
@@ -150,24 +154,35 @@ The program <span class="s1">&#39;javac&#39;</span> can be found in the followin
  * gcj-4.8-jdk
  * gcj-4.9-jdk
  * openjdk-9-jdk-headless
-Try: sudo apt install &lt;selected package&gt;</code></pre></div>
+Try: sudo apt install &lt;selected package&gt;
+</code></pre>
+
 <p>Descargamos la imagen oficial (en este caso, directamente desde DockerHub) de la versión 7 de OpenJDK:</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">$ docker pull library/openjdk:7-jdk-alpine
-<span class="m">7</span>-jdk-alpine: Pulling from library/openjdk
+
+<pre><code class="language-shell">$ docker pull library/openjdk:7-jdk-alpine
+7-jdk-alpine: Pulling from library/openjdk
 b56ae66c2937: Already exists
-81cebc5bcaf8: Pull <span class="nb">complete</span>
-1b523c1c6444: Pull <span class="nb">complete</span>
+81cebc5bcaf8: Pull complete
+1b523c1c6444: Pull complete
 Digest: sha256:7ca2b9b21961b1a71e0271c10471d3c8ec6c683c926e7644e636922d123ee276
-Status: Downloaded newer image <span class="k">for</span> openjdk:7-jdk-alpine</code></pre></div>
+Status: Downloaded newer image for openjdk:7-jdk-alpine
+</code></pre>
+
 <p>Vamos a compilar el código de una aplicación de prueba, una versión de <a href="https://www.cs.utexas.edu/~scottm/cs307/javacode/codeSamples/HelloWorld.java">HelloWorld.java</a> obtenida de la Universidad de Texas. Compilamos el código local usando:</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">docker run --rm -v <span class="s2">&#34;</span><span class="nv">$PWD</span><span class="s2">&#34;</span>:/usr/src/helloworld -w /usr/src/helloworld openjdk:7-jdk-alpine javac HelloWorld.java</code></pre></div>
+
+<pre><code class="language-shell">docker run --rm -v &quot;$PWD&quot;:/usr/src/helloworld -w /usr/src/helloworld openjdk:7-jdk-alpine javac HelloWorld.java
+</code></pre>
+
 <p>El comando ejecuta un contenedor que se eliminará cuando finalice la ejecución (<code>--rm</code>), montando la carpeta local (<code>$PWD</code>, <em>print working directory</em>) en el contenedor. Mediante la opción <code>-w</code> cambia la carpeta de trabajo dentro del contenedor al volumen montado y ejecuta la compilación usando <code>javac HelloWorld.java</code>.</p>
 
 <p>Después de compilar, en la carpeta local obtenemos el fichero compilado <code>HelloWorld.class</code>.</p>
 
 <p>Verificamos que el programa compilado funciona -usando de nuevo el contenedor- mediante:</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">$ docker run --rm -v <span class="s2">&#34;</span><span class="nv">$PWD</span><span class="s2">&#34;</span>:/usr/src/helloworld -w /usr/src/helloworld openjdk:7-jdk-alpine java HelloWorld
-Hello World!</code></pre></div>
+
+<pre><code class="language-shell">$ docker run --rm -v &quot;$PWD&quot;:/usr/src/helloworld -w /usr/src/helloworld openjdk:7-jdk-alpine java HelloWorld
+Hello World!
+</code></pre>
+
 <h2 id="resumen">Resumen</h2>
 
 <p>Usando contenedores la empresa puede mantener una base de desarrollo homogénea, fijando versiones de compiladores, <em>librerías</em> y <em>frameworks</em> probados mateniendo la libertad del desarrollador para seguir utilizando su IDE preferido.</p>

@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.55.2" />
+<meta name="generator" content="Hugo 0.55.5" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -96,7 +96,7 @@
       <div class="l-container">
         <div class="h-logo p-logo">
           <a href="https://onthedock.github.io/" class="h-logo">On The Dock</a>
-          <p class="h-logo">Un blog sobre Docker, Kubernetes, DevOps y Raspberry Pi por Xavier Aznar</p>
+          <p class="h-logo">Un blog sobre el Cloud, Kubernetes, DevOps, Docker y Raspberry Pi por Xavier Aznar</p>
         </div>
       </div>
     </header>
@@ -135,7 +135,10 @@
 <h2 id="personalizando-la-máquina-virtual-con-cloud-init">Personalizando la máquina virtual con <em>cloud-init</em></h2>
 
 <p><code>cloud-init</code> se instala como un paquete más en cualquiera de las distribuciones linux en las que está soportado. En mi caso, usaré Debian. (Ubuntu proporciona las <a href="http://cloud-images.ubuntu.com/"><em>cloud images</em></a>, que incluyen <code>cloud-init</code>, pero no he tenido éxito con ellas). La instalación se realiza como la de cualquier otro paquete:</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">sudo apt install cloud-init</code></pre></div>
+
+<pre><code class="language-shell">sudo apt install cloud-init
+</code></pre>
+
 <p>Una vez instalado, <code>cloud-init</code> se ejecuta durante el proceso de arranque de la máquina virtual e intenta obtener la configuración de la instancia a partir de algún <em>datasource</em>.</p>
 
 <p>El <em>datasource</em> es una abstracción que permite que <code>cloud-init</code> se adapte a los diferentes entornos en los que se ejecuta. Por ejemplo, el <em>datasource</em> <code>NoCloud</code> proporciona información de configuración desde medios locales, como un diskette o una imagen de CD/DVD montada en la máquina virtual. Esto permite especificar parámetros de configuración incluso antes de que el sistema operativo haya <em>levantado</em> la conexión de red.</p>
@@ -159,36 +162,48 @@
 <p>Como no existe ningún <em>cmdlet</em> en PowerShell para crear una imagen ISO, he descargado de la versión para Windows del paquete <code>cdrtools</code>, que incluye <code>mkisofs.exe</code> desde <a href="https://www.student.tugraz.at/thomas.plank/index_en.html">Cdrtools: Win x86_64 Binaries</a>.</p>
 
 <p>Para que <code>cloud-init</code> identifique la ISO como un <em>datasource</em> debemos etiquetarla como <code>cidata</code>. En comando con el que he construido las imágenes es (<code>.\initimg</code> es la carpeta donde se encuentran los ficheros a copiar en la ISO):</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">mkisofs.exe -volid cidata -juliet -rational-rock -iso-level <span class="m">2</span> -output init.iso .<span class="se">\i</span>nitimg<span class="err">\</span></code></pre></div>
+
+<pre><code class="language-shell">mkisofs.exe -volid cidata -juliet -rational-rock -iso-level 2 -output init.iso .\initimg\
+</code></pre>
+
 <p>Conectamos la ISO y arrancamos la VM:</p>
-<div class="highlight"><pre class="chroma"><code class="language-ps" data-lang="ps"><span class="nf">Set-VMDvdDrive</span> <span class="nf">-VMName</span> <span class="nf">TestVM</span> <span class="nf">-Path</span> <span class="nf">.\init.iso</span>
-<span class="nf">Start-VM</span> <span class="nf">-Name</span> <span class="err">TestVM</span></code></pre></div>
+
+<pre><code class="language-ps">Set-VMDvdDrive -VMName TestVM -Path .\init.iso
+Start-VM -Name TestVM
+</code></pre>
+
 <p>El fichero <code>meta-data</code> contiene el <em>ID</em> de la instancia y la configuración IP:</p>
-<div class="highlight"><pre class="chroma"><code class="language-yml" data-lang="yml">instance-id<span class="p">:</span><span class="w"> </span>cloudimg<span class="w">
-</span><span class="w"></span>network-interfaces<span class="p">:</span><span class="w"> </span><span class="sd">|
-</span><span class="sd">  iface eth0 inet static</span><span class="w">
-</span><span class="w">  </span>address<span class="w"> </span><span class="m">192.168</span>.<span class="m">1.199</span><span class="w">
-</span><span class="w">  </span>network<span class="w"> </span><span class="m">192.168</span>.<span class="m">1.0</span><span class="w">
-</span><span class="w">  </span>netmask<span class="w"> </span><span class="m">255.255</span>.<span class="m">255.0</span><span class="w">
-</span><span class="w">  </span>broadcast<span class="w"> </span><span class="m">192.168</span>.<span class="m">1.255</span><span class="w">
-</span><span class="w">  </span>gateway<span class="w"> </span><span class="m">192.168</span>.<span class="m">1.1</span></code></pre></div>
+
+<pre><code class="language-yml">instance-id: cloudimg
+network-interfaces: |
+  iface eth0 inet static
+  address 192.168.1.199
+  network 192.168.1.0
+  netmask 255.255.255.0
+  broadcast 192.168.1.255
+  gateway 192.168.1.1
+</code></pre>
+
 <p>El fichero <code>user-data</code> contiene el grueso de la configuración.</p>
-<div class="highlight"><pre class="chroma"><code class="language-yml" data-lang="yml"><span class="c">#cloud-config</span><span class="w">
-</span><span class="w"></span>manage_etc_hosts<span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
-</span><span class="w"></span>hostname<span class="p">:</span><span class="w"> </span>vm-userdata-<span class="m">04</span><span class="w">
-</span><span class="w"></span>fqdn<span class="p">:</span><span class="w"> </span>vm-userdata-<span class="m">04.</span>lab.local<span class="w">
-</span><span class="w">
-</span><span class="w"></span>default<span class="p">:</span><span class="w">
-</span><span class="w"></span>mounts<span class="p">:</span><span class="w">
-</span><span class="w">  </span>-<span class="w"> </span><span class="p">[</span><span class="w"> </span>swap<span class="p">,</span><span class="w"> </span><span class="kc">null</span><span class="w"> </span><span class="p">]</span><span class="w">
-</span><span class="w">
-</span><span class="w"></span><span class="c"># package_upgrade: true # Causes an upgrade (apt get upgrade -y)</span><span class="w">
-</span><span class="w"></span>packages<span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;figlet&#39;</span><span class="p">]</span><span class="w">
-</span><span class="w">
-</span><span class="w"></span>timezone<span class="p">:</span><span class="w"> </span><span class="s2">&#34;Europe/Madrid&#34;</span><span class="w">
-</span><span class="w">
-</span><span class="w"></span>write_files<span class="p">:</span><span class="w">
-</span><span class="w">  </span>-<span class="w"> </span>path<span class="p">:</span><span class="w"> </span>/etc/cloud/cloud-init.disabled</code></pre></div>
+
+<pre><code class="language-yml">#cloud-config
+manage_etc_hosts: true
+hostname: vm-userdata-04
+fqdn: vm-userdata-04.lab.local
+
+default:
+mounts:
+  - [ swap, null ]
+
+# package_upgrade: true # Causes an upgrade (apt get upgrade -y)
+packages: ['figlet']
+
+timezone: &quot;Europe/Madrid&quot;
+
+write_files:
+  - path: /etc/cloud/cloud-init.disabled
+</code></pre>
+
 <p>En este ejemplo, el primer bloque especifica el <em>hostname</em> de la máquina virtual. A continuación, inhabilita la <em>swap</em>, instala el paquete <code>figlet</code> y establece la zona horaria para configurar el reloj del sistema.</p>
 
 <p>La última instrucción crea un fichero que deshabilita la ejecución de <code>cloud-init</code> (en caso contrario, se ejecutaría durante cada arranque). Una vez realizada la configuración de la máquina, podemos <em>desmontar</em> la imagen ISO.</p>

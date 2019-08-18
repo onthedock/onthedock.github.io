@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.55.2" />
+<meta name="generator" content="Hugo 0.55.5" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -96,7 +96,7 @@
       <div class="l-container">
         <div class="h-logo p-logo">
           <a href="https://onthedock.github.io/" class="h-logo">On The Dock</a>
-          <p class="h-logo">Un blog sobre Docker, Kubernetes, DevOps y Raspberry Pi por Xavier Aznar</p>
+          <p class="h-logo">Un blog sobre el Cloud, Kubernetes, DevOps, Docker y Raspberry Pi por Xavier Aznar</p>
         </div>
       </div>
     </header>
@@ -135,19 +135,22 @@
 <p>Los ficheros <code>unit file</code> se encuentran en <code>/etc/systemd/system</code>.</p>
 
 <p>Creamos un fichero <code>home-dns.service</code> para el  <a href="https://onthedock.github.io/post/170827-dnsmasq-en-docker/">servicio de DNS creado en la entrada anterior</a> usando <strong>dnsmasq</strong>.</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="o">[</span>Unit<span class="o">]</span>
-<span class="nv">Description</span><span class="o">=</span>Home DNS <span class="o">(</span>dnsmasq<span class="o">)</span>
-<span class="nv">After</span><span class="o">=</span>docker.service
-<span class="nv">Requieres</span><span class="o">=</span>docker.service
 
-<span class="o">[</span>Service<span class="o">]</span>
-<span class="nv">TimeoutStartSec</span><span class="o">=</span><span class="m">0</span>
-<span class="nv">ExecStartPre</span><span class="o">=</span>/usr/bin/docker stop home-dns
-<span class="nv">ExecStartPre</span><span class="o">=</span>/usr/bin/docker rm home-dns
-<span class="nv">ExecStart</span><span class="o">=</span>/usr/bin/docker run --name home-dns -p <span class="m">53</span>:53 -p <span class="m">53</span>:53/udp --cap-add<span class="o">=</span>NET_ADMIN -v /home/pirate/rpi-alpine-dnsmasq/dnsmasq.conf:/etc/dnsmasq.conf -v /home/pirate/rpi-alpine-dnsmasq/hosts:/etc/hosts xaviaznar/rpi-dnsmasq
+<pre><code class="language-shell">[Unit]
+Description=Home DNS (dnsmasq)
+After=docker.service
+Requieres=docker.service
 
-<span class="o">[</span>Install<span class="o">]</span>
-<span class="nv">WantedBy</span><span class="o">=</span>multi-user.target</code></pre></div>
+[Service]
+TimeoutStartSec=0
+ExecStartPre=/usr/bin/docker stop home-dns
+ExecStartPre=/usr/bin/docker rm home-dns
+ExecStart=/usr/bin/docker run --name home-dns -p 53:53 -p 53:53/udp --cap-add=NET_ADMIN -v /home/pirate/rpi-alpine-dnsmasq/dnsmasq.conf:/etc/dnsmasq.conf -v /home/pirate/rpi-alpine-dnsmasq/hosts:/etc/hosts xaviaznar/rpi-dnsmasq
+
+[Install]
+WantedBy=multi-user.target
+</code></pre>
+
 <p>El fichero está dividido en tres secciones:</p>
 
 <ul>
@@ -170,26 +173,32 @@
 </ul>
 
 <p>Para crerar el nuevo <em>servicio</em>, habilitamos la nueva <em>unit</em> y lo arrancamos:</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">sudo systemctl <span class="nb">enable</span> home-dns.service
-sudo systemctl start home-dns</code></pre></div>
+
+<pre><code class="language-shell">sudo systemctl enable home-dns.service
+sudo systemctl start home-dns
+</code></pre>
+
 <p>Puedes verificar que el contenedor ha arrancado mediante <code>docker ps</code>, por ejemplo.</p>
 
 <p>Podemos ampliar el fichero <code>unit</code> incluyendo también comandos para la acción <code>stop</code>:</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="o">[</span>Unit<span class="o">]</span>
-<span class="nv">Description</span><span class="o">=</span>Home DNS <span class="o">(</span>dnsmasq<span class="o">)</span>
-<span class="nv">After</span><span class="o">=</span>docker.service
-<span class="nv">Requieres</span><span class="o">=</span>docker.service
 
-<span class="o">[</span>Service<span class="o">]</span>
-<span class="nv">TimeoutStartSec</span><span class="o">=</span><span class="m">0</span>
-<span class="nv">ExecStartPre</span><span class="o">=</span>-/usr/bin/docker stop home-dns
-<span class="nv">ExecStartPre</span><span class="o">=</span>-/usr/bin/docker rm home-dns
-<span class="nv">ExecStart</span><span class="o">=</span>/usr/bin/docker run --name home-dns -p <span class="m">53</span>:53 -p <span class="m">53</span>:53/udp --cap-add<span class="o">=</span>NET_ADMIN -v /home/pirate/rpi-alpine-dnsmasq/dnsmasq.conf:/etc/dnsmasq.conf -v /home/pirate/rpi-alpine-dnsmasq/hosts:/etc/hosts xaviaznar/rpi-dnsmasq
-<span class="nv">ExecStop</span><span class="o">=</span>/usr/bin/docker stop home-dns
-<span class="nv">ExecStopPost</span><span class="o">=</span>/usr/bin/docker rm home-dns
+<pre><code class="language-shell">[Unit]
+Description=Home DNS (dnsmasq)
+After=docker.service
+Requieres=docker.service
 
-<span class="o">[</span>Install<span class="o">]</span>
-<span class="nv">WantedBy</span><span class="o">=</span>multi-user.target</code></pre></div>
+[Service]
+TimeoutStartSec=0
+ExecStartPre=-/usr/bin/docker stop home-dns
+ExecStartPre=-/usr/bin/docker rm home-dns
+ExecStart=/usr/bin/docker run --name home-dns -p 53:53 -p 53:53/udp --cap-add=NET_ADMIN -v /home/pirate/rpi-alpine-dnsmasq/dnsmasq.conf:/etc/dnsmasq.conf -v /home/pirate/rpi-alpine-dnsmasq/hosts:/etc/hosts xaviaznar/rpi-dnsmasq
+ExecStop=/usr/bin/docker stop home-dns
+ExecStopPost=/usr/bin/docker rm home-dns
+
+[Install]
+WantedBy=multi-user.target
+</code></pre>
+
 <p>Ahora, al arrancar el equipo, el servicio de DNS arrancará como un servicio más del sistema operativo.</p>
 
 <p>Puedes leer más sobre los <code>unit files</code> en:</p>

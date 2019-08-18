@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.55.2" />
+<meta name="generator" content="Hugo 0.55.5" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -96,7 +96,7 @@
       <div class="l-container">
         <div class="h-logo p-logo">
           <a href="https://onthedock.github.io/" class="h-logo">On The Dock</a>
-          <p class="h-logo">Un blog sobre Docker, Kubernetes, DevOps y Raspberry Pi por Xavier Aznar</p>
+          <p class="h-logo">Un blog sobre el Cloud, Kubernetes, DevOps, Docker y Raspberry Pi por Xavier Aznar</p>
         </div>
       </div>
     </header>
@@ -176,40 +176,52 @@
 <p>He empezado con un <code>Dockerfile</code> lo más sencillo posible, instalando únicamente lo esencial. He usado <a href="https://bitbucket.org/yobasystems/alpine-caddy/overview">este <code>Dockerfile</code></a> como inspiración.</p>
 
 <p>Inicialmente, sólo instalo Caddy, PHP y las bibliotecas de funciones requeridas por Dokuwiki:</p>
-<div class="highlight"><pre class="chroma"><code class="language-Dockerfile" data-lang="Dockerfile"><span class="k">FROM</span><span class="s"> alpine:3.6</span><span class="err">
-</span><span class="err">
-</span><span class="err"></span><span class="k">RUN</span> apk add --no-cache caddy php7 php7-fpm php7-gd</code></pre></div>
+
+<pre><code class="language-Dockerfile">FROM alpine:3.6
+
+RUN apk add --no-cache caddy php7 php7-fpm php7-gd
+</code></pre>
+
 <p>Siguiendo las buenas prácticas de Docker, he decidido usar un usuario <em>no-root</em> llamado <code>caddy</code> (el usuario y el grupo se crear durante la instalación de Caddy).</p>
 
 <p>También he optado por copiar la línea de configuración de <code>php-fpm</code>:</p>
-<div class="highlight"><pre class="chroma"><code class="language-Dockerfile" data-lang="Dockerfile"><span class="k">RUN</span> <span class="nb">echo</span> <span class="s2">&#34;clear_env = no&#34;</span> &gt;&gt; /etc/php7/php7-fpm.conf<span class="err">
-</span><span class="err">
-</span><span class="err"></span><span class="k">RUN</span> chown -R caddy:caddy /var/www /var/log<span class="err">
-</span><span class="err">
-</span><span class="err"></span><span class="k">WORKDIR</span><span class="s"> /var/www</span></code></pre></div>
+
+<pre><code class="language-Dockerfile">RUN echo &quot;clear_env = no&quot; &gt;&gt; /etc/php7/php7-fpm.conf
+
+RUN chown -R caddy:caddy /var/www /var/log
+
+WORKDIR /var/www
+</code></pre>
+
 <p>Aunque en el <code>Dockerfile</code> se usa la instrucción <code>WORKDIR</code> para cambiar al directorio base que usará Caddy, yo prefiero especificarlo en el fichero de configuración. Aunque en este caso es redundante, he preferido dejarlo para establecer un directorio por defecto para el servidor en la imagen (que quiero utilizar como base para otras aplicaciones basadas en PHP).</p>
 
 <p>A continuación he copiado el fichero de configuración de Caddy y el fichero <code>info.php</code>, que contienen la instrucción <a href="http://php.net/manual/es/function.phpinfo.php"><code>phpinfo();</code></a>.</p>
 
 <p>Para acabar, exponemos el puerto en el que escucha Caddy por defecto, cambiamos al usuario <code>caddy</code> y especificamos el <code>ENTRYPOINT</code> y el <code>CMD</code>:</p>
-<div class="highlight"><pre class="chroma"><code class="language-Dockerfile" data-lang="Dockerfile"><span class="k">EXPOSE</span><span class="s"> 2015</span><span class="err">
-</span><span class="err"></span>USER caddy<span class="err">
-</span><span class="err"></span><span class="k">ENTRYPOINT</span><span class="s"> [&#34;/usr/sbin/caddy&#34;]</span><span class="err">
-</span><span class="err"></span><span class="k">CMD</span><span class="s"> [&#34;--conf&#34;, &#34;/etc/Caddyfile&#34;]</span></code></pre></div>
+
+<pre><code class="language-Dockerfile">EXPOSE 2015
+USER caddy
+ENTRYPOINT [&quot;/usr/sbin/caddy&quot;]
+CMD [&quot;--conf&quot;, &quot;/etc/Caddyfile&quot;]
+</code></pre>
+
 <h3 id="fichero-de-configuración-caddyfile">Fichero de configuración <code>Caddyfile</code></h3>
 
 <p>El fichero de configuración de Caddy es mucho más sencillo que el Nginx; sin embargo, he tenido problemas (por no leer la documentación).</p>
-<div class="highlight"><pre class="chroma"><code class="language-Dockerfile" data-lang="Dockerfile"><span class="m">0</span>.0.0.0<span class="err">
-</span><span class="err"></span>root /var/www/wiki<span class="err">
-</span><span class="err"></span>gzip<span class="err">
-</span><span class="err"></span>startup php-fpm7<span class="err">
-</span><span class="err">
-</span><span class="err"></span>fastcgi / <span class="m">127</span>.0.0.1:9000 php <span class="o">{</span><span class="err">
-</span><span class="err"></span>  index index.php index.htm doku.php<span class="err">
-</span><span class="err"></span><span class="o">}</span><span class="err">
-</span><span class="err">
-</span><span class="err"></span>log stdout<span class="err">
-</span><span class="err"></span>errors stdout</code></pre></div>
+
+<pre><code class="language-Dockerfile">0.0.0.0
+root /var/www/wiki
+gzip
+startup php-fpm7
+
+fastcgi / 127.0.0.1:9000 php {
+  index index.php index.htm doku.php
+}
+
+log stdout
+errors stdout
+</code></pre>
+
 <p>Caddy por defecto escucha en el puerto 2015, no en el 80 como suele ser habitual. Esto es fácil de detectar, porque el usuario <code>caddy</code> no tiene permisos para usar un puerto por debajo de 1024. Así que al modificar la primera línea del fichero <code>Caddyfile</code> de <code>0.0.0.0</code> a <code>0.0.0.0:80</code>, el contenedor falla.</p>
 
 <p>He dudado entre usar <code>0.0.0.0</code> o <code>localhost</code>, pero no he observado ninguna diferencia al usar uno u otro -en el contenedor- y al final he dejado <code>0.0.0.0</code>.</p>
@@ -225,7 +237,10 @@
 <p>Una vez he conseguido crear un contenedor con Caddy y PHP funcional (verificado a partir de <code>$BASEURL/info.php</code>), el siguiente paso era <em>conectarlo</em> con los ficheros de Dokuwiki. La manera más sencilla ha sido creando una carpeta local en la <em>host</em> y montarla en el contenedor como un volumen.</p>
 
 <p>He descargado y descomprimido la última versión estable de Dokuwiki en la carpeta <code>~/dokuwiki</code> y la he montado en el contenedor:</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">docker run -d --name wiki -p <span class="m">8910</span>:2015 -v /home/operador/dokuwiki:/var/www xaviaznar/alpine-caddy-php</code></pre></div>
+
+<pre><code class="language-shell">docker run -d --name wiki -p 8910:2015 -v /home/operador/dokuwiki:/var/www xaviaznar/alpine-caddy-php
+</code></pre>
+
 <h3 id="permisos">Permisos</h3>
 
 <p>Como el usuario con el que se ejecuta Caddy en el contenedor no existe en el sistema local, he cambiado los permisos de <code>~/dokuwiki</code> a <code>777</code> (todo el mundo tiene acceso). A diferencia del usuario <code>root</code>, el usuario <code>caddy</code> no existe en el <em>host</em>, por lo que tendría problemas para &ldquo;salir&rdquo; de la carpeta <code>dokuwiki</code> y acceder a otras partes del sistema más sensibles.</p>
@@ -235,8 +250,11 @@
 <p>Dado que he optado por reducir al mínimo las <em>librerías</em> de PHP incluidas en el contenedor, al arrancar Dokuwiki he encontrado algunos errores en el funcionamiento del mismo.</p>
 
 <p>Al final, he tenido que añadir <code>php7-session php7-xm</code> para arrancar Dokuwiki sin errores, y <code>php7-openssl php7-zlib</code> cuando he intentado añadir <em>plugins</em>, con lo que la línea definitiva en el <code>Dockerfile</code> ha quedado:</p>
-<div class="highlight"><pre class="chroma"><code class="language-Dockerfile" data-lang="Dockerfile"><span class="k">RUN</span> apk add --no-cache caddy php7 php7-fpm php7-gd <span class="se">\
-</span><span class="se"></span>    php7-session php7-xml php7-openssl php7-zlib</code></pre></div>
+
+<pre><code class="language-Dockerfile">RUN apk add --no-cache caddy php7 php7-fpm php7-gd \
+    php7-session php7-xml php7-openssl php7-zlib
+</code></pre>
+
 <h2 id="ficheros-auxiliares">Ficheros auxiliares</h2>
 
 <p>Dado que todo el proceso por el que he pasado ha sido el resultado de innumerables iteraciones, en cierto punto he decidido <em>automatizar</em> parte del proceso.</p>

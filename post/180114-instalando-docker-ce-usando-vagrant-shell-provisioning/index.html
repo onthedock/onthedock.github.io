@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.55.2" />
+<meta name="generator" content="Hugo 0.55.5" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -96,7 +96,7 @@
       <div class="l-container">
         <div class="h-logo p-logo">
           <a href="https://onthedock.github.io/" class="h-logo">On The Dock</a>
-          <p class="h-logo">Un blog sobre Docker, Kubernetes, DevOps y Raspberry Pi por Xavier Aznar</p>
+          <p class="h-logo">Un blog sobre el Cloud, Kubernetes, DevOps, Docker y Raspberry Pi por Xavier Aznar</p>
         </div>
       </div>
     </header>
@@ -129,15 +129,16 @@
 <p>El fichero <code>Vagrantfile</code> usa la imagen base <code>generic/debian9</code> para crear una máquina virtual con 2 vCPUs y 2GB de RAM conectada al <em>vSwitch</em> de la red externa (con acceso a internet).</p>
 
 <h1 id="fichero-vagrantfile">Fichero <code>Vagrantfile</code></h1>
-<div class="highlight"><pre class="chroma"><code class="language-Vagrantfile" data-lang="Vagrantfile">Vagrant.configure(&#34;2&#34;) do |config|
-   config.vm.box = &#34;generic/debian9&#34;
-   config.vm.network &#34;public_network&#34;, bridge: &#34;EXTERNAL-vSwitch&#34;
 
-   config.vm.hostname = &#34;vagrant-debian-9&#34;
+<pre><code class="language-Vagrantfile">Vagrant.configure(&quot;2&quot;) do |config|
+   config.vm.box = &quot;generic/debian9&quot;
+   config.vm.network &quot;public_network&quot;, bridge: &quot;EXTERNAL-vSwitch&quot;
+
+   config.vm.hostname = &quot;vagrant-debian-9&quot;
 
    # Configuración de recursos de la VM
-   config.vm.provider &#34;hyperv&#34; do |v, override|
-      v.vmname = &#34;vagrant-debian-9&#34;
+   config.vm.provider &quot;hyperv&quot; do |v, override|
+      v.vmname = &quot;vagrant-debian-9&quot;
       
       v.cpus = 2
       v.memory = 2048
@@ -147,47 +148,52 @@
       v.differencing_disk = true
    end
 
-   config.vm.provision &#34;shell&#34; do |s|
-      s.path= &#34;bootstrap-docker.sh&#34;
+   config.vm.provision &quot;shell&quot; do |s|
+      s.path= &quot;bootstrap-docker.sh&quot;
    end
-end</code></pre></div>
+end
+</code></pre>
+
 <h1 id="fichero-bootstrap-docker-sh">Fichero <code>bootstrap-docker.sh</code></h1>
 
 <p>El fichero <code>bootstrap-docker.sh</code> recoge las instrucciones de la <a href="https://docs.docker.com/engine/installation/linux/docker-ce/debian/">guía de instalación para Docker sobre Debian</a>.</p>
-<div class="highlight"><pre class="chroma"><code class="language-sh" data-lang="sh"><span class="c1"># Remove older versions of Docker</span>
-<span class="nb">echo</span> <span class="s2">&#34;Removing older versions of Docker&#34;</span>
+
+<pre><code class="language-sh"># Remove older versions of Docker
+echo &quot;Removing older versions of Docker&quot;
 sudo apt-get remove docker docker-engine docker.io
 
-<span class="c1"># Kernel version must be over 3.2</span>
-<span class="nb">echo</span> <span class="s2">&#34;[INFO] Keep in mind that kernel version must be at least 3.2&#34;</span>
-<span class="nb">echo</span> <span class="s2">&#34;[INFO] Current version is &#34;</span> <span class="k">$(</span>uname -r<span class="k">)</span>
+# Kernel version must be over 3.2
+echo &quot;[INFO] Keep in mind that kernel version must be at least 3.2&quot;
+echo &quot;[INFO] Current version is &quot; $(uname -r)
 
-<span class="c1"># Update and install</span>
+# Update and install
 
-<span class="nb">echo</span> <span class="s2">&#34;\nUpdate and install pre-requisites&#34;</span>
+echo &quot;\nUpdate and install pre-requisites&quot;
 sudo apt-get update
-sudo apt-get install <span class="se">\
-</span><span class="se"></span>      apt-transport-https <span class="se">\
-</span><span class="se"></span>      ca-certificates <span class="se">\
-</span><span class="se"></span>      curl <span class="se">\
-</span><span class="se"></span>      gnupg2 <span class="se">\
-</span><span class="se"></span>      software-properties-common -y
+sudo apt-get install \
+      apt-transport-https \
+      ca-certificates \
+      curl \
+      gnupg2 \
+      software-properties-common -y
 
-<span class="c1"># Docker&#39;s official GPG key</span>
-<span class="nb">echo</span> <span class="s2">&#34;\nAdding Docker&#39;s official GPG key&#34;</span>
-curl -fsSL https://download.docker.com/linux/<span class="k">$(</span>. /etc/os-release<span class="p">;</span> <span class="nb">echo</span> <span class="s2">&#34;</span><span class="nv">$ID</span><span class="s2">&#34;</span><span class="k">)</span>/gpg -o docker-ce.gpgkey
+# Docker's official GPG key
+echo &quot;\nAdding Docker's official GPG key&quot;
+curl -fsSL https://download.docker.com/linux/$(. /etc/os-release; echo &quot;$ID&quot;)/gpg -o docker-ce.gpgkey
 sudo apt-key add docker-ce.gpgkey
 
-<span class="c1"># Add stable branch repository</span>
-<span class="nb">echo</span> <span class="s2">&#34;\nAdd Docker-CE repository&#34;</span>
-sudo <span class="nb">echo</span> <span class="s2">&#34;deb [arch=amd64] https://download.docker.com/linux/</span><span class="k">$(</span>. /etc/os-release<span class="p">;</span> <span class="nb">echo</span> <span class="s2">&#34;</span><span class="nv">$ID</span><span class="s2">&#34;</span><span class="k">)</span><span class="s2"> \
-</span><span class="s2">   </span><span class="k">$(</span>lsb_release -cs<span class="k">)</span><span class="s2"> \
-</span><span class="s2">   stable&#34;</span> &gt;&gt; /etc/apt/sources.list
+# Add stable branch repository
+echo &quot;\nAdd Docker-CE repository&quot;
+sudo echo &quot;deb [arch=amd64] https://download.docker.com/linux/$(. /etc/os-release; echo &quot;$ID&quot;) \
+   $(lsb_release -cs) \
+   stable&quot; &gt;&gt; /etc/apt/sources.list
 
-<span class="c1"># Update repository info and install Docker-CE</span>
-<span class="nb">echo</span> <span class="s2">&#34;\nUpdate repository info and installing Docker-CE&#34;</span>
+# Update repository info and install Docker-CE
+echo &quot;\nUpdate repository info and installing Docker-CE&quot;
 sudo apt-get update
-sudo apt-get install docker-ce -y</code></pre></div>
+sudo apt-get install docker-ce -y
+</code></pre>
+
 <p>Las diferencias en algunos pasos con respecto a la documentación oficial han sido necesarias debido a que el script no se ejecuta en un terminal, por lo que algunas instrucciones generaban un error.</p></div>
 
   <aside class="p-share">

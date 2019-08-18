@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.55.2" />
+<meta name="generator" content="Hugo 0.55.5" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -96,7 +96,7 @@
       <div class="l-container">
         <div class="h-logo p-logo">
           <a href="https://onthedock.github.io/" class="h-logo">On The Dock</a>
-          <p class="h-logo">Un blog sobre Docker, Kubernetes, DevOps y Raspberry Pi por Xavier Aznar</p>
+          <p class="h-logo">Un blog sobre el Cloud, Kubernetes, DevOps, Docker y Raspberry Pi por Xavier Aznar</p>
         </div>
       </div>
     </header>
@@ -125,63 +125,76 @@
 <p>Jenkins almacena la información de configuración, plugins, etc <a href="https://wiki.jenkins.io/display/JENKINS/Administering+Jenkins">en ficheros XML</a>, por lo que no necesita una base de datos.</p>
 
 <p>La estructura de ficheros dentro de <code>JENKINS_HOME</code> es la siguiente:</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">JENKINS_HOME
- +- config.xml     <span class="o">(</span>jenkins root configuration<span class="o">)</span>
- +- *.xml          <span class="o">(</span>other site-wide configuration files<span class="o">)</span>
- +- userContent    <span class="o">(</span>files in this directory will be served under your http://server/userContent/<span class="o">)</span>
- +- fingerprints   <span class="o">(</span>stores fingerprint records<span class="o">)</span>
- +- plugins        <span class="o">(</span>stores plugins<span class="o">)</span>
- +- workspace <span class="o">(</span>working directory <span class="k">for</span> the version control system<span class="o">)</span>
-     +- <span class="o">[</span>JOBNAME<span class="o">]</span> <span class="o">(</span>sub directory <span class="k">for</span> each job<span class="o">)</span>
- +- <span class="nb">jobs</span>
-     +- <span class="o">[</span>JOBNAME<span class="o">]</span>      <span class="o">(</span>sub directory <span class="k">for</span> each job<span class="o">)</span>
-         +- config.xml     <span class="o">(</span>job configuration file<span class="o">)</span>
-         +- latest         <span class="o">(</span>symbolic link to the last successful build<span class="o">)</span>
+
+<pre><code class="language-shell">JENKINS_HOME
+ +- config.xml     (jenkins root configuration)
+ +- *.xml          (other site-wide configuration files)
+ +- userContent    (files in this directory will be served under your http://server/userContent/)
+ +- fingerprints   (stores fingerprint records)
+ +- plugins        (stores plugins)
+ +- workspace (working directory for the version control system)
+     +- [JOBNAME] (sub directory for each job)
+ +- jobs
+     +- [JOBNAME]      (sub directory for each job)
+         +- config.xml     (job configuration file)
+         +- latest         (symbolic link to the last successful build)
          +- builds
-             +- <span class="o">[</span>BUILD_ID<span class="o">]</span>     <span class="o">(</span><span class="k">for</span> each build<span class="o">)</span>
-                 +- build.xml      <span class="o">(</span>build result summary<span class="o">)</span>
-                 +- log            <span class="o">(</span>log file<span class="o">)</span>
-                 +- changelog.xml  <span class="o">(</span>change log<span class="o">)</span></code></pre></div>
+             +- [BUILD_ID]     (for each build)
+                 +- build.xml      (build result summary)
+                 +- log            (log file)
+                 +- changelog.xml  (change log)
+</code></pre>
+
 <h1 id="volumen-de-datos-para-jenkins">Volumen de datos para Jenkins</h1>
 
 <p>En primer lugar, creamos el volumen dedicado para Jenkins:</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">$ sudo docker volume create data-jenkins
-data-jenkins</code></pre></div>
+
+<pre><code class="language-shell">$ sudo docker volume create data-jenkins
+data-jenkins
+</code></pre>
+
 <h1 id="contenedor-de-jenkins">Contenedor de Jenkins</h1>
 
 <p>A continuación, descargamos la imagen de Docker Hub (<code>jenkins/jenkins</code>):</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">$ sudo docker pull jenkins/jenkins:2.118-alpine
-<span class="m">2</span>.118-alpine: Pulling from jenkins/jenkins
+
+<pre><code class="language-shell">$ sudo docker pull jenkins/jenkins:2.118-alpine
+2.118-alpine: Pulling from jenkins/jenkins
 ff3a5c916c92: Already exists
 5de5f69f42d7: Already exists
 fd869c8b9b59: Already exists
-e24f7a96a1b9: Pull <span class="nb">complete</span>
-17e8eb77316c: Pull <span class="nb">complete</span>
-44b258447c76: Pull <span class="nb">complete</span>
-be18251f7aa1: Pull <span class="nb">complete</span>
-84d1c8652b93: Pull <span class="nb">complete</span>
-043c42490351: Pull <span class="nb">complete</span>
-177281aeade6: Pull <span class="nb">complete</span>
-d8969a5d448f: Pull <span class="nb">complete</span>
-8f9977d60f1b: Pull <span class="nb">complete</span>
-bedf3297f5cd: Pull <span class="nb">complete</span>
-9af22c3bd2ad: Pull <span class="nb">complete</span>
+e24f7a96a1b9: Pull complete
+17e8eb77316c: Pull complete
+44b258447c76: Pull complete
+be18251f7aa1: Pull complete
+84d1c8652b93: Pull complete
+043c42490351: Pull complete
+177281aeade6: Pull complete
+d8969a5d448f: Pull complete
+8f9977d60f1b: Pull complete
+bedf3297f5cd: Pull complete
+9af22c3bd2ad: Pull complete
 Digest: sha256:276b32f777b9fcf2019f62c9d1b99f053a4dfd4cc6d29e739ab88c68b58bdf5a
-Status: Downloaded newer image <span class="k">for</span> jenkins/jenkins:2.118-alpine
-$</code></pre></div>
+Status: Downloaded newer image for jenkins/jenkins:2.118-alpine
+$
+</code></pre>
+
 <p>Creamos el contedor montando el volumen recién creado:</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">$ sudo docker run -d --name jenkins -p <span class="m">8080</span>:8080 -p <span class="m">50000</span>:50000 <span class="se">\
-</span><span class="se"></span>   --mount <span class="nv">source</span><span class="o">=</span>data-jenkins,target<span class="o">=</span>/var/jenkins_home <span class="se">\
-</span><span class="se"></span>   jenkins/jenkins:2.118-alpine
-538872e49dc5eaa7a45222c5378b14e77542acb9b622b19251ea93026aa6a5de</code></pre></div>
+
+<pre><code class="language-shell">$ sudo docker run -d --name jenkins -p 8080:8080 -p 50000:50000 \
+   --mount source=data-jenkins,target=/var/jenkins_home \
+   jenkins/jenkins:2.118-alpine
+538872e49dc5eaa7a45222c5378b14e77542acb9b622b19251ea93026aa6a5de
+</code></pre>
+
 <p>El puerto 8080 es el de la interfaz web, mientras que el 50000 se usa para conectar con los <em>jenkins esclavos</em>.</p>
 
 <p>Esperamos unos segundos hasta que Jenkins arranca completamente. Puedes seguir el proceso de arranque de Jenkins mediante <code>sudo docker logs -f jenkins</code>.</p>
 
 <p>Revisando los logs, observamos el password inicial del administrador:</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">$ sudo docker logs jenkins
+
+<pre><code class="language-shell">$ sudo docker logs jenkins
 ...
-Apr <span class="m">27</span>, <span class="m">2018</span> <span class="m">4</span>:06:45 PM jenkins.install.SetupWizard init
+Apr 27, 2018 4:06:45 PM jenkins.install.SetupWizard init
 INFO:
 
 *************************************************************
@@ -199,21 +212,23 @@ This may also be found at: /var/jenkins_home/secrets/initialAdminPassword
 *************************************************************
 *************************************************************
 
-Apr <span class="m">27</span>, <span class="m">2018</span> <span class="m">4</span>:06:49 PM hudson.model.UpdateSite updateData
-INFO: Obtained the latest update center data file <span class="k">for</span> UpdateSource default
-Apr <span class="m">27</span>, <span class="m">2018</span> <span class="m">4</span>:06:50 PM hudson.model.DownloadService<span class="nv">$Downloadable</span> load
-INFO: Obtained the updated data file <span class="k">for</span> hudson.tasks.Maven.MavenInstaller
-Apr <span class="m">27</span>, <span class="m">2018</span> <span class="m">4</span>:06:50 PM hudson.model.AsyncPeriodicWork<span class="nv">$1</span> run
-INFO: Finished Download metadata. <span class="m">8</span>,182 ms
-Apr <span class="m">27</span>, <span class="m">2018</span> <span class="m">4</span>:06:50 PM hudson.model.UpdateSite updateData
-INFO: Obtained the latest update center data file <span class="k">for</span> UpdateSource default
-Apr <span class="m">27</span>, <span class="m">2018</span> <span class="m">4</span>:06:50 PM jenkins.InitReactorRunner<span class="nv">$1</span> onAttained
+Apr 27, 2018 4:06:49 PM hudson.model.UpdateSite updateData
+INFO: Obtained the latest update center data file for UpdateSource default
+Apr 27, 2018 4:06:50 PM hudson.model.DownloadService$Downloadable load
+INFO: Obtained the updated data file for hudson.tasks.Maven.MavenInstaller
+Apr 27, 2018 4:06:50 PM hudson.model.AsyncPeriodicWork$1 run
+INFO: Finished Download metadata. 8,182 ms
+Apr 27, 2018 4:06:50 PM hudson.model.UpdateSite updateData
+INFO: Obtained the latest update center data file for UpdateSource default
+Apr 27, 2018 4:06:50 PM jenkins.InitReactorRunner$1 onAttained
 INFO: Completed initialization
-Apr <span class="m">27</span>, <span class="m">2018</span> <span class="m">4</span>:06:50 PM hudson.WebAppMain<span class="nv">$3</span> run
+Apr 27, 2018 4:06:50 PM hudson.WebAppMain$3 run
 INFO: Jenkins is fully up and running
---&gt; setting agent port <span class="k">for</span> jnlp
---&gt; setting agent port <span class="k">for</span> jnlp... <span class="k">done</span>
-$</code></pre></div>
+--&gt; setting agent port for jnlp
+--&gt; setting agent port for jnlp... done
+$
+</code></pre>
+
 <h2 id="acceso-inicial-a-jenkins">Acceso inicial a Jenkins</h2>
 
 <p>Copiamos el password inicial para acceder a Jenkins a través del navegador:</p>
@@ -356,42 +371,51 @@ $</code></pre></div>
 <ul>
 <li>Descargamos la imagen actualizada de Jenkins desde DockerHub: <a href="https://hub.docker.com/r/jenkins/jenkins/tags/">jenkins/jenkins</a></li>
 </ul>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">$ sudo docker pull jenkins/jenkins:2.119-alpine
-<span class="m">2</span>.119-alpine: Pulling from jenkins/jenkins
+
+<pre><code class="language-shell">$ sudo docker pull jenkins/jenkins:2.119-alpine
+2.119-alpine: Pulling from jenkins/jenkins
 ff3a5c916c92: Already exists
 5de5f69f42d7: Already exists
 fd869c8b9b59: Already exists
-04bc670ac45e: Pull <span class="nb">complete</span>
-cbaf38a34561: Pull <span class="nb">complete</span>
-e6de9a6833f3: Pull <span class="nb">complete</span>
-66f75611221e: Pull <span class="nb">complete</span>
-931884bf2019: Pull <span class="nb">complete</span>
-1ca32325f13e: Pull <span class="nb">complete</span>
-22836225663b: Pull <span class="nb">complete</span>
-c15389c3dc4c: Pull <span class="nb">complete</span>
-c693c993d00f: Pull <span class="nb">complete</span>
-337a5789d7db: Pull <span class="nb">complete</span>
-23f606ec4fea: Pull <span class="nb">complete</span>
+04bc670ac45e: Pull complete
+cbaf38a34561: Pull complete
+e6de9a6833f3: Pull complete
+66f75611221e: Pull complete
+931884bf2019: Pull complete
+1ca32325f13e: Pull complete
+22836225663b: Pull complete
+c15389c3dc4c: Pull complete
+c693c993d00f: Pull complete
+337a5789d7db: Pull complete
+23f606ec4fea: Pull complete
 Digest: sha256:090fda0c0bb829f55235cfcee48b1875a30455868513e5dd2074ea7dd554c5a7
-Status: Downloaded newer image <span class="k">for</span> jenkins/jenkins:2.119-alpine
-$</code></pre></div>
+Status: Downloaded newer image for jenkins/jenkins:2.119-alpine
+$
+</code></pre>
+
 <ul>
 <li>Verificamos que tenemos la nueva imagen en el registro local:</li>
 </ul>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">$ sudo docker images
+
+<pre><code class="language-shell">$ sudo docker images
 REPOSITORY            TAG                 IMAGE ID            CREATED             SIZE
-jenkins/jenkins       <span class="m">2</span>.119-alpine        a66359bc8e58        <span class="m">5</span> days ago          223MB
-jenkins/jenkins       <span class="m">2</span>.118-alpine        756b4704e481        <span class="m">13</span> days ago         223MB
-...</code></pre></div>
+jenkins/jenkins       2.119-alpine        a66359bc8e58        5 days ago          223MB
+jenkins/jenkins       2.118-alpine        756b4704e481        13 days ago         223MB
+...
+</code></pre>
+
 <ul>
 <li>Detenemos el contenedor <code>jenkins</code>: <code>sudo docker stop jenkins</code></li>
 <li>Eliminamos el contenedor <code>jenkins</code>: <code>sudo docker rm jenkins</code></li>
 <li>Lanzamos un nuevo contenedor a partir de la imagen actualizada:</li>
 </ul>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">$ sudo docker run -d --name jenkins -p <span class="m">8080</span>:8080 -p <span class="m">50000</span>:50000 <span class="se">\
-</span><span class="se"></span>   --mount <span class="nv">source</span><span class="o">=</span>data-jenkins,target<span class="o">=</span>/var/jenkins_home <span class="se">\
-</span><span class="se"></span>   jenkins/jenkins:2.119-alpine
-f5d9c8d36a4e424f5ae03e086a3b92e00c73667079ff235062c588d2554a7ac3</code></pre></div>
+
+<pre><code class="language-shell">$ sudo docker run -d --name jenkins -p 8080:8080 -p 50000:50000 \
+   --mount source=data-jenkins,target=/var/jenkins_home \
+   jenkins/jenkins:2.119-alpine
+f5d9c8d36a4e424f5ae03e086a3b92e00c73667079ff235062c588d2554a7ac3
+</code></pre>
+
 <p>Al tener todos los ficheros de configuración y <em>plugins</em> almacenados en el volumen <code>data-jenkins</code> mantenemos toda la configuración realizada en el aplicación.</p></div>
 
   <aside class="p-share">
