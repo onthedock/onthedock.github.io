@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>kubernetes on On The Dock</title>
+    <link>https://onthedock.github.io/tags/kubernetes/</link>
+    <description>Recent content in kubernetes on On The Dock</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <copyright>Handmade with &amp;#9829; by Xavi Aznar</copyright>
+    <lastBuildDate>Fri, 10 Aug 2018 18:10:27 +0200</lastBuildDate>
+    
+	<atom:link href="https://onthedock.github.io/tags/kubernetes/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Generando un machine-id único</title>
+      <link>https://onthedock.github.io/post/180810-generando-un-machine-id-unico/</link>
+      <pubDate>Fri, 10 Aug 2018 18:10:27 +0200</pubDate>
+      
+      <guid>https://onthedock.github.io/post/180810-generando-un-machine-id-unico/</guid>
+      <description>&lt;p&gt;En la entrada &lt;a href=&#34;https://onthedock.github.io/post/180610-pods-en-estado-creatingcontainer-en-k8s/&#34;&gt;Pods en estado creatingContainer en K8s&lt;/a&gt; describía el problema surgido al crear un clúster de Kubernetes usando Vagrant. Al partir de la misma imagen, todas las máquinas del clúster tienen el mismo &lt;code&gt;machine-id&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;El &lt;code&gt;machine-id&lt;/code&gt; debe ser único, como se describe en los &lt;a href=&#34;https://kubernetes.io/docs/setup/independent/install-kubeadm/#verify-the-mac-address-and-product-uuid-are-unique-for-every-node&#34;&gt;requerimientos de Kubernetes&lt;/a&gt;; si no lo es, se producen problemas como el descrito.&lt;/p&gt;
+
+&lt;p&gt;En esta entrada analizo con más detalle cómo se crea el &lt;em&gt;machine-id&lt;/em&gt; y cómo generar uno nuevo.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Pods encallados en estado CreatingContainer en Kubernetes con nodos creados usando Vagrant</title>
+      <link>https://onthedock.github.io/post/180610-pods-en-estado-creatingcontainer-en-k8s/</link>
+      <pubDate>Sun, 10 Jun 2018 20:54:27 +0200</pubDate>
+      
+      <guid>https://onthedock.github.io/post/180610-pods-en-estado-creatingcontainer-en-k8s/</guid>
+      <description>&lt;p&gt;Una de las maneras más sencillas de crear un entorno de desarrollo para Kubernetes es usando Vagrant y Ansible.&lt;/p&gt;
+
+&lt;p&gt;En el &lt;code&gt;Vagrantfile&lt;/code&gt; definimos un conjunto de tres máquinas, llamadas &lt;code&gt;node1&lt;/code&gt;, &lt;code&gt;node2&lt;/code&gt; y &lt;code&gt;node3&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Una vez las máquinas están levantadas, desde el servidor de Ansible uso &lt;code&gt;ssh-copy-id&lt;/code&gt; para habilitar el &lt;em&gt;login&lt;/em&gt; sin password de Ansible en los nodos del clúster.&lt;/p&gt;
+
+&lt;p&gt;A partir de aquí, tanto la instalación de los prerequisitos como la inicialización del clúster funcionan sin problemas; sin embargo, al intentar desplegar una aplicación, los &lt;em&gt;pods&lt;/em&gt; se quedan en el estado &lt;em&gt;CreatingContainer&lt;/em&gt;.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Single node cluster en la RPi3</title>
+      <link>https://onthedock.github.io/post/171111-snc-en-rpi3/</link>
+      <pubDate>Sat, 11 Nov 2017 12:08:36 +0100</pubDate>
+      
+      <guid>https://onthedock.github.io/post/171111-snc-en-rpi3/</guid>
+      <description>&lt;p&gt;En la entrada anterior &lt;a href=&#34;https://onthedock.github.io/post/171104-apiserver-detenido/&#34;&gt;API server detenido: The connection to the server was refused&lt;/a&gt; encontré problemas con la tarjeta microSD que sirve de almacenamiento para el nodo master del clúster de Kubernetes.&lt;/p&gt;
+
+&lt;p&gt;La solución al problema pasaba por realizar un análisis de la tarjeta para repararla. Sin embargo, al intentarlo, no ha habido manera de formatear y reinstalar HypriotOS sobre la tarjeta.&lt;/p&gt;
+
+&lt;p&gt;El fallo de la tarjeta de memoria ha sido la gota final que me ha hecho abandonar el clúster multinodo en las Raspberry Pi (de momento). Así que he decidido instalar un clúster de un solo nodo en una de las Raspberri Pi 3.&lt;/p&gt;
+
+&lt;p&gt;En este artículo sigo las instrucciones oficiales para construir un clúster de Kubernetes usando &lt;em&gt;kubeadm&lt;/em&gt;: &lt;a href=&#34;https://kubernetes.io/docs/setup/independent/create-cluster-kubeadm/&#34;&gt;Using kubeadm to Create a Cluster&lt;/a&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>API server detenido: The connection to the server was refused</title>
+      <link>https://onthedock.github.io/post/171104-apiserver-detenido/</link>
+      <pubDate>Sat, 04 Nov 2017 21:58:52 +0100</pubDate>
+      
+      <guid>https://onthedock.github.io/post/171104-apiserver-detenido/</guid>
+      <description>&lt;p&gt;Hoy, al intentar lanzar un comando con &lt;code&gt;kubectl&lt;/code&gt;, he obtenido el típico mensaje indicando que no se puede conectar con el servidor. El problema está en el servidor de API, que es el que actua como intermediario entre el usuario y Kubernetes. Últimamente he encontrado el mismo error y lo he solucionado reiniciando el nodo &lt;em&gt;master&lt;/em&gt; del clúster. Pero hoy he investigado un poco&amp;hellip; Y lo que he encontrado no me ha gustado demasiado.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Usando un contenedor sidecar para el almacenamiento</title>
+      <link>https://onthedock.github.io/post/170819-usando-un-contenedor-sidecar/</link>
+      <pubDate>Sat, 19 Aug 2017 09:51:23 +0200</pubDate>
+      
+      <guid>https://onthedock.github.io/post/170819-usando-un-contenedor-sidecar/</guid>
+      <description>&lt;p&gt;Como indicaba en la entrada la anterior entrada &lt;a href=&#34;https://onthedock.github.io/post/170817-almacenamiento-en-k8s-problema-abierto/&#34;&gt;Almacenamiento en Kubernetes: problema abierto&lt;/a&gt;, el problema de proporcionar almacenamiento persistente para las aplicaciones desplegadas en Kubernetes sigue sin tener una solución general.&lt;/p&gt;
+
+&lt;p&gt;En este artículo comento una solución particular al problema del almacenamiento basada en el uso de un contenedor &lt;em&gt;sidecar&lt;/em&gt;.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Play With Kubernetes</title>
+      <link>https://onthedock.github.io/post/170818-play-with-k8s/</link>
+      <pubDate>Fri, 18 Aug 2017 20:25:31 +0200</pubDate>
+      
+      <guid>https://onthedock.github.io/post/170818-play-with-k8s/</guid>
+      <description>&lt;p&gt;Hace unas semanas descubrí el sitio &lt;a href=&#34;http://play-with-k8s.com&#34;&gt;PWK&lt;/a&gt;, &lt;strong&gt;Play with Kubernetes&lt;/strong&gt;. Su creador, &lt;a href=&#34;https://medium.com/@marcosnils&#34;&gt;Marcos Nils&lt;/a&gt; explica en &lt;a href=&#34;https://medium.com/@marcosnils/introducing-pwk-play-with-k8s-159fcfeb787b&#34;&gt;Introducing PWK (Play with K8s)&lt;/a&gt; que tenía ganas de extender la plataforma PWD (Play with Docker) a Kubernetes.&lt;/p&gt;
+
+&lt;p&gt;El sitio PWK permite montar clústers de Kubernetes y lanzar servicios replicados de manera rápida y sencilla. Se trata de un entorno donde realizar pruebas y &lt;em&gt;jugar&lt;/em&gt; durante cuatro horas con varias instancias de Docker sobre las que podemos usar &lt;code&gt;kubeadm&lt;/code&gt; para instalar y configurar Kubernetes, creando un clúster en menos de un minuto.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Troubleshooting: Creación de pods del tutorial &#39;StatefulSet Basics&#39;</title>
+      <link>https://onthedock.github.io/post/170818-troubleshooting-creacion-de-pods-del-tutorial-statefulset-basics/</link>
+      <pubDate>Fri, 18 Aug 2017 17:45:03 +0200</pubDate>
+      
+      <guid>https://onthedock.github.io/post/170818-troubleshooting-creacion-de-pods-del-tutorial-statefulset-basics/</guid>
+      <description>&lt;p&gt;Esta entrada es un registro de las diferentes acciones que realicé para conseguir que los &lt;em&gt;pods&lt;/em&gt; asociados al &lt;em&gt;StatefulSet&lt;/em&gt; del tutorial &lt;a href=&#34;https://kubernetes.io/docs/tutorials/stateful-application/basic-stateful-set/&#34;&gt;StatefulSet Basics&lt;/a&gt; se crearan correctamente.&lt;/p&gt;
+
+&lt;p&gt;Lo publico como lo que es, un &lt;em&gt;log&lt;/em&gt; de todos los pasos que fui dando, en modo &lt;em&gt;ensayo y error&lt;/em&gt;, hasta que conseguí que los &lt;em&gt;pods&lt;/em&gt; se crearan con éxito. Mi intención al publicarlo no es tanto que sirva como referencia sino como archivo. Y si alguien se encuentra con un problema similar, que pueda consultar los pasos que he dado durante el &lt;em&gt;troubleshooting&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;Como indicaba en el artículo anterior, quiero publicar un tutorial paso a paso con el proceso correcto para provisionar los &lt;em&gt;PersistentVolumes&lt;/em&gt; necesarios para el tutorial &lt;a href=&#34;https://kubernetes.io/docs/tutorials/stateful-application/basic-stateful-set/&#34;&gt;StatefulSet Basics&lt;/a&gt; del sitio de Kubernetes.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Almacenamiento en Kubernetes: problema abierto</title>
+      <link>https://onthedock.github.io/post/170817-almacenamiento-en-k8s-problema-abierto/</link>
+      <pubDate>Thu, 17 Aug 2017 17:11:05 +0200</pubDate>
+      
+      <guid>https://onthedock.github.io/post/170817-almacenamiento-en-k8s-problema-abierto/</guid>
+      <description>&lt;p&gt;Leía el otro día que desde el principio la tendencia hacia los microservicios estaba pensada para las aplicaciones &lt;em&gt;stateless&lt;/em&gt;, es decir, sin &amp;ldquo;memoria&amp;rdquo; del estado, donde cada interacción con la aplicación se considera independiente del resto. El ejemplo clásico de aplicación &lt;em&gt;stateless&lt;/em&gt; es un servidor web. Así que no es de extrañar que la aplicación que siempre aparece en todo tutorial que se precie de Docker/Kubernetes  es Nginx.&lt;/p&gt;
+
+&lt;p&gt;En el mundo real, sin embargo, la mayoría de aplicaciones requieren algún tipo de persistencia, incluso las webs más sencillas (así surgieron las &lt;em&gt;cookies&lt;/em&gt;). Pero por el momento, Kubernetes y el almacenamiento son dos conceptos que no combinan demasiado bien, aunque funcionan perfectamente por separado.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Asignar recursos de CPU y RAM a un contenedor</title>
+      <link>https://onthedock.github.io/post/170729-asignar-recursos-de-cpu-y-ram-a-un-contenedor/</link>
+      <pubDate>Sat, 29 Jul 2017 21:12:35 +0200</pubDate>
+      
+      <guid>https://onthedock.github.io/post/170729-asignar-recursos-de-cpu-y-ram-a-un-contenedor/</guid>
+      <description>&lt;p&gt;Cuando se crea un &lt;em&gt;pod&lt;/em&gt; se pueden reservar recursos de CPU y RAM para los contenedores que corren en el &lt;em&gt;pod&lt;/em&gt;. Para reservar recursos, usa el campo &lt;code&gt;resources: requests&lt;/code&gt; en el fichero de configuración. Para establecer límites, usa el campo &lt;code&gt;resources: limits&lt;/code&gt;.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Espacios de nombres en Kubernetes</title>
+      <link>https://onthedock.github.io/post/170723-espacios-de-nombres-en-k8s/</link>
+      <pubDate>Sun, 23 Jul 2017 20:04:45 +0200</pubDate>
+      
+      <guid>https://onthedock.github.io/post/170723-espacios-de-nombres-en-k8s/</guid>
+      <description>&lt;p&gt;Los &lt;a href=&#34;https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/&#34;&gt;&lt;em&gt;namespaces&lt;/em&gt; (espacios de nombres)&lt;/a&gt; en Kubernetes permiten establecer un nivel adicional de separación entre los contenedores que comparten los recursos de un clúster.&lt;/p&gt;
+
+&lt;p&gt;Esto es especialmente útil cuando diferentes grupos de DevOps usan el mismo clúster y existe el riesgo potencial de colisión de nombres de los &lt;em&gt;pods&lt;/em&gt;, etc usados por los diferentes equipos.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Mi primera aplicación en Kubernetes</title>
+      <link>https://onthedock.github.io/post/170716-mi-primera-app-en-kubernetes/</link>
+      <pubDate>Sun, 16 Jul 2017 19:38:17 +0200</pubDate>
+      
+      <guid>https://onthedock.github.io/post/170716-mi-primera-app-en-kubernetes/</guid>
+      <description>&lt;p&gt;Después de &lt;a href=&#34;https://onthedock.github.io/post/170702-crear-un-cluster-de-un-solo-nodo/&#34;&gt;crear un cluster de un solo nodo&lt;/a&gt;, en esta entrada explico los pasos para publicar una aplicación en el clúster.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Crear un cluster de un solo nodo</title>
+      <link>https://onthedock.github.io/post/170702-crear-un-cluster-de-un-solo-nodo/</link>
+      <pubDate>Sun, 02 Jul 2017 23:14:22 +0200</pubDate>
+      
+      <guid>https://onthedock.github.io/post/170702-crear-un-cluster-de-un-solo-nodo/</guid>
+      <description>&lt;p&gt;Para tener un clúster de desarrollo con la versatilidad de poder hacer y deshacer cambios (usando los &lt;em&gt;snapshots&lt;/em&gt; de una máquina virtual), lo más sencillo es disponer de un clúster de Kubernetes de un solo nodo.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Revisión de conceptos</title>
+      <link>https://onthedock.github.io/post/170528-revision-de-conceptos/</link>
+      <pubDate>Sun, 28 May 2017 07:59:31 +0200</pubDate>
+      
+      <guid>https://onthedock.github.io/post/170528-revision-de-conceptos/</guid>
+      <description>&lt;p&gt;Después de estabilizar el clúster, el siguiente paso es poner en marcha aplicaciones. Pero ¿qué es exactamente lo que hay que desplegar?: ¿&lt;em&gt;pods&lt;/em&gt;?, ¿&lt;em&gt;replication controllers&lt;/em&gt;?, ¿&lt;em&gt;deployments&lt;/em&gt;?&lt;/p&gt;
+
+&lt;p&gt;Muchos artículos empiezan creando el fichero YAML para un &lt;em&gt;pod&lt;/em&gt;, después construyen el &lt;em&gt;replication controller&lt;/em&gt;, etc&amp;hellip; Sin embargo, revisando la documentación oficial, crear &lt;em&gt;pods&lt;/em&gt; directamente en Kubernetes no tiene mucho sentido.&lt;/p&gt;
+
+&lt;p&gt;En este artículo intento determinar qué objetos son los que deben crearse en un clúster Kubernetes.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>El nodo k3 sigue colgandose por culpa de Flannel</title>
+      <link>https://onthedock.github.io/post/170517-el-nodo-k3-sigue-colgandose-por-culpa-de-flannel/</link>
+      <pubDate>Wed, 17 May 2017 21:02:21 +0200</pubDate>
+      
+      <guid>https://onthedock.github.io/post/170517-el-nodo-k3-sigue-colgandose-por-culpa-de-flannel/</guid>
+      <description>&lt;p&gt;En la entrada &lt;a href=&#34;https://onthedock.github.io/post/170506-troubleshooting-kubernetes-ii/&#34;&gt;Troubleshooting Kubernetes (II)&lt;/a&gt; encontré restos de la instalación de &lt;a href=&#34;https://github.com/coreos/flannel&#34;&gt;Flannel&lt;/a&gt; en la Raspberry Pi. Eliminé los &lt;em&gt;pods&lt;/em&gt; que hacían referencia a Flannel y conseguí que el nodo &lt;strong&gt;k2&lt;/strong&gt; no se volviera a colgar.&lt;/p&gt;
+
+&lt;p&gt;Sin embargo, el problema sigue dándose en el nodo &lt;strong&gt;k3&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;Revisando el contenido de &lt;code&gt;/var/lib/kubernetes/pods/&lt;/code&gt; he visto que algunos &lt;em&gt;pods&lt;/em&gt; hacían referencia, todavía, a Flannel.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Troubleshooting Kubernetes (II)</title>
+      <link>https://onthedock.github.io/post/170506-troubleshooting-kubernetes-ii/</link>
+      <pubDate>Sat, 06 May 2017 05:21:09 +0200</pubDate>
+      
+      <guid>https://onthedock.github.io/post/170506-troubleshooting-kubernetes-ii/</guid>
+      <description>&lt;p&gt;Sigo con el &lt;em&gt;troubleshooting&lt;/em&gt; del &lt;em&gt;cuelgue&lt;/em&gt; de los nodos sobre Raspberry Pi 3 del clúster.&lt;/p&gt;
+
+&lt;p&gt;Ayer estuve &lt;em&gt;haciendo limpieza&lt;/em&gt; siguiendo &lt;em&gt;vagamente&lt;/em&gt; la recomendación de &lt;a href=&#34;https://github.com/kubernetes/kubernetes/issues/43593#issuecomment-288899231&#34;&gt;esta respuesta&lt;/a&gt; en el hilo &lt;a href=&#34;https://github.com/kubernetes/kubernetes/issues/43593#issuecomment-288899231&#34;&gt;Kubernetes memory consumption explosion&lt;/a&gt;.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Instala Weave Net en Kubernetes 1.6</title>
+      <link>https://onthedock.github.io/post/170505-instala-weave-net-en-kubernetes-1.6/</link>
+      <pubDate>Fri, 05 May 2017 22:14:36 +0200</pubDate>
+      
+      <guid>https://onthedock.github.io/post/170505-instala-weave-net-en-kubernetes-1.6/</guid>
+      <description>&lt;p&gt;Una de las cosas que más me sorprenden de Kubernetes es que es necesario instalar una &lt;em&gt;capa de red&lt;/em&gt; sobre el clúster.&lt;/p&gt;
+
+&lt;p&gt;En el caso concreto del que he obtenido las &lt;em&gt;capturas de pantalla&lt;/em&gt;, el clúster corre sobre máquinas virtuales con Debian Jessie.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Troubleshooting Kubernetes (I)</title>
+      <link>https://onthedock.github.io/post/170430-troubleshooting-kubernetes-i/</link>
+      <pubDate>Sun, 30 Apr 2017 15:24:35 +0200</pubDate>
+      
+      <guid>https://onthedock.github.io/post/170430-troubleshooting-kubernetes-i/</guid>
+      <description>&lt;p&gt;Tras la alegría inicial pensando que la configuración de &lt;em&gt;rsyslog&lt;/em&gt; era la causante de los cuelgues de las dos RPi 3 (&lt;a href=&#34;https://onthedock.github.io/post/170430-k3-colgado-de-nuevo/&#34;&gt;El nodo k3 del clúster colgado de nuevo&lt;/a&gt;), pasadas unas horas los dos nodos &lt;strong&gt;k2&lt;/strong&gt; y &lt;strong&gt;k3&lt;/strong&gt; han dejado de responder de nuevo.&lt;/p&gt;
+
+&lt;p&gt;Así que es el momento de atacar el problema de forma algo más sistemática. Para ello seguiré las instrucciones que proporcina la página de Kubernetes &lt;a href=&#34;https://kubernetes.io/docs/tasks/debug-application-cluster/debug-cluster/&#34;&gt;Troubleshooting Clusters&lt;/a&gt;.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Errores sobre Orphaned pods en syslog</title>
+      <link>https://onthedock.github.io/post/170430-errores-sobre-orphaned-pods-en-syslog/</link>
+      <pubDate>Sun, 30 Apr 2017 12:55:44 +0200</pubDate>
+      
+      <guid>https://onthedock.github.io/post/170430-errores-sobre-orphaned-pods-en-syslog/</guid>
+      <description>&lt;p&gt;Los nodos &lt;strong&gt;k2&lt;/strong&gt; y &lt;strong&gt;k3&lt;/strong&gt; del clúster dejan de responder pasadas unas horas. La única manera de solucionarlo es reiniciar los nodos. Siguiendo con la revisión de logs, he encontrado que se genera una gran cantidad de entradas en &lt;em&gt;syslog&lt;/em&gt; en referencia a &lt;em&gt;orphaned pods&lt;/em&gt;. Además, el número de estos errores no para de crecer &lt;strong&gt;rápidamente&lt;/strong&gt;.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>El nodo k3 del clúster colgado de nuevo</title>
+      <link>https://onthedock.github.io/post/170430-k3-colgado-de-nuevo/</link>
+      <pubDate>Sun, 30 Apr 2017 11:39:20 +0200</pubDate>
+      
+      <guid>https://onthedock.github.io/post/170430-k3-colgado-de-nuevo/</guid>
+      <description>&lt;p&gt;En la entrada anterior &lt;a href=&#34;https://onthedock.github.io/post/170430-multiples-mensajes-action-17-suspended/&#34;&gt;Múltiples mensajes &amp;lsquo;action 17 suspended&amp;rsquo; en los logs&lt;/a&gt; comentaba que estaba a la espera de obtener resultados; después de apenas unas horas, ya los tengo: &lt;strong&gt;k3&lt;/strong&gt; se ha vuelto a &lt;em&gt;colgar&lt;/em&gt; mientras que &lt;strong&gt;k2&lt;/strong&gt; no.&lt;/p&gt;
+
+&lt;p&gt;Este resultado parece demostrar que la mala configuración de &lt;em&gt;rsyslog&lt;/em&gt; es la causante de los &lt;em&gt;cuelgues&lt;/em&gt; de las RPi 3 en el clúster de Kubernetes.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Actualización&lt;/strong&gt;: El nodo &lt;strong&gt;k2&lt;/strong&gt; sobre RPi3 sigue colgándose :(&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Actualización II&lt;/strong&gt;: &lt;a href=&#34;https://onthedock.github.io/post/170506-troubleshooting-kubernetes-ii/&#34;&gt;Parece solucionado&lt;/a&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Solución al error de instalación de Kubernetes en Debian Jessie (Missing cgroups: memory)</title>
+      <link>https://onthedock.github.io/post/170422-solucion-al-error-missing-cgroups-memory-en-debian-jessie/</link>
+      <pubDate>Sat, 22 Apr 2017 07:57:14 +0200</pubDate>
+      
+      <guid>https://onthedock.github.io/post/170422-solucion-al-error-missing-cgroups-memory-en-debian-jessie/</guid>
+      <description>&lt;p&gt;Al lanzar la inicialización del clúster con &lt;code&gt;kubeadm init&lt;/code&gt; en Debian Jessie, las comprobaciones inciales indican que no se encuentran los &lt;em&gt;cgroups&lt;/em&gt; para la memoria (échale un vistazo al artículo &lt;a href=&#34;https://onthedock.github.io/post/170417-instalacion-de-kubernetes-falla-missing-cgroups-memory/&#34;&gt;La instalación de Kubernetes falla en Debian Jessie (missing cgroups: memory)&lt;/a&gt;). Los &lt;em&gt;cgroups&lt;/em&gt; son una de las piezas fundamentales en las que se basa Docker para &lt;em&gt;aislar&lt;/em&gt; los procesos de los contenedores, por lo que la inicialización del clúster de Kubernetes se detiene.&lt;/p&gt;
+
+&lt;p&gt;La solución es tan sencilla como habilitar los &lt;em&gt;cgroups&lt;/em&gt; durante el arranque.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Cómo agregar un nodo a un cluster Kubernetes</title>
+      <link>https://onthedock.github.io/post/170417-como-agregar-un-nodo-a-un-cluster-kubernetes/</link>
+      <pubDate>Sat, 15 Apr 2017 16:27:30 +0200</pubDate>
+      
+      <guid>https://onthedock.github.io/post/170417-como-agregar-un-nodo-a-un-cluster-kubernetes/</guid>
+      <description>&lt;p&gt;Después de realizar la instalación del nodo &lt;em&gt;master&lt;/em&gt; del clúster Kubernetes, el siguiente paso es agregar nodos adicionales al clúster. Es en estos nodos donde se van a planificar los &lt;em&gt;pods&lt;/em&gt; que realizan las funciones &lt;em&gt;productivas&lt;/em&gt; del clúster (en el nodo &lt;em&gt;master&lt;/em&gt; sólo realiza tareas de gestión del clúster).&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Error: The connection to the server localhost:8080 was refused</title>
+      <link>https://onthedock.github.io/post/170414-error_the-connection-to-the-server-was-refused/</link>
+      <pubDate>Fri, 14 Apr 2017 18:10:34 +0200</pubDate>
+      
+      <guid>https://onthedock.github.io/post/170414-error_the-connection-to-the-server-was-refused/</guid>
+      <description>&lt;p&gt;Después de &lt;a href=&#34;https://onthedock.github.io/post/170410-k8s-en-rpi-teaser/&#34;&gt;conseguir arrancar Kubernetes tras la instalación&lt;/a&gt;, al intentar ejecutar comandos vía &lt;code&gt;kubectl&lt;/code&gt; obtengo el mensaje de error &lt;code&gt;The connection to the server localhost:8080 was refused - did you specify the right host or port?&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;A continuación explico cómo solucionar el error y evitar que vuelva a mostrarse.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Kubernetes en la Raspberry Pi (teaser)</title>
+      <link>https://onthedock.github.io/post/170410-k8s-en-rpi-teaser/</link>
+      <pubDate>Mon, 10 Apr 2017 22:45:28 +0200</pubDate>
+      
+      <guid>https://onthedock.github.io/post/170410-k8s-en-rpi-teaser/</guid>
+      <description>&lt;figure&gt;
+  &lt;amp-img src=&#34;https://onthedock.github.io/images/170410/itsalive.jpg&#34; alt=&#34;Kubernetes en la Raspberry Pi (teaser) images/170410/itsalive.jpg&#34; width=400 height=292 layout=&#34;responsive&#34;&gt;&lt;/amp-img&gt;
+  
+&lt;/figure&gt;</description>
+    </item>
+    
+    <item>
+      <title>Acciones previas a la instalación de Kubernetes en Raspberry Pi</title>
+      <link>https://onthedock.github.io/post/170409-acciones-previas-instalacion-rpi/</link>
+      <pubDate>Sun, 09 Apr 2017 21:34:16 +0200</pubDate>
+      
+      <guid>https://onthedock.github.io/post/170409-acciones-previas-instalacion-rpi/</guid>
+      <description>&lt;p&gt;Uno de los objetivos motivadores de la existencia de este blog es instalar un clúster de Kubernetes sobre Raspberry Pi. Este artículo se centra en las tareas previas a la instalación en sí.&lt;/p&gt;
+
+&lt;p&gt;Kubernetes requiere una instalación previa de Docker, una tarea simplificada gracias a HypriotOS, la &lt;em&gt;distro&lt;/em&gt; creada específicamente con este fin.&lt;/p&gt;
+
+&lt;p&gt;El siguiente paso, la instalación de Kubernetes en la Raspberry será objeto de otra(s) entrada(s). Pero sin duda esta tarea sería mucho más complicada sin las contribuciones del joven finlandés &lt;a href=&#34;https://www.cncf.io/blog/2016/11/29/diversity-scholarship-series-programming-journey-becoming-kubernetes-maintainer/&#34;&gt;Lucas Käldström&lt;/a&gt; y su proyecto -ahora integrado la rama principal- &lt;a href=&#34;https://github.com/luxas/kubernetes-on-arm&#34;&gt;Kubernetes on ARM&lt;/a&gt;.&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>
