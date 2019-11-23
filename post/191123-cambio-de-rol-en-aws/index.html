@@ -9,15 +9,15 @@
 <meta name="generator" content="Hugo 0.55.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
-<link rel="alternate" type="application/rss+xml" title="RSS" href="/post/index.xml"> 
 
-<link rel="canonical" href="https://onthedock.github.io/post/">
+
+<link rel="canonical" href="https://onthedock.github.io/post/191123-cambio-de-rol-en-aws/">
 
 
     
     <link href="https://fonts.googleapis.com/css?family=Lobster|Lato:400,700" rel="stylesheet">
     
-    <title>Posts - On The Dock</title>
+    <title>Cambio de rol en AWS - On The Dock</title>
     <style amp-boilerplate>body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}</style><noscript><style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style></noscript>
     <script async src="https://cdn.ampproject.org/v0.js"></script>
     
@@ -26,6 +26,60 @@
 <script async custom-element="amp-ad" src="https://cdn.ampproject.org/v0/amp-ad-0.1.js"></script>
 
     
+<meta name="description" content="&lt;p&gt;IAM es el servicio de gestión de identidades y accesos de AWS.&lt;/p&gt;&lt;p&gt;Como &lt;strong&gt;todo&lt;/strong&gt; lo que coloques en el cloud está, por definición, expuesto a internet, la gestión de los permisos es uno de los puntos críticos que debes tener en cuenta.&lt;/p&gt;&lt;p&gt;A la hora de asignar permisos, siempre hay que aplicar el principio de &lt;strong&gt;least privilege&lt;/strong&gt;, es decir, sólo proporcionar los &lt;strong&gt;mínimos&lt;/strong&gt; permisos necesarios para realizar la tarea a realizar.&lt;/p&gt;&lt;p&gt;Sin embargo, esto es más sencillo de decir que de hacer, así que muchas veces se trata de un proceso iterativo: asignas permisos a un rol, intentas realizar alguna acción, la acción falla porque falta algún permiso&amp;hellip; Como sólo puedes tener asignado un rol en cada momento, tienes que buscar una forma en la que cambiar entre el rol con permisos y el rol que estás creando de manera sencilla y ágil.&lt;/p&gt;&lt;p&gt;En esta entrada, creamos un rol &lt;em&gt;de laboratorio&lt;/em&gt; asumible desde la misma cuenta en el que ir asignando políticas para realizar el &lt;em&gt;refinado&lt;/em&gt; de las políticas de la manera más cómoda posible.&lt;/p&gt;&lt;p&gt;También puedes crear roles específicos para tareas de administración, etc y así usar un rol con permisos acotados en cada momento, cambiando al rol adecuado para realizar cada tarea.&lt;/p&gt;">
+
+<meta property="og:title" content="Cambio de rol en AWS - On The Dock">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://onthedock.github.io/post/191123-cambio-de-rol-en-aws/">
+<meta property="og:image" content="https://onthedock.github.io/images/aws.png">
+<meta property="og:site_name" content="On The Dock">
+<meta property="og:description" content="&lt;p&gt;IAM es el servicio de gestión de identidades y accesos de AWS.&lt;/p&gt;&lt;p&gt;Como &lt;strong&gt;todo&lt;/strong&gt; lo que coloques en el cloud está, por definición, expuesto a internet, la gestión de los permisos es uno de los puntos críticos que debes tener en cuenta.&lt;/p&gt;&lt;p&gt;A la hora de asignar permisos, siempre hay que aplicar el principio de &lt;strong&gt;least privilege&lt;/strong&gt;, es decir, sólo proporcionar los &lt;strong&gt;mínimos&lt;/strong&gt; permisos necesarios para realizar la tarea a realizar.&lt;/p&gt;&lt;p&gt;Sin embargo, esto es más sencillo de decir que de hacer, así que muchas veces se trata de un proceso iterativo: asignas permisos a un rol, intentas realizar alguna acción, la acción falla porque falta algún permiso&amp;hellip; Como sólo puedes tener asignado un rol en cada momento, tienes que buscar una forma en la que cambiar entre el rol con permisos y el rol que estás creando de manera sencilla y ágil.&lt;/p&gt;&lt;p&gt;En esta entrada, creamos un rol &lt;em&gt;de laboratorio&lt;/em&gt; asumible desde la misma cuenta en el que ir asignando políticas para realizar el &lt;em&gt;refinado&lt;/em&gt; de las políticas de la manera más cómoda posible.&lt;/p&gt;&lt;p&gt;También puedes crear roles específicos para tareas de administración, etc y así usar un rol con permisos acotados en cada momento, cambiando al rol adecuado para realizar cada tarea.&lt;/p&gt;">
+<meta property="og:locale" content="ja_JP">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="On The Dock">
+<meta name="twitter:url" content="https://onthedock.github.io/post/191123-cambio-de-rol-en-aws/">
+<meta name="twitter:title" content="Cambio de rol en AWS - On The Dock">
+<meta name="twitter:description" content="&lt;p&gt;IAM es el servicio de gestión de identidades y accesos de AWS.&lt;/p&gt;&lt;p&gt;Como &lt;strong&gt;todo&lt;/strong&gt; lo que coloques en el cloud está, por definición, expuesto a internet, la gestión de los permisos es uno de los puntos críticos que debes tener en cuenta.&lt;/p&gt;&lt;p&gt;A la hora de asignar permisos, siempre hay que aplicar el principio de &lt;strong&gt;least privilege&lt;/strong&gt;, es decir, sólo proporcionar los &lt;strong&gt;mínimos&lt;/strong&gt; permisos necesarios para realizar la tarea a realizar.&lt;/p&gt;&lt;p&gt;Sin embargo, esto es más sencillo de decir que de hacer, así que muchas veces se trata de un proceso iterativo: asignas permisos a un rol, intentas realizar alguna acción, la acción falla porque falta algún permiso&amp;hellip; Como sólo puedes tener asignado un rol en cada momento, tienes que buscar una forma en la que cambiar entre el rol con permisos y el rol que estás creando de manera sencilla y ágil.&lt;/p&gt;&lt;p&gt;En esta entrada, creamos un rol &lt;em&gt;de laboratorio&lt;/em&gt; asumible desde la misma cuenta en el que ir asignando políticas para realizar el &lt;em&gt;refinado&lt;/em&gt; de las políticas de la manera más cómoda posible.&lt;/p&gt;&lt;p&gt;También puedes crear roles específicos para tareas de administración, etc y así usar un rol con permisos acotados en cada momento, cambiando al rol adecuado para realizar cada tarea.&lt;/p&gt;">
+<meta name="twitter:image" content="https://onthedock.github.io/images/aws.png">
+
+
+<script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "NewsArticle",
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id":"https:\/\/onthedock.github.io\/"
+    },
+    "headline": "Cambio de rol en AWS - On The Dock",
+    "image": {
+      "@type": "ImageObject",
+      "url": "https:\/\/onthedock.github.io\/images\/aws.png",
+      "height": 800,
+      "width": 800
+    },
+    "datePublished": "2019-11-23T06:49:30JST",
+    "dateModified": "2019-11-23T06:49:30JST",
+    "author": {
+      "@type": "Person",
+      "name": "On The Dock"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "On The Dock",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https:\/\/onthedock.github.io\/images/logo.png",
+        "width": 600,
+        "height": 60
+      }
+    },
+    "description": "\x3cp\x3eIAM es el servicio de gestión de identidades y accesos de AWS.\x3c\/p\x3e\n\n\x3cp\x3eComo \x3cstrong\x3etodo\x3c\/strong\x3e lo que coloques en el cloud está, por definición, expuesto a internet, la gestión de los permisos es uno de los puntos críticos que debes tener en cuenta.\x3c\/p\x3e\n\n\x3cp\x3eA la hora de asignar permisos, siempre hay que aplicar el principio de \x3cstrong\x3eleast privilege\x3c\/strong\x3e, es decir, sólo proporcionar los \x3cstrong\x3emínimos\x3c\/strong\x3e permisos necesarios para realizar la tarea a realizar.\x3c\/p\x3e\n\n\x3cp\x3eSin embargo, esto es más sencillo de decir que de hacer, así que muchas veces se trata de un proceso iterativo: asignas permisos a un rol, intentas realizar alguna acción, la acción falla porque falta algún permiso\x26hellip; Como sólo puedes tener asignado un rol en cada momento, tienes que buscar una forma en la que cambiar entre el rol con permisos y el rol que estás creando de manera sencilla y ágil.\x3c\/p\x3e\n\n\x3cp\x3eEn esta entrada, creamos un rol \x3cem\x3ede laboratorio\x3c\/em\x3e asumible desde la misma cuenta en el que ir asignando políticas para realizar el \x3cem\x3erefinado\x3c\/em\x3e de las políticas de la manera más cómoda posible.\x3c\/p\x3e\n\n\x3cp\x3eTambién puedes crear roles específicos para tareas de administración, etc y así usar un rol con permisos acotados en cada momento, cambiando al rol adecuado para realizar cada tarea.\x3c\/p\x3e"
+  }
+</script>
+
+
     <style amp-custom>
       html { font-size: 18px;}@media (max-width: 768px) { html { font-size: 15px; }}body { font-family: Lato,'Hiragino Kaku Gothic Pro',メイリオ,Meiryo,sans-serif; font-size: inherit; margin: 0; color: #263238;}html, body { margin: 0;}a { text-decoration: none; color: #e91e63;}p { margin: 0;}ul,ol { margin: 0; padding: 0;}h1, h2, h3, h4, h5, h6 { margin: 0; font-weight: 700;}h1 { font-size: 1.8rem; line-height: 2rem; margin: 1.5rem 0; }h2 { font-size: 1.4rem; line-height: 2rem; margin: 1.5rem 0; }h3 { font-size: 1.2rem; line-height: 1.5rem; margin: 1.5rem 0; }h4, h5, h6 { font-size: 1rem; line-height: 1.5rem; margin: 1.5rem 0; }.clearfix::after { content: ''; display: block; clear: both;}main{ display: block;}.searchbar{ display: block; border: none; margin: 1em auto; max-width: 780px; text-align: center;}/* Layouts */.l-header { padding: .5rem 0; margin-bottom: 2rem; border-bottom: 1px dashed #cfd8dc; text-align: center;}.l-footer { font-size: .8rem; padding: 1rem 0; border-top: 1px dashed #cfd8dc;}.l-footer .copyright-notice,.l-footer .attribution { text-align: center;}.l-container { max-width: 42rem; margin: 0 auto; padding: 0 1rem;}/* Parts:logo */.p-logo { font-family: Lobster, cursive;}.p-logo a { color: #000; font-size: 1.6rem; line-height: 2rem;}/* Parts:section */section { border-top: 2px solid #eceff1; padding: 1.5rem 0;}section>header { text-transform: uppercase; font-weight: 700; margin-bottom: 2rem; text-align: center;}section>header span { display: inline-block; background-color: #000; color: #fff; letter-spacing: 3px; font-size: .7rem; padding: .5rem .75rem;}/* Parts:facts */.p-facts { list-style: none; font-size: .8rem; margin-bottom: 1rem;}.p-facts:last-child { margin-bottom: 0;}.p-facts li { display: inline-block; margin-right: .5rem; text-transform: uppercase;}.p-facts li header { margin-bottom: .25rem; font-weight: 700;}.p-facts li header a { color: #000; text-decoration: underline;}.p-facts li li { display: inline-block; margin-right: .5rem;}.p-facts li li::after { content: ',';}.p-facts li li:last-child::after { content: '';}/* Parts:crumb */.p-crumb { list-style: none; margin-bottom: 1rem; font-size: .8rem; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}.p-crumb:last-child { margin-bottom: 0;}.p-crumb li { display: inline;}.p-crumb li::after { content: '›'; margin: 0 .5rem;}.p-crumb li:last-child::after { content: '';}/* Parts:page-title */.p-page-title { margin-bottom: 2rem;}.p-page-title .title { margin-bottom: .5rem;}/* Parts:share */.p-share { margin-bottom: 1.5rem; text-align: center;}.p-share a { display: inline-block; text-align: center; padding: .5rem .5rem; margin-right: .25rem; font-size: .6rem; background-color: #eceff1; font-weight: 700;}.p-share a.ht { color: #00a4de; }.p-share a.fb { color: #3b5998; }.p-share a.tw { color: #1da1f2; }.p-share a.ln { color: #00c300; }.p-share a.ht::before { content: 'Hatena'; }.p-share a.fb::before { content: 'Facebook'; }.p-share a.tw::before { content: 'Twitter'; }.p-share a.ln::before { content: 'LINE'; }/* Parts:terms */.p-terms { padding-left: 2rem;}/* Parts:paginator */.p-paginator { text-align: center; margin-bottom: 3rem; padding-top: 2rem;}.p-paginator a { display: inline-block; border: 2px solid #eceff1; color: #263238; line-height: 2rem; padding: 0 1rem;}/* Parts:article */.p-articles { list-style: none;}.p-articles>li { margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px dashed #cfd8dc;}.p-articles>li:last-child { border-bottom: none; padding-bottom: 0;}.p-articles.thin>li { margin-bottom: 1rem; padding-bottom: 1rem;}article .article-header { display: table-cell; height: 6rem; vertical-align: middle;}article .title { margin: 0; margin-bottom: .5rem; font-size: 1.4rem; line-height: 2rem;}article .title a { color: #000;}article .header-wrapper { margin-bottom: 1.5rem;}article .thumbnail { display: block; background-position: center; background-size: cover; background-image: url(https://onthedock.github.io/images/default.jpg); width: 6rem; height: 6rem; border-radius: 50%; box-shadow: 0 0 3px 0 #333 inset; float: left; margin-right: 1rem;}article .summary { margin-bottom: 1.5rem;}article .readmore { text-align: center;}article .readmore a { font-size: .8rem; color: #000; text-decoration: underline;}article.li.sm .header-wrapper { margin-bottom: 0;}.article-body h2 { padding: 1rem 0; color: #55bbbb; border-bottom: 2px solid #eceff1;}.article-body h2:first-child { margin-top: 0; }.article-body h3 { color: #8997e4; font-style: italic;}.article-body h4 { border-left: solid .25rem #cddc39; padding: 0 .5rem;}.article-body p { margin: 1.5rem 0; line-height: 1.5rem;}.article-body a { text-decoration: underline;}.article-body ul,.article-body ol { padding-left: 1.5rem;}.article-body li { line-height: 2rem;}.article-body code { display: inline-block; font-family: Menlo, consolas, monospace; background-color: #eceff1; font-size: .8rem; padding: 0 .5rem; line-height: 1.5rem;}.article-body pre { margin: 1.5rem 0; padding: 1.5rem; font-size: .8rem; background-color: #eeeeef; color: #444; overflow: auto;}.article-body pre code { background-color: transparent;}.article-body blockquote { /* margin: 1.2rem 0; padding: .5rem 0; */ /*font-size: .8rem;*/ border-top: 1px solid #eceff1; border-bottom: 1px solid #eceff1; color: #607d8b;}.article-body blockquote p { margin: .5rem 0; line-height: 1.5rem;}.article-body strong { /*box-shadow: 0 -.5rem 0 0 #f06292 inset;*/ font-style: bold; font-weight: 700; /*color: #ff5722; */}.article-body em { /*font-style: normal;*/ /*font-weight: 700; color: #00c300;*/ /*color: #00c300;*/ font-style: oblique;}.article-body figure { margin: 1.5rem -2rem; }.article-body figure.left,.article-body figure.right { width: 15rem; height: 12rem; margin-top: 0; margin-left: 0; margin-right: 0;}.article-body figure.left { float: left; margin-right: 1rem; margin-left: -2rem; }.article-body figure.right { float: right; margin-left: 1rem; margin-right: -2rem; }@media (max-width: 768px) { .article-body figure { margin: 1.5rem -1rem; } .article-body figure.left, .article-body figure.right { float: none; margin: 0 -1rem; width: auto; height: auto; }}.article-body figcaption { padding: .5rem 0; font-size: .8rem; text-align: center;}.article-body figcaption a { color: #263238;}
 
@@ -50,249 +104,314 @@
     <main>
       
 <div class="l-container">
-  
-  <header class="p-page-title">
-    <h1 class="title">Posts</h1>
-  </header>
-  
+  <article class="single article-b95004b4126fa41395385c5e37f31081">
+  <div class="header-wrapper">
+    <a href="https://onthedock.github.io/post/191123-cambio-de-rol-en-aws/" class="thumbnail" title="Cambio de rol en AWS"></a>
+    <header class="article-header">
+      <div class="clearfix">
+        <h1 class="title">Cambio de rol en AWS</h1>
+        <ul class="p-facts">
+          <li><time datetime="2019-11-23T06:49:30JST">23 Nov 2019</time></li>
+          <li><a href="https://onthedock.github.io/post/">post</a></li>
+          
+          <li>Xavier Aznar</li>
+        </ul>
+      </div>
+    </header>
+  </div>
 
+  <div class="article-body"><p>IAM es el servicio de gestión de identidades y accesos de AWS.</p>
+
+<p>Como <strong>todo</strong> lo que coloques en el cloud está, por definición, expuesto a internet, la gestión de los permisos es uno de los puntos críticos que debes tener en cuenta.</p>
+
+<p>A la hora de asignar permisos, siempre hay que aplicar el principio de <strong>least privilege</strong>, es decir, sólo proporcionar los <strong>mínimos</strong> permisos necesarios para realizar la tarea a realizar.</p>
+
+<p>Sin embargo, esto es más sencillo de decir que de hacer, así que muchas veces se trata de un proceso iterativo: asignas permisos a un rol, intentas realizar alguna acción, la acción falla porque falta algún permiso&hellip; Como sólo puedes tener asignado un rol en cada momento, tienes que buscar una forma en la que cambiar entre el rol con permisos y el rol que estás creando de manera sencilla y ágil.</p>
+
+<p>En esta entrada, creamos un rol <em>de laboratorio</em> asumible desde la misma cuenta en el que ir asignando políticas para realizar el <em>refinado</em> de las políticas de la manera más cómoda posible.</p>
+
+<p>También puedes crear roles específicos para tareas de administración, etc y así usar un rol con permisos acotados en cada momento, cambiando al rol adecuado para realizar cada tarea.</p>
+
+<p>En este escenario tenemos dos roles, uno con permisos con el que puedes editar otros roles y políticas y el nuevo rol cuyos permisos estamos refinando. Al rol <em>con permisos</em> le llamaré <em>administrador</em>, aunque no tiene porqué tener permisos de administrador. Al rol que estamos creando, le llamo <em>rol de laboratorio</em>.</p>
+
+<p>La clave para poder cambiar entre uno y otro es usar <a href="https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRole.html"><code>AssumeRole</code></a>.</p>
+
+<blockquote>
+<p>No puedes usar <code>AssumeRole</code> desde el usuario <code>root</code> de la cuenta&hellip; Pero es que, en general, <strong>no debes</strong> usar el usuario <code>root</code> de la cuenta.</p>
+</blockquote>
+
+<p>Mediante <code>AssumeRole</code> se obtienen unas credenciales temporales que proporcionan acceso a recursos a los que normalmente no se tiene acceso. Esto permite, por ejemplo, que servicios como EC2 o Lambda puedan ganar acceso a nuestras cuentas para poder ejecutar acciones.</p>
+
+<p>Sin embargo, en este caso, lo que vamos a hacer es justo lo contrario: partiendo de un usuario que tiene permisos &ldquo;de administrador&rdquo; vamos a asumir menos permisos para realizar pruebas.</p>
+
+<p>Para que un rol (o servicio) pueda asumir el rol de laboratorio:</p>
+
+<ul>
+<li>el rol/servicio que <em>asume</em> el rol de laboratorio debe tener el permiso <code>sts:AssumeRole</code>.
+
+<ul>
+<li>Si usar un rol con <code>AdministratorAccess</code>, ya dispones del permiso para asumir un rol.</li>
+</ul></li>
+<li>el rol <em>asumible</em> debe tener una <em>relación de confianza</em> (<em>trust relationship</em>) con el rol/servicio que puede asumir el rol.</li>
+</ul>
+
+<p>Vamos a crear un rol &ldquo;vacío&rdquo;, sin ninguna política asociada a través de CloudFormation. También puedes crearlo directamente a través de la consola web de AWS.</p>
+
+<blockquote>
+<p>No especificamos el nombre del rol en la plantilla, por lo que el nombre del rol resultante será <code>&lt;nombre-del-stack&gt;</code>-<code>&lt;nombredelrecurso (&quot;LabRole&quot;, en nuestro caso)&gt;</code>-<code>&lt;cadena-random&gt;</code>:</p>
+</blockquote>
+
+<pre><code class="language-json">{
+    &quot;AWSTemplateFormatVersion&quot;: &quot;2010-09-09&quot;,
+    &quot;Resources&quot;: {
+        &quot;LabRole&quot;: {
+            &quot;Type&quot;: &quot;AWS::IAM::Role&quot;,
+            &quot;Properties&quot;: {
+                &quot;AssumeRolePolicyDocument&quot;: {
+                    &quot;Version&quot;: &quot;2012-10-17&quot;,
+                    &quot;Statement&quot;: [
+                        {
+                            &quot;Effect&quot;: &quot;Allow&quot;,
+                            &quot;Principal&quot;: {
+                                &quot;AWS&quot;: [
+                                    &quot;arn:aws:iam::123456789012:root&quot;
+                                ]
+                            },
+                            &quot;Action&quot;: [
+                                &quot;sts:AssumeRole&quot;
+                            ]
+                        }
+                    ]
+                },
+                &quot;Path&quot;: &quot;/&quot;
+            }
+        }
+    }
+}
+</code></pre>
+
+<blockquote>
+<p>Si usas esta plantilla de CloudFormation debes modificar el número de cuenta del ejemplo por uno válido.</p>
+</blockquote>
+
+<p>El número de cuenta especificado indica desde dónde se puede asumir este rol. Si indicas <code>root</code>, cualquier rol con los permisos necesarios en esa cuenta especificada puede asumir este rol. Si quieres restringir quién puede asumir los permisos, puedes indicar el ARN de un usuario o rol como <code>Principal</code> en la relación de confianza.</p>
+
+<p>Si revisas el rol recién creado, observarás que se proporciona un enlace poder acceder a la consola <em>asumiendo</em> el rol:</p>
+
+<figure>
+  <amp-img src="https://onthedock.github.io/images/191123/link-to-switch-role.png" alt="Cambio de rol en AWS images/191123/link-to-switch-role.png" width=931 height=239 layout="responsive"></amp-img>
+  
+</figure>
+
+<p>A nosotros nos interesa poder cambiar entre el rol <em>admin</em> y el <em>rol de laboratorio</em> sin tener que estar entrando y saliendo de la cuenta.</p>
+
+<h2 id="cambio-de-rol">Cambio de rol</h2>
+
+<p>Si pulsas sobre el desplegable que indica con qué usuario estás <em>logado</em> en la cuenta de AWS observarás que existe la opción de <em>switch role</em>, que es justo lo que necesitamos:</p>
+
+<figure>
+  <amp-img src="https://onthedock.github.io/images/191123/switch-role-menu.png" alt="Cambio de rol en AWS images/191123/switch-role-menu.png" width=523 height=419 layout="responsive"></amp-img>
+  
+</figure>
+
+<p>Al pulsar sobre esta opción se presenta una pantalla con isntrucciones sobre el proceso de cambio de rol:</p>
+
+<figure>
+  <amp-img src="https://onthedock.github.io/images/191123/switch-role-screen.png" alt="Cambio de rol en AWS images/191123/switch-role-screen.png" width=1110 height=625 layout="responsive"></amp-img>
+  
+</figure>
+
+<p>Pulsa sobre el botón <em>Switch role</em> y proporciona la información que se solicita:</p>
+
+<ul>
+<li>Número de cuenta de AWS donde reside el rol al que quieres cambiar (obligatorio)</li>
+<li>Nombre del rol al que quieres cambiar (obligatorio)</li>
+<li>Nombre para mostrar cuando asumas el rol</li>
+<li>Color con el que quieres que se resalte el rol asumido</li>
+</ul>
+
+<figure>
+  <amp-img src="https://onthedock.github.io/images/191123/switch-role-form.png" alt="Cambio de rol en AWS images/191123/switch-role-form.png" width=1092 height=423 layout="responsive"></amp-img>
+  
+</figure>
+
+<p>Una vez proporcionada la información, podemos cambiar al rol de laboratorio a través del desplegable del menú de <em>login</em>:</p>
+
+<figure>
+  <amp-img src="https://onthedock.github.io/images/191123/switch-role-info-on-dropdown.png" alt="Cambio de rol en AWS images/191123/switch-role-info-on-dropdown.png" width=629 height=438 layout="responsive"></amp-img>
+  
+</figure>
+
+<p>Como ves, el rol <strong>activo</strong> se indica en la parte superior con el nombre y color elegido; además, en el desplegable, ahora se muestra con qué usuario (recuadro amiarillo) y en qué cuenta (en azul claro) se ha realizado el login, así como el rol y cuenta <strong>activo</strong> en este momento.</p>
+
+<p>En este caso, tanto la cuenta del rol asumido al hacer login como el rol asumido a través del <em>switch role</em> están en la misma cuenta, pero podemos cambiar entre roles de diferentes cuentas del mismo modo.</p>
+
+<p>Para facilitar el cambio de roles, se muestra una lista con los roles a los que se ha cambiado más recientemente, así como un enlace de retorno al rol inicial: <em>&ldquo;Back to <code>&lt;original-rol&gt;</code>&ldquo;</em>.</p>
+
+<h2 id="cambio-de-rol-en-aws-cli">Cambio de rol en AWS CLI</h2>
+
+<p>Para cambiar de rol en AWS CLI, debes crear/configurar un <code>profile</code> donde indicar el <code>ARN</code> del rol al que quieres cambiar. Tienes más información en la documentación oficial de AWS en <a href="https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-role.html">Using an IAM Role in the AWS CLI</a> y en en <a href="https://docs.aws.amazon.com/cli/latest/topic/config-vars.html">AWS CLI Configuration Variables</a>.</p>
+
+<p>Básicamente, lanzas <code>aws configure --profile rolelab --role_arn</code> indicando el ARN del rol de destino. A continuación debes repetir el proceso para especificar el <code>source_profile</code> (en caso de que no sea el <code>default</code>).</p>
+
+<p>En el fichero de perfiles (<code>~/.aws/configuration</code>) puedes comprobar que tienes:</p>
+
+<pre><code class="language-ini">[rolelab]
+role_arn = arn:aws:iam::123456789012:role/iam-role-lab-LabRole-LKOF93LP1BEN
+source_profile = &lt;usuarioIAMOriginal&gt;
+</code></pre>
+
+<h2 id="resumen">Resumen</h2>
+
+<p>En esta entrada he hablado del uso de cambio de roles para realizar <em>refinamiento</em> de políticas IAM, asignando únicamente los permisos necesarios para realizar una tarea. Puedes usar este mismo método para crear roles específicos para diferentes tareas y así minimizar en todo momento los permisos a los que tienes acceso.</p></div>
+
+  <aside class="p-share">
+  <a href="http://twitter.com/intent/tweet?url=https%3a%2f%2fonthedock.github.io%2fpost%2f191123-cambio-de-rol-en-aws%2f&text=Cambio%20de%20rol%20en%20AWS&tw_p=tweetbutton" title="Twitterでシェア" class="tw" target="_blank" rel="nofollow"></a>
+  <a href="http://www.facebook.com/sharer.php?u=https%3a%2f%2fonthedock.github.io%2fpost%2f191123-cambio-de-rol-en-aws%2f&t=Cambio%20de%20rol%20en%20AWS" title="Facebookでシェア" class="fb" target="_blank" rel="nofollow"></a>
+  <a href="http://line.me/R/msg/text/?Cambio%20de%20rol%20en%20AWS https%3a%2f%2fonthedock.github.io%2fpost%2f191123-cambio-de-rol-en-aws%2f" title="LINEでシェア" class="ln" target="_blank" rel="nofollow"></a>
+  <a href="http://b.hatena.ne.jp/add?mode=confirm&url=https%3a%2f%2fonthedock.github.io%2fpost%2f191123-cambio-de-rol-en-aws%2f&title=Cambio%20de%20rol%20en%20AWS" title="はてなブックマーク" class="ht" target="_blank" rel="nofollow"></a>
   <div class="searchbar">
       <iframe src="https://duckduckgo.com/search.html?site=https://onthedock.github.io/&prefill=Busca en este sitio usando DuckDuckGo" style="width: 25em;height: 48px" frameborder="0"></iframe>
-  </div>
+    </div>
+</aside>
 
-  <img src="https://onthedock.github.io//images/MabelAmber-mini.png" class="p-articles" width="100%">
+
+  <footer class="article-footer">
+    <section>
+      <ol class="p-crumb">
+        <li><a href="https://onthedock.github.io/">On The Dock</a></li>
+        
+        <li itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb"><a href="https://onthedock.github.io/post/" itemprop="url"><span itemprop="title">post</span></a></li>
+        
+        <li>Cambio de rol en AWS</li>
+      </ol>
+
+      
+      
+      
+      <ul class="p-facts">
+        <li>
+          <header><a href="https://onthedock.github.io/categories/">categories</a></header>
+          <ul>
+            
+            <li><a href="https://onthedock.github.io/categories/dev/">dev</a></li>
+            
+          </ul>
+        </li>
+      </ul>
+      
+      
+      
+      <ul class="p-facts">
+        <li>
+          <header><a href="https://onthedock.github.io/tags/">tags</a></header>
+          <ul>
+            
+            <li><a href="https://onthedock.github.io/tags/aws/">aws</a></li>
+            
+            <li><a href="https://onthedock.github.io/tags/iam/">iam</a></li>
+            
+          </ul>
+        </li>
+      </ul>
+      
+      
+    </section>
+  </footer>
+</article>
+
+<article>
+  <div id="disqus_thread"></div>
+  <script>
   
-  <p style="text-align: right"><small><a href="https://www.pexels.com/photo/jetty-feet-sign-wooden-128299/">Photo</a> by <a href="https://www.pexels.com/u/mabelamber/">Mabel Amber</a></small></p>
-   
-  <ul class="p-articles">
-    <li><article class="li article-0a9cef5c4637bd946188e37439fef69c">
-  <div class="header-wrapper">
-    <a href="https://onthedock.github.io/post/170702-crear-un-cluster-de-un-solo-nodo/" class="thumbnail" title="Crear un cluster de un solo nodo"></a>
-    <header class="article-header">
-      <div class="clearfix">
-        <h2 class="title"><a href="https://onthedock.github.io/post/170702-crear-un-cluster-de-un-solo-nodo/">Crear un cluster de un solo nodo</a></h2>
-        <ul class="p-facts">
-          <li><time datetime="2017-07-02T23:14:22JST">2 Jul 2017</time></li>
-          <li><a href="https://onthedock.github.io/post/">post</a></li>
-          <li>Xavier Aznar</li>
-          
-        </ul>
-      </div>
-    </header>
-  </div>
-  <div class="article-body summary"><p>Para tener un clúster de desarrollo con la versatilidad de poder hacer y deshacer cambios (usando los <em>snapshots</em> de una máquina virtual), lo más sencillo es disponer de un clúster de Kubernetes de un solo nodo.</p></div>
-  <footer class="readmore"><a href="https://onthedock.github.io/post/170702-crear-un-cluster-de-un-solo-nodo/">LEER M&Aacute;S</a></footer>
+  
+
+  
+
+  (function() { 
+  var d = document, s = d.createElement('script');
+  s.src = 'https://onthedock.disqus.com/embed.js';
+  s.setAttribute('data-timestamp', +new Date());
+  (d.head || d.body).appendChild(s);
+  })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+                              
+
 </article>
-</li><li><article class="li article-42a206d287914317761f7749b964ddb2">
+
+
+
+  
+  
+  <section>
+    <header><span>Latests</span></header>
+    <ul class="p-articles thin">
+      <li><article class="li sm article-a8fd68175b85c6ab1e57dd164e56c25e">
   <div class="header-wrapper">
-    <a href="https://onthedock.github.io/post/170702-ip-en-mensaje-prelogin/" class="thumbnail" title="IP en mensaje prelogin"></a>
+    <a href="https://onthedock.github.io/post/190912-caja-de-busqueda-con-duckduckgo/" class="thumbnail" title="Caja de búsqueda en el site con DuckDuckGo"></a>
     <header class="article-header">
       <div class="clearfix">
-        <h2 class="title"><a href="https://onthedock.github.io/post/170702-ip-en-mensaje-prelogin/">IP en mensaje prelogin</a></h2>
+        <h2 class="title"><a href="https://onthedock.github.io/post/190912-caja-de-busqueda-con-duckduckgo/">Caja de búsqueda en el site con DuckDuckGo</a></h2>
         <ul class="p-facts">
-          <li><time datetime="2017-07-02T22:07:18JST">2 Jul 2017</time></li>
+          <li><time datetime="2019-09-12T20:38:01JST">12 Sep 2019</time></li>
           <li><a href="https://onthedock.github.io/post/">post</a></li>
-          <li>Xavier Aznar</li>
           
         </ul>
       </div>
     </header>
   </div>
-  <div class="article-body summary"><p>En la pantalla de <em>login</em> en modo consola de los sistemas Linux se muestra un mensaje de bienvenida.</p>
-
-<p>En este artículo se muestra cómo hacer que se muestre la IP del equipo.</p></div>
-  <footer class="readmore"><a href="https://onthedock.github.io/post/170702-ip-en-mensaje-prelogin/">LEER M&Aacute;S</a></footer>
 </article>
-</li><li><article class="li article-85dee6c250520e561ebc93740f1d514f">
+</li><li><article class="li sm article-cd0ad924309bc0e2310a28f4574f3ee6">
   <div class="header-wrapper">
-    <a href="https://onthedock.github.io/post/170604-instalacion-de-alpine-linux/" class="thumbnail" title="Instalación de Alpine linux"></a>
+    <a href="https://onthedock.github.io/post/190830-configuracion-de-awscli-login/" class="thumbnail" title="Configuración de awscli-login"></a>
     <header class="article-header">
       <div class="clearfix">
-        <h2 class="title"><a href="https://onthedock.github.io/post/170604-instalacion-de-alpine-linux/">Instalación de Alpine linux</a></h2>
+        <h2 class="title"><a href="https://onthedock.github.io/post/190830-configuracion-de-awscli-login/">Configuración de awscli-login</a></h2>
         <ul class="p-facts">
-          <li><time datetime="2017-06-04T18:26:48JST">4 Jun 2017</time></li>
+          <li><time datetime="2019-08-30T23:07:34JST">30 Aug 2019</time></li>
           <li><a href="https://onthedock.github.io/post/">post</a></li>
-          <li>Xavier Aznar</li>
           
         </ul>
       </div>
     </header>
   </div>
-  <div class="article-body summary"><p>Alpine Linux se ha convertido en la distribución por defecto con la que construir contenedores.</p>
-
-<p>Alpine tiene sus propias particularidades, ya que no deriva de otra distribución, de manera que he pensado que sería una buena idea tener una máquina virtual con la que entrenarme.</p>
-
-<p>En este artículo explico qué diferencias he encontrado en Alpine.</p></div>
-  <footer class="readmore"><a href="https://onthedock.github.io/post/170604-instalacion-de-alpine-linux/">LEER M&Aacute;S</a></footer>
 </article>
-</li><li><article class="li article-a65000ba68f97000bb927be3f88f75bd">
+</li><li><article class="li sm article-c4149a0be2e1a3d215d0b9dbb1340cad">
   <div class="header-wrapper">
-    <a href="https://onthedock.github.io/post/170528-revision-de-conceptos/" class="thumbnail" title="Revisión de conceptos"></a>
+    <a href="https://onthedock.github.io/post/190827-nuevo-usuario-iam-en-aws/" class="thumbnail" title="Nuevo usuario IAM en AWS"></a>
     <header class="article-header">
       <div class="clearfix">
-        <h2 class="title"><a href="https://onthedock.github.io/post/170528-revision-de-conceptos/">Revisión de conceptos</a></h2>
+        <h2 class="title"><a href="https://onthedock.github.io/post/190827-nuevo-usuario-iam-en-aws/">Nuevo usuario IAM en AWS</a></h2>
         <ul class="p-facts">
-          <li><time datetime="2017-05-28T07:59:31JST">28 May 2017</time></li>
+          <li><time datetime="2019-08-27T19:52:01JST">27 Aug 2019</time></li>
           <li><a href="https://onthedock.github.io/post/">post</a></li>
-          <li>Xavier Aznar</li>
           
         </ul>
       </div>
     </header>
   </div>
-  <div class="article-body summary"><p>Después de estabilizar el clúster, el siguiente paso es poner en marcha aplicaciones. Pero ¿qué es exactamente lo que hay que desplegar?: ¿<em>pods</em>?, ¿<em>replication controllers</em>?, ¿<em>deployments</em>?</p>
-
-<p>Muchos artículos empiezan creando el fichero YAML para un <em>pod</em>, después construyen el <em>replication controller</em>, etc&hellip; Sin embargo, revisando la documentación oficial, crear <em>pods</em> directamente en Kubernetes no tiene mucho sentido.</p>
-
-<p>En este artículo intento determinar qué objetos son los que deben crearse en un clúster Kubernetes.</p></div>
-  <footer class="readmore"><a href="https://onthedock.github.io/post/170528-revision-de-conceptos/">LEER M&Aacute;S</a></footer>
 </article>
-</li><li><article class="li article-2de6ff3b0144ea18b2ef056107448a33">
+</li><li><article class="li sm article-c04747c53dc824266e9428efb65f072d">
   <div class="header-wrapper">
-    <a href="https://onthedock.github.io/post/170525-introduccion-a-yaml/" class="thumbnail" title="Introduccion a YAML"></a>
+    <a href="https://onthedock.github.io/post/190820-instala-aws-cli/" class="thumbnail" title="Instala la herramienta de línea de comandos de AWS"></a>
     <header class="article-header">
       <div class="clearfix">
-        <h2 class="title"><a href="https://onthedock.github.io/post/170525-introduccion-a-yaml/">Introduccion a YAML</a></h2>
+        <h2 class="title"><a href="https://onthedock.github.io/post/190820-instala-aws-cli/">Instala la herramienta de línea de comandos de AWS</a></h2>
         <ul class="p-facts">
-          <li><time datetime="2017-05-25T18:34:11JST">25 May 2017</time></li>
+          <li><time datetime="2019-08-20T19:48:20JST">20 Aug 2019</time></li>
           <li><a href="https://onthedock.github.io/post/">post</a></li>
-          <li>Xavier Aznar</li>
           
         </ul>
       </div>
     </header>
   </div>
-  <div class="article-body summary"><p>YAML es el lenguaje en el que se definen los <em>pods</em>, los <em>deployments</em> y demás estructuras en Kubernetes. Todos los artículos que he leído sobre cómo crear un fichero de definición del <em>pod</em> (<em>deployment</em>, etc) se centran en el <strong>contenido</strong> del fichero.</p>
-
-<p>Pero en mi caso, echaba de menos una explicación de <strong>cómo</strong> se crea el fichero, qué reglas se siguen a la hora de <em>describir</em> la configuración en formato YAML.</p>
-
-<p>Afortunadamente el lenguaje YAML es muy sencillo y basta con conocer un par de estructuras para crear los ficheros de configuración de Kubernetes.</p></div>
-  <footer class="readmore"><a href="https://onthedock.github.io/post/170525-introduccion-a-yaml/">LEER M&Aacute;S</a></footer>
-</article>
-</li><li><article class="li article-a8aea2191f0d8d238ab6217feba51ac3">
-  <div class="header-wrapper">
-    <a href="https://onthedock.github.io/post/170521-vagrant-primeras-impresiones/" class="thumbnail" title="Vagrant: primeras impresiones"></a>
-    <header class="article-header">
-      <div class="clearfix">
-        <h2 class="title"><a href="https://onthedock.github.io/post/170521-vagrant-primeras-impresiones/">Vagrant: primeras impresiones</a></h2>
-        <ul class="p-facts">
-          <li><time datetime="2017-05-21T09:26:45JST">21 May 2017</time></li>
-          <li><a href="https://onthedock.github.io/post/">post</a></li>
-          <li>Xavier Aznar</li>
-          
-        </ul>
-      </div>
-    </header>
-  </div>
-  <div class="article-body summary"><p>He estado probando <a href="https://www.vagrantup.com">Vagrant</a> para automatizar la creación de máquinas virtuales en las que probar Docker, etc.</p>
-
-<p>En este artículo comento mis primeras impresiones con Vagrant.</p></div>
-  <footer class="readmore"><a href="https://onthedock.github.io/post/170521-vagrant-primeras-impresiones/">LEER M&Aacute;S</a></footer>
-</article>
-</li><li><article class="li article-67cd76b76e108b6604b344e92a3c329a">
-  <div class="header-wrapper">
-    <a href="https://onthedock.github.io/post/170520-normas-para-estructurar-ficheros-implicados-en-la-creacion-de-contenedores/" class="thumbnail" title="Normas para estructurar ficheros implicados en la creación de contenedores"></a>
-    <header class="article-header">
-      <div class="clearfix">
-        <h2 class="title"><a href="https://onthedock.github.io/post/170520-normas-para-estructurar-ficheros-implicados-en-la-creacion-de-contenedores/">Normas para estructurar ficheros implicados en la creación de contenedores</a></h2>
-        <ul class="p-facts">
-          <li><time datetime="2017-05-20T19:59:44JST">20 May 2017</time></li>
-          <li><a href="https://onthedock.github.io/post/">post</a></li>
-          <li>Xavier Aznar</li>
-          
-        </ul>
-      </div>
-    </header>
-  </div>
-  <div class="article-body summary"><p>El proceso desde la creación a la ejecución del contenedor se puede separar en varias fases:</p>
-
-<ol>
-<li>Creación de la imagen (mediante la redacción de un fichero <code>Dockerfile</code>)</li>
-<li>Construcción de la imagen</li>
-<li>Ejecución del contenedores</li>
-</ol>
-
-<p>Para tener los diferentes ficheros implicados en el proceso organizados de forma homogénea, me he autoimpuesto las siguientes reglas a la hora de estructurar los repositorios.</p></div>
-  <footer class="readmore"><a href="https://onthedock.github.io/post/170520-normas-para-estructurar-ficheros-implicados-en-la-creacion-de-contenedores/">LEER M&Aacute;S</a></footer>
-</article>
-</li><li><article class="li article-d341a5f8cd54b9da7a3a6d1168365c25">
-  <div class="header-wrapper">
-    <a href="https://onthedock.github.io/post/170517-el-nodo-k3-sigue-colgandose-por-culpa-de-flannel/" class="thumbnail" title="El nodo k3 sigue colgandose por culpa de Flannel"></a>
-    <header class="article-header">
-      <div class="clearfix">
-        <h2 class="title"><a href="https://onthedock.github.io/post/170517-el-nodo-k3-sigue-colgandose-por-culpa-de-flannel/">El nodo k3 sigue colgandose por culpa de Flannel</a></h2>
-        <ul class="p-facts">
-          <li><time datetime="2017-05-17T21:02:21JST">17 May 2017</time></li>
-          <li><a href="https://onthedock.github.io/post/">post</a></li>
-          <li>Xavier Aznar</li>
-          
-        </ul>
-      </div>
-    </header>
-  </div>
-  <div class="article-body summary"><p>En la entrada <a href="https://onthedock.github.io/post/170506-troubleshooting-kubernetes-ii/">Troubleshooting Kubernetes (II)</a> encontré restos de la instalación de <a href="https://github.com/coreos/flannel">Flannel</a> en la Raspberry Pi. Eliminé los <em>pods</em> que hacían referencia a Flannel y conseguí que el nodo <strong>k2</strong> no se volviera a colgar.</p>
-
-<p>Sin embargo, el problema sigue dándose en el nodo <strong>k3</strong>.</p>
-
-<p>Revisando el contenido de <code>/var/lib/kubernetes/pods/</code> he visto que algunos <em>pods</em> hacían referencia, todavía, a Flannel.</p></div>
-  <footer class="readmore"><a href="https://onthedock.github.io/post/170517-el-nodo-k3-sigue-colgandose-por-culpa-de-flannel/">LEER M&Aacute;S</a></footer>
-</article>
-</li><li><article class="li article-59e1fe22eaedce05afe517780f87cc98">
-  <div class="header-wrapper">
-    <a href="https://onthedock.github.io/post/170507-protege-el-acceso-remoto-via-api-a-docker/" class="thumbnail" title="Protege el acceso remoto via API a Docker"></a>
-    <header class="article-header">
-      <div class="clearfix">
-        <h2 class="title"><a href="https://onthedock.github.io/post/170507-protege-el-acceso-remoto-via-api-a-docker/">Protege el acceso remoto via API a Docker</a></h2>
-        <ul class="p-facts">
-          <li><time datetime="2017-05-07T18:33:16JST">7 May 2017</time></li>
-          <li><a href="https://onthedock.github.io/post/">post</a></li>
-          <li>Xavier Aznar</li>
-          
-        </ul>
-      </div>
-    </header>
-  </div>
-  <div class="article-body summary"><p>En el artículo <a href="https://onthedock.github.io/post/170506-habilita-el-acceso-remoto-via-api-a-docker/">Habilita el API remoto de Docker</a> explicaba cómo configurar el acceso remoto al API de Docker. El problema es que de esta forma no hay manera de restringir el acceso.</p>
-
-<p>En este artículo protegemos el acceso usando TLS de manera que sólo se permitan conexiones que presenten un certificado firmado por una CA de confianza.</p></div>
-  <footer class="readmore"><a href="https://onthedock.github.io/post/170507-protege-el-acceso-remoto-via-api-a-docker/">LEER M&Aacute;S</a></footer>
-</article>
-</li><li><article class="li article-87ee3835fe3b255e8566c3bfed2bd38b">
-  <div class="header-wrapper">
-    <a href="https://onthedock.github.io/post/170506-configura-un-endpoint-remoto-en-portainer/" class="thumbnail" title="Configura un endpoint remoto en Portainer"></a>
-    <header class="article-header">
-      <div class="clearfix">
-        <h2 class="title"><a href="https://onthedock.github.io/post/170506-configura-un-endpoint-remoto-en-portainer/">Configura un endpoint remoto en Portainer</a></h2>
-        <ul class="p-facts">
-          <li><time datetime="2017-05-06T17:38:20JST">6 May 2017</time></li>
-          <li><a href="https://onthedock.github.io/post/">post</a></li>
-          <li>Xavier Aznar</li>
-          
-        </ul>
-      </div>
-    </header>
-  </div>
-  <div class="article-body summary"><p>En el artículo <a href="https://onthedock.github.io/post/170429-portainer-para-gestionar-tus-contenedores-en-docker/">Portainer para gestionar tus contenedores en Docker</a> usamos <strong>Portainer</strong> para gestionar el Docker Engine local.</p>
-
-<p>En el artículo <a href="https://onthedock.github.io/post/170506-habilita-el-acceso-remoto-via-api-a-docker/">Habilita el API remoto de Docker</a> habilitamos el acceso remoto al API de Docker Engine.</p>
-
-<p>En este artículo configuramos <strong>Portainer</strong> para conectar con un <em>endpoint</em> remoto (el API expuesta de un Docker Engine).</p></div>
-  <footer class="readmore"><a href="https://onthedock.github.io/post/170506-configura-un-endpoint-remoto-en-portainer/">LEER M&Aacute;S</a></footer>
 </article>
 </li>
-  </ul>
+    </ul>
+  </section>
+  
 </div>
-
-
-<nav class="p-paginator">
-  
-  <a href="/post/page/8/" rel="prev" class="prev">Anterior</a>
-  
-  
-  <a href="/post/page/10/" rel="next" class="next">Siguiente</a>
-  
-</nav>
-
 
 
     </main>
