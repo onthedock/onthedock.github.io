@@ -222,7 +222,7 @@ yum -y install origin-clients
 <p>Puedes especificar una versión concreta mediante <code>--version=3.9.0</code>, por ejemplo. Si la omites, descarga la última versión disponible (la 3.11)</p>
 
 <blockquote>
-<p>Para poder acceder a la consola desde un equipo <em>diferente</em> a la VM donde estás instalado OKD, pasa el parámetro <code>--public-hostname=&lt;public ip&gt;</code>. Sin embargo, esto no me ha funcionado y existe un <em>issue</em> abierto al respecto <a href="https://github.com/openshift/origin/issues/20726">Access fail with &lsquo;oc cluster up &ndash;public-hostname={public ip}&rsquo; and redirect to 127.0.0.1 #20726</a></p>
+<p>Para poder acceder a la consola desde un equipo <em>diferente</em> a la VM donde estás instalando OKD, pasa el parámetro <code>--public-hostname=&lt;public ip&gt;</code>. Sin embargo, esto no me ha funcionado y existe un <em>issue</em> abierto al respecto <a href="https://github.com/openshift/origin/issues/20726">Access fail with &lsquo;oc cluster up &ndash;public-hostname={public ip}&rsquo; and redirect to 127.0.0.1 #20726</a></p>
 </blockquote>
 
 <pre><code class="language-bash">oc cluster up
@@ -241,15 +241,13 @@ yum -y install origin-clients
 
 <h2 id="conectar-a-la-consola-de-openshift-desde-otro-equipo">Conectar a la consola de OpenShift (desde otro equipo)</h2>
 
-<p>No he conseguido acceder a la consola de OKD desde un equipo diferente al de la VM.</p>
+<p>Debería ser posible acceder a la consola web de OKD a través de <a href="https://{vm-ip}:8443">https://{vm-ip}:8443</a> abriendo el firewall. Sin embargo, tras aceptar el <em>warning</em> del navegador (por usar un certificado autofirmado), se redirige a <a href="https://localhost:8443/console">https://localhost:8443/console</a>, que sólo funciona si estás intentando acceder a OKD desde la misma máquina donde está instalado.</p>
 
-<p>Debería ser posible acceder a la consola web de OKD a través de <a href="https://{vm-ip}:8443">https://{vm-ip}:8443</a> abriendo el firewall. Sin embargo, tras aceptar el <em>warning</em> del navegador (por usar un certificado autofirmado), se redirige a <a href="https://localhost:8443/console">https://localhost:8443/console</a>.</p>
-
-<p>Como indicaba más adelante, hay un <em>issue</em> abierto en GitHub al respecto <a href="https://github.com/openshift/origin/issues/20726">Access fail with &lsquo;oc cluster up &ndash;public-hostname={public ip}&rsquo; and redirect to 127.0.0.1 #20726</a>. El <em>issue</em> es del 2018 y se informó inicialmente para la versión 3.10, pero en la 3.11 también sucede.</p>
+<p>Como he indicado antes, hay un <em>issue</em> abierto en GitHub al respecto <a href="https://github.com/openshift/origin/issues/20726">Access fail with &lsquo;oc cluster up &ndash;public-hostname={public ip}&rsquo; and redirect to 127.0.0.1 #20726</a>. El <em>issue</em> es del 2018 y se informó inicialmente para la versión 3.10, pero en la 3.11 también sucede.</p>
 
 <p>Dado que, aunque todavía está soportada, RedHat ya está trabajando en la rama 4.x, es poco probable que lo solucionen.</p>
 
-<p>La única manera que me ha funcionado para acceder a la consola es mediante un túnel SSH:</p>
+<p>La única manera con la que he conseguido acceder a la consola es mediante un túnel SSH:</p>
 
 <pre><code class="language-bash">ssh -N -L 8443:127.0.0.1:8443 {username}@{vm-ip}
 </code></pre>
