@@ -11,13 +11,13 @@
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
 
-<link rel="canonical" href="https://onthedock.github.io/post/180810-generando-un-machine-id-unico/">
+<link rel="canonical" href="https://onthedock.github.io/post/200512-multiples-repositorios-remotos-en-git/">
 
 
     
     <link href="https://fonts.googleapis.com/css?family=Lobster|Lato:400,700" rel="stylesheet">
     
-    <title>Generando un machine-id único - On The Dock</title>
+    <title>Múltiples repositorios remotos en Git - On The Dock</title>
     <style amp-boilerplate>body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}</style><noscript><style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style></noscript>
     <script async src="https://cdn.ampproject.org/v0.js"></script>
     
@@ -26,22 +26,22 @@
 <script async custom-element="amp-ad" src="https://cdn.ampproject.org/v0/amp-ad-0.1.js"></script>
 
     
-<meta name="description" content="&lt;p&gt;En la entrada &lt;a href=&#34;https://onthedock.github.io/post/180610-pods-en-estado-creatingcontainer-en-k8s/&#34;&gt;Pods en estado creatingContainer en K8s&lt;/a&gt; describía el problema surgido al crear un clúster de Kubernetes usando Vagrant. Al partir de la misma imagen, todas las máquinas del clúster tienen el mismo &lt;code&gt;machine-id&lt;/code&gt;.&lt;/p&gt;&lt;p&gt;El &lt;code&gt;machine-id&lt;/code&gt; debe ser único, como se describe en los &lt;a href=&#34;https://kubernetes.io/docs/setup/independent/install-kubeadm/#verify-the-mac-address-and-product-uuid-are-unique-for-every-node&#34;&gt;requerimientos de Kubernetes&lt;/a&gt;; si no lo es, se producen problemas como el descrito.&lt;/p&gt;&lt;p&gt;En esta entrada analizo con más detalle cómo se crea el &lt;em&gt;machine-id&lt;/em&gt; y cómo generar uno nuevo.&lt;/p&gt;">
+<meta name="description" content="&lt;p&gt;Al clonar un repositorio, Git añade una referencia en la configuración del repositorio clonado para incluir el repositorio &amp;ldquo;original&amp;rdquo; como &amp;ldquo;remote&amp;rdquo;. Este repositorio se denomina, por defecto, &lt;code&gt;origin&lt;/code&gt;. De esta forma, si quieres enviar cambios a este repositorio, ejecutas el comando &lt;code&gt;git push origin ${rama}&lt;/code&gt;.&lt;/p&gt;&lt;p&gt;En algunas situaciones te puede interesar trabajar con múltiples repositorios remotos, por lo que en esta entrada explico cómo revisar los repositorios remotos configurados en tu repositorio, cómo añadir y eliminar repositorios &amp;ldquo;remotos&amp;rdquo; adicionales, cambiarles el nombre, etc.&lt;/p&gt;">
 
-<meta property="og:title" content="Generando un machine-id único - On The Dock">
+<meta property="og:title" content="Múltiples repositorios remotos en Git - On The Dock">
 <meta property="og:type" content="article">
-<meta property="og:url" content="https://onthedock.github.io/post/180810-generando-un-machine-id-unico/">
-<meta property="og:image" content="https://onthedock.github.io/images/kubernetes.png">
+<meta property="og:url" content="https://onthedock.github.io/post/200512-multiples-repositorios-remotos-en-git/">
+<meta property="og:image" content="https://onthedock.github.io/images/git.png">
 <meta property="og:site_name" content="On The Dock">
-<meta property="og:description" content="&lt;p&gt;En la entrada &lt;a href=&#34;https://onthedock.github.io/post/180610-pods-en-estado-creatingcontainer-en-k8s/&#34;&gt;Pods en estado creatingContainer en K8s&lt;/a&gt; describía el problema surgido al crear un clúster de Kubernetes usando Vagrant. Al partir de la misma imagen, todas las máquinas del clúster tienen el mismo &lt;code&gt;machine-id&lt;/code&gt;.&lt;/p&gt;&lt;p&gt;El &lt;code&gt;machine-id&lt;/code&gt; debe ser único, como se describe en los &lt;a href=&#34;https://kubernetes.io/docs/setup/independent/install-kubeadm/#verify-the-mac-address-and-product-uuid-are-unique-for-every-node&#34;&gt;requerimientos de Kubernetes&lt;/a&gt;; si no lo es, se producen problemas como el descrito.&lt;/p&gt;&lt;p&gt;En esta entrada analizo con más detalle cómo se crea el &lt;em&gt;machine-id&lt;/em&gt; y cómo generar uno nuevo.&lt;/p&gt;">
+<meta property="og:description" content="&lt;p&gt;Al clonar un repositorio, Git añade una referencia en la configuración del repositorio clonado para incluir el repositorio &amp;ldquo;original&amp;rdquo; como &amp;ldquo;remote&amp;rdquo;. Este repositorio se denomina, por defecto, &lt;code&gt;origin&lt;/code&gt;. De esta forma, si quieres enviar cambios a este repositorio, ejecutas el comando &lt;code&gt;git push origin ${rama}&lt;/code&gt;.&lt;/p&gt;&lt;p&gt;En algunas situaciones te puede interesar trabajar con múltiples repositorios remotos, por lo que en esta entrada explico cómo revisar los repositorios remotos configurados en tu repositorio, cómo añadir y eliminar repositorios &amp;ldquo;remotos&amp;rdquo; adicionales, cambiarles el nombre, etc.&lt;/p&gt;">
 <meta property="og:locale" content="ja_JP">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="On The Dock">
-<meta name="twitter:url" content="https://onthedock.github.io/post/180810-generando-un-machine-id-unico/">
-<meta name="twitter:title" content="Generando un machine-id único - On The Dock">
-<meta name="twitter:description" content="&lt;p&gt;En la entrada &lt;a href=&#34;https://onthedock.github.io/post/180610-pods-en-estado-creatingcontainer-en-k8s/&#34;&gt;Pods en estado creatingContainer en K8s&lt;/a&gt; describía el problema surgido al crear un clúster de Kubernetes usando Vagrant. Al partir de la misma imagen, todas las máquinas del clúster tienen el mismo &lt;code&gt;machine-id&lt;/code&gt;.&lt;/p&gt;&lt;p&gt;El &lt;code&gt;machine-id&lt;/code&gt; debe ser único, como se describe en los &lt;a href=&#34;https://kubernetes.io/docs/setup/independent/install-kubeadm/#verify-the-mac-address-and-product-uuid-are-unique-for-every-node&#34;&gt;requerimientos de Kubernetes&lt;/a&gt;; si no lo es, se producen problemas como el descrito.&lt;/p&gt;&lt;p&gt;En esta entrada analizo con más detalle cómo se crea el &lt;em&gt;machine-id&lt;/em&gt; y cómo generar uno nuevo.&lt;/p&gt;">
-<meta name="twitter:image" content="https://onthedock.github.io/images/kubernetes.png">
+<meta name="twitter:url" content="https://onthedock.github.io/post/200512-multiples-repositorios-remotos-en-git/">
+<meta name="twitter:title" content="Múltiples repositorios remotos en Git - On The Dock">
+<meta name="twitter:description" content="&lt;p&gt;Al clonar un repositorio, Git añade una referencia en la configuración del repositorio clonado para incluir el repositorio &amp;ldquo;original&amp;rdquo; como &amp;ldquo;remote&amp;rdquo;. Este repositorio se denomina, por defecto, &lt;code&gt;origin&lt;/code&gt;. De esta forma, si quieres enviar cambios a este repositorio, ejecutas el comando &lt;code&gt;git push origin ${rama}&lt;/code&gt;.&lt;/p&gt;&lt;p&gt;En algunas situaciones te puede interesar trabajar con múltiples repositorios remotos, por lo que en esta entrada explico cómo revisar los repositorios remotos configurados en tu repositorio, cómo añadir y eliminar repositorios &amp;ldquo;remotos&amp;rdquo; adicionales, cambiarles el nombre, etc.&lt;/p&gt;">
+<meta name="twitter:image" content="https://onthedock.github.io/images/git.png">
 
 
 <script type="application/ld+json">
@@ -52,15 +52,15 @@
       "@type": "WebPage",
       "@id":"https:\/\/onthedock.github.io\/"
     },
-    "headline": "Generando un machine-id único - On The Dock",
+    "headline": "Múltiples repositorios remotos en Git - On The Dock",
     "image": {
       "@type": "ImageObject",
-      "url": "https:\/\/onthedock.github.io\/images\/kubernetes.png",
+      "url": "https:\/\/onthedock.github.io\/images\/git.png",
       "height": 800,
       "width": 800
     },
-    "datePublished": "2018-08-10T18:10:27JST",
-    "dateModified": "2018-08-10T18:10:27JST",
+    "datePublished": "2020-05-12T22:06:13JST",
+    "dateModified": "2020-05-12T22:06:13JST",
     "author": {
       "@type": "Person",
       "name": "On The Dock"
@@ -75,7 +75,7 @@
         "height": 60
       }
     },
-    "description": "\x3cp\x3eEn la entrada \x3ca href=\x22https:\/\/onthedock.github.io\/post\/180610-pods-en-estado-creatingcontainer-en-k8s\/\x22\x3ePods en estado creatingContainer en K8s\x3c\/a\x3e describía el problema surgido al crear un clúster de Kubernetes usando Vagrant. Al partir de la misma imagen, todas las máquinas del clúster tienen el mismo \x3ccode\x3emachine-id\x3c\/code\x3e.\x3c\/p\x3e\n\n\x3cp\x3eEl \x3ccode\x3emachine-id\x3c\/code\x3e debe ser único, como se describe en los \x3ca href=\x22https:\/\/kubernetes.io\/docs\/setup\/independent\/install-kubeadm\/#verify-the-mac-address-and-product-uuid-are-unique-for-every-node\x22\x3erequerimientos de Kubernetes\x3c\/a\x3e; si no lo es, se producen problemas como el descrito.\x3c\/p\x3e\n\n\x3cp\x3eEn esta entrada analizo con más detalle cómo se crea el \x3cem\x3emachine-id\x3c\/em\x3e y cómo generar uno nuevo.\x3c\/p\x3e"
+    "description": "\x3cp\x3eAl clonar un repositorio, Git añade una referencia en la configuración del repositorio clonado para incluir el repositorio \x26ldquo;original\x26rdquo; como \x26ldquo;remote\x26rdquo;. Este repositorio se denomina, por defecto, \x3ccode\x3eorigin\x3c\/code\x3e. De esta forma, si quieres enviar cambios a este repositorio, ejecutas el comando \x3ccode\x3egit push origin ${rama}\x3c\/code\x3e.\x3c\/p\x3e\n\n\x3cp\x3eEn algunas situaciones te puede interesar trabajar con múltiples repositorios remotos, por lo que en esta entrada explico cómo revisar los repositorios remotos configurados en tu repositorio, cómo añadir y eliminar repositorios \x26ldquo;remotos\x26rdquo; adicionales, cambiarles el nombre, etc.\x3c\/p\x3e"
   }
 </script>
 
@@ -104,14 +104,14 @@
     <main>
       
 <div class="l-container">
-  <article class="single article-2fc7b42f0ad38b1d0c3bda16184154ed">
+  <article class="single article-eabbba2a574b52017ab09aadb1e27892">
   <div class="header-wrapper">
-    <a href="https://onthedock.github.io/post/180810-generando-un-machine-id-unico/" class="thumbnail" title="Generando un machine-id único"></a>
+    <a href="https://onthedock.github.io/post/200512-multiples-repositorios-remotos-en-git/" class="thumbnail" title="Múltiples repositorios remotos en Git"></a>
     <header class="article-header">
       <div class="clearfix">
-        <h1 class="title">Generando un machine-id único</h1>
+        <h1 class="title">Múltiples repositorios remotos en Git</h1>
         <ul class="p-facts">
-          <li><time datetime="2018-08-10T18:10:27JST">10 Aug 2018</time></li>
+          <li><time datetime="2020-05-12T22:06:13JST">12 May 2020</time></li>
           <li><a href="https://onthedock.github.io/post/">post</a></li>
           
           <li>Xavier Aznar</li>
@@ -120,52 +120,111 @@
     </header>
   </div>
 
-  <div class="article-body"><p>En la entrada <a href="https://onthedock.github.io/post/180610-pods-en-estado-creatingcontainer-en-k8s/">Pods en estado creatingContainer en K8s</a> describía el problema surgido al crear un clúster de Kubernetes usando Vagrant. Al partir de la misma imagen, todas las máquinas del clúster tienen el mismo <code>machine-id</code>.</p>
+  <div class="article-body"><p>Al clonar un repositorio, Git añade una referencia en la configuración del repositorio clonado para incluir el repositorio &ldquo;original&rdquo; como &ldquo;remote&rdquo;. Este repositorio se denomina, por defecto, <code>origin</code>. De esta forma, si quieres enviar cambios a este repositorio, ejecutas el comando <code>git push origin ${rama}</code>.</p>
 
-<p>El <code>machine-id</code> debe ser único, como se describe en los <a href="https://kubernetes.io/docs/setup/independent/install-kubeadm/#verify-the-mac-address-and-product-uuid-are-unique-for-every-node">requerimientos de Kubernetes</a>; si no lo es, se producen problemas como el descrito.</p>
+<p>En algunas situaciones te puede interesar trabajar con múltiples repositorios remotos, por lo que en esta entrada explico cómo revisar los repositorios remotos configurados en tu repositorio, cómo añadir y eliminar repositorios &ldquo;remotos&rdquo; adicionales, cambiarles el nombre, etc.</p>
 
-<p>En esta entrada analizo con más detalle cómo se crea el <em>machine-id</em> y cómo generar uno nuevo.</p>
+<h2 id="revisando-los-repositorios-remotos">Revisando los repositorios remotos</h2>
 
-<p>El fichero <code>/etc/machine-id</code> contiene un identificador único de la máquina que se establece durante la instalación o durante el arranque.</p>
+<p>Como decía, si has clonado tu repositorio local desde GitHub, por ejemplo, el repositorio &ldquo;original&rdquo; se ha añadido automáticamente como &ldquo;remoto&rdquo; con el nombre <code>origin</code>.</p>
 
-<p>El <em>machine ID</em> se suele generar de una fuente aleatoria durante la instalación del sistema operativo o durante el primer arranque y permanece constante durante los siguientes arranques. Este <em>machine ID</em> no cambia al cambiar la configuración de red o cuando se modifica el <em>hardware</em> del sistema.</p>
+<p>Git proporciona el subcomando <code>remote</code> con el que interaccionar con los repositorios remotos configurados.</p>
 
-<p>Este identificador tiene el mismo formato y lógica que el <em>D-BUS machine ID</em>.</p>
+<p>Puedes consultar la ayuda para este comando mediante <code>git remote --help</code> o consultar el libro oficial con la documentación de Git en el capítulo <a href="https://git-scm.com/book/en/v2/Git-Basics-Working-with-Remotes">2.5 Git Basics - Working with Remotes</a>. El libro está traducido a varios idiomas -entre ellos, el castellano- y puedes consultarlo libremente online.</p>
 
-<p>De hecho, si el fichero <code>/etc/machine-id</code> no existe, podemos usar <a href="https://www.freedesktop.org/software/systemd/man/systemd-machine-id-setup.html"><code>systemd-machine-id-setup</code></a> para generar uno nuevo. Sin embargo, hay que tener en cuenta que:</p>
+<p>Ejecutando el comando <code>git remote</code> <em>a pelo</em>:</p>
 
-<blockquote>
-<p>If a valid D-Bus machine ID is already configured for the system, the D-Bus machine ID is copied and used to initialize the machine ID in /etc/machine-id.</p>
-</blockquote>
-
-<p>Es decir, que si el <em>D-Bus machine ID</em> existe, no se genera un nuevo <em>machine ID</em>, sino que se reusa el <em>D-Bus machine ID</em>.</p>
-
-<p>En la <a href="https://kubernetes.io/docs/setup/independent/install-kubeadm/#verify-the-mac-address-and-product-uuid-are-unique-for-every-node">documentación de Kubernetes</a> se indica este identificador debe ser único; sin embargo, en <a href="https://stackoverflow.com/questions/35883313/dmidecode-product-uuid-and-product-serial-what-is-the-difference">DMIDecode product_uuid and product_serial.what is the difference?</a> se indica que el <code>product_UUID</code> está relacionado con la BIOS de la máquina (por lo que no puede ser cambiado).</p>
-
-<p>He comprobado que todas las máquinas virtuales generadas por Vagrant a partir de la misma imagen base comparten el mismo identificador en <code>/sys/class/dmi/id/product_uuid</code>.</p>
-
-<p>Pese a coincidir el <code>product_uuid</code>, tanto el <em>machine ID</em> como el <em>D-Bus machine ID</em> pueden &ldquo;regenerarse&rdquo;, de manera que sean únicos en cada máquina virtual:</p>
-
-<pre><code class="language-shell">sudo rm /etc/machine-id
-sudo rm /var/lib/dbus/machine-id
-sudo systemd-machine-id-setup
+<pre><code class="language-bash">$ git remote
+origin
 </code></pre>
 
-<p>En la instalación de Kubernetes parece suficiente que el <em>machine-id</em> sea único.</p>
+<p>En la salida, se indica que hay un repositorio configurado con el nombre <code>origin</code>, pero no aporta demasiada información.</p>
 
-<p>Referencias:</p>
+<p>Añade <code>-v</code> o <code>--verbose</code> para que Git proporcione algo más de información:</p>
 
-<ul>
-<li><a href="https://www.freedesktop.org/software/systemd/man/machine-id.html">machine-id — Local machine ID configuration file en FreeDesktop.org</a></li>
-<li><a href="https://www.freedesktop.org/software/systemd/man/systemd-machine-id-setup.html#">systemd-machine-id-setup — Initialize the machine ID in /etc/machine-id en FreeDesktop.org</a></li>
-<li><a href="http://0pointer.de/blog/projects/ids.html">On IDs</a></li>
-</ul></div>
+<pre><code class="language-bash">$ git remote
+origin  https://github.com/onthedock/onthedock-hugo.git (fetch)
+origin  https://github.com/onthedock/onthedock-hugo.git (push)
+</code></pre>
+
+<p>En la salida vemos que el repositorio remoto <code>origin</code> aparece dos veces; al observar con más detalle, al final de la URL se indica la acción asociada a la URL; la primera URL corresponde a la acción de <a href="https://git-scm.com/docs/git-fetch"><code>fetch</code></a> (descarga de cambios desde el repositorio remoto hacia tu repositorio local) mientras que la segunda es para las acciones de <a href="https://git-scm.com/docs/git-push"><code>push</code></a> (envío de cambios de tu repositorio hacia el remoto).</p>
+
+<p>Si quieres todavía más información sobre un repositorio remoto concreto, puedes usar <code>git remote show</code>, para el remoto en el que estás interesado.</p>
+
+<pre><code class="language-bash">$ git remote show origin
+* remote origin
+  Fetch URL: https://github.com/onthedock/onthedock-hugo.git
+  Push  URL: https://github.com/onthedock/onthedock-hugo.git
+  HEAD branch: master
+  Remote branch:
+    master tracked
+  Local branch configured for 'git pull':
+    master merges with remote master
+  Local ref configured for 'git push':
+    master pushes to master (up to date)
+</code></pre>
+
+<h2 id="repositorios-remotos-o-no">Repositorios remotos&hellip; o no</h2>
+
+<p>Aunque en realidad nos referimos al repositorio &ldquo;de origen&rdquo; como &ldquo;remoto&rdquo;, el repositorio puede estar en tu mismo equipo, en otra ruta. En el libro sobre Git, en <a href="https://git-scm.com/book/en/v2/Git-Basics-Getting-a-Git-Repository">2.1 Git Basics - Getting a Git Repository</a> tienes explicado con detalle cómo crear un repositorio de Git.</p>
+
+<p>Si clonas un repositorio existente en tu equipo local mediante <code>git clone /home/proyecto/ /home/copia-repo-proyecto/</code>, donde <code>/home/proyecto</code> es la ruta a un repositorio local de Git, en el nuevo repositorio (el clon) la referencia al repositorio &ldquo;remoto&rdquo; <code>origin</code> apunta a <code>/home/proyecto/</code>.</p>
+
+<p>Por tanto, un repositorio &ldquo;remoto&rdquo; en realidad es &ldquo;otro repositorio&rdquo; con el que tu repositorio sabe &ldquo;contactar&rdquo; y que tiene guardado en su &ldquo;agenda de contactos&rdquo; con el nombre <code>origin</code>.</p>
+
+<h2 id="cambiar-el-nombre-de-un-remoto">Cambiar el nombre de un remoto</h2>
+
+<p>Si por cualquier motivo quieres cambiar el nombre de un repositorio remoto, es tan sencillo como lanzar el comando <code>git remote rename</code>.</p>
+
+<p>Suponiendo que has clonado el respositorio original desde GitHub, puedes cambiar el nombre con el que se identifica el remoto de <code>origin</code> a <code>github</code>, por ejemplo:</p>
+
+<pre><code class="language-bash">git remote rename origin github
+</code></pre>
+
+<p>El comando no muestra ninguna salida si todo funciona correctamente; si quieres comprobarlo puedes usar de nuevo <code>git remote -v</code>:</p>
+
+<pre><code class="language-bash">$ git remote -v
+github  https://github.com/onthedock/onthedock-hugo.git (fetch)
+github  https://github.com/onthedock/onthedock-hugo.git (push)
+</code></pre>
+
+<h2 id="añadiendo-un-remoto-adicional">Añadiendo un remoto adicional</h2>
+
+<p>Supongamos por un momento que eres un <em>friky</em> ;) y que tienes montado tu propio &ldquo;github&rdquo; personal en casa con <a href="https://onthedock.github.io/post/180713-gitea-la-version-mejorada-de-gogs/">Gitea, la versión mejorada de Gogs</a>; has creado un repositorio en Gitea cuya URL es <code>http://192.168.1.123/xavi/onthedock-gitea.git</code> y quieres añadirlo como <em>remote</em> a tu repositorio mediante el comando <code>git remote add</code>:</p>
+
+<pre><code class="language-bash">git remote add gitea http://192.168.1.123/xavi/onthedock-gitea.git
+</code></pre>
+
+<p>Ahora, si compruebas los repositorios remotos:</p>
+
+<pre><code class="language-bash">$ git remote -v
+gitea   http://192.168.1.123/xavi/onthedock-gitea.git (fetch)
+gitea   http://192.168.1.123/xavi/onthedock-gitea.git (push)
+github  https://github.com/onthedock/onthedock-hugo.git (fetch)
+github  https://github.com/onthedock/onthedock-hugo.git (push)
+</code></pre>
+
+<p>Puedes añadir tantos repositorios <em>remotos</em> a tu repositorio como necesites en tu flujo de trabajo habitual.</p>
+
+<p>Para obtener (vía <code>fetch</code> o envíar con <code>push</code>) cambios de/al repositorio remoto, debemos especificarlo explícitamente en el comando (en el caso de <code>push</code> también se requiere la rama).</p>
+
+<p>Aunque en el ejemplo he nombrado los repositorios en función de su ubicación, podrían corresponder a entornos de desarrollo diferentes, como <code>integracion</code> y <code>produccion</code> o <code>trabajo</code> y <code>cliente</code>, etc&hellip; O incluso podrías cambiarle el nombre porque prefieres llamar a tus remotos de alguna manera &ldquo;graciosa&rdquo; (<code>git push harder master</code>, <code>git push iamthebest dev</code>)&hellip;</p>
+
+<p>El nombre con el que identificas el repositorio remoto sólo es relevante en tu copia &ldquo;personal&rdquo; del repositorio.</p>
+
+<p>Si en algún momento quieres eliminar un repositorio remoto, usa el comando <code>git remote rm ${nombreRemoto}</code>. Aunque eliminar un repositorio remoto no elimina ningún fichero local, sí que pierdes la capacidad de enviar u obtener cambios de ese repositorio (ya que Git no sabe cómo contactar con él).</p>
+
+<h2 id="conclusión">Conclusión</h2>
+
+<p>Git gestiona la creación del remoto <code>origin</code> &ldquo;por defecto&rdquo; al realizar el clonado de un repositorio, por lo que en general, no es una tarea que debas realizar manualmente si habitualmente clonas repositorios existentes (o que otra persona ha generado previamente).</p>
+
+<p>Si tienes que trabajar con múltiples repositorios remotos, Git proporciona una manera muy sencilla de organizarlos como quieras de manera que siempre sea evidente a/de qué repositorio remoto estás enviando/recibiendo cambios.</p></div>
 
   <aside class="p-share">
-  <a href="http://twitter.com/intent/tweet?url=https%3a%2f%2fonthedock.github.io%2fpost%2f180810-generando-un-machine-id-unico%2f&text=Generando%20un%20machine-id%20%c3%banico&tw_p=tweetbutton" title="Twitterでシェア" class="tw" target="_blank" rel="nofollow"></a>
-  <a href="http://www.facebook.com/sharer.php?u=https%3a%2f%2fonthedock.github.io%2fpost%2f180810-generando-un-machine-id-unico%2f&t=Generando%20un%20machine-id%20%c3%banico" title="Facebookでシェア" class="fb" target="_blank" rel="nofollow"></a>
-  <a href="http://line.me/R/msg/text/?Generando%20un%20machine-id%20%c3%banico https%3a%2f%2fonthedock.github.io%2fpost%2f180810-generando-un-machine-id-unico%2f" title="LINEでシェア" class="ln" target="_blank" rel="nofollow"></a>
-  <a href="http://b.hatena.ne.jp/add?mode=confirm&url=https%3a%2f%2fonthedock.github.io%2fpost%2f180810-generando-un-machine-id-unico%2f&title=Generando%20un%20machine-id%20%c3%banico" title="はてなブックマーク" class="ht" target="_blank" rel="nofollow"></a>
+  <a href="http://twitter.com/intent/tweet?url=https%3a%2f%2fonthedock.github.io%2fpost%2f200512-multiples-repositorios-remotos-en-git%2f&text=M%c3%baltiples%20repositorios%20remotos%20en%20Git&tw_p=tweetbutton" title="Twitterでシェア" class="tw" target="_blank" rel="nofollow"></a>
+  <a href="http://www.facebook.com/sharer.php?u=https%3a%2f%2fonthedock.github.io%2fpost%2f200512-multiples-repositorios-remotos-en-git%2f&t=M%c3%baltiples%20repositorios%20remotos%20en%20Git" title="Facebookでシェア" class="fb" target="_blank" rel="nofollow"></a>
+  <a href="http://line.me/R/msg/text/?M%c3%baltiples%20repositorios%20remotos%20en%20Git https%3a%2f%2fonthedock.github.io%2fpost%2f200512-multiples-repositorios-remotos-en-git%2f" title="LINEでシェア" class="ln" target="_blank" rel="nofollow"></a>
+  <a href="http://b.hatena.ne.jp/add?mode=confirm&url=https%3a%2f%2fonthedock.github.io%2fpost%2f200512-multiples-repositorios-remotos-en-git%2f&title=M%c3%baltiples%20repositorios%20remotos%20en%20Git" title="はてなブックマーク" class="ht" target="_blank" rel="nofollow"></a>
   <div class="searchbar">
       <iframe src="https://duckduckgo.com/search.html?site=https://onthedock.github.io/&prefill=Busca en este sitio usando DuckDuckGo" style="width: 25em;height: 48px" frameborder="0"></iframe>
     </div>
@@ -179,7 +238,7 @@ sudo systemd-machine-id-setup
         
         <li itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb"><a href="https://onthedock.github.io/post/" itemprop="url"><span itemprop="title">post</span></a></li>
         
-        <li>Generando un machine-id único</li>
+        <li>Múltiples repositorios remotos en Git</li>
       </ol>
 
       
@@ -190,7 +249,7 @@ sudo systemd-machine-id-setup
           <header><a href="https://onthedock.github.io/categories/">categories</a></header>
           <ul>
             
-            <li><a href="https://onthedock.github.io/categories/ops/">ops</a></li>
+            <li><a href="https://onthedock.github.io/categories/dev/">dev</a></li>
             
           </ul>
         </li>
@@ -203,11 +262,7 @@ sudo systemd-machine-id-setup
           <header><a href="https://onthedock.github.io/tags/">tags</a></header>
           <ul>
             
-            <li><a href="https://onthedock.github.io/tags/linux/">linux</a></li>
-            
-            <li><a href="https://onthedock.github.io/tags/vagrant/">vagrant</a></li>
-            
-            <li><a href="https://onthedock.github.io/tags/kubernetes/">kubernetes</a></li>
+            <li><a href="https://onthedock.github.io/tags/git/">git</a></li>
             
           </ul>
         </li>
@@ -245,22 +300,7 @@ sudo systemd-machine-id-setup
   <section>
     <header><span>Latests</span></header>
     <ul class="p-articles thin">
-      <li><article class="li sm article-eabbba2a574b52017ab09aadb1e27892">
-  <div class="header-wrapper">
-    <a href="https://onthedock.github.io/post/200512-multiples-repositorios-remotos-en-git/" class="thumbnail" title="Múltiples repositorios remotos en Git"></a>
-    <header class="article-header">
-      <div class="clearfix">
-        <h2 class="title"><a href="https://onthedock.github.io/post/200512-multiples-repositorios-remotos-en-git/">Múltiples repositorios remotos en Git</a></h2>
-        <ul class="p-facts">
-          <li><time datetime="2020-05-12T22:06:13JST">12 May 2020</time></li>
-          <li><a href="https://onthedock.github.io/post/">post</a></li>
-          
-        </ul>
-      </div>
-    </header>
-  </div>
-</article>
-</li><li><article class="li sm article-4df08a53150d4f7d2766c8debd1831a3">
+      <li><article class="li sm article-4df08a53150d4f7d2766c8debd1831a3">
   <div class="header-wrapper">
     <a href="https://onthedock.github.io/post/200510-tipos-de-principals-en-aws/" class="thumbnail" title="Tipos de Principals en AWS"></a>
     <header class="article-header">
@@ -298,6 +338,21 @@ sudo systemd-machine-id-setup
         <h2 class="title"><a href="https://onthedock.github.io/post/200509-gestionar-multiples-identidades-en-git/">Gestionar múltiples identidades en Git</a></h2>
         <ul class="p-facts">
           <li><time datetime="2020-05-09T18:46:35JST">9 May 2020</time></li>
+          <li><a href="https://onthedock.github.io/post/">post</a></li>
+          
+        </ul>
+      </div>
+    </header>
+  </div>
+</article>
+</li><li><article class="li sm article-0b46f42d26003d0a8a0c0a8792e872c3">
+  <div class="header-wrapper">
+    <a href="https://onthedock.github.io/post/200507-envio-de-eventos-de-cfn-a-cwevents/" class="thumbnail" title="Envío de eventos de CloudFormation a CloudWatch Events"></a>
+    <header class="article-header">
+      <div class="clearfix">
+        <h2 class="title"><a href="https://onthedock.github.io/post/200507-envio-de-eventos-de-cfn-a-cwevents/">Envío de eventos de CloudFormation a CloudWatch Events</a></h2>
+        <ul class="p-facts">
+          <li><time datetime="2020-05-07T19:25:58JST">7 May 2020</time></li>
           <li><a href="https://onthedock.github.io/post/">post</a></li>
           
         </ul>
