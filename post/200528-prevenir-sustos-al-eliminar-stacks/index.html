@@ -11,13 +11,13 @@
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
 
-<link rel="canonical" href="https://onthedock.github.io/post/170525-introduccion-a-yaml/">
+<link rel="canonical" href="https://onthedock.github.io/post/200528-prevenir-sustos-al-eliminar-stacks/">
 
 
     
     <link href="https://fonts.googleapis.com/css?family=Lobster|Lato:400,700" rel="stylesheet">
     
-    <title>Introduccion a YAML - On The Dock</title>
+    <title>Prevenir sustos al eliminar stacks de CloudFormation - On The Dock</title>
     <style amp-boilerplate>body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}</style><noscript><style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style></noscript>
     <script async src="https://cdn.ampproject.org/v0.js"></script>
     
@@ -26,22 +26,22 @@
 <script async custom-element="amp-ad" src="https://cdn.ampproject.org/v0/amp-ad-0.1.js"></script>
 
     
-<meta name="description" content="&lt;p&gt;YAML es el lenguaje en el que se definen los &lt;em&gt;pods&lt;/em&gt;, los &lt;em&gt;deployments&lt;/em&gt; y demás estructuras en Kubernetes. Todos los artículos que he leído sobre cómo crear un fichero de definición del &lt;em&gt;pod&lt;/em&gt; (&lt;em&gt;deployment&lt;/em&gt;, etc) se centran en el &lt;strong&gt;contenido&lt;/strong&gt; del fichero.&lt;/p&gt;&lt;p&gt;Pero en mi caso, echaba de menos una explicación de &lt;strong&gt;cómo&lt;/strong&gt; se crea el fichero, qué reglas se siguen a la hora de &lt;em&gt;describir&lt;/em&gt; la configuración en formato YAML.&lt;/p&gt;&lt;p&gt;Afortunadamente el lenguaje YAML es muy sencillo y basta con conocer un par de estructuras para crear los ficheros de configuración de Kubernetes.&lt;/p&gt;">
+<meta name="description" content="&lt;p&gt;Al eliminar un &lt;em&gt;stack&lt;/em&gt; de CloudFormation &lt;strong&gt;todos&lt;/strong&gt; los recursos creados se eliminan automáticamente. Esto te puede provocar un buen susto cuando lanzas la eliminación de un &lt;em&gt;stack&lt;/em&gt; por error&amp;hellip;&lt;/p&gt;&lt;p&gt;En esta entrada indico cómo prevenir esas situaciones a diferentes niveles: aplicando &lt;em&gt;stack policies&lt;/em&gt; o todo el &lt;em&gt;stack&lt;/em&gt; o de forma individual a algunos recursos con &lt;em&gt;DeletionPolicy&lt;/em&gt;.&lt;/p&gt;">
 
-<meta property="og:title" content="Introduccion a YAML - On The Dock">
+<meta property="og:title" content="Prevenir sustos al eliminar stacks de CloudFormation - On The Dock">
 <meta property="og:type" content="article">
-<meta property="og:url" content="https://onthedock.github.io/post/170525-introduccion-a-yaml/">
-<meta property="og:image" content="https://onthedock.github.io/images/yaml.png">
+<meta property="og:url" content="https://onthedock.github.io/post/200528-prevenir-sustos-al-eliminar-stacks/">
+<meta property="og:image" content="https://onthedock.github.io/images/aws.png">
 <meta property="og:site_name" content="On The Dock">
-<meta property="og:description" content="&lt;p&gt;YAML es el lenguaje en el que se definen los &lt;em&gt;pods&lt;/em&gt;, los &lt;em&gt;deployments&lt;/em&gt; y demás estructuras en Kubernetes. Todos los artículos que he leído sobre cómo crear un fichero de definición del &lt;em&gt;pod&lt;/em&gt; (&lt;em&gt;deployment&lt;/em&gt;, etc) se centran en el &lt;strong&gt;contenido&lt;/strong&gt; del fichero.&lt;/p&gt;&lt;p&gt;Pero en mi caso, echaba de menos una explicación de &lt;strong&gt;cómo&lt;/strong&gt; se crea el fichero, qué reglas se siguen a la hora de &lt;em&gt;describir&lt;/em&gt; la configuración en formato YAML.&lt;/p&gt;&lt;p&gt;Afortunadamente el lenguaje YAML es muy sencillo y basta con conocer un par de estructuras para crear los ficheros de configuración de Kubernetes.&lt;/p&gt;">
+<meta property="og:description" content="&lt;p&gt;Al eliminar un &lt;em&gt;stack&lt;/em&gt; de CloudFormation &lt;strong&gt;todos&lt;/strong&gt; los recursos creados se eliminan automáticamente. Esto te puede provocar un buen susto cuando lanzas la eliminación de un &lt;em&gt;stack&lt;/em&gt; por error&amp;hellip;&lt;/p&gt;&lt;p&gt;En esta entrada indico cómo prevenir esas situaciones a diferentes niveles: aplicando &lt;em&gt;stack policies&lt;/em&gt; o todo el &lt;em&gt;stack&lt;/em&gt; o de forma individual a algunos recursos con &lt;em&gt;DeletionPolicy&lt;/em&gt;.&lt;/p&gt;">
 <meta property="og:locale" content="ja_JP">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="On The Dock">
-<meta name="twitter:url" content="https://onthedock.github.io/post/170525-introduccion-a-yaml/">
-<meta name="twitter:title" content="Introduccion a YAML - On The Dock">
-<meta name="twitter:description" content="&lt;p&gt;YAML es el lenguaje en el que se definen los &lt;em&gt;pods&lt;/em&gt;, los &lt;em&gt;deployments&lt;/em&gt; y demás estructuras en Kubernetes. Todos los artículos que he leído sobre cómo crear un fichero de definición del &lt;em&gt;pod&lt;/em&gt; (&lt;em&gt;deployment&lt;/em&gt;, etc) se centran en el &lt;strong&gt;contenido&lt;/strong&gt; del fichero.&lt;/p&gt;&lt;p&gt;Pero en mi caso, echaba de menos una explicación de &lt;strong&gt;cómo&lt;/strong&gt; se crea el fichero, qué reglas se siguen a la hora de &lt;em&gt;describir&lt;/em&gt; la configuración en formato YAML.&lt;/p&gt;&lt;p&gt;Afortunadamente el lenguaje YAML es muy sencillo y basta con conocer un par de estructuras para crear los ficheros de configuración de Kubernetes.&lt;/p&gt;">
-<meta name="twitter:image" content="https://onthedock.github.io/images/yaml.png">
+<meta name="twitter:url" content="https://onthedock.github.io/post/200528-prevenir-sustos-al-eliminar-stacks/">
+<meta name="twitter:title" content="Prevenir sustos al eliminar stacks de CloudFormation - On The Dock">
+<meta name="twitter:description" content="&lt;p&gt;Al eliminar un &lt;em&gt;stack&lt;/em&gt; de CloudFormation &lt;strong&gt;todos&lt;/strong&gt; los recursos creados se eliminan automáticamente. Esto te puede provocar un buen susto cuando lanzas la eliminación de un &lt;em&gt;stack&lt;/em&gt; por error&amp;hellip;&lt;/p&gt;&lt;p&gt;En esta entrada indico cómo prevenir esas situaciones a diferentes niveles: aplicando &lt;em&gt;stack policies&lt;/em&gt; o todo el &lt;em&gt;stack&lt;/em&gt; o de forma individual a algunos recursos con &lt;em&gt;DeletionPolicy&lt;/em&gt;.&lt;/p&gt;">
+<meta name="twitter:image" content="https://onthedock.github.io/images/aws.png">
 
 
 <script type="application/ld+json">
@@ -52,15 +52,15 @@
       "@type": "WebPage",
       "@id":"https:\/\/onthedock.github.io\/"
     },
-    "headline": "Introduccion a YAML - On The Dock",
+    "headline": "Prevenir sustos al eliminar stacks de CloudFormation - On The Dock",
     "image": {
       "@type": "ImageObject",
-      "url": "https:\/\/onthedock.github.io\/images\/yaml.png",
+      "url": "https:\/\/onthedock.github.io\/images\/aws.png",
       "height": 800,
       "width": 800
     },
-    "datePublished": "2017-05-25T18:34:11JST",
-    "dateModified": "2017-05-25T18:34:11JST",
+    "datePublished": "2020-05-28T19:54:41JST",
+    "dateModified": "2020-05-28T19:54:41JST",
     "author": {
       "@type": "Person",
       "name": "On The Dock"
@@ -75,7 +75,7 @@
         "height": 60
       }
     },
-    "description": "\x3cp\x3eYAML es el lenguaje en el que se definen los \x3cem\x3epods\x3c\/em\x3e, los \x3cem\x3edeployments\x3c\/em\x3e y demás estructuras en Kubernetes. Todos los artículos que he leído sobre cómo crear un fichero de definición del \x3cem\x3epod\x3c\/em\x3e (\x3cem\x3edeployment\x3c\/em\x3e, etc) se centran en el \x3cstrong\x3econtenido\x3c\/strong\x3e del fichero.\x3c\/p\x3e\n\n\x3cp\x3ePero en mi caso, echaba de menos una explicación de \x3cstrong\x3ecómo\x3c\/strong\x3e se crea el fichero, qué reglas se siguen a la hora de \x3cem\x3edescribir\x3c\/em\x3e la configuración en formato YAML.\x3c\/p\x3e\n\n\x3cp\x3eAfortunadamente el lenguaje YAML es muy sencillo y basta con conocer un par de estructuras para crear los ficheros de configuración de Kubernetes.\x3c\/p\x3e"
+    "description": "\x3cp\x3eAl eliminar un \x3cem\x3estack\x3c\/em\x3e de CloudFormation \x3cstrong\x3etodos\x3c\/strong\x3e los recursos creados se eliminan automáticamente. Esto te puede provocar un buen susto cuando lanzas la eliminación de un \x3cem\x3estack\x3c\/em\x3e por error\x26hellip;\x3c\/p\x3e\n\n\x3cp\x3eEn esta entrada indico cómo prevenir esas situaciones a diferentes niveles: aplicando \x3cem\x3estack policies\x3c\/em\x3e o todo el \x3cem\x3estack\x3c\/em\x3e o de forma individual a algunos recursos con \x3cem\x3eDeletionPolicy\x3c\/em\x3e.\x3c\/p\x3e"
   }
 </script>
 
@@ -104,14 +104,14 @@
     <main>
       
 <div class="l-container">
-  <article class="single article-2de6ff3b0144ea18b2ef056107448a33">
+  <article class="single article-af7ce20f88530a679b64bc11f369dd66">
   <div class="header-wrapper">
-    <a href="https://onthedock.github.io/post/170525-introduccion-a-yaml/" class="thumbnail" title="Introduccion a YAML"></a>
+    <a href="https://onthedock.github.io/post/200528-prevenir-sustos-al-eliminar-stacks/" class="thumbnail" title="Prevenir sustos al eliminar stacks de CloudFormation"></a>
     <header class="article-header">
       <div class="clearfix">
-        <h1 class="title">Introduccion a YAML</h1>
+        <h1 class="title">Prevenir sustos al eliminar stacks de CloudFormation</h1>
         <ul class="p-facts">
-          <li><time datetime="2017-05-25T18:34:11JST">25 May 2017</time></li>
+          <li><time datetime="2020-05-28T19:54:41JST">28 May 2020</time></li>
           <li><a href="https://onthedock.github.io/post/">post</a></li>
           
           <li>Xavier Aznar</li>
@@ -120,133 +120,152 @@
     </header>
   </div>
 
-  <div class="article-body"><p>YAML es el lenguaje en el que se definen los <em>pods</em>, los <em>deployments</em> y demás estructuras en Kubernetes. Todos los artículos que he leído sobre cómo crear un fichero de definición del <em>pod</em> (<em>deployment</em>, etc) se centran en el <strong>contenido</strong> del fichero.</p>
+  <div class="article-body"><p>Al eliminar un <em>stack</em> de CloudFormation <strong>todos</strong> los recursos creados se eliminan automáticamente. Esto te puede provocar un buen susto cuando lanzas la eliminación de un <em>stack</em> por error&hellip;</p>
 
-<p>Pero en mi caso, echaba de menos una explicación de <strong>cómo</strong> se crea el fichero, qué reglas se siguen a la hora de <em>describir</em> la configuración en formato YAML.</p>
+<p>En esta entrada indico cómo prevenir esas situaciones a diferentes niveles: aplicando <em>stack policies</em> o todo el <em>stack</em> o de forma individual a algunos recursos con <em>DeletionPolicy</em>.</p>
 
-<p>Afortunadamente el lenguaje YAML es muy sencillo y basta con conocer un par de estructuras para crear los ficheros de configuración de Kubernetes.</p>
+<h2 id="deletionpolicy-retain">DeletionPolicy: Retain</h2>
 
-<p>YAML es un lenguaje de marcado muy simple, basado en ficheros de texto plano legible por los humanos. Este formato se utiliza dentro del mundillo del software para almacenar información de tipo configuración.</p>
+<p>Empezamos con el <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-attribute-deletionpolicy.html">DeletionPolicy Attribute</a>, una propiedad que puedes especificar a nivel de recurso. El valor por defecto es <code>Delete</code>, así que si quieres evitar que el recurso se elimine al borrar el <em>stack</em>, lo mejor es establecer esta propiedad a <code>Retain</code>.</p>
 
-<p>YAML son las siglas de <em>Yet Another Markup Language</em> (Otro lenguaje de marcado más) o <em>YAML Ain&rsquo;t Markup Language</em> (YAML no es un lenguaje de marcado), depende de a quién preguntes.</p>
+<p>Si revisas los estados asociados a los recursos en el <em>stack</em> observarás que para aquellos recursos con <code>DeletionPolicy: Retain</code> se indica <code>DELETE_SKIPPED</code>.</p>
 
-<p>Usar YAML para las definiciones de Kubernetes proporciona las siguientes ventajas:</p>
+<p>Esta opción evita que el recurso se elimine al borrar el <em>stack</em>, pero no evita que se elimine si se borra el recurso de la plantilla y ejecutas un <em>update</em> del <em>stack</em>; es decir, no &ldquo;marca&rdquo; el recurso para que no sea borrable, sino que es una propiedad que indica a CloudFormation que no elimine el recurso; si lo borras de la plantilla -y por tanto no tiene la propiedad <code>DeletionPolicy</code> establecida en <code>Retain</code>- se aplica el valor por defecto que es <code>Delete</code>.</p>
 
-<ul>
-<li><strong>Conveniencia</strong> No es necesario especificar todos los parámetros en la línea de comandos.</li>
-<li><strong>Mantenimiento</strong> Los ficheros YAML puede ser gestionados por un sistema de control de versiones, de manera que se pueden registrar los cambios.</li>
-<li><strong>Flexibilidad</strong> Es posible crear estructuras mucho más complejas usando YAML de lo que puede conseguirse desde la línea de comandos.</li>
-</ul>
+<p>Tampoco evita la eliminación de un recurso para aquellas actualizaciones que requieren un <em>reemplazo</em> del recurso durante una actualización. Para este escenario debes usar la propiedad <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-attribute-updatereplacepolicy.html">UpdateReplacePolicy Attribute</a>.</p>
 
-<p>YAML es un superconjunto de JSON, lo que significa que cualquier fichero JSON válido también es un fichero YAML válido.</p>
+<p>La diferencia entre <code>DeletionPolicy</code> y <code>UpdateReplacePolicy</code> es que la primera aplica cuando se intenta borrar el recurso mientras que la segunda aplica durante actualizaciones del recurso que implican un <em>replacement</em>. Si un recurso tiene especificada el atributo <code>UpdateReplacePolicy</code> en <code>Retain</code>, el recurso &ldquo;reemplazado&rdquo; se mantiene en vez de borrarse al realizar la actualización (acabamos con dos copias). El recurso &ldquo;original&rdquo; queda &ldquo;fuera&rdquo; del <em>scope</em> del <em>stack</em>.</p>
 
-<p>Como consejos generales a la hora de crear un fichero YAML:</p>
+<p>Algunos recursos soportan una tercera opción (además de <code>Delete</code> o <code>Retain</code>): <code>Snapshot</code>. Los recursos que lo soportan son:</p>
 
 <ul>
-<li>Usa siempre la codificación UTF-8 para evitar errores.</li>
-<li>No uses <strong>nunca</strong> tabulaciones</li>
-<li>Usa una fuente monoespaciada para visualizar/editar el contenido de los ficheros YAML.</li>
+<li>AWS::EC2::Volume</li>
+<li>AWS::ElastiCache::CacheCluster</li>
+<li>AWS::ElastiCache::ReplicationGroup</li>
+<li>AWS::Neptune::DBCluster</li>
+<li>AWS::RDS::DBCluster</li>
+<li>AWS::RDS::DBInstance</li>
+<li>AWS::Redshift::Cluster</li>
 </ul>
 
-<p>Sólo necesitas conocer dos tipos de estructuras en YAML:</p>
+<h2 id="políticas-de-stack">Políticas de <em>stack</em></h2>
 
-<ul>
-<li>Listas</li>
-<li>Mapas</li>
-</ul>
+<p>Estableciendo el atributo <code>DeletionPolicy: Retain</code> se puede evitar la eliminación de los recursos cuando se borra el <em>stack</em>, pero establecer el atributo para cada recurso es algo tedioso.</p>
 
-<p>A parte de los mapas y las listas, también te puede resultar útil saber que cualquier línea que comience con un <code>#</code> se considera un comentario y es ignorada.</p>
+<p>Otra forma de proteger recursos concretos o todo el <em>stack</em> es usar las <em>stack policies</em>: <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/protect-stack-resources.html">Prevent Updates to Stack Resources</a>.</p>
 
-<h1 id="mapas-yaml">Mapas YAML</h1>
+<p>Una <em>stack policy</em> es un documento JSON que indique qué acciones se pueden realizar sobre qué recursos del <em>stack</em>.</p>
 
-<p>Los mapas te permiten asociar parejas de nombres y valores, lo que es conveniente cuando estás tratando con información relativa a configuraciones. Por ejemplo, puedes tener una configuración que empiece como:</p>
+<p>Al establecer una <em>stack policy</em> se evitan las actualizaciones de todos los recursos del <em>stack</em> <strong>por defecto</strong>. Para permitir actualizaciones sobre recursos concretos, debes especificarlo explícitamente.</p>
 
-<pre><code class="language-yaml">---
-apiVersion: v1
-kind: Pod
+<p>Aunque sólo se puede establecer una <em>stack policy</em> por <em>stack</em>, ésta permite controlar las modificaciones sobre recursos de tantos recursos como queramos del <em>stack</em>.</p>
+
+<p>Debes tener en cuenta que el <em>stack policy</em> sólo &ldquo;protege&rdquo; los recursos de acciones realizadas a través de actualizaciones realizadas por CloudFormation, pero no impide la modificación de los recursos directamente. Para ello, debes restringir el acceso a los recursos mediante políticas IAM. La <em>stack policy</em> es más un mecanismo de protección contra modificaciones inadvertidas sobre recursos de un <em>stack</em>.</p>
+
+<p>Un ejemplo de <em>stack policy</em> sería:</p>
+
+<pre><code class="language-json">{
+  &quot;Statement&quot; : [
+    {
+      &quot;Effect&quot; : &quot;Allow&quot;,
+      &quot;Action&quot; : &quot;Update:*&quot;,
+      &quot;Principal&quot;: &quot;*&quot;,
+      &quot;Resource&quot; : &quot;*&quot;
+    },
+    {
+      &quot;Effect&quot; : &quot;Deny&quot;,
+      &quot;Action&quot; : &quot;Update:*&quot;,
+      &quot;Principal&quot;: &quot;*&quot;,
+      &quot;Resource&quot; : &quot;LogicalResourceId/ProductionDatabase&quot;
+    }
+  ]
+}
 </code></pre>
 
-<p>La primera línea es un separador, y es opcional a no ser que trates de definir múltiples estructuras en un solo fichero. En el fichero puedes ver que tenemos dos valores, <code>v1</code> y <code>Pod</code>, asociados a dos claves, <code>apiVersion</code> y <code>kind</code>.</p>
+<p>Esta política permite cualquier tipo de actualización sobre todos los recursos del <em>stack</em> <strong>excepto</strong> el llamado <code>ProductionDatabase</code>.</p>
 
-<p>No es necesario que los valores estén entrecomillados (con comillas simples o dobles), excepto para asegurarte de que no se interpreta algún caracter especial con un significado diferente a su valor literal.</p>
+<h3 id="particularidades-de-la-stack-policy">Particularidades de la <em>stack policy</em></h3>
 
-<p>Las parejas clave-valor contenidas en un mapa se almacenan sin orden, por lo que puedes especificarlas en el orden que quieras.</p>
+<p>Una <em>stack policy</em> es una especie de <em>resource-based policy</em> aplicada al <em>stack</em>; por ello debes especificar el <code>Principal</code>, aunque sólo admite el valor <code>*</code>.</p>
 
-<p>El fichero YAML anterior es equivalente a:</p>
+<p>Por defecto, la presencia de una <em>stack policy</em> asociada al <em>stack</em> deniega la actualización de todos los recursos del <em>stack</em> excepto si se permite explícitamente. Sin embargo, AWS recomienda usar <code>Deny</code> explícitos si realmente queremos evitar la modificación de alguno de los recursos contenidos en el <em>stack</em>.</p>
 
-<pre><code class="language-yaml">---
-kind: Pod
-apiVersion: v1
+<p>Los valores de <code>Action</code> también son particulares, ya que en vez de ser de la forma <code>servicio:permiso</code> son <code>Update:*</code>, que permite cualquier tipo de actualización sobre el recurso o <code>Update:Modify</code>, <code>Update:Replace</code> o <code>Update:Delete</code>. Las <em>stack policy</em> también aceptan <code>NotAction</code>, pero como en el caso de las IAM policies, es mejor evitarlo si es posible.</p>
+
+<p>En cuanto a los recursos, la <em>stack policy</em> permite usar condiciones del tipo <code>StringEquals</code> o <code>StringLike</code> para tipos de recursos. Esto permite denegar el borrado de todos los recursos del tipo <code>AWS::EC2::Instance</code> e incluso, todos los recursos de tipo EC2 mediante <code>AWS::EC2::*</code>: instancias, <em>security groups</em>, <em>subnets</em>, etc.</p>
+
+<pre><code class="language-json">&quot;Condition&quot; : {
+  &quot;StringLike&quot; : {
+    &quot;ResourceType&quot; : [&quot;AWS::EC2::*&quot;]
+  }
+}
 </code></pre>
 
-<p>Podemos anidar mapas dentro de mapas para crear estructuras más complejas, como:</p>
+<h3 id="aplicar-una-stack-policy">Aplicar una <em>stack policy</em></h3>
 
-<pre><code class="language-yaml">---
-apiVersion: v1
-kind: Pod
-metadata:
-   name: rss-site
-   labels:
-      app: web
+<p>Puedes aplicar una <em>stack policy</em> a un <em>stack</em> vía consola <strong>sólo durante su creación</strong>.</p>
+
+<p>Para aplicar una <em>stack policy</em> a un <em>stack</em> ya creado debes usar la CLI: <code>aws cloudformation set-stack-policy</code>. También puedes usar la CLI para aplicar la <em>stack policy</em> al crear el <em>stack</em> (<code>aws cloudformation create-stack</code> y especificando la <em>stack policy</em> como un parámetro).</p>
+
+<h3 id="actualizar-recursos-protegidos-con-una-stack-policy">Actualizar recursos protegidos con una <em>stack policy</em></h3>
+
+<p>Las <em>stack policy</em> están pensadas para evitar modificaciones por error de un <em>stack</em>, pero ¿cómo actualizas los recursos de un <em>stack</em> si la <em>stack policy</em> lo impide?</p>
+
+<p>AWS permite especificar una <em>stack policy</em> <strong>temporal</strong> para permitir la modificación de un recurso protegido. Desde la consola web de AWS, en la página de configuración de opciones del <em>stack</em>, en la sección <code>Advanced options</code>, selecciona <code>Stack policy</code> y sube la <em>stack policy</em> que permita la modificación del recurso.</p>
+
+<p>Esta <em>stack policy</em> que permite la modificación de los recursos protegidos sólo tiene validez durante la actualización del <em>stack</em>; cuando finaliza, la <em>stack policy</em> &ldquo;temporal&rdquo; deja de ser válida y por tanto los recursos vuelven a estar protegidos contra modificaciones.</p>
+
+<p>En la documentación de AWS <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/protect-stack-resources.html#stack-policy-samples">More Example Stack Policies</a> tienes algunos ejemplos de <em>stack policies</em>, como ésta que evita la actualización de cualquier <em>stack</em> anidado:</p>
+
+<pre><code class="language-json">{
+  &quot;Statement&quot; : [
+    {
+      &quot;Effect&quot; : &quot;Deny&quot;,
+      &quot;Action&quot; : &quot;Update:*&quot;,
+      &quot;Principal&quot;: &quot;*&quot;,
+      &quot;Resource&quot; : &quot;*&quot;,
+      &quot;Condition&quot; : {
+        &quot;StringEquals&quot; : {
+          &quot;ResourceType&quot; : [&quot;AWS::CloudFormation::Stack&quot;]
+        }
+      }
+    },
+    {
+      &quot;Effect&quot; : &quot;Allow&quot;,
+      &quot;Action&quot; : &quot;Update:*&quot;,
+      &quot;Principal&quot;: &quot;*&quot;,
+      &quot;Resource&quot; : &quot;*&quot;
+    }
+  ]
+}
 </code></pre>
 
-<p>En este caso tenemos un mapa llamado <code>metadata</code> que contiene otros dos mapas; el primero <code>name: rss-site</code> y el segundo, <code>labels</code>, contiene como valor otro mapa <code>app: web</code>.</p>
+<h2 id="bonus-usando-deletionpolicy-para-importar-recursos-en-stacks">Bonus: Usando <code>DeletionPolicy</code> para importar recursos en <em>stacks</em></h2>
 
-<p>Puedes anidar tantos mapas dentro de mapas como quieras.</p>
+<p>CloudFormation permite crear y actualizar <em>stacks</em> partiendo de recursos ya existentes. Para poder incorporar un recurso al <em>stack</em> debemos describirlo en la plantilla de CloudFormation y <strong>debemos especificar</strong> la <code>DeletionPolicy: Retain</code>.</p>
 
-<p>Para indicar que un mapa está contenido en otro, se usa la indentación. En el ejemplo anterior hemos usado una indentación de 3 espacios, pero el número de espacios no importa, siempre que sea <strong>consistente</strong> en el fichero. El procesador de YAML interpreta las claves y valores en la misma profundidad de indentación como al mismo nivel (por ejemplo, <code>name</code> y <code>labels</code>), mientras que si están indentadas, interpreta que están <em>contenidas</em> unos en otros (como en el caso de <code>labels</code> y <code>app: web</code>).</p>
+<p>Una manera sencilla y efectiva de incluir todas las propiedades del recurso existente en CloudFormation es usando &ldquo;get&rdquo; o &ldquo;describe&rdquo; desde la CLI; por ejemplo, para un usuario IAM:</p>
 
-<h1 id="listas-en-yaml">Listas en YAML</h1>
-
-<p>Una lista, en YAML, es una secuencia de objetos, o lo que es lo mismo, una colección ordenada de valores. En este caso los valores no están asociados con una clave, sino con un índice posicional obtenido del orden en el que están especificados en la lista. Por ejemplo:</p>
-
-<pre><code class="language-yaml">args
-   - sleep
-   - 1000
-   - message
-   - &quot;Hello World!&quot;
+<pre><code class="language-yaml">User:
+  Arn: arn:aws:iam::123456789012:user/iam-username-no-path
+  CreateDate: '2020-05-28T16:40:57+00:00'
+  Path: /
+  Tags:
+  - Key: deletable
+    Value: 'true'
+  - Key: owner
+    Value: xavi
+  UserId: AIDARZDR66FL6NEXAMPLE
+  UserName: iam-username-no-path
 </code></pre>
 
-<p>Puede haber cualquier número de elementos en una lista.</p>
-
-<p>Como en el caso de las parejas clave-valor, los elementos de una lista se encuentran indentados con el mismo número de espacios bajo el identificador (la clave) de la lista; cada elemento de la lista va precedido por un <code>-</code>.</p>
-
-<p>Del mismo modo que podemos anidar mapas en mapas, podemos anidar listas en listas, mapas en listas y cualquier combinación imaginable. Un ejemplo de mapas y listas anidados:</p>
-
-<pre><code class="language-yaml"># Configuracion ficticia
-spec:
-   containers:
-      - name: front-end
-        image: nginx
-        ports:
-           - containerPort: 80
-      - name: rss-reader
-        image: xavi/rss-reader
-        ports:
-           - containerPort: 80
-</code></pre>
-
-<p>En resumen, tenemos:</p>
-
-<ul>
-<li><strong>Mapas</strong>, que son grupos no ordenados de parejas de clave y valor</li>
-<li><strong>Listas</strong>, que son colecciones ordenadas de elementos individuales</li>
-<li>Mapas de mapas</li>
-<li>Mapas de listas</li>
-<li>Listas de mapas</li>
-<li>Listas de listas</li>
-<li>etc</li>
-</ul>
-
-<p>Básicamente, cualquier estructura que puedas imaginar, se puede construir a partir de estos dos elementos.</p>
-
-<p>Con estos conocimientos básicos, espero que ahora te resulte mucho más sencillo interpretar los ficheros de configuración de <em>pods</em>, <em>deployments</em>, etc. Y no sólo en Kubernetes; las configuraciones en formato YAML son usadas por un montón de productos diferentes.</p></div>
+<p>De esta forma puedes obtener muchas de las propiedades del recurso &ldquo;real&rdquo; en un formato que puedes -casi- copiar y pegar en tus plantillas, añadir el atributo <code>DeletionPolicy: Retain</code> y crear/actualizar el <em>stack</em>.</p></div>
 
   <aside class="p-share">
-  <a href="http://twitter.com/intent/tweet?url=https%3a%2f%2fonthedock.github.io%2fpost%2f170525-introduccion-a-yaml%2f&text=Introduccion%20a%20YAML&tw_p=tweetbutton" title="Twitterでシェア" class="tw" target="_blank" rel="nofollow"></a>
-  <a href="http://www.facebook.com/sharer.php?u=https%3a%2f%2fonthedock.github.io%2fpost%2f170525-introduccion-a-yaml%2f&t=Introduccion%20a%20YAML" title="Facebookでシェア" class="fb" target="_blank" rel="nofollow"></a>
-  <a href="http://line.me/R/msg/text/?Introduccion%20a%20YAML https%3a%2f%2fonthedock.github.io%2fpost%2f170525-introduccion-a-yaml%2f" title="LINEでシェア" class="ln" target="_blank" rel="nofollow"></a>
-  <a href="http://b.hatena.ne.jp/add?mode=confirm&url=https%3a%2f%2fonthedock.github.io%2fpost%2f170525-introduccion-a-yaml%2f&title=Introduccion%20a%20YAML" title="はてなブックマーク" class="ht" target="_blank" rel="nofollow"></a>
+  <a href="http://twitter.com/intent/tweet?url=https%3a%2f%2fonthedock.github.io%2fpost%2f200528-prevenir-sustos-al-eliminar-stacks%2f&text=Prevenir%20sustos%20al%20eliminar%20stacks%20de%20CloudFormation&tw_p=tweetbutton" title="Twitterでシェア" class="tw" target="_blank" rel="nofollow"></a>
+  <a href="http://www.facebook.com/sharer.php?u=https%3a%2f%2fonthedock.github.io%2fpost%2f200528-prevenir-sustos-al-eliminar-stacks%2f&t=Prevenir%20sustos%20al%20eliminar%20stacks%20de%20CloudFormation" title="Facebookでシェア" class="fb" target="_blank" rel="nofollow"></a>
+  <a href="http://line.me/R/msg/text/?Prevenir%20sustos%20al%20eliminar%20stacks%20de%20CloudFormation https%3a%2f%2fonthedock.github.io%2fpost%2f200528-prevenir-sustos-al-eliminar-stacks%2f" title="LINEでシェア" class="ln" target="_blank" rel="nofollow"></a>
+  <a href="http://b.hatena.ne.jp/add?mode=confirm&url=https%3a%2f%2fonthedock.github.io%2fpost%2f200528-prevenir-sustos-al-eliminar-stacks%2f&title=Prevenir%20sustos%20al%20eliminar%20stacks%20de%20CloudFormation" title="はてなブックマーク" class="ht" target="_blank" rel="nofollow"></a>
   <div class="searchbar">
       <iframe src="https://duckduckgo.com/search.html?site=https://onthedock.github.io/&prefill=Busca en este sitio usando DuckDuckGo" style="width: 25em;height: 48px" frameborder="0"></iframe>
     </div>
@@ -260,7 +279,7 @@ spec:
         
         <li itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb"><a href="https://onthedock.github.io/post/" itemprop="url"><span itemprop="title">post</span></a></li>
         
-        <li>Introduccion a YAML</li>
+        <li>Prevenir sustos al eliminar stacks de CloudFormation</li>
       </ol>
 
       
@@ -270,8 +289,6 @@ spec:
         <li>
           <header><a href="https://onthedock.github.io/categories/">categories</a></header>
           <ul>
-            
-            <li><a href="https://onthedock.github.io/categories/dev/">dev</a></li>
             
             <li><a href="https://onthedock.github.io/categories/ops/">ops</a></li>
             
@@ -286,7 +303,9 @@ spec:
           <header><a href="https://onthedock.github.io/tags/">tags</a></header>
           <ul>
             
-            <li><a href="https://onthedock.github.io/tags/yaml/">yaml</a></li>
+            <li><a href="https://onthedock.github.io/tags/aws/">aws</a></li>
+            
+            <li><a href="https://onthedock.github.io/tags/cloudformation/">cloudformation</a></li>
             
           </ul>
         </li>
@@ -324,22 +343,7 @@ spec:
   <section>
     <header><span>Latests</span></header>
     <ul class="p-articles thin">
-      <li><article class="li sm article-af7ce20f88530a679b64bc11f369dd66">
-  <div class="header-wrapper">
-    <a href="https://onthedock.github.io/post/200528-prevenir-sustos-al-eliminar-stacks/" class="thumbnail" title="Prevenir sustos al eliminar stacks de CloudFormation"></a>
-    <header class="article-header">
-      <div class="clearfix">
-        <h2 class="title"><a href="https://onthedock.github.io/post/200528-prevenir-sustos-al-eliminar-stacks/">Prevenir sustos al eliminar stacks de CloudFormation</a></h2>
-        <ul class="p-facts">
-          <li><time datetime="2020-05-28T19:54:41JST">28 May 2020</time></li>
-          <li><a href="https://onthedock.github.io/post/">post</a></li>
-          
-        </ul>
-      </div>
-    </header>
-  </div>
-</article>
-</li><li><article class="li sm article-749180de0a0f927ac4118d5f742aec7a">
+      <li><article class="li sm article-749180de0a0f927ac4118d5f742aec7a">
   <div class="header-wrapper">
     <a href="https://onthedock.github.io/post/200517-descarga-objetos-privados-desde-un-bucket-usando-presigned-urls/" class="thumbnail" title="Descarga de objetos privados desde S3 usando presigned URLs"></a>
     <header class="article-header">
@@ -377,6 +381,21 @@ spec:
         <h2 class="title"><a href="https://onthedock.github.io/post/200510-tipos-de-principals-en-aws/">Tipos de Principals en AWS</a></h2>
         <ul class="p-facts">
           <li><time datetime="2020-05-10T09:01:57JST">10 May 2020</time></li>
+          <li><a href="https://onthedock.github.io/post/">post</a></li>
+          
+        </ul>
+      </div>
+    </header>
+  </div>
+</article>
+</li><li><article class="li sm article-ae823e9b9f3db0ab3a477ed5e16bcb32">
+  <div class="header-wrapper">
+    <a href="https://onthedock.github.io/post/200510-prueba-de-concepto-de-notificaciones-via-sns-para-cfn/" class="thumbnail" title="Prueba de Concepto de notificaciones via CloudWatch Events desde CloudFormation (sin Lambdas)"></a>
+    <header class="article-header">
+      <div class="clearfix">
+        <h2 class="title"><a href="https://onthedock.github.io/post/200510-prueba-de-concepto-de-notificaciones-via-sns-para-cfn/">Prueba de Concepto de notificaciones via CloudWatch Events desde CloudFormation (sin Lambdas)</a></h2>
+        <ul class="p-facts">
+          <li><time datetime="2020-05-10T00:42:51JST">10 May 2020</time></li>
           <li><a href="https://onthedock.github.io/post/">post</a></li>
           
         </ul>
