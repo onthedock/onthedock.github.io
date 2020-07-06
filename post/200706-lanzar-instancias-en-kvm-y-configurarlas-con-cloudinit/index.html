@@ -11,13 +11,13 @@
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
 
-<link rel="canonical" href="https://onthedock.github.io/post/170506-troubleshooting-kubernetes-ii/">
+<link rel="canonical" href="https://onthedock.github.io/post/200706-lanzar-instancias-en-kvm-y-configurarlas-con-cloudinit/">
 
 
     
     <link href="https://fonts.googleapis.com/css?family=Lobster|Lato:400,700" rel="stylesheet">
     
-    <title>Troubleshooting Kubernetes (II) - On The Dock</title>
+    <title>Lanzar instancias en KVM y configurarlas con Cloudinit - On The Dock</title>
     <style amp-boilerplate>body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}</style><noscript><style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style></noscript>
     <script async src="https://cdn.ampproject.org/v0.js"></script>
     
@@ -26,22 +26,22 @@
 <script async custom-element="amp-ad" src="https://cdn.ampproject.org/v0/amp-ad-0.1.js"></script>
 
     
-<meta name="description" content="&lt;p&gt;Sigo con el &lt;em&gt;troubleshooting&lt;/em&gt; del &lt;em&gt;cuelgue&lt;/em&gt; de los nodos sobre Raspberry Pi 3 del clúster.&lt;/p&gt;&lt;p&gt;Ayer estuve &lt;em&gt;haciendo limpieza&lt;/em&gt; siguiendo &lt;em&gt;vagamente&lt;/em&gt; la recomendación de &lt;a href=&#34;https://github.com/kubernetes/kubernetes/issues/43593#issuecomment-288899231&#34;&gt;esta respuesta&lt;/a&gt; en el hilo &lt;a href=&#34;https://github.com/kubernetes/kubernetes/issues/43593#issuecomment-288899231&#34;&gt;Kubernetes memory consumption explosion&lt;/a&gt;.&lt;/p&gt;">
+<meta name="description" content="&lt;p&gt;En la &lt;a href=&#34;https://onthedock.github.io/post/200627-creacion-de-vm-en-kvm-con-virsh/&#34;&gt;entrada anterior&lt;/a&gt; describía los pasos para lanzar una instancia en KVM usando &lt;code&gt;virsh&lt;/code&gt;. Pero aunque esto resuelve la creación de la máquina virtual, todavía tenemos que realizar la configuración manual del sistema operativo, establecer el &lt;code&gt;hostname&lt;/code&gt;, crear usuarios, instalar de paquetes, etc.&lt;/p&gt;&lt;p&gt;Usando &lt;a href=&#34;https://cloudinit.readthedocs.io&#34;&gt;&lt;code&gt;cloud-init&lt;/code&gt;&lt;/a&gt; podemos automatizar el proceso de configuración tal y como lo hacen los proveedores de cloud público (AWS, Azure, Google Cloud&amp;hellip;)&lt;/p&gt;">
 
-<meta property="og:title" content="Troubleshooting Kubernetes (II) - On The Dock">
+<meta property="og:title" content="Lanzar instancias en KVM y configurarlas con Cloudinit - On The Dock">
 <meta property="og:type" content="article">
-<meta property="og:url" content="https://onthedock.github.io/post/170506-troubleshooting-kubernetes-ii/">
-<meta property="og:image" content="https://onthedock.github.io/images/kubernetes.png">
+<meta property="og:url" content="https://onthedock.github.io/post/200706-lanzar-instancias-en-kvm-y-configurarlas-con-cloudinit/">
+<meta property="og:image" content="https://onthedock.github.io/images/cloud-init.png">
 <meta property="og:site_name" content="On The Dock">
-<meta property="og:description" content="&lt;p&gt;Sigo con el &lt;em&gt;troubleshooting&lt;/em&gt; del &lt;em&gt;cuelgue&lt;/em&gt; de los nodos sobre Raspberry Pi 3 del clúster.&lt;/p&gt;&lt;p&gt;Ayer estuve &lt;em&gt;haciendo limpieza&lt;/em&gt; siguiendo &lt;em&gt;vagamente&lt;/em&gt; la recomendación de &lt;a href=&#34;https://github.com/kubernetes/kubernetes/issues/43593#issuecomment-288899231&#34;&gt;esta respuesta&lt;/a&gt; en el hilo &lt;a href=&#34;https://github.com/kubernetes/kubernetes/issues/43593#issuecomment-288899231&#34;&gt;Kubernetes memory consumption explosion&lt;/a&gt;.&lt;/p&gt;">
+<meta property="og:description" content="&lt;p&gt;En la &lt;a href=&#34;https://onthedock.github.io/post/200627-creacion-de-vm-en-kvm-con-virsh/&#34;&gt;entrada anterior&lt;/a&gt; describía los pasos para lanzar una instancia en KVM usando &lt;code&gt;virsh&lt;/code&gt;. Pero aunque esto resuelve la creación de la máquina virtual, todavía tenemos que realizar la configuración manual del sistema operativo, establecer el &lt;code&gt;hostname&lt;/code&gt;, crear usuarios, instalar de paquetes, etc.&lt;/p&gt;&lt;p&gt;Usando &lt;a href=&#34;https://cloudinit.readthedocs.io&#34;&gt;&lt;code&gt;cloud-init&lt;/code&gt;&lt;/a&gt; podemos automatizar el proceso de configuración tal y como lo hacen los proveedores de cloud público (AWS, Azure, Google Cloud&amp;hellip;)&lt;/p&gt;">
 <meta property="og:locale" content="ja_JP">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="On The Dock">
-<meta name="twitter:url" content="https://onthedock.github.io/post/170506-troubleshooting-kubernetes-ii/">
-<meta name="twitter:title" content="Troubleshooting Kubernetes (II) - On The Dock">
-<meta name="twitter:description" content="&lt;p&gt;Sigo con el &lt;em&gt;troubleshooting&lt;/em&gt; del &lt;em&gt;cuelgue&lt;/em&gt; de los nodos sobre Raspberry Pi 3 del clúster.&lt;/p&gt;&lt;p&gt;Ayer estuve &lt;em&gt;haciendo limpieza&lt;/em&gt; siguiendo &lt;em&gt;vagamente&lt;/em&gt; la recomendación de &lt;a href=&#34;https://github.com/kubernetes/kubernetes/issues/43593#issuecomment-288899231&#34;&gt;esta respuesta&lt;/a&gt; en el hilo &lt;a href=&#34;https://github.com/kubernetes/kubernetes/issues/43593#issuecomment-288899231&#34;&gt;Kubernetes memory consumption explosion&lt;/a&gt;.&lt;/p&gt;">
-<meta name="twitter:image" content="https://onthedock.github.io/images/kubernetes.png">
+<meta name="twitter:url" content="https://onthedock.github.io/post/200706-lanzar-instancias-en-kvm-y-configurarlas-con-cloudinit/">
+<meta name="twitter:title" content="Lanzar instancias en KVM y configurarlas con Cloudinit - On The Dock">
+<meta name="twitter:description" content="&lt;p&gt;En la &lt;a href=&#34;https://onthedock.github.io/post/200627-creacion-de-vm-en-kvm-con-virsh/&#34;&gt;entrada anterior&lt;/a&gt; describía los pasos para lanzar una instancia en KVM usando &lt;code&gt;virsh&lt;/code&gt;. Pero aunque esto resuelve la creación de la máquina virtual, todavía tenemos que realizar la configuración manual del sistema operativo, establecer el &lt;code&gt;hostname&lt;/code&gt;, crear usuarios, instalar de paquetes, etc.&lt;/p&gt;&lt;p&gt;Usando &lt;a href=&#34;https://cloudinit.readthedocs.io&#34;&gt;&lt;code&gt;cloud-init&lt;/code&gt;&lt;/a&gt; podemos automatizar el proceso de configuración tal y como lo hacen los proveedores de cloud público (AWS, Azure, Google Cloud&amp;hellip;)&lt;/p&gt;">
+<meta name="twitter:image" content="https://onthedock.github.io/images/cloud-init.png">
 
 
 <script type="application/ld+json">
@@ -52,15 +52,15 @@
       "@type": "WebPage",
       "@id":"https:\/\/onthedock.github.io\/"
     },
-    "headline": "Troubleshooting Kubernetes (II) - On The Dock",
+    "headline": "Lanzar instancias en KVM y configurarlas con Cloudinit - On The Dock",
     "image": {
       "@type": "ImageObject",
-      "url": "https:\/\/onthedock.github.io\/images\/kubernetes.png",
+      "url": "https:\/\/onthedock.github.io\/images\/cloud-init.png",
       "height": 800,
       "width": 800
     },
-    "datePublished": "2017-05-06T05:21:09JST",
-    "dateModified": "2017-05-06T05:21:09JST",
+    "datePublished": "2020-07-06T20:27:27JST",
+    "dateModified": "2020-07-06T20:27:27JST",
     "author": {
       "@type": "Person",
       "name": "On The Dock"
@@ -75,7 +75,7 @@
         "height": 60
       }
     },
-    "description": "\x3cp\x3eSigo con el \x3cem\x3etroubleshooting\x3c\/em\x3e del \x3cem\x3ecuelgue\x3c\/em\x3e de los nodos sobre Raspberry Pi 3 del clúster.\x3c\/p\x3e\n\x3cp\x3eAyer estuve \x3cem\x3ehaciendo limpieza\x3c\/em\x3e siguiendo \x3cem\x3evagamente\x3c\/em\x3e la recomendación de \x3ca href=\x22https:\/\/github.com\/kubernetes\/kubernetes\/issues\/43593#issuecomment-288899231\x22\x3eesta respuesta\x3c\/a\x3e en el hilo \x3ca href=\x22https:\/\/github.com\/kubernetes\/kubernetes\/issues\/43593#issuecomment-288899231\x22\x3eKubernetes memory consumption explosion\x3c\/a\x3e.\x3c\/p\x3e"
+    "description": "\x3cp\x3eEn la \x3ca href=\x22https:\/\/onthedock.github.io\/post\/200627-creacion-de-vm-en-kvm-con-virsh\/\x22\x3eentrada anterior\x3c\/a\x3e describía los pasos para lanzar una instancia en KVM usando \x3ccode\x3evirsh\x3c\/code\x3e. Pero aunque esto resuelve la creación de la máquina virtual, todavía tenemos que realizar la configuración manual del sistema operativo, establecer el \x3ccode\x3ehostname\x3c\/code\x3e, crear usuarios, instalar de paquetes, etc.\x3c\/p\x3e\n\x3cp\x3eUsando \x3ca href=\x22https:\/\/cloudinit.readthedocs.io\x22\x3e\x3ccode\x3ecloud-init\x3c\/code\x3e\x3c\/a\x3e podemos automatizar el proceso de configuración tal y como lo hacen los proveedores de cloud público (AWS, Azure, Google Cloud\x26hellip;)\x3c\/p\x3e"
   }
 </script>
 
@@ -104,14 +104,14 @@
     <main>
       
 <div class="l-container">
-  <article class="single article-911698c11286b3ef9eb1a11440c09845">
+  <article class="single article-6e92220fbd4bf73e9add44ea35db7875">
   <div class="header-wrapper">
-    <a href="https://onthedock.github.io/post/170506-troubleshooting-kubernetes-ii/" class="thumbnail" title="Troubleshooting Kubernetes (II)"></a>
+    <a href="https://onthedock.github.io/post/200706-lanzar-instancias-en-kvm-y-configurarlas-con-cloudinit/" class="thumbnail" title="Lanzar instancias en KVM y configurarlas con Cloudinit"></a>
     <header class="article-header">
       <div class="clearfix">
-        <h1 class="title">Troubleshooting Kubernetes (II)</h1>
+        <h1 class="title">Lanzar instancias en KVM y configurarlas con Cloudinit</h1>
         <ul class="p-facts">
-          <li><time datetime="2017-05-06T05:21:09JST">6 May 2017</time></li>
+          <li><time datetime="2020-07-06T20:27:27JST">6 Jul 2020</time></li>
           <li><a href="https://onthedock.github.io/post/">post</a></li>
           
           <li>Xavier Aznar</li>
@@ -120,81 +120,102 @@
     </header>
   </div>
 
-  <div class="article-body"><p>Sigo con el <em>troubleshooting</em> del <em>cuelgue</em> de los nodos sobre Raspberry Pi 3 del clúster.</p>
-<p>Ayer estuve <em>haciendo limpieza</em> siguiendo <em>vagamente</em> la recomendación de <a href="https://github.com/kubernetes/kubernetes/issues/43593#issuecomment-288899231">esta respuesta</a> en el hilo <a href="https://github.com/kubernetes/kubernetes/issues/43593#issuecomment-288899231">Kubernetes memory consumption explosion</a>.</p>
-<p>La solución de <code>RenaudWasTaken</code> al problema de consumo excesivo de memoria (32GB) fue la realizar limpieza de las carpetas:</p>
+  <div class="article-body"><p>En la <a href="https://onthedock.github.io/post/200627-creacion-de-vm-en-kvm-con-virsh/">entrada anterior</a> describía los pasos para lanzar una instancia en KVM usando <code>virsh</code>. Pero aunque esto resuelve la creación de la máquina virtual, todavía tenemos que realizar la configuración manual del sistema operativo, establecer el <code>hostname</code>, crear usuarios, instalar de paquetes, etc.</p>
+<p>Usando <a href="https://cloudinit.readthedocs.io"><code>cloud-init</code></a> podemos automatizar el proceso de configuración tal y como lo hacen los proveedores de cloud público (AWS, Azure, Google Cloud&hellip;)</p>
+<p>La clave de <em>cloud-init</em> reside en pasar infomación de configuración a la instancia para que los scripts puedan realizar la configuración durante el arranque de la máquina virtual. En <a href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html">AWS</a>, por ejemplo, esta información se obtiene desde la IP 169.254.169.254; a través de la red.</p>
+<p>Sin embargo, la manera más sencilla -si no estás en el cloud- de <em>pasar</em> los datos de configuración a la instancia -para el <em>data source</em> <a href="https://cloudinit.readthedocs.io/en/latest/topics/datasources/nocloud.html"><code>NoCloud</code></a>- es mediante una imagen de CD pinchada en la VM.</p>
+<p>Hace un par de años ya escribí sobre ello, aunque entonces usaba Windows y Hyper-V: <a href="https://onthedock.github.io/post/181009-cloud-init/">Automatizando la personalización de máquinas virtuales con cloud-init</a>.</p>
+<p>Esta vez intento avanzar respecto a la situación anterior, uniendo en un mismo <em>script</em> todo el proceso:</p>
 <ul>
-<li><code>/var/run/kubernetes</code></li>
-<li><code>/var/lib/kubelet</code></li>
-<li><code>/var/lib/etcd</code></li>
+<li>Generar el fichero el fichero de configuración de <code>cloud-init</code></li>
+<li>Generar la imagen ISO con la configuración</li>
+<li>Generar una VM en KVM (partiendo de una imagen &ldquo;cloud&rdquo;) y la imagen con los datos de cloud-init</li>
+<li>Disfrutar mientras todo se configura automáticamente (y siempre de la misma forma)</li>
 </ul>
-<p>Antes de empezar a borrar <em>a lo loco</em>, revisé el contenido de estas carpetas.</p>
-<h1 id="varrunkubernetes"><code>/var/run/kubernetes</code></h1>
-<p>En <code>/var/run/kubernetes</code>:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">$ ls -la /var/run/kubernetes/
-total <span style="color:#ae81ff">8</span>
-drwxr-xr-x  <span style="color:#ae81ff">2</span> root root   <span style="color:#ae81ff">80</span> May  <span style="color:#ae81ff">5</span> 18:43 .
-drwxr-xr-x <span style="color:#ae81ff">18</span> root root  <span style="color:#ae81ff">600</span> May  <span style="color:#ae81ff">5</span> 18:43 ..
--rw-r--r--  <span style="color:#ae81ff">1</span> root root <span style="color:#ae81ff">1082</span> May  <span style="color:#ae81ff">5</span> 18:43 kubelet.crt
--rw-------  <span style="color:#ae81ff">1</span> root root <span style="color:#ae81ff">1679</span> May  <span style="color:#ae81ff">5</span> 18:43 kubelet.key
-</code></pre></div><p>Estos ficheros son certificados, por lo que no parecen implicados en el problema y decido no borrarlos.</p>
-<h1 id="varlibkubelet"><code>/var/lib/kubelet</code></h1>
-<h2 id="nodo-k2">Nodo <strong>k2</strong></h2>
-<p>Al intentar listar el contenido de la carpeta <code>/var/lib/kubelet/pods</code>, la Raspberry Pi 3 ha tardado una eternidad (en los primeros intentos he creído que había dejado de responder).</p>
-<p>Finalmente, el resultado del comando ha mostrado una gran cantidad de carpetas dentro de esta carpeta:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">$ ls -la /var/lib/kubelet/pods
+<blockquote>
+<p>El script está colgado en <a href="https://github.com/onthedock/script-kvm-cloudinit/blob/master/vm-kvm-ubuntu.sh">vm-kvm-ubuntu.sh</a> y está probado en Ubuntu 20.04.</p>
+</blockquote>
+<h2 id="enfoque-incremental">Enfoque incremental</h2>
+<p>He decidido generar el fichero de configuración de <code>cloud-init</code> en el mismo <em>script</em> para no tener dos ficheros separados para cada tipo de instancia; probablemente no es la mejor solución, pero no espero tener demasiados tipos diferentes de instancias -y por tanto de ficheros de configuración-; si tengo que cambiar alguna cosa común a todos los casos, tendré que modificar varios ficheros.</p>
+<p><code>cloud-init</code> permite realizar prácticamente cualquier configuración que necesites sobre el sistema en la máquina virtual; de todas formas, creo que es mejor empezar poco a poco e incorporar sólo nuevas configuraciones cuando las necesite, no simplemente por el hecho de que se pueden realizar.</p>
+<p>En esta línea, primero he creado el script para desplegar una imagen con Ubuntu Server 20.04 LTS, sin ninguna configuración adicional (excepto la capacidad de hacer login usando un <em>password</em>).</p>
+<p>Una vez he conseguido que funcione, he copiado el <em>script</em> y lo he &ldquo;ampliado&rdquo; para desplegar Docker CE. Finalmente, ampliaré de nuevo el <em>script</em> para poder desplegar máquinas con los requisitos de Kubernetes y poder desplegar clústers de manera ágil.</p>
+<h2 id="fichero-cloud-config">Fichero <code>cloud-config</code></h2>
+<p>El fichero de configuración de <code>cloud-init</code> genera un nuevo usuario por defecto llamado <code>operador</code> (en vez del usuario &ldquo;ubuntu&rdquo; que viene predefinido en la imagen). El <em>password</em> se solicita al ejecutar el <em>script</em>, por lo que es seguro guardar el <em>script</em> en GitHub o en cualquier otro repositorio.</p>
+<p>Habilito el acceso vía <em>password</em> porque en el laboratorio tiendo a recrear las claves SSH frecuentemente.</p>
+<p>La línea <code>shell: /bin/bash</code> es necesaria porque se establece <code>/bin/sh</code> como <em>shell</em> para el nuevo usuario; eso significa que no funciona el autocompletado, los cursores escupen caracteres extraños, no funciona el historial de comandos ejecutados, etc&hellip; Me he vuelto loco hasta que he encontrado la solución en StackOverflow (aunque me temo que no he guardado el enlace).</p>
+<p>Estableciendo <code>bash</code> como <em>shell</em> por defecto para el usuario <code>operador</code>, todo funciona como estoy acostumbrado.</p>
+<p>Para acabar, habilito la autenticación con credenciales vía SSH e instalo el agente de QEmu.</p>
+<p>El fichero de configuración se guarda en <code>/tmp/$VM_NAME-cloudinit.config</code>.</p>
+<h2 id="prepara-la-imagen-para-kvm">Prepara la imagen para KVM</h2>
+<p>Las imagenes <em>cloud</em> que comentaba en la entrada anterior las tengo guardadas localmente en una carpeta llamada <code>ISOS/cloud-imgs</code>.</p>
+<p>El primer paso es realizar una copia de la imagen cloud. Modificaremos la copia, de manera que siempre tengamos la imagen original inalterada.</p>
+<p>El tamaño del disco virtual de las imágenes cloud es muy pequeño, por lo que para evitar problemas más adelante, expandimos el tamaño hasta los 10G.</p>
+<h2 id="crear-la-imagen-con-los-ficheros-de-cloud-init">Crear la imagen con los ficheros de <code>cloud-init</code></h2>
+<p>En vez de tener que generar la imagen ISO <em>a pelo</em>, ahora tenemos el paquete <code>cloud-image-utils</code> que simplifica el proceso.</p>
+<p>El <em>script</em> valida que el paquete está instalado antes de crear la imagen <code>&quot;$POOL_FOLDER/$VM_NAME.cloudconfig.img&quot;</code>.</p>
+<p>Cuando tenemos todas las piezas, lanzamos la creación de la máquina virtual.</p>
+<h2 id="consideraciones">Consideraciones</h2>
+<p>El comando <code>virt-install</code> finaliza en cuanto ha creado la máquina. Las siguientes instrucciones en el <em>script</em> se ejecutan inmediatamente y eso provoca <em>resultados extraños</em>&hellip;</p>
+<p>La extracción de la ISO del <code>cdrom</code> con la configuración de <code>cloud-init</code>, por ejemplo, resultaba en que la instancia nunca recibía una dirección IP, ni era posible acceder a la instancia porque no se establecía el password para el usuario <code>operador</code>&hellip;</p>
+<p>El comando <code>virsh domifaddr $VM_NAME</code> tampoco devolvía información, ya que se ejecutaba antes de que la instancia pueda obtener una IP&hellip;</p>
+<p>He comentado estas instrucciones porque no soy muy fan de los <em>sleep 60</em> y otros trucos que suelen usarse, ya que o bien se espera mucho más de lo necesario, o no se espera lo suficiente (es un poco lotería).</p>
+<p>La solución pasará seguramente por usar algo como  <code>virsh qemu-agent-command</code> para revisar el estado del fichero <code>/var/lib/cloud/instance/boot-finished</code>, que <code>cloud-init</code> crea al finalizar todas las acciones de configuración.</p>
+<p>Otra opción sería el fichero <code>/var/lib/cloud/data/result.json</code>, pero al intentar ejecutar un comando obtengo el error:</p>
+<blockquote>
+<p>Los comandos <code>guest-file-*</code> están deshabilitados por defecto en RHEL; además, el agente se ejecuta sujeto a las restricciones de SELinux. <a href="https://bugzilla.redhat.com/show_bug.cgi?id=1447943#c2">Ref: qemu guest agent can not read/write existing file in guest</a></p>
+</blockquote>
+<h3 id="problemas-con-el-agente-en-las-máquinas-virtuales-creadas">Problemas con el agente en las máquinas virtuales creadas</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ virsh qemu-agent-command --cmd <span style="color:#e6db74">&#39;{ &#34;execute&#34;: &#34;guestinfo&#34; }&#39;</span> --domain docker
+error: Guest agent is not responding: QEMU guest agent is not connected
+</code></pre></div><p>El problema está en que el agente está desconectado en la máquina virtual:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ virsh dumpxml docker | grep -i agent
+      &lt;source mode<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;bind&#39;</span> path<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;/var/lib/libvirt/qemu/channel/target/domain-10-docker/org.qemu.guest_agent.0&#39;</span>/&gt;
+      &lt;target type<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;virtio&#39;</span> name<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;org.qemu.guest_agent.0&#39;</span> state<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;disconnected&#39;</span>/&gt;
+</code></pre></div><p>Es decir, el agente está instalado en la VM pero no ha arrancado; iniciándolo manualmente se habilita la posibilidad de ejecutar comandos, por lo que una posible solución es arrancar el servicio tras la instalación vía <code>cloud-init</code>:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">...
+<span style="color:#66d9ef">runcmd</span>:
+  - systemctl enable qemu-guest-agent
+  - systemctl start qemu-guest-agent
+</code></pre></div><p>Así que tengo que modificar la configuracion de <code>cloud-init</code> para que además de instalar el agente de QEmu, también lo arranque.</p>
+<h3 id="comprobando-la-existencia-de-un-fichero-mediante-qemu-agent-command">Comprobando la existencia de un fichero mediante <code>qemu-agent-command</code></h3>
+<p>Siguiendo con el tema de usar <code>qemu-agent-command</code> para comprobar la existencia del fichero <code>/var/lib/cloud/instance/boot-finished</code>, se trata de un proceso de dos pasos: primero con <code>guest-file-open</code> se obtiene un <em>handle</em> al fichero y después, con este <em>handle</em>, se lee el contenido del fichero con <code>guest-file-read</code>.</p>
+<p>En mi caso sólo quiero saber si el fichero existe, por lo que en cuanto el comando devuelve un <em>handle</em>, significa que existe y por tanto el proceso de arranque de <code>cloud-init</code> ha finalizado.</p>
+<p>Así que una forma de comprobar si el proceso ha finalizado es mediante algo como:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">virsh qemu-agent-command $VM_NAME --cmd <span style="color:#e6db74">&#39;{&#34;execute&#34;: &#34;guest-file-open&#34;, &#34;arguments&#34;: {&#34;path&#34;:&#34;/var/lib/cloud/instance/boot-finished&#34;}}&#39;</span> 2&gt;/dev/null
+<span style="color:#66d9ef">while</span> <span style="color:#f92672">[</span> $? -ne <span style="color:#ae81ff">0</span> <span style="color:#f92672">]</span>; <span style="color:#66d9ef">do</span>
+  sleep <span style="color:#ae81ff">1</span>
+  virsh qemu-agent-command $VM_NAME --cmd <span style="color:#e6db74">&#39;{&#34;execute&#34;: &#34;guest-file-open&#34;, &#34;arguments&#34;: {&#34;path&#34;:&#34;/var/lib/cloud/instance/boot-finished&#34;}}&#39;</span> 2&gt;/dev/null
+<span style="color:#66d9ef">done</span>
+echo <span style="color:#e6db74">&#34;cloud-init configuration process finished.
+</span></code></pre></div><p>Finalmente, el bucle ha quedado:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">...
+<span style="color:#66d9ef">if</span> <span style="color:#f92672">[</span> $wait <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;true&#34;</span> <span style="color:#f92672">]</span>; <span style="color:#66d9ef">then</span>
+  <span style="color:#75715e"># Waiting until cloud-init finishes</span>
+  virsh qemu-agent-command $VM_NAME --cmd <span style="color:#e6db74">&#39;{&#34;execute&#34;: &#34;guest-file-open&#34;, &#34;arguments&#34;: {&#34;path&#34;:&#34;/var/lib/cloud/instance/boot-finished&#34;}}&#39;</span> 1&gt;/dev/null 2&gt;/dev/null
+  <span style="color:#66d9ef">while</span> <span style="color:#f92672">[</span> $? -ne <span style="color:#ae81ff">0</span> <span style="color:#f92672">]</span>; <span style="color:#66d9ef">do</span>
+    sleep $time2wait
+    echo <span style="color:#e6db74">&#34;... waiting for cloud-init </span>$time2wait<span style="color:#e6db74"> more seconds ...&#34;</span>
+    virsh qemu-agent-command $VM_NAME --cmd <span style="color:#e6db74">&#39;{&#34;execute&#34;: &#34;guest-file-open&#34;, &#34;arguments&#34;: {&#34;path&#34;:&#34;/var/lib/cloud/instance/boot-finished&#34;}}&#39;</span> 1&gt;/dev/null 2&gt;/dev/null
+  <span style="color:#66d9ef">done</span>
+  echo <span style="color:#e6db74">&#34;cloud-init configuration process finished.&#34;</span>
+
+  echo <span style="color:#e6db74">&#34;Ejecting </span>$POOL_FOLDER<span style="color:#e6db74">/</span>$VM_NAME<span style="color:#e6db74">.cloudconfig.img from </span>$VM_NAME<span style="color:#e6db74"> ...&#34;</span>
+  virsh change-media --path <span style="color:#e6db74">&#34;</span>$POOL_FOLDER<span style="color:#e6db74">/</span>$VM_NAME<span style="color:#e6db74">.cloudconfig.img&#34;</span> $VM_NAME --eject
+
+  virsh domifaddr $VM_NAME
+<span style="color:#66d9ef">fi</span>
 ...
-drwx------    <span style="color:#ae81ff">2</span> root root    <span style="color:#ae81ff">4096</span> May  <span style="color:#ae81ff">4</span> 23:11 wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_flannel-cfg.deleting~443381808.deleting~108562981.deleting~938554959.deleting~743974077.deleting~207819844.deleting~559419937.deleting~142152710.deleting~494766199.deleting~952339001
-drwx------    <span style="color:#ae81ff">2</span> root root    <span style="color:#ae81ff">4096</span> May  <span style="color:#ae81ff">5</span> 18:02 wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_flannel-cfg.deleting~443381808.deleting~108562981.deleting~938554959.deleting~743974077.deleting~274346355.deleting~274250693.deleting~987962315.deleting~680794233.deleting~917929467
-drwx------    <span style="color:#ae81ff">2</span> root root    <span style="color:#ae81ff">4096</span> May  <span style="color:#ae81ff">4</span> 23:37 wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_flannel-cfg.deleting~443381808.deleting~108562981.deleting~938554959.deleting~743974077.deleting~274346355.deleting~292131322.deleting~049606881.deleting~105942520.deleting~463246644
-drwx------    <span style="color:#ae81ff">2</span> root root    <span style="color:#ae81ff">4096</span> May  <span style="color:#ae81ff">4</span> 22:46 wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_flannel-cfg.deleting~443381808.deleting~119491600.deleting~962328406.deleting~220005477.deleting~309794961.deleting~392355244.deleting~378832104.deleting~159122214.deleting~324365539
-drwx------    <span style="color:#ae81ff">2</span> root root    <span style="color:#ae81ff">4096</span> Apr <span style="color:#ae81ff">15</span> 20:39 wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_flannel-cfg.deleting~443381808.deleting~162549394.deleting~296869341.deleting~353223099.deleting~018715754.deleting~526835026.deleting~320404022.deleting~453576282.deleting~001809150
-...
-</code></pre></div><p>Parece como si algo no hubiera funcionado correctamente y hubiera entrado en un bucle, creando carpetas y más carpetas. Además, en el nombre de alguna de estas carpetas aparece <code>..._flannel-cfg...</code>. Esta ha sido la pista que me ha convencido; al intentar instalar el <em>dashboard</em> de Kubernetes, tuve problemas precisamente porque no tengo instalado Flannel. Eliminé el <em>pod</em> y no le di más vueltas.</p>
-<p>Sin embargo, la existencia de estas carpetas parece indicar que la eliminación no fue tan limpia como pensaba y que <em>algo</em> se quedó atrapado en un bucle.</p>
-<p>He lanzado <code>rm -rf /var/lib/kubelet/pods/</code> y el comando ha fallado indicando que uno de los <em>pods</em> estaba en uso. Así que he eliminado poco a poco los <em>pods</em> hasta que al final:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">$ ls /var/lib/kubelet/pods/ -la
-total <span style="color:#ae81ff">24</span>
-drwxr-x--- <span style="color:#ae81ff">4</span> root root <span style="color:#ae81ff">12288</span> May  <span style="color:#ae81ff">5</span> 18:40 .
-drwxr-x--- <span style="color:#ae81ff">4</span> root root  <span style="color:#ae81ff">4096</span> Apr <span style="color:#ae81ff">15</span> 09:08 ..
-drwxr-x--- <span style="color:#ae81ff">5</span> root root  <span style="color:#ae81ff">4096</span> May  <span style="color:#ae81ff">5</span> 18:43 c0323b0f-31bd-11e7-a0ed-b827eb650fdb
-drwxr-x--- <span style="color:#ae81ff">5</span> root root  <span style="color:#ae81ff">4096</span> May  <span style="color:#ae81ff">5</span> 18:43 f2da9dfb-31bd-11e7-a0ed-b827eb650fdb
-</code></pre></div><p>Estos <em>pods</em>, sean los que sean, están en uso (no tengo nada desplegado en el clúster, así que deben ser <em>de sistema</em>).</p>
-<p>Tras la limpieza, he reiniciado el nodo.</p>
-<h2 id="nodo-k3">Nodo <strong>k3</strong></h2>
-<p>El nodo <strong>k3</strong> no presentaba estas <em>carpetas sospechosas</em>, pero también he realizado limpieza:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">$ rm -rf /var/lib/kubelet/pods/
-rm: cannot remove ‘/var/lib/kubelet/pods/3a5e2819-21e5-11e7-bcfd-b827eb650fdb/volumes/kubernetes.io~configmap’: Directory not empty
-rm: cannot remove ‘/var/lib/kubelet/pods/71290201-31bb-11e7-a0ed-b827eb650fdb/volumes/kubernetes.io~secret/kube-proxy-token-7zk2k’: Device or resource busy
-rm: cannot remove ‘/var/lib/kubelet/pods/ef887c6a-31ba-11e7-a0ed-b827eb650fdb/volumes/kubernetes.io~secret/weave-net-token-61scv’: Device or resource busy
-$
-</code></pre></div><p>Igual que en el nodo <strong>k2</strong>, he reiniciado.</p>
-<h1 id="resultados">Resultados</h1>
-<p>Los nodos <strong>k2</strong> y <strong>k3</strong> siguen en estado <code>Ready</code> tras unas siete y ocho horas, que es bastante más de lo que <em>aguantaban</em> antes.</p>
-<p>He comprobado que en la carpeta <code>/var/lib/kubelet/pods</code> sólo aparecen dos <em>pods</em> (en el nodo <strong>k2</strong>):</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">$ ls -la /var/lib/kubelet/pods/
-total <span style="color:#ae81ff">24</span>
-drwxr-x--- <span style="color:#ae81ff">4</span> root root <span style="color:#ae81ff">12288</span> May  <span style="color:#ae81ff">5</span> 18:40 .
-drwxr-x--- <span style="color:#ae81ff">4</span> root root  <span style="color:#ae81ff">4096</span> Apr <span style="color:#ae81ff">15</span> 09:08 ..
-drwxr-x--- <span style="color:#ae81ff">5</span> root root  <span style="color:#ae81ff">4096</span> May  <span style="color:#ae81ff">5</span> 18:43 c0323b0f-31bd-11e7-a0ed-b827eb650fdb
-drwxr-x--- <span style="color:#ae81ff">5</span> root root  <span style="color:#ae81ff">4096</span> May  <span style="color:#ae81ff">5</span> 18:43 f2da9dfb-31bd-11e7-a0ed-b827eb650fdb
-$
-</code></pre></div><p>En el nodo <strong>k3</strong>:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">$ ls -la /var/lib/kubelet/pods/
-total <span style="color:#ae81ff">28</span>
-drwxr-x--- <span style="color:#ae81ff">5</span> root root <span style="color:#ae81ff">12288</span> May  <span style="color:#ae81ff">5</span> 19:44 .
-drwxr-x--- <span style="color:#ae81ff">4</span> root root  <span style="color:#ae81ff">4096</span> Apr <span style="color:#ae81ff">15</span> 14:10 ..
-drwxr-x--- <span style="color:#ae81ff">3</span> root root  <span style="color:#ae81ff">4096</span> May  <span style="color:#ae81ff">5</span> 19:33 3a5e2819-21e5-11e7-bcfd-b827eb650fdb
-drwxr-x--- <span style="color:#ae81ff">5</span> root root  <span style="color:#ae81ff">4096</span> May  <span style="color:#ae81ff">5</span> 19:37 514d4c93-31c9-11e7-a0ed-b827eb650fdb
-drwxr-x--- <span style="color:#ae81ff">5</span> root root  <span style="color:#ae81ff">4096</span> May  <span style="color:#ae81ff">5</span> 19:37 c0b9753a-31c9-11e7-a0ed-b827eb650fdb
-$
-</code></pre></div><p>Más adelante actualizaré el artículo para verificar si los nodos siguen activos y sin problemas.</p></div>
+</code></pre></div><h2 id="siguientes-pasos">Siguientes pasos</h2>
+<p>Por el momento estoy contento con el <em>script</em> y me ha servido para aprender un poco más de <em>bash</em>&hellip;</p>
+<p>Al incorporar el parámetro <code>$wait</code> (y estableciéndolo en <code>&quot;false&quot;</code>, por ejemplo) puedo hacer que se lancen varias instancias seguidas y dejar el proceso de <code>cloud-init</code> se ejecute casi de forma simultánea en varias máquinas (sí, estoy pensando en un clúster de K8s&hellip; o K3s).</p>
+<p>Imagino que los siguientes pasos irán en la dirección de convertirlo en un <em>script</em> más flexible, que permita pasar los parámetros desde la línea de comando, pero por ahora me permite levantar máquinas de manera rápida y desatendida.</p></div>
 
   <aside class="p-share">
-  <a href="http://twitter.com/intent/tweet?url=https%3a%2f%2fonthedock.github.io%2fpost%2f170506-troubleshooting-kubernetes-ii%2f&text=Troubleshooting%20Kubernetes%20%28II%29&tw_p=tweetbutton" title="Twitterでシェア" class="tw" target="_blank" rel="nofollow"></a>
-  <a href="http://www.facebook.com/sharer.php?u=https%3a%2f%2fonthedock.github.io%2fpost%2f170506-troubleshooting-kubernetes-ii%2f&t=Troubleshooting%20Kubernetes%20%28II%29" title="Facebookでシェア" class="fb" target="_blank" rel="nofollow"></a>
-  <a href="http://line.me/R/msg/text/?Troubleshooting%20Kubernetes%20%28II%29 https%3a%2f%2fonthedock.github.io%2fpost%2f170506-troubleshooting-kubernetes-ii%2f" title="LINEでシェア" class="ln" target="_blank" rel="nofollow"></a>
-  <a href="http://b.hatena.ne.jp/add?mode=confirm&url=https%3a%2f%2fonthedock.github.io%2fpost%2f170506-troubleshooting-kubernetes-ii%2f&title=Troubleshooting%20Kubernetes%20%28II%29" title="はてなブックマーク" class="ht" target="_blank" rel="nofollow"></a>
+  <a href="http://twitter.com/intent/tweet?url=https%3a%2f%2fonthedock.github.io%2fpost%2f200706-lanzar-instancias-en-kvm-y-configurarlas-con-cloudinit%2f&text=Lanzar%20instancias%20en%20KVM%20y%20configurarlas%20con%20Cloudinit&tw_p=tweetbutton" title="Twitterでシェア" class="tw" target="_blank" rel="nofollow"></a>
+  <a href="http://www.facebook.com/sharer.php?u=https%3a%2f%2fonthedock.github.io%2fpost%2f200706-lanzar-instancias-en-kvm-y-configurarlas-con-cloudinit%2f&t=Lanzar%20instancias%20en%20KVM%20y%20configurarlas%20con%20Cloudinit" title="Facebookでシェア" class="fb" target="_blank" rel="nofollow"></a>
+  <a href="http://line.me/R/msg/text/?Lanzar%20instancias%20en%20KVM%20y%20configurarlas%20con%20Cloudinit https%3a%2f%2fonthedock.github.io%2fpost%2f200706-lanzar-instancias-en-kvm-y-configurarlas-con-cloudinit%2f" title="LINEでシェア" class="ln" target="_blank" rel="nofollow"></a>
+  <a href="http://b.hatena.ne.jp/add?mode=confirm&url=https%3a%2f%2fonthedock.github.io%2fpost%2f200706-lanzar-instancias-en-kvm-y-configurarlas-con-cloudinit%2f&title=Lanzar%20instancias%20en%20KVM%20y%20configurarlas%20con%20Cloudinit" title="はてなブックマーク" class="ht" target="_blank" rel="nofollow"></a>
   <div class="searchbar">
       <iframe src="https://duckduckgo.com/search.html?site=https://onthedock.github.io/&prefill=Busca en este sitio usando DuckDuckGo" style="width: 25em;height: 48px" frameborder="0"></iframe>
     </div>
@@ -208,7 +229,7 @@ $
         
         <li itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb"><a href="https://onthedock.github.io/post/" itemprop="url"><span itemprop="title">post</span></a></li>
         
-        <li>Troubleshooting Kubernetes (II)</li>
+        <li>Lanzar instancias en KVM y configurarlas con Cloudinit</li>
       </ol>
 
       
@@ -218,6 +239,8 @@ $
         <li>
           <header><a href="https://onthedock.github.io/categories/">categories</a></header>
           <ul>
+            
+            <li><a href="https://onthedock.github.io/categories/dev/">dev</a></li>
             
             <li><a href="https://onthedock.github.io/categories/ops/">ops</a></li>
             
@@ -232,13 +255,11 @@ $
           <header><a href="https://onthedock.github.io/tags/">tags</a></header>
           <ul>
             
-            <li><a href="https://onthedock.github.io/tags/raspberry-pi/">raspberry pi</a></li>
+            <li><a href="https://onthedock.github.io/tags/linux/">linux</a></li>
             
-            <li><a href="https://onthedock.github.io/tags/hypriot-os/">hypriot os</a></li>
+            <li><a href="https://onthedock.github.io/tags/kvm/">kvm</a></li>
             
-            <li><a href="https://onthedock.github.io/tags/kubernetes/">kubernetes</a></li>
-            
-            <li><a href="https://onthedock.github.io/tags/troubleshooting/">troubleshooting</a></li>
+            <li><a href="https://onthedock.github.io/tags/cloud-init/">cloud-init</a></li>
             
           </ul>
         </li>
@@ -276,22 +297,7 @@ $
   <section>
     <header><span>Latests</span></header>
     <ul class="p-articles thin">
-      <li><article class="li sm article-6e92220fbd4bf73e9add44ea35db7875">
-  <div class="header-wrapper">
-    <a href="https://onthedock.github.io/post/200706-lanzar-instancias-en-kvm-y-configurarlas-con-cloudinit/" class="thumbnail" title="Lanzar instancias en KVM y configurarlas con Cloudinit"></a>
-    <header class="article-header">
-      <div class="clearfix">
-        <h2 class="title"><a href="https://onthedock.github.io/post/200706-lanzar-instancias-en-kvm-y-configurarlas-con-cloudinit/">Lanzar instancias en KVM y configurarlas con Cloudinit</a></h2>
-        <ul class="p-facts">
-          <li><time datetime="2020-07-06T20:27:27JST">6 Jul 2020</time></li>
-          <li><a href="https://onthedock.github.io/post/">post</a></li>
-          
-        </ul>
-      </div>
-    </header>
-  </div>
-</article>
-</li><li><article class="li sm article-65945fdc2f7a451d2eba88e27bcae615">
+      <li><article class="li sm article-65945fdc2f7a451d2eba88e27bcae615">
   <div class="header-wrapper">
     <a href="https://onthedock.github.io/post/200627-creacion-de-vm-en-kvm-con-virsh/" class="thumbnail" title="Creación de una máquina virtual en KVM con virsh"></a>
     <header class="article-header">
@@ -329,6 +335,21 @@ $
         <h2 class="title"><a href="https://onthedock.github.io/post/200621-submodulo-en-git/">Submódulo en Git</a></h2>
         <ul class="p-facts">
           <li><time datetime="2020-06-21T08:42:51JST">21 Jun 2020</time></li>
+          <li><a href="https://onthedock.github.io/post/">post</a></li>
+          
+        </ul>
+      </div>
+    </header>
+  </div>
+</article>
+</li><li><article class="li sm article-70ddbb73f4be0ef264658d45b44a1501">
+  <div class="header-wrapper">
+    <a href="https://onthedock.github.io/post/200620-odiando-fedora-en-menos-de-1-hora/" class="thumbnail" title="Odiando Fedora en menos de 1 hora"></a>
+    <header class="article-header">
+      <div class="clearfix">
+        <h2 class="title"><a href="https://onthedock.github.io/post/200620-odiando-fedora-en-menos-de-1-hora/">Odiando Fedora en menos de 1 hora</a></h2>
+        <ul class="p-facts">
+          <li><time datetime="2020-06-20T19:37:41JST">20 Jun 2020</time></li>
           <li><a href="https://onthedock.github.io/post/">post</a></li>
           
         </ul>
