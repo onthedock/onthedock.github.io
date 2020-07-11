@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.68.3" />
+<meta name="generator" content="Hugo 0.55.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -121,32 +121,43 @@
   </div>
 
   <div class="article-body"><p>En la entrada <a href="https://onthedock.github.io/post/200627-instalacion-de-kvm-en-ubuntu-20.04/">Instalación de KVM en Ubuntu 20.04</a> instalamos KVM; ahora empieza lo divertido y vamos a crear una máquina virtual en KVM desde línea de comando con <code>virsh</code>.</p>
+
 <p>La utilidad de gestión de recursos virtuales desde línea de comandos es <code>virsh</code> (<em>virtualization shell</em>).</p>
+
 <p>En primer lugar, comprobamos que no tenemos ninguna máquina virtual:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ sudo virsh list
+
+<pre><code class="language-bash">$ sudo virsh list
  Id   Name   State
 --------------------
-</code></pre></div><blockquote>
+</code></pre>
+
+<blockquote>
 <p>Puedes consultar todos los parámetros usados en <a href="https://linux.die.net/man/1/virt-install">virt-install(1) - Linux man page</a>.</p>
 </blockquote>
+
 <p>Para crear una máquina virtual, usamos el comando <code>virt-install</code> especificando las propiedades de la VM; por ejemplo:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">sudo virt-install --name vm-test <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>    --virt-type kvm --hvm --os-variant<span style="color:#f92672">=</span>ubuntu20.04 <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>    --ram <span style="color:#ae81ff">1024</span> -vcpus <span style="color:#ae81ff">2</span> --network network<span style="color:#f92672">=</span>default <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>    --graphics vnc,password<span style="color:#f92672">=</span>remotevnc,listen<span style="color:#f92672">=</span>0.0.0.0 <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>    --disk pool<span style="color:#f92672">=</span>default,size<span style="color:#f92672">=</span>20,bus<span style="color:#f92672">=</span>virtio,format<span style="color:#f92672">=</span>qcow2 <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>    --cdrom /home/xavi/Documents/isos/alpine-virt-3.12.0-aarch64.iso <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>    --noautoconsole <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>    --boot cdrom,hd
+
+<pre><code class="language-bash">sudo virt-install --name vm-test \
+    --virt-type kvm --hvm --os-variant=ubuntu20.04 \
+    --ram 1024 -vcpus 2 --network network=default \
+    --graphics vnc,password=remotevnc,listen=0.0.0.0 \
+    --disk pool=default,size=20,bus=virtio,format=qcow2 \
+    --cdrom /home/xavi/Documents/isos/alpine-virt-3.12.0-aarch64.iso \
+    --noautoconsole \
+    --boot cdrom,hd
 
 Starting install...
-Allocating <span style="color:#e6db74">&#39;vmtest.qcow2&#39;</span>                                                         |  <span style="color:#ae81ff">20</span> GB  00:00:00
+Allocating 'vmtest.qcow2'                                                         |  20 GB  00:00:00
 Domain installation still in progress. You can reconnect to
 the console to complete the installation process.
-</code></pre></div><blockquote>
+</code></pre>
+
+<blockquote>
 <p>Si no especificamos <code>--os-variant=${OperatingSystemID}</code> obtenedremos la alerta <code>WARNING  No operating system detected, VM performance may suffer. Specify an OS with --os-variant for optimal results.</code>. Más adelante indico cómo obtener una lista de los identificadores para cada sistema operativo soportado.</p>
 </blockquote>
+
 <p>No todos los parámetros específicados son necesarios; he dividido el comando en diversas líneas en un intento por agruparlos por &ldquo;categoría&rdquo;; consulta lo que hace cada parámetro en la <a href="https://linux.die.net/man/1/virt-install">documentación</a>.</p>
+
 <ul>
 <li><code>--virt-type kvm --hvm --os-variant=ubuntu20.04</code> KVM puede gestionar máquinas virtuales de diferentes tipos, por lo que aquí especificamos que queremos usar  <code>kvm</code>. <code>--hvm</code> permite usar toda la funcionalidad del hipervisor y con <code>--os-variant</code> habilitamos optimizaciones para el sistema opertivo indicado.</li>
 <li><code>--ram 1024 -vcpus 2 --network network=default</code> Configuración de la VM a nivel &ldquo;hierro&rdquo;: CPU, RAM, red&hellip;</li>
@@ -156,46 +167,73 @@ the console to complete the installation process.
 <li><code>--noautoconsole</code> Al crear la VM KVM lanza automáticamente la consola para acceder a la máquina recién creada; este parámetro lo impide.</li>
 <li><code>--boot cdrom,hd</code> Orden de los dispositivos de arranque.</li>
 </ul>
+
 <p>Una vez lanzado el comando, podemos validar que la máquina ha arrancado correctamente:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">sudo virsh list
+
+<pre><code class="language-bash">sudo virsh list
  Id   Name     State
 ------------------------
- <span style="color:#ae81ff">1</span>    vmtest   running
-</code></pre></div><blockquote>
+ 1    vmtest   running
+</code></pre>
+
+<blockquote>
 <p>He tenido problemas al arrancar la máquina con las ISOs de Alpine. El error (<code>Could not read from cdrom (Code 0009)</code>) parece estar relacionado con la ISO, por lo que la única solución parece ser cambiar de ISO; en mi caso, usando Ubuntu Server 20.04 no he tenido problemas.</p>
 </blockquote>
+
 <p>Puedes conectar a la máquina virtual usando <code>sudo virt-viewer vmtest &amp;</code>; si has especificado un password para VNC,deberás proporcionarlo antes de poder conectar con la VM.</p>
+
 <h2 id="conexión-a-la-vm-usando-virt-manager">Conexión a la VM usando <em>virt-manager</em></h2>
+
 <p>La gestión de las máquinas virtuales desde línea de comandos es muy adecuada para automatizar el proceso; sin embargo, para un entorno de pruebas tipo laboratorio, lo más sencillo es usar una herramienta gráfica como <a href="https://virt-manager.org/">Virtual Machine Manager</a>.</p>
+
 <p>Aunque se usa principalmente para gestionar máquinas virtuales de KVM, también puede gestionar Xen y LXC (contenedores de Linux).</p>
+
 <h2 id="especificando-os-variant">Especificando <code>os-variant</code></h2>
+
 <p>KVM puede optimizar la configuración del sistema operativo <em>guest</em> en la VM especificando el parámetro <code>--os-variant</code> (mira <a href="https://manpages.debian.org/testing/virtinst/virt-install.1.en.html">VIRT-INSTALL(1)</a>).</p>
+
 <p>Para obtener una lista de los identificadores de los diferentes sistemas operativos debes instalar el paquete <code>libosinfo-bin</code> en la máquina anfitrión con KVM:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">sudo apt install libosinfo-bin
-</code></pre></div><p>Consulta la lista de sistemas soportados mediante:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ osinfo-query os
+
+<pre><code class="language-bash">sudo apt install libosinfo-bin
+</code></pre>
+
+<p>Consulta la lista de sistemas soportados mediante:</p>
+
+<pre><code class="language-bash">$ osinfo-query os
  Short ID             | Name                                               | Version  | ID
 ----------------------+----------------------------------------------------+----------+-----------------------------------------
  alpinelinux3.5       | Alpine Linux 3.5                                   | 3.5      | http://alpinelinux.org/alpinelinux/3.5  
  alpinelinux3.6       | Alpine Linux 3.6                                   | 3.6      | http://alpinelinux.org/alpinelinux/3.6  
  alpinelinux3.7       | Alpine Linux 3.7                                   | 3.7      | http://alpinelinux.org/alpinelinux/3.7
  ...
-</code></pre></div><h2 id="obtener-ip-de-las-máquinas-virtuales">Obtener IP de las máquinas virtuales</h2>
+</code></pre>
+
+<h2 id="obtener-ip-de-las-máquinas-virtuales">Obtener IP de las máquinas virtuales</h2>
+
 <p>Con <code>virsh</code> puedes obtener la(s) IP(s) de la máquina virtual sin tener que conectarte a ella, ejecutar <code>ip addr show</code>, salir para conectar vía SSH desde tu equipo anfitrión.</p>
+
 <p>El comando es <code>sudo virsh domifaddr vmtest</code>:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ sudo virsh domifaddr vmtest
+
+<pre><code class="language-bash">$ sudo virsh domifaddr vmtest
  Name       MAC address          Protocol     Address
 -------------------------------------------------------------------------------
  vnet0      52:54:00:36:5a:0e    ipv4         192.168.122.240/24
-</code></pre></div><blockquote>
+</code></pre>
+
+<blockquote>
 <p>El comando parece mucho más críptico de lo que es; KVM denomina <em>domain</em> a la máquina virtual; de ahí que el comando en <code>virsh</code> para obtener la IP empiece por <code>dom</code>; el resto del comando es <em>el mismo</em> que usas para obtener la IP&hellip; (bueno, antes de que se cambiara a <code>ip address...</code>) En la Wikipedia puedes encontrar información sobre <a href="https://en.wikipedia.org/wiki/Ifconfig">ifconfig</a>.</p>
 </blockquote>
+
 <p>Desde el equipo anfitrión puedes conectar vía SSH a la IP (aunque <code>virbr0</code> esté configurado como NAT):</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ ssh operador@192.168.122.240
-operador@192.168.122.240<span style="color:#960050;background-color:#1e0010">&#39;</span>s password:
-Welcome to Ubuntu 20.04 LTS <span style="color:#f92672">(</span>GNU/Linux 5.4.0-39-generic x86_64<span style="color:#f92672">)</span>
+
+<pre><code class="language-bash">$ ssh operador@192.168.122.240
+operador@192.168.122.240's password:
+Welcome to Ubuntu 20.04 LTS (GNU/Linux 5.4.0-39-generic x86_64)
 ...
-</code></pre></div><h2 id="resumen">Resumen</h2>
+</code></pre>
+
+<h2 id="resumen">Resumen</h2>
+
 <p>Aunque hay <strong>mucho</strong> más por investigar y aprender con respecto a KVM, con la capacidad de poder crear máquinas y conectarse a ellas vía <code>virt-viewer</code> o <code>virt-manager</code> tienes la base de un entorno de pruebas sólido.</p></div>
 
   <aside class="p-share">

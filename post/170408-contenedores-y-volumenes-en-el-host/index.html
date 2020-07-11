@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.68.3" />
+<meta name="generator" content="Hugo 0.55.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -121,43 +121,79 @@
   </div>
 
   <div class="article-body"><p>Ayer leía el artículo <a href="https://thenewstack.io/containers-storage-arent-yet/">Containers and Storage: Why We Aren’t There Yet</a> y recordaba los <em>quebraderos de cabeza</em> que tuve intentado crear una serie de contenedores accediendo a un volumen de datos.</p>
+
 <p>El problema, como bien indica el artículo, es que <em>a día de hoy</em>, no es posible hacer que el acceso a un volumen de datos sea a la vez <strong><em>portable</em> y <em>seguro</em></strong>.</p>
+
 <p>Los detalles son muy técnicos, pero revelan la manera en la que trabajan Linux y Docker. Tener claros estos conceptos es interesante para enteneder cómo funciona Docker y cómo afrontar los problemas que puedan surgir creando contenedores.</p>
+
 <p>Dentro de un contenedor, por defecto, sólo tenemos el usuario <code>root</code>, por lo que todos los procesos <strong>dentro</strong> del contenedor se ejecutan con permisos de <em>superadministrador</em> (<code>root</code>).</p>
+
 <p>Desde el punto de vista de la seguridad, ejecutar procesos con permisos de <code>root</code> si no es necesario, es una mala práctica; en caso de que el sistema se vea comprometido, un atacante dispondría de todos los permisos y podría causar mucho daño.</p>
+
 <p>En Docker, este riesgo se encuentra <em>aislado</em> <strong>dentro</strong> del contenedor. Pese a todo, se recomienda cambiar a un usuario con menos privilegios siempre que sea posible.</p>
+
 <p>Si le echas un vistazo a la <a href="https://github.com/nginxinc/docker-nginx/blob/0c7611139f2ce7c5a6b1febbfd5b436c8c7d2d53/mainline/alpine/nginx.conf">configuración del contenedor oficial de Nginx</a> verás que la primera instrucción es:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">user nginx;
-</code></pre></div><p>Es decir, que lo primero que hace Nginx es cambiar a un usuario <em>no-root</em> cuando se ejecuta.</p>
+
+<pre><code class="language-sh">user nginx;
+</code></pre>
+
+<p>Es decir, que lo primero que hace Nginx es cambiar a un usuario <em>no-root</em> cuando se ejecuta.</p>
+
 <p>El proceso es el siguiente: el contenedor arranca con el usuario <code>root</code> y cuando se lanza el proceso <code>nginx</code>, se cambia al usuario <em>nginx</em> (eliminando los privilegios del usuario <em>root</em>).</p>
+
 <p>Desde el punto de vista de la seguridad, si alguien compromete el contenedor, el proceso se ejecuta con un usuario con permisos restringidos, por lo que el atacante puede causar <strong>daño limitado</strong>.</p>
+
 <p><em>So far, so good</em> (hasta aquí todo bien, que dicen los anglosajones).</p>
+
 <p>¿Qué pasa cuando se <em>monta</em> una carpeta una carpeta del <em>host</em> en el contenedor?</p>
+
 <p>En caso de que el contenedor se vea comprometido, el atacante ya no está restringido al contenedor, sino que tiene una <em>vía de entrada</em> al <em>host</em>.</p>
+
 <p>A día de hoy Docker requiere permisos de <code>root</code> en el <em>host</em> para ejecutarse. En particular, en el caso del <em>montaje</em> de carpetas del <em>host</em> en el contenedor, Docker puede montar <strong>cualquier</strong> carpeta (o fichero) en un contenedor (mira la sección <a href="https://docs.docker.com/engine/security/security/">Docker deamon attack surface</a> en la documentación oficial de Docker). Así que si un atacante se hiciera con el control del proceso Docker, podría lanzar un contenedor, montar la carpeta <code>/</code> y modificar el sistema desde el contenedor.</p>
+
 <p>Esto sería <strong>muy malo</strong>.</p>
+
 <p>Pero ya hemos dicho antes que podemos minimizar el riesgo usando usuarios no privilegiados dentro del contenedor, como <code>nginx</code>, ¿no?</p>
+
 <p>Desde el punto de vista de la seguridad, siguiendo las buenas prácticas, en cuanto lancemos el proceso dentro del contenedor, cambiamos a un usuario sin privilegios y ¡problema resuelto!</p>
+
 <p>Ojalá las cosas fueran tan sencillas&hellip;</p>
+
 <p>Considera el siguiente caso; hemos creado una imagen con Dokuwiki, por ejemplo, usando como base la imagen de Nginx siguiendo las buenas prácticas de seguridad. Hemos minimizado el riesgo ante un eventual ataque usando un usuario sin privilegios llamado <em>nginx</em>. Como estamos muy orgullosos de nuestra imagen, la subimos a DockerHub: <code>xaviaznar/nginx-dokuwiki-seguro</code>.</p>
+
 <p>Un usuario se descarga esta imagen y lanza un contenedor, montando una carpeta local de su <em>host</em> desde la que quiere servir su propia wiki. Para ello lanza un comando como:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">docker run -d --name miwiki -p 80:80 -v /wiki:/dokuwiki/data/pages xaviaznar/nginx-dokuwiki-seguro
-</code></pre></div><p>(Es sólo un ejemplo ilustrativo, este <em>montaje</em> de <a href="https://www.dokuwiki.org/devel:dirlayout">carpetas</a> no es una buena idea).</p>
+
+<pre><code class="language-sh">docker run -d --name miwiki -p 80:80 -v /wiki:/dokuwiki/data/pages xaviaznar/nginx-dokuwiki-seguro
+</code></pre>
+
+<p>(Es sólo un ejemplo ilustrativo, este <em>montaje</em> de <a href="https://www.dokuwiki.org/devel:dirlayout">carpetas</a> no es una buena idea).</p>
+
 <p>El contenedor arranca sin problemas, pero cuando quiere crear o modificar una página en el wiki, no funciona.</p>
+
 <p>¿Qué pasa?</p>
+
 <p>El problema es que ahora estamos relacionando <strong>dos</strong> sistemas Linux, con usuarios diferentes.</p>
+
 <p>Por un lado tenemos el usuario <code>nginx</code> dentro del contenedor, sin privilegios, que hemos creado siguiendo las buenas prácticas de seguridad.</p>
+
 <p>En el sistema <em>host</em>, Docker se ejecuta con permisos de <code>root</code>, por lo que puede realizar el montaje de la carpeta <code>/wiki</code> en el contenedor sin problemas.</p>
+
 <p>Cuando el usuario <code>nginx</code> (del contenedor) intenta escribir en la carpeta del <em>host</em>, el sistema comprueba si el usuario <code>nginx</code> tiene permisos para escribir en esa carpeta. Como el usuario <code>nginx</code> solo existe <strong>dentro</strong> del contenedor, el sistema del <em>host</em> no lo reconoce y se le deniega el acceso.</p>
+
 <p>Aquí es donde surge el dilema entre seguridad y portabilidad: si ejecutamos los procesos en el contenedor como <code>root</code>, no tenemos problemas para acceder a carpetas locales en el <em>host</em>, pero nos enfrentamos a un problema de seguridad potencialmente grave. Si minimizamos el riesgo usando un usuario sin privilegios, tenemos problemas de permisos al intentar acceder a carpetas locales.</p>
+
 <p>Como indica <a href="https://twitter.com/jejb_">James Bottomley</a>, evangelista de contendores para IBM en la <a href="http://events.linuxfoundation.org/events/vault">conferencia Vault</a> sobre almacenamiento de la Linux Foundation en Boston el mes pasado:</p>
+
 <blockquote>
 <p>&ldquo;This is a significant problem for running unprivileged containers alongside standard images. If we’ve all written out container images for different values of root, it’ll be a horrible nasty mess somewhere.&rdquo;</p>
 </blockquote>
+
 <p>Traducción:</p>
+
 <blockquote>
 <p>Este es un problema significativo de cara a ejecutar contenedores sin privilegios junto a imágenes estándar. Si hemos creado imágenes de contenedores para diferentes valores de <code>root</code>, en algún sitio habrá un lío tremendo.</p>
 </blockquote>
+
 <p>El artículo comenta algunas soluciones que se están desarrollando para solventar el problema, pero por ahora, el dilema entre seguridad y el acceso al <em>host</em> sigue estando sobre la mesa.</p></div>
 
   <aside class="p-share">

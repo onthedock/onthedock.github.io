@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.68.3" />
+<meta name="generator" content="Hugo 0.55.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -75,7 +75,7 @@
         "height": 60
       }
     },
-    "description": "\x3cp\x3eHace relativamente poco que he cambiado de piso, lo que ha afectado a la \x3cem\x3etoopología\x3c\/em\x3e de la red de casa, en particular, ha sido necesario cambiar la IP del equipo de laboratorio donde tengo instalado \x3ca href=\x22https:\/\/www.proxmox.com\/en\/\x22\x3eProxmox VE\x3c\/a\x3e.\x3c\/p\x3e\n\x3cp\x3eComo el acceso a la consola web de Proxmox VE se realiza a través de https, los navegadores rechazaban la conexión al tratarse de un certificado inválido (emitido para una IP que no coincide con la actual) (además de la habitual alerta indicando que la entidad certificadora que firma el certificado no se reconoce).\x3c\/p\x3e\n\x3cp\x3eEn esta entrada indico cómo regenerar el certificado SSL autofirmado por Proxmox VE.\x3c\/p\x3e"
+    "description": "\x3cp\x3eHace relativamente poco que he cambiado de piso, lo que ha afectado a la \x3cem\x3etoopología\x3c\/em\x3e de la red de casa, en particular, ha sido necesario cambiar la IP del equipo de laboratorio donde tengo instalado \x3ca href=\x22https:\/\/www.proxmox.com\/en\/\x22\x3eProxmox VE\x3c\/a\x3e.\x3c\/p\x3e\n\n\x3cp\x3eComo el acceso a la consola web de Proxmox VE se realiza a través de https, los navegadores rechazaban la conexión al tratarse de un certificado inválido (emitido para una IP que no coincide con la actual) (además de la habitual alerta indicando que la entidad certificadora que firma el certificado no se reconoce).\x3c\/p\x3e\n\n\x3cp\x3eEn esta entrada indico cómo regenerar el certificado SSL autofirmado por Proxmox VE.\x3c\/p\x3e"
   }
 </script>
 
@@ -121,20 +121,38 @@
   </div>
 
   <div class="article-body"><p>Hace relativamente poco que he cambiado de piso, lo que ha afectado a la <em>toopología</em> de la red de casa, en particular, ha sido necesario cambiar la IP del equipo de laboratorio donde tengo instalado <a href="https://www.proxmox.com/en/">Proxmox VE</a>.</p>
+
 <p>Como el acceso a la consola web de Proxmox VE se realiza a través de https, los navegadores rechazaban la conexión al tratarse de un certificado inválido (emitido para una IP que no coincide con la actual) (además de la habitual alerta indicando que la entidad certificadora que firma el certificado no se reconoce).</p>
+
 <p>En esta entrada indico cómo regenerar el certificado SSL autofirmado por Proxmox VE.</p>
+
 <p>Después de aceptar todas los cuadros de diálogo de alertas de seguridad del navegador he conseguido acceder a la consola de administración de Proxmox VE (<a href="https://lab:8006">https://lab:8006</a>).</p>
+
 <p>En el panel lateral selecciono el nodo <code>lab</code>. A continuación, dentro de la sección <em>System</em>, selecciono <em>Certificates</em>:</p>
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
+
+<figure>
+  <amp-img src="https://onthedock.github.io/images/200119/certificates-ip.png" alt="Regenerar certificado SSL en Proxmox images/200119/certificates-ip.png" width=1283 height=341 layout="responsive"></amp-img>
+  
+</figure>
+
 <p>El certificado <code>pve-ssl.pem</code> contiene la IP del nodo, lo que provocaba las alertas en los navegadores (en la imagen ya aparece la IP actual).</p>
+
 <p>Para lanzar el comando que regenera el certificado, pulsa el botón <em>Shell</em> en la parte superior.</p>
+
 <p>En la ventana que aparece, ejecuta el comando:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">pvecm updatecerts -f
-</code></pre></div><p>Tras reiniciar el equipo, el servidor ya se identifica usando el nuevo certificado.</p>
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
+
+<pre><code class="language-bash">pvecm updatecerts -f
+</code></pre>
+
+<p>Tras reiniciar el equipo, el servidor ya se identifica usando el nuevo certificado.</p>
+
+<figure>
+  <amp-img src="https://onthedock.github.io/images/200119/update-cert.png" alt="Regenerar certificado SSL en Proxmox images/200119/update-cert.png" width=744 height=428 layout="responsive"></amp-img>
+  
+</figure>
+
 <p>En función del comportamiento de tu navegador, puede que siga usando el certificado anterior durante un determinado tiempo. Puedes buscar online cómo eliminar los certificados <em>cacheados</em> para agilizar el proceso.</p>
+
 <p>En mi caso también ha sido necesario actualizar el fichero <code>hosts</code> local de Proxmox VE (<em>System</em> &gt; <em>Hosts</em>) y actualizar la IP.</p></div>
 
   <aside class="p-share">

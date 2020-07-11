@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.68.3" />
+<meta name="generator" content="Hugo 0.55.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -75,7 +75,7 @@
         "height": 60
       }
     },
-    "description": "\x3cp\x3eYAML es el lenguaje en el que se definen los \x3cem\x3epods\x3c\/em\x3e, los \x3cem\x3edeployments\x3c\/em\x3e y demás estructuras en Kubernetes. Todos los artículos que he leído sobre cómo crear un fichero de definición del \x3cem\x3epod\x3c\/em\x3e (\x3cem\x3edeployment\x3c\/em\x3e, etc) se centran en el \x3cstrong\x3econtenido\x3c\/strong\x3e del fichero.\x3c\/p\x3e\n\x3cp\x3ePero en mi caso, echaba de menos una explicación de \x3cstrong\x3ecómo\x3c\/strong\x3e se crea el fichero, qué reglas se siguen a la hora de \x3cem\x3edescribir\x3c\/em\x3e la configuración en formato YAML.\x3c\/p\x3e\n\x3cp\x3eAfortunadamente el lenguaje YAML es muy sencillo y basta con conocer un par de estructuras para crear los ficheros de configuración de Kubernetes.\x3c\/p\x3e"
+    "description": "\x3cp\x3eYAML es el lenguaje en el que se definen los \x3cem\x3epods\x3c\/em\x3e, los \x3cem\x3edeployments\x3c\/em\x3e y demás estructuras en Kubernetes. Todos los artículos que he leído sobre cómo crear un fichero de definición del \x3cem\x3epod\x3c\/em\x3e (\x3cem\x3edeployment\x3c\/em\x3e, etc) se centran en el \x3cstrong\x3econtenido\x3c\/strong\x3e del fichero.\x3c\/p\x3e\n\n\x3cp\x3ePero en mi caso, echaba de menos una explicación de \x3cstrong\x3ecómo\x3c\/strong\x3e se crea el fichero, qué reglas se siguen a la hora de \x3cem\x3edescribir\x3c\/em\x3e la configuración en formato YAML.\x3c\/p\x3e\n\n\x3cp\x3eAfortunadamente el lenguaje YAML es muy sencillo y basta con conocer un par de estructuras para crear los ficheros de configuración de Kubernetes.\x3c\/p\x3e"
   }
 </script>
 
@@ -121,74 +121,113 @@
   </div>
 
   <div class="article-body"><p>YAML es el lenguaje en el que se definen los <em>pods</em>, los <em>deployments</em> y demás estructuras en Kubernetes. Todos los artículos que he leído sobre cómo crear un fichero de definición del <em>pod</em> (<em>deployment</em>, etc) se centran en el <strong>contenido</strong> del fichero.</p>
+
 <p>Pero en mi caso, echaba de menos una explicación de <strong>cómo</strong> se crea el fichero, qué reglas se siguen a la hora de <em>describir</em> la configuración en formato YAML.</p>
+
 <p>Afortunadamente el lenguaje YAML es muy sencillo y basta con conocer un par de estructuras para crear los ficheros de configuración de Kubernetes.</p>
+
 <p>YAML es un lenguaje de marcado muy simple, basado en ficheros de texto plano legible por los humanos. Este formato se utiliza dentro del mundillo del software para almacenar información de tipo configuración.</p>
+
 <p>YAML son las siglas de <em>Yet Another Markup Language</em> (Otro lenguaje de marcado más) o <em>YAML Ain&rsquo;t Markup Language</em> (YAML no es un lenguaje de marcado), depende de a quién preguntes.</p>
+
 <p>Usar YAML para las definiciones de Kubernetes proporciona las siguientes ventajas:</p>
+
 <ul>
 <li><strong>Conveniencia</strong> No es necesario especificar todos los parámetros en la línea de comandos.</li>
 <li><strong>Mantenimiento</strong> Los ficheros YAML puede ser gestionados por un sistema de control de versiones, de manera que se pueden registrar los cambios.</li>
 <li><strong>Flexibilidad</strong> Es posible crear estructuras mucho más complejas usando YAML de lo que puede conseguirse desde la línea de comandos.</li>
 </ul>
+
 <p>YAML es un superconjunto de JSON, lo que significa que cualquier fichero JSON válido también es un fichero YAML válido.</p>
+
 <p>Como consejos generales a la hora de crear un fichero YAML:</p>
+
 <ul>
 <li>Usa siempre la codificación UTF-8 para evitar errores.</li>
 <li>No uses <strong>nunca</strong> tabulaciones</li>
 <li>Usa una fuente monoespaciada para visualizar/editar el contenido de los ficheros YAML.</li>
 </ul>
+
 <p>Sólo necesitas conocer dos tipos de estructuras en YAML:</p>
+
 <ul>
 <li>Listas</li>
 <li>Mapas</li>
 </ul>
+
 <p>A parte de los mapas y las listas, también te puede resultar útil saber que cualquier línea que comience con un <code>#</code> se considera un comentario y es ignorada.</p>
+
 <h1 id="mapas-yaml">Mapas YAML</h1>
+
 <p>Los mapas te permiten asociar parejas de nombres y valores, lo que es conveniente cuando estás tratando con información relativa a configuraciones. Por ejemplo, puedes tener una configuración que empiece como:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">---
-<span style="color:#66d9ef">apiVersion</span>: v1
-<span style="color:#66d9ef">kind</span>: Pod
-</code></pre></div><p>La primera línea es un separador, y es opcional a no ser que trates de definir múltiples estructuras en un solo fichero. En el fichero puedes ver que tenemos dos valores, <code>v1</code> y <code>Pod</code>, asociados a dos claves, <code>apiVersion</code> y <code>kind</code>.</p>
+
+<pre><code class="language-yaml">---
+apiVersion: v1
+kind: Pod
+</code></pre>
+
+<p>La primera línea es un separador, y es opcional a no ser que trates de definir múltiples estructuras en un solo fichero. En el fichero puedes ver que tenemos dos valores, <code>v1</code> y <code>Pod</code>, asociados a dos claves, <code>apiVersion</code> y <code>kind</code>.</p>
+
 <p>No es necesario que los valores estén entrecomillados (con comillas simples o dobles), excepto para asegurarte de que no se interpreta algún caracter especial con un significado diferente a su valor literal.</p>
+
 <p>Las parejas clave-valor contenidas en un mapa se almacenan sin orden, por lo que puedes especificarlas en el orden que quieras.</p>
+
 <p>El fichero YAML anterior es equivalente a:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">---
-<span style="color:#66d9ef">kind</span>: Pod
-<span style="color:#66d9ef">apiVersion</span>: v1
-</code></pre></div><p>Podemos anidar mapas dentro de mapas para crear estructuras más complejas, como:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">---
-<span style="color:#66d9ef">apiVersion</span>: v1
-<span style="color:#66d9ef">kind</span>: Pod
-<span style="color:#66d9ef">metadata</span>:
-   <span style="color:#66d9ef">name</span>: rss-site
-   <span style="color:#66d9ef">labels</span>:
-      <span style="color:#66d9ef">app</span>: web
-</code></pre></div><p>En este caso tenemos un mapa llamado <code>metadata</code> que contiene otros dos mapas; el primero <code>name: rss-site</code> y el segundo, <code>labels</code>, contiene como valor otro mapa <code>app: web</code>.</p>
+
+<pre><code class="language-yaml">---
+kind: Pod
+apiVersion: v1
+</code></pre>
+
+<p>Podemos anidar mapas dentro de mapas para crear estructuras más complejas, como:</p>
+
+<pre><code class="language-yaml">---
+apiVersion: v1
+kind: Pod
+metadata:
+   name: rss-site
+   labels:
+      app: web
+</code></pre>
+
+<p>En este caso tenemos un mapa llamado <code>metadata</code> que contiene otros dos mapas; el primero <code>name: rss-site</code> y el segundo, <code>labels</code>, contiene como valor otro mapa <code>app: web</code>.</p>
+
 <p>Puedes anidar tantos mapas dentro de mapas como quieras.</p>
+
 <p>Para indicar que un mapa está contenido en otro, se usa la indentación. En el ejemplo anterior hemos usado una indentación de 3 espacios, pero el número de espacios no importa, siempre que sea <strong>consistente</strong> en el fichero. El procesador de YAML interpreta las claves y valores en la misma profundidad de indentación como al mismo nivel (por ejemplo, <code>name</code> y <code>labels</code>), mientras que si están indentadas, interpreta que están <em>contenidas</em> unos en otros (como en el caso de <code>labels</code> y <code>app: web</code>).</p>
+
 <h1 id="listas-en-yaml">Listas en YAML</h1>
+
 <p>Una lista, en YAML, es una secuencia de objetos, o lo que es lo mismo, una colección ordenada de valores. En este caso los valores no están asociados con una clave, sino con un índice posicional obtenido del orden en el que están especificados en la lista. Por ejemplo:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">args
+
+<pre><code class="language-yaml">args
    - sleep
-   - <span style="color:#ae81ff">1000</span>
+   - 1000
    - message
-   - <span style="color:#e6db74">&#34;Hello World!&#34;</span>
-</code></pre></div><p>Puede haber cualquier número de elementos en una lista.</p>
+   - &quot;Hello World!&quot;
+</code></pre>
+
+<p>Puede haber cualquier número de elementos en una lista.</p>
+
 <p>Como en el caso de las parejas clave-valor, los elementos de una lista se encuentran indentados con el mismo número de espacios bajo el identificador (la clave) de la lista; cada elemento de la lista va precedido por un <code>-</code>.</p>
+
 <p>Del mismo modo que podemos anidar mapas en mapas, podemos anidar listas en listas, mapas en listas y cualquier combinación imaginable. Un ejemplo de mapas y listas anidados:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#75715e"># Configuracion ficticia</span>
-<span style="color:#66d9ef">spec</span>:
-   <span style="color:#66d9ef">containers</span>:
-      - <span style="color:#66d9ef">name</span>: front-end
-        <span style="color:#66d9ef">image</span>: nginx
-        <span style="color:#66d9ef">ports</span>:
-           - <span style="color:#66d9ef">containerPort</span>: <span style="color:#ae81ff">80</span>
-      - <span style="color:#66d9ef">name</span>: rss-reader
-        <span style="color:#66d9ef">image</span>: xavi/rss-reader
-        <span style="color:#66d9ef">ports</span>:
-           - <span style="color:#66d9ef">containerPort</span>: <span style="color:#ae81ff">80</span>
-</code></pre></div><p>En resumen, tenemos:</p>
+
+<pre><code class="language-yaml"># Configuracion ficticia
+spec:
+   containers:
+      - name: front-end
+        image: nginx
+        ports:
+           - containerPort: 80
+      - name: rss-reader
+        image: xavi/rss-reader
+        ports:
+           - containerPort: 80
+</code></pre>
+
+<p>En resumen, tenemos:</p>
+
 <ul>
 <li><strong>Mapas</strong>, que son grupos no ordenados de parejas de clave y valor</li>
 <li><strong>Listas</strong>, que son colecciones ordenadas de elementos individuales</li>
@@ -198,7 +237,9 @@
 <li>Listas de listas</li>
 <li>etc</li>
 </ul>
+
 <p>Básicamente, cualquier estructura que puedas imaginar, se puede construir a partir de estos dos elementos.</p>
+
 <p>Con estos conocimientos básicos, espero que ahora te resulte mucho más sencillo interpretar los ficheros de configuración de <em>pods</em>, <em>deployments</em>, etc. Y no sólo en Kubernetes; las configuraciones en formato YAML son usadas por un montón de productos diferentes.</p></div>
 
   <aside class="p-share">

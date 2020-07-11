@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.68.3" />
+<meta name="generator" content="Hugo 0.55.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -121,61 +121,112 @@
   </div>
 
   <div class="article-body"><p>Cómo publicar una entrada usando Hugo, el generador de sitios estáticos, desde la creación del <em>site</em> hasta la subida de los ficheros en el servidor web.</p>
+
 <h1 id="algunas-consideraciones-previas">Algunas consideraciones previas</h1>
+
 <p>En primer lugar, es importante que Hugo esté correctamente configurado. Asegúrate de que todos los pequeños detalles estén controlados -como que en el parámetro <code>baseURL</code> se incluya la <code>/</code> final- y te evitarás un montón de problemas.</p>
+
 <p>Si haces pruebas en un entorno de integración o consolidación, el único parámetro que hay que modificar al pasar a producción es la <code>baseURL</code>.</p>
+
 <p>Para evitar confusiones, en esta entrada a la ruta al ejecutable de Hugo la llamo <code>$HUGO/hugo</code>. El servidor web publica la web desde la carpeta <code>~/web</code>. Supongo que la ruta a <code>hugo</code> se encuentra en el <code>$PATH</code> de tu equipo, por lo que puedes ejecutarlo lanzando <code>hugo</code> sin necesidad de especificar la ruta al comando.</p>
+
 <h2 id="crea-del-sitio">Crea del sitio</h2>
+
 <p>El primer paso para crear un sitio con Hugo es crear una carpeta llamada y lanzar el comando <code>hugo new site</code>:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">mkdir mi-sitio-web
+
+<pre><code class="language-sh">mkdir mi-sitio-web
 cd mi-sitio-web
 hugo new site mi-sitio-web
-</code></pre></div><p>A continuación, elige un tema (o crea el tuyo propio con <code>hugo new theme</code>).</p>
-<p>Configura los parámetros usados en el tema que hayas escogido en el fichero <code>$HUGO/config.toml</code> y ¡listo!.</p>
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<h2 id="crea-una-entrada">Crea una entrada</h2>
-<p>Para crear una entrada, lanza el comando <code>hugo new post/nombre-entrada.md</code>.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">cd mi-sitio-web
-hugo new post/mi-primera-entrada.md
-</code></pre></div><p>Esta acción crea el fichero <code>$HUGO/content/post/nueva-entrada.md</code>.</p>
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<h2 id="edita-la-entrada">Edita la entrada</h2>
-<p>Abre el fichero de la nueva entrada. Encontrarás algo como:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">+++
-title = <span style="color:#e6db74">&#34;mi primera entrada&#34;</span>
-thumbnail = <span style="color:#e6db74">&#34;images/thumbnail.png&#34;</span>
-categories = [<span style="color:#e6db74">&#34;&#34;</span>]
-tags = [<span style="color:#e6db74">&#34;&#34;</span>]
-date = <span style="color:#e6db74">&#34;2017-04-01T22:36:46+02:00&#34;</span>
+</code></pre>
 
-++<span style="color:#e6db74">+
-</span><span style="color:#e6db74">
-</span></code></pre></div><p>El contenido de cualquier entrada está compuesto por el <em>frontmatter</em> (<em>metadata</em> sobre la entrada) y el contenido de la entrada en sí: cualquier cosa a partir del bloque delimitado por <code>+++</code>. El contenido <em>por defecto</em> proviene del contenido de la carpeta <code>$HUGO/theme/{tema-usado}/archetypes/default.md</code> (el contenido varía según el autor de cada tema).</p>
+<p>A continuación, elige un tema (o crea el tuyo propio con <code>hugo new theme</code>).</p>
+
+<p>Configura los parámetros usados en el tema que hayas escogido en el fichero <code>$HUGO/config.toml</code> y ¡listo!.</p>
+
+<figure>
+  <amp-img src="https://onthedock.github.io/images/170401/hugo-publicacion-01.png" alt="Agregar nueva entrada con Hugo images/170401/hugo-publicacion-01.png" width=640 height=412 layout="responsive"></amp-img>
+  
+</figure>
+
+<h2 id="crea-una-entrada">Crea una entrada</h2>
+
+<p>Para crear una entrada, lanza el comando <code>hugo new post/nombre-entrada.md</code>.</p>
+
+<pre><code class="language-sh">cd mi-sitio-web
+hugo new post/mi-primera-entrada.md
+</code></pre>
+
+<p>Esta acción crea el fichero <code>$HUGO/content/post/nueva-entrada.md</code>.</p>
+
+<figure>
+  <amp-img src="https://onthedock.github.io/images/170401/hugo-publicacion-02.png" alt="Agregar nueva entrada con Hugo images/170401/hugo-publicacion-02.png" width=640 height=256 layout="responsive"></amp-img>
+  
+</figure>
+
+<h2 id="edita-la-entrada">Edita la entrada</h2>
+
+<p>Abre el fichero de la nueva entrada. Encontrarás algo como:</p>
+
+<pre><code class="language-yaml">+++
+title = &quot;mi primera entrada&quot;
+thumbnail = &quot;images/thumbnail.png&quot;
+categories = [&quot;&quot;]
+tags = [&quot;&quot;]
+date = &quot;2017-04-01T22:36:46+02:00&quot;
+
++++
+
+</code></pre>
+
+<p>El contenido de cualquier entrada está compuesto por el <em>frontmatter</em> (<em>metadata</em> sobre la entrada) y el contenido de la entrada en sí: cualquier cosa a partir del bloque delimitado por <code>+++</code>. El contenido <em>por defecto</em> proviene del contenido de la carpeta <code>$HUGO/theme/{tema-usado}/archetypes/default.md</code> (el contenido varía según el autor de cada tema).</p>
+
 <p>Al crear la entrada, además de la información copiada desde el <em>archetype</em> Hugo añade siempre el título (por defecto, igual que el nombre del fichero) y la fecha.</p>
+
 <p>Ya puedes escribir tu entrada en cualquier editor de texto. Para dar formato al texto -negritas, cursivas-, crear enlaces, insertar imágenes, etc, se usa el <a href="https://es.wikipedia.org/wiki/Markdown">markdown</a>.</p>
+
 <p>Para tener una idea de cómo va quedando la entrada, puedes usar <code>hugo server watch</code>. Hugo incorpora un pequeño servidor web con el que puedes visualizar tu blog en modo <em>borrador</em>, por llamarlo de algún modo. La opción <code>watch</code> hace que Hugo regenere automáticamente el blog en cuanto detecte algún cambio. De esta manera puedes ir visualizando cómo queda la entrada antes de publicarla.</p>
+
 <h2 id="publica-la-entrada">Publica la entrada</h2>
+
 <p>Una vez que satisfecho con la entrada, hay que generar los ficheros que componen el blog.</p>
+
 <p>El blog es un conjunto de ficheros html, javascript y css en la carpeta <code>$HUGO/public</code>. Para evitar que se mezclen ficheros de &ldquo;publicaciones&rdquo; anteriores, es recomendable borrar la carpeta antes de generar una nueva versión del blog.</p>
+
 <p>Para crear estos ficheros a partir de tus entradas y el tema que has escogido, simplemente lanza el comando <code>hugo</code>.</p>
+
 <p>Hugo hace su magia y genera todos los ficheros necesarios, analizando el contenido de los ficheros. Estos ficheros se generan en la carpeta $HUGO/public`.</p>
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
+
+<figure>
+  <amp-img src="https://onthedock.github.io/images/170401/hugo-publicacion-03.png" alt="Agregar nueva entrada con Hugo images/170401/hugo-publicacion-03.png" width=640 height=428 layout="responsive"></amp-img>
+  
+</figure>
+
 <h2 id="sube-los-ficheros-al-servidor-web">Sube los ficheros al servidor web</h2>
+
 <p>El siguiente paso es subir el contenido de la carpeta al servidor web.</p>
+
 <p>Para evitar que se mezclen los ficheros actuales y los nuevos, primero elimina el contenido de la carpeta del servidor.</p>
+
 <p>Mi servidor web es una Raspberry Pi B+, así que me conecto vía SSH y elimino el contenido de la carpeta <code>~/web</code>:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ ssh pirate@rpi.local
+
+<pre><code class="language-shell">$ ssh pirate@rpi.local
 pirate@rpi.local: ~ $ cd web
 pirate@rpi.local: ~/web $ rm -rf *
-</code></pre></div><p>Después, copio el contendio de <code>$HUGO/public</code> a <code>~/web</code> en el servidor remoto:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">cd $HUGO/public
+</code></pre>
+
+<p>Después, copio el contendio de <code>$HUGO/public</code> a <code>~/web</code> en el servidor remoto:</p>
+
+<pre><code class="language-sh">cd $HUGO/public
 scp -r * pirate@rpi.local:/home/pirate/web
-</code></pre></div><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
+</code></pre>
+
+<figure>
+  <amp-img src="https://onthedock.github.io/images/170401/hugo-publicacion-04.png" alt="Agregar nueva entrada con Hugo images/170401/hugo-publicacion-04.png" width=640 height=428 layout="responsive"></amp-img>
+  
+</figure>
+
 <p>Desde un navegador, comprueba que el blog se ha actualizado con la nueva entrada.</p>
+
 <p>Puedes descargar la referencia para todo el proceso: <a href="../../images/170401/hugo-publicacion-paso-a-paso.png">Publicación en Hugo: Referencia</a></p></div>
 
   <aside class="p-share">

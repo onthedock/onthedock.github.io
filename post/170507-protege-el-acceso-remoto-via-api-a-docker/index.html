@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.68.3" />
+<meta name="generator" content="Hugo 0.55.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -75,7 +75,7 @@
         "height": 60
       }
     },
-    "description": "\x3cp\x3eEn el artículo \x3ca href=\x22https:\/\/onthedock.github.io\/post\/170506-habilita-el-acceso-remoto-via-api-a-docker\/\x22\x3eHabilita el API remoto de Docker\x3c\/a\x3e explicaba cómo configurar el acceso remoto al API de Docker. El problema es que de esta forma no hay manera de restringir el acceso.\x3c\/p\x3e\n\x3cp\x3eEn este artículo protegemos el acceso usando TLS de manera que sólo se permitan conexiones que presenten un certificado firmado por una CA de confianza.\x3c\/p\x3e"
+    "description": "\x3cp\x3eEn el artículo \x3ca href=\x22https:\/\/onthedock.github.io\/post\/170506-habilita-el-acceso-remoto-via-api-a-docker\/\x22\x3eHabilita el API remoto de Docker\x3c\/a\x3e explicaba cómo configurar el acceso remoto al API de Docker. El problema es que de esta forma no hay manera de restringir el acceso.\x3c\/p\x3e\n\n\x3cp\x3eEn este artículo protegemos el acceso usando TLS de manera que sólo se permitan conexiones que presenten un certificado firmado por una CA de confianza.\x3c\/p\x3e"
   }
 </script>
 
@@ -121,124 +121,182 @@
   </div>
 
   <div class="article-body"><p>En el artículo <a href="https://onthedock.github.io/post/170506-habilita-el-acceso-remoto-via-api-a-docker/">Habilita el API remoto de Docker</a> explicaba cómo configurar el acceso remoto al API de Docker. El problema es que de esta forma no hay manera de restringir el acceso.</p>
+
 <p>En este artículo protegemos el acceso usando TLS de manera que sólo se permitan conexiones que presenten un certificado firmado por una CA de confianza.</p>
+
 <p>Seguiremos las instrucciones oficiales de Docker <a href="https://docs.docker.com/engine/security/https/">Protect the Docker daemon socket</a>.</p>
+
 <h1 id="creamos-una-ca-claves-para-el-cliente-y-el-servidor-con-openssl">Creamos una CA, claves para el cliente y el servidor con OpenSSL</h1>
+
 <p>Primero, en la máquina <em>host</em> del Docker <em>daemon</em>, generamos las claves públicas y privadas de la CA (<em>Certification Authority</em>, la entidad certificadora):</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="color:#75715e"># openssl genrsa -aes256 -out ca-key.pem 4096</span>
-Generating RSA private key, <span style="color:#ae81ff">4096</span> bit long modulus
+
+<pre><code class="language-sh"># openssl genrsa -aes256 -out ca-key.pem 4096
+Generating RSA private key, 4096 bit long modulus
 ............................................................................................................................................................................................................................................++
 ..........................++
-e is <span style="color:#ae81ff">65537</span> <span style="color:#f92672">(</span>0x10001<span style="color:#f92672">)</span>
-Enter pass phrase <span style="color:#66d9ef">for</span> ca-key.pem:
-Verifying - Enter pass phrase <span style="color:#66d9ef">for</span> ca-key.pem:
+e is 65537 (0x10001)
+Enter pass phrase for ca-key.pem:
+Verifying - Enter pass phrase for ca-key.pem:
 #
-</code></pre></div><p>Y a continuación:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="color:#75715e"># openssl req -new -x509 -days 365 -key ca-key.pem -sha256 -out ca.pem</span>
-Enter pass phrase <span style="color:#66d9ef">for</span> ca-key.pem:
+</code></pre>
+
+<p>Y a continuación:</p>
+
+<pre><code class="language-sh"># openssl req -new -x509 -days 365 -key ca-key.pem -sha256 -out ca.pem
+Enter pass phrase for ca-key.pem:
 You are about to be asked to enter information that will be incorporated
 into your certificate request.
 What you are about to enter is what is called a Distinguished Name or a DN.
 There are quite a few fields but you can leave some blank
 For some fields there will be a default value,
-If you enter <span style="color:#e6db74">&#39;.&#39;</span>, the field will be left blank.
+If you enter '.', the field will be left blank.
 -----
-Country Name <span style="color:#f92672">(</span><span style="color:#ae81ff">2</span> letter code<span style="color:#f92672">)</span> <span style="color:#f92672">[</span>AU<span style="color:#f92672">]</span>:ES
-State or Province Name <span style="color:#f92672">(</span>full name<span style="color:#f92672">)</span> <span style="color:#f92672">[</span>Some-State<span style="color:#f92672">]</span>:Barcelona
-Locality Name <span style="color:#f92672">(</span>eg, city<span style="color:#f92672">)</span> <span style="color:#f92672">[]</span>:Barcelona
-Organization Name <span style="color:#f92672">(</span>eg, company<span style="color:#f92672">)</span> <span style="color:#f92672">[</span>Internet Widgits Pty Ltd<span style="color:#f92672">]</span>:Ameisin
-Organizational Unit Name <span style="color:#f92672">(</span>eg, section<span style="color:#f92672">)</span> <span style="color:#f92672">[]</span>:DevOps
-Common Name <span style="color:#f92672">(</span>e.g. server FQDN or YOUR name<span style="color:#f92672">)</span> <span style="color:#f92672">[]</span>:192.168.1.20
-Email Address <span style="color:#f92672">[]</span>: <span style="color:#f92672">{</span>REDACTED<span style="color:#f92672">}</span>
+Country Name (2 letter code) [AU]:ES
+State or Province Name (full name) [Some-State]:Barcelona
+Locality Name (eg, city) []:Barcelona
+Organization Name (eg, company) [Internet Widgits Pty Ltd]:Ameisin
+Organizational Unit Name (eg, section) []:DevOps
+Common Name (e.g. server FQDN or YOUR name) []:192.168.1.20
+Email Address []: {REDACTED}
 #
-</code></pre></div><p>Ahora que tenemos una CA, podemos crear la clave para el servidor y la petición de firmado del certificado (<em>certificate signing request</em>, CSR). Por favor, verifica que <code>Common Name</code> (es decir, el <em>FQDN</em> o <em>YOUR Name</em>) coincide con el nombre del <em>host</em> que vas a usar para conectar a Docker.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="color:#75715e"># openssl genrsa -out server-key.pem 4096</span>
-Generating RSA private key, <span style="color:#ae81ff">4096</span> bit long modulus
+</code></pre>
+
+<p>Ahora que tenemos una CA, podemos crear la clave para el servidor y la petición de firmado del certificado (<em>certificate signing request</em>, CSR). Por favor, verifica que <code>Common Name</code> (es decir, el <em>FQDN</em> o <em>YOUR Name</em>) coincide con el nombre del <em>host</em> que vas a usar para conectar a Docker.</p>
+
+<pre><code class="language-sh"># openssl genrsa -out server-key.pem 4096
+Generating RSA private key, 4096 bit long modulus
 ............................................................................................................................................................................................................................................................................................................................++
 ...............................................................++
-e is <span style="color:#ae81ff">65537</span> <span style="color:#f92672">(</span>0x10001<span style="color:#f92672">)</span>
-<span style="color:#75715e"># openssl req -subj &#34;/CN=192.168.1.20&#34; -sha256 -new -key server-key.pem -out server.csr</span>
+e is 65537 (0x10001)
+# openssl req -subj &quot;/CN=192.168.1.20&quot; -sha256 -new -key server-key.pem -out server.csr
 #
-</code></pre></div><p>A continuación vamos a firmar la clave pública con nuestra CA.</p>
+</code></pre>
+
+<p>A continuación vamos a firmar la clave pública con nuestra CA.</p>
+
 <p>Como las conexiones TLS pueden realizarse usando la dirección IP o un nombre DNS, deben especificarse durante la creación del certificado.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="color:#75715e"># echo subjectAltName = IP:192.168.1.20,IP:127.0.0.1 &gt; extfile.cnf</span>
-<span style="color:#75715e"># openssl x509 -req -days 365 -sha256 -in server.csr -CA ca.pem -CAkey ca-key.pem \</span>
+
+<pre><code class="language-sh"># echo subjectAltName = IP:192.168.1.20,IP:127.0.0.1 &gt; extfile.cnf
+# openssl x509 -req -days 365 -sha256 -in server.csr -CA ca.pem -CAkey ca-key.pem \
 &gt;   -CAcreateserial -out server-cert.pem -extfile extfile.cnf
 Signature ok
-subject<span style="color:#f92672">=</span>/CN<span style="color:#f92672">=</span>192.168.1.20
+subject=/CN=192.168.1.20
 Getting CA Private Key
-Enter pass phrase <span style="color:#66d9ef">for</span> ca-key.pem:
+Enter pass phrase for ca-key.pem:
 #
-</code></pre></div><h1 id="autenticación-del-cliente">Autenticación del cliente</h1>
+</code></pre>
+
+<h1 id="autenticación-del-cliente">Autenticación del cliente</h1>
+
 <p>Para autenticar al cliente, crearemos una clave de cliente y una petición de firmado del certificado.</p>
+
 <blockquote>
 <p>Para simplificar, los siguientes dos pasos pueden realizarse desde la máquina donde se encuentra el Docker <em>daemon</em>.</p>
 </blockquote>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="color:#75715e"># openssl genrsa -out key.pem 4096</span>
-Generating RSA private key, <span style="color:#ae81ff">4096</span> bit long modulus
+
+<pre><code class="language-sh"># openssl genrsa -out key.pem 4096
+Generating RSA private key, 4096 bit long modulus
 ...............................................................................++
 ................................................................................................................................................................................++
-e is <span style="color:#ae81ff">65537</span> <span style="color:#f92672">(</span>0x10001<span style="color:#f92672">)</span>
-<span style="color:#75715e"># openssl req -subj &#39;/CN=client&#39; -new -key key.pem -out client.csr</span>
+e is 65537 (0x10001)
+# openssl req -subj '/CN=client' -new -key key.pem -out client.csr
 #
-</code></pre></div><p>Para que la clave permita autenticar al cliente, creamos un fichero de configuración de extensiones:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="color:#75715e"># echo extendedKeyUsage = clientAuth &gt; extfile.cnf</span>
+</code></pre>
+
+<p>Para que la clave permita autenticar al cliente, creamos un fichero de configuración de extensiones:</p>
+
+<pre><code class="language-sh"># echo extendedKeyUsage = clientAuth &gt; extfile.cnf
 #
-</code></pre></div><p>Ahora firmamos la clave:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="color:#75715e"># openssl x509 -req -days 365 -sha256 -in client.csr -CA ca.pem -CAkey ca-key.pem \</span>
+</code></pre>
+
+<p>Ahora firmamos la clave:</p>
+
+<pre><code class="language-sh"># openssl x509 -req -days 365 -sha256 -in client.csr -CA ca.pem -CAkey ca-key.pem \
 &gt;   -CAcreateserial -out cert.pem -extfile extfile.cnf
 Signature ok
-subject<span style="color:#f92672">=</span>/CN<span style="color:#f92672">=</span>client
+subject=/CN=client
 Getting CA Private Key
-Enter pass phrase <span style="color:#66d9ef">for</span> ca-key.pem:
+Enter pass phrase for ca-key.pem:
 #
-</code></pre></div><p>Después de haber generado <code>cert.pem</code> y <code>server-cert.pem</code> podemos eliminar las peticiones de firmado:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="color:#75715e"># ls</span>
+</code></pre>
+
+<p>Después de haber generado <code>cert.pem</code> y <code>server-cert.pem</code> podemos eliminar las peticiones de firmado:</p>
+
+<pre><code class="language-sh"># ls
 ca-key.pem  ca.srl    client.csr  extfile.cnf  server-cert.pem	server-key.pem
 ca.pem	    cert.pem  key.pem     server.csr
-<span style="color:#75715e"># rm -v client.csr server.csr</span>
+# rm -v client.csr server.csr
 removed ‘client.csr’
 removed ‘server.csr’
 #
-</code></pre></div><h1 id="protección-de-las-claves">Protección de las claves</h1>
+</code></pre>
+
+<h1 id="protección-de-las-claves">Protección de las claves</h1>
+
 <p>Con una máscara <code>umask</code> por defecto de <code>022</code> las claves secretas que hemos generado dan a todo el mundo acceso de lectura y de escritura a tu usuario y tu grupo.</p>
+
 <p>Para proteger las claves de daños accidentales, vamos a eliminar los permisos de escritura sobre ellas. Para hacerlas de sólo lectura para tu usuario, usamos:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="color:#75715e"># chmod -v 0400 ca-key.pem key.pem server-key.pem</span>
-mode of ‘ca-key.pem’ changed from <span style="color:#ae81ff">0644</span> <span style="color:#f92672">(</span>rw-r--r--<span style="color:#f92672">)</span> to <span style="color:#ae81ff">0400</span> <span style="color:#f92672">(</span>r--------<span style="color:#f92672">)</span>
-mode of ‘key.pem’ changed from <span style="color:#ae81ff">0644</span> <span style="color:#f92672">(</span>rw-r--r--<span style="color:#f92672">)</span> to <span style="color:#ae81ff">0400</span> <span style="color:#f92672">(</span>r--------<span style="color:#f92672">)</span>
-mode of ‘server-key.pem’ changed from <span style="color:#ae81ff">0644</span> <span style="color:#f92672">(</span>rw-r--r--<span style="color:#f92672">)</span> to <span style="color:#ae81ff">0400</span> <span style="color:#f92672">(</span>r--------<span style="color:#f92672">)</span>
+
+<pre><code class="language-sh"># chmod -v 0400 ca-key.pem key.pem server-key.pem
+mode of ‘ca-key.pem’ changed from 0644 (rw-r--r--) to 0400 (r--------)
+mode of ‘key.pem’ changed from 0644 (rw-r--r--) to 0400 (r--------)
+mode of ‘server-key.pem’ changed from 0644 (rw-r--r--) to 0400 (r--------)
 #
-</code></pre></div><p>Los certificados pueden ser leídos por todo el mundo, pero para evitar daños accidentales, mejor eliminamos los permisos de escritura:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="color:#75715e"># chmod -v 0444 ca.pem server-cert.pem cert.pem</span>
-mode of ‘ca.pem’ changed from <span style="color:#ae81ff">0644</span> <span style="color:#f92672">(</span>rw-r--r--<span style="color:#f92672">)</span> to <span style="color:#ae81ff">0444</span> <span style="color:#f92672">(</span>r--r--r--<span style="color:#f92672">)</span>
-mode of ‘server-cert.pem’ changed from <span style="color:#ae81ff">0644</span> <span style="color:#f92672">(</span>rw-r--r--<span style="color:#f92672">)</span> to <span style="color:#ae81ff">0444</span> <span style="color:#f92672">(</span>r--r--r--<span style="color:#f92672">)</span>
-mode of ‘cert.pem’ changed from <span style="color:#ae81ff">0644</span> <span style="color:#f92672">(</span>rw-r--r--<span style="color:#f92672">)</span> to <span style="color:#ae81ff">0444</span> <span style="color:#f92672">(</span>r--r--r--<span style="color:#f92672">)</span>
+</code></pre>
+
+<p>Los certificados pueden ser leídos por todo el mundo, pero para evitar daños accidentales, mejor eliminamos los permisos de escritura:</p>
+
+<pre><code class="language-sh"># chmod -v 0444 ca.pem server-cert.pem cert.pem
+mode of ‘ca.pem’ changed from 0644 (rw-r--r--) to 0444 (r--r--r--)
+mode of ‘server-cert.pem’ changed from 0644 (rw-r--r--) to 0444 (r--r--r--)
+mode of ‘cert.pem’ changed from 0644 (rw-r--r--) to 0444 (r--r--r--)
 #
-</code></pre></div><h1 id="configurando-el-api-de-acceso-remoto-de-forma-segura">Configurando el API de acceso remoto de forma segura</h1>
+</code></pre>
+
+<h1 id="configurando-el-api-de-acceso-remoto-de-forma-segura">Configurando el API de acceso remoto de forma segura</h1>
+
 <p>Para hacer que el Docker <em>daemon</em> sólo acepte conexiones de clientes que proporcionen un certificado de confianza de tu CA.</p>
+
 <p>Para ello, modificamos las opciones de arranque del <em>daemon</em> de Docker:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="color:#75715e"># nano /lib/systemd/system/docker.service</span>
-</code></pre></div><p>Modificamos la línea:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-txt" data-lang="txt">ExecStart=/usr/bin/dockerd -H fd:// -H=0.0.0.0:2375
-</code></pre></div><p>De manera que quede como (lo he dividido en varias líneas por claridad):</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">ExecStart<span style="color:#f92672">=</span>/usr/bin/dockerd --tlsverify 		<span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>         --tlscacert<span style="color:#f92672">=</span>/root/ca.pem 		<span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>         --tlscert<span style="color:#f92672">=</span>/root/server-cert.pem 	<span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>         --tlskey<span style="color:#f92672">=</span>/root/server-key.pem 		<span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>         -H<span style="color:#f92672">=</span>0.0.0.0:2376 			<span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>         -H fd://
-</code></pre></div><p>A continuación, recargamos la configuración y reinciamos el servicio:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="color:#75715e"># systemctl daemon-reload</span>
-<span style="color:#75715e"># systemctl restart docker</span>
-</code></pre></div><blockquote>
+
+<pre><code class="language-sh"># nano /lib/systemd/system/docker.service
+</code></pre>
+
+<p>Modificamos la línea:</p>
+
+<pre><code class="language-txt">ExecStart=/usr/bin/dockerd -H fd:// -H=0.0.0.0:2375
+</code></pre>
+
+<p>De manera que quede como (lo he dividido en varias líneas por claridad):</p>
+
+<pre><code class="language-sh">ExecStart=/usr/bin/dockerd --tlsverify 		\
+         --tlscacert=/root/ca.pem 		\
+         --tlscert=/root/server-cert.pem 	\
+         --tlskey=/root/server-key.pem 		\
+         -H=0.0.0.0:2376 			\
+         -H fd://
+</code></pre>
+
+<p>A continuación, recargamos la configuración y reinciamos el servicio:</p>
+
+<pre><code class="language-sh"># systemctl daemon-reload
+# systemctl restart docker
+</code></pre>
+
+<blockquote>
 <p>Los primeros intentos de arrancar el <em>daemon</em> han fallado; ha sido necesario especificar la ruta completa a los certificados y las claves para conseguir que el servicio arrancara.</p>
 </blockquote>
+
 <p>Finalmente, comprobamos que podemos acceder usando el certificado con <em>curl</em>:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="color:#75715e"># curl https://192.168.1.20:2376/version --cert /root/cert.pem --key /root/key.pem --cacert /root/ca.pem</span>
-<span style="color:#f92672">{</span><span style="color:#e6db74">&#34;Version&#34;</span>:<span style="color:#e6db74">&#34;17.05.0-ce&#34;</span>,<span style="color:#e6db74">&#34;ApiVersion&#34;</span>:<span style="color:#e6db74">&#34;1.29&#34;</span>,<span style="color:#e6db74">&#34;MinAPIVersion&#34;</span>:<span style="color:#e6db74">&#34;1.12&#34;</span>,<span style="color:#e6db74">&#34;GitCommit&#34;</span>:<span style="color:#e6db74">&#34;89658be&#34;</span>,<span style="color:#e6db74">&#34;GoVersion&#34;</span>:<span style="color:#e6db74">&#34;go1.7.5&#34;</span>,<span style="color:#e6db74">&#34;Os&#34;</span>:<span style="color:#e6db74">&#34;linux&#34;</span>,<span style="color:#e6db74">&#34;Arch&#34;</span>:<span style="color:#e6db74">&#34;amd64&#34;</span>,<span style="color:#e6db74">&#34;KernelVersion&#34;</span>:<span style="color:#e6db74">&#34;3.16.0-4-amd64&#34;</span>,<span style="color:#e6db74">&#34;BuildTime&#34;</span>:<span style="color:#e6db74">&#34;2017-05-04T22:04:27.257991431+00:00&#34;</span><span style="color:#f92672">}</span>
+
+<pre><code class="language-sh"># curl https://192.168.1.20:2376/version --cert /root/cert.pem --key /root/key.pem --cacert /root/ca.pem
+{&quot;Version&quot;:&quot;17.05.0-ce&quot;,&quot;ApiVersion&quot;:&quot;1.29&quot;,&quot;MinAPIVersion&quot;:&quot;1.12&quot;,&quot;GitCommit&quot;:&quot;89658be&quot;,&quot;GoVersion&quot;:&quot;go1.7.5&quot;,&quot;Os&quot;:&quot;linux&quot;,&quot;Arch&quot;:&quot;amd64&quot;,&quot;KernelVersion&quot;:&quot;3.16.0-4-amd64&quot;,&quot;BuildTime&quot;:&quot;2017-05-04T22:04:27.257991431+00:00&quot;}
 #
-</code></pre></div><p>A diferencia de lo que pasaba antes, cuando se intenta acceder a <code>https://192.168.1.9:2376/version</code> desde otro equipo (sin usar el certificado), obtenemos un error:</p>
-<pre><code class="language-url" data-lang="url">This site can’t be reached
+</code></pre>
+
+<p>A diferencia de lo que pasaba antes, cuando se intenta acceder a <code>https://192.168.1.9:2376/version</code> desde otro equipo (sin usar el certificado), obtenemos un error:</p>
+
+<pre><code class="language-url">This site can’t be reached
 192.168.1.9 refused to connect.
 </code></pre></div>
 

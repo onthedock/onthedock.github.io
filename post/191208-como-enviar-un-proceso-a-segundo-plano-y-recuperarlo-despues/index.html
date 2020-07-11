@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.68.3" />
+<meta name="generator" content="Hugo 0.55.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -75,7 +75,7 @@
         "height": 60
       }
     },
-    "description": "\x3cp\x3eCuando se lanza un comando en la terminal -en general-, hace lo que tiene que hacer y termina. Sin embargo, algunos procesos se ejecutan indefinidamente (hasta que el usuario los termina usando \x3ccode\x3eCtrl\x2bC\x3c\/code\x3e). En este caso, el terminal queda \x3cem\x3ebloqueado\x3c\/em\x3e, en el sentido de que el usuario no puede lanzar nuevos comandos.\x3c\/p\x3e\n\x3cp\x3eEn esta entrada indico las diferentes opciones que tienes para poder gestionar comandos en un terminal de Linux.\x3c\/p\x3e"
+    "description": "\x3cp\x3eCuando se lanza un comando en la terminal -en general-, hace lo que tiene que hacer y termina. Sin embargo, algunos procesos se ejecutan indefinidamente (hasta que el usuario los termina usando \x3ccode\x3eCtrl\x2bC\x3c\/code\x3e). En este caso, el terminal queda \x3cem\x3ebloqueado\x3c\/em\x3e, en el sentido de que el usuario no puede lanzar nuevos comandos.\x3c\/p\x3e\n\n\x3cp\x3eEn esta entrada indico las diferentes opciones que tienes para poder gestionar comandos en un terminal de Linux.\x3c\/p\x3e"
   }
 </script>
 
@@ -121,137 +121,203 @@
   </div>
 
   <div class="article-body"><p>Cuando se lanza un comando en la terminal -en general-, hace lo que tiene que hacer y termina. Sin embargo, algunos procesos se ejecutan indefinidamente (hasta que el usuario los termina usando <code>Ctrl+C</code>). En este caso, el terminal queda <em>bloqueado</em>, en el sentido de que el usuario no puede lanzar nuevos comandos.</p>
+
 <p>En esta entrada indico las diferentes opciones que tienes para poder gestionar comandos en un terminal de Linux.</p>
+
 <p>Durante esta entrada voy a usar como ejemplo <a href="https://gohugo.io/commands/hugo_server/"><code>hugo server</code></a>; el servidor web que Hugo proporciona para construir y servir un sitio web durante el desarrollo de las diferentes entradas del sitio (en local, antes de subirlo a producción/publicarlo en internet).</p>
+
 <p>Si ejecutas el comando tal cual:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ hugo server
-Building sites … WARN 2019/12/08 08:42:47 .File.Path on zero object. Wrap it in <span style="color:#66d9ef">if</span> or with: <span style="color:#f92672">{{</span> with .File <span style="color:#f92672">}}{{</span> .Path <span style="color:#f92672">}}{{</span> end <span style="color:#f92672">}}</span>
+
+<pre><code class="language-bash">$ hugo server
+Building sites … WARN 2019/12/08 08:42:47 .File.Path on zero object. Wrap it in if or with: {{ with .File }}{{ .Path }}{{ end }}
 
                    | EN
 +------------------+-----+
-  Pages            | <span style="color:#ae81ff">287</span>
-  Paginator pages  |  <span style="color:#ae81ff">48</span>
-  Non-page files   |   <span style="color:#ae81ff">0</span>
-  Static files     | <span style="color:#ae81ff">172</span>
-  Processed images |   <span style="color:#ae81ff">0</span>
-  Aliases          |  <span style="color:#ae81ff">83</span>
-  Sitemaps         |   <span style="color:#ae81ff">1</span>
-  Cleaned          |   <span style="color:#ae81ff">0</span>
+  Pages            | 287
+  Paginator pages  |  48
+  Non-page files   |   0
+  Static files     | 172
+  Processed images |   0
+  Aliases          |  83
+  Sitemaps         |   1
+  Cleaned          |   0
 
-Total in <span style="color:#ae81ff">1157</span> ms
-Watching <span style="color:#66d9ef">for</span> changes in /Users/xavi/Dev/hugo/onthedock-githubpages/<span style="color:#f92672">{</span>content,static,themes<span style="color:#f92672">}</span>
-Watching <span style="color:#66d9ef">for</span> config changes in /Users/xavi/Dev/hugo/onthedock/onthedock-config.toml
-Environment: <span style="color:#e6db74">&#34;development&#34;</span>
+Total in 1157 ms
+Watching for changes in /Users/xavi/Dev/hugo/onthedock-githubpages/{content,static,themes}
+Watching for config changes in /Users/xavi/Dev/hugo/onthedock/onthedock-config.toml
+Environment: &quot;development&quot;
 Serving pages from memory
 Running in Fast Render Mode. For full rebuilds on change: hugo server --disableFastRender
-Web Server is available at http://localhost:1313/ <span style="color:#f92672">(</span>bind address 127.0.0.1<span style="color:#f92672">)</span>
+Web Server is available at http://localhost:1313/ (bind address 127.0.0.1)
 Press Ctrl+C to stop
-</code></pre></div><p>Como puedes ver en la salida del comando, Hugo se mantiene en ejecución <em>vigilando</em> el contenido de una carpeta y en caso de modificación, reconstruye el sitio web y actualiza el servidor web para cargar el nuevo contenido:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">...
+</code></pre>
+
+<p>Como puedes ver en la salida del comando, Hugo se mantiene en ejecución <em>vigilando</em> el contenido de una carpeta y en caso de modificación, reconstruye el sitio web y actualiza el servidor web para cargar el nuevo contenido:</p>
+
+<pre><code class="language-bash">...
 Running in Fast Render Mode. For full rebuilds on change: hugo server --disableFastRender
-Web Server is available at http://localhost:1313/ <span style="color:#f92672">(</span>bind address 127.0.0.1<span style="color:#f92672">)</span>
+Web Server is available at http://localhost:1313/ (bind address 127.0.0.1)
 Press Ctrl+C to stop
 
 Change detected, rebuilding site
 2019-12-08 08:54:34.175 +0100
-Source changed <span style="color:#e6db74">&#34;/Users/xavi/Dev/hugo/onthedock/content/post/191208-como-enviar-un-proceso-a-segundo-plano-y-recuperarlo-despues.md&#34;</span>: WRITE
-Total in <span style="color:#ae81ff">101</span> ms
-</code></pre></div><p>Mientras <code>hugo server</code> está en ejecución, no devuelve el control al terminal y, por tanto, no es posible ejecutar nuevos comandos.</p>
+Source changed &quot;/Users/xavi/Dev/hugo/onthedock/content/post/191208-como-enviar-un-proceso-a-segundo-plano-y-recuperarlo-despues.md&quot;: WRITE
+Total in 101 ms
+</code></pre>
+
+<p>Mientras <code>hugo server</code> está en ejecución, no devuelve el control al terminal y, por tanto, no es posible ejecutar nuevos comandos.</p>
+
 <h2 id="abrir-un-nuevo-terminal">Abrir un nuevo terminal</h2>
+
 <p>La primera opción para poder lanzar nuevos comandos mientras un proceso en ejecución bloquea el terminal es, simplemente, lanzar un nuevo terminal.</p>
+
 <p>Si estás en un equipo con entorno gráfico, puedes lanzar una nueva instancia de tu programa de terminal (o abrir una nueva pestaña).</p>
+
 <p>Si estás conectado en remoto a un equipo vía SSH, por ejemplo, puedes abrir una nueva conexión contra el mismo equipo.</p>
+
 <p>Si estás conectado localmente a un equipo sin entorno gráfico, puedes abrir una nueva terminal mediante la combinación de <code>Alt</code> y las teclas de función (<code>F1</code>, <code>F2</code>, etc.). Si el sistema tienen una sesión X abierta, la combinación es <code>Ctrl+Alt</code>y las teclas de función.</p>
+
 <blockquote>
 <p>Al comprobar la combinación de teclas en el párrafo anterior, he encontrado el artículo <a href="https://www.ostechnix.com/how-to-switch-between-ttys-without-using-function-keys-in-linux/">How To Switch Between TTYs Without Using Function Keys In Linux</a> con un montón de formas adicionales que desconocía para cambiar entre consolas.</p>
 </blockquote>
+
 <h2 id="gestión-de-procesos">Gestión de procesos</h2>
+
 <p>En vez de crecer en horizontal, lanzando consolas adicionales, puedes gestionar los procesos en una única consola.</p>
+
 <h3 id="suspender-un-proceso">Suspender un proceso</h3>
+
 <p>Si has lanzado un proceso y por algún motivo necesitas de forma imperiosa realizar otra cosa sin interrumpirlo, puedes suspenderlo. Para ello, pulsa <code>Ctrl+z</code>:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">...
-Environment: <span style="color:#e6db74">&#34;development&#34;</span>
+
+<pre><code class="language-bash">...
+Environment: &quot;development&quot;
 Serving pages from memory
 Running in Fast Render Mode. For full rebuilds on change: hugo server --disableFastRender
-Web Server is available at http://localhost:1313/ <span style="color:#f92672">(</span>bind address 127.0.0.1<span style="color:#f92672">)</span>
+Web Server is available at http://localhost:1313/ (bind address 127.0.0.1)
 Press Ctrl+C to stop
 ^Z
-<span style="color:#f92672">[</span>1<span style="color:#f92672">]</span>  + <span style="color:#ae81ff">2402</span> suspended  hugo server
+[1]  + 2402 suspended  hugo server
 $
-</code></pre></div><p>Al pulsar <code>Ctrl+z</code> (que la consola recoge como <code>^Z</code>), el proceso con PID 2402 -en mi caso- se <em>suspende</em>. Esto significa que sigue en memoria, pero no se está ejecutando. Puedes comprobarlo con <code>ps | grep 2402</code>.</p>
+</code></pre>
+
+<p>Al pulsar <code>Ctrl+z</code> (que la consola recoge como <code>^Z</code>), el proceso con PID 2402 -en mi caso- se <em>suspende</em>. Esto significa que sigue en memoria, pero no se está ejecutando. Puedes comprobarlo con <code>ps | grep 2402</code>.</p>
+
 <p>También puedes observar como en el terminal aparece de nuevo el <em>prompt</em>, listo para ejecutar nuevos comandos.</p>
+
 <p>Para <em>despertar</em> el proceso suspendido, escribe <code>fg</code>:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ fg
-<span style="color:#f92672">[</span>1<span style="color:#f92672">]</span>  + <span style="color:#ae81ff">2402</span> continued  hugo server --config onthedock-config.toml
+
+<pre><code class="language-bash">$ fg
+[1]  + 2402 continued  hugo server --config onthedock-config.toml
 
 Change detected, rebuilding site
 2019-12-08 17:52:54.473 +0100
-Source changed <span style="color:#e6db74">&#34;/Users/xavi/Dev/hugo/onthedock-githubpages/content/post/191208-como-enviar-un-proceso-a-segundo-plano-y-recuperarlo-despues.md&#34;</span>: WRITE|CHMOD
-Total in <span style="color:#ae81ff">111</span> ms
-</code></pre></div><h3 id="continuar-un-proceso-suspendido-en-segundo-plano">Continuar un proceso suspendido en segundo plano</h3>
+Source changed &quot;/Users/xavi/Dev/hugo/onthedock-githubpages/content/post/191208-como-enviar-un-proceso-a-segundo-plano-y-recuperarlo-despues.md&quot;: WRITE|CHMOD
+Total in 111 ms
+</code></pre>
+
+<h3 id="continuar-un-proceso-suspendido-en-segundo-plano">Continuar un proceso suspendido en segundo plano</h3>
+
 <p>Al suspender un proceso, se detiene su ejecución (aunque no se interrumpe de forma definitiva).</p>
+
 <p>Si se trata, como en este caso, de lanzar un servidor web, lo ideal sería que el proceso continue en ejecución, pero que <em>libere</em> la terminal para seguir ejecutando comandos.</p>
+
 <p>Esto podemos lograrlo de dos formas diferentes.</p>
+
 <p>Si tenemos el proceso en marcha, como en el caso anterior, pulsando <code>Ctrl+z</code> lo suspendemos. Como hemos dicho, el comando está en segundo plano, pero no se ejecuta.</p>
+
 <p>Podemos <em>activarlo</em> <strong>dejándolo en segundo plano</strong> mediante el comando <code>bg</code> (la forma <em>corta</em> de <em>background</em>):</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">Source changed <span style="color:#e6db74">&#34;/Users/xavi/Dev/hugo/onthedock-githubpages/content/post/191208-como-enviar-un-proceso-a-segundo-plano-y-recuperarlo-despues.md&#34;</span>: WRITE
-Total in <span style="color:#ae81ff">150</span> ms
+
+<pre><code class="language-bash">Source changed &quot;/Users/xavi/Dev/hugo/onthedock-githubpages/content/post/191208-como-enviar-un-proceso-a-segundo-plano-y-recuperarlo-despues.md&quot;: WRITE
+Total in 150 ms
 ^Z
-<span style="color:#f92672">[</span>1<span style="color:#f92672">]</span>  + <span style="color:#ae81ff">2402</span> suspended  hugo server
+[1]  + 2402 suspended  hugo server
 
 $ bg
-<span style="color:#f92672">[</span>1<span style="color:#f92672">]</span>  + <span style="color:#ae81ff">2402</span> continued  hugo server
+[1]  + 2402 continued  hugo server
 
 $
-</code></pre></div><p>Al lanzar <code>bg</code> el comando en estado <em>suspended</em> pasa a <em>continued</em>, aunque permanece en segundo plano.</p>
+</code></pre>
+
+<p>Al lanzar <code>bg</code> el comando en estado <em>suspended</em> pasa a <em>continued</em>, aunque permanece en segundo plano.</p>
+
 <h3 id="ejecutar-un-proceso-en-segundo-plano">Ejecutar un proceso en segundo plano</h3>
+
 <p>Aunque con la combinación de <code>Ctrl+z</code> seguida del comando <code>bg</code> conseguimos tener un proceso en ejecución en segundo plano, existe una manera más sencilla -o directa- de conseguir el mismo resultado.</p>
+
 <p>Para ello, lanza el comando -<code>hugo server</code> en nuestro caso- <strong>seguido de <code>&amp;</code></strong> (<em>ampersand</em>):</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ hugo server &amp;
-<span style="color:#f92672">[</span>1<span style="color:#f92672">]</span> <span style="color:#ae81ff">3367</span>
-Building sites … WARN 2019/12/08 18:04:36 .File.Path on zero object. Wrap it in <span style="color:#66d9ef">if</span> or with: <span style="color:#f92672">{{</span> with .File <span style="color:#f92672">}}{{</span> .Path <span style="color:#f92672">}}{{</span> end <span style="color:#f92672">}}</span>
+
+<pre><code class="language-bash">$ hugo server &amp;
+[1] 3367
+Building sites … WARN 2019/12/08 18:04:36 .File.Path on zero object. Wrap it in if or with: {{ with .File }}{{ .Path }}{{ end }}
 ...
 $
-</code></pre></div><p>Observa que la terminal muestra el <em>prompt</em>, lo que indica que sigue aceptando la entrada de nuevos comandos.</p>
+</code></pre>
+
+<p>Observa que la terminal muestra el <em>prompt</em>, lo que indica que sigue aceptando la entrada de nuevos comandos.</p>
+
 <p>Además, la salida indica:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#f92672">[</span>1<span style="color:#f92672">]</span> <span style="color:#ae81ff">3367</span>
-</code></pre></div><p>Esto indica que el proceso con el PID 3367 se ejecuta en segundo plano.</p>
+
+<pre><code class="language-bash">[1] 3367
+</code></pre>
+
+<p>Esto indica que el proceso con el PID 3367 se ejecuta en segundo plano.</p>
+
 <p>Como en el caso anterior, puedes devolver el proceso en segundo plano al primer plano mediante el comando <code>fg</code> (<em>foreground</em>).</p>
+
 <h3 id="feedback-de-los-procesos-en-segundo-plano">Feedback de los procesos en segundo plano</h3>
+
 <p>Si alguno de los procesos envía información a <code>stdout</code> o <code>stderr</code> mientras se encuentra en segundo plano, ésta aparece en la terminal.</p>
+
 <p>Puedes comprobarlo lanzando <code>sleep 10  &amp;</code> y esperando que finalice:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ sleep <span style="color:#ae81ff">10</span> &amp;
-<span style="color:#f92672">[</span>1<span style="color:#f92672">]</span> <span style="color:#ae81ff">3922</span>
+
+<pre><code class="language-bash">$ sleep 10 &amp;
+[1] 3922
 $
-<span style="color:#f92672">(</span><span style="color:#ae81ff">10</span> segundos después<span style="color:#f92672">)</span>
-<span style="color:#f92672">[</span>1<span style="color:#f92672">]</span> - <span style="color:#ae81ff">3922</span> <span style="color:#66d9ef">done</span> sleep <span style="color:#ae81ff">10</span>
+(10 segundos después)
+[1] - 3922 done sleep 10
 $
-</code></pre></div><h2 id="gestionando-múltiples-procesos">Gestionando múltiples procesos</h2>
+</code></pre>
+
+<h2 id="gestionando-múltiples-procesos">Gestionando múltiples procesos</h2>
+
 <p>Hasta ahora sólo hemos estado gestionando un único proceso. Sin embargo, podemos tener varios procesos ejecutándose en segundo plano y nos puede interesar trearlos a primer plano de forma alternativa, por ejemplo, para revisar el progreso de cada uno.</p>
+
 <p>He lanzado dos comandos <code>sleep</code> seguidos de <code>&amp;</code> para enviarlos a segundo plano.</p>
+
 <p>Para consultar los procesos en ejecución en segundo plano, ejecuta el comando <code>jobs</code>:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ jobs
-<span style="color:#f92672">[</span>1<span style="color:#f92672">]</span>    running    hugo server
-<span style="color:#f92672">[</span>2<span style="color:#f92672">]</span>  - running    sleep <span style="color:#ae81ff">200</span>
-<span style="color:#f92672">[</span>3<span style="color:#f92672">]</span>  + running    sleep <span style="color:#ae81ff">250</span>
-</code></pre></div><p>Como ves, cada uno de los procesos está precedido del número de <em>job</em>.</p>
+
+<pre><code class="language-bash">$ jobs
+[1]    running    hugo server
+[2]  - running    sleep 200
+[3]  + running    sleep 250
+</code></pre>
+
+<p>Como ves, cada uno de los procesos está precedido del número de <em>job</em>.</p>
+
 <p>Para devolver el proceso identificado con el <em>job id</em> <code>2</code> a primer plano, ejecuta el comando <code>fg %2</code>:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ fg %2
-<span style="color:#f92672">[</span>2<span style="color:#f92672">]</span>  - <span style="color:#ae81ff">4259</span> running    sleep <span style="color:#ae81ff">200</span>
-</code></pre></div><p>Si tienes varios procesos suspendidos en segundo plano, puedes activarlos selectivamente mediante <code>bg %#</code>, donde <code>#</code> es el número de <em>job</em> asociado al proceso.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ jobs
-<span style="color:#f92672">[</span>1<span style="color:#f92672">]</span>    running    hugo server
-<span style="color:#f92672">[</span>2<span style="color:#f92672">]</span>  - suspended  sleep <span style="color:#ae81ff">200</span>
-<span style="color:#f92672">[</span>3<span style="color:#f92672">]</span>  + suspended  sleep <span style="color:#ae81ff">250</span>
+
+<pre><code class="language-bash">$ fg %2
+[2]  - 4259 running    sleep 200
+</code></pre>
+
+<p>Si tienes varios procesos suspendidos en segundo plano, puedes activarlos selectivamente mediante <code>bg %#</code>, donde <code>#</code> es el número de <em>job</em> asociado al proceso.</p>
+
+<pre><code class="language-bash">$ jobs
+[1]    running    hugo server
+[2]  - suspended  sleep 200
+[3]  + suspended  sleep 250
 
 $ bg %3
-<span style="color:#f92672">[</span>3<span style="color:#f92672">]</span>  - <span style="color:#ae81ff">4997</span> continued  sleep <span style="color:#ae81ff">250</span>
+[3]  - 4997 continued  sleep 250
 
 $ jobs
-<span style="color:#f92672">[</span>1<span style="color:#f92672">]</span>    running    hugo server
-<span style="color:#f92672">[</span>2<span style="color:#f92672">]</span>  + suspended  sleep <span style="color:#ae81ff">200</span>
-<span style="color:#f92672">[</span>3<span style="color:#f92672">]</span>  - running    sleep <span style="color:#ae81ff">250</span>
-</code></pre></div><h2 id="resumen">Resumen</h2>
+[1]    running    hugo server
+[2]  + suspended  sleep 200
+[3]  - running    sleep 250
+</code></pre>
+
+<h2 id="resumen">Resumen</h2>
+
 <p>En esta entrada hemos repasado los diferentes comandos que permiten gestionar procesos en ejecución en Linux. Usando <code>Ctrl+Z</code>, <code>fg</code> y <code>bg</code> puedes controlar los procesos en ejecución, enviándolos a segundo plano y suspendiéndolos cuando sea necesario sin necesidad de interrumpirlos.</p></div>
 
   <aside class="p-share">

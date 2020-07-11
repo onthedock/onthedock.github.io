@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.68.3" />
+<meta name="generator" content="Hugo 0.55.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -121,43 +121,66 @@
   </div>
 
   <div class="article-body"><p>Hoy, al intentar lanzar un comando con <code>kubectl</code>, he obtenido el típico mensaje indicando que no se puede conectar con el servidor. El problema está en el servidor de API, que es el que actua como intermediario entre el usuario y Kubernetes. Últimamente he encontrado el mismo error y lo he solucionado reiniciando el nodo <em>master</em> del clúster. Pero hoy he investigado un poco&hellip; Y lo que he encontrado no me ha gustado demasiado.</p>
+
 <p>El problema se observa en cuanto intentas lanzar un comando con <code>kubectl</code>:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl get nodes
+
+<pre><code class="language-shell">$ kubectl get nodes
 The connection to the server 192.168.1.11:6443 was refused - did you specify the right host or port?
-</code></pre></div><p>Como no hay forma de comunicar con Kubernetes, uso <code>docker ps</code> para observar el estado de los diferentes contenedores del <em>control plane</em> de Kubernetes:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ docker ps -a
+</code></pre>
+
+<p>Como no hay forma de comunicar con Kubernetes, uso <code>docker ps</code> para observar el estado de los diferentes contenedores del <em>control plane</em> de Kubernetes:</p>
+
+<pre><code class="language-shell">$ docker ps -a
 CONTAINER ID        IMAGE                                                  COMMAND                  CREATED             STATUS                     PORTS               NAMES
-6ef208ad4c36        gcr.io/google_containers/kube-apiserver-arm            <span style="color:#e6db74">&#34;kube-apiserver --...&#34;</span>   <span style="color:#ae81ff">3</span> days ago          Exited <span style="color:#f92672">(</span>255<span style="color:#f92672">)</span> <span style="color:#ae81ff">3</span> days ago                        k8s_kube-apiserver_kube-apiserver-k1_kube-system_c0f77be12d1bf28aaecf7cc373a774b6_5
-45cee0251e6e        gcr.io/google_containers/k8s-dns-sidecar-arm           <span style="color:#e6db74">&#34;/sidecar --v=2 --...&#34;</span>   <span style="color:#ae81ff">9</span> days ago          Up <span style="color:#ae81ff">9</span> days                                      k8s_sidecar_kube-dns-66ffd5c588-5gvsc_kube-system_5ef537a4-b67c-11e7-8cb3-b827eb650fdb_1
-a832db03112d        gcr.io/google_containers/k8s-dns-dnsmasq-nanny-arm     <span style="color:#e6db74">&#34;/dnsmasq-nanny -v...&#34;</span>   <span style="color:#ae81ff">9</span> days ago          Up <span style="color:#ae81ff">9</span> days                                      k8s_dnsmasq_kube-dns-66ffd5c588-5gvsc_kube-system_5ef537a4-b67c-11e7-8cb3-b827eb650fdb_1
-288ab144f5c5        gcr.io/google_containers/k8s-dns-kube-dns-arm          <span style="color:#e6db74">&#34;/kube-dns --domai...&#34;</span>   <span style="color:#ae81ff">9</span> days ago          Up <span style="color:#ae81ff">9</span> days
+6ef208ad4c36        gcr.io/google_containers/kube-apiserver-arm            &quot;kube-apiserver --...&quot;   3 days ago          Exited (255) 3 days ago                        k8s_kube-apiserver_kube-apiserver-k1_kube-system_c0f77be12d1bf28aaecf7cc373a774b6_5
+45cee0251e6e        gcr.io/google_containers/k8s-dns-sidecar-arm           &quot;/sidecar --v=2 --...&quot;   9 days ago          Up 9 days                                      k8s_sidecar_kube-dns-66ffd5c588-5gvsc_kube-system_5ef537a4-b67c-11e7-8cb3-b827eb650fdb_1
+a832db03112d        gcr.io/google_containers/k8s-dns-dnsmasq-nanny-arm     &quot;/dnsmasq-nanny -v...&quot;   9 days ago          Up 9 days                                      k8s_dnsmasq_kube-dns-66ffd5c588-5gvsc_kube-system_5ef537a4-b67c-11e7-8cb3-b827eb650fdb_1
+288ab144f5c5        gcr.io/google_containers/k8s-dns-kube-dns-arm          &quot;/kube-dns --domai...&quot;   9 days ago          Up 9 days
 ...
-</code></pre></div><p>Como puede observarse en la salida del comando, el contenedor del API server falló hace tres días (he estado fuera 4 días). He intentado arrancar el contenedor mediante <code>docker start</code>, pero no ha funcionado.</p>
+</code></pre>
+
+<p>Como puede observarse en la salida del comando, el contenedor del API server falló hace tres días (he estado fuera 4 días). He intentado arrancar el contenedor mediante <code>docker start</code>, pero no ha funcionado.</p>
+
 <p>He intentado obtener los logs del contenedor, pero tampoco he tenido éxito, precisamente porque no puedo conectar con el API server:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl logs 6ef208ad4c36
+
+<pre><code class="language-shell">$ kubectl logs 6ef208ad4c36
 The connection to the server 192.168.1.11:6443 was refused - did you specify the right host or port?
-</code></pre></div><p>Así que, de nuevo, he intentado usar Docker directamente:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ docker logs 6ef208ad4c36
+</code></pre>
+
+<p>Así que, de nuevo, he intentado usar Docker directamente:</p>
+
+<pre><code class="language-shell">$ docker logs 6ef208ad4c36
 Error response from daemon: stat /var/lib/docker/overlay2/1d2dd8b0acc2ec2c153faf571fd80c27b8ff113ece23a97860a5b049f9d3b183: no such file or directory
-</code></pre></div><p>Sin información de qué es lo que le ha pasado al contenedor, no puedo avanzar mucho. En la documentación oficial de Kubernetes, en la <a href="https://kubernetes.io/docs/tasks/debug-application-cluster/debug-cluster/">sección de <em>troubleshooting</em></a> se indica que los <em>logs</em> se encuentran en:</p>
+</code></pre>
+
+<p>Sin información de qué es lo que le ha pasado al contenedor, no puedo avanzar mucho. En la documentación oficial de Kubernetes, en la <a href="https://kubernetes.io/docs/tasks/debug-application-cluster/debug-cluster/">sección de <em>troubleshooting</em></a> se indica que los <em>logs</em> se encuentran en:</p>
+
 <blockquote>
 <p>Master</p>
+
 <ul>
 <li>/var/log/kube-apiserver.log - API Server, responsible for serving the API</li>
 <li>/var/log/kube-scheduler.log - Scheduler, responsible for making scheduling decisions</li>
 <li>/var/log/kube-controller-manager.log - Controller that manages replication controllers</li>
 </ul>
+
 <p>Worker Nodes</p>
+
 <ul>
 <li>/var/log/kubelet.log - Kubelet, responsible for running containers on the node</li>
 <li>/var/log/kube-proxy.log - Kube Proxy, responsible for service load balancing</li>
 </ul>
 </blockquote>
+
 <p>Sin embargo, los logs no se encuentran en la ubicación indicada:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ ls /var/log/kube-*
+
+<pre><code class="language-shell">$ ls /var/log/kube-*
 ls: cannot access /var/log/kube-*: No such file or directory
-</code></pre></div><p>Para encontrar dónde se encuentra el fichero, busco usando:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ sudo find / -iname <span style="color:#e6db74">&#34;kube*log&#34;</span>
+</code></pre>
+
+<p>Para encontrar dónde se encuentra el fichero, busco usando:</p>
+
+<pre><code class="language-shell">$ sudo find / -iname &quot;kube*log&quot;
 /var/log/pods/dda418d2bc54e897654d295f2156b331/kube-controller-manager_0.log
 /var/log/pods/c0f77be12d1bf28aaecf7cc373a774b6/kube-apiserver_0.log
 /var/log/pods/864488f96fd16d6c70d1eb754228dd63/kube-scheduler_0.log
@@ -169,49 +192,70 @@ ls: cannot access /var/log/kube-*: No such file or directory
 /var/log/containers/kube-apiserver-k1_kube-system_kube-apiserver-6ef208ad4c36ac7dae20a7f4d1bbd23725027c5505d71a41e2476d6bfc0fa826.log
 /var/log/containers/kube-dns-66ffd5c588-5gvsc_kube-system_sidecar-07fb05e5e076de09c4ca8e898865cf7d23e120ba2d4a1f12168bacf5a358fb1c.log
 /var/log/containers/kube-dns-66ffd5c588-5gvsc_kube-system_dnsmasq-198e2648d2aeab19642c386ddae02d373af6950bc68ce82121785fd41ae0e64f.log
-</code></pre></div><p>Entre los resultados observo que se encuentra el fichero <code>kube-appiserver_0.log</code>, que es lo más parecido al log que busco.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ sudo !!
+</code></pre>
+
+<p>Entre los resultados observo que se encuentra el fichero <code>kube-appiserver_0.log</code>, que es lo más parecido al log que busco.</p>
+
+<pre><code class="language-shell">$ sudo !!
 sudo tail /var/log/pods/c0f77be12d1bf28aaecf7cc373a774b6/kube-apiserver_0.log
-<span style="color:#f92672">{</span><span style="color:#e6db74">&#34;log&#34;</span>:<span style="color:#e6db74">&#34;I1023 01:18:42.960933       1 trace.go:76] Trace[337274143]: \&#34;Get /api/v1/namespaces/kube-system\&#34; (started: 2017-10-23 01:18:42.38724446 +0000 UTC) (total time: 573.403754ms):\n&#34;</span>,<span style="color:#e6db74">&#34;stream&#34;</span>:<span style="color:#e6db74">&#34;stderr&#34;</span>,<span style="color:#e6db74">&#34;time&#34;</span>:<span style="color:#e6db74">&#34;2017-10-23T01:18:42.961947592Z&#34;</span><span style="color:#f92672">}</span>
-<span style="color:#f92672">{</span><span style="color:#e6db74">&#34;log&#34;</span>:<span style="color:#e6db74">&#34;Trace[337274143]: [572.874013ms] [572.800003ms] About to write a response\n&#34;</span>,<span style="color:#e6db74">&#34;stream&#34;</span>:<span style="color:#e6db74">&#34;stderr&#34;</span>,<span style="color:#e6db74">&#34;time&#34;</span>:<span style="color:#e6db74">&#34;2017-10-23T01:18:42.962312802Z&#34;</span><span style="color:#f92672">}</span>
-<span style="color:#f92672">{</span><span style="color:#e6db74">&#34;log&#34;</span>:<span style="color:#e6db74">&#34;I1023 02:42:38.361259       1 trace.go:76] Trace[1274919061]: \&#34;GuaranteedUpdate etcd3: *api.Endpoints\&#34; (started: 2017-10-23 02:42:37.785909186 +0000 UTC) (total time: 575.108669ms):\n&#34;</span>,<span style="color:#e6db74">&#34;stream&#34;</span>:<span style="color:#e6db74">&#34;stderr&#34;</span>,<span style="color:#e6db74">&#34;time&#34;</span>:<span style="color:#e6db74">&#34;2017-10-23T02:42:38.36211817Z&#34;</span><span style="color:#f92672">}</span>
-<span style="color:#f92672">{</span><span style="color:#e6db74">&#34;log&#34;</span>:<span style="color:#e6db74">&#34;Trace[1274919061]: [574.898772ms] [573.472622ms] Transaction committed\n&#34;</span>,<span style="color:#e6db74">&#34;stream&#34;</span>:<span style="color:#e6db74">&#34;stderr&#34;</span>,<span style="color:#e6db74">&#34;time&#34;</span>:<span style="color:#e6db74">&#34;2017-10-23T02:42:38.362468223Z&#34;</span><span style="color:#f92672">}</span>
-<span style="color:#f92672">{</span><span style="color:#e6db74">&#34;log&#34;</span>:<span style="color:#e6db74">&#34;I1023 02:42:38.362198       1 trace.go:76] Trace[103451536]: \&#34;Update /api/v1/namespaces/kube-system/endpoints/kube-scheduler\&#34; (started: 2017-10-23 02:42:37.785238299 +0000 UTC) (total time: 576.700235ms):\n&#34;</span>,<span style="color:#e6db74">&#34;stream&#34;</span>:<span style="color:#e6db74">&#34;stderr&#34;</span>,<span style="color:#e6db74">&#34;time&#34;</span>:<span style="color:#e6db74">&#34;2017-10-23T02:42:38.362646088Z&#34;</span><span style="color:#f92672">}</span>
-<span style="color:#f92672">{</span><span style="color:#e6db74">&#34;log&#34;</span>:<span style="color:#e6db74">&#34;Trace[103451536]: [576.161015ms] [575.766326ms] Object stored in database\n&#34;</span>,<span style="color:#e6db74">&#34;stream&#34;</span>:<span style="color:#e6db74">&#34;stderr&#34;</span>,<span style="color:#e6db74">&#34;time&#34;</span>:<span style="color:#e6db74">&#34;2017-10-23T02:42:38.362784474Z&#34;</span><span style="color:#f92672">}</span>
-<span style="color:#f92672">{</span><span style="color:#e6db74">&#34;log&#34;</span>:<span style="color:#e6db74">&#34;I1023 03:12:12.811461       1 trace.go:76] Trace[1516791138]: \&#34;GuaranteedUpdate etcd3: *api.Node\&#34; (started: 2017-10-23 03:12:12.280394866 +0000 UTC) (total time: 530.751679ms):\n&#34;</span>,<span style="color:#e6db74">&#34;stream&#34;</span>:<span style="color:#e6db74">&#34;stderr&#34;</span>,<span style="color:#e6db74">&#34;time&#34;</span>:<span style="color:#e6db74">&#34;2017-10-23T03:12:12.812799938Z&#34;</span><span style="color:#f92672">}</span>
-<span style="color:#f92672">{</span><span style="color:#e6db74">&#34;log&#34;</span>:<span style="color:#e6db74">&#34;Trace[1516791138]: [529.976416ms] [509.72492ms] Transaction committed\n&#34;</span>,<span style="color:#e6db74">&#34;stream&#34;</span>:<span style="color:#e6db74">&#34;stderr&#34;</span>,<span style="color:#e6db74">&#34;time&#34;</span>:<span style="color:#e6db74">&#34;2017-10-23T03:12:12.813138273Z&#34;</span><span style="color:#f92672">}</span>
-<span style="color:#f92672">{</span><span style="color:#e6db74">&#34;log&#34;</span>:<span style="color:#e6db74">&#34;I1023 04:13:09.997217       1 trace.go:76] Trace[745949868]: \&#34;GuaranteedUpdate etcd3: *api.Node\&#34; (started: 2017-10-23 04:13:09.329786766 +0000 UTC) (total time: 659.869359ms):\n&#34;</span>,<span style="color:#e6db74">&#34;stream&#34;</span>:<span style="color:#e6db74">&#34;stderr&#34;</span>,<span style="color:#e6db74">&#34;time&#34;</span>:<span style="color:#e6db74">&#34;2017-10-23T04:13:09.99824922Z&#34;</span><span style="color:#f92672">}</span>
-<span style="color:#f92672">{</span><span style="color:#e6db74">&#34;log&#34;</span>:<span style="color:#e6db74">&#34;Trace[745949868]: [650.270324ms] [649.75251ms] Transaction prepared\n&#34;</span>,<span style="color:#e6db74">&#34;stream&#34;</span>:<span style="color:#e6db74">&#34;stderr&#34;</span>,<span style="color:#e6db74">&#34;time&#34;</span>:<span style="color:#e6db74">&#34;2017-10-23T04:13:09.998615002Z&#34;</span><span style="color:#f92672">}</span>
-</code></pre></div><p>Pero la información contenida en el fichero de log no coincide -por fechas- con los <em>últimos momentos de vida</em> del <em>pod</em> c0f77be12d1bf28aaecf7cc373a774b6.</p>
+{&quot;log&quot;:&quot;I1023 01:18:42.960933       1 trace.go:76] Trace[337274143]: \&quot;Get /api/v1/namespaces/kube-system\&quot; (started: 2017-10-23 01:18:42.38724446 +0000 UTC) (total time: 573.403754ms):\n&quot;,&quot;stream&quot;:&quot;stderr&quot;,&quot;time&quot;:&quot;2017-10-23T01:18:42.961947592Z&quot;}
+{&quot;log&quot;:&quot;Trace[337274143]: [572.874013ms] [572.800003ms] About to write a response\n&quot;,&quot;stream&quot;:&quot;stderr&quot;,&quot;time&quot;:&quot;2017-10-23T01:18:42.962312802Z&quot;}
+{&quot;log&quot;:&quot;I1023 02:42:38.361259       1 trace.go:76] Trace[1274919061]: \&quot;GuaranteedUpdate etcd3: *api.Endpoints\&quot; (started: 2017-10-23 02:42:37.785909186 +0000 UTC) (total time: 575.108669ms):\n&quot;,&quot;stream&quot;:&quot;stderr&quot;,&quot;time&quot;:&quot;2017-10-23T02:42:38.36211817Z&quot;}
+{&quot;log&quot;:&quot;Trace[1274919061]: [574.898772ms] [573.472622ms] Transaction committed\n&quot;,&quot;stream&quot;:&quot;stderr&quot;,&quot;time&quot;:&quot;2017-10-23T02:42:38.362468223Z&quot;}
+{&quot;log&quot;:&quot;I1023 02:42:38.362198       1 trace.go:76] Trace[103451536]: \&quot;Update /api/v1/namespaces/kube-system/endpoints/kube-scheduler\&quot; (started: 2017-10-23 02:42:37.785238299 +0000 UTC) (total time: 576.700235ms):\n&quot;,&quot;stream&quot;:&quot;stderr&quot;,&quot;time&quot;:&quot;2017-10-23T02:42:38.362646088Z&quot;}
+{&quot;log&quot;:&quot;Trace[103451536]: [576.161015ms] [575.766326ms] Object stored in database\n&quot;,&quot;stream&quot;:&quot;stderr&quot;,&quot;time&quot;:&quot;2017-10-23T02:42:38.362784474Z&quot;}
+{&quot;log&quot;:&quot;I1023 03:12:12.811461       1 trace.go:76] Trace[1516791138]: \&quot;GuaranteedUpdate etcd3: *api.Node\&quot; (started: 2017-10-23 03:12:12.280394866 +0000 UTC) (total time: 530.751679ms):\n&quot;,&quot;stream&quot;:&quot;stderr&quot;,&quot;time&quot;:&quot;2017-10-23T03:12:12.812799938Z&quot;}
+{&quot;log&quot;:&quot;Trace[1516791138]: [529.976416ms] [509.72492ms] Transaction committed\n&quot;,&quot;stream&quot;:&quot;stderr&quot;,&quot;time&quot;:&quot;2017-10-23T03:12:12.813138273Z&quot;}
+{&quot;log&quot;:&quot;I1023 04:13:09.997217       1 trace.go:76] Trace[745949868]: \&quot;GuaranteedUpdate etcd3: *api.Node\&quot; (started: 2017-10-23 04:13:09.329786766 +0000 UTC) (total time: 659.869359ms):\n&quot;,&quot;stream&quot;:&quot;stderr&quot;,&quot;time&quot;:&quot;2017-10-23T04:13:09.99824922Z&quot;}
+{&quot;log&quot;:&quot;Trace[745949868]: [650.270324ms] [649.75251ms] Transaction prepared\n&quot;,&quot;stream&quot;:&quot;stderr&quot;,&quot;time&quot;:&quot;2017-10-23T04:13:09.998615002Z&quot;}
+</code></pre>
+
+<p>Pero la información contenida en el fichero de log no coincide -por fechas- con los <em>últimos momentos de vida</em> del <em>pod</em> c0f77be12d1bf28aaecf7cc373a774b6.</p>
+
 <p>Si embargo, siguiendo la pista de la misma página <a href="https://kubernetes.io/docs/tasks/debug-application-cluster/debug-cluster/">https://kubernetes.io/docs/tasks/debug-application-cluster/debug-cluster/</a>, se indica que en las distribuciones que usen <code>systemd</code> hay que usar <code>journalctl</code>.</p>
+
 <p>Usando <code>journalctl</code> fue tan sencillo como lanzar <code>sudo journalctl | grep apiserver | less</code>. Entre la salida del comando se observa un patrón de mensajes:</p>
-<pre><code class="language-log" data-lang="log">...
+
+<pre><code class="language-log">...
 Nov 05 06:07:57 k1 kubelet[319]: E1105 06:07:57.028616     319 reflector.go:205] k8s.io/kubernetes/pkg/kubelet/config/apiserver.go:47: Failed to list *v1.Pod: Get https://192.168.1.11:6443/api/v1/pods?fieldSelector=spec.nodeName%3Dk1&amp;resourceVersion=0: dial tcp 192.168.1.11:6443: getsockopt: connection refused
 Nov 05 06:07:57 k1 kubelet[319]: E1105 06:07:57.076083     319 kuberuntime_manager.go:840] PodSandboxStatus of sandbox &quot;7d9ec7433434e66bee7d0458ece2e142e80a5825884cca2f5f17a5f0ca548d2a&quot; for pod &quot;kube-apiserver-k1_kube-system(c0f77be12d1bf28aaecf7cc373a774b6)&quot; error: rpc error: code = Unknown desc = Error response from daemon: open /var/lib/docker/overlay2/74217d05e7d37d111ce00a444c0a4237618a5474a8ca72393feeea664532d30b/lower: structure needs cleaning
 Nov 05 06:07:57 k1 kubelet[319]: E1105 06:07:57.076376     319 generic.go:241] PLEG: Ignoring events for pod kube-apiserver-k1/kube-system: rpc error: code = Unknown desc = Error response from daemon: open /var/lib/docker/overlay2/74217d05e7d37d111ce00a444c0a4237618a5474a8ca72393feeea664532d30b/lower: structure needs cleaning
 Nov 05 06:07:57 k1 kubelet[319]: E1105 06:07:57.236495     319 kuberuntime_manager.go:840] PodSandboxStatus of sandbox &quot;7d9ec7433434e66bee7d0458ece2e142e80a5825884cca2f5f17a5f0ca548d2a&quot; for pod &quot;kube-apiserver-k1_kube-system(c0f77be12d1bf28aaecf7cc373a774b6)&quot; error: rpc error: code = Unknown desc = Error response from daemon: open /var/lib/docker/overlay2/74217d05e7d37d111ce00a444c0a4237618a5474a8ca72393feeea664532d30b/lower: structure needs cleaning
 ...
-</code></pre><p>En primer lugar, el mensaje de <em>connection refused</em> que se obtiene al intentar ejecutar cualquier comando con <em>kubectl</em>. A continuación, mensajes de errores de RPC del <em>pod</em> donde se ejecuta el API Server: <em>Error response from daemon</em>. Y la causa parece ser que al intentar abrir <code>/var/lib/docker/overlay2/74217d05e7d37d111ce00a444c0a4237618a5474a8ca72393feeea664532d30b/lower</code> se produce un error <code>structure needs cleaning</code>.</p>
+</code></pre>
+
+<p>En primer lugar, el mensaje de <em>connection refused</em> que se obtiene al intentar ejecutar cualquier comando con <em>kubectl</em>. A continuación, mensajes de errores de RPC del <em>pod</em> donde se ejecuta el API Server: <em>Error response from daemon</em>. Y la causa parece ser que al intentar abrir <code>/var/lib/docker/overlay2/74217d05e7d37d111ce00a444c0a4237618a5474a8ca72393feeea664532d30b/lower</code> se produce un error <code>structure needs cleaning</code>.</p>
+
 <p>Al intentar averiguar qué le pasa al fichero, lanzo <code>sudo ls -la  /var/lib/docker/overlay2/74217d05e7d37d111ce00a444c0a4237618a5474a8ca72393feeea664532d30b/</code> y la salida es preocupante:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ sudo ls -la  /var/lib/docker/overlay2/74217d05e7d37d111ce00a444c0a4237618a5474a8ca72393feeea664532d30b/
+
+<pre><code class="language-shell">$ sudo ls -la  /var/lib/docker/overlay2/74217d05e7d37d111ce00a444c0a4237618a5474a8ca72393feeea664532d30b/
 ls: cannot access /var/lib/docker/overlay2/74217d05e7d37d111ce00a444c0a4237618a5474a8ca72393feeea664532d30b/link: Structure needs cleaning
 ls: cannot access /var/lib/docker/overlay2/74217d05e7d37d111ce00a444c0a4237618a5474a8ca72393feeea664532d30b/lower: Structure needs cleaning
-total <span style="color:#ae81ff">32</span>
-drwx------  <span style="color:#ae81ff">5</span> root root  <span style="color:#ae81ff">4096</span> Oct <span style="color:#ae81ff">23</span> 04:17 .
-drwx------ <span style="color:#ae81ff">95</span> root root <span style="color:#ae81ff">16384</span> Nov  <span style="color:#ae81ff">1</span> 06:48 ..
-drwxr-xr-x  <span style="color:#ae81ff">2</span> root root  <span style="color:#ae81ff">4096</span> Oct <span style="color:#ae81ff">23</span> 04:17 diff
+total 32
+drwx------  5 root root  4096 Oct 23 04:17 .
+drwx------ 95 root root 16384 Nov  1 06:48 ..
+drwxr-xr-x  2 root root  4096 Oct 23 04:17 diff
 -?????????  ? ?    ?        ?            ? link
 -?????????  ? ?    ?        ?            ? lower
-drwxr-xr-x  <span style="color:#ae81ff">1</span> root root  <span style="color:#ae81ff">4096</span> Oct <span style="color:#ae81ff">23</span> 04:17 merged
-drwx------  <span style="color:#ae81ff">3</span> root root  <span style="color:#ae81ff">4096</span> Oct <span style="color:#ae81ff">23</span> 04:17 work
-</code></pre></div><p>El sistema operativo no sabe qué son los fichero <code>link</code> o <code>lower</code>. Si intentas inspeccionar su contenido:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ sudo cat /var/lib/docker/overlay2/74217d05e7d37d111ce00a444c0a4237618a5474a8ca72393feeea664532d30b/lower
+drwxr-xr-x  1 root root  4096 Oct 23 04:17 merged
+drwx------  3 root root  4096 Oct 23 04:17 work
+</code></pre>
+
+<p>El sistema operativo no sabe qué son los fichero <code>link</code> o <code>lower</code>. Si intentas inspeccionar su contenido:</p>
+
+<pre><code class="language-shell">$ sudo cat /var/lib/docker/overlay2/74217d05e7d37d111ce00a444c0a4237618a5474a8ca72393feeea664532d30b/lower
 cat: /var/lib/docker/overlay2/74217d05e7d37d111ce00a444c0a4237618a5474a8ca72393feeea664532d30b/lower: Structure needs cleaning
-</code></pre></div><p>Al buscar en Google <code>Structure needs cleaning</code> todas las respuestas apuntan a una corrupción del sistema de ficheros (por ejemplo: <a href="https://www.reddit.com/r/linuxquestions/comments/4b47r2/has_anyone_ever_gotten_structure_needs_cleaning/">Has anyone ever gotten &ldquo;structure needs cleaning&rdquo; errors on their EXT4 file system?</a> o <a href="https://unix.stackexchange.com/questions/330742/cannot-remove-file-structure-needs-cleaning">Cannot remove file: “Structure needs cleaning”</a>).</p>
+</code></pre>
+
+<p>Al buscar en Google <code>Structure needs cleaning</code> todas las respuestas apuntan a una corrupción del sistema de ficheros (por ejemplo: <a href="https://www.reddit.com/r/linuxquestions/comments/4b47r2/has_anyone_ever_gotten_structure_needs_cleaning/">Has anyone ever gotten &ldquo;structure needs cleaning&rdquo; errors on their EXT4 file system?</a> o <a href="https://unix.stackexchange.com/questions/330742/cannot-remove-file-structure-needs-cleaning">Cannot remove file: “Structure needs cleaning”</a>).</p>
+
 <p>Aunque todas las soluciones apuntan de una forma u otra a ejecutar un <code>fsck</code>, siempre se refieren a particiones diferentes a <code>/</code>, que al estar montada no puede analizarse (o que puede provocar más problemas de los que soluciona).
 Así que he optado por marcar el sistema de ficheros como <code>dirty</code> y reiniciar, con la esperanza de que el propio sistema realice la limpieza. Después del reinicio -y de que el <em>control plane</em> arranque-, he podido ejecutar de nuevo los comandos vía <em>kubectl</em>.</p>
+
 <p>Como no estaba seguro de si se había ejecutado la limpieza, he seguido las instrucciones en <a href="https://www.cyberciti.biz/faq/linux-force-fsck-on-the-next-reboot-or-boot-sequence/">Linux Force fsck on the Next Reboot or Boot Sequence</a> para <strong>forzar</strong> la limpieza del disco después del reinicio.</p>
+
 <p>Y de nuevo, después de volver a arrancar, el sistema responde y no encuentro problemas con el API server.</p>
+
 <p>Durante los próximos días revisaré si el problema con el <em>pod</em> del API server se reproduce o si se ha solucionado definitivamente después de ejecutar el <em>fsck</em>.</p></div>
 
   <aside class="p-share">

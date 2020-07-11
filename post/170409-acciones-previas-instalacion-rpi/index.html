@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.68.3" />
+<meta name="generator" content="Hugo 0.55.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -75,7 +75,7 @@
         "height": 60
       }
     },
-    "description": "\x3cp\x3eUno de los objetivos motivadores de la existencia de este blog es instalar un clúster de Kubernetes sobre Raspberry Pi. Este artículo se centra en las tareas previas a la instalación en sí.\x3c\/p\x3e\n\x3cp\x3eKubernetes requiere una instalación previa de Docker, una tarea simplificada gracias a HypriotOS, la \x3cem\x3edistro\x3c\/em\x3e creada específicamente con este fin.\x3c\/p\x3e\n\x3cp\x3eEl siguiente paso, la instalación de Kubernetes en la Raspberry será objeto de otra(s) entrada(s). Pero sin duda esta tarea sería mucho más complicada sin las contribuciones del joven finlandés \x3ca href=\x22https:\/\/www.cncf.io\/blog\/2016\/11\/29\/diversity-scholarship-series-programming-journey-becoming-kubernetes-maintainer\/\x22\x3eLucas Käldström\x3c\/a\x3e y su proyecto -ahora integrado la rama principal- \x3ca href=\x22https:\/\/github.com\/luxas\/kubernetes-on-arm\x22\x3eKubernetes on ARM\x3c\/a\x3e.\x3c\/p\x3e"
+    "description": "\x3cp\x3eUno de los objetivos motivadores de la existencia de este blog es instalar un clúster de Kubernetes sobre Raspberry Pi. Este artículo se centra en las tareas previas a la instalación en sí.\x3c\/p\x3e\n\n\x3cp\x3eKubernetes requiere una instalación previa de Docker, una tarea simplificada gracias a HypriotOS, la \x3cem\x3edistro\x3c\/em\x3e creada específicamente con este fin.\x3c\/p\x3e\n\n\x3cp\x3eEl siguiente paso, la instalación de Kubernetes en la Raspberry será objeto de otra(s) entrada(s). Pero sin duda esta tarea sería mucho más complicada sin las contribuciones del joven finlandés \x3ca href=\x22https:\/\/www.cncf.io\/blog\/2016\/11\/29\/diversity-scholarship-series-programming-journey-becoming-kubernetes-maintainer\/\x22\x3eLucas Käldström\x3c\/a\x3e y su proyecto -ahora integrado la rama principal- \x3ca href=\x22https:\/\/github.com\/luxas\/kubernetes-on-arm\x22\x3eKubernetes on ARM\x3c\/a\x3e.\x3c\/p\x3e"
   }
 </script>
 
@@ -121,55 +121,35 @@
   </div>
 
   <div class="article-body"><p>Uno de los objetivos motivadores de la existencia de este blog es instalar un clúster de Kubernetes sobre Raspberry Pi. Este artículo se centra en las tareas previas a la instalación en sí.</p>
+
 <p>Kubernetes requiere una instalación previa de Docker, una tarea simplificada gracias a HypriotOS, la <em>distro</em> creada específicamente con este fin.</p>
+
 <p>El siguiente paso, la instalación de Kubernetes en la Raspberry será objeto de otra(s) entrada(s). Pero sin duda esta tarea sería mucho más complicada sin las contribuciones del joven finlandés <a href="https://www.cncf.io/blog/2016/11/29/diversity-scholarship-series-programming-journey-becoming-kubernetes-maintainer/">Lucas Käldström</a> y su proyecto -ahora integrado la rama principal- <a href="https://github.com/luxas/kubernetes-on-arm">Kubernetes on ARM</a>.</p>
+
 <ul>
-<li>
-<p>Descarga la imagen de <a href="https://blog.hypriot.com/downloads/">HypriotOS</a>.</p>
-</li>
-<li>
-<p>Traspásala a una tarjeta microSD usando, por ejemplo, <a href="https://etcher.io/">Etcher</a></p>
-</li>
-<li>
-<p>Inserta la tarjeta microsSD en la Raspberry Pi y arranca la RPi.</p>
-</li>
-<li>
-<p>Comprueba que ha arrancado correctamente haciendo ping a <code>black-pearl.local</code></p>
-</li>
-<li>
-<p>Accede a la RPi mediante <code>ssh pirate@black-pearl.local</code></p>
-</li>
-<li>
-<p>Acepta el mensaje de seguridad (es la primera vez que conectas al equipo)</p>
-</li>
-<li>
-<p>Edita el fichero <code>/boot/device-init.yaml</code> para modificar el nombre de la RPi. En mi caso, he cambiado el nombre a <code>k1</code>: <code>hostname: k1</code></p>
-</li>
-<li>
-<p>Crea un backup del fichero de configuración de la tarjeta de red: <code>sudo cp /etc/network/interfaces.d/eth0 /etc/network/interfaces.d/eth0.original</code></p>
-</li>
-<li>
-<p>Edita el fichero <code>/etc/network/interfaces.d/eth0</code> para establecer una IP estática para la RPi:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">allow-hotplug eth0
-iface eth0 inet static
-address 192.168.1.11
-gateway 192.168.1.1
-</code></pre></div></li>
-<li>
-<p>Reinicia la RPi para que los cambios sean efectivos: <code>sudo reboot</code></p>
-</li>
-<li>
-<p>Comprueba que la RPi responde a ping con el nuevo nombre: <code>ping k1.local</code></p>
-</li>
-<li>
-<p>Accede a la RPi mediante <code>ssh pirate@k1.local</code></p>
-</li>
-<li>
-<p>Actualiza la RPi: <code>sudo apt-get update &amp;&amp; sudo apt-get upgrade -y</code></p>
-</li>
-<li>
-<p>Verifica la versión de Docker instalada: <code>$ docker version</code></p>
-</li>
+<li>Descarga la imagen de <a href="https://blog.hypriot.com/downloads/">HypriotOS</a>.</li>
+<li>Traspásala a una tarjeta microSD usando, por ejemplo, <a href="https://etcher.io/">Etcher</a></li>
+<li>Inserta la tarjeta microsSD en la Raspberry Pi y arranca la RPi.</li>
+<li>Comprueba que ha arrancado correctamente haciendo ping a <code>black-pearl.local</code></li>
+<li>Accede a la RPi mediante <code>ssh pirate@black-pearl.local</code></li>
+<li>Acepta el mensaje de seguridad (es la primera vez que conectas al equipo)</li>
+<li>Edita el fichero <code>/boot/device-init.yaml</code> para modificar el nombre de la RPi. En mi caso, he cambiado el nombre a <code>k1</code>: <code>hostname: k1</code></li>
+<li>Crea un backup del fichero de configuración de la tarjeta de red: <code>sudo cp /etc/network/interfaces.d/eth0 /etc/network/interfaces.d/eth0.original</code></li>
+<li>Edita el fichero <code>/etc/network/interfaces.d/eth0</code> para establecer una IP estática para la RPi:</li>
+</ul>
+
+<pre><code class="language-sh">  allow-hotplug eth0
+  iface eth0 inet static
+  address 192.168.1.11
+  gateway 192.168.1.1
+</code></pre>
+
+<ul>
+<li>Reinicia la RPi para que los cambios sean efectivos: <code>sudo reboot</code></li>
+<li>Comprueba que la RPi responde a ping con el nuevo nombre: <code>ping k1.local</code></li>
+<li>Accede a la RPi mediante <code>ssh pirate@k1.local</code></li>
+<li>Actualiza la RPi: <code>sudo apt-get update &amp;&amp; sudo apt-get upgrade -y</code></li>
+<li>Verifica la versión de Docker instalada: <code>$ docker version</code></li>
 </ul></div>
 
   <aside class="p-share">

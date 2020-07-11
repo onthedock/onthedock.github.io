@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.68.3" />
+<meta name="generator" content="Hugo 0.55.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -75,7 +75,7 @@
         "height": 60
       }
     },
-    "description": "\x3cp\x3e\x3cem\x3ecloud-init\x3c\/em\x3e se define como \x3cstrong\x3eel estándar para personalizar instancias \x3cem\x3ecloud\x3c\/em\x3e\x3c\/strong\x3e. Las imágenes para las instancias \x3cem\x3ecloud\x3c\/em\x3e empiezan siendo idénticas entre sí, al ser clones. Es la información proporcionada por el usuario lo que le da a la instancia su \x3cem\x3epersonalidad\x3c\/em\x3e y \x3cem\x3ecloud-init\x3c\/em\x3e es la herramienta que aplica esta configuración a las instancias de forma automática.\x3c\/p\x3e\n\x3cp\x3e\x3cem\x3ecloud-init\x3c\/em\x3e fue desarrollado inicialmente por Canonical para las imágenes \x3cem\x3ecloud\x3c\/em\x3e de Ubuntu usadas por AWS. Desde entonces, la aplicación ha evolucionado y puede ser usada en otras muchas distribuciones y en otros entornos \x3cem\x3ecloud\x3c\/em\x3e (y no \x3cem\x3ecloud\x3c\/em\x3e).\x3c\/p\x3e"
+    "description": "\x3cp\x3e\x3cem\x3ecloud-init\x3c\/em\x3e se define como \x3cstrong\x3eel estándar para personalizar instancias \x3cem\x3ecloud\x3c\/em\x3e\x3c\/strong\x3e. Las imágenes para las instancias \x3cem\x3ecloud\x3c\/em\x3e empiezan siendo idénticas entre sí, al ser clones. Es la información proporcionada por el usuario lo que le da a la instancia su \x3cem\x3epersonalidad\x3c\/em\x3e y \x3cem\x3ecloud-init\x3c\/em\x3e es la herramienta que aplica esta configuración a las instancias de forma automática.\x3c\/p\x3e\n\n\x3cp\x3e\x3cem\x3ecloud-init\x3c\/em\x3e fue desarrollado inicialmente por Canonical para las imágenes \x3cem\x3ecloud\x3c\/em\x3e de Ubuntu usadas por AWS. Desde entonces, la aplicación ha evolucionado y puede ser usada en otras muchas distribuciones y en otros entornos \x3cem\x3ecloud\x3c\/em\x3e (y no \x3cem\x3ecloud\x3c\/em\x3e).\x3c\/p\x3e"
   }
 </script>
 
@@ -121,64 +121,103 @@
   </div>
 
   <div class="article-body"><p><em>cloud-init</em> se define como <strong>el estándar para personalizar instancias <em>cloud</em></strong>. Las imágenes para las instancias <em>cloud</em> empiezan siendo idénticas entre sí, al ser clones. Es la información proporcionada por el usuario lo que le da a la instancia su <em>personalidad</em> y <em>cloud-init</em> es la herramienta que aplica esta configuración a las instancias de forma automática.</p>
+
 <p><em>cloud-init</em> fue desarrollado inicialmente por Canonical para las imágenes <em>cloud</em> de Ubuntu usadas por AWS. Desde entonces, la aplicación ha evolucionado y puede ser usada en otras muchas distribuciones y en otros entornos <em>cloud</em> (y no <em>cloud</em>).</p>
+
 <p>Personalmente he estado usando Vagrant para simplificar y agilizar el proceso de creación de máquinas virtuales durante las pruebas con Docker y Kubernetes. Sin embargo, el hecho de usar <em>clones</em> de una máquina base <a href="https://onthedock.github.io/post/180810-generando-un-machine-id-unico/">presenta sus propios problemas específicos</a>.</p>
+
 <p>La solución pasa por <em>generalizar</em> la instalación del sistema operativo. Para ello, podemos encontrar <em>scripts</em> que eliminan todos aquellos identificadores que deben ser únicos. Puedes encontrar uno de estos <em>scripts</em> en la entrada <a href="https://nerddrivel.com/2016/08/23/how-to-generalize-a-linux-vm-template/">How to Generalize a Linux VM Template</a>.</p>
+
 <p>Después de eliminar todas las características específicas del clon, pasamos a personalizar la instancia asignando un <em>hostname</em>, una IP, a instalar software, etc&hellip;</p>
+
 <p>Una de las formas más potentes y sencillas de conseguir personalizar la máquina virtual es usar <code>cloud-init</code>.</p>
-<h2 id="personalizando-la-máquina-virtual-con-_cloud-init_">Personalizando la máquina virtual con <em>cloud-init</em></h2>
+
+<h2 id="personalizando-la-máquina-virtual-con-cloud-init">Personalizando la máquina virtual con <em>cloud-init</em></h2>
+
 <p><code>cloud-init</code> se instala como un paquete más en cualquiera de las distribuciones linux en las que está soportado. En mi caso, usaré Debian. (Ubuntu proporciona las <a href="http://cloud-images.ubuntu.com/"><em>cloud images</em></a>, que incluyen <code>cloud-init</code>, pero no he tenido éxito con ellas). La instalación se realiza como la de cualquier otro paquete:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">sudo apt install cloud-init
-</code></pre></div><p>Una vez instalado, <code>cloud-init</code> se ejecuta durante el proceso de arranque de la máquina virtual e intenta obtener la configuración de la instancia a partir de algún <em>datasource</em>.</p>
+
+<pre><code class="language-shell">sudo apt install cloud-init
+</code></pre>
+
+<p>Una vez instalado, <code>cloud-init</code> se ejecuta durante el proceso de arranque de la máquina virtual e intenta obtener la configuración de la instancia a partir de algún <em>datasource</em>.</p>
+
 <p>El <em>datasource</em> es una abstracción que permite que <code>cloud-init</code> se adapte a los diferentes entornos en los que se ejecuta. Por ejemplo, el <em>datasource</em> <code>NoCloud</code> proporciona información de configuración desde medios locales, como un diskette o una imagen de CD/DVD montada en la máquina virtual. Esto permite especificar parámetros de configuración incluso antes de que el sistema operativo haya <em>levantado</em> la conexión de red.</p>
+
 <p><code>cloud-init</code> puede obtener los parámetros de configuración para la máquina a partir de ficheros en formato YAML o de <em>scripts</em>.</p>
+
 <h2 id="usando-cloud-init">Usando <code>cloud-init</code></h2>
+
 <p>El primer paso para crear la plantilla a partir de la que crear los clones es instalar uno de los sistemas operativos soportados por <code>cloud-init</code> en una máquina virtual. Instala únicamente los paquetes mínimos necesarios (el resto los puedes instalar más adelanta a través de <code>cloud-init</code>). En esta instalación mínima, incluye <code>cloud-init</code>.</p>
+
 <p>Crea una imagen base a partir de la instalación que acabas de realizar (el método varía para cada hipervisor). Para evitar problemas más adelante, elimina cualquier identificador único de la máquina virtual antes de crear esta &ldquo;imagen-plantilla&rdquo;.</p>
+
 <p>Si creas una nueva máquina virtual a partir de esta plantilla, observarás que el sistema operativo no arranca con éxito: después de una espera, el sistema entra en bucle intentando contactar con la URL <a href="http://169.254.169.254/user-data">http://169.254.169.254/user-data</a>. Esta URL forma parte del <em>datasource</em> EC2 asociado a AWS.</p>
+
 <p>Durante el arranque <code>cloud-init</code> intenta contactar con los <em>datasources</em> configurados. En mi caso, pasaré la configuración de la máquina a través de los ficheros <code>user-data</code> y <code>meta-data</code>. Estos ficheros los guardaré en una imagen ISO que <em>pincharé</em> a la máquina virtual para que <code>cloud-init</code> los encuentre durante el arranque.</p>
+
 <blockquote>
 <p>Las primeras pruebas las realicé con un <em>diskette virtual</em>, pero no tuve éxito hasta que empecé a usar una imagen ISO.</p>
 </blockquote>
+
 <p>Como no existe ningún <em>cmdlet</em> en PowerShell para crear una imagen ISO, he descargado de la versión para Windows del paquete <code>cdrtools</code>, que incluye <code>mkisofs.exe</code> desde <a href="https://www.student.tugraz.at/thomas.plank/index_en.html">Cdrtools: Win x86_64 Binaries</a>.</p>
+
 <p>Para que <code>cloud-init</code> identifique la ISO como un <em>datasource</em> debemos etiquetarla como <code>cidata</code>. En comando con el que he construido las imágenes es (<code>.\initimg</code> es la carpeta donde se encuentran los ficheros a copiar en la ISO):</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">mkisofs.exe -volid cidata -juliet -rational-rock -iso-level <span style="color:#ae81ff">2</span> -output init.iso .<span style="color:#ae81ff">\i</span>nitimg<span style="color:#ae81ff">\
-</span></code></pre></div><p>Conectamos la ISO y arrancamos la VM:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ps" data-lang="ps"><span style="color:#a6e22e">Set-VMDvdDrive</span> <span style="color:#a6e22e">-VMName</span> <span style="color:#a6e22e">TestVM</span> <span style="color:#a6e22e">-Path</span> <span style="color:#a6e22e">.\init.iso</span>
-<span style="color:#a6e22e">Start-VM</span> <span style="color:#a6e22e">-Name</span> <span style="color:#a6e22e">TestVM</span>
-</code></pre></div><p>El fichero <code>meta-data</code> contiene el <em>ID</em> de la instancia y la configuración IP:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yml" data-lang="yml"><span style="color:#66d9ef">instance-id</span>: cloudimg
-<span style="color:#66d9ef">network-interfaces</span>: <span style="color:#e6db74">|
-</span><span style="color:#e6db74">  iface eth0 inet static</span>
-  address <span style="color:#ae81ff">192.168.1.199</span>
-  network <span style="color:#ae81ff">192.168.1.0</span>
-  netmask <span style="color:#ae81ff">255.255.255.0</span>
-  broadcast <span style="color:#ae81ff">192.168.1.255</span>
-  gateway <span style="color:#ae81ff">192.168.1.1</span>
-</code></pre></div><p>El fichero <code>user-data</code> contiene el grueso de la configuración.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yml" data-lang="yml"><span style="color:#75715e">#cloud-config</span>
-<span style="color:#66d9ef">manage_etc_hosts</span>: <span style="color:#66d9ef">true</span>
-<span style="color:#66d9ef">hostname</span>: vm-userdata<span style="color:#ae81ff">-04</span>
-<span style="color:#66d9ef">fqdn</span>: vm-userdata<span style="color:#ae81ff">-04.</span>lab.local
 
-<span style="color:#66d9ef">default</span>:
-<span style="color:#66d9ef">mounts</span>:
-  - [ swap, <span style="color:#66d9ef">null</span> ]
+<pre><code class="language-shell">mkisofs.exe -volid cidata -juliet -rational-rock -iso-level 2 -output init.iso .\initimg\
+</code></pre>
 
-<span style="color:#75715e"># package_upgrade: true # Causes an upgrade (apt get upgrade -y)</span>
-<span style="color:#66d9ef">packages</span>: [<span style="color:#e6db74">&#39;figlet&#39;</span>]
+<p>Conectamos la ISO y arrancamos la VM:</p>
 
-<span style="color:#66d9ef">timezone</span>: <span style="color:#e6db74">&#34;Europe/Madrid&#34;</span>
+<pre><code class="language-ps">Set-VMDvdDrive -VMName TestVM -Path .\init.iso
+Start-VM -Name TestVM
+</code></pre>
 
-<span style="color:#66d9ef">write_files</span>:
-  - <span style="color:#66d9ef">path</span>: /etc/cloud/cloud-init.disabled
-</code></pre></div><p>En este ejemplo, el primer bloque especifica el <em>hostname</em> de la máquina virtual. A continuación, inhabilita la <em>swap</em>, instala el paquete <code>figlet</code> y establece la zona horaria para configurar el reloj del sistema.</p>
+<p>El fichero <code>meta-data</code> contiene el <em>ID</em> de la instancia y la configuración IP:</p>
+
+<pre><code class="language-yml">instance-id: cloudimg
+network-interfaces: |
+  iface eth0 inet static
+  address 192.168.1.199
+  network 192.168.1.0
+  netmask 255.255.255.0
+  broadcast 192.168.1.255
+  gateway 192.168.1.1
+</code></pre>
+
+<p>El fichero <code>user-data</code> contiene el grueso de la configuración.</p>
+
+<pre><code class="language-yml">#cloud-config
+manage_etc_hosts: true
+hostname: vm-userdata-04
+fqdn: vm-userdata-04.lab.local
+
+default:
+mounts:
+  - [ swap, null ]
+
+# package_upgrade: true # Causes an upgrade (apt get upgrade -y)
+packages: ['figlet']
+
+timezone: &quot;Europe/Madrid&quot;
+
+write_files:
+  - path: /etc/cloud/cloud-init.disabled
+</code></pre>
+
+<p>En este ejemplo, el primer bloque especifica el <em>hostname</em> de la máquina virtual. A continuación, inhabilita la <em>swap</em>, instala el paquete <code>figlet</code> y establece la zona horaria para configurar el reloj del sistema.</p>
+
 <p>La última instrucción crea un fichero que deshabilita la ejecución de <code>cloud-init</code> (en caso contrario, se ejecutaría durante cada arranque). Una vez realizada la configuración de la máquina, podemos <em>desmontar</em> la imagen ISO.</p>
+
 <p>Esto es sólo una prueba de concepto para probar la capacidad de <code>cloud-init</code>; consulta los <a href="https://cloudinit.readthedocs.io/en/latest/topics/examples.html">ejemplos de la documentación oficial</a> para hacerte una idea de las posibilidades que ofrece <code>cloud-init</code>.</p>
+
 <h1 id="resumen">Resumen</h1>
+
 <p>Mediante <em>cloud-init</em> podemos realizar la configuración automática de una máquina virtual a través de un fichero de configuración.</p>
+
 <p>Podemos generar los ficheros de configuración de manera dinámica y específica para cada máquina. Aunque en esta primera prueba de concepto hemos entregado la configuración a través de ficheros en una imagen ISO, podemos hacer que <code>cloud-init</code> los obtenga accediendo a una URL desde un servidor web.</p>
+
 <p>Después de dar el primer paso para adoptar la <em>infraestructura como código</em> (usando Vagrant, scripts personalizados o cualquier otra opción), <code>cloud-init</code> nos permite seguir adelante personalizando las máquinas virtuales creadas a partir de una plantilla.</p>
+
 <p><code>cloud-init</code> permite instalar software además de realizar configuración de la máquina, por lo que debemos valorar ventajas e inconvenientes de utilizar <code>cloud-init</code> frente a otras opciones especializadas como Ansible o Puppet, por ejemplo.</p></div>
 
   <aside class="p-share">

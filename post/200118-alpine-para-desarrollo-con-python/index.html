@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.68.3" />
+<meta name="generator" content="Hugo 0.55.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -121,50 +121,90 @@
   </div>
 
   <div class="article-body"><p>Para practicar con Python, he instalado una máquina virtual con Alpine 3.9. En esta entrada recojo los diferentes pasos que he realizado para configurarla como entorno de ejecución de Python 3.</p>
+
 <h2 id="habilitar-usuario-no-root">Habilitar usuario no <em>root</em></h2>
+
 <p>Alpine arranca en modo <em>live</em> y mediante la ejecución del script <code>setup-alpine</code> configuro e instalo la distrbución en el disco duro de la máquina virtual.</p>
+
 <p>Tras la instalación de Alpine únicamente tengo el usuario <em>root</em>; es conveniente crear un usuario <em>no-root</em> para poder trabajar con los mínimos permisos posibles.</p>
+
 <p>Para crear un usuario <em>no-root</em> uso <code>adduser</code></p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">adduser operador
-</code></pre></div><p>Instalo <code>sudo</code> y añado el usuario al fichero <code>/etc/sudoers</code>:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">apk add sudo
+
+<pre><code class="language-bash">adduser operador
+</code></pre>
+
+<p>Instalo <code>sudo</code> y añado el usuario al fichero <code>/etc/sudoers</code>:</p>
+
+<pre><code class="language-bash">apk add sudo
 visudo
-</code></pre></div><p>En el fichero he añadido la línea:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ini" data-lang="ini"><span style="color:#a6e22e">operador ALL</span><span style="color:#f92672">=</span><span style="color:#e6db74">(ALL) ALL</span>
-</code></pre></div><blockquote>
+</code></pre>
+
+<p>En el fichero he añadido la línea:</p>
+
+<pre><code class="language-ini">operador ALL=(ALL) ALL
+</code></pre>
+
+<blockquote>
 <p>Inicialmente he creado un fichero <code>/etc/sudoers.d/operador.usr</code> (con permisos <code>0440</code>) pero al intentar elevar permisos recibía el mensaje <code>user is not in the sudoers file</code>, por lo que finalmente he dado permisos directamente en <code>/etc/sudoers</code>.</p>
 </blockquote>
+
 <p>Al disponer de un usuario <em>no-root</em>, ya puedo conectar remotamente vía SSH.</p>
+
 <h2 id="instalación-de-python">Instalación de Python</h2>
+
 <p>En Alpine (3.9) Python no está instalado por defecto (ni Python 2.7 ni 3.x).</p>
+
 <blockquote>
 <p><a href="https://www.python.org/dev/peps/pep-0373/#update">Desde el 01/01/2020 Python 2.7 ha alcanzado la fecha final de soporte</a> y <strong>no está mantenido oficialmente</strong>.</p>
 </blockquote>
+
 <p>Instalo Python 3 mediante:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">sudo apk update
+
+<pre><code class="language-bash">sudo apk update
 sudo apk add python3
-</code></pre></div><p>Compruebo la versión instalada mediante:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ python3 --version
+</code></pre>
+
+<p>Compruebo la versión instalada mediante:</p>
+
+<pre><code class="language-bash">$ python3 --version
 Python 3.6.9
-</code></pre></div><p>Valido que también se ha instalado <code>pip3</code>:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ pip3 --version
-pip 18.1 from /usr/lib/python3.6/site-packages/pip <span style="color:#f92672">(</span>python 3.6<span style="color:#f92672">)</span>
-</code></pre></div><h2 id="creación-de-entornos-virtuales">Creación de entornos virtuales</h2>
+</code></pre>
+
+<p>Valido que también se ha instalado <code>pip3</code>:</p>
+
+<pre><code class="language-bash">$ pip3 --version
+pip 18.1 from /usr/lib/python3.6/site-packages/pip (python 3.6)
+</code></pre>
+
+<h2 id="creación-de-entornos-virtuales">Creación de entornos virtuales</h2>
+
 <p>El módulo <code>venv</code> permite crear &ldquo;entornos virtuales&rdquo; autocontenidos en una carpeta. De esta forma podemos tener diferentes versiones de Python o de alguno de sus paquetes sin interferencias entre ellos.</p>
+
 <p>Para crear un <em>entorno virtual</em> llamado <code>pydev</code>:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">python3 -m venv pydev
-</code></pre></div><blockquote>
+
+<pre><code class="language-bash">python3 -m venv pydev
+</code></pre>
+
+<blockquote>
 <p>De forma general <code>python3 -m venv /ruta/a/la/carpeta/del/entorno/virtual</code></p>
 </blockquote>
+
 <p>Este comando crea la carpeta <code>pydev</code> y un fichero <code>pyvenv.cfg</code> que contiene la ruta al intérprete de Python usado en el entorno virtual, la versión y otros parámetros de configuración:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ini" data-lang="ini"><span style="color:#a6e22e">home</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">/usr/bin</span>
-<span style="color:#a6e22e">include-system-site-packages</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">false</span>
-<span style="color:#a6e22e">version</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">3.6.9</span>
-</code></pre></div><p>Una vez creado el entorno virtual, es necesario activarlo. Para ello se usa un script (la ubicación específica depende de la plataforma y <em>shell</em> que uses, ver <a href="https://docs.python.org/3/library/venv.html">la documentación oficial</a>).</p>
-<p>ASH, la <em>shell</em> que usa Alpine Linux no forma parte de la documentación de <code>venv</code>, pero compruebo que el fichero <code>activate</code> está en la ruta <code>(venv)/bin/activate</code>. Como el comando <code>source</code> no se reconoce en Alpine, uso la forma &ldquo;general&rdquo;, mediante un &ldquo;.&quot;:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ . pydev/bin/activate
-<span style="color:#f92672">(</span>pydev<span style="color:#f92672">)</span> pydev:~$
-</code></pre></div><p>Observa que el <em>prompt</em> cambia para indicar te encuentras en el entorno virtual <code>pydev</code>.</p></div>
+
+<pre><code class="language-ini">home = /usr/bin
+include-system-site-packages = false
+version = 3.6.9
+</code></pre>
+
+<p>Una vez creado el entorno virtual, es necesario activarlo. Para ello se usa un script (la ubicación específica depende de la plataforma y <em>shell</em> que uses, ver <a href="https://docs.python.org/3/library/venv.html">la documentación oficial</a>).</p>
+
+<p>ASH, la <em>shell</em> que usa Alpine Linux no forma parte de la documentación de <code>venv</code>, pero compruebo que el fichero <code>activate</code> está en la ruta <code>(venv)/bin/activate</code>. Como el comando <code>source</code> no se reconoce en Alpine, uso la forma &ldquo;general&rdquo;, mediante un &ldquo;.&rdquo;:</p>
+
+<pre><code class="language-bash">$ . pydev/bin/activate
+(pydev) pydev:~$
+</code></pre>
+
+<p>Observa que el <em>prompt</em> cambia para indicar te encuentras en el entorno virtual <code>pydev</code>.</p></div>
 
   <aside class="p-share">
   <a href="http://twitter.com/intent/tweet?url=https%3a%2f%2fonthedock.github.io%2fpost%2f200118-alpine-para-desarrollo-con-python%2f&text=Alpine%20para%20desarrollo%20con%20Python&tw_p=tweetbutton" title="Twitterでシェア" class="tw" target="_blank" rel="nofollow"></a>

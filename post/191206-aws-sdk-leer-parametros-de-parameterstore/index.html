@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.68.3" />
+<meta name="generator" content="Hugo 0.55.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -75,7 +75,7 @@
         "height": 60
       }
     },
-    "description": "\x3cp\x3eAWS ofrece, como parte del servicio Systems Manager (y \x3ca href=\x22https:\/\/aws.amazon.com\/systems-manager\/pricing\/#Parameter_Store\x22\x3e¡\x3cstrong\x3egratis\x3c\/strong\x3e!\x3c\/a\x3e) \x3ca href=\x22https:\/\/docs.aws.amazon.com\/systems-manager\/latest\/userguide\/systems-manager-parameter-store.html\x22\x3eParameter Store\x3c\/a\x3e. Como su nombre indica, es un almacén de parámetros que podemos usar para evitar \x3cem\x3ehardcodear\x3c\/em\x3e valores de configuración de aplicaciones o scripts.\x3c\/p\x3e\n\x3cp\x3eLa documentación de Boto3, el SDK de AWS para Python es muy buena, pero es tedioso tener que ir consultándola a cada momento.\x3c\/p\x3e\n\x3cblockquote\x3e\n\x3cp\x3eEsta entrada es una especie de recordatorio personal sencillo sobre cómo acceder a Parameter Store para leer el valor de un parámetro.\x3c\/p\x3e\n\x3c\/blockquote\x3e"
+    "description": "\x3cp\x3eAWS ofrece, como parte del servicio Systems Manager (y \x3ca href=\x22https:\/\/aws.amazon.com\/systems-manager\/pricing\/#Parameter_Store\x22\x3e¡\x3cstrong\x3egratis\x3c\/strong\x3e!\x3c\/a\x3e) \x3ca href=\x22https:\/\/docs.aws.amazon.com\/systems-manager\/latest\/userguide\/systems-manager-parameter-store.html\x22\x3eParameter Store\x3c\/a\x3e. Como su nombre indica, es un almacén de parámetros que podemos usar para evitar \x3cem\x3ehardcodear\x3c\/em\x3e valores de configuración de aplicaciones o scripts.\x3c\/p\x3e\n\n\x3cp\x3eLa documentación de Boto3, el SDK de AWS para Python es muy buena, pero es tedioso tener que ir consultándola a cada momento.\x3c\/p\x3e\n\n\x3cblockquote\x3e\n\x3cp\x3eEsta entrada es una especie de recordatorio personal sencillo sobre cómo acceder a Parameter Store para leer el valor de un parámetro.\x3c\/p\x3e\n\x3c\/blockquote\x3e"
   }
 </script>
 
@@ -121,66 +121,97 @@
   </div>
 
   <div class="article-body"><p>AWS ofrece, como parte del servicio Systems Manager (y <a href="https://aws.amazon.com/systems-manager/pricing/#Parameter_Store">¡<strong>gratis</strong>!</a>) <a href="https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-parameter-store.html">Parameter Store</a>. Como su nombre indica, es un almacén de parámetros que podemos usar para evitar <em>hardcodear</em> valores de configuración de aplicaciones o scripts.</p>
+
 <p>La documentación de Boto3, el SDK de AWS para Python es muy buena, pero es tedioso tener que ir consultándola a cada momento.</p>
+
 <blockquote>
 <p>Esta entrada es una especie de recordatorio personal sencillo sobre cómo acceder a Parameter Store para leer el valor de un parámetro.</p>
 </blockquote>
+
 <p>Parameter Store ofrece tres tipos de parámetros: <em>String</em>, <em>StringList</em> y <em>SecureString</em>.</p>
+
 <p>En los tres casos el proceso es el mismo:</p>
+
 <ol>
 <li>instancias un <em>client</em> para <code>ssm</code></li>
 <li>consultas el parámetro con el método <a href="https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/ssm.html#SSM.Client.get_parameter"><code>get_parameter()</code></a></li>
 <li>obtienes el valor</li>
 </ol>
+
 <h2 id="parámetros-de-tipo-string">Parámetros de tipo <em>String</em></h2>
+
 <p>Los valores de tipo <em>String</em> son cadenas que se suelen usar y que no contienen información sensible (aunque el límite de <em>sensible</em> en cada caso probablemente lo determine el equipo de seguridad).</p>
+
 <p>La respuesta de <code>get_parameter()</code> es de la forma:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">    <span style="color:#960050;background-color:#1e0010">&#39;Parameter&#39;:</span> {
-        <span style="color:#960050;background-color:#1e0010">&#39;Name&#39;:</span> <span style="color:#960050;background-color:#1e0010">&#39;string&#39;,</span>
-        <span style="color:#960050;background-color:#1e0010">&#39;Type&#39;:</span> <span style="color:#960050;background-color:#1e0010">&#39;String&#39;|&#39;StringList&#39;|&#39;SecureString&#39;,</span>
-        <span style="color:#960050;background-color:#1e0010">&#39;Value&#39;:</span> <span style="color:#960050;background-color:#1e0010">&#39;string&#39;,</span>
-        <span style="color:#960050;background-color:#1e0010">&#39;Version&#39;:</span> <span style="color:#960050;background-color:#1e0010">123,</span>
-        <span style="color:#960050;background-color:#1e0010">&#39;Selector&#39;:</span> <span style="color:#960050;background-color:#1e0010">&#39;string&#39;,</span>
-        <span style="color:#960050;background-color:#1e0010">&#39;SourceResult&#39;:</span> <span style="color:#960050;background-color:#1e0010">&#39;string&#39;,</span>
-        <span style="color:#960050;background-color:#1e0010">&#39;LastModifiedDate&#39;:</span> <span style="color:#960050;background-color:#1e0010">datetime(2015,</span> <span style="color:#960050;background-color:#1e0010">1,</span> <span style="color:#960050;background-color:#1e0010">1),</span>
-        <span style="color:#960050;background-color:#1e0010">&#39;ARN&#39;:</span> <span style="color:#960050;background-color:#1e0010">&#39;string&#39;</span>
+
+<pre><code class="language-json">    'Parameter': {
+        'Name': 'string',
+        'Type': 'String'|'StringList'|'SecureString',
+        'Value': 'string',
+        'Version': 123,
+        'Selector': 'string',
+        'SourceResult': 'string',
+        'LastModifiedDate': datetime(2015, 1, 1),
+        'ARN': 'string'
     }
-<span style="color:#960050;background-color:#1e0010">}</span>
-</code></pre></div><p>En general, sólo nos interesa obtener el valor del parámetro, por lo que nos concentramos en obtener el valor contenido en <code>Value</code>.</p>
+}
+</code></pre>
+
+<p>En general, sólo nos interesa obtener el valor del parámetro, por lo que nos concentramos en obtener el valor contenido en <code>Value</code>.</p>
+
 <blockquote>
 <p>Como el valor del parámetro puede cambiar, <code>get_parameter()</code> devuelve <strong>siempre</strong> la última versión del parámetro. En la respuesta puedes consultar la <em>versión</em> del valor del parametro, pero no puedes obtener un valor anterior. Si estás interesado en obtener la lista de todos los valores que ha tenido un parámetro -y quién los ha modificado-, usa el método <code>get_parameter_history()</code>.</p>
 </blockquote>
+
 <p>En el ejemplo, tenemos un parámetro llamado <code>parameter1</code> en Parameter Store que vamos a consultar para obtener su valor.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#f92672">import</span> boto3
-ssm_client <span style="color:#f92672">=</span> boto3<span style="color:#f92672">.</span>client(<span style="color:#e6db74">&#39;ssm&#39;</span>)
-miparametro <span style="color:#f92672">=</span> ssm_client<span style="color:#f92672">.</span>get_parameter(Name<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;parameter1&#39;</span>)
-valor_de_miparametro <span style="color:#f92672">=</span> miparametro[<span style="color:#e6db74">&#39;Parameter&#39;</span>][<span style="color:#e6db74">&#39;Value&#39;</span>]
-<span style="color:#66d9ef">print</span>(valor_de_miparametro)
-</code></pre></div><p>Si ejecutamos este fragmento de código, el resultado es:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ python parameter_store_string.py
+
+<pre><code class="language-python">import boto3
+ssm_client = boto3.client('ssm')
+miparametro = ssm_client.get_parameter(Name='parameter1')
+valor_de_miparametro = miparametro['Parameter']['Value']
+print(valor_de_miparametro)
+</code></pre>
+
+<p>Si ejecutamos este fragmento de código, el resultado es:</p>
+
+<pre><code class="language-bash">$ python parameter_store_string.py
 test-parameter-value
-</code></pre></div><blockquote>
+</code></pre>
+
+<blockquote>
 <p>Debes tener permisos para poder leer el parámetro en Parameter Store</p>
 </blockquote>
+
 <h2 id="parámetros-de-tipo-securestring">Parámetros de tipo <em>SecureString</em></h2>
+
 <p>En este caso, el valor del parámetro se encuentra encriptado. Puedes usar el servicio KMS (<em>Key management service</em>) para gestionar las claves usadas para encriptar los parámetros.</p>
+
 <blockquote>
 <p><a href="https://aws.amazon.com/kms/pricing/">KMS no es gratis</a>, pero tiene un <em>free tier</em> que permite 20000 peticiones/mes sin coste.</p>
 </blockquote>
+
 <p>Aunque los pasos para leer el parámetro son los mismos que en el caso anterior, debes tener en cuenta que el valor del parámetro está encriptado.</p>
+
 <p>Si ejecutas el mismo código sobre un parámetro <em>SecureString</em>:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ python parameter_store_securestring.py
+
+<pre><code class="language-bash">$ python parameter_store_securestring.py
 AQICAHhIerV5N6Z6vXFmNd+nLmcALZwYyWLGXw7bxLkAshH6HQH8z8MfIx3LfILqfqlc5FDSAAAAaDBmBgkqhkiG9w0BBwagWTBXAgEAMFIGCSqGSIb3DQEHATAeBglghkgBZQMEAS4wEQQMWnlSalVYxWZ0hRClAgEQgCUdjEnBYX2THX6kWC+8hrWxPkUM4vAx+ErKMt/47gyDHwHkjFuL
-</code></pre></div><p>Probablemente te interesa obtener el valor <em>desencriptado</em>; para ello debes añadir el parámetro <code>WithDecryption=True</code> en la llamada de <code>get_parameter()</code>:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#f92672">import</span> boto3
-ssm_client <span style="color:#f92672">=</span> boto3<span style="color:#f92672">.</span>client(<span style="color:#e6db74">&#39;ssm&#39;</span>)
-securestringpassword <span style="color:#f92672">=</span> ssm_client<span style="color:#f92672">.</span>get_parameter(
-    Name<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;supersecret&#39;</span>, WithDecryption<span style="color:#f92672">=</span>True)
-secretvalue <span style="color:#f92672">=</span> securestringpassword[<span style="color:#e6db74">&#39;Parameter&#39;</span>][<span style="color:#e6db74">&#39;Value&#39;</span>]
-</code></pre></div><p>Tras modificar el código, el resultado es el esperado:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ python parameter_store_securestring.py
+</code></pre>
+
+<p>Probablemente te interesa obtener el valor <em>desencriptado</em>; para ello debes añadir el parámetro <code>WithDecryption=True</code> en la llamada de <code>get_parameter()</code>:</p>
+
+<pre><code class="language-python">import boto3
+ssm_client = boto3.client('ssm')
+securestringpassword = ssm_client.get_parameter(
+    Name='supersecret', WithDecryption=True)
+secretvalue = securestringpassword['Parameter']['Value']
+</code></pre>
+
+<p>Tras modificar el código, el resultado es el esperado:</p>
+
+<pre><code class="language-bash">$ python parameter_store_securestring.py
 D3m0$3cr3t
-</code></pre></div></div>
+</code></pre></div>
 
   <aside class="p-share">
   <a href="http://twitter.com/intent/tweet?url=https%3a%2f%2fonthedock.github.io%2fpost%2f191206-aws-sdk-leer-parametros-de-parameterstore%2f&text=C%c3%b3mo%20leer%20par%c3%a1metros%20de%20Systems%20Manager%20Parameter%20Store%20usando%20Boto3&tw_p=tweetbutton" title="Twitterでシェア" class="tw" target="_blank" rel="nofollow"></a>

@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.68.3" />
+<meta name="generator" content="Hugo 0.55.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -121,84 +121,139 @@
   </div>
 
   <div class="article-body"><p><a href="http://blog.hypriot.com/about/#hypriotos:6083a88ee3411b0d17ce02d738f69d47">HypriotOS</a> es un sistema operativo basado en <a href="http://www.debian.org/">Debian</a> optimizado para ejecutar <a href="http://www.docker.com/">Docker</a> en plataformas ARM como las <a href="https://www.raspberrypi.org/">Raspberry Pi</a>.</p>
+
 <h1 id="hypriotos">HypriotOS</h1>
+
 <p>Las características principales de HypriotOs son:</p>
+
 <ul>
 <li>Sistema operativo basado de Debian: la mayor parte de la gente saber cómo usar Debian y las distribuciones basadas en Ubuntu.</li>
 <li>Optimizado para Docker: Todo en HypriotOS está orientado a conseguir que Docker se ejecute de maravilla, desde las configuraciones del kernel de Linux hasta el sistema de ficheros.</li>
 <li>Versiones actualizadas de Docker: Hypriot se actualiza cada vez que se publica una nueva versión de Docker.</li>
 <li>Listo para usar: descargar, <em>flashear</em> y arrancar, es lo único que hace falta para ponerse en marcha con HypriotOS.</li>
 </ul>
+
 <h2 id="instalación-de-hypriotos">Instalación de HypriotOS</h2>
+
 <p>La instalación de HypriotOS en la Raspberry Pi es muy sencilla.</p>
+
 <p>En el blog de Hypriot tienes información para grabar la imagen en una tarjeta SD tanto si usas <a href="http://blog.hypriot.com/getting-started-with-docker-on-your-arm-device/">Windows, Linux o Mac</a>.</p>
+
 <p>En mi caso, he usado un equipo con Windows para pasar la imagen a la tarjeta SD siguiendo los siguientes pasos:</p>
+
 <ol>
 <li>Descarga la imagen con Hypriot en formato comprimido desde <a href="http://blog.hypriot.com/downloads/">sección de descargas del blog de Hypriot</a>).</li>
 <li>Descomprime el <em>zip</em>.</li>
 <li>Usa <a href="http://sourceforge.net/projects/win32diskimager/">Win32DiskImager</a> para pasar la imagen descomprimida a la tarjeta SD.</li>
 </ol>
+
 <p>¡Eso es todo!</p>
+
 <p>El siguiente paso es colocar de nuevo la tarjeta SD en la Raspberry Pi y arrancar.</p>
+
 <h2 id="obtener-la-dirección-ip-de-la-raspberry-pi">Obtener la dirección IP de la Raspberry Pi</h2>
+
 <p>Por defecto, la Raspberry Pi con HypriotOS obtiene una dirección IP del DHCP local. En el blog de Hypriot recomiendan usar un programa para escanear tu red local y obtener la dirección asignada a la Raspberry Pi (<a href="http://sourceforge.net/projects/nmap.mirror/?source=typ_redirect">ZenMap</a> o <a href="http://angryip.org/download/#windows">Angry IP Scanner</a>, en los comentarios). En mi caso, he accedido a la lista de clientes a los cuales el DHCP les ha asignado una dirección IP y he obtenido la dirección asignada al equipo llamado <em>black-pearl</em>.</p>
+
 <p>Una vez obtenida la dirección IP, conéctate usando <a href="http://the.earth.li/~sgtatham/putty/latest/x86/putty.exe"><em>Putty</em></a>.</p>
+
 <p>Introduce la IP asignada a la Raspberry Pi en el campo <em>Host Name (or IP address)</em> y verifica que el puerto es el 22.</p>
+
 <p>La primera vez que conectes a la dirección IP de la Raspberry Pi obtendrás un mensaje de aviso indicando si quieres confiar en el equipo.</p>
+
 <p>Puedes iniciar sesión en la Raspberry Pi usando el nombre de usuario <code>pirate</code> y el password  <code>hypriot</code>.</p>
+
 <p>Finalmente, para verificar que Docker se encuentra presente, ejecuta <code>docker info</code>. La salida de este comando te devolverá las versiones de cliente y servidor instaladas.</p>
+
 <h2 id="crea-tu-primer-contenedor">Crea tu primer contenedor</h2>
+
 <p>Ya está todo listo para ejecutar tu primer contenedor. Y es tan sencillo como lanzar el comando:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">docker run -d -p 80:80 hypriot/rpi-busybox-httpd
-</code></pre></div><p>Este comando ejecuta un contendor (<code>docker run</code>) en segundo plano, de forma no interactiva (<code>-d</code>, <em>dettached</em>), conectando el puerto 80 (web) de tu equipo local con el puerto 80 del contenedor. El contenedor se creará a partir de la imagen <code>hypriot/rpi-busybox-httpd</code>.</p>
+
+<pre><code class="language-sh">docker run -d -p 80:80 hypriot/rpi-busybox-httpd
+</code></pre>
+
+<p>Este comando ejecuta un contendor (<code>docker run</code>) en segundo plano, de forma no interactiva (<code>-d</code>, <em>dettached</em>), conectando el puerto 80 (web) de tu equipo local con el puerto 80 del contenedor. El contenedor se creará a partir de la imagen <code>hypriot/rpi-busybox-httpd</code>.</p>
+
 <p>Cuando Docker intenta crear el contenedor, busca la imagen indicada en su registro local. Si no lo encuentra, se conecta a un registro público -por defecto Docker Hub- y busca la imagen allí.</p>
+
 <p>Una vez localizada la imagen, descarga en el registro local una copia de la imagen y finalmente arranca un contenedor basado en esa imagen.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">$ docker run -d -p  80:80 hypriot/rpi-busybox-httpd
-Unable to find image <span style="color:#e6db74">&#39;hypriot/rpi-busybox-httpd:latest&#39;</span> locally
+
+<pre><code class="language-sh">$ docker run -d -p  80:80 hypriot/rpi-busybox-httpd
+Unable to find image 'hypriot/rpi-busybox-httpd:latest' locally
 latest: Pulling from hypriot/rpi-busybox-httpd
 c74a9c6a645f: Pull complete
 6f1938f6d8ae: Pull complete
 e1347d4747a6: Pull complete
 a3ed95caeb02: Pull complete
 Digest: sha256:c00342f952d97628bf5dda457d3b409c37df687c859df82b9424f61264f54cd1
-Status: Downloaded newer image <span style="color:#66d9ef">for</span> hypriot/rpi-busybox-httpd:latest
+Status: Downloaded newer image for hypriot/rpi-busybox-httpd:latest
 19d131999ea3142d44a83a6e943c9052d8defa43f7da372bd08ec441ee55f31b
-</code></pre></div><p>La imagen descargada contiene <code>busybox</code> y un servidor web minimalista. Puedes acceder al servidor arrancado en el contenedor a través de un navegador, indicando la IP de la Raspberry Pi.</p>
+</code></pre>
+
+<p>La imagen descargada contiene <code>busybox</code> y un servidor web minimalista. Puedes acceder al servidor arrancado en el contenedor a través de un navegador, indicando la IP de la Raspberry Pi.</p>
+
 <h3 id="un-contenedor-más-útil">Un contenedor más útil</h3>
+
 <p>Como ejemplo de primer contenedor y de lo fácil que es lanzar contenedores con Docker, el ejemplo anterior no está mal.</p>
+
 <p>Sin embargo, vamos a seguir los mismos pasos para crear un contenedor que proporciona un entorno web de gestión de Docker:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">docker run -d -p 9000:9000 -v /var/run/docker.sock:/var/run/docker.sock hypriot/rpi-dockerui
-</code></pre></div><p>En este caso observamos que, además de las instrucciones que hemos visto en el caso anterior, tenemos un nuevo parámetro <code>-v</code>, que permite <em>montar</em> una ruta local del equipo <em>host</em> en el contenedor. Sin embargo, no te preocupes si ahora no entindes todos los detalles.</p>
+
+<pre><code class="language-sh">docker run -d -p 9000:9000 -v /var/run/docker.sock:/var/run/docker.sock hypriot/rpi-dockerui
+</code></pre>
+
+<p>En este caso observamos que, además de las instrucciones que hemos visto en el caso anterior, tenemos un nuevo parámetro <code>-v</code>, que permite <em>montar</em> una ruta local del equipo <em>host</em> en el contenedor. Sin embargo, no te preocupes si ahora no entindes todos los detalles.</p>
+
 <p>Una vez arrancado el contenedor, accede a través de un navegador a <code>http://{IP-equipo-docker}:9000</code>. Desde este entorno web puedes controlar el estado de tu instalación de Docker vía web gracias a <a href="https://github.com/kevana/ui-for-docker">UI-for-Docker</a>.</p>
+
 <h2 id="asigna-una-ip-estática">Asigna una IP estática</h2>
+
 <p>En el apartado anterior hemos visto cómo instalar Docker y hemos lanzado los primeros contenedores. Pero la Raspberry Pi sigue con la configuración de la dirección IP dinámica, por lo que puede que la próxima vez que intentes acceder a la RPi, su dirección haya cambiado.</p>
+
 <p>Para evitar estos problemas, vamos a asignar la IP -estática- 192.168.1.51.</p>
+
 <p>Abrimos el fichero <code>/etc/network/interfaces</code> y encontramos que se hace referencia a una carpeta de configuración:</p>
-<pre><code class="language-config" data-lang="config"># interfaces(5) file used by ifup(8) and ifdown(8)
+
+<pre><code class="language-config"># interfaces(5) file used by ifup(8) and ifdown(8)
 # Include files from /etc/network/interfaces.d:
 source-directory /etc/network/interfaces.d
-</code></pre><p>Abrimos el fichero de configuración de la tarjeta de red <code>eth0</code>:</p>
-<pre><code class="language-config" data-lang="config">allow-hotplug eth0
+</code></pre>
+
+<p>Abrimos el fichero de configuración de la tarjeta de red <code>eth0</code>:</p>
+
+<pre><code class="language-config">allow-hotplug eth0
 iface eth0 inet dhcp
-</code></pre><p>Vemos que está configurada en modo <code>DHCP</code>, por lo que comentamos la segunda línea y especificamos la configuración de IP estática:</p>
-<pre><code class="language-config" data-lang="config"># iface eth0 inet dhcp
+</code></pre>
+
+<p>Vemos que está configurada en modo <code>DHCP</code>, por lo que comentamos la segunda línea y especificamos la configuración de IP estática:</p>
+
+<pre><code class="language-config"># iface eth0 inet dhcp
 
 # Set static IP
 iface eth0 inet static
 address 192.168.1.51
 gateway 192.168.1.1
 domain_name_servers=8.8.8.8, 8.8.4.4
-</code></pre><p>Por supuesto, debes indicar la configuración de red de tu entorno.</p>
+</code></pre>
+
+<p>Por supuesto, debes indicar la configuración de red de tu entorno.</p>
+
 <p>Guardamos los cambios y reiniciamos el servicio de red mediante:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">$ sudo $ sudo /etc/init.d/networking restart
-<span style="color:#f92672">[</span>....<span style="color:#f92672">]</span> Restarting networking <span style="color:#f92672">(</span>via systemctl<span style="color:#f92672">)</span>: networking.service
+
+<pre><code class="language-sh">$ sudo $ sudo /etc/init.d/networking restart
+[....] Restarting networking (via systemctl): networking.service
 . ok
-</code></pre></div><blockquote>
+</code></pre>
+
+<blockquote>
 <p>Como la IP de la Raspberry Pi ha cambiado, la conexión remota desde tu equipo se perderá.</p>
+
 <p>Debes conectar de nuevo con la Raspberry Pi usando la IP que acabas de asignar.</p>
 </blockquote>
+
 <h3 id="encontrando-tu-raspberry-pi-en-la-red-gracias-a-avahi">Encontrando tu Raspberry Pi en la red gracias a Avahi</h3>
+
 <p>Desde la versión 0.3 <em>Jack</em>, HypriotOS usa <a href="https://en.wikipedia.org/wiki/Avahi_(software)">Avahi</a>, el sistema que permite a los programas publicar y descubrir servicios y hosts en una red local. De esta forma puedes acceder a los servicios publicados por los contenedores vía web (o hacer un ping) usando el nombre del sistema: <strong><code>black-pearl</code></strong> (por defecto).</p>
+
 <blockquote>
 <p>He comprobado que funciona desde un equipo Mac; falta comprobarlo desde un equipo Windows.</p>
 </blockquote></div>

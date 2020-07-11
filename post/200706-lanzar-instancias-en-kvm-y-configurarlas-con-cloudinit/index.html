@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.68.3" />
+<meta name="generator" content="Hugo 0.55.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -75,7 +75,7 @@
         "height": 60
       }
     },
-    "description": "\x3cp\x3eEn la \x3ca href=\x22https:\/\/onthedock.github.io\/post\/200627-creacion-de-vm-en-kvm-con-virsh\/\x22\x3eentrada anterior\x3c\/a\x3e describía los pasos para lanzar una instancia en KVM usando \x3ccode\x3evirsh\x3c\/code\x3e. Pero aunque esto resuelve la creación de la máquina virtual, todavía tenemos que realizar la configuración manual del sistema operativo, establecer el \x3ccode\x3ehostname\x3c\/code\x3e, crear usuarios, instalar de paquetes, etc.\x3c\/p\x3e\n\x3cp\x3eUsando \x3ca href=\x22https:\/\/cloudinit.readthedocs.io\x22\x3e\x3ccode\x3ecloud-init\x3c\/code\x3e\x3c\/a\x3e podemos automatizar el proceso de configuración tal y como lo hacen los proveedores de cloud público (AWS, Azure, Google Cloud\x26hellip;)\x3c\/p\x3e"
+    "description": "\x3cp\x3eEn la \x3ca href=\x22https:\/\/onthedock.github.io\/post\/200627-creacion-de-vm-en-kvm-con-virsh\/\x22\x3eentrada anterior\x3c\/a\x3e describía los pasos para lanzar una instancia en KVM usando \x3ccode\x3evirsh\x3c\/code\x3e. Pero aunque esto resuelve la creación de la máquina virtual, todavía tenemos que realizar la configuración manual del sistema operativo, establecer el \x3ccode\x3ehostname\x3c\/code\x3e, crear usuarios, instalar de paquetes, etc.\x3c\/p\x3e\n\n\x3cp\x3eUsando \x3ca href=\x22https:\/\/cloudinit.readthedocs.io\x22\x3e\x3ccode\x3ecloud-init\x3c\/code\x3e\x3c\/a\x3e podemos automatizar el proceso de configuración tal y como lo hacen los proveedores de cloud público (AWS, Azure, Google Cloud\x26hellip;)\x3c\/p\x3e"
   }
 </script>
 
@@ -121,94 +121,152 @@
   </div>
 
   <div class="article-body"><p>En la <a href="https://onthedock.github.io/post/200627-creacion-de-vm-en-kvm-con-virsh/">entrada anterior</a> describía los pasos para lanzar una instancia en KVM usando <code>virsh</code>. Pero aunque esto resuelve la creación de la máquina virtual, todavía tenemos que realizar la configuración manual del sistema operativo, establecer el <code>hostname</code>, crear usuarios, instalar de paquetes, etc.</p>
+
 <p>Usando <a href="https://cloudinit.readthedocs.io"><code>cloud-init</code></a> podemos automatizar el proceso de configuración tal y como lo hacen los proveedores de cloud público (AWS, Azure, Google Cloud&hellip;)</p>
+
 <p>La clave de <em>cloud-init</em> reside en pasar infomación de configuración a la instancia para que los scripts puedan realizar la configuración durante el arranque de la máquina virtual. En <a href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html">AWS</a>, por ejemplo, esta información se obtiene desde la IP 169.254.169.254; a través de la red.</p>
+
 <p>Sin embargo, la manera más sencilla -si no estás en el cloud- de <em>pasar</em> los datos de configuración a la instancia -para el <em>data source</em> <a href="https://cloudinit.readthedocs.io/en/latest/topics/datasources/nocloud.html"><code>NoCloud</code></a>- es mediante una imagen de CD pinchada en la VM.</p>
+
 <p>Hace un par de años ya escribí sobre ello, aunque entonces usaba Windows y Hyper-V: <a href="https://onthedock.github.io/post/181009-cloud-init/">Automatizando la personalización de máquinas virtuales con cloud-init</a>.</p>
+
 <p>Esta vez intento avanzar respecto a la situación anterior, uniendo en un mismo <em>script</em> todo el proceso:</p>
+
 <ul>
 <li>Generar el fichero el fichero de configuración de <code>cloud-init</code></li>
 <li>Generar la imagen ISO con la configuración</li>
 <li>Generar una VM en KVM (partiendo de una imagen &ldquo;cloud&rdquo;) y la imagen con los datos de cloud-init</li>
 <li>Disfrutar mientras todo se configura automáticamente (y siempre de la misma forma)</li>
 </ul>
+
 <blockquote>
 <p>El script está colgado en <a href="https://github.com/onthedock/script-kvm-cloudinit/blob/master/vm-kvm-ubuntu.sh">vm-kvm-ubuntu.sh</a> y está probado en Ubuntu 20.04.</p>
 </blockquote>
+
 <h2 id="enfoque-incremental">Enfoque incremental</h2>
+
 <p>He decidido generar el fichero de configuración de <code>cloud-init</code> en el mismo <em>script</em> para no tener dos ficheros separados para cada tipo de instancia; probablemente no es la mejor solución, pero no espero tener demasiados tipos diferentes de instancias -y por tanto de ficheros de configuración-; si tengo que cambiar alguna cosa común a todos los casos, tendré que modificar varios ficheros.</p>
+
 <p><code>cloud-init</code> permite realizar prácticamente cualquier configuración que necesites sobre el sistema en la máquina virtual; de todas formas, creo que es mejor empezar poco a poco e incorporar sólo nuevas configuraciones cuando las necesite, no simplemente por el hecho de que se pueden realizar.</p>
+
 <p>En esta línea, primero he creado el script para desplegar una imagen con Ubuntu Server 20.04 LTS, sin ninguna configuración adicional (excepto la capacidad de hacer login usando un <em>password</em>).</p>
+
 <p>Una vez he conseguido que funcione, he copiado el <em>script</em> y lo he &ldquo;ampliado&rdquo; para desplegar Docker CE. Finalmente, ampliaré de nuevo el <em>script</em> para poder desplegar máquinas con los requisitos de Kubernetes y poder desplegar clústers de manera ágil.</p>
+
 <h2 id="fichero-cloud-config">Fichero <code>cloud-config</code></h2>
+
 <p>El fichero de configuración de <code>cloud-init</code> genera un nuevo usuario por defecto llamado <code>operador</code> (en vez del usuario &ldquo;ubuntu&rdquo; que viene predefinido en la imagen). El <em>password</em> se solicita al ejecutar el <em>script</em>, por lo que es seguro guardar el <em>script</em> en GitHub o en cualquier otro repositorio.</p>
+
 <p>Habilito el acceso vía <em>password</em> porque en el laboratorio tiendo a recrear las claves SSH frecuentemente.</p>
+
 <p>La línea <code>shell: /bin/bash</code> es necesaria porque se establece <code>/bin/sh</code> como <em>shell</em> para el nuevo usuario; eso significa que no funciona el autocompletado, los cursores escupen caracteres extraños, no funciona el historial de comandos ejecutados, etc&hellip; Me he vuelto loco hasta que he encontrado la solución en StackOverflow (aunque me temo que no he guardado el enlace).</p>
+
 <p>Estableciendo <code>bash</code> como <em>shell</em> por defecto para el usuario <code>operador</code>, todo funciona como estoy acostumbrado.</p>
+
 <p>Para acabar, habilito la autenticación con credenciales vía SSH e instalo el agente de QEmu.</p>
+
 <p>El fichero de configuración se guarda en <code>/tmp/$VM_NAME-cloudinit.config</code>.</p>
+
 <h2 id="prepara-la-imagen-para-kvm">Prepara la imagen para KVM</h2>
+
 <p>Las imagenes <em>cloud</em> que comentaba en la entrada anterior las tengo guardadas localmente en una carpeta llamada <code>ISOS/cloud-imgs</code>.</p>
+
 <p>El primer paso es realizar una copia de la imagen cloud. Modificaremos la copia, de manera que siempre tengamos la imagen original inalterada.</p>
+
 <p>El tamaño del disco virtual de las imágenes cloud es muy pequeño, por lo que para evitar problemas más adelante, expandimos el tamaño hasta los 10G.</p>
+
 <h2 id="crear-la-imagen-con-los-ficheros-de-cloud-init">Crear la imagen con los ficheros de <code>cloud-init</code></h2>
+
 <p>En vez de tener que generar la imagen ISO <em>a pelo</em>, ahora tenemos el paquete <code>cloud-image-utils</code> que simplifica el proceso.</p>
+
 <p>El <em>script</em> valida que el paquete está instalado antes de crear la imagen <code>&quot;$POOL_FOLDER/$VM_NAME.cloudconfig.img&quot;</code>.</p>
+
 <p>Cuando tenemos todas las piezas, lanzamos la creación de la máquina virtual.</p>
+
 <h2 id="consideraciones">Consideraciones</h2>
+
 <p>El comando <code>virt-install</code> finaliza en cuanto ha creado la máquina. Las siguientes instrucciones en el <em>script</em> se ejecutan inmediatamente y eso provoca <em>resultados extraños</em>&hellip;</p>
+
 <p>La extracción de la ISO del <code>cdrom</code> con la configuración de <code>cloud-init</code>, por ejemplo, resultaba en que la instancia nunca recibía una dirección IP, ni era posible acceder a la instancia porque no se establecía el password para el usuario <code>operador</code>&hellip;</p>
+
 <p>El comando <code>virsh domifaddr $VM_NAME</code> tampoco devolvía información, ya que se ejecutaba antes de que la instancia pueda obtener una IP&hellip;</p>
+
 <p>He comentado estas instrucciones porque no soy muy fan de los <em>sleep 60</em> y otros trucos que suelen usarse, ya que o bien se espera mucho más de lo necesario, o no se espera lo suficiente (es un poco lotería).</p>
+
 <p>La solución pasará seguramente por usar algo como  <code>virsh qemu-agent-command</code> para revisar el estado del fichero <code>/var/lib/cloud/instance/boot-finished</code>, que <code>cloud-init</code> crea al finalizar todas las acciones de configuración.</p>
+
 <p>Otra opción sería el fichero <code>/var/lib/cloud/data/result.json</code>, pero al intentar ejecutar un comando obtengo el error:</p>
+
 <blockquote>
 <p>Los comandos <code>guest-file-*</code> están deshabilitados por defecto en RHEL; además, el agente se ejecuta sujeto a las restricciones de SELinux. <a href="https://bugzilla.redhat.com/show_bug.cgi?id=1447943#c2">Ref: qemu guest agent can not read/write existing file in guest</a></p>
 </blockquote>
+
 <h3 id="problemas-con-el-agente-en-las-máquinas-virtuales-creadas">Problemas con el agente en las máquinas virtuales creadas</h3>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ virsh qemu-agent-command --cmd <span style="color:#e6db74">&#39;{ &#34;execute&#34;: &#34;guestinfo&#34; }&#39;</span> --domain docker
+
+<pre><code class="language-bash">$ virsh qemu-agent-command --cmd '{ &quot;execute&quot;: &quot;guestinfo&quot; }' --domain docker
 error: Guest agent is not responding: QEMU guest agent is not connected
-</code></pre></div><p>El problema está en que el agente está desconectado en la máquina virtual:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ virsh dumpxml docker | grep -i agent
-      &lt;source mode<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;bind&#39;</span> path<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;/var/lib/libvirt/qemu/channel/target/domain-10-docker/org.qemu.guest_agent.0&#39;</span>/&gt;
-      &lt;target type<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;virtio&#39;</span> name<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;org.qemu.guest_agent.0&#39;</span> state<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;disconnected&#39;</span>/&gt;
-</code></pre></div><p>Es decir, el agente está instalado en la VM pero no ha arrancado; iniciándolo manualmente se habilita la posibilidad de ejecutar comandos, por lo que una posible solución es arrancar el servicio tras la instalación vía <code>cloud-init</code>:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">...
-<span style="color:#66d9ef">runcmd</span>:
+</code></pre>
+
+<p>El problema está en que el agente está desconectado en la máquina virtual:</p>
+
+<pre><code class="language-bash">$ virsh dumpxml docker | grep -i agent
+      &lt;source mode='bind' path='/var/lib/libvirt/qemu/channel/target/domain-10-docker/org.qemu.guest_agent.0'/&gt;
+      &lt;target type='virtio' name='org.qemu.guest_agent.0' state='disconnected'/&gt;
+</code></pre>
+
+<p>Es decir, el agente está instalado en la VM pero no ha arrancado; iniciándolo manualmente se habilita la posibilidad de ejecutar comandos, por lo que una posible solución es arrancar el servicio tras la instalación vía <code>cloud-init</code>:</p>
+
+<pre><code class="language-yaml">...
+runcmd:
   - systemctl enable qemu-guest-agent
   - systemctl start qemu-guest-agent
-</code></pre></div><p>Así que tengo que modificar la configuracion de <code>cloud-init</code> para que además de instalar el agente de QEmu, también lo arranque.</p>
-<h3 id="comprobando-la-existencia-de-un-fichero-mediante-qemu-agent-command">Comprobando la existencia de un fichero mediante <code>qemu-agent-command</code></h3>
-<p>Siguiendo con el tema de usar <code>qemu-agent-command</code> para comprobar la existencia del fichero <code>/var/lib/cloud/instance/boot-finished</code>, se trata de un proceso de dos pasos: primero con <code>guest-file-open</code> se obtiene un <em>handle</em> al fichero y después, con este <em>handle</em>, se lee el contenido del fichero con <code>guest-file-read</code>.</p>
-<p>En mi caso sólo quiero saber si el fichero existe, por lo que en cuanto el comando devuelve un <em>handle</em>, significa que existe y por tanto el proceso de arranque de <code>cloud-init</code> ha finalizado.</p>
-<p>Así que una forma de comprobar si el proceso ha finalizado es mediante algo como:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">virsh qemu-agent-command $VM_NAME --cmd <span style="color:#e6db74">&#39;{&#34;execute&#34;: &#34;guest-file-open&#34;, &#34;arguments&#34;: {&#34;path&#34;:&#34;/var/lib/cloud/instance/boot-finished&#34;}}&#39;</span> 2&gt;/dev/null
-<span style="color:#66d9ef">while</span> <span style="color:#f92672">[</span> $? -ne <span style="color:#ae81ff">0</span> <span style="color:#f92672">]</span>; <span style="color:#66d9ef">do</span>
-  sleep <span style="color:#ae81ff">1</span>
-  virsh qemu-agent-command $VM_NAME --cmd <span style="color:#e6db74">&#39;{&#34;execute&#34;: &#34;guest-file-open&#34;, &#34;arguments&#34;: {&#34;path&#34;:&#34;/var/lib/cloud/instance/boot-finished&#34;}}&#39;</span> 2&gt;/dev/null
-<span style="color:#66d9ef">done</span>
-echo <span style="color:#e6db74">&#34;cloud-init configuration process finished.
-</span></code></pre></div><p>Finalmente, el bucle ha quedado:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">...
-<span style="color:#66d9ef">if</span> <span style="color:#f92672">[</span> $wait <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;true&#34;</span> <span style="color:#f92672">]</span>; <span style="color:#66d9ef">then</span>
-  <span style="color:#75715e"># Waiting until cloud-init finishes</span>
-  virsh qemu-agent-command $VM_NAME --cmd <span style="color:#e6db74">&#39;{&#34;execute&#34;: &#34;guest-file-open&#34;, &#34;arguments&#34;: {&#34;path&#34;:&#34;/var/lib/cloud/instance/boot-finished&#34;}}&#39;</span> 1&gt;/dev/null 2&gt;/dev/null
-  <span style="color:#66d9ef">while</span> <span style="color:#f92672">[</span> $? -ne <span style="color:#ae81ff">0</span> <span style="color:#f92672">]</span>; <span style="color:#66d9ef">do</span>
-    sleep $time2wait
-    echo <span style="color:#e6db74">&#34;... waiting for cloud-init </span>$time2wait<span style="color:#e6db74"> more seconds ...&#34;</span>
-    virsh qemu-agent-command $VM_NAME --cmd <span style="color:#e6db74">&#39;{&#34;execute&#34;: &#34;guest-file-open&#34;, &#34;arguments&#34;: {&#34;path&#34;:&#34;/var/lib/cloud/instance/boot-finished&#34;}}&#39;</span> 1&gt;/dev/null 2&gt;/dev/null
-  <span style="color:#66d9ef">done</span>
-  echo <span style="color:#e6db74">&#34;cloud-init configuration process finished.&#34;</span>
+</code></pre>
 
-  echo <span style="color:#e6db74">&#34;Ejecting </span>$POOL_FOLDER<span style="color:#e6db74">/</span>$VM_NAME<span style="color:#e6db74">.cloudconfig.img from </span>$VM_NAME<span style="color:#e6db74"> ...&#34;</span>
-  virsh change-media --path <span style="color:#e6db74">&#34;</span>$POOL_FOLDER<span style="color:#e6db74">/</span>$VM_NAME<span style="color:#e6db74">.cloudconfig.img&#34;</span> $VM_NAME --eject
+<p>Así que tengo que modificar la configuracion de <code>cloud-init</code> para que además de instalar el agente de QEmu, también lo arranque.</p>
+
+<h3 id="comprobando-la-existencia-de-un-fichero-mediante-qemu-agent-command">Comprobando la existencia de un fichero mediante <code>qemu-agent-command</code></h3>
+
+<p>Siguiendo con el tema de usar <code>qemu-agent-command</code> para comprobar la existencia del fichero <code>/var/lib/cloud/instance/boot-finished</code>, se trata de un proceso de dos pasos: primero con <code>guest-file-open</code> se obtiene un <em>handle</em> al fichero y después, con este <em>handle</em>, se lee el contenido del fichero con <code>guest-file-read</code>.</p>
+
+<p>En mi caso sólo quiero saber si el fichero existe, por lo que en cuanto el comando devuelve un <em>handle</em>, significa que existe y por tanto el proceso de arranque de <code>cloud-init</code> ha finalizado.</p>
+
+<p>Así que una forma de comprobar si el proceso ha finalizado es mediante algo como:</p>
+
+<pre><code class="language-bash">virsh qemu-agent-command $VM_NAME --cmd '{&quot;execute&quot;: &quot;guest-file-open&quot;, &quot;arguments&quot;: {&quot;path&quot;:&quot;/var/lib/cloud/instance/boot-finished&quot;}}' 2&gt;/dev/null
+while [ $? -ne 0 ]; do
+  sleep 1
+  virsh qemu-agent-command $VM_NAME --cmd '{&quot;execute&quot;: &quot;guest-file-open&quot;, &quot;arguments&quot;: {&quot;path&quot;:&quot;/var/lib/cloud/instance/boot-finished&quot;}}' 2&gt;/dev/null
+done
+echo &quot;cloud-init configuration process finished.
+</code></pre>
+
+<p>Finalmente, el bucle ha quedado:</p>
+
+<pre><code class="language-bash">...
+if [ $wait = &quot;true&quot; ]; then
+  # Waiting until cloud-init finishes
+  virsh qemu-agent-command $VM_NAME --cmd '{&quot;execute&quot;: &quot;guest-file-open&quot;, &quot;arguments&quot;: {&quot;path&quot;:&quot;/var/lib/cloud/instance/boot-finished&quot;}}' 1&gt;/dev/null 2&gt;/dev/null
+  while [ $? -ne 0 ]; do
+    sleep $time2wait
+    echo &quot;... waiting for cloud-init $time2wait more seconds ...&quot;
+    virsh qemu-agent-command $VM_NAME --cmd '{&quot;execute&quot;: &quot;guest-file-open&quot;, &quot;arguments&quot;: {&quot;path&quot;:&quot;/var/lib/cloud/instance/boot-finished&quot;}}' 1&gt;/dev/null 2&gt;/dev/null
+  done
+  echo &quot;cloud-init configuration process finished.&quot;
+
+  echo &quot;Ejecting $POOL_FOLDER/$VM_NAME.cloudconfig.img from $VM_NAME ...&quot;
+  virsh change-media --path &quot;$POOL_FOLDER/$VM_NAME.cloudconfig.img&quot; $VM_NAME --eject
 
   virsh domifaddr $VM_NAME
-<span style="color:#66d9ef">fi</span>
+fi
 ...
-</code></pre></div><h2 id="siguientes-pasos">Siguientes pasos</h2>
+</code></pre>
+
+<h2 id="siguientes-pasos">Siguientes pasos</h2>
+
 <p>Por el momento estoy contento con el <em>script</em> y me ha servido para aprender un poco más de <em>bash</em>&hellip;</p>
+
 <p>Al incorporar el parámetro <code>$wait</code> (y estableciéndolo en <code>&quot;false&quot;</code>, por ejemplo) puedo hacer que se lancen varias instancias seguidas y dejar el proceso de <code>cloud-init</code> se ejecute casi de forma simultánea en varias máquinas (sí, estoy pensando en un clúster de K8s&hellip; o K3s).</p>
+
 <p>Imagino que los siguientes pasos irán en la dirección de convertirlo en un <em>script</em> más flexible, que permita pasar los parámetros desde la línea de comando, pero por ahora me permite levantar máquinas de manera rápida y desatendida.</p></div>
 
   <aside class="p-share">

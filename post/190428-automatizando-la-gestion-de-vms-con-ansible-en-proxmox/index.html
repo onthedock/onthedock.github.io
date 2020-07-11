@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.68.3" />
+<meta name="generator" content="Hugo 0.55.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -75,7 +75,7 @@
         "height": 60
       }
     },
-    "description": "\x3cp\x3eSigo dando pasos en el \x3ca href=\x22https:\/\/onthedock.github.io\/post\/181124-roadmap\/\x22\x3e\x3cem\x3eroadmap\x3c\/em\x3e que me marqué ya hace un tiempo\x3c\/a\x3e, aunque mucho más lentamente de lo que había previsto.\x3c\/p\x3e\n\x3cp\x3eDespués de decidir montar todo el laboratorio sobre KVM -y conseguirlo-, a nivel operativo no me resultaba cómodo.\nPodía usar VirtManager (una solución gráfica), pero que sólo tenía instalada en un desktop con Linux que no suelo usar habitualmente, o hacer SSH contra el equipo de laboratorio y usar la línea de comandos para generar la máquina desde cero\x26hellip;\x3c\/p\x3e\n\x3cp\x3eAl final, manteniéndome fiel al \x3cem\x3eobjetivo final\x3c\/em\x3e de automatizar la solución, decidí usar Proxmox VE (que usa Debian y KVM \x26ldquo;bajo el capó\x26rdquo;) y que además se integra con Ansible.\x3c\/p\x3e"
+    "description": "\x3cp\x3eSigo dando pasos en el \x3ca href=\x22https:\/\/onthedock.github.io\/post\/181124-roadmap\/\x22\x3e\x3cem\x3eroadmap\x3c\/em\x3e que me marqué ya hace un tiempo\x3c\/a\x3e, aunque mucho más lentamente de lo que había previsto.\x3c\/p\x3e\n\n\x3cp\x3eDespués de decidir montar todo el laboratorio sobre KVM -y conseguirlo-, a nivel operativo no me resultaba cómodo.\nPodía usar VirtManager (una solución gráfica), pero que sólo tenía instalada en un desktop con Linux que no suelo usar habitualmente, o hacer SSH contra el equipo de laboratorio y usar la línea de comandos para generar la máquina desde cero\x26hellip;\x3c\/p\x3e\n\n\x3cp\x3eAl final, manteniéndome fiel al \x3cem\x3eobjetivo final\x3c\/em\x3e de automatizar la solución, decidí usar Proxmox VE (que usa Debian y KVM \x26ldquo;bajo el capó\x26rdquo;) y que además se integra con Ansible.\x3c\/p\x3e"
   }
 </script>
 
@@ -121,78 +121,107 @@
   </div>
 
   <div class="article-body"><p>Sigo dando pasos en el <a href="https://onthedock.github.io/post/181124-roadmap/"><em>roadmap</em> que me marqué ya hace un tiempo</a>, aunque mucho más lentamente de lo que había previsto.</p>
+
 <p>Después de decidir montar todo el laboratorio sobre KVM -y conseguirlo-, a nivel operativo no me resultaba cómodo.
 Podía usar VirtManager (una solución gráfica), pero que sólo tenía instalada en un desktop con Linux que no suelo usar habitualmente, o hacer SSH contra el equipo de laboratorio y usar la línea de comandos para generar la máquina desde cero&hellip;</p>
+
 <p>Al final, manteniéndome fiel al <em>objetivo final</em> de automatizar la solución, decidí usar Proxmox VE (que usa Debian y KVM &ldquo;bajo el capó&rdquo;) y que además se integra con Ansible.</p>
+
 <h2 id="requerimientos-previos">Requerimientos previos</h2>
+
 <p>Para poder contectar Ansible con Proxmox VE, es necesario instalar <a href="https://pypi.org/project/proxmoxer/">proxmoxer</a> en el equipo <em>host</em>.</p>
+
 <blockquote>
 <p>En la página de requerimientos del módulo proxmox en Ansible <a href="https://docs.ansible.com/ansible/latest/modules/proxmox_module.html">proxmox – management of instances in Proxmox VE cluster</a> además de Python y <code>proxmoxer</code> verás listado el paquete <code>requests</code>, pero parece que se instala automáticamente al instalar <code>proxmoxer</code>.</p>
 </blockquote>
+
 <p>La instalación del módulo se realiza usando <code>pip</code>, el instalador de paquetes de Python (y que ha propiciado la entrada anterior <a href="https://onthedock.github.io/post/190428-como-instalar-pip/">Cómo instalar pip</a>).
 Con <code>pip</code> instalado, lanza <code>sudo pip install proxmoxer</code> para instalar <code>proxmoxer</code>.</p>
+
 <h2 id="play-de-prueba-en-ansible">Play de prueba en Ansible</h2>
+
 <p>En la máquina de control de Ansible, he creado un <em>playbook</em> sencillo para detener una máquina virtual en el equipo con Proxmox VE (el equipo se llama <strong>lab</strong>).</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">---
-- <span style="color:#66d9ef">hosts</span>: lab
-  <span style="color:#66d9ef">tasks</span>:
-  - <span style="color:#66d9ef">proxmox</span>:
-      <span style="color:#66d9ef">api_user</span>: root@pam
-      <span style="color:#66d9ef">api_password</span>: <span style="color:#75715e">*************</span>
-      <span style="color:#66d9ef">api_host</span>: <span style="color:#ae81ff">192.168.1.2</span>
-      <span style="color:#66d9ef">vmid</span>: <span style="color:#ae81ff">102</span>
-      <span style="color:#66d9ef">state</span>: stopped
-</code></pre></div><p>Sin embargo, al lanzar el <em>playbook</em>, obtengo un error 500:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ ansible-playbook proxmox-stop-vm.yml
 
-PLAY <span style="color:#f92672">[</span>lab<span style="color:#f92672">]</span> *************************************************************************
+<pre><code class="language-yaml">---
+- hosts: lab
+  tasks:
+  - proxmox:
+      api_user: root@pam
+      api_password: *************
+      api_host: 192.168.1.2
+      vmid: 102
+      state: stopped
+</code></pre>
 
-TASK <span style="color:#f92672">[</span>Gathering Facts<span style="color:#f92672">]</span> *************************************************************
-ok: <span style="color:#f92672">[</span>lab<span style="color:#f92672">]</span>
+<p>Sin embargo, al lanzar el <em>playbook</em>, obtengo un error 500:</p>
 
-TASK <span style="color:#f92672">[</span>proxmox<span style="color:#f92672">]</span> *********************************************************************
-fatal: <span style="color:#f92672">[</span>lab<span style="color:#f92672">]</span>: FAILED! <span style="color:#f92672">=</span>&gt; <span style="color:#f92672">{</span><span style="color:#e6db74">&#34;changed&#34;</span>: false, <span style="color:#e6db74">&#34;msg&#34;</span>: <span style="color:#e6db74">&#34;stopping of VM 102 failed with
-</span><span style="color:#e6db74">exception: 500 Internal Server Error: b&#39;{\&#34;data\&#34;:null}&#39;&#34;</span><span style="color:#f92672">}</span>
+<pre><code class="language-bash">$ ansible-playbook proxmox-stop-vm.yml
+
+PLAY [lab] *************************************************************************
+
+TASK [Gathering Facts] *************************************************************
+ok: [lab]
+
+TASK [proxmox] *********************************************************************
+fatal: [lab]: FAILED! =&gt; {&quot;changed&quot;: false, &quot;msg&quot;: &quot;stopping of VM 102 failed with
+exception: 500 Internal Server Error: b'{\&quot;data\&quot;:null}'&quot;}
    to retry, use: --limit @/home/ansible-service-account/proxmox-stop-vm.retry
 
 PLAY RECAP *************************************************************************
-lab                        : ok<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>    changed<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>    unreachable<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>    failed<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>
-</code></pre></div><h3 id="troubleshooting">Troubleshooting</h3>
+lab                        : ok=1    changed=0    unreachable=0    failed=1
+</code></pre>
+
+<h3 id="troubleshooting">Troubleshooting</h3>
+
 <p>El error 500 es un error genérico del tipo &ldquo;algo ha ido mal&rdquo;, sin especificar el qué.</p>
+
 <p>En primer lugar, intento averiguar si la API está levantada (o si hay un error 500 &ldquo;de verdad&rdquo;).
 Una manera sencilla de comprobarlo es usando el comando <code>pvesh</code>, que permite conectar con la API REST:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#75715e"># pvesh get /nodes</span>
+
+<pre><code class="language-bash"># pvesh get /nodes
 ┌──────┬────────┬───────┬───────┬────────┬───────────┬──────────┬───────────────────
 │ node │ status │   cpu │ level │ maxcpu │    maxmem │ mem      │ ssl_fingerprint
 ├──────┼────────┼───────┼───────┼────────┼───────────┼──────────┼───────────────────
-│ lab  │ online │ 9.96% │       │      <span style="color:#ae81ff">4</span> │ 30.68 GiB │ 3.25 GiB │ C5:DA:5F:99:87:5C:
+│ lab  │ online │ 9.96% │       │      4 │ 30.68 GiB │ 3.25 GiB │ C5:DA:5F:99:87:5C:
 └──────┴────────┴───────┴───────┴────────┴───────────┴──────────┴───────────────────
-</code></pre></div><p>Parece que el API funciona&hellip;</p>
+</code></pre>
+
+<p>Parece que el API funciona&hellip;</p>
+
 <p>El siguiente paso es ver si podemos conectar (es decir, si se trata un error de autenticación):</p>
+
 <p>Modifico el <em>play</em> cambiando el <em>password</em> por la variable de entorno <code>$PROXMOX_PASSWORD</code> (que no está establecida):</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#66d9ef">++ api_password</span>: $PROXMOX_PASSWORD
-<span style="color:#66d9ef">-- api_password</span>: <span style="color:#75715e">************</span>
-</code></pre></div><p>La salida del <em>playbook</em> es clara en este caso:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">...
-TASK <span style="color:#f92672">[</span>proxmox<span style="color:#f92672">]</span> *********************************************************************
-fatal: <span style="color:#f92672">[</span>lab<span style="color:#f92672">]</span>: FAILED! <span style="color:#f92672">=</span>&gt; <span style="color:#f92672">{</span><span style="color:#e6db74">&#34;changed&#34;</span>: false, <span style="color:#e6db74">&#34;msg&#34;</span>: <span style="color:#e6db74">&#34;authorization on proxmox cluster
-</span><span style="color:#e6db74">failed with exception: Couldn&#39;t authenticate user: root@pam to
-</span><span style="color:#e6db74">https://192.168.1.2:8006/api2/json/access/ticket&#34;</span><span style="color:#f92672">}</span>
+
+<pre><code class="language-yaml">++ api_password: $PROXMOX_PASSWORD
+-- api_password: ************
+</code></pre>
+
+<p>La salida del <em>playbook</em> es clara en este caso:</p>
+
+<pre><code class="language-bash">...
+TASK [proxmox] *********************************************************************
+fatal: [lab]: FAILED! =&gt; {&quot;changed&quot;: false, &quot;msg&quot;: &quot;authorization on proxmox cluster
+failed with exception: Couldn't authenticate user: root@pam to
+https://192.168.1.2:8006/api2/json/access/ticket&quot;}
    to retry, use: --limit @/home/ansible-service-account/proxmox-stop-vm.retry
 ...
-</code></pre></div><p>Es decir, sí que el módulo de Ansible puede autenticarse, pero a partir de ahí &ldquo;algo va mal&rdquo;.</p>
+</code></pre>
+
+<p>Es decir, sí que el módulo de Ansible puede autenticarse, pero a partir de ahí &ldquo;algo va mal&rdquo;.</p>
+
 <p>Siguiendo con <code>pvesh</code>, puedo parar la VM -usando la API- mediante el comando:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">root@lab:~# pvesh create /nodes/lab/qemu/102/status/stop
+
+<pre><code class="language-bash">root@lab:~# pvesh create /nodes/lab/qemu/102/status/stop
 UPID:lab:000063FA:001DEA8B:5CC5CF00:qmstop:102:root@pam:
 root@lab:~# pvesh get /nodes/lab/qemu/102/status/current
 ┌───────────┬───────────────┐
 │ key       │ value         │
 ├───────────┼───────────────┤
-│ agent     │ <span style="color:#ae81ff">1</span>             │
+│ agent     │ 1             │
 ├───────────┼───────────────┤
-│ cpus      │ <span style="color:#ae81ff">1</span>             │
+│ cpus      │ 1             │
 ├───────────┼───────────────┤
-│ ha        │ <span style="color:#f92672">{</span><span style="color:#e6db74">&#34;managed&#34;</span>:0<span style="color:#f92672">}</span> │
+│ ha        │ {&quot;managed&quot;:0} │
 ├───────────┼───────────────┤
 │ maxdisk   │ 32.00 GiB     │
 ├───────────┼───────────────┤
@@ -206,31 +235,46 @@ root@lab:~# pvesh get /nodes/lab/qemu/102/status/current
 ├───────────┼───────────────┤
 │ uptime    │               │
 ├───────────┼───────────────┤
-│ vmid      │ <span style="color:#ae81ff">102</span>           │
+│ vmid      │ 102           │
 └───────────┴───────────────┘
 root@lab:~# pvesh create /nodes/lab/qemu/102/status/start
 UPID:lab:0000649C:001E203E:5CC5CF89:qmstart:102:root@pam:
-</code></pre></div><p>He vuelto a arrancar la VM, ya que esto demuestra que puedo apagar la VM usando la API -al menos localmente.</p>
+</code></pre>
+
+<p>He vuelto a arrancar la VM, ya que esto demuestra que puedo apagar la VM usando la API -al menos localmente.</p>
+
 <p>He ejecutado el <em>playbook</em> usando <code>-v</code> para obtener información adicional, pero no se muestra nada más relacionado con el error 500.</p>
+
 <p>En <code>/var/log/auth.log</code> queda registrada la conexión del usuario <code>ansible-service-account</code>:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">Apr <span style="color:#ae81ff">28</span> 18:48:13 lab sshd<span style="color:#f92672">[</span>29663<span style="color:#f92672">]</span>: Accepted publickey <span style="color:#66d9ef">for</span> ansible-service-account from 192.168.1.219 port <span style="color:#ae81ff">55070</span> ssh2: ED25519 SHA256:4Zp/sQr0n3wvwMkQaUt3aqnGvnfIWdicuYEFCW7WFes
-Apr <span style="color:#ae81ff">28</span> 18:48:13 lab sshd<span style="color:#f92672">[</span>29663<span style="color:#f92672">]</span>: pam_unix<span style="color:#f92672">(</span>sshd:session<span style="color:#f92672">)</span>: session opened <span style="color:#66d9ef">for</span> user ansible-service-account by <span style="color:#f92672">(</span>uid<span style="color:#f92672">=</span>0<span style="color:#f92672">)</span>
-Apr <span style="color:#ae81ff">28</span> 18:48:13 lab systemd-logind<span style="color:#f92672">[</span>621<span style="color:#f92672">]</span>: New session <span style="color:#ae81ff">49</span> of user ansible-service-account.
-Apr <span style="color:#ae81ff">28</span> 18:48:13 lab systemd: pam_unix<span style="color:#f92672">(</span>systemd-user:session<span style="color:#f92672">)</span>: session opened <span style="color:#66d9ef">for</span> user ansible-service-account by <span style="color:#f92672">(</span>uid<span style="color:#f92672">=</span>0<span style="color:#f92672">)</span>
-</code></pre></div><p>Después de revisar los logs del sistema con Proxmox, he encontrado dentro del <code>/var/log/syslog</code> (hay información similar en <code>/var/log/messages</code> y <code>/var/log/user.log</code>):</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">Apr <span style="color:#ae81ff">28</span> 18:38:42 lab ansible-setup: Invoked with gather_subset<span style="color:#f92672">=[</span><span style="color:#e6db74">&#39;all&#39;</span><span style="color:#f92672">]</span> fact_path<span style="color:#f92672">=</span>/etc/ansible/facts.d gather_timeout<span style="color:#f92672">=</span><span style="color:#ae81ff">10</span> filter<span style="color:#f92672">=</span>*
-Apr <span style="color:#ae81ff">28</span> 18:38:43 lab ansible-proxmox: Invoked with api_user<span style="color:#f92672">=</span> validate_certs<span style="color:#f92672">=</span>False node<span style="color:#f92672">=</span>None password<span style="color:#f92672">=</span>NOT_LOGGING_PARAMETER mounts<span style="color:#f92672">=</span>None api_host<span style="color:#f92672">=</span>192.168.1.2 ip_address<span style="color:#f92672">=</span>None nameserver<span style="color:#f92672">=</span>None pubkey<span style="color:#f92672">=</span>None onboot<span style="color:#f92672">=</span>False disk<span style="color:#f92672">=</span><span style="color:#ae81ff">3</span> storage<span style="color:#f92672">=</span>local swap<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span> cpuunits<span style="color:#f92672">=</span><span style="color:#ae81ff">1000</span> cores<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span> memory<span style="color:#f92672">=</span><span style="color:#ae81ff">512</span> state<span style="color:#f92672">=</span>stopped pool<span style="color:#f92672">=</span>None searchdomain<span style="color:#f92672">=</span>None vmid<span style="color:#f92672">=</span><span style="color:#ae81ff">102</span> force<span style="color:#f92672">=</span>False unprivileged<span style="color:#f92672">=</span>False ostemplate<span style="color:#f92672">=</span>None api_password<span style="color:#f92672">=</span>NOT_LOGGING_PARAMETER timeout<span style="color:#f92672">=</span><span style="color:#ae81ff">30</span> netif<span style="color:#f92672">=</span>None hostname<span style="color:#f92672">=</span>None cpus<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>
-Apr <span style="color:#ae81ff">28</span> 18:38:43 lab pvedaemon<span style="color:#f92672">[</span>1186<span style="color:#f92672">]</span>: &lt;root@pam&gt; successful auth <span style="color:#66d9ef">for</span> user <span style="color:#e6db74">&#39;root@pam&#39;</span>
-</code></pre></div><p>Es decir, que efectivamente, Ansible se autentica correctamente con el usuario <code>root</code> en Proxmox y se pasan todos los parámetros de la instucción: vemos el <code>vmid=102</code>, <code>state=stopped</code>&hellip;
+
+<pre><code class="language-bash">Apr 28 18:48:13 lab sshd[29663]: Accepted publickey for ansible-service-account from 192.168.1.219 port 55070 ssh2: ED25519 SHA256:4Zp/sQr0n3wvwMkQaUt3aqnGvnfIWdicuYEFCW7WFes
+Apr 28 18:48:13 lab sshd[29663]: pam_unix(sshd:session): session opened for user ansible-service-account by (uid=0)
+Apr 28 18:48:13 lab systemd-logind[621]: New session 49 of user ansible-service-account.
+Apr 28 18:48:13 lab systemd: pam_unix(systemd-user:session): session opened for user ansible-service-account by (uid=0)
+</code></pre>
+
+<p>Después de revisar los logs del sistema con Proxmox, he encontrado dentro del <code>/var/log/syslog</code> (hay información similar en <code>/var/log/messages</code> y <code>/var/log/user.log</code>):</p>
+
+<pre><code class="language-bash">Apr 28 18:38:42 lab ansible-setup: Invoked with gather_subset=['all'] fact_path=/etc/ansible/facts.d gather_timeout=10 filter=*
+Apr 28 18:38:43 lab ansible-proxmox: Invoked with api_user= validate_certs=False node=None password=NOT_LOGGING_PARAMETER mounts=None api_host=192.168.1.2 ip_address=None nameserver=None pubkey=None onboot=False disk=3 storage=local swap=0 cpuunits=1000 cores=1 memory=512 state=stopped pool=None searchdomain=None vmid=102 force=False unprivileged=False ostemplate=None api_password=NOT_LOGGING_PARAMETER timeout=30 netif=None hostname=None cpus=1
+Apr 28 18:38:43 lab pvedaemon[1186]: &lt;root@pam&gt; successful auth for user 'root@pam'
+</code></pre>
+
+<p>Es decir, que efectivamente, Ansible se autentica correctamente con el usuario <code>root</code> en Proxmox y se pasan todos los parámetros de la instucción: vemos el <code>vmid=102</code>, <code>state=stopped</code>&hellip;
 Pero la instrucción no se procesa correctamente y la máquina no se apaga.</p>
+
 <p>He probado si cambiando el estado de la VM de <code>stopped</code> a <code>started</code> suponía alguna diferencia (la máquina está arrancada), pero en la salida de Ansible obtengo el mismo error 500:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">...
-TASK <span style="color:#f92672">[</span>proxmox<span style="color:#f92672">]</span> ********************************************************************************************************************************************************
-fatal: <span style="color:#f92672">[</span>lab<span style="color:#f92672">]</span>: FAILED! <span style="color:#f92672">=</span>&gt; <span style="color:#f92672">{</span><span style="color:#e6db74">&#34;changed&#34;</span>: false, <span style="color:#e6db74">&#34;msg&#34;</span>: <span style="color:#e6db74">&#34;starting of VM 102 failed with exception: 500 Internal Server Error: b&#39;{\&#34;data\&#34;:null}&#39;&#34;</span><span style="color:#f92672">}</span>
-</code></pre></div><p>Y en los logs, en la máquina LAB (en <code>/var/log/user.log</code>, por ejemplo):</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">Apr <span style="color:#ae81ff">28</span> 18:55:35 lab ansible-setup: Invoked with gather_subset<span style="color:#f92672">=[</span><span style="color:#e6db74">&#39;all&#39;</span><span style="color:#f92672">]</span> gather_timeout<span style="color:#f92672">=</span><span style="color:#ae81ff">10</span> filter<span style="color:#f92672">=</span>* fact_path<span style="color:#f92672">=</span>/etc/ansible/facts.d
-Apr <span style="color:#ae81ff">28</span> 18:55:35 lab ansible-proxmox: Invoked with timeout<span style="color:#f92672">=</span><span style="color:#ae81ff">30</span> validate_certs<span style="color:#f92672">=</span>False node<span style="color:#f92672">=</span>None state<span style="color:#f92672">=</span>started cpus<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span> api_host<span style="color:#f92672">=</span>192.168.1.2 pubkey<span style="color:#f92672">=</span>None storage<span style="color:#f92672">=</span>local cores<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span> unprivileged<span style="color:#f92672">=</span>False ostemplate<span style="color:#f92672">=</span>None ip_address<span style="color:#f92672">=</span>None cpuunits<span style="color:#f92672">=</span><span style="color:#ae81ff">1000</span> api_password<span style="color:#f92672">=</span>NOT_LOGGING_PARAMETER netif<span style="color:#f92672">=</span>None pool<span style="color:#f92672">=</span>None swap<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span> searchdomain<span style="color:#f92672">=</span>None nameserver<span style="color:#f92672">=</span>None password<span style="color:#f92672">=</span>NOT_LOGGING_PARAMETER disk<span style="color:#f92672">=</span><span style="color:#ae81ff">3</span> vmid<span style="color:#f92672">=</span><span style="color:#ae81ff">102</span> memory<span style="color:#f92672">=</span><span style="color:#ae81ff">512</span> force<span style="color:#f92672">=</span>False onboot<span style="color:#f92672">=</span>False mounts<span style="color:#f92672">=</span>None hostname<span style="color:#f92672">=</span>None api_user<span style="color:#f92672">=</span>
-</code></pre></div></div>
+
+<pre><code class="language-bash">...
+TASK [proxmox] ********************************************************************************************************************************************************
+fatal: [lab]: FAILED! =&gt; {&quot;changed&quot;: false, &quot;msg&quot;: &quot;starting of VM 102 failed with exception: 500 Internal Server Error: b'{\&quot;data\&quot;:null}'&quot;}
+</code></pre>
+
+<p>Y en los logs, en la máquina LAB (en <code>/var/log/user.log</code>, por ejemplo):</p>
+
+<pre><code class="language-bash">Apr 28 18:55:35 lab ansible-setup: Invoked with gather_subset=['all'] gather_timeout=10 filter=* fact_path=/etc/ansible/facts.d
+Apr 28 18:55:35 lab ansible-proxmox: Invoked with timeout=30 validate_certs=False node=None state=started cpus=1 api_host=192.168.1.2 pubkey=None storage=local cores=1 unprivileged=False ostemplate=None ip_address=None cpuunits=1000 api_password=NOT_LOGGING_PARAMETER netif=None pool=None swap=0 searchdomain=None nameserver=None password=NOT_LOGGING_PARAMETER disk=3 vmid=102 memory=512 force=False onboot=False mounts=None hostname=None api_user=
+</code></pre></div>
 
   <aside class="p-share">
   <a href="http://twitter.com/intent/tweet?url=https%3a%2f%2fonthedock.github.io%2fpost%2f190428-automatizando-la-gestion-de-vms-con-ansible-en-proxmox%2f&text=Automatizando%20la%20gestion%20de%20m%c3%a1quinas%20virtuales%20con%20Ansible%20en%20Proxmox%20VE%20%28spoiler%2c%20no%20me%20ha%20funcionado%29&tw_p=tweetbutton" title="Twitterでシェア" class="tw" target="_blank" rel="nofollow"></a>

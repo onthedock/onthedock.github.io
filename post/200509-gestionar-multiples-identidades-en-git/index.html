@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.68.3" />
+<meta name="generator" content="Hugo 0.55.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -75,7 +75,7 @@
         "height": 60
       }
     },
-    "description": "\x3cp\x3eHe encontrado este artículo \x3ca href=\x22https:\/\/www.sep.com\/sep-blog\/2019\/01\/03\/automatically-keeping-git-identities-distinct-between-accounts\/\x22\x3eAutomatically keeping Git identities distinct between accounts\x3c\/a\x3e hojeando el blog de la empresa \x3ca href=\x22https:\/\/www.sep.com\/\x22\x3eSEP\x3c\/a\x3e después de leer un artículo sobre \x3cem\x3etesting\x3c\/em\x3e de plantillas de CloudFormation.\x3c\/p\x3e\n\x3cp\x3eLa configuración que indica Aaron Alexander en el artículo referenciado permite usar una identidad concreta para cada cuenta de Git.\x3c\/p\x3e\n\x3cp\x3eEsto te permite identificarte con tu cuenta de empresa en los repositorios de la empresa, en los personales con una dirección de correo personal, etc.\x3c\/p\x3e"
+    "description": "\x3cp\x3eHe encontrado este artículo \x3ca href=\x22https:\/\/www.sep.com\/sep-blog\/2019\/01\/03\/automatically-keeping-git-identities-distinct-between-accounts\/\x22\x3eAutomatically keeping Git identities distinct between accounts\x3c\/a\x3e hojeando el blog de la empresa \x3ca href=\x22https:\/\/www.sep.com\/\x22\x3eSEP\x3c\/a\x3e después de leer un artículo sobre \x3cem\x3etesting\x3c\/em\x3e de plantillas de CloudFormation.\x3c\/p\x3e\n\n\x3cp\x3eLa configuración que indica Aaron Alexander en el artículo referenciado permite usar una identidad concreta para cada cuenta de Git.\x3c\/p\x3e\n\n\x3cp\x3eEsto te permite identificarte con tu cuenta de empresa en los repositorios de la empresa, en los personales con una dirección de correo personal, etc.\x3c\/p\x3e"
   }
 </script>
 
@@ -121,43 +121,65 @@
   </div>
 
   <div class="article-body"><p>He encontrado este artículo <a href="https://www.sep.com/sep-blog/2019/01/03/automatically-keeping-git-identities-distinct-between-accounts/">Automatically keeping Git identities distinct between accounts</a> hojeando el blog de la empresa <a href="https://www.sep.com/">SEP</a> después de leer un artículo sobre <em>testing</em> de plantillas de CloudFormation.</p>
+
 <p>La configuración que indica Aaron Alexander en el artículo referenciado permite usar una identidad concreta para cada cuenta de Git.</p>
+
 <p>Esto te permite identificarte con tu cuenta de empresa en los repositorios de la empresa, en los personales con una dirección de correo personal, etc.</p>
+
 <p>Una de las primeras cosas que haces al instalar Git es especificar el nombre y la dirección de correo que se asocia a los <em>commits</em> que realizas. Lo habitual es realizar la configuración a nivel global -para todos los repositorios- ya que es un poco tedioso tener que configurar en cada repositorio esta información una y otra vez.</p>
+
 <p>El problema de establecer esta <em>identidad global</em> es que se aplica a todos los repositorios. En el caso de Aaron Alexander, esto es un problema ya que tiene repositorios de su empresa, repositorios personales y repositorios de diferentes clientes.</p>
+
 <p>Realizar la configuración a nivel de repositorio es tedioso y repetitivo, por lo que usa la funcionalidad de <a href="https://git-scm.com/docs/git-config#_includes"><em>inclusión condicional</em></a> que ofrece Git.</p>
+
 <p>De esta forma, para cada proyecto, crea un fichero específico <code>.gitconfig-personal</code>, <code>.gitconfig-work</code>, <code>gitconfig-client-a</code>, etc con la información de la <em>identidad</em> que usa en ese proyecto/cliente:</p>
+
 <blockquote>
 <p><code>.gitconfig-personal</code></p>
 </blockquote>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ini" data-lang="ini"><span style="color:#66d9ef">[user]</span>
-    <span style="color:#a6e22e">name</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">Xavi Aznar
-</span><span style="color:#e6db74">    email = xavi.aznar@ejemplo.com</span>
-</code></pre></div><blockquote>
+
+<pre><code class="language-ini">[user]
+    name = Xavi Aznar
+    email = xavi.aznar@ejemplo.com
+</code></pre>
+
+<blockquote>
 <p><code>.gitconfig-work</code></p>
 </blockquote>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ini" data-lang="ini"><span style="color:#66d9ef">[user]</span>
-    <span style="color:#a6e22e">name</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">Xavier Aznar
-</span><span style="color:#e6db74">    email = xavier.aznar@corp.com</span>
-</code></pre></div><p>En el fichero de configuración <code>.gitconfig</code>, incluye el fichero de indentidad que corresponda mediante los <em>conditional includes</em>:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ini" data-lang="ini"><span style="color:#a6e22e">[includeIf &#34;gitdir:~/Projects/Personal/&#34;]  </span>
-    <span style="color:#a6e22e">path</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">.gitconfig-personal  
-</span><span style="color:#e6db74">  </span>
-<span style="color:#a6e22e">[includeIf &#34;gitdir:~/Projects/Work/&#34;]  </span>
-    <span style="color:#a6e22e">path</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">.gitconfig-work  
-</span><span style="color:#e6db74">  </span>
-<span style="color:#a6e22e">[includeIf &#34;gitdir:~/Projects/Work/Client-A/&#34;]  </span>
-    <span style="color:#a6e22e">path</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">.gitconfig-client-a</span>
-</code></pre></div><p>Estos ficheros de configuración los tiene organizados por carpetas:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">~/Projects  
+
+<pre><code class="language-ini">[user]
+    name = Xavier Aznar
+    email = xavier.aznar@corp.com
+</code></pre>
+
+<p>En el fichero de configuración <code>.gitconfig</code>, incluye el fichero de indentidad que corresponda mediante los <em>conditional includes</em>:</p>
+
+<pre><code class="language-ini">[includeIf &quot;gitdir:~/Projects/Personal/&quot;]  
+    path = .gitconfig-personal  
+  
+[includeIf &quot;gitdir:~/Projects/Work/&quot;]  
+    path = .gitconfig-work  
+  
+[includeIf &quot;gitdir:~/Projects/Work/Client-A/&quot;]  
+    path = .gitconfig-client-a
+</code></pre>
+
+<p>Estos ficheros de configuración los tiene organizados por carpetas:</p>
+
+<pre><code class="language-text">~/Projects  
 ~/Projects/Personal  
 ~/Projects/Work  
 ~/Projects/Work/Client-A
-</code></pre></div><p>De esta forma, cuando realiza un <em>commit</em> Git selecciona automáticamente la identidad correspondiente al proyecto en el que está trabajando.</p>
+</code></pre>
+
+<p>De esta forma, cuando realiza un <em>commit</em> Git selecciona automáticamente la identidad correspondiente al proyecto en el que está trabajando.</p>
+
 <p>Aunque Aaron no lo comenta explícitamente, de la documentación oficial de Git para las inclusiones condicionales:</p>
+
 <blockquote>
 <p>If the pattern ends with <code>/</code>, <code>**</code> will be automatically added. For example, the pattern <code>foo/</code> becomes <code>foo/**</code>. In other words, it matches &ldquo;foo&rdquo; and everything inside, recursively.</p>
 </blockquote>
+
 <p>Es decir, si el patrón acaba en <code>/</code>, se añade automáticamente <code>**</code>, lo que permite aplicar el <em>conditional include</em> -y por tanto la configuración de la identidad de Git específica- <strong>a todos los repositorios bajo esa ruta</strong>.</p></div>
 
   <aside class="p-share">

@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.68.3" />
+<meta name="generator" content="Hugo 0.55.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -75,7 +75,7 @@
         "height": 60
       }
     },
-    "description": "\x3cp\x3eEn la entrada anterior \x3ca href=\x22https:\/\/onthedock.github.io\/post\/170430-multiples-mensajes-action-17-suspended\/\x22\x3eMúltiples mensajes \x26lsquo;action 17 suspended\x26rsquo; en los logs\x3c\/a\x3e comentaba que estaba a la espera de obtener resultados; después de apenas unas horas, ya los tengo: \x3cstrong\x3ek3\x3c\/strong\x3e se ha vuelto a \x3cem\x3ecolgar\x3c\/em\x3e mientras que \x3cstrong\x3ek2\x3c\/strong\x3e no.\x3c\/p\x3e\n\x3cp\x3eEste resultado parece demostrar que la mala configuración de \x3cem\x3ersyslog\x3c\/em\x3e es la causante de los \x3cem\x3ecuelgues\x3c\/em\x3e de las RPi 3 en el clúster de Kubernetes.\x3c\/p\x3e\n\x3cp\x3e\x3cstrong\x3eActualización\x3c\/strong\x3e: El nodo \x3cstrong\x3ek2\x3c\/strong\x3e sobre RPi3 sigue colgándose :(\x3c\/p\x3e\n\x3cp\x3e\x3cstrong\x3eActualización II\x3c\/strong\x3e: \x3ca href=\x22https:\/\/onthedock.github.io\/post\/170506-troubleshooting-kubernetes-ii\/\x22\x3eParece solucionado\x3c\/a\x3e\x3c\/p\x3e"
+    "description": "\x3cp\x3eEn la entrada anterior \x3ca href=\x22https:\/\/onthedock.github.io\/post\/170430-multiples-mensajes-action-17-suspended\/\x22\x3eMúltiples mensajes \x26lsquo;action 17 suspended\x26rsquo; en los logs\x3c\/a\x3e comentaba que estaba a la espera de obtener resultados; después de apenas unas horas, ya los tengo: \x3cstrong\x3ek3\x3c\/strong\x3e se ha vuelto a \x3cem\x3ecolgar\x3c\/em\x3e mientras que \x3cstrong\x3ek2\x3c\/strong\x3e no.\x3c\/p\x3e\n\n\x3cp\x3eEste resultado parece demostrar que la mala configuración de \x3cem\x3ersyslog\x3c\/em\x3e es la causante de los \x3cem\x3ecuelgues\x3c\/em\x3e de las RPi 3 en el clúster de Kubernetes.\x3c\/p\x3e\n\n\x3cp\x3e\x3cstrong\x3eActualización\x3c\/strong\x3e: El nodo \x3cstrong\x3ek2\x3c\/strong\x3e sobre RPi3 sigue colgándose :(\x3c\/p\x3e\n\n\x3cp\x3e\x3cstrong\x3eActualización II\x3c\/strong\x3e: \x3ca href=\x22https:\/\/onthedock.github.io\/post\/170506-troubleshooting-kubernetes-ii\/\x22\x3eParece solucionado\x3c\/a\x3e\x3c\/p\x3e"
   }
 </script>
 
@@ -121,41 +121,54 @@
   </div>
 
   <div class="article-body"><p>En la entrada anterior <a href="https://onthedock.github.io/post/170430-multiples-mensajes-action-17-suspended/">Múltiples mensajes &lsquo;action 17 suspended&rsquo; en los logs</a> comentaba que estaba a la espera de obtener resultados; después de apenas unas horas, ya los tengo: <strong>k3</strong> se ha vuelto a <em>colgar</em> mientras que <strong>k2</strong> no.</p>
+
 <p>Este resultado parece demostrar que la mala configuración de <em>rsyslog</em> es la causante de los <em>cuelgues</em> de las RPi 3 en el clúster de Kubernetes.</p>
+
 <p><strong>Actualización</strong>: El nodo <strong>k2</strong> sobre RPi3 sigue colgándose :(</p>
+
 <p><strong>Actualización II</strong>: <a href="https://onthedock.github.io/post/170506-troubleshooting-kubernetes-ii/">Parece solucionado</a></p>
+
 <p>A modo de recordatorio, los cambios realizados en los dos nodos sobre Raspberry Pi 3 han sido (incluyo el nodo <strong>k1</strong> con RPi2):</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-txt" data-lang="txt">                                |  k1  |  k2  |  k3  |
+
+<pre><code class="language-txt">                                |  k1  |  k2  |  k3  |
                                 | RPi2 | RPi3 | RPi3 |
  -------------------------------|------|------|------|
 | Modificada conf. de rsyslog   |  No  |  Sí  |  No  |
 | Actualización a versión 1.6.2 |  Sí  |  Sí  |  Sí  |
  ----------------------------------------------------
-</code></pre></div><p>Hasta ahora, los únicos nodos que se <em>colgaban</em> eran el <strong>k2</strong> y el <strong>k3</strong> (sobre RPi3).</p>
+</code></pre>
+
+<p>Hasta ahora, los únicos nodos que se <em>colgaban</em> eran el <strong>k2</strong> y el <strong>k3</strong> (sobre RPi3).</p>
+
 <p>Al modificar la configuración en de <em>rsyslog</em> en <strong>k2</strong> y pasadas unas horas, el único nodo que se sigue colgando es el <strong>k3</strong>.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">$ kubectl get nodes
+
+<pre><code class="language-sh">$ kubectl get nodes
 NAME      STATUS     AGE       VERSION
 k1        Ready      19d       v1.6.2
 k2        Ready      14d       v1.6.2
 k3        NotReady   14d       v1.6.2
-</code></pre></div><p>Es decir, el fallo a la hora de redirigir los mensajes a <code>/dev/xconsole</code>:</p>
+</code></pre>
+
+<p>Es decir, el fallo a la hora de redirigir los mensajes a <code>/dev/xconsole</code>:</p>
+
 <ul>
 <li>sólo afectan a las RPi3</li>
 <li>provoca que el sistema se acabe colgando</li>
 </ul>
+
 <p>Para solucionarlo, como <code>root</code>:</p>
+
 <ol>
-<li>
-<p>Abre <code>/etc/rsyslog.conf</code></p>
-</li>
-<li>
-<p>Modifica las últimas líneas (al final del fichero) y coméntalas:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-txt" data-lang="txt"># The named pipe /dev/xconsole is for the `xconsole&#39; utility.  To use it,
-# you must invoke `xconsole&#39; with the `-file&#39; option:
+<li>Abre <code>/etc/rsyslog.conf</code></li>
+
+<li><p>Modifica las últimas líneas (al final del fichero) y coméntalas:</p>
+
+<pre><code class="language-txt"># The named pipe /dev/xconsole is for the `xconsole' utility.  To use it,
+# you must invoke `xconsole' with the `-file' option:
 #
 #    $ xconsole -file /dev/xconsole [...]
 #
-# NOTE: adjust the list below, or you&#39;ll go crazy if you have a reasonably
+# NOTE: adjust the list below, or you'll go crazy if you have a reasonably
 #      busy site..
 #
 daemon.*;mail.*;\
@@ -169,11 +182,11 @@ deben quedar como:
 #        news.err;\
 #        *.=debug;*.=info;\
 #        *.=notice;*.=warn       |/dev/xconsole
-</code></pre></div><p>Podrías comentar la redirección <code>|/dev/xconsole</code>, pero en este caso el bloque no tendría ninguna funcionalidad, por lo que creo que es <em>más limpio</em> comentar todo el bloque.</p>
-</li>
-<li>
-<p>Reinicia el equipo mediante <code>reboot</code>.</p>
-</li>
+</code></pre>
+
+<p>Podrías comentar la redirección <code>|/dev/xconsole</code>, pero en este caso el bloque no tendría ninguna funcionalidad, por lo que creo que es <em>más limpio</em> comentar todo el bloque.</p></li>
+
+<li><p>Reinicia el equipo mediante <code>reboot</code>.</p></li>
 </ol></div>
 
   <aside class="p-share">

@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.68.3" />
+<meta name="generator" content="Hugo 0.55.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -121,42 +121,57 @@
   </div>
 
   <div class="article-body"><p>En la entrada <a href="https://onthedock.github.io/post/190526-aws-instance-scheduler/">AWS Instance Scheduler</a> indicaba cómo configurar AWS Instance Scheduler en una cuenta. Sin embargo, una de las capacidades más interesantes de esta solución de Amazon es la posibilidad de programar el encendido (y/o apagado) de instancias en diferentes cuentas.</p>
+
 <p>Esto permite configurar la programación en una cuenta -que llamaremos primaria- y gestionar instancias de otras cuentas <em>secundarias</em>.</p>
+
 <h2 id="configuración-en-la-cuenta-primaria">Configuración en la cuenta primaria</h2>
+
 <p>La configuración de AWS Instance Scheduler consiste en aplicar el fichero <em>CloudFormation</em> y dejar que la automatización haga su magia.</p>
+
 <p>Si estás interesado en algo más de detalle, revisa la entrada <a href="https://onthedock.github.io/post/190526-aws-instance-scheduler/">AWS Instance Scheduler</a>.</p>
+
 <p>A grandes rasgos, Instance Scheduler realiza las siguientes acciones:</p>
+
 <ol>
-<li>
-<p>El fichero <em>cloudformation</em> genera una regla en CloudWatch de manera que se dispare un evento cada 5 minutos (este es el intervalo por defecto).</p>
-</li>
-<li>
-<p>Como respuesta al evento, se lanza una función lambda.</p>
-</li>
-<li>
-<p>La función lambda conecta a una base de datos DynamoDB, de donde obtiene la configuración.</p>
-</li>
-<li>
-<p>La función lambda consulta las etiquetas aplicadas a las instancias; si coincide con la definida en la configuración, arranca (o detiene) la instancia de acuerdo con el periodo y la programación almacenada en la tabla de DynamoDB.</p>
-</li>
-<li>
-<p>La función lambda aplica una etiqueta informativa en la instancia (opcionalmente) y guarda el resultado en la base de datos.</p>
-</li>
+<li><p>El fichero <em>cloudformation</em> genera una regla en CloudWatch de manera que se dispare un evento cada 5 minutos (este es el intervalo por defecto).</p></li>
+
+<li><p>Como respuesta al evento, se lanza una función lambda.</p></li>
+
+<li><p>La función lambda conecta a una base de datos DynamoDB, de donde obtiene la configuración.</p></li>
+
+<li><p>La función lambda consulta las etiquetas aplicadas a las instancias; si coincide con la definida en la configuración, arranca (o detiene) la instancia de acuerdo con el periodo y la programación almacenada en la tabla de DynamoDB.</p></li>
+
+<li><p>La función lambda aplica una etiqueta informativa en la instancia (opcionalmente) y guarda el resultado en la base de datos.</p></li>
 </ol>
+
 <p>La función lambda requiere permisos para poder consultar la base de datos y para actuar sobre las instancias EC2.</p>
+
 <p>La plantilla de CloudFormation permite crear las políticas y roles de forma automática, lo que resulta muy conveniente.</p>
+
 <h2 id="configuración-en-la-cuenta-secundaria">Configuración en la cuenta secundaria</h2>
+
 <p>Amazon proporciona un fichero cloudformation específico para la configuración de Instance Scheduler en cuentas secundarias.</p>
+
 <p>Cuando ejecutas CloudFormation en una cuenta secundaria, lo único que debes proporcionar es el ID de la cuenta primaria.</p>
+
 <p>Esto permite a CloudFormation crear una <em>relación de confianza</em> con la cuenta primaria en el rol con permisos para actuar sobre las instancias EC2 en la cuenta secundaria.</p>
-<h2 id="actualización-del-_stack_-en-la-cuenta-primaria">Actualización del <em>stack</em> en la cuenta primaria</h2>
+
+<h2 id="actualización-del-stack-en-la-cuenta-primaria">Actualización del <em>stack</em> en la cuenta primaria</h2>
+
 <p>En IAM de la cuenta secundaria, anota el ARN del rol <code>Scheduler</code>.</p>
+
 <p>Cambia a la cuenta primaria y en CloudFormation, actualiza el <em>stack</em> usando la plantilla existente.</p>
+
 <p>Revisa los diferentes campos hasta encontrar uno en el que debes indicar el ARN en la cuenta secundaria.</p>
+
 <p>Al informar del ARN del rol con permisos para arrancar las instancias, se modifica la política asociada a la lambda en la cuenta primaria de manera que pueda asumir el rol en la cuenta secundaria.</p>
+
 <p>De esta forma, <em>extendemos</em> la capacidad de gestionar instancias EC2 de la lambda a la cuenta secundaria.</p>
+
 <h2 id="ventajas-de-la-configuración-multi-cuenta">Ventajas de la configuración multi-cuenta</h2>
+
 <p>Puedes repetir el proceso indicado para la cuenta secundaria en tantas cuentas como quieras.</p>
+
 <p>De esta forma puedes tener toda la gestión de arrancada y parada de máquinas centralizada, almacenada en una única tabla de DynamoDB y aplicar diferentes <em>schedules</em> en tantas cuentas como quieras, simplificando el mantenimiento.</p></div>
 
   <aside class="p-share">

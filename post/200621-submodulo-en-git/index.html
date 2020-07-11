@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.68.3" />
+<meta name="generator" content="Hugo 0.55.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -75,7 +75,7 @@
         "height": 60
       }
     },
-    "description": "\x3cp\x3eMucho ha llovido desde que configuré Hugo para generar este blog (\x3ca href=\x22https:\/\/onthedock.github.io\/post\/170403-publica-en-github-pages\/\x22\x3ePublica en GitHub Pages\x3c\/a\x3e). Lo hice en mi MacBook Air (Mid 2013) y casi todas las actualizaciones las sigo haciendo desde ahí.\x3c\/p\x3e\n\x3cp\x3eAlguna vez he clonado el repositorio en otro equipo pero siempre había tenido problemas al intentar publicar el resultado final (en HTML) en GitHub Pages.\nEl problema surge de que los ficheros HTML se generan en la carpeta \x3ccode\x3epublic\/\x3c\/code\x3e, que está configurada como un \x3cem\x3esubmódulo\x3c\/em\x3e de Git.\x3c\/p\x3e"
+    "description": "\x3cp\x3eMucho ha llovido desde que configuré Hugo para generar este blog (\x3ca href=\x22https:\/\/onthedock.github.io\/post\/170403-publica-en-github-pages\/\x22\x3ePublica en GitHub Pages\x3c\/a\x3e). Lo hice en mi MacBook Air (Mid 2013) y casi todas las actualizaciones las sigo haciendo desde ahí.\x3c\/p\x3e\n\n\x3cp\x3eAlguna vez he clonado el repositorio en otro equipo pero siempre había tenido problemas al intentar publicar el resultado final (en HTML) en GitHub Pages.\nEl problema surge de que los ficheros HTML se generan en la carpeta \x3ccode\x3epublic\/\x3c\/code\x3e, que está configurada como un \x3cem\x3esubmódulo\x3c\/em\x3e de Git.\x3c\/p\x3e"
   }
 </script>
 
@@ -121,18 +121,29 @@
   </div>
 
   <div class="article-body"><p>Mucho ha llovido desde que configuré Hugo para generar este blog (<a href="https://onthedock.github.io/post/170403-publica-en-github-pages/">Publica en GitHub Pages</a>). Lo hice en mi MacBook Air (Mid 2013) y casi todas las actualizaciones las sigo haciendo desde ahí.</p>
+
 <p>Alguna vez he clonado el repositorio en otro equipo pero siempre había tenido problemas al intentar publicar el resultado final (en HTML) en GitHub Pages.
 El problema surge de que los ficheros HTML se generan en la carpeta <code>public/</code>, que está configurada como un <em>submódulo</em> de Git.</p>
+
 <p>Al clonar el respositorio que contiene las entradas (en formato Markdown), hay que indicar que contiene <em>submódulos</em>.
 Esto se consigue mediante: <code>git clone --recursive ${URl-del-repo}</code> o con <code>git clone --recurse-submodules ${URl-del-repo}</code>.</p>
+
 <p>Sin embargo, tras ejecutar el clonado, la carpeta <code>public/</code> seguía siendo <em>una carpeta normal</em>, sin los ficheros en formato HTML y sin la carpeta <code>.git</code> que la identifica como un repositorio.</p>
+
 <p>En la raíz del repositorio sí que se encontraba el fichero <code>.gitmodules</code>.</p>
+
 <p>Después de mucho buscar en internet y tras consultar la documentación oficial para <a href="https://git-scm.com/docs/gitsubmodules">gitsubmodules - Mounting one repository inside another</a>, finalmente me he dado cuenta de mi error leyendo la entrada <a href="https://chrisjean.com/git-submodules-adding-using-removing-and-updating/">Git Submodules: Adding, Using, Removing, Updating</a>.</p>
+
 <p>Por algún motivo, en mi fichero <code>.gitmodules</code>, el <code>path</code> especificado era <code>onthedock.github.io</code>, en vez de la ruta &ldquo;local&rdquo; en la que se encuentra el submódulo (la carpeta <code>public</code>).</p>
+
 <p>Tras corregirlo, he lanzado:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">git sync
+
+<pre><code class="language-bash">git sync
 git submodule update --init --recursive
-</code></pre></div><p>Esto ha clonado el repositorio del contenido generado (en HTML) en la carpeta <code>public/</code> como debe ser.</p>
+</code></pre>
+
+<p>Esto ha clonado el repositorio del contenido generado (en HTML) en la carpeta <code>public/</code> como debe ser.</p>
+
 <p>La validación de que todo funciona correctamente es esta entrada que estás leyendo ;)</p></div>
 
   <aside class="p-share">

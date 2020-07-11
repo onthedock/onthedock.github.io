@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.68.3" />
+<meta name="generator" content="Hugo 0.55.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -75,7 +75,7 @@
         "height": 60
       }
     },
-    "description": "\x3cp\x3eLos primeros pasos en el cloud de Amazon se dan a través de la consola web de AWS.\x3c\/p\x3e\n\x3cp\x3eSin embargo, la verdadera potencia de AWS es que todas las acciones que se realizan a través de la consola se pueden ejecutar desde la línea de comandos.\x3c\/p\x3e\n\x3cp\x3eY si pueden ejecutarse desde la línea de comandos, pueden \x3cstrong\x3eautomatizarse\x3c\/strong\x3e.\x3c\/p\x3e\n\x3cp\x3eAhí es donde empieza lo interesante\x26hellip;\x3c\/p\x3e\n\x3cp\x3ePero antes necesitamos instalar \x3ccode\x3eaws-cli\x3c\/code\x3e (o simplemente \x3ccode\x3eaws\x3c\/code\x3e), la herramienta de línea de comandos para interaccionar con la API de AWS.\x3c\/p\x3e"
+    "description": "\x3cp\x3eLos primeros pasos en el cloud de Amazon se dan a través de la consola web de AWS.\x3c\/p\x3e\n\n\x3cp\x3eSin embargo, la verdadera potencia de AWS es que todas las acciones que se realizan a través de la consola se pueden ejecutar desde la línea de comandos.\x3c\/p\x3e\n\n\x3cp\x3eY si pueden ejecutarse desde la línea de comandos, pueden \x3cstrong\x3eautomatizarse\x3c\/strong\x3e.\x3c\/p\x3e\n\n\x3cp\x3eAhí es donde empieza lo interesante\x26hellip;\x3c\/p\x3e\n\n\x3cp\x3ePero antes necesitamos instalar \x3ccode\x3eaws-cli\x3c\/code\x3e (o simplemente \x3ccode\x3eaws\x3c\/code\x3e), la herramienta de línea de comandos para interaccionar con la API de AWS.\x3c\/p\x3e"
   }
 </script>
 
@@ -121,80 +121,126 @@
   </div>
 
   <div class="article-body"><p>Los primeros pasos en el cloud de Amazon se dan a través de la consola web de AWS.</p>
+
 <p>Sin embargo, la verdadera potencia de AWS es que todas las acciones que se realizan a través de la consola se pueden ejecutar desde la línea de comandos.</p>
+
 <p>Y si pueden ejecutarse desde la línea de comandos, pueden <strong>automatizarse</strong>.</p>
+
 <p>Ahí es donde empieza lo interesante&hellip;</p>
+
 <p>Pero antes necesitamos instalar <code>aws-cli</code> (o simplemente <code>aws</code>), la herramienta de línea de comandos para interaccionar con la API de AWS.</p>
+
 <p>La consola está desarrollada en Python, por lo que puedes instalarla en cualquier sistema operativo donde puedas correr Python. Sí, eso incluye Windows (aquí tienes la documentación sobre cómo hacerlo: <a href="https://docs.aws.amazon.com/cli/latest/userguide/install-windows.html">Install the AWS CLI on Windows</a>), aunque lo habitual es trabajar desde Linux.</p>
+
 <p>En Linux, es habitual tener Python instalado <em>de base</em> en el sistema operativo. Para comprobarlo, ejecuta <code>python --version</code>:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ python --version
+
+<pre><code class="language-bash">$ python --version
 Python 2.7.15+
-</code></pre></div><blockquote>
+</code></pre>
+
+<blockquote>
 <p>En la mayoría de las versiones de Linux se incluye tanto Python 2.7 como Python 3.
 Puedes comprobarlo ejecutando <code>python3 --version</code></p>
 </blockquote>
-<p>El siguiente paso es instalar <code>pip</code>. De nuevo, puedes comprobar si está instalado usando <code>pip --version</code> o <code>pip3 --version</code>.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ pip --version
 
-Command <span style="color:#e6db74">&#39;pip&#39;</span> not found, but can be installed with:
+<p>El siguiente paso es instalar <code>pip</code>. De nuevo, puedes comprobar si está instalado usando <code>pip --version</code> o <code>pip3 --version</code>.</p>
+
+<pre><code class="language-bash">$ pip --version
+
+Command 'pip' not found, but can be installed with:
 
 sudo apt install python-pip
-</code></pre></div><p>Como ves, en mi caso no tengo ni uno ni otro. Así que siguiendo la recomendación de la página <a href="https://docs.aws.amazon.com/cli/latest/userguide/install-linux.html">Install the AWS CLI on Linux</a>, instalo la versión para Python 3 de <code>pip</code>: <code>sudo apt install python3-pip</code>.</p>
+</code></pre>
+
+<p>Como ves, en mi caso no tengo ni uno ni otro. Así que siguiendo la recomendación de la página <a href="https://docs.aws.amazon.com/cli/latest/userguide/install-linux.html">Install the AWS CLI on Linux</a>, instalo la versión para Python 3 de <code>pip</code>: <code>sudo apt install python3-pip</code>.</p>
+
 <p>Tras la instalación:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ pip3 --version
-pip 9.0.1 from /usr/lib/python3/dist-packages <span style="color:#f92672">(</span>python 3.6<span style="color:#f92672">)</span>
-</code></pre></div><p>Una vez tenemos los requerimientos previos, pasamos a instalar <strong><code>aws</code></strong>:</p>
+
+<pre><code class="language-bash">$ pip3 --version
+pip 9.0.1 from /usr/lib/python3/dist-packages (python 3.6)
+</code></pre>
+
+<p>Una vez tenemos los requerimientos previos, pasamos a instalar <strong><code>aws</code></strong>:</p>
+
 <blockquote>
 <p>Con <code>--user</code> instalamos la consola sólo para el usuario actual, sin necesidad de permisos de <code>root</code>.</p>
 </blockquote>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$  pip3 install awscli --upgrade --user
+
+<pre><code class="language-bash">$  pip3 install awscli --upgrade --user
 Collecting awscli
-  Downloading https://files.pythonhosted.org/packages/2a/e1/4dd677b7e92577d9b3a1427bf6b619d6bc98156196e24564a85fbe74c344/awscli-1.16.221-py2.py3-none-any.whl <span style="color:#f92672">(</span>1.9MB<span style="color:#f92672">)</span>
+  Downloading https://files.pythonhosted.org/packages/2a/e1/4dd677b7e92577d9b3a1427bf6b619d6bc98156196e24564a85fbe74c344/awscli-1.16.221-py2.py3-none-any.whl (1.9MB)
     100% |████████████████████████████████| 1.9MB 785kB/s
-Collecting colorama&lt;<span style="color:#f92672">=</span>0.3.9,&gt;<span style="color:#f92672">=</span>0.2.5 <span style="color:#f92672">(</span>from awscli<span style="color:#f92672">)</span>
+Collecting colorama&lt;=0.3.9,&gt;=0.2.5 (from awscli)
   Downloading https://files.pythonhosted.org/packages/db/c8/7dcf9dbcb22429512708fe3a547f8b6101c0d02137acbd892505aee57adf/colorama-0.3.9-py2.py3-none-any.whl
-Collecting s3transfer&lt;0.3.0,&gt;<span style="color:#f92672">=</span>0.2.0 <span style="color:#f92672">(</span>from awscli<span style="color:#f92672">)</span>
+Collecting s3transfer&lt;0.3.0,&gt;=0.2.0 (from awscli)
 ...
-</code></pre></div><p>Sólo queda comprobar que la herramienta de línea de comandos <code>aws</code> se ha instalado correctamente:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ aws --version
+</code></pre>
 
-Command <span style="color:#e6db74">&#39;aws&#39;</span> not found, but can be installed with:
+<p>Sólo queda comprobar que la herramienta de línea de comandos <code>aws</code> se ha instalado correctamente:</p>
 
-sudo snap install aws-cli  <span style="color:#75715e"># version 1.16.148, or</span>
+<pre><code class="language-bash">$ aws --version
+
+Command 'aws' not found, but can be installed with:
+
+sudo snap install aws-cli  # version 1.16.148, or
 sudo apt  install awscli
 
-See <span style="color:#e6db74">&#39;snap info aws-cli&#39;</span> <span style="color:#66d9ef">for</span> additional versions.
-</code></pre></div><p><strong>Oops!</strong></p>
+See 'snap info aws-cli' for additional versions.
+</code></pre>
+
+<p><strong>Oops!</strong></p>
+
 <p>Siguiendo las instrucciones de la página oficial parece la ruta en la que se ha instalado <code>aws</code> no forma parte del <code>path</code>.</p>
+
 <blockquote>
 <p>Para otros errores relacionados con <code>aws</code> tienes la página <a href="https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-troubleshooting.html">Troubleshooting AWS CLI Errors</a></p>
 </blockquote>
+
 <p>Una manera sencilla de comprobar esta hipótesis es ejecutar <code>aws</code> incluyendo toda la ruta:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ ~/.local/bin/aws --version
+
+<pre><code class="language-bash">$ ~/.local/bin/aws --version
 aws-cli/1.16.221 Python/3.6.8 Linux/4.15.0-58-generic botocore/1.12.211
-</code></pre></div><p>Uno de los muchos lugares de internet donde explican como añadir una ruta al <em>PATH</em> es <a href="https://stackoverflow.com/questions/14637979/how-to-permanently-set-path-on-linux-unix">How to permanently set $PATH on Linux/Unix?</a></p>
+</code></pre>
+
+<p>Uno de los muchos lugares de internet donde explican como añadir una ruta al <em>PATH</em> es <a href="https://stackoverflow.com/questions/14637979/how-to-permanently-set-path-on-linux-unix">How to permanently set $PATH on Linux/Unix?</a></p>
+
 <p>Puedes editar el fichero <code>~/.profile</code> o <code>~/.bash_login</code>; en mi caso en el fichero <code>~/.profile</code> ya se incluye un condicional que debería añadir esta ruta al <code>PATH</code>&hellip;</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">...
-<span style="color:#75715e"># set PATH so it includes user&#39;s private bin if it exists</span>
-<span style="color:#66d9ef">if</span> <span style="color:#f92672">[</span> -d <span style="color:#e6db74">&#34;</span>$HOME<span style="color:#e6db74">/.local/bin&#34;</span> <span style="color:#f92672">]</span> ; <span style="color:#66d9ef">then</span>
-    PATH<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;</span>$HOME<span style="color:#e6db74">/.local/bin:</span>$PATH<span style="color:#e6db74">&#34;</span>
-<span style="color:#66d9ef">fi</span>
+
+<pre><code class="language-bash">...
+# set PATH so it includes user's private bin if it exists
+if [ -d &quot;$HOME/.local/bin&quot; ] ; then
+    PATH=&quot;$HOME/.local/bin:$PATH&quot;
+fi
 ...
-</code></pre></div><p><em>Googleando</em> sobre los diferentes ficheros, <code>~/.profile</code> (ver por ejemplo la entrada <a href="https://serverfault.com/questions/261802/what-are-the-functional-differences-between-profile-bash-profile-and-bashrc">What are the functional differences between .profile .bash_profile and .bashrc
+</code></pre>
+
+<p><em>Googleando</em> sobre los diferentes ficheros, <code>~/.profile</code> (ver por ejemplo la entrada <a href="https://serverfault.com/questions/261802/what-are-the-functional-differences-between-profile-bash-profile-and-bashrc">What are the functional differences between .profile .bash_profile and .bashrc
 </a>), el fichero <code>.profile</code> es genérico, mientras que <code>.bash_profile</code> es específico para la <em>shell</em> BASH.</p>
+
 <p>La raíz de mi problema, sin embargo, parece estar relacionado con <em>cuándo</em> se lee este fichero: durante el inicio de una sesión interactiva (un <em>login</em>). Esto me obligaría a cerrar sesión y volver a entrar para recargar el fichero.</p>
+
 <p>Sin embargo, hay una forma alternativa de hacer que se lea el fichero sin necesidad de hacer <em>login</em> de nuevo; y la respuesta se encuentra en <a href="https://askubuntu.com/questions/59126/reload-bashs-profile-without-logging-out-and-back-in-again">Reload bash&rsquo;s .profile without logging out and back in again</a>:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ . ~/.profile
+
+<pre><code class="language-bash">$ . ~/.profile
 $
-</code></pre></div><p>El punto es un sinónimo de <code>source</code> (mira la sección <em>SHELL BUILTIN COMMANDS</em> de <a href="http://manpages.ubuntu.com/manpages/disco/en/man1/bash.1.html">bash</a>), que &ldquo;exporta&rdquo; -a falta de un nombre mejor- el contenido del fichero y lo pone a disposición de la <em>shell</em>.</p>
+</code></pre>
+
+<p>El punto es un sinónimo de <code>source</code> (mira la sección <em>SHELL BUILTIN COMMANDS</em> de <a href="http://manpages.ubuntu.com/manpages/disco/en/man1/bash.1.html">bash</a>), que &ldquo;exporta&rdquo; -a falta de un nombre mejor- el contenido del fichero y lo pone a disposición de la <em>shell</em>.</p>
+
 <p>Comprobamos de nuevo -ahora sin la ruta completa- la versión de <code>aws</code>:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ aws --version
+
+<pre><code class="language-bash">$ aws --version
 aws-cli/1.16.221 Python/3.6.8 Linux/4.15.0-58-generic botocore/1.12.211
-</code></pre></div><p>Y ahora sí, ¡todo funciona correctamente!</p>
+</code></pre>
+
+<p>Y ahora sí, ¡todo funciona correctamente!</p>
+
 <p><code>aws cli</code> es un &ldquo;cliente&rdquo; para interaccionar con la API de AWS. Usando la API puedes interaccionar con las diferentes cuentas que tengas en AWS y realizar <strong>virtualmente</strong> cualquier acción que podrías realizar a través de la consola web de AWS.</p>
+
 <blockquote>
 <p>Existen algunos pocos casos en los que la API <strong>todavía</strong> no expone determinadas funcionalidades, pero tienen a ser casos muy específicos (como establecer la información fiscal de las cuentas).</p>
 </blockquote>
+
 <p>Para poder empezar a interaccionar con la API necesitarás crear un usuario IAM (y sus credenciales); en el siguiente artículo explico cómo configurar AWS cli de manera que puedas usar estas credenciales para realizar acciones sobre tu cuenta a través de la API desde la línea de comandos.</p></div>
 
   <aside class="p-share">

@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.68.3" />
+<meta name="generator" content="Hugo 0.55.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -75,7 +75,7 @@
         "height": 60
       }
     },
-    "description": "\x3cp\x3eEn la entrada anterior \x3ca href=\x22https:\/\/onthedock.github.io\/post\/170924-dokuwiki_en_un_contenedor_notas\/\x22\x3eDokuwiki en un contendor\x3c\/a\x3e dejaba constancia de los problemas que encontré creando una imagen para ejecutar Dokuwiki en un contenedor.\x3c\/p\x3e\n\x3cp\x3eAl final de la entrada indicaba que la creación de la misma imagen, pero para ARM sería tan sencillo como cambiar la imagen base. \x3cstrong\x3ePues no.\x3c\/strong\x3e\x3c\/p\x3e\n\x3cp\x3eComo he tenido que revisar a fondo los pasos que seguí -en particular para configurar la carpeta desde donde Caddy publica los ficheros-, he introducido algunos cambios que simplifiquen y mejoren el uso de la imagen.\x3c\/p\x3e"
+    "description": "\x3cp\x3eEn la entrada anterior \x3ca href=\x22https:\/\/onthedock.github.io\/post\/170924-dokuwiki_en_un_contenedor_notas\/\x22\x3eDokuwiki en un contendor\x3c\/a\x3e dejaba constancia de los problemas que encontré creando una imagen para ejecutar Dokuwiki en un contenedor.\x3c\/p\x3e\n\n\x3cp\x3eAl final de la entrada indicaba que la creación de la misma imagen, pero para ARM sería tan sencillo como cambiar la imagen base. \x3cstrong\x3ePues no.\x3c\/strong\x3e\x3c\/p\x3e\n\n\x3cp\x3eComo he tenido que revisar a fondo los pasos que seguí -en particular para configurar la carpeta desde donde Caddy publica los ficheros-, he introducido algunos cambios que simplifiquen y mejoren el uso de la imagen.\x3c\/p\x3e"
   }
 </script>
 
@@ -121,40 +121,71 @@
   </div>
 
   <div class="article-body"><p>En la entrada anterior <a href="https://onthedock.github.io/post/170924-dokuwiki_en_un_contenedor_notas/">Dokuwiki en un contendor</a> dejaba constancia de los problemas que encontré creando una imagen para ejecutar Dokuwiki en un contenedor.</p>
+
 <p>Al final de la entrada indicaba que la creación de la misma imagen, pero para ARM sería tan sencillo como cambiar la imagen base. <strong>Pues no.</strong></p>
+
 <p>Como he tenido que revisar a fondo los pasos que seguí -en particular para configurar la carpeta desde donde Caddy publica los ficheros-, he introducido algunos cambios que simplifiquen y mejoren el uso de la imagen.</p>
+
 <h2 id="imagen-base">Imagen base</h2>
+
 <p>Lo que originalmente debía ser tan sencillo como un cambio de imagen base, no ha funcionado a la primera.</p>
+
 <p>La imagen base que pensaba utilizar era <a href="https://hub.docker.com/r/xaviaznar/rpi-alpine-base/">xaviaznar/rpi-alpine-base</a>. Esta imagen está basada en <a href="https://hub.docker.com/r/hypriot/rpi-alpine-scratch/">hypriot/rpi-alpine-scratch</a>, pero resulta que esta imagen no se actualiza desde hace más de un año:</p>
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
+
+<figure>
+  <amp-img src="https://onthedock.github.io/images/170930/alpine-scratch.png" alt="Nuevos problemas al construir la imagen con Caddy y PHP, ahora para Raspberry Pi images/170930/alpine-scratch.png" width=640 height=400 layout="responsive"></amp-img>
+  
+</figure>
+
 <p>Así que los paquetes de PHP 7 no estaban todavía incluidos en los repositorios y la construcción de la imagen ha fallado.</p>
+
 <p>Afortunadamente existen una imagenes <em>semi-oficiales</em> para ARM de la mano de <a href="https://hub.docker.com/u/arm32v6/">arm32v6</a> (para Raspberry Pi &ldquo;1&rdquo;) y <a href="https://hub.docker.com/u/arm32v7/">arm32v7</a> (para las Raspberry 2 y 3).</p>
+
 <p>Así que para la RPi 1, he usado como base <a href="https://hub.docker.com/r/arm32v6/alpine/">arm32v6/alpine</a>.</p>
+
 <p>La dependencia de imágenes base de terceros es uno de los problemas que hay que tener en cuenta en el diseño de los contenedores. Esto es especialmente sensible para equipos ARM para los cuales todavía no hay siempre una imagen oficial del desarrollador del producto y se depende de imágenes creadas por voluntarios.</p>
+
 <h2 id="rutas-de-nuevo">Rutas (de nuevo)</h2>
+
 <p>En la entrada anterior los ficheros del wiki se encontraba en la carpeta <code>~/dokuwiki</code>, por lo que <a href="https://github.com/onthedock/alpine-caddy-php/blob/master/runWiki.sh">montaba el volumen en comando <code>docker run</code></a> el volumen mediante <code>-v /home/operador/dokuwiki:/var/www</code>. En el fichero <code>Caddyfile</code> sin embargo, la raíz de las carpetas publicadas por Caddy <code>root /var/www/wiki</code>.</p>
+
 <p>Es decir, en el sistema de ficheros locales tenía <code>~/dokuwiki/wiki/{ficheros php}</code>, pero debido a la similitud de los nombres, pensaba que tenía <code>~/dokuwiki/{ficheros php}</code>, por lo que he estado un buen rato intentando averiguar el porqué de los errores 404 que mostraba el navegador, los logs, etc.</p>
+
 <p>Para evitar este tipo de errores en el futuro, la raíz de las carpetas públicas en Caddy será siempre <code>/var/www</code>. Los ficheros <em>locales</em> siempre estarán en una carpeta llamada <code>www</code>, que será la que se monte sobre ésta carpeta del contenedor.</p>
+
 <p>Otro punto que hay que tener en cuenta es que el contenido de la carpeta del contenedor sobre la que se monta la carpeta del <em>host</em> no se fusiona con el contenido de ésta: sólo son visibles los ficheros de la carpeta del <em>host</em> montada en el contenedor.</p>
+
 <p>En mi caso, por ejemplo, al construir la imagen se copian los ficheros <code>index.htm</code> y <code>phpinfo.php</code> en <code>/var/www</code>. Pero cuando se monta la carpeta <code>~/wiki</code> en <code>/var/wwww</code>, sólo aparecen los ficheros presentes en <code>~/wiki</code>. Los ficheros <code>index.php</code> y <code>phpinfo.php</code> sólo son <em>visibles</em> si no se monta un volumen en el contenedor.</p>
-<h3 id="file-not-found-al-acceder-a-httpiphostpuerto">File not found al acceder a http://$IPHOST:puerto/</h3>
+
+<h3 id="file-not-found-al-acceder-a-http-iphost-puerto">File not found al acceder a http://$IPHOST:puerto/</h3>
+
 <p>Al acceder a la URL del servidor web sin indicar el nombre del fichero, por defecto se busca un fichero llamado <code>index.html</code>. En mi caso, como el fichero se llamaba <code>index.htm</code> (sin la &ldquo;l&rdquo; final), se mostraba un error <code>File Not Found</code>.</p>
+
 <p>He renombrado el fichero de <code>index.htm</code> a <code>index.html</code> después de <a href="https://caddyserver.com/docs/index">consultar la documentación de Caddy</a> para que no suceda. En el fichero <code>index.html</code> he incluido un enlace al fichero <code>phpinfo.php</code> para verificar la configuración de PHP en el contenedor.</p>
+
 <h2 id="volúmenes-compartidos-entre-el-host-y-el-contenedor">Volúmenes compartidos entre el host y el contenedor</h2>
+
 <p>Para simplificar la organización de las carpetas montadas en los contenedores, he creado una carpeta llamada <code>/shared</code>, en la raíz del árbol de carpetas. Dentro de esta carpeta habrá una carpeta para cada contenedor que tenga un volumen local montado.</p>
+
 <p>Para el caso anterior, si el contenedor tiene por nombre <code>wiki</code>, cada uno de los volúmenes montados será una subcarpeta de ésta.</p>
+
 <p>Un ejemplo:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-txt" data-lang="txt">/shared/
+
+<pre><code class="language-txt">/shared/
 ├── wiki/
 │   ├── www/
 │   └── logs/
 ├── otro_contenedor/
 │   ├── foo/
 │   └── bar/
-</code></pre></div><p>Este cambio hace que tenga que modificar todos los <em>lanzadores</em> -como el <code>runWiki.sh</code>-, aunque es un problema menor; una vez que el contenedor se ha lanzado, se puede gestionar el arranque y la parada mediante <code>docker start/stop $NOMBRE_CONTENEDOR</code>.</p>
+</code></pre>
+
+<p>Este cambio hace que tenga que modificar todos los <em>lanzadores</em> -como el <code>runWiki.sh</code>-, aunque es un problema menor; una vez que el contenedor se ha lanzado, se puede gestionar el arranque y la parada mediante <code>docker start/stop $NOMBRE_CONTENEDOR</code>.</p>
+
 <h2 id="siguientes-pasos">Siguientes pasos</h2>
+
 <p>Una vez he resuelto todos los problemas que han ido apareciendo en esta fase de desarrollo, el siguiente paso es documentar todos los pasos -correctos- que hay que dar para obtener tanto la imagen con Caddy y PHP como para usarla en un contenedor sirviendo una aplicación web en PHP.</p>
+
 <blockquote>
 <p>Actualización: Ya está lista la guía paso a paso: <a href="https://onthedock.github.io/post/170930-como-crear-una-imagen-con-caddy-y-php/">Cómo crear una imagen con Caddy y PHP</a></p>
 </blockquote></div>

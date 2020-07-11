@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.68.3" />
+<meta name="generator" content="Hugo 0.55.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -75,7 +75,7 @@
         "height": 60
       }
     },
-    "description": "\x3cp\x3eHe estado probando \x3ca href=\x22https:\/\/www.vagrantup.com\x22\x3eVagrant\x3c\/a\x3e para automatizar la creación de máquinas virtuales en las que probar Docker, etc.\x3c\/p\x3e\n\x3cp\x3eEn este artículo comento mis primeras impresiones con Vagrant.\x3c\/p\x3e"
+    "description": "\x3cp\x3eHe estado probando \x3ca href=\x22https:\/\/www.vagrantup.com\x22\x3eVagrant\x3c\/a\x3e para automatizar la creación de máquinas virtuales en las que probar Docker, etc.\x3c\/p\x3e\n\n\x3cp\x3eEn este artículo comento mis primeras impresiones con Vagrant.\x3c\/p\x3e"
   }
 </script>
 
@@ -121,43 +121,81 @@
   </div>
 
   <div class="article-body"><p>He estado probando <a href="https://www.vagrantup.com">Vagrant</a> para automatizar la creación de máquinas virtuales en las que probar Docker, etc.</p>
+
 <p>En este artículo comento mis primeras impresiones con Vagrant.</p>
+
 <p>La <em>tagline</em> de Vagrant es <em>Development Environments made easy</em>. Atraido con la posibilidad de ser capaz de crear entornos de forma automática, instalé Vagrant. Tenía la sensación de que sería una especie de <em>Docker para máquinas virtuales</em>: hay un repositorio público de <em>boxes</em> llamado <a href="https://atlas.hashicorp.com/boxes/search?">Atlas</a> y con unos comandos como <code>vagrant init</code> y <code>vagrant up</code> parece posible <em>levantar</em> un conjunto de máquinas preconfiguradas y listas para trabajar.</p>
+
 <p>Pensaba que Vagrant trabajaba únicamente con VirtualBox, así que me alegré al ver que es posible trabajar con otros <em>providers</em>, en particular al ver que soporta Hyper-V <em>out of the box</em>.</p>
+
 <p>Busqué una máquina con Ubuntu 16 LTS en Atlas filtrando por <code>provider hyperv</code> y encontré <a href="https://atlas.hashicorp.com/kmm/boxes/ubuntu-xenial64">https://atlas.hashicorp.com/kmm/boxes/ubuntu-xenial64</a>.</p>
+
 <p>Mediante <code>vagrant init kmm/ubuntu-xenial64</code> se crea el Vagrantfile, que describe las configuración de la VM.</p>
+
 <p>Para arrancar la máquina es necesario especificar el <em>provider</em>, ya que por defecto se asume VirtualBox: <code>vagrant up --provider hyperv</code>. El comando debe ejecutarse con permisos de administrador (debido a una limitación de Hyper-V).</p>
+
 <p>Al lanzar el comando por primera vez, como no tengo una copia local de la <em>box</em>, debe descargarse. A diferencia de los contenedores, el tamaño de la máquina virtual es considerable. Afortunadamente la velocidad de la conexión y el hecho de que sólo tengo que hacerlo una vez mitigan este primer inconveniente.</p>
+
 <p>El comando inicializa la máquina y la registra en Hyper-V con el nombre <code>ubuntu-xenial64</code>, arranca la máquina y obtiene una IP del DHCP. También se crea una clave SSH para poder conectar a la máquina y se monta una carpeta compartida entre la máquina virtual y el <em>host</em> local (en la carpeta desde donde se lanza el comando <code>vagrant up</code>). La máquina virtual también se crea en esa carpeta.</p>
+
 <h1 id="conectando-vía-ssh">Conectando vía SSH</h1>
+
 <p>En la documentación se indica que para conectar a la VM, hay que usar el comando <code>vagrant ssh</code>. En Windows no funciona porque no hay un cliente SSH instalado por defecto.</p>
+
 <p>En Windows lo habitual es usar PuTTY, pero resulta que la clave privada que se ha generado no es compatible y es necesario convertirla al formato <code>ppk</code>, usando <a href="https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html">PuTTYgen</a>.</p>
+
 <p>Al no tener una contraseña, esto significa que si quiero conectar desde otro equipo (por ejemplo, desde el Mac), tengo que copiar la clave privada al equipo.</p>
+
 <h1 id="nombre-de-la-máquina-virtual">Nombre de la máquina virtual</h1>
+
 <p>Aunque en la documentación se indica que puede especificarse el nombre de la máquina virtual mediante la opción <a href="https://www.vagrantup.com/docs/hyperv/configuration.html#vmname"><code>vmname</code></a>, en mi caso no ha funcionado.</p>
+
 <h1 id="ip-de-la-máquina-virtual">IP de la máquina virtual</h1>
+
 <p>Aunque la máquina virtual arranca con la IP configurada en modo DHCP, me gustaría especificar la IP de la máquina a crear. Buscando en Google he encontrado que la IP debería poder configurarse mediante el parámetro: <code>config.vm.network :public_network, ip: &quot;192.168.1.30&quot;</code>, tal y como se indica en <a href="https://serverfault.com/questions/418422/public-static-ip-for-vagrant-box">Public static ip for vagrant box</a>.</p>
+
 <p>De nuevo, por algún motivo, no ha funcionado, obteniendo siempre la IP vía DHCP.</p>
+
 <p>No soy el único al que le pasa, por lo que parece: <a href="https://github.com/cogitatio/vagrant-hostsupdater/issues/132">static IP not set correctly</a> .</p>
+
 <h1 id="instalación-de-docker">Instalación de Docker</h1>
+
 <p>Al final del fichero <code>Vagrantfile</code> hay un apartado sobre <em>provisioning</em>, para poder instalar paquetes adicionales en la máquina virtual. En mi caso, estaba interesado en instalar Docker, por ejemplo.</p>
+
 <p>Aunque en la documentación se indica que se pueden lanzar los comandos <em>tal cual</em>, de nuevo no ha funcionado como esperaba:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">apt-get update
+
+<pre><code class="language-sh">apt-get update
 apt-get install docker.io -y
-</code></pre></div><p>Tras el primer fallo he modificado el fichero <code>Vagrantfile</code> para que los comandos se lancen como <code>root</code> (<code>sudo apt-get update</code>), pero no sólo no he solucionado el problema, sino que además al intentar lanzar manualmente, conectado a la máquina virtual la instalación, obtenía un error indicando que el fichero estaba en uso.</p>
+</code></pre>
+
+<p>Tras el primer fallo he modificado el fichero <code>Vagrantfile</code> para que los comandos se lancen como <code>root</code> (<code>sudo apt-get update</code>), pero no sólo no he solucionado el problema, sino que además al intentar lanzar manualmente, conectado a la máquina virtual la instalación, obtenía un error indicando que el fichero estaba en uso.</p>
+
 <h1 id="montaje-de-la-carpeta-compartida">Montaje de la carpeta compartida</h1>
+
 <p>Inicialmente he pensado que sería una buena idea poder disponer de una carpeta <em>de intercambio</em>. Después de tener que lanzar múltiples máquinas virtuales para las pruebas de cambiar el nombre de la máquina virtual, la configuración de la IP, etc, me he dado cuenta que la carpeta compartida no sólo no me aporta nada, sino que ralentiza el proceso; se solicita usuario y password para montar la carpeta, de manera que el script se detiene (aunque la máquina arranca en Hyper-V). Incluso después de terminar el proceso mediante <code>Ctrl+C</code> he tenido problemas para seguir ejecutando otros comandos (<code>vagrant destroy</code>). En este caso, Ruby -el lenguaje usado por Vagrant- seguía en memoria y ha sido necesario matarlo a través del adminstrador de tareas para poder seguir ejecutando comandos Vagrant.</p>
+
 <h1 id="ubicación-de-la-máquina-virtual">Ubicación de la máquina virtual</h1>
+
 <p>Otro problema que me he encontrado es que la máquina virtual se crea en la misma carpeta desde donde se lanza el fichero <code>Vagrantfile</code>.</p>
+
 <p>En Hyper-V se puede definir una ruta por defecto donde almacenar las máquinas virtuales, pero parece que Vagrant ignora esta configuración.</p>
+
 <p>En el equipo de laboratorio tengo dos discos, un SSD y un disco mecánico y he distribuido las máquinas virtuales según mis preferencias. Así que el hecho de que Vagrant cree las máquinas sin tener en cuenta la configuración del proveedor Hyper-V supone un problema que debería corregir, buscando en la configuración de Vagrant (si es que es posible modificar este comportamiento).</p>
+
 <h1 id="conclusión">Conclusión</h1>
+
 <p>Mi objetivo es automatizar la creación de una nueva máquina virtual con Docker y/o Kubernetes instalado.</p>
+
 <p>Tengo dos máquinas virtuales exportadas con Docker y Kubernetes, respectivamente, por lo que Vagrant no aporta nada que no pueda hacer ahora mismo importando las máquinas en Hyper-V.</p>
+
 <p>Mediante un script en Powersh importo la máquina virtual en Hyper-V con el nombre especificado; no he conseguido hacer lo mismo en Vagrant.</p>
+
 <p>Personalmente prefiero crear un par de scripts con Powershell para conseguir especificar la IP, el nombre del host, etc que no tener que lidiar con el fichero de configuración de Vagrant.</p>
+
 <p>Después de importar la máquina o de crearla vía Vagrant, tengo que conectar igualmente a la VM para cambiar el <code>hostname</code> y especificar una IP estática. Al usar la importación en Hyper-V ya tengo instalado Docker y/o Kubernetes, que en las máquinas creadas con Vagrant debo instalar manualmente.</p>
+
 <p>No tengo claro si los problemas que he encontrado con Vagrant se deben a mi desconocimiento del producto o a problemas de <em>concepto</em>. Quizás es el hecho de usar un proveedor diferente al que se usa por defecto (Hyper-V vs VirtualBox) o al hecho de que el equipo donde se ejecutan las máquinas virtuales es diferente al equipo de <em>desarrollo</em> (por el fichero <code>private_key</code> para conectar vía SSH).</p>
+
 <p>En cualquier caso, Vagrant no se adapta a mis necesidades, creando fricción, por lo que seguiré buscando otras soluciones para automatizar la creación de las máquinas virtuales.</p></div>
 
   <aside class="p-share">

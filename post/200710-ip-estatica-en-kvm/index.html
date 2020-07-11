@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.68.3" />
+<meta name="generator" content="Hugo 0.55.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -75,7 +75,7 @@
         "height": 60
       }
     },
-    "description": "\x3cp\x3eLas máquinas virtuales en KVM obtienen una IP en el rango \x3ccode\x3e192.168.122.2\x3c\/code\x3e a \x3ccode\x3e192.168.122.254\x3c\/code\x3e (puedes comprobarlo mediante \x3ccode\x3evirsh net-edit default\x3c\/code\x3e (para la red \x3cem\x3edefault\x3c\/em\x3e)).\x3c\/p\x3e\n\x3cp\x3eAsignar una IP estática a una máquina virtual en KVM consiste en tres pasos:\x3c\/p\x3e"
+    "description": "\x3cp\x3eLas máquinas virtuales en KVM obtienen una IP en el rango \x3ccode\x3e192.168.122.2\x3c\/code\x3e a \x3ccode\x3e192.168.122.254\x3c\/code\x3e (puedes comprobarlo mediante \x3ccode\x3evirsh net-edit default\x3c\/code\x3e (para la red \x3cem\x3edefault\x3c\/em\x3e)).\x3c\/p\x3e\n\n\x3cp\x3eAsignar una IP estática a una máquina virtual en KVM consiste en tres pasos:\x3c\/p\x3e"
   }
 </script>
 
@@ -121,64 +121,92 @@
   </div>
 
   <div class="article-body"><p>Las máquinas virtuales en KVM obtienen una IP en el rango <code>192.168.122.2</code> a <code>192.168.122.254</code> (puedes comprobarlo mediante <code>virsh net-edit default</code> (para la red <em>default</em>)).</p>
+
 <p>Asignar una IP estática a una máquina virtual en KVM consiste en tres pasos:</p>
+
 <ol>
 <li>Asignar una IP a la <em>mac address</em> de la tarjeta de red de la VM en cuestión.</li>
 <li>Modificar el rango de IP asignadas desde el DHCP.</li>
 <li>Reiniciar la red -y la vm- para que los cambios tengan efecto.</li>
 </ol>
+
 <h2 id="reservar-una-ip-estática-para-la-máquina-virtual">Reservar una IP (estática) para la máquina virtual</h2>
+
 <p>En vez de fijar una IP en la máquina virtual, reservamos una IP en el DHCP a través de la dirección <em>mac</em>. De esta forma, siempre se asigna la misma IP a la máquina virtual.</p>
+
 <p>Para ello, necesitamos obtener la <em>mac address</em> de la máquina virtual.
 Por ejemplo, mediante: <code>virsh dumpxml ${nombr-vm} | grep -i 'mac address'</code></p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ virsh dumpxml docker | grep -i <span style="color:#e6db74">&#39;mac address&#39;</span>
-      &lt;mac address<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;52:54:00:91:84:c4&#39;</span>/&gt;
-</code></pre></div><p>Anota la <em>mac address</em> porque la necesitaremos en los siguientes pasos.</p>
+
+<pre><code class="language-bash">$ virsh dumpxml docker | grep -i 'mac address'
+      &lt;mac address='52:54:00:91:84:c4'/&gt;
+</code></pre>
+
+<p>Anota la <em>mac address</em> porque la necesitaremos en los siguientes pasos.</p>
+
 <h2 id="modificar-el-rango-de-ips-de-la-red">Modificar el rango de IPs de la red</h2>
+
 <p>Vamos a modificar el rango de IPs asignadas para la red <em>default</em>.</p>
+
 <p>Lanza el comando <code>virsh net-edit default</code>:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml"><span style="color:#f92672">&lt;network&gt;</span>
-  <span style="color:#f92672">&lt;name&gt;</span>default<span style="color:#f92672">&lt;/name&gt;</span>
-  <span style="color:#f92672">&lt;uuid&gt;</span>234020c3-b70a-457c-b9ac-16c9dd688920<span style="color:#f92672">&lt;/uuid&gt;</span>
-  <span style="color:#f92672">&lt;forward</span> <span style="color:#a6e22e">mode=</span><span style="color:#e6db74">&#39;nat&#39;</span><span style="color:#f92672">/&gt;</span>
-  <span style="color:#f92672">&lt;bridge</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#39;virbr0&#39;</span> <span style="color:#a6e22e">stp=</span><span style="color:#e6db74">&#39;on&#39;</span> <span style="color:#a6e22e">delay=</span><span style="color:#e6db74">&#39;0&#39;</span><span style="color:#f92672">/&gt;</span>
-  <span style="color:#f92672">&lt;mac</span> <span style="color:#a6e22e">address=</span><span style="color:#e6db74">&#39;52:54:00:0a:4b:da&#39;</span><span style="color:#f92672">/&gt;</span>
-  <span style="color:#f92672">&lt;ip</span> <span style="color:#a6e22e">address=</span><span style="color:#e6db74">&#39;192.168.122.1&#39;</span> <span style="color:#a6e22e">netmask=</span><span style="color:#e6db74">&#39;255.255.255.0&#39;</span><span style="color:#f92672">&gt;</span>
-    <span style="color:#f92672">&lt;dhcp&gt;</span>
-      <span style="color:#f92672">&lt;range</span> <span style="color:#a6e22e">start=</span><span style="color:#e6db74">&#39;192.168.122.2&#39;</span> <span style="color:#a6e22e">end=</span><span style="color:#e6db74">&#39;192.168.122.254&#39;</span><span style="color:#f92672">/&gt;</span>
-    <span style="color:#f92672">&lt;/dhcp&gt;</span>
-  <span style="color:#f92672">&lt;/ip&gt;</span>
-<span style="color:#f92672">&lt;/network&gt;</span>
-</code></pre></div><p>Como puede verse en la salida del comando anterior, tenemos <code>range start='192.168.122.2' end='192.168.122.254'</code>. Es decir, cualquier IP valida entre 2 y 254, lo que no deja ningún &ldquo;hueco&rdquo; para poder fijar una IP sin que pueda asignarse -via DHCP- a una VM.</p>
+
+<pre><code class="language-xml">&lt;network&gt;
+  &lt;name&gt;default&lt;/name&gt;
+  &lt;uuid&gt;234020c3-b70a-457c-b9ac-16c9dd688920&lt;/uuid&gt;
+  &lt;forward mode='nat'/&gt;
+  &lt;bridge name='virbr0' stp='on' delay='0'/&gt;
+  &lt;mac address='52:54:00:0a:4b:da'/&gt;
+  &lt;ip address='192.168.122.1' netmask='255.255.255.0'&gt;
+    &lt;dhcp&gt;
+      &lt;range start='192.168.122.2' end='192.168.122.254'/&gt;
+    &lt;/dhcp&gt;
+  &lt;/ip&gt;
+&lt;/network&gt;
+</code></pre>
+
+<p>Como puede verse en la salida del comando anterior, tenemos <code>range start='192.168.122.2' end='192.168.122.254'</code>. Es decir, cualquier IP valida entre 2 y 254, lo que no deja ningún &ldquo;hueco&rdquo; para poder fijar una IP sin que pueda asignarse -via DHCP- a una VM.</p>
+
 <p>Modificando el <code>range start</code> o el <code>end</code>, hacemos &ldquo;hueco&rdquo; para dejar fuera del rango del DHCP tantas IPs como necesitemos.
 En mi caso, he modificado el inicio del rango a <code>start='192.168.122.50'</code>.</p>
+
 <p>A continuación añade una nueva línea para <em>reservar</em> una IP -del rango excluido del DHCP- para la <em>mac address</em> de la máquina virtual; en mi caso, he asignado la IP <code>192.168.122.2</code> con <code>&lt;host mac='52:54:00:91:84:c4' name='docker' ip='192.168.122.2'/&gt;</code>:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml"><span style="color:#f92672">&lt;ip</span> <span style="color:#a6e22e">address=</span><span style="color:#e6db74">&#39;192.168.122.1&#39;</span> <span style="color:#a6e22e">netmask=</span><span style="color:#e6db74">&#39;255.255.255.0&#39;</span><span style="color:#f92672">&gt;</span>
-    <span style="color:#f92672">&lt;dhcp&gt;</span>
-      <span style="color:#f92672">&lt;range</span> <span style="color:#a6e22e">start=</span><span style="color:#e6db74">&#39;192.168.122.50&#39;</span> <span style="color:#a6e22e">end=</span><span style="color:#e6db74">&#39;192.168.122.254&#39;</span><span style="color:#f92672">/&gt;</span>
-      <span style="color:#f92672">&lt;host</span> <span style="color:#a6e22e">mac=</span><span style="color:#e6db74">&#39;52:54:00:91:84:c4&#39;</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#39;docker&#39;</span> <span style="color:#a6e22e">ip=</span><span style="color:#e6db74">&#39;192.168.122.2&#39;</span><span style="color:#f92672">/&gt;</span>
-    <span style="color:#f92672">&lt;/dhcp&gt;</span>
-  <span style="color:#f92672">&lt;/ip&gt;</span>
-</code></pre></div><p>Si quieres realizar múltiples reservas, simmplemente añade más líneas <code>&lt;host mac='...</code> bajo la etiqueta <code>&lt;range start='...</code>.</p>
+
+<pre><code class="language-xml">&lt;ip address='192.168.122.1' netmask='255.255.255.0'&gt;
+    &lt;dhcp&gt;
+      &lt;range start='192.168.122.50' end='192.168.122.254'/&gt;
+      &lt;host mac='52:54:00:91:84:c4' name='docker' ip='192.168.122.2'/&gt;
+    &lt;/dhcp&gt;
+  &lt;/ip&gt;
+</code></pre>
+
+<p>Si quieres realizar múltiples reservas, simmplemente añade más líneas <code>&lt;host mac='...</code> bajo la etiqueta <code>&lt;range start='...</code>.</p>
+
 <p>Una vez modificada la configuración de la red <code>default</code>, guarda los cambios y reinicia la red:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ virsh net-destroy default <span style="color:#f92672">&amp;&amp;</span> virsh net-start default
+
+<pre><code class="language-bash">$ virsh net-destroy default &amp;&amp; virsh net-start default
 Network default destroyed
 
 Network default started
 
 $
-</code></pre></div><blockquote>
+</code></pre>
+
+<blockquote>
 <p>El comando <a href="https://wiki.libvirt.org/page/Networking#virsh_net-update"><code>virsh net-update</code></a> sólo permite añadir o eliminar rangos de IPs, no modificarlos.</p>
 </blockquote>
+
 <p>Arranca la máquina virtual (o reinicia la red) para que la máquina virtual obtenga la IP asignada:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ virsh start docker
+
+<pre><code class="language-bash">$ virsh start docker
 Domain docker started
 
 $ virsh domifaddr docker
  Name       MAC address          Protocol     Address
 -------------------------------------------------------------------------------
  vnet0      52:54:00:91:84:c4    ipv4         192.168.122.2/24
-</code></pre></div><p>Como puedes ver, la máquina obtiene la IP <code>192.168.122.2</code> que le hemos reservado.</p>
+</code></pre>
+
+<p>Como puedes ver, la máquina obtiene la IP <code>192.168.122.2</code> que le hemos reservado.</p>
+
 <p>Referencia: <a href="https://serverfault.com/questions/627238/kvm-libvirt-how-to-configure-static-guest-ip-addresses-on-the-virtualisation-ho">KVM/libvirt: How to configure static guest IP addresses on the virtualisation host</a> en ServerFault.</p></div>
 
   <aside class="p-share">

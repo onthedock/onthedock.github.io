@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.68.3" />
+<meta name="generator" content="Hugo 0.55.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -75,7 +75,7 @@
         "height": 60
       }
     },
-    "description": "\x3cp\x3eLeía el otro día que desde el principio la tendencia hacia los microservicios estaba pensada para las aplicaciones \x3cem\x3estateless\x3c\/em\x3e, es decir, sin \x26ldquo;memoria\x26rdquo; del estado, donde cada interacción con la aplicación se considera independiente del resto. El ejemplo clásico de aplicación \x3cem\x3estateless\x3c\/em\x3e es un servidor web. Así que no es de extrañar que la aplicación que siempre aparece en todo tutorial que se precie de Docker\/Kubernetes  es Nginx.\x3c\/p\x3e\n\x3cp\x3eEn el mundo real, sin embargo, la mayoría de aplicaciones requieren algún tipo de persistencia, incluso las webs más sencillas (así surgieron las \x3cem\x3ecookies\x3c\/em\x3e). Pero por el momento, Kubernetes y el almacenamiento son dos conceptos que no combinan demasiado bien, aunque funcionan perfectamente por separado.\x3c\/p\x3e"
+    "description": "\x3cp\x3eLeía el otro día que desde el principio la tendencia hacia los microservicios estaba pensada para las aplicaciones \x3cem\x3estateless\x3c\/em\x3e, es decir, sin \x26ldquo;memoria\x26rdquo; del estado, donde cada interacción con la aplicación se considera independiente del resto. El ejemplo clásico de aplicación \x3cem\x3estateless\x3c\/em\x3e es un servidor web. Así que no es de extrañar que la aplicación que siempre aparece en todo tutorial que se precie de Docker\/Kubernetes  es Nginx.\x3c\/p\x3e\n\n\x3cp\x3eEn el mundo real, sin embargo, la mayoría de aplicaciones requieren algún tipo de persistencia, incluso las webs más sencillas (así surgieron las \x3cem\x3ecookies\x3c\/em\x3e). Pero por el momento, Kubernetes y el almacenamiento son dos conceptos que no combinan demasiado bien, aunque funcionan perfectamente por separado.\x3c\/p\x3e"
   }
 </script>
 
@@ -121,31 +121,51 @@
   </div>
 
   <div class="article-body"><p>Leía el otro día que desde el principio la tendencia hacia los microservicios estaba pensada para las aplicaciones <em>stateless</em>, es decir, sin &ldquo;memoria&rdquo; del estado, donde cada interacción con la aplicación se considera independiente del resto. El ejemplo clásico de aplicación <em>stateless</em> es un servidor web. Así que no es de extrañar que la aplicación que siempre aparece en todo tutorial que se precie de Docker/Kubernetes  es Nginx.</p>
+
 <p>En el mundo real, sin embargo, la mayoría de aplicaciones requieren algún tipo de persistencia, incluso las webs más sencillas (así surgieron las <em>cookies</em>). Pero por el momento, Kubernetes y el almacenamiento son dos conceptos que no combinan demasiado bien, aunque funcionan perfectamente por separado.</p>
+
 <p>Los contenedores (y los <em>pods</em>) son objetos perecederos, de <em>usar y tirar</em>, casi literalmente. Pero claro, esto es un problema cuando quieres almacenar datos. En Docker la solución pasa por los volúmenes, bien montados directamente desde el <em>host</em> en el contenedor o usando <strong>contenedores de datos</strong>. No me consta que en Kubernetes exista la opción de crear contenedores de este tipo. En cuanto a la opción de montar una carpeta del <em>host</em> en un contenedor deja de ser viable en cuanto tienes más de un nodo, por lo que la solución pasa por sacar el almacenamiento <strong>fuera</strong> del clúster de Kubernetes.</p>
+
 <p>&ldquo;Fuera&rdquo; quiere decir que la aplicación guarda la información en una base de datos en una máquina -física o virtual- a la que la  aplicación se conecta remotamente. Otro caso habitual es el almacenamiento de ficheros; en este caso la aplicación en Kubernetes se conecta a algún tipo de recurso compartido externo, normalmente NFS o almacenamiento en la nube (<a href="https://aws.amazon.com/es/ebs/">AWS EBS</a>, <a href="https://aws.amazon.com/s3/?nc2=h_m1">AWS S3</a> o <a href="https://cloud.google.com/products/storage/">Google Cloud Storage</a>). En este sentido hay dos soluciones destacadas: <a href="https://www.gluster.org/">GlusterFS</a> y <a href="http://ceph.com/">Ceph</a>.</p>
+
 <h2 id="almacenamiento-en-kubernetes-un-proceso-de-dos-fases">Almacenamiento en Kubernetes: un proceso de dos fases</h2>
+
 <p>Sea como sea, el proceso de conseguir almacenamiento para un <em>pod</em> en Kubernetes tiene dos fases: la <strong>provisión</strong> y el <strong>consumo</strong> del.</p>
+
 <p>El primer aspecto -la provisión- queda fuera del ámbito de Kubernetes y corre a cargo de un &ldquo;administrador&rdquo;, que define los <em>PersistentVolumes</em> <strong>fuera</strong> del clúster: en Gluster, un servidor NFS o en un servicio cloud.</p>
+
 <p>En la segunda fase, un usuario -en el fichero de definición del <em>Pod</em> o cualquier otro objeto en Kubernetes que requiera almacenamiento- <strong>reclama</strong> el espacio para ser usado mediante un <em>PersistentVolumeClaim</em>.</p>
+
 <p>En función del sistema de almacenamiento, cuando se reclamar una determinada cantidad de almacenamiento de un <em>StorageClassName</em> concreto que lo soporte, Kubernetes puede provisionar dinámicamente el volumen.</p>
+
 <p>El hecho de que la provisión de almacenamiento quede fuera del ámbito de los tutoriales supone que la curva de aprendizaje de Kubernetes se convierte en un <em>rampa empinada</em> en cuanto dejas los ejemplos basados en Nginx.</p>
+
 <h2 id="mi-experiencia-personal">Mi experiencia personal</h2>
+
 <p>Estoy aprovechando para mejorar mis conocimientos sobre Kubernetes siguiendo los tutoriales de la página oficial <a href="https://kubernetes.io/docs/tutorials/">Kubernetes.io</a>. Al intentar seguir el tutorial <a href="https://kubernetes.io/docs/tutorials/stateful-application/basic-stateful-set/">StatefulSet Basics</a> se da por supuesto conocimiento con el provisionamiento de <em>PersistentVolume</em>. En particular, se supone que el clúster está configurado para provisionar <strong>dinámicamente</strong> <em>PersistentVolumes</em>, o en su defecto, que se provisionen manualmente.</p>
+
 <blockquote>
 <p>This tutorial assumes that your cluster is configured to dynamically provision PersistentVolumes. If your cluster is not configured to do so, you will have to manually provision five 1 GiB volumes prior to starting this tutorial.</p>
 </blockquote>
+
 <p>Desafortunadamente, no hay ningún tutorial sobre cómo crear los <em>PersistentVolumes</em> y en la página de <a href="https://kubernetes.io/docs/concepts/storage/persistent-volumes/">Conceptos sobre <em>PersistentVolumes</em></a> no me queda claro la relación entre el <em>PersistentVolumeClaim</em> que se especifica en el <em>pod</em> de ejemplo y el apartado <em>VolumeClaimTemplates</em> que aparece en la definición del <em>StatefulSet</em>. En particular, en <a href="https://kubernetes.io/docs/concepts/storage/persistent-volumes/#claims-as-volumes">Claims as Volumes</a> se indica que los <em>pods</em> acceden al almacenamiento usando el <em>claim</em> como un volumen.</p>
+
 <blockquote>
 <p>The cluster finds the claim in the pod’s namespace and uses it to get the PersistentVolume backing the claim. The volume is then mounted to the host and into the pod.</p>
 </blockquote>
+
 <p>Sobre <strong>cómo</strong> encuentra el clúster el <em>claim</em> en el espacio de nombres del <em>pod</em> y lo relaciona con un <em>PersistentVolume</em> disponible, no se dan detalles.</p>
+
 <p>En la próxima entrada explicaré cómo conseguí crear correctamente los <em>pods</em> del <em>StatefulSet</em> del tutorial.</p>
+
 <blockquote>
 <p><strong>Actualización</strong>: La entrada ya está publicada: <a href="https://onthedock.github.io/post/170818-troubleshooting-creacion-de-pods-del-tutorial-statefulset-basics/">Troubleshooting: Creación de pods del tutorial &lsquo;StatefulSet Basics&rsquo;</a></p>
 </blockquote>
+
 <p>El problema de ráiz era que creaba un <em>PersistentVolume</em> y un <em>PersistentVolumeClaim</em> manualmente (como se indica en la página de conceptos). El <em>PVClaim</em> se <em>enlazaba</em> (<em>bound</em>) correctamente con el <em>PV</em>. Sin embargo, los <em>pods</em> del <em>StatefulSet</em> no se creaban. Examinando al detalle los <em>pods</em> observé que la creación del <em>pod</em> desde el <em>StatefulSet</em> creaba un nuevo <em>PVClaim</em> que no conseguía ligarse a ningún <em>PV</em> disponible.</p>
+
 <p>Al desconocer el mecanismo por el cual un <em>claim</em> &ldquo;encuentra&rdquo; un <em>PV</em> adecuado, la única vía disponible fue la de <em>ensayo y error</em>.</p>
+
 <p>El siguiente objetivo es crear un tutorial <em>previo</em> al de <a href="https://kubernetes.io/docs/tutorials/stateful-application/basic-stateful-set/">StatefulSet Basics</a> donde describir el proceso de creación de los <em>PersistentVolumes</em> para el <em>StatefulSet</em> del tutorial.</p></div>
 
   <aside class="p-share">

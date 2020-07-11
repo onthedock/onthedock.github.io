@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.68.3" />
+<meta name="generator" content="Hugo 0.55.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -75,7 +75,7 @@
         "height": 60
       }
     },
-    "description": "\x3cp\x3eUna de las desventajas de Docker respecto a Kubernetes, es que en caso de fallo del nodo donde corren los contenedores, éstos no arrancan automáticamente cuando el nodo se recupera. El caso más sencillo es cuando hay que apagar\/reiniciar el nodo por algún motivo.\x3c\/p\x3e\n\x3cp\x3eEn mi caso, el \x3cem\x3emotivo de fallo\x3c\/em\x3e del nodo ha sido que lo he apagado durante las vacaciones ;)\x3c\/p\x3e\n\x3cp\x3eDe todas formas, he decidido configurar los contenedores de forma que se inicien automáticamente con el arranque del sistema. En este artículo te explico cómo.\x3c\/p\x3e"
+    "description": "\x3cp\x3eUna de las desventajas de Docker respecto a Kubernetes, es que en caso de fallo del nodo donde corren los contenedores, éstos no arrancan automáticamente cuando el nodo se recupera. El caso más sencillo es cuando hay que apagar\/reiniciar el nodo por algún motivo.\x3c\/p\x3e\n\n\x3cp\x3eEn mi caso, el \x3cem\x3emotivo de fallo\x3c\/em\x3e del nodo ha sido que lo he apagado durante las vacaciones ;)\x3c\/p\x3e\n\n\x3cp\x3eDe todas formas, he decidido configurar los contenedores de forma que se inicien automáticamente con el arranque del sistema. En este artículo te explico cómo.\x3c\/p\x3e"
   }
 </script>
 
@@ -121,67 +121,88 @@
   </div>
 
   <div class="article-body"><p>Una de las desventajas de Docker respecto a Kubernetes, es que en caso de fallo del nodo donde corren los contenedores, éstos no arrancan automáticamente cuando el nodo se recupera. El caso más sencillo es cuando hay que apagar/reiniciar el nodo por algún motivo.</p>
+
 <p>En mi caso, el <em>motivo de fallo</em> del nodo ha sido que lo he apagado durante las vacaciones ;)</p>
+
 <p>De todas formas, he decidido configurar los contenedores de forma que se inicien automáticamente con el arranque del sistema. En este artículo te explico cómo.</p>
+
 <p>Como en Hypriot OS (un derivado de Debian) se usa <strong>systemd</strong> para gestionar el arranque, parada, etc de procesos del sistema operativo. Para conseguir que el contenedor arranque al iniciar el sistema crearemos un <code>unit file</code>, el fichero que define las propiedades del proceso que quieres ejecutar. En este caso, el &ldquo;proceso&rdquo; será el comando Docker que lanza un contenedor.</p>
+
 <p>systemd se organiza alrededor de dos conceptos: el <code>unit file</code> y el <code>target</code>. El <code>unit file</code> es el fichero de configuración que describe las propiedades del proceso, mientras que el <code>target</code> es el mecanismo para agrupar procesos y arrancarlos a la misma vez (durante los <em>init levels</em> del arranque del sistema).</p>
+
 <h2 id="creando-el-unit-file">Creando el <code>unit file</code></h2>
+
 <p>Los ficheros <code>unit file</code> se encuentran en <code>/etc/systemd/system</code>.</p>
+
 <p>Creamos un fichero <code>home-dns.service</code> para el  <a href="https://onthedock.github.io/post/170827-dnsmasq-en-docker/">servicio de DNS creado en la entrada anterior</a> usando <strong>dnsmasq</strong>.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#f92672">[</span>Unit<span style="color:#f92672">]</span>
-Description<span style="color:#f92672">=</span>Home DNS <span style="color:#f92672">(</span>dnsmasq<span style="color:#f92672">)</span>
-After<span style="color:#f92672">=</span>docker.service
-Requieres<span style="color:#f92672">=</span>docker.service
 
-<span style="color:#f92672">[</span>Service<span style="color:#f92672">]</span>
-TimeoutStartSec<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>
-ExecStartPre<span style="color:#f92672">=</span>/usr/bin/docker stop home-dns
-ExecStartPre<span style="color:#f92672">=</span>/usr/bin/docker rm home-dns
-ExecStart<span style="color:#f92672">=</span>/usr/bin/docker run --name home-dns -p 53:53 -p 53:53/udp --cap-add<span style="color:#f92672">=</span>NET_ADMIN -v /home/pirate/rpi-alpine-dnsmasq/dnsmasq.conf:/etc/dnsmasq.conf -v /home/pirate/rpi-alpine-dnsmasq/hosts:/etc/hosts xaviaznar/rpi-dnsmasq
+<pre><code class="language-shell">[Unit]
+Description=Home DNS (dnsmasq)
+After=docker.service
+Requieres=docker.service
 
-<span style="color:#f92672">[</span>Install<span style="color:#f92672">]</span>
-WantedBy<span style="color:#f92672">=</span>multi-user.target
-</code></pre></div><p>El fichero está dividido en tres secciones:</p>
+[Service]
+TimeoutStartSec=0
+ExecStartPre=/usr/bin/docker stop home-dns
+ExecStartPre=/usr/bin/docker rm home-dns
+ExecStart=/usr/bin/docker run --name home-dns -p 53:53 -p 53:53/udp --cap-add=NET_ADMIN -v /home/pirate/rpi-alpine-dnsmasq/dnsmasq.conf:/etc/dnsmasq.conf -v /home/pirate/rpi-alpine-dnsmasq/hosts:/etc/hosts xaviaznar/rpi-dnsmasq
+
+[Install]
+WantedBy=multi-user.target
+</code></pre>
+
+<p>El fichero está dividido en tres secciones:</p>
+
 <ul>
-<li>
-<p><code>Unit</code> Indica en qué orden debe lanzarse el proceso, en este caso, después del arranque del servicio <code>docker.service</code>. Para que el proceso funcione también especificamos que se requiere <code>docker.service</code>. En cuanto a <code>Description</code>, el valor indicado aparece en los <em>logs</em> de sistema, etc.</p>
-</li>
-<li>
-<p><code>Service</code> En esta sección del fichero se describe el proceso:</p>
+<li><p><code>Unit</code> Indica en qué orden debe lanzarse el proceso, en este caso, después del arranque del servicio <code>docker.service</code>. Para que el proceso funcione también especificamos que se requiere <code>docker.service</code>. En cuanto a <code>Description</code>, el valor indicado aparece en los <em>logs</em> de sistema, etc.</p></li>
+
+<li><p><code>Service</code> En esta sección del fichero se describe el proceso:</p>
+
 <ul>
 <li><code>ExecStartPre</code> son tareas que se realizan <strong>antes</strong> de la ejecución del proceso. Del mismo modo tenemos <code>ExceStartPost</code>, para ejecutar tareas <strong>después</strong> de arrancar el proceso. Si usamos <code>=-</code> en vez de <code>=</code>, systemd ignorará los errores que devuelva la tarea especificada.</li>
 <li><code>ExecStart</code>es donde especificamos el comando a ejecutar. En nuestro caso, un comando <code>docker run</code>.</li>
+</ul></li>
 </ul>
+
 <blockquote>
 <p>No hay que usar la opción <code>-d</code> en <code>docker run</code> para evitar que el proceso pase a segundo plano, lo que haría que el contenedor no fuera un descendiente de proceso <code>systemd</code>; esto se interpretaría como que ha fallado y el <em>daemon</em> se detendría.</p>
 </blockquote>
-</li>
-<li>
-<p><code>Install</code> En esta sección del fichero se indica en qué grupo se iniciará el proceso especificado en la sección anterior.</p>
-</li>
+
+<ul>
+<li><code>Install</code> En esta sección del fichero se indica en qué grupo se iniciará el proceso especificado en la sección anterior.</li>
 </ul>
+
 <p>Para crerar el nuevo <em>servicio</em>, habilitamos la nueva <em>unit</em> y lo arrancamos:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">sudo systemctl enable home-dns.service
+
+<pre><code class="language-shell">sudo systemctl enable home-dns.service
 sudo systemctl start home-dns
-</code></pre></div><p>Puedes verificar que el contenedor ha arrancado mediante <code>docker ps</code>, por ejemplo.</p>
+</code></pre>
+
+<p>Puedes verificar que el contenedor ha arrancado mediante <code>docker ps</code>, por ejemplo.</p>
+
 <p>Podemos ampliar el fichero <code>unit</code> incluyendo también comandos para la acción <code>stop</code>:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#f92672">[</span>Unit<span style="color:#f92672">]</span>
-Description<span style="color:#f92672">=</span>Home DNS <span style="color:#f92672">(</span>dnsmasq<span style="color:#f92672">)</span>
-After<span style="color:#f92672">=</span>docker.service
-Requieres<span style="color:#f92672">=</span>docker.service
 
-<span style="color:#f92672">[</span>Service<span style="color:#f92672">]</span>
-TimeoutStartSec<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>
-ExecStartPre<span style="color:#f92672">=</span>-/usr/bin/docker stop home-dns
-ExecStartPre<span style="color:#f92672">=</span>-/usr/bin/docker rm home-dns
-ExecStart<span style="color:#f92672">=</span>/usr/bin/docker run --name home-dns -p 53:53 -p 53:53/udp --cap-add<span style="color:#f92672">=</span>NET_ADMIN -v /home/pirate/rpi-alpine-dnsmasq/dnsmasq.conf:/etc/dnsmasq.conf -v /home/pirate/rpi-alpine-dnsmasq/hosts:/etc/hosts xaviaznar/rpi-dnsmasq
-ExecStop<span style="color:#f92672">=</span>/usr/bin/docker stop home-dns
-ExecStopPost<span style="color:#f92672">=</span>/usr/bin/docker rm home-dns
+<pre><code class="language-shell">[Unit]
+Description=Home DNS (dnsmasq)
+After=docker.service
+Requieres=docker.service
 
-<span style="color:#f92672">[</span>Install<span style="color:#f92672">]</span>
-WantedBy<span style="color:#f92672">=</span>multi-user.target
-</code></pre></div><p>Ahora, al arrancar el equipo, el servicio de DNS arrancará como un servicio más del sistema operativo.</p>
+[Service]
+TimeoutStartSec=0
+ExecStartPre=-/usr/bin/docker stop home-dns
+ExecStartPre=-/usr/bin/docker rm home-dns
+ExecStart=/usr/bin/docker run --name home-dns -p 53:53 -p 53:53/udp --cap-add=NET_ADMIN -v /home/pirate/rpi-alpine-dnsmasq/dnsmasq.conf:/etc/dnsmasq.conf -v /home/pirate/rpi-alpine-dnsmasq/hosts:/etc/hosts xaviaznar/rpi-dnsmasq
+ExecStop=/usr/bin/docker stop home-dns
+ExecStopPost=/usr/bin/docker rm home-dns
+
+[Install]
+WantedBy=multi-user.target
+</code></pre>
+
+<p>Ahora, al arrancar el equipo, el servicio de DNS arrancará como un servicio más del sistema operativo.</p>
+
 <p>Puedes leer más sobre los <code>unit files</code> en:</p>
+
 <ul>
 <li><a href="https://coreos.com/os/docs/latest/getting-started-with-systemd.html#unit-file">Getting started with systemd</a></li>
 <li><a href="https://www.freedesktop.org/software/systemd/man/systemd.service.html">man page para systemd</a></li>

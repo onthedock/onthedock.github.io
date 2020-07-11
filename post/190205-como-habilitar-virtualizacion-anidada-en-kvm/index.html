@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.68.3" />
+<meta name="generator" content="Hugo 0.55.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -121,50 +121,69 @@
   </div>
 
   <div class="article-body"><p>La virtualización anidada permite ejecutar una máquina virtual <em>dentro</em> de otra máquina virtual aprovechando las posibilidades de aceleración por hardware que proporciona el sistema anfitrión.</p>
+
 <p>Hyper-V no permite la virtualización anidada para equipos con procesadores AMD, como se indica en <a href="https://docs.microsoft.com/es-es/virtualization/hyper-v-on-windows/user-guide/nested-virtualization">Ejecución de Hyper-V en una máquina virtual con la virtualización anidada</a>:</p>
+
 <blockquote>
 <p>(Requisitos previos) Un procesador Intel con tecnología VT-x y EPT: el anidamiento es actualmente <strong>solo para Intel</strong>.</p>
 </blockquote>
+
 <p>Una vez <a href="https://onthedock.github.io/post/190124-kvm-en-ubuntu-server/">instalado KVM</a> en el equipo, el primer paso es comprobar si esta característica está soportada. Para ello seguimos las instrucciones de la sección <a href="https://docs.fedoraproject.org/en-US/quick-docs/using-nested-virtualization-in-kvm/">Checking if nested virtualization is supported</a>:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ cat /sys/module/kvm_amd/parameters/nested
-<span style="color:#ae81ff">1</span>
-</code></pre></div><p>Si el fichero muestra <code>1</code> o <code>yes</code>, el equipo soporta virtualización anidada.</p>
+
+<pre><code class="language-bash">$ cat /sys/module/kvm_amd/parameters/nested
+1
+</code></pre>
+
+<p>Si el fichero muestra <code>1</code> o <code>yes</code>, el equipo soporta virtualización anidada.</p>
+
 <blockquote>
 <p>Podemos realizar la misma comprobación para equipos con procesador Intel mostrando el contenido del fichero <code>/sys/module/kvm_intel/parameters/nested</code>.</p>
 </blockquote>
+
 <h2 id="habilitar-la-virtualización-anidada">Habilitar la virtualización anidada</h2>
+
 <blockquote>
 <p>Todas las máquinas virtuales deben estar paradas para realizar este cambio.</p>
 </blockquote>
+
 <ol>
-<li>
-<p>Descargamos el módulo <code>kvm_probe</code></p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">modprobe -r kvm_amd
-</code></pre></div></li>
-<li>
-<p>Activamos la virtualización anidada:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">modprobe kvm_amd nested<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>
-</code></pre></div></li>
+<li><p>Descargamos el módulo <code>kvm_probe</code></p>
+
+<pre><code class="language-bash">modprobe -r kvm_amd
+</code></pre></li>
+
+<li><p>Activamos la virtualización anidada:</p>
+
+<pre><code class="language-bash">modprobe kvm_amd nested=1
+</code></pre></li>
 </ol>
+
 <p>Estas modificaciones habilitan la <em>nested virtualization</em> hasta que el sistema se reinicia. Para que la virtualización anidada esté disponible de forma permanente, editamos el fichero de configuración de KVM <code>/etc/modprobe.d/kvm.conf</code>:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">options kvm_amd nested<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>
-</code></pre></div><h2 id="configurar-virtualización-anidada-en-virt-manager">Configurar virtualización anidada en Virt-Manager</h2>
+
+<pre><code class="language-bash">options kvm_amd nested=1
+</code></pre>
+
+<h2 id="configurar-virtualización-anidada-en-virt-manager">Configurar virtualización anidada en Virt-Manager</h2>
+
 <p>Para habilitar <em>nested virtualization</em> en una máquina virtual, en Virt-Manager:</p>
+
 <ol>
 <li>Abre las propiedades de la máquina virtual en Virtual Machine Manager</li>
 <li>Selecciona <em>Show virtual hardware details</em></li>
 <li>Haz <em>click</em> en el menú lateral.</li>
 <li>En la sección <em>Configuration</em> tenemos dos opciones:
+
 <ol>
 <li>Escribe <code>host-passthrough</code> en el campo <em>Model</em></li>
 <li>Selecciona el checkbox <em>Copy host CPU configuration</em> (esto rellena <code>host-model</code> en el campo <em>Model</em>)</li>
-</ol>
-</li>
+</ol></li>
 <li>Finalmente, pulsa <em>Apply</em> para aplicar los cambios.</li>
 </ol>
+
 <blockquote>
 <p>Usar la opción <code>host-passthrough</code> <strong>no se recomienda</strong> de forma general y sólo debe habilitarse cuando se use virtualización anidada.</p>
 </blockquote>
+
 <p>Referencia: <a href="https://docs.fedoraproject.org/en-US/quick-docs/using-nested-virtualization-in-kvm/">How to enable nested virtualization in KVM</a> en fedora DOCS.</p></div>
 
   <aside class="p-share">

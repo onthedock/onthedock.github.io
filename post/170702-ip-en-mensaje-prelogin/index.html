@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.68.3" />
+<meta name="generator" content="Hugo 0.55.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -75,7 +75,7 @@
         "height": 60
       }
     },
-    "description": "\x3cp\x3eEn la pantalla de \x3cem\x3elogin\x3c\/em\x3e en modo consola de los sistemas Linux se muestra un mensaje de bienvenida.\x3c\/p\x3e\n\x3cp\x3eEn este artículo se muestra cómo hacer que se muestre la IP del equipo.\x3c\/p\x3e"
+    "description": "\x3cp\x3eEn la pantalla de \x3cem\x3elogin\x3c\/em\x3e en modo consola de los sistemas Linux se muestra un mensaje de bienvenida.\x3c\/p\x3e\n\n\x3cp\x3eEn este artículo se muestra cómo hacer que se muestre la IP del equipo.\x3c\/p\x3e"
   }
 </script>
 
@@ -121,24 +121,42 @@
   </div>
 
   <div class="article-body"><p>En la pantalla de <em>login</em> en modo consola de los sistemas Linux se muestra un mensaje de bienvenida.</p>
+
 <p>En este artículo se muestra cómo hacer que se muestre la IP del equipo.</p>
+
 <p>Cuando tenemos una máquina (virtual) configurada para obtener la IP de forma dinámica mediante DHCP, al desconocer por adelantado la IP que se le ha asignado, es necesario conectarse al hipervisor, hacer login en la máquina virtual para, finalmente, obtener la IP <em>actual</em> de la VM.</p>
+
 <p>Entonces podemos conectarnos <em>remotamente</em> usando PuTTY (desde Windows) o un emulador de terminal desde Linux/OSX.</p>
+
 <p>Sin embargo, hay una manera de agilizar este proceso, aprovechando el mensaje que se muestra antes del login.</p>
+
 <blockquote>
 <p>Aunque en este caso he usado Alpine Linux, las instrucciones son igualmente válidas para la mayoría de distribuciones.</p>
 </blockquote>
+
 <p>En primer lugar necesitamos ejecutar un <em>script</em> durante el arranque del sistema operativo. En el caso concreto de Alpine Linux, he encontrado la solución en <a href="https://forum.alpinelinux.org/forum/general-discussion/run-script-boot">run script on boot</a>.</p>
+
 <p>Ya que no vamos a escribir nuestro propio servicio, usaremos el servicio <em>local</em>. Para ello, hay que añadir nuestro <em>script</em> en la carpeta <code>/etc/local.d/</code></p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">rc-update add local default
-</code></pre></div><p>El <code>README</code> ubicado en <code>/etc/local.d/README</code> indica que cualquier fichero ejecutable con extensión <code>.start</code> se lanza al arrancar el servicio, mientras que si la extensión es <code>.stop</code>, se ejecuta al parar el servicio.</p>
+
+<pre><code class="language-sh">rc-update add local default
+</code></pre>
+
+<p>El <code>README</code> ubicado en <code>/etc/local.d/README</code> indica que cualquier fichero ejecutable con extensión <code>.start</code> se lanza al arrancar el servicio, mientras que si la extensión es <code>.stop</code>, se ejecuta al parar el servicio.</p>
+
 <p>En mi caso, he usado el <em>script</em> para obtener la IP de la máquina como se indica en <a href="http://offbytwo.com/2008/05/09/show-ip-address-of-vm-as-console-pre-login-message.html">Show IP address of VM as console pre-login message</a> y la he escrito en el fichero <code>/etc/issue</code>:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">/sbin/ifconfig | grep <span style="color:#e6db74">&#34;inet addr&#34;</span> | grep -v <span style="color:#e6db74">&#34;127.0.0.1&#34;</span> | awk <span style="color:#e6db74">&#39;{ print $2 }&#39;</span> | awk -F: <span style="color:#e6db74">&#39;{ print $2 }&#39;</span> &gt; /etc/issue
-</code></pre></div><p>Después de convertir el <em>script</em> en ejecutable, he reinciado la máquina para probar que todo funcionaba como esperaba.</p>
+
+<pre><code class="language-shell">/sbin/ifconfig | grep &quot;inet addr&quot; | grep -v &quot;127.0.0.1&quot; | awk '{ print $2 }' | awk -F: '{ print $2 }' &gt; /etc/issue
+</code></pre>
+
+<p>Después de convertir el <em>script</em> en ejecutable, he reinciado la máquina para probar que todo funcionaba como esperaba.</p>
+
 <p>Tras los mensajes de arranque, se muestra:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">192.168.1.208
+
+<pre><code class="language-sh">192.168.1.208
 alpine login:
-</code></pre></div><p>Así no hace falta hacer <em>login</em> en la máquina para obtener la IP.</p></div>
+</code></pre>
+
+<p>Así no hace falta hacer <em>login</em> en la máquina para obtener la IP.</p></div>
 
   <aside class="p-share">
   <a href="http://twitter.com/intent/tweet?url=https%3a%2f%2fonthedock.github.io%2fpost%2f170702-ip-en-mensaje-prelogin%2f&text=IP%20en%20mensaje%20prelogin&tw_p=tweetbutton" title="Twitterでシェア" class="tw" target="_blank" rel="nofollow"></a>

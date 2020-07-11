@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.68.3" />
+<meta name="generator" content="Hugo 0.55.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -75,7 +75,7 @@
         "height": 60
       }
     },
-    "description": "\x3cp\x3eAl eliminar un \x3cem\x3estack\x3c\/em\x3e de CloudFormation \x3cstrong\x3etodos\x3c\/strong\x3e los recursos creados se eliminan automáticamente. Esto te puede provocar un buen susto cuando lanzas la eliminación de un \x3cem\x3estack\x3c\/em\x3e por error\x26hellip;\x3c\/p\x3e\n\x3cp\x3eEn esta entrada indico cómo prevenir esas situaciones a diferentes niveles: aplicando \x3cem\x3estack policies\x3c\/em\x3e o todo el \x3cem\x3estack\x3c\/em\x3e o de forma individual a algunos recursos con \x3cem\x3eDeletionPolicy\x3c\/em\x3e.\x3c\/p\x3e"
+    "description": "\x3cp\x3eAl eliminar un \x3cem\x3estack\x3c\/em\x3e de CloudFormation \x3cstrong\x3etodos\x3c\/strong\x3e los recursos creados se eliminan automáticamente. Esto te puede provocar un buen susto cuando lanzas la eliminación de un \x3cem\x3estack\x3c\/em\x3e por error\x26hellip;\x3c\/p\x3e\n\n\x3cp\x3eEn esta entrada indico cómo prevenir esas situaciones a diferentes niveles: aplicando \x3cem\x3estack policies\x3c\/em\x3e o todo el \x3cem\x3estack\x3c\/em\x3e o de forma individual a algunos recursos con \x3cem\x3eDeletionPolicy\x3c\/em\x3e.\x3c\/p\x3e"
   }
 </script>
 
@@ -121,14 +121,23 @@
   </div>
 
   <div class="article-body"><p>Al eliminar un <em>stack</em> de CloudFormation <strong>todos</strong> los recursos creados se eliminan automáticamente. Esto te puede provocar un buen susto cuando lanzas la eliminación de un <em>stack</em> por error&hellip;</p>
+
 <p>En esta entrada indico cómo prevenir esas situaciones a diferentes niveles: aplicando <em>stack policies</em> o todo el <em>stack</em> o de forma individual a algunos recursos con <em>DeletionPolicy</em>.</p>
+
 <h2 id="deletionpolicy-retain">DeletionPolicy: Retain</h2>
+
 <p>Empezamos con el <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-attribute-deletionpolicy.html">DeletionPolicy Attribute</a>, una propiedad que puedes especificar a nivel de recurso. El valor por defecto es <code>Delete</code>, así que si quieres evitar que el recurso se elimine al borrar el <em>stack</em>, lo mejor es establecer esta propiedad a <code>Retain</code>.</p>
+
 <p>Si revisas los estados asociados a los recursos en el <em>stack</em> observarás que para aquellos recursos con <code>DeletionPolicy: Retain</code> se indica <code>DELETE_SKIPPED</code>.</p>
+
 <p>Esta opción evita que el recurso se elimine al borrar el <em>stack</em>, pero no evita que se elimine si se borra el recurso de la plantilla y ejecutas un <em>update</em> del <em>stack</em>; es decir, no &ldquo;marca&rdquo; el recurso para que no sea borrable, sino que es una propiedad que indica a CloudFormation que no elimine el recurso; si lo borras de la plantilla -y por tanto no tiene la propiedad <code>DeletionPolicy</code> establecida en <code>Retain</code>- se aplica el valor por defecto que es <code>Delete</code>.</p>
+
 <p>Tampoco evita la eliminación de un recurso para aquellas actualizaciones que requieren un <em>reemplazo</em> del recurso durante una actualización. Para este escenario debes usar la propiedad <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-attribute-updatereplacepolicy.html">UpdateReplacePolicy Attribute</a>.</p>
+
 <p>La diferencia entre <code>DeletionPolicy</code> y <code>UpdateReplacePolicy</code> es que la primera aplica cuando se intenta borrar el recurso mientras que la segunda aplica durante actualizaciones del recurso que implican un <em>replacement</em>. Si un recurso tiene especificada el atributo <code>UpdateReplacePolicy</code> en <code>Retain</code>, el recurso &ldquo;reemplazado&rdquo; se mantiene en vez de borrarse al realizar la actualización (acabamos con dos copias). El recurso &ldquo;original&rdquo; queda &ldquo;fuera&rdquo; del <em>scope</em> del <em>stack</em>.</p>
+
 <p>Algunos recursos soportan una tercera opción (además de <code>Delete</code> o <code>Retain</code>): <code>Snapshot</code>. Los recursos que lo soportan son:</p>
+
 <ul>
 <li>AWS::EC2::Volume</li>
 <li>AWS::ElastiCache::CacheCluster</li>
@@ -138,85 +147,119 @@
 <li>AWS::RDS::DBInstance</li>
 <li>AWS::Redshift::Cluster</li>
 </ul>
+
 <h2 id="políticas-de-stack">Políticas de <em>stack</em></h2>
+
 <p>Estableciendo el atributo <code>DeletionPolicy: Retain</code> se puede evitar la eliminación de los recursos cuando se borra el <em>stack</em>, pero establecer el atributo para cada recurso es algo tedioso.</p>
+
 <p>Otra forma de proteger recursos concretos o todo el <em>stack</em> es usar las <em>stack policies</em>: <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/protect-stack-resources.html">Prevent Updates to Stack Resources</a>.</p>
+
 <p>Una <em>stack policy</em> es un documento JSON que indique qué acciones se pueden realizar sobre qué recursos del <em>stack</em>.</p>
+
 <p>Al establecer una <em>stack policy</em> se evitan las actualizaciones de todos los recursos del <em>stack</em> <strong>por defecto</strong>. Para permitir actualizaciones sobre recursos concretos, debes especificarlo explícitamente.</p>
+
 <p>Aunque sólo se puede establecer una <em>stack policy</em> por <em>stack</em>, ésta permite controlar las modificaciones sobre recursos de tantos recursos como queramos del <em>stack</em>.</p>
+
 <p>Debes tener en cuenta que el <em>stack policy</em> sólo &ldquo;protege&rdquo; los recursos de acciones realizadas a través de actualizaciones realizadas por CloudFormation, pero no impide la modificación de los recursos directamente. Para ello, debes restringir el acceso a los recursos mediante políticas IAM. La <em>stack policy</em> es más un mecanismo de protección contra modificaciones inadvertidas sobre recursos de un <em>stack</em>.</p>
+
 <p>Un ejemplo de <em>stack policy</em> sería:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{
-  <span style="color:#f92672">&#34;Statement&#34;</span> : [
+
+<pre><code class="language-json">{
+  &quot;Statement&quot; : [
     {
-      <span style="color:#f92672">&#34;Effect&#34;</span> : <span style="color:#e6db74">&#34;Allow&#34;</span>,
-      <span style="color:#f92672">&#34;Action&#34;</span> : <span style="color:#e6db74">&#34;Update:*&#34;</span>,
-      <span style="color:#f92672">&#34;Principal&#34;</span>: <span style="color:#e6db74">&#34;*&#34;</span>,
-      <span style="color:#f92672">&#34;Resource&#34;</span> : <span style="color:#e6db74">&#34;*&#34;</span>
+      &quot;Effect&quot; : &quot;Allow&quot;,
+      &quot;Action&quot; : &quot;Update:*&quot;,
+      &quot;Principal&quot;: &quot;*&quot;,
+      &quot;Resource&quot; : &quot;*&quot;
     },
     {
-      <span style="color:#f92672">&#34;Effect&#34;</span> : <span style="color:#e6db74">&#34;Deny&#34;</span>,
-      <span style="color:#f92672">&#34;Action&#34;</span> : <span style="color:#e6db74">&#34;Update:*&#34;</span>,
-      <span style="color:#f92672">&#34;Principal&#34;</span>: <span style="color:#e6db74">&#34;*&#34;</span>,
-      <span style="color:#f92672">&#34;Resource&#34;</span> : <span style="color:#e6db74">&#34;LogicalResourceId/ProductionDatabase&#34;</span>
+      &quot;Effect&quot; : &quot;Deny&quot;,
+      &quot;Action&quot; : &quot;Update:*&quot;,
+      &quot;Principal&quot;: &quot;*&quot;,
+      &quot;Resource&quot; : &quot;LogicalResourceId/ProductionDatabase&quot;
     }
   ]
 }
-</code></pre></div><p>Esta política permite cualquier tipo de actualización sobre todos los recursos del <em>stack</em> <strong>excepto</strong> el llamado <code>ProductionDatabase</code>.</p>
+</code></pre>
+
+<p>Esta política permite cualquier tipo de actualización sobre todos los recursos del <em>stack</em> <strong>excepto</strong> el llamado <code>ProductionDatabase</code>.</p>
+
 <h3 id="particularidades-de-la-stack-policy">Particularidades de la <em>stack policy</em></h3>
+
 <p>Una <em>stack policy</em> es una especie de <em>resource-based policy</em> aplicada al <em>stack</em>; por ello debes especificar el <code>Principal</code>, aunque sólo admite el valor <code>*</code>.</p>
+
 <p>Por defecto, la presencia de una <em>stack policy</em> asociada al <em>stack</em> deniega la actualización de todos los recursos del <em>stack</em> excepto si se permite explícitamente. Sin embargo, AWS recomienda usar <code>Deny</code> explícitos si realmente queremos evitar la modificación de alguno de los recursos contenidos en el <em>stack</em>.</p>
+
 <p>Los valores de <code>Action</code> también son particulares, ya que en vez de ser de la forma <code>servicio:permiso</code> son <code>Update:*</code>, que permite cualquier tipo de actualización sobre el recurso o <code>Update:Modify</code>, <code>Update:Replace</code> o <code>Update:Delete</code>. Las <em>stack policy</em> también aceptan <code>NotAction</code>, pero como en el caso de las IAM policies, es mejor evitarlo si es posible.</p>
+
 <p>En cuanto a los recursos, la <em>stack policy</em> permite usar condiciones del tipo <code>StringEquals</code> o <code>StringLike</code> para tipos de recursos. Esto permite denegar el borrado de todos los recursos del tipo <code>AWS::EC2::Instance</code> e incluso, todos los recursos de tipo EC2 mediante <code>AWS::EC2::*</code>: instancias, <em>security groups</em>, <em>subnets</em>, etc.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json"><span style="color:#e6db74">&#34;Condition&#34;</span> <span style="color:#960050;background-color:#1e0010">:</span> {
-  <span style="color:#f92672">&#34;StringLike&#34;</span> : {
-    <span style="color:#f92672">&#34;ResourceType&#34;</span> : [<span style="color:#e6db74">&#34;AWS::EC2::*&#34;</span>]
+
+<pre><code class="language-json">&quot;Condition&quot; : {
+  &quot;StringLike&quot; : {
+    &quot;ResourceType&quot; : [&quot;AWS::EC2::*&quot;]
   }
 }
-</code></pre></div><h3 id="aplicar-una-stack-policy">Aplicar una <em>stack policy</em></h3>
+</code></pre>
+
+<h3 id="aplicar-una-stack-policy">Aplicar una <em>stack policy</em></h3>
+
 <p>Puedes aplicar una <em>stack policy</em> a un <em>stack</em> vía consola <strong>sólo durante su creación</strong>.</p>
+
 <p>Para aplicar una <em>stack policy</em> a un <em>stack</em> ya creado debes usar la CLI: <code>aws cloudformation set-stack-policy</code>. También puedes usar la CLI para aplicar la <em>stack policy</em> al crear el <em>stack</em> (<code>aws cloudformation create-stack</code> y especificando la <em>stack policy</em> como un parámetro).</p>
+
 <h3 id="actualizar-recursos-protegidos-con-una-stack-policy">Actualizar recursos protegidos con una <em>stack policy</em></h3>
+
 <p>Las <em>stack policy</em> están pensadas para evitar modificaciones por error de un <em>stack</em>, pero ¿cómo actualizas los recursos de un <em>stack</em> si la <em>stack policy</em> lo impide?</p>
+
 <p>AWS permite especificar una <em>stack policy</em> <strong>temporal</strong> para permitir la modificación de un recurso protegido. Desde la consola web de AWS, en la página de configuración de opciones del <em>stack</em>, en la sección <code>Advanced options</code>, selecciona <code>Stack policy</code> y sube la <em>stack policy</em> que permita la modificación del recurso.</p>
+
 <p>Esta <em>stack policy</em> que permite la modificación de los recursos protegidos sólo tiene validez durante la actualización del <em>stack</em>; cuando finaliza, la <em>stack policy</em> &ldquo;temporal&rdquo; deja de ser válida y por tanto los recursos vuelven a estar protegidos contra modificaciones.</p>
+
 <p>En la documentación de AWS <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/protect-stack-resources.html#stack-policy-samples">More Example Stack Policies</a> tienes algunos ejemplos de <em>stack policies</em>, como ésta que evita la actualización de cualquier <em>stack</em> anidado:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{
-  <span style="color:#f92672">&#34;Statement&#34;</span> : [
+
+<pre><code class="language-json">{
+  &quot;Statement&quot; : [
     {
-      <span style="color:#f92672">&#34;Effect&#34;</span> : <span style="color:#e6db74">&#34;Deny&#34;</span>,
-      <span style="color:#f92672">&#34;Action&#34;</span> : <span style="color:#e6db74">&#34;Update:*&#34;</span>,
-      <span style="color:#f92672">&#34;Principal&#34;</span>: <span style="color:#e6db74">&#34;*&#34;</span>,
-      <span style="color:#f92672">&#34;Resource&#34;</span> : <span style="color:#e6db74">&#34;*&#34;</span>,
-      <span style="color:#f92672">&#34;Condition&#34;</span> : {
-        <span style="color:#f92672">&#34;StringEquals&#34;</span> : {
-          <span style="color:#f92672">&#34;ResourceType&#34;</span> : [<span style="color:#e6db74">&#34;AWS::CloudFormation::Stack&#34;</span>]
+      &quot;Effect&quot; : &quot;Deny&quot;,
+      &quot;Action&quot; : &quot;Update:*&quot;,
+      &quot;Principal&quot;: &quot;*&quot;,
+      &quot;Resource&quot; : &quot;*&quot;,
+      &quot;Condition&quot; : {
+        &quot;StringEquals&quot; : {
+          &quot;ResourceType&quot; : [&quot;AWS::CloudFormation::Stack&quot;]
         }
       }
     },
     {
-      <span style="color:#f92672">&#34;Effect&#34;</span> : <span style="color:#e6db74">&#34;Allow&#34;</span>,
-      <span style="color:#f92672">&#34;Action&#34;</span> : <span style="color:#e6db74">&#34;Update:*&#34;</span>,
-      <span style="color:#f92672">&#34;Principal&#34;</span>: <span style="color:#e6db74">&#34;*&#34;</span>,
-      <span style="color:#f92672">&#34;Resource&#34;</span> : <span style="color:#e6db74">&#34;*&#34;</span>
+      &quot;Effect&quot; : &quot;Allow&quot;,
+      &quot;Action&quot; : &quot;Update:*&quot;,
+      &quot;Principal&quot;: &quot;*&quot;,
+      &quot;Resource&quot; : &quot;*&quot;
     }
   ]
 }
-</code></pre></div><h2 id="bonus-usando-deletionpolicy-para-importar-recursos-en-stacks">Bonus: Usando <code>DeletionPolicy</code> para importar recursos en <em>stacks</em></h2>
+</code></pre>
+
+<h2 id="bonus-usando-deletionpolicy-para-importar-recursos-en-stacks">Bonus: Usando <code>DeletionPolicy</code> para importar recursos en <em>stacks</em></h2>
+
 <p>CloudFormation permite crear y actualizar <em>stacks</em> partiendo de recursos ya existentes. Para poder incorporar un recurso al <em>stack</em> debemos describirlo en la plantilla de CloudFormation y <strong>debemos especificar</strong> la <code>DeletionPolicy: Retain</code>.</p>
+
 <p>Una manera sencilla y efectiva de incluir todas las propiedades del recurso existente en CloudFormation es usando &ldquo;get&rdquo; o &ldquo;describe&rdquo; desde la CLI; por ejemplo, para un usuario IAM:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#66d9ef">User</span>:
-  <span style="color:#66d9ef">Arn</span>: arn:aws:iam::<span style="color:#ae81ff">123456789012</span>:user/iam-username-no-path
-  <span style="color:#66d9ef">CreateDate</span>: <span style="color:#e6db74">&#39;2020-05-28T16:40:57+00:00&#39;</span>
-  <span style="color:#66d9ef">Path</span>: /
-  <span style="color:#66d9ef">Tags</span>:
-  - <span style="color:#66d9ef">Key</span>: deletable
-    <span style="color:#66d9ef">Value</span>: <span style="color:#e6db74">&#39;true&#39;</span>
-  - <span style="color:#66d9ef">Key</span>: owner
-    <span style="color:#66d9ef">Value</span>: xavi
-  <span style="color:#66d9ef">UserId</span>: AIDARZDR66FL6NEXAMPLE
-  <span style="color:#66d9ef">UserName</span>: iam-username-no-path
-</code></pre></div><p>De esta forma puedes obtener muchas de las propiedades del recurso &ldquo;real&rdquo; en un formato que puedes -casi- copiar y pegar en tus plantillas, añadir el atributo <code>DeletionPolicy: Retain</code> y crear/actualizar el <em>stack</em>.</p></div>
+
+<pre><code class="language-yaml">User:
+  Arn: arn:aws:iam::123456789012:user/iam-username-no-path
+  CreateDate: '2020-05-28T16:40:57+00:00'
+  Path: /
+  Tags:
+  - Key: deletable
+    Value: 'true'
+  - Key: owner
+    Value: xavi
+  UserId: AIDARZDR66FL6NEXAMPLE
+  UserName: iam-username-no-path
+</code></pre>
+
+<p>De esta forma puedes obtener muchas de las propiedades del recurso &ldquo;real&rdquo; en un formato que puedes -casi- copiar y pegar en tus plantillas, añadir el atributo <code>DeletionPolicy: Retain</code> y crear/actualizar el <em>stack</em>.</p></div>
 
   <aside class="p-share">
   <a href="http://twitter.com/intent/tweet?url=https%3a%2f%2fonthedock.github.io%2fpost%2f200528-prevenir-sustos-al-eliminar-stacks%2f&text=Prevenir%20sustos%20al%20eliminar%20stacks%20de%20CloudFormation&tw_p=tweetbutton" title="Twitterでシェア" class="tw" target="_blank" rel="nofollow"></a>

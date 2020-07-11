@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.68.3" />
+<meta name="generator" content="Hugo 0.55.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -75,7 +75,7 @@
         "height": 60
       }
     },
-    "description": "\x3cp\x3eUna de las maneras más sencillas de crear un entorno de desarrollo para Kubernetes es usando Vagrant y Ansible.\x3c\/p\x3e\n\x3cp\x3eEn el \x3ccode\x3eVagrantfile\x3c\/code\x3e definimos un conjunto de tres máquinas, llamadas \x3ccode\x3enode1\x3c\/code\x3e, \x3ccode\x3enode2\x3c\/code\x3e y \x3ccode\x3enode3\x3c\/code\x3e.\x3c\/p\x3e\n\x3cp\x3eUna vez las máquinas están levantadas, desde el servidor de Ansible uso \x3ccode\x3essh-copy-id\x3c\/code\x3e para habilitar el \x3cem\x3elogin\x3c\/em\x3e sin password de Ansible en los nodos del clúster.\x3c\/p\x3e\n\x3cp\x3eA partir de aquí, tanto la instalación de los prerequisitos como la inicialización del clúster funcionan sin problemas; sin embargo, al intentar desplegar una aplicación, los \x3cem\x3epods\x3c\/em\x3e se quedan en el estado \x3cem\x3eCreatingContainer\x3c\/em\x3e.\x3c\/p\x3e"
+    "description": "\x3cp\x3eUna de las maneras más sencillas de crear un entorno de desarrollo para Kubernetes es usando Vagrant y Ansible.\x3c\/p\x3e\n\n\x3cp\x3eEn el \x3ccode\x3eVagrantfile\x3c\/code\x3e definimos un conjunto de tres máquinas, llamadas \x3ccode\x3enode1\x3c\/code\x3e, \x3ccode\x3enode2\x3c\/code\x3e y \x3ccode\x3enode3\x3c\/code\x3e.\x3c\/p\x3e\n\n\x3cp\x3eUna vez las máquinas están levantadas, desde el servidor de Ansible uso \x3ccode\x3essh-copy-id\x3c\/code\x3e para habilitar el \x3cem\x3elogin\x3c\/em\x3e sin password de Ansible en los nodos del clúster.\x3c\/p\x3e\n\n\x3cp\x3eA partir de aquí, tanto la instalación de los prerequisitos como la inicialización del clúster funcionan sin problemas; sin embargo, al intentar desplegar una aplicación, los \x3cem\x3epods\x3c\/em\x3e se quedan en el estado \x3cem\x3eCreatingContainer\x3c\/em\x3e.\x3c\/p\x3e"
   }
 </script>
 
@@ -121,36 +121,64 @@
   </div>
 
   <div class="article-body"><p>Una de las maneras más sencillas de crear un entorno de desarrollo para Kubernetes es usando Vagrant y Ansible.</p>
+
 <p>En el <code>Vagrantfile</code> definimos un conjunto de tres máquinas, llamadas <code>node1</code>, <code>node2</code> y <code>node3</code>.</p>
+
 <p>Una vez las máquinas están levantadas, desde el servidor de Ansible uso <code>ssh-copy-id</code> para habilitar el <em>login</em> sin password de Ansible en los nodos del clúster.</p>
+
 <p>A partir de aquí, tanto la instalación de los prerequisitos como la inicialización del clúster funcionan sin problemas; sin embargo, al intentar desplegar una aplicación, los <em>pods</em> se quedan en el estado <em>CreatingContainer</em>.</p>
+
 <h1 id="análisis-de-logs">Análisis de logs</h1>
+
 <p>Analizando los logs el problema apuntaba a un problema de red con Weave.net. Al parecer, cada <em>pod</em> de Weave Net obtiene una lista de los nodos que componen el clúster e intenta conectar con los <em>pods</em> que corren en cada nodo. Esto implica que también intenta conectar consigo mismo, lo que genera un error.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#f92672">[</span>...<span style="color:#f92672">]</span> connection shutting down due to error: Cannot connect to ourself
-</code></pre></div><p>Sin embargo, este error es &ldquo;normal&rdquo; (hay alguna <a href="https://github.com/weaveworks/weave/issues/1305"><em>queja</em></a> en internet).</p>
+
+<pre><code class="language-shell">[...] connection shutting down due to error: Cannot connect to ourself
+</code></pre>
+
+<p>Sin embargo, este error es &ldquo;normal&rdquo; (hay alguna <a href="https://github.com/weaveworks/weave/issues/1305"><em>queja</em></a> en internet).</p>
+
 <p>Aunque el error al intentar conectar consigo mismo es inocuo, otro error debido a colisión de nombres no lo es:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#f92672">[</span>...<span style="color:#f92672">]</span> connection shutting down due to error: local and remote peer names collision
-</code></pre></div><p>Junto al mensaje de error aparecen las <em>MAC address</em> de las interfaces de red generadas por Weave, que coincidían en los tres nodos del clúster.</p>
+
+<pre><code class="language-shell">[...] connection shutting down due to error: local and remote peer names collision
+</code></pre>
+
+<p>Junto al mensaje de error aparecen las <em>MAC address</em> de las interfaces de red generadas por Weave, que coincidían en los tres nodos del clúster.</p>
+
 <p>Finalmente he encontrado la explicación y la solución en <a href="https://github.com/weaveworks/weave/issues/2767">Quorum not being reached on machines with identical IDs</a></p>
+
 <h2 id="causa">Causa</h2>
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
+
+<figure class="right">
+  <amp-img src="https://onthedock.github.io/images/vagrant.png" alt="Pods encallados en estado CreatingContainer en Kubernetes con nodos creados usando Vagrant images/vagrant.png" width=198 height=194 layout="responsive"></amp-img>
+  
+</figure>
+
 <p>Las tres máquinas se han generado a partir de la misma imagen de Vagrant, por lo que el <strong>identificador de máquina</strong> en los ficheros <code>/etc/machine-id</code> y <code>/var/lib/dbus/machine-id</code> eran el mismo en los tres nodos.</p>
+
 <p>De alguna manera, la <em>MAC</em> de la interfaz virtual <code>weave</code> se genera a partir del <em>machine-id</em> (que debería ser único). Pero en este caso, al ser el mismo en las tres máquinas virtuales, la <em>MAC</em> del interfaz <code>weave</code> también coincidía en los <em>pods</em> generados por Weave Net. Por este motivo se obtenía el error de colisión de nombres.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ ip address show
+
+<pre><code class="language-shell">$ ip address show
 ...
-6: weave: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu <span style="color:#ae81ff">1376</span> qdisc noqueue state UP group default qlen <span style="color:#ae81ff">1000</span>
+6: weave: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1376 qdisc noqueue state UP group default qlen 1000
     link/ether 76:2f:d2:46:f8:94 brd ff:ff:ff:ff:ff:ff
     inet 10.44.0.1/12 brd 10.47.255.255 scope global weave
        valid_lft forever preferred_lft forever
 ...
-</code></pre></div><h2 id="solución">Solución</h2>
+</code></pre>
+
+<h2 id="solución">Solución</h2>
+
 <p>La solución es elimnar el <em>machine-id</em> y generar uno nuevo:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">sudo rm /etc/machine-id
+
+<pre><code class="language-shell">sudo rm /etc/machine-id
 sudo rm /var/lib/dbus/machine-id
 sudo systemd-machine-id-setup
-</code></pre></div><p>Tras reiniciar los nodos del clúster, el <em>pod</em> de prueba del clúster se ha iniciado con normalidad.</p>
+</code></pre>
+
+<p>Tras reiniciar los nodos del clúster, el <em>pod</em> de prueba del clúster se ha iniciado con normalidad.</p>
+
 <h2 id="update-2018-08-10">Update (2018-08-10)</h2>
+
 <p>En la documentación oficial de Kubernetes sobre cómo instalar <code>kubeadm</code> se incluye una sección específica sobre este tema: <a href="https://kubernetes.io/docs/setup/independent/install-kubeadm/#verify-the-mac-address-and-product-uuid-are-unique-for-every-node">Verify the MAC address and product_uuid are unique for every node</a>. Además, se hace referencia a que, en caso contrario, la instalación puede fallar, haciendo referencia a este <em>bug</em> documentado en GitHub que hace referencia a Weave.net: <a href="https://github.com/kubernetes/kubeadm/issues/31">The product_uuid and the hostname should be unique across nodes</a>.</p></div>
 
   <aside class="p-share">

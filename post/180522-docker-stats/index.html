@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.68.3" />
+<meta name="generator" content="Hugo 0.55.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -121,23 +121,33 @@
   </div>
 
   <div class="article-body"><p>Docker proporciona el comando <code>docker stats</code> para monitorizar el uso de CPU, memoria, etc de los contenedores en ejecución:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ sudo docker stats
+
+<pre><code class="language-shell">$ sudo docker stats
 CONTAINER ID        NAME                CPU %               MEM USAGE / LIMIT     MEM %               NET I/O             BLOCK I/O           PIDS
-51b4b11494dc        jenkins             0.21%               179.6MiB / 1.877GiB   9.35%               452kB / 1.12MB      1.27GB / 7.02MB     <span style="color:#ae81ff">43</span>
-46a343a03526        sonarqube           2.65%               637.8MiB / 1.877GiB   33.19%              58.5MB / 61.4MB     8.15GB / 496MB      <span style="color:#ae81ff">163</span>
-aee4587d47c1        gogs                0.00%               20.25MiB / 1.877GiB   1.05%               5.61MB / 6.55MB     961MB / 2.7MB       <span style="color:#ae81ff">18</span>
-9dd9023adf46        maildev             0.00%               2.535MiB / 1.877GiB   0.13%               742kB / 1.91MB      246MB / 0B          <span style="color:#ae81ff">10</span>
-4426d99884ae        mysql-gogs          0.12%               8.59MiB / 1.877GiB    0.45%               1.67MB / 6.12MB     259MB / 573MB       <span style="color:#ae81ff">32</span>
-54d330316fba        portainer           0.00%               3.219MiB / 1.877GiB   0.17%               487kB / 5.8MB       65MB / 65.5kB       <span style="color:#ae81ff">5</span>
-6966a54978df        mysql-sonarqube     0.37%               13.05MiB / 1.877GiB   0.68%               206MB / 142MB       998MB / 148MB       <span style="color:#ae81ff">34</span>
-d3202c39fbe4        nexus               2.98%               405.7MiB / 1.877GiB   21.11%              1.51MB / 20.4MB     19.8GB / 946MB      <span style="color:#ae81ff">118</span>
-</code></pre></div><p>Al ejecutar el comando <em>tal cual</em>, se muestra el consumo en tiempo real, actualizándo los valores cada dos o tres segundos aproximadamente (al estilo de <code>top</code>).</p>
+51b4b11494dc        jenkins             0.21%               179.6MiB / 1.877GiB   9.35%               452kB / 1.12MB      1.27GB / 7.02MB     43
+46a343a03526        sonarqube           2.65%               637.8MiB / 1.877GiB   33.19%              58.5MB / 61.4MB     8.15GB / 496MB      163
+aee4587d47c1        gogs                0.00%               20.25MiB / 1.877GiB   1.05%               5.61MB / 6.55MB     961MB / 2.7MB       18
+9dd9023adf46        maildev             0.00%               2.535MiB / 1.877GiB   0.13%               742kB / 1.91MB      246MB / 0B          10
+4426d99884ae        mysql-gogs          0.12%               8.59MiB / 1.877GiB    0.45%               1.67MB / 6.12MB     259MB / 573MB       32
+54d330316fba        portainer           0.00%               3.219MiB / 1.877GiB   0.17%               487kB / 5.8MB       65MB / 65.5kB       5
+6966a54978df        mysql-sonarqube     0.37%               13.05MiB / 1.877GiB   0.68%               206MB / 142MB       998MB / 148MB       34
+d3202c39fbe4        nexus               2.98%               405.7MiB / 1.877GiB   21.11%              1.51MB / 20.4MB     19.8GB / 946MB      118
+</code></pre>
+
+<p>Al ejecutar el comando <em>tal cual</em>, se muestra el consumo en tiempo real, actualizándo los valores cada dos o tres segundos aproximadamente (al estilo de <code>top</code>).</p>
+
 <p>Podemos lanzar el comando para obtener el estado de manera puntual (es decir, que no se actualice automáticamente) mediante el parámetro <code>--no-stream</code>.</p>
+
 <p>Este comando puede ser la base de un sistema de monitorización sencillo, pero para ello deberíamos exportar la salida de <code>docker stats --no-stream</code> a un fichero; usando la redirección de Linux por ejemplo: <code>docker stats --no-stream &gt; stats.txt</code>.</p>
+
 <p>El fichero lo podemos importar después en una herramienta que pueda <em>ingestar</em> estos valores separados por tabulaciones&hellip; O podemos usar el parámetro <code>--format</code>, para definir convertir la salida en un fichero CSV:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">sudo docker stats --no-stream --format <span style="color:#e6db74">&#34;{{ .Container }}, {{ .Name }}, {{ .MemUsage }}, {{ .MemPerc }}, {{ .CPUPerc }}&#34;</span> &gt;&gt; stats.csv
-</code></pre></div><p>Con esta parametrización, la salida del comando sería:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ cat stats.csv
+
+<pre><code class="language-shell">sudo docker stats --no-stream --format &quot;{{ .Container }}, {{ .Name }}, {{ .MemUsage }}, {{ .MemPerc }}, {{ .CPUPerc }}&quot; &gt;&gt; stats.csv
+</code></pre>
+
+<p>Con esta parametrización, la salida del comando sería:</p>
+
+<pre><code class="language-shell">$ cat stats.csv
 $ 51b4b11494dc, jenkins, 180.2MiB / 1.877GiB, 9.38%, 0.19%
 46a343a03526, sonarqube, 634.1MiB / 1.877GiB, 33.00%, 3.35%
 aee4587d47c1, gogs, 20.88MiB / 1.877GiB, 1.09%, 0.00%
@@ -147,7 +157,10 @@ aee4587d47c1, gogs, 20.88MiB / 1.877GiB, 1.09%, 0.00%
 6966a54978df, mysql-sonarqube, 12.86MiB / 1.877GiB, 0.67%, 0.08%
 d3202c39fbe4, nexus, 413.8MiB / 1.877GiB, 21.53%, 2.34%
 $
-</code></pre></div><p>Si lo ejecutamos de manera periódica -vía <code>cron</code>- tenemos la base para una monitorización simple de nuestros contenedores&hellip;</p>
+</code></pre>
+
+<p>Si lo ejecutamos de manera periódica -vía <code>cron</code>- tenemos la base para una monitorización simple de nuestros contenedores&hellip;</p>
+
 <p>Quizás hay que darle una vuelta, pero teniendo la información, ahora la ¡imaginación es el límite!</p></div>
 
   <aside class="p-share">

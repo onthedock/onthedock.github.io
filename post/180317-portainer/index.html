@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.68.3" />
+<meta name="generator" content="Hugo 0.55.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -75,7 +75,7 @@
         "height": 60
       }
     },
-    "description": "\x3cp\x3eEn una entrada anterior expliqué mi primera toma de contacto con Portainer y cómo usar \x3ca href=\x22https:\/\/onthedock.github.io\/post\/170429-portainer-para-gestionar-tus-contenedores-en-docker\/\x22\x3ePortainer para gestionar tus contenedores en Docker\x3c\/a\x3e.\x3c\/p\x3e\n\x3cp\x3eLa herramienta -y la \x3ca href=\x22https:\/\/portainer.readthedocs.io\/en\/stable\/\x22\x3edocumentación\x3c\/a\x3e- ha mejorado durante este tiempo, por lo que ahora el proceso es todavía más sencillo y Portainer más potente.\x3c\/p\x3e"
+    "description": "\x3cp\x3eEn una entrada anterior expliqué mi primera toma de contacto con Portainer y cómo usar \x3ca href=\x22https:\/\/onthedock.github.io\/post\/170429-portainer-para-gestionar-tus-contenedores-en-docker\/\x22\x3ePortainer para gestionar tus contenedores en Docker\x3c\/a\x3e.\x3c\/p\x3e\n\n\x3cp\x3eLa herramienta -y la \x3ca href=\x22https:\/\/portainer.readthedocs.io\/en\/stable\/\x22\x3edocumentación\x3c\/a\x3e- ha mejorado durante este tiempo, por lo que ahora el proceso es todavía más sencillo y Portainer más potente.\x3c\/p\x3e"
   }
 </script>
 
@@ -121,12 +121,19 @@
   </div>
 
   <div class="article-body"><p>En una entrada anterior expliqué mi primera toma de contacto con Portainer y cómo usar <a href="https://onthedock.github.io/post/170429-portainer-para-gestionar-tus-contenedores-en-docker/">Portainer para gestionar tus contenedores en Docker</a>.</p>
+
 <p>La herramienta -y la <a href="https://portainer.readthedocs.io/en/stable/">documentación</a>- ha mejorado durante este tiempo, por lo que ahora el proceso es todavía más sencillo y Portainer más potente.</p>
+
 <p>Portainer es una herramienta gráfica ligera y de código abierto para gestionar servidores Docker. Portainer corre dentro de un contenedor, por lo que puede gestionar el servidor Docker local o conectar con otros servidores Docker (vía el API http).</p>
+
 <h2 id="gestión-de-un-servidor-local">Gestión de un servidor local</h2>
+
 <p>Tal y como -ahora sí- <a href="https://portainer.readthedocs.io/en/latest/deployment.html#manage-a-new-docker-environment">se indica en la documentación</a>, se puede gestionar el servidor local de Docker desde donde corre Portainer <em>montando</em> el <em>sock</em> UNIX de Docker.</p>
+
 <p>Para que Portainer pueda gestionar el servidor local de Docker, hay que incluir <code>-v /var/run/docker.sock:/var/run/docker.sock</code> en el comando <code>docker run</code>con el que lanzamos el contenedor de Portainer.</p>
+
 <p>El resto de opciones del comando <code>docker run</code> son las habituales:</p>
+
 <ul>
 <li><code>-d</code> para ejecutar el contenedor en segundo plano</li>
 <li><code>--name portainer</code> para dar un nombre al contenedor</li>
@@ -134,44 +141,70 @@
 <li><code>-v portainer-data:/data</code> para persistir la configuración de Portainer fuera del contenedor, en un volumen.</li>
 <li><code>-v /var/run/docker.sock:/var/run/docker.sock</code> monta el <em>sock</em> UNIX en el contenedor.</li>
 </ul>
+
 <p>Con lo que el comando para lanzar Portainer queda:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">docker run -d --name portainer -v portainer-data:/data -v /var/run/docker.sock:/var/run/docker.sock -p 9090:9000 portainer/portainer:1.16.4
-</code></pre></div><h2 id="gestión-de-un-servidor-remoto">Gestión de un servidor remoto</h2>
+
+<pre><code class="language-shell">docker run -d --name portainer -v portainer-data:/data -v /var/run/docker.sock:/var/run/docker.sock -p 9090:9000 portainer/portainer:1.16.4
+</code></pre>
+
+<h2 id="gestión-de-un-servidor-remoto">Gestión de un servidor remoto</h2>
+
 <p>Para configurar el acceso remoto a través del API de Docker, hay que modificar cómo arranca el demonio de Docker. Habililtar el acceso remoto a través del API de Docker puede suponer un riesgo de seguridad <strong>muy importante</strong> si no se realiza correctamente, por lo que es <strong>revisa la documentación</strong> sobre cómo <a href="https://docs.docker.com/engine/security/https/">Protect the Docker daemon socket</a>.</p>
+
 <p>Por convención, se usa el <a href="https://docs.docker.com/engine/reference/commandline/dockerd/#examples">puerto 2375</a> para la comunicación no encriptada, mientras que para la encriptada se usa el puerto 2376.</p>
+
 <blockquote>
 <p>En este artículo se indica cómo usar la comunicación sin encriptar porque se trata de un entorno de laboratorio controlado.</p>
 </blockquote>
+
 <p>La mejor manera de modificar las opciones de inicio de un fichero <em>system unit</em> es usando un fichero de <em>override</em>.</p>
+
 <h3 id="habilita-el-acceso-remoto-vía-api-para-docker">Habilita el acceso remoto vía API para Docker</h3>
+
 <ol>
-<li>Crea el fichero <code>/etc/systemd/system/docker.service.d/startup_options.conf</code> con el siguiente contenido tal y como se indica en <a href="https://success.docker.com/article/how-do-i-enable-the-remote-api-for-dockerd">How do I enable the remote API for dockerd</a>:</li>
+<li><p>Crea el fichero <code>/etc/systemd/system/docker.service.d/startup_options.conf</code> con el siguiente contenido tal y como se indica en <a href="https://success.docker.com/article/how-do-i-enable-the-remote-api-for-dockerd">How do I enable the remote API for dockerd</a>:</p>
+
+<pre><code class="language-shell"># /etc/systemd/system/docker.service.d/override.conf
+[Service]
+ExecStart=
+ExecStart=/usr/bin/dockerd -H fd:// -H tcp://0.0.0.0:2375
+</code></pre></li>
+
+<li><p>Recarga los fichero de configuración</p>
+
+<pre><code class="language-shell">sudo systemctl daemon-reload
+</code></pre></li>
+
+<li><p>Reiniciar el demonio del servicio:</p>
+
+<pre><code class="language-shell">$ sudo systemctl restart docker-service
+</code></pre></li>
+
+<li><p>Asegúrate que cualquiera con acceso al <em>socket</em> TCP es un usuario de confianza, ya que el <em>demonio</em> de Docker tiene permisos equivalentes al usuario <em>root</em>.</p></li>
 </ol>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#75715e"># /etc/systemd/system/docker.service.d/override.conf</span>
-<span style="color:#f92672">[</span>Service<span style="color:#f92672">]</span>
-ExecStart<span style="color:#f92672">=</span>
-ExecStart<span style="color:#f92672">=</span>/usr/bin/dockerd -H fd:// -H tcp://0.0.0.0:2375
-</code></pre></div><ol>
-<li>Recarga los fichero de configuración</li>
-</ol>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"> sudo systemctl daemon-reload
-</code></pre></div><ol>
-<li>Reiniciar el demonio del servicio:</li>
-</ol>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ sudo systemctl restart docker-service
-</code></pre></div><ol>
-<li>Asegúrate que cualquiera con acceso al <em>socket</em> TCP es un usuario de confianza, ya que el <em>demonio</em> de Docker tiene permisos equivalentes al usuario <em>root</em>.</li>
-</ol>
+
 <h2 id="configuración-del-servidor-remoto-de-docker-en-portainer">Configuración del servidor remoto de Docker en Portainer</h2>
+
 <p>En el panel lateral de Portainer, selecciona <em>Endpoints</em> e introduce el nombre y la ip:puerto del servidor remoto de Docker:</p>
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
+
+<figure>
+  <amp-img src="https://onthedock.github.io/images/180317/portainer-remote-endpoint.png" alt="Portainer: gestión de servidores Docker images/180317/portainer-remote-endpoint.png" width=640 height=400 layout="responsive"></amp-img>
+  
+</figure>
+
 <p>Pulsa sobre el botón <em>+ Add endpoint</em> y Portainer conectará con el servidor remoto de Docker a través de la API.</p>
+
 <h3 id="configurando-el-servidor-remoto-por-defecto">Configurando el servidor remoto por defecto</h3>
+
 <p>Si sólo vas a gestinar servidores remotos de Docker, puedes especificar en el comando <code>docker run</code> los datos de la conexión del servidor:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">docker run -d --name portainer -v portainer-data:/data -p 9090:9000 portainer/portainer:1.16.4 -H tcp://192.168.1.24:2375
-</code></pre></div><h2 id="resumen">Resumen</h2>
+
+<pre><code class="language-shell">docker run -d --name portainer -v portainer-data:/data -p 9090:9000 portainer/portainer:1.16.4 -H tcp://192.168.1.24:2375
+</code></pre>
+
+<h2 id="resumen">Resumen</h2>
+
 <p>En esta entrada he explicado cómo configurar Portainer para gestionar servidores Docker locales y remotos. El contenedor se ha lanzado montando un volumen de datos local para persistir la configuración de Portainer.</p>
+
 <p>Para poder gestionar servidores remotos de Docker, se ha explicado cómo habilitar el API de acceso remoto y se han facilitado los enlaces para realizar estas modificaciones de manera segura.</p></div>
 
   <aside class="p-share">

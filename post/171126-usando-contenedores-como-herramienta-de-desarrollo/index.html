@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.68.3" />
+<meta name="generator" content="Hugo 0.55.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -75,7 +75,7 @@
         "height": 60
       }
     },
-    "description": "\x3cp\x3eUna de las soluciones para el problema de proporcionar entornos de desarrollo a proveedores externos (colaborando en el desarrollo de aplicaciones) es proporcionar una máquina virtual pre-configurada con las herramientas aprobadas por la empresa.\x3c\/p\x3e\n\x3cp\x3eAl usar contenedores se pueden solventar algunos de los problemas que presenta la solución basada en máquinas virtuales.\x3c\/p\x3e\n\x3cp\x3eEn esta entrada se tratan algunas de las ventajas que se derivan del uso de contenedores como parte del \x3cem\x3etoolchain\x3c\/em\x3e del desarrollo de aplicaciones. Las problemáticas que resuelve el uso de contenedores son comunes a la mayoría de lenguajes de programación (tanto interpretados como compilados).\x3c\/p\x3e"
+    "description": "\x3cp\x3eUna de las soluciones para el problema de proporcionar entornos de desarrollo a proveedores externos (colaborando en el desarrollo de aplicaciones) es proporcionar una máquina virtual pre-configurada con las herramientas aprobadas por la empresa.\x3c\/p\x3e\n\n\x3cp\x3eAl usar contenedores se pueden solventar algunos de los problemas que presenta la solución basada en máquinas virtuales.\x3c\/p\x3e\n\n\x3cp\x3eEn esta entrada se tratan algunas de las ventajas que se derivan del uso de contenedores como parte del \x3cem\x3etoolchain\x3c\/em\x3e del desarrollo de aplicaciones. Las problemáticas que resuelve el uso de contenedores son comunes a la mayoría de lenguajes de programación (tanto interpretados como compilados).\x3c\/p\x3e"
   }
 </script>
 
@@ -121,20 +121,32 @@
   </div>
 
   <div class="article-body"><p>Una de las soluciones para el problema de proporcionar entornos de desarrollo a proveedores externos (colaborando en el desarrollo de aplicaciones) es proporcionar una máquina virtual pre-configurada con las herramientas aprobadas por la empresa.</p>
+
 <p>Al usar contenedores se pueden solventar algunos de los problemas que presenta la solución basada en máquinas virtuales.</p>
+
 <p>En esta entrada se tratan algunas de las ventajas que se derivan del uso de contenedores como parte del <em>toolchain</em> del desarrollo de aplicaciones. Las problemáticas que resuelve el uso de contenedores son comunes a la mayoría de lenguajes de programación (tanto interpretados como compilados).</p>
+
 <p>En el mundo real, un desarrollador habitualmente trabaja simultáneamente en el mantenimineto de varias aplicaciones, que generalmente fueron desarrolladas por otros programadores en diferentes momentos del pasado y que usan versiones diferentes de librerías y frameworks.</p>
+
 <p>En general, suele ser un problema tener instaladas diferentes versiones de las librerías o frameworks de desarrollo. Al <em>empaquetar</em> las diferentes versiones en un contenedor, solucionamos las incompatibilidades entre diferentes versiones. Como el espacio y recursos requeridos por un contenedor es <strong>muy</strong> inferior al de una máquina virtual, el desarrollador dispone de un mayor abanico de opciones de cara al desarrollo.</p>
+
 <p>Como ejemplo, el tamaño del contenedor de la versión del JDK versión 7 para Java -basado en Alpine Linux- ocupa sólo 142MB, frente a las decenas de <em>gigas</em> que ocuparía una máquina virtual:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ docker images
+
+<pre><code class="language-shell">$ docker images
 REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
-openjdk             7-jdk-alpine        b6bec13008bd        <span style="color:#ae81ff">3</span> weeks ago         142MB
-</code></pre></div><p>A diferencia de lo que ocurre en una máquina virtual, usando el contenedor con las herramientas de compilación el desarrollador puede seguir usando su IDE preferido, en vez de tener que usar el que haya proporcionado la empresa en la máquina virtual.</p>
+openjdk             7-jdk-alpine        b6bec13008bd        3 weeks ago         142MB
+</code></pre>
+
+<p>A diferencia de lo que ocurre en una máquina virtual, usando el contenedor con las herramientas de compilación el desarrollador puede seguir usando su IDE preferido, en vez de tener que usar el que haya proporcionado la empresa en la máquina virtual.</p>
+
 <p>Y cuando la empresa apruebe el uso de una nueva versión como base de los desarrollos, la actualización resulta tan sencilla como ejecutar <code>docker pull</code> usando la etiqueta correspondiente y dejar que Docker descargue la nueva versión.</p>
+
 <h2 id="ejemplo-compilar-un-programa-java">Ejemplo: compilar un programa java</h2>
+
 <p>En la máquina de desarrollo verificamos que java no está instalado:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ javac
-The program <span style="color:#e6db74">&#39;javac&#39;</span> can be found in the following packages:
+
+<pre><code class="language-shell">$ javac
+The program 'javac' can be found in the following packages:
  * default-jdk
  * ecj
  * gcj-5-jdk
@@ -143,24 +155,40 @@ The program <span style="color:#e6db74">&#39;javac&#39;</span> can be found in t
  * gcj-4.9-jdk
  * openjdk-9-jdk-headless
 Try: sudo apt install &lt;selected package&gt;
-</code></pre></div><p>Descargamos la imagen oficial (en este caso, directamente desde DockerHub) de la versión 7 de OpenJDK:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ docker pull library/openjdk:7-jdk-alpine
+</code></pre>
+
+<p>Descargamos la imagen oficial (en este caso, directamente desde DockerHub) de la versión 7 de OpenJDK:</p>
+
+<pre><code class="language-shell">$ docker pull library/openjdk:7-jdk-alpine
 7-jdk-alpine: Pulling from library/openjdk
 b56ae66c2937: Already exists
 81cebc5bcaf8: Pull complete
 1b523c1c6444: Pull complete
 Digest: sha256:7ca2b9b21961b1a71e0271c10471d3c8ec6c683c926e7644e636922d123ee276
-Status: Downloaded newer image <span style="color:#66d9ef">for</span> openjdk:7-jdk-alpine
-</code></pre></div><p>Vamos a compilar el código de una aplicación de prueba, una versión de <a href="https://www.cs.utexas.edu/~scottm/cs307/javacode/codeSamples/HelloWorld.java">HelloWorld.java</a> obtenida de la Universidad de Texas. Compilamos el código local usando:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">docker run --rm -v <span style="color:#e6db74">&#34;</span>$PWD<span style="color:#e6db74">&#34;</span>:/usr/src/helloworld -w /usr/src/helloworld openjdk:7-jdk-alpine javac HelloWorld.java
-</code></pre></div><p>El comando ejecuta un contenedor que se eliminará cuando finalice la ejecución (<code>--rm</code>), montando la carpeta local (<code>$PWD</code>, <em>print working directory</em>) en el contenedor. Mediante la opción <code>-w</code> cambia la carpeta de trabajo dentro del contenedor al volumen montado y ejecuta la compilación usando <code>javac HelloWorld.java</code>.</p>
+Status: Downloaded newer image for openjdk:7-jdk-alpine
+</code></pre>
+
+<p>Vamos a compilar el código de una aplicación de prueba, una versión de <a href="https://www.cs.utexas.edu/~scottm/cs307/javacode/codeSamples/HelloWorld.java">HelloWorld.java</a> obtenida de la Universidad de Texas. Compilamos el código local usando:</p>
+
+<pre><code class="language-shell">docker run --rm -v &quot;$PWD&quot;:/usr/src/helloworld -w /usr/src/helloworld openjdk:7-jdk-alpine javac HelloWorld.java
+</code></pre>
+
+<p>El comando ejecuta un contenedor que se eliminará cuando finalice la ejecución (<code>--rm</code>), montando la carpeta local (<code>$PWD</code>, <em>print working directory</em>) en el contenedor. Mediante la opción <code>-w</code> cambia la carpeta de trabajo dentro del contenedor al volumen montado y ejecuta la compilación usando <code>javac HelloWorld.java</code>.</p>
+
 <p>Después de compilar, en la carpeta local obtenemos el fichero compilado <code>HelloWorld.class</code>.</p>
+
 <p>Verificamos que el programa compilado funciona -usando de nuevo el contenedor- mediante:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ docker run --rm -v <span style="color:#e6db74">&#34;</span>$PWD<span style="color:#e6db74">&#34;</span>:/usr/src/helloworld -w /usr/src/helloworld openjdk:7-jdk-alpine java HelloWorld
+
+<pre><code class="language-shell">$ docker run --rm -v &quot;$PWD&quot;:/usr/src/helloworld -w /usr/src/helloworld openjdk:7-jdk-alpine java HelloWorld
 Hello World!
-</code></pre></div><h2 id="resumen">Resumen</h2>
+</code></pre>
+
+<h2 id="resumen">Resumen</h2>
+
 <p>Usando contenedores la empresa puede mantener una base de desarrollo homogénea, fijando versiones de compiladores, <em>librerías</em> y <em>frameworks</em> probados mateniendo la libertad del desarrollador para seguir utilizando su IDE preferido.</p>
+
 <p>Usando contenedores es posible disponer de múltiples versiones de las mismas <em>librerías</em> o <em>frameworks</em> sin tener que lidiar con posibles incompatibilidades.</p>
+
 <p>También es más ágil distribuir actualizaciones de la plataforma de desarrollo, ya que Docker únicamente descarga las diferencias con las imágenes previas.</p></div>
 
   <aside class="p-share">

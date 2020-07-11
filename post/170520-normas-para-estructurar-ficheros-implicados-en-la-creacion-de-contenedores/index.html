@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.68.3" />
+<meta name="generator" content="Hugo 0.55.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -75,7 +75,7 @@
         "height": 60
       }
     },
-    "description": "\x3cp\x3eEl proceso desde la creación a la ejecución del contenedor se puede separar en varias fases:\x3c\/p\x3e\n\x3col\x3e\n\x3cli\x3eCreación de la imagen (mediante la redacción de un fichero \x3ccode\x3eDockerfile\x3c\/code\x3e)\x3c\/li\x3e\n\x3cli\x3eConstrucción de la imagen\x3c\/li\x3e\n\x3cli\x3eEjecución del contenedores\x3c\/li\x3e\n\x3c\/ol\x3e\n\x3cp\x3ePara tener los diferentes ficheros implicados en el proceso organizados de forma homogénea, me he autoimpuesto las siguientes reglas a la hora de estructurar los repositorios.\x3c\/p\x3e"
+    "description": "\x3cp\x3eEl proceso desde la creación a la ejecución del contenedor se puede separar en varias fases:\x3c\/p\x3e\n\n\x3col\x3e\n\x3cli\x3eCreación de la imagen (mediante la redacción de un fichero \x3ccode\x3eDockerfile\x3c\/code\x3e)\x3c\/li\x3e\n\x3cli\x3eConstrucción de la imagen\x3c\/li\x3e\n\x3cli\x3eEjecución del contenedores\x3c\/li\x3e\n\x3c\/ol\x3e\n\n\x3cp\x3ePara tener los diferentes ficheros implicados en el proceso organizados de forma homogénea, me he autoimpuesto las siguientes reglas a la hora de estructurar los repositorios.\x3c\/p\x3e"
   }
 </script>
 
@@ -121,43 +121,66 @@
   </div>
 
   <div class="article-body"><p>El proceso desde la creación a la ejecución del contenedor se puede separar en varias fases:</p>
+
 <ol>
 <li>Creación de la imagen (mediante la redacción de un fichero <code>Dockerfile</code>)</li>
 <li>Construcción de la imagen</li>
 <li>Ejecución del contenedores</li>
 </ol>
+
 <p>Para tener los diferentes ficheros implicados en el proceso organizados de forma homogénea, me he autoimpuesto las siguientes reglas a la hora de estructurar los repositorios.</p>
+
 <h1 id="dockerfile">Dockerfile</h1>
+
 <p>El primero paso para ejecutar un contenedor es crear la imagen en la que está basado. Para ello debes crear un fichero <code>Dockerfile</code> en el que se indica la imagen base usada y los diferentes pasos de instalación de paquetes, configuración de usuarios, volúmenes y puertos expuestos.</p>
+
 <p>En la creación de la imagen intervienen, además del fichero <code>Dockerfile</code>, ficheros de configuración, etc que se copian a la imagen desde la carpeta donde se encuentra el fichero <code>Dockerfile</code> (el llamado <em>contexto</em>, ver <a href="https://docs.docker.com/engine/reference/commandline/build/#options">Documentación oficial de <code>docker build</code></a>).</p>
+
 <p>Para gestionar los cambios sobre estos ficheros, lo más sencillo es guardarlos en un repositorio y tener un registro de todos los cambios que se van introduciendo a lo largo del tiempo.</p>
+
 <p>Todos los ficheros relacionados con la <em>creación</em> de la imagen se colocan en una carpeta llamada <code>build</code>, con el <code>Dockerfile</code> y los ficheros de configuración, etc, agrupados en sus correspondientes carpetas.</p>
+
 <p>En esta carpeta también se incluyen un fichero con instrucciones para la creación de la imagen (condiciones en las que reutilizar la cache, puntos a tener en cuenta, etc) y un <em>script</em> para lanzar la creación de la imagen de forma siempre igual (quizás el script borra ficheros temporales o descargados en ejecuciones anteriores, por ejemplo).</p>
+
 <h1 id="construcción-de-la-imagen">Construcción de la imagen</h1>
+
 <p>Una vez creado el <code>Dockerfile</code>, <em>construyes</em> la imagen mediante <code>docker build</code>. Aunque en general la construcción se realiza mediante un sólo comando de la forma <code>docker build -t {repositorio/etiqueta} .</code>, puede ser interesante disponer de documentación con indicaciones sobre las reglas de etiquetado de la imagen definidas por la empresa o similar.</p>
+
 <h1 id="ejecución-del-contenedor">Ejecución del contenedor</h1>
+
 <p>Finalmente la creación de contenedores basados en la imagen se realiza mediante un comando <code>docker run</code>.</p>
+
 <p>A la hora de ejecutar el contenedor la instrucción puede incluir el nombre del contenedor final, la relación entre puertos del <em>host</em> y el contenedor, el montaje de volúmenes, etc. En algunos casos, el contenedor admite parámetros que se pasan al comando definido en la instrucción <code>CMD</code>.</p>
+
 <p>Para evitar errores o simplemente para no teclear una y otra vez comandos larguísimos para ejecutar el contenedor, podemos crear un <em>script</em> que lance el contenedor con los parámetros necesarios, así como documentación de la funcionalidad proporcionada por el contenedor, etc.</p>
+
 <p>Estos ficheros se guardan en el carpeta llamada <code>run</code>; básicamente el comando para lanzar la creación del contenedor de forma homogénea y las instrucciones con información sobre el uso del contenedor, volúmenes, etc.</p>
+
 <h1 id="carpetas">Carpetas</h1>
+
 <p>Para estructurar todos los ficheros implicados en el proceso de creación de un contenedor he definido la siguiente estructura de carpetas:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">./nombre-contenedor/
+
+<pre><code class="language-sh">./nombre-contenedor/
  |
  ├─Readme.md
  ├─build/
  | ├─Dockerfile
  | ├─build.sh
  | ├─Build-Instructions.md
- | ├─<span style="color:#f92672">{</span>context-files<span style="color:#f92672">}</span>/
+ | ├─{context-files}/
  | ├─...
- | ├─<span style="color:#f92672">{</span>context-files<span style="color:#f92672">}</span>/
+ | ├─{context-files}/
  ├─run/
  | ├─run.sh
  | ├─Run-Instructions.md
-</code></pre></div><h1 id="motivación">Motivación</h1>
+</code></pre>
+
+<h1 id="motivación">Motivación</h1>
+
 <p>No he encontrado ningún artículo sobre la organización de los ficheros implicados en el creación de imágenes o de los flujos de trabajo asociados a estos procesos. Tampoco sobre las normas a la hora de etiquetar las imágenes o si se realizan validaciones a la hora de obtener/subir imágenes de repositorios públicos.</p>
+
 <p>Incluso en una empresa en la que el proceso de desarrollo y operación de las aplicaciones gire alrededor del concepto <em>DevOp</em>, puede haber otros implicados en el proceso <em>administrativo</em> del ciclo de vida de la aplicación: decisiones estratégicas, a nivel de seguridad, de <em>compliance</em> con leyes como la protección de datos, etc.</p>
+
 <p>En los artículos/conferencias lo habitual es explicar soluciones técnicas sin entrar nunca en estos procesos que relacionan IT con el resto de departamentos de la empresa.</p></div>
 
   <aside class="p-share">

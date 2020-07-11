@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.68.3" />
+<meta name="generator" content="Hugo 0.55.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -75,7 +75,7 @@
         "height": 60
       }
     },
-    "description": "\x3cp\x3eUno de los casos de uso más frecuentes de Docker es formando parte de una cadena de integración y despliegue continuo (CI\/CD) gestionada por Jenkins.\x3c\/p\x3e\n\x3cp\x3eEn esta serie de artículos vamos a levantar un contenedor con Jenkins sobre Docker y vamos a configur Jenkins paso a paso.\x3c\/p\x3e"
+    "description": "\x3cp\x3eUno de los casos de uso más frecuentes de Docker es formando parte de una cadena de integración y despliegue continuo (CI\/CD) gestionada por Jenkins.\x3c\/p\x3e\n\n\x3cp\x3eEn esta serie de artículos vamos a levantar un contenedor con Jenkins sobre Docker y vamos a configur Jenkins paso a paso.\x3c\/p\x3e"
   }
 </script>
 
@@ -121,9 +121,13 @@
   </div>
 
   <div class="article-body"><p>Uno de los casos de uso más frecuentes de Docker es formando parte de una cadena de integración y despliegue continuo (CI/CD) gestionada por Jenkins.</p>
+
 <p>En esta serie de artículos vamos a levantar un contenedor con Jenkins sobre Docker y vamos a configur Jenkins paso a paso.</p>
+
 <h1 id="descarga-y-ejecución-de-jenkins-en-un-contenedor">Descarga y ejecución de Jenkins en un contenedor</h1>
+
 <p>La instalación de Jenkins usando Docker no podía ser más sencilla:</p>
+
 <ol>
 <li>Buscamos la imagen oficial de Jenkins en Docker Hub: <code>https://hub.docker.com/r/jenkins/jenkins/</code></li>
 <li>Revisamos las etiquetas disponibles y seleccionamos la última versión disponible (al escribir este artículo) basada en Alpine Linux: <code>jenkins/jenkins:2.107.1-alpine</code>.</li>
@@ -131,27 +135,48 @@
 <li>Creamos un volumen local donde almacenar la configuración de Jenkins: <code>docker volume create jenkins_home</code></li>
 <li>Lanzamos el contenedor para Jenkins, montando el volumen de datos creado en el punto anterior: <code>docker run --name jenkins -p 8080:8000 -p 50000:50000 -v jenkins_home:/var/jenkins_home jenkins/jenkins:2.107.1-alpine</code></li>
 </ol>
+
 <h2 id="el-comando-docker-run-paso-a-paso">El comando <code>docker run</code> paso a paso</h2>
+
 <p>El comando anterior lanza un contenedor llamado <code>jenkins</code> (especificado mediante <code>--name jenkins</code>) basado en la imagen <code>jenkins/jenkins:2.107.1-alpine</code>.</p>
+
 <p>El contenedor monta el volumen <code>jenkins_home</code> en el contenedor (si no se ha creado en el punto 4, se crea el volumen al lanzar el contenedor). El volumen contiene toda la configuración de Jenkins, lo que permitirá actualizar la aplicación a otras versiones sin perder la configuración. La opción de guardar la configuración en un contenedor es preferible a la de montar un volumen local del <em>host</em>.</p>
+
 <p>Si decides montar un volumen local del <em>host</em> en el contenedor, debes tener en cuenta que Jenkins corre dentro del contenedor con el usuario <code>jenkins</code>, con <code>uid 1000</code>; deberás dar permisos en la carpeta local a este usuario para no tener problemas de acceso desde el contenedor. Otra opción es ejecutar Jenkins con un usuario &ldquo;local&rdquo; del <em>host</em> mediante el parámetro <code>-u nombre_de_usuario</code> al ejecutar <code>docker run</code>.</p>
+
 <h3 id="puertos">Puertos</h3>
+
 <p>El acceso web a la aplicación se realiza a través del puerto 8080 , mientras que el puerto 50000 es necesario para conectar con otros servidores Jenkins <em>esclavos</em> a través de JNLP (Java Web Start). Si solo vas a utilizar <em>esclavos</em> vía SSH, no necesitas abrir el puerto 50000.</p>
+
 <h3 id="otras-configuraciones">Otras configuraciones</h3>
+
 <p>Puedes realizar configuraciones adicionales a través de parámetros al ejecutar el contenedor, como ajustar el nivel de detalle en los <em>logs</em>, configurar el número de <em>ejecutores</em>, etc.</p>
+
 <h3 id="preinstalación-de-plugins">Preinstalación de plugins</h3>
+
 <p>Para preinstalar <em>plugins</em> en Jenkins, debes crear una imagen personalizada. En la imagen, puedes usar el script <code>install-plugins.sh</code> para descargar los plugins indicados. Puedes pasar una lista de plugins a instalar al script mediante:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">...
+
+<pre><code class="language-shell">...
 COPY plugins.txt /usr/share/jenkins/ref/plugins.txt
 RUN /usr/local/bin/install-plugins.sh &lt; /usr/share/jenkins/ref/plugins.txt
-</code></pre></div><p>Cuando el contenedor de Jenkins arranca, comprueba si los <em>plugins</em> indicados existen en <code>JENKINS_HOME</code> y los copia si es necesario. <strong>No sobrescribirá los ficheros</strong>, por lo que si has actualizado los <em>plugins</em> desde la interfaz web, no los modificará.</p>
+</code></pre>
+
+<p>Cuando el contenedor de Jenkins arranca, comprueba si los <em>plugins</em> indicados existen en <code>JENKINS_HOME</code> y los copia si es necesario. <strong>No sobrescribirá los ficheros</strong>, por lo que si has actualizado los <em>plugins</em> desde la interfaz web, no los modificará.</p>
+
 <p>Es posible <strong>sobrescribir</strong> los <em>plugins</em> si lo necesitas; para ello debes añadir <code>.override</code> al nombre del <em>plugin</em> que quieras sobrescribir.</p>
+
 <h2 id="primer-acceso-a-jenkins">Primer acceso a Jenkins</h2>
-<p>Abre un navegador y accede a http://IP-del-host-docker:8080. Después de unos segundos en los que Jenkins debe acabar de arrancar, se muestra el siguiente mensaje:</p>
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
+
+<p>Abre un navegador y accede a <a href="http://IP-del-host-docker:8080">http://IP-del-host-docker:8080</a>. Después de unos segundos en los que Jenkins debe acabar de arrancar, se muestra el siguiente mensaje:</p>
+
+<figure>
+  <amp-img src="https://onthedock.github.io/images/180316/jenkins-unlock.png" alt="Jenkins en Docker: puesta en marcha images/180316/jenkins-unlock.png" width=640 height=400 layout="responsive"></amp-img>
+  
+</figure>
+
 <p>Jenkins genera una contraseña segura en <code>/var/jenkins_home/secrets/initialAdminPassword</code>. Puedes obtener esta contraseña inicial de diferentes maneras, pero la más sencilla es revisando los logs de arranque de Jenkins:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ docker logs jenkins
+
+<pre><code class="language-shell">$ docker logs jenkins
 ...
 
 Jenkins initial setup is required. An admin user has been created and a password generated.
@@ -165,49 +190,83 @@ This may also be found at: /var/jenkins_home/secrets/initialAdminPassword
 *************************************************************
 *************************************************************
 
-Mar 17, <span style="color:#ae81ff">2018</span> 5:42:29 AM hudson.model.UpdateSite updateData
-INFO: Obtained the latest update center data file <span style="color:#66d9ef">for</span> UpdateSource default
-Mar 17, <span style="color:#ae81ff">2018</span> 5:42:29 AM hudson.model.DownloadService$Downloadable load
-INFO: Obtained the updated data file <span style="color:#66d9ef">for</span> hudson.tasks.Maven.MavenInstaller
-Mar 17, <span style="color:#ae81ff">2018</span> 5:42:31 AM hudson.model.DownloadService$Downloadable load
-INFO: Obtained the updated data file <span style="color:#66d9ef">for</span> hudson.tools.JDKInstaller
-Mar 17, <span style="color:#ae81ff">2018</span> 5:42:31 AM hudson.model.AsyncPeriodicWork$1 run
+Mar 17, 2018 5:42:29 AM hudson.model.UpdateSite updateData
+INFO: Obtained the latest update center data file for UpdateSource default
+Mar 17, 2018 5:42:29 AM hudson.model.DownloadService$Downloadable load
+INFO: Obtained the updated data file for hudson.tasks.Maven.MavenInstaller
+Mar 17, 2018 5:42:31 AM hudson.model.DownloadService$Downloadable load
+INFO: Obtained the updated data file for hudson.tools.JDKInstaller
+Mar 17, 2018 5:42:31 AM hudson.model.AsyncPeriodicWork$1 run
 INFO: Finished Download metadata. 8,990 ms
-Mar 17, <span style="color:#ae81ff">2018</span> 5:42:31 AM hudson.model.UpdateSite updateData
-INFO: Obtained the latest update center data file <span style="color:#66d9ef">for</span> UpdateSource default
-Mar 17, <span style="color:#ae81ff">2018</span> 5:42:31 AM hudson.WebAppMain$3 run
+Mar 17, 2018 5:42:31 AM hudson.model.UpdateSite updateData
+INFO: Obtained the latest update center data file for UpdateSource default
+Mar 17, 2018 5:42:31 AM hudson.WebAppMain$3 run
 INFO: Jenkins is fully up and running
---&gt; setting agent port <span style="color:#66d9ef">for</span> jnlp
---&gt; setting agent port <span style="color:#66d9ef">for</span> jnlp... <span style="color:#66d9ef">done</span>
-</code></pre></div><p>Personalmente considero más útil aprovechar que el password inicial se encuentra en el fichero <code>/var/jenkins_home/secrets/initialAdminPassword</code> y obtenerlo usando <code>cat /var/jenkins_home/secrets/initialAdminPassword</code> mediante <code>docker exec</code>.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ docker exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword
+--&gt; setting agent port for jnlp
+--&gt; setting agent port for jnlp... done
+</code></pre>
+
+<p>Personalmente considero más útil aprovechar que el password inicial se encuentra en el fichero <code>/var/jenkins_home/secrets/initialAdminPassword</code> y obtenerlo usando <code>cat /var/jenkins_home/secrets/initialAdminPassword</code> mediante <code>docker exec</code>.</p>
+
+<pre><code class="language-shell">$ docker exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword
 cb6e558c91e946ab8f06cf085c9cf88b
-</code></pre></div><p>De esta forma puedes guardar el password en una variable de entorno y usarlo en un script, para acceder desde otra aplicación usando la API, etc.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ JENKINS_InitialPassword<span style="color:#f92672">=</span><span style="color:#66d9ef">$(</span>docker exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword<span style="color:#66d9ef">)</span>
+</code></pre>
+
+<p>De esta forma puedes guardar el password en una variable de entorno y usarlo en un script, para acceder desde otra aplicación usando la API, etc.</p>
+
+<pre><code class="language-shell">$ JENKINS_InitialPassword=$(docker exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword)
 
 $ echo $JENKINS_InitialPassword
 cb6e558c91e946ab8f06cf085c9cf88b
-</code></pre></div><p>Copia el password e introdúcelo para acceder a Jenkins.</p>
+</code></pre>
+
+<p>Copia el password e introdúcelo para acceder a Jenkins.</p>
+
 <h2 id="instalación-de-plugins">Instalación de plugins</h2>
+
 <p>Jenkins ofrece la posibilidad de instalar los <em>plugins</em> sugeridos por la comunidad o realizar nosotros la selección de forma manual. Podemos instalar o desinstalar <em>plugins</em> después, por lo que pulsamos en la opción <em>Install suggested plugins</em>:</p>
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
+
+<figure>
+  <amp-img src="https://onthedock.github.io/images/180316/jenkins_suggested_plugins.png" alt="Jenkins en Docker: puesta en marcha images/180316/jenkins_suggested_plugins.png" width=640 height=400 layout="responsive"></amp-img>
+  
+</figure>
+
 <p>El sistema descarga los <em>plugins</em>:</p>
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
+
+<figure>
+  <amp-img src="https://onthedock.github.io/images/180316/jenkins_suggested_plugins_installation.png" alt="Jenkins en Docker: puesta en marcha images/180316/jenkins_suggested_plugins_installation.png" width=640 height=400 layout="responsive"></amp-img>
+  
+</figure>
+
 <h2 id="creación-de-un-usuario-administrador">Creación de un usuario administrador</h2>
+
 <p>Tras la instalación, se muestra el formulario para crear un usuario administrador:</p>
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
+
+<figure>
+  <amp-img src="https://onthedock.github.io/images/180316/jenkins_first-admin-user.png" alt="Jenkins en Docker: puesta en marcha images/180316/jenkins_first-admin-user.png" width=640 height=400 layout="responsive"></amp-img>
+  
+</figure>
+
 <p>Jenkins ofrece la posibilidad de seguir usando el usuario <em>admin</em>, sin crear usuarios adicionales.</p>
+
 <p>Tras la creación del usuario, podemos empezar a usar Jenkins:</p>
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
+
+<figure>
+  <amp-img src="https://onthedock.github.io/images/180316/jenkins_is_ready.png" alt="Jenkins en Docker: puesta en marcha images/180316/jenkins_is_ready.png" width=640 height=400 layout="responsive"></amp-img>
+  
+</figure>
+
 <p>Si hemos creado un nuevo usuario administrador, accedemos a Jenkins con el usuario recién creado:</p>
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
+
+<figure>
+  <amp-img src="https://onthedock.github.io/images/180316/jenkins_landingpage.png" alt="Jenkins en Docker: puesta en marcha images/180316/jenkins_landingpage.png" width=640 height=400 layout="responsive"></amp-img>
+  
+</figure>
+
 <h2 id="resumen">Resumen</h2>
+
 <p>Hemos descargado la imagen de Jenkins y hemos arrancado un contenedor a partir de ella. Hemos indicado cómo acceder usando el password generado durante el primer arranque, cómo configurar los <em>plugins</em> sugeridos y crear el primer usuario.</p>
+
 <p>En los siguientes artículos crearemos los primeros <em>jobs</em> de prueba en Jenkins.</p></div>
 
   <aside class="p-share">

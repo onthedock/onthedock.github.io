@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.68.3" />
+<meta name="generator" content="Hugo 0.55.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -75,7 +75,7 @@
         "height": 60
       }
     },
-    "description": "\x3cp\x3eEn las guías y tutoriales en internet siempre funciona todo sin ningún fallo. Sin embargo, lo más habitual es que encontremos problemas en los primeros intentos de poner en marcha una aplicación.\x3c\/p\x3e\n\x3cp\x3ePersonalmente, creo que el aprendizaje es un proceso de ensayo y error, por lo que se aprende solucionando los errores que nos encontramos.\x3c\/p\x3e\n\x3cp\x3eCon esa idea en mente, también intento documentar los fallos que cometo. A continuación tienes el registro de las acciones que realicé para solucionar los problemas encontrados en el arranque de SonarQube.\x3c\/p\x3e"
+    "description": "\x3cp\x3eEn las guías y tutoriales en internet siempre funciona todo sin ningún fallo. Sin embargo, lo más habitual es que encontremos problemas en los primeros intentos de poner en marcha una aplicación.\x3c\/p\x3e\n\n\x3cp\x3ePersonalmente, creo que el aprendizaje es un proceso de ensayo y error, por lo que se aprende solucionando los errores que nos encontramos.\x3c\/p\x3e\n\n\x3cp\x3eCon esa idea en mente, también intento documentar los fallos que cometo. A continuación tienes el registro de las acciones que realicé para solucionar los problemas encontrados en el arranque de SonarQube.\x3c\/p\x3e"
   }
 </script>
 
@@ -121,150 +121,220 @@
   </div>
 
   <div class="article-body"><p>En las guías y tutoriales en internet siempre funciona todo sin ningún fallo. Sin embargo, lo más habitual es que encontremos problemas en los primeros intentos de poner en marcha una aplicación.</p>
+
 <p>Personalmente, creo que el aprendizaje es un proceso de ensayo y error, por lo que se aprende solucionando los errores que nos encontramos.</p>
+
 <p>Con esa idea en mente, también intento documentar los fallos que cometo. A continuación tienes el registro de las acciones que realicé para solucionar los problemas encontrados en el arranque de SonarQube.</p>
+
 <h1 id="lanzando-el-contenedor">Lanzando el contenedor</h1>
+
 <p>Lanzamos el contenedor con SonarQube conectándolo a la base de datos:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ sudo docker run -d --name sonarqube -p 9000:9000 -p 9092:9092 <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>-e SONARQUBE_JDBC_USERNAME<span style="color:#f92672">=</span>sonar <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>-e SONARQUBE_JDBC_PASSWORD<span style="color:#f92672">=</span>cF68nTVgP8Nq <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>-e SONARQUBE_JDBC_URL<span style="color:#f92672">=</span>jdbc:mysql://localhost/sonar sonarqube:7.1-alpine
+
+<pre><code class="language-shell">$ sudo docker run -d --name sonarqube -p 9000:9000 -p 9092:9092 \
+-e SONARQUBE_JDBC_USERNAME=sonar \
+-e SONARQUBE_JDBC_PASSWORD=cF68nTVgP8Nq \
+-e SONARQUBE_JDBC_URL=jdbc:mysql://localhost/sonar sonarqube:7.1-alpine
 9726b2c018d6151745a382ea22cc53f1a96ada557ae21b2a176313b46fb4a010
 $
-</code></pre></div><p>El contenedor <strong>se detiene después de ser lanzado</strong>.</p>
+</code></pre>
+
+<p>El contenedor <strong>se detiene después de ser lanzado</strong>.</p>
+
 <h1 id="troubleshooting">Troubleshooting</h1>
+
 <p>Mientras observo los logs, lo primero que me viene a la cabeza es que no hemos definido una base de datos en MySQL para SonarQube ni en el comando para lanzar SonarQube.</p>
+
 <p>Eliminamos el contenedor actual de MySQL para SonarQube:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ sudo docker stop mysql-sonarqube <span style="color:#f92672">&amp;&amp;</span> sudo docker rm mysql-sonarqube
+
+<pre><code class="language-shell">$ sudo docker stop mysql-sonarqube &amp;&amp; sudo docker rm mysql-sonarqube
 mysql-sonarqube
 mysql-sonarqube
 $
-</code></pre></div><h1 id="creando-una-base-de-datos-para-sonarqube-en-mysql">Creando una base de datos para SonarQube en MySQL</h1>
+</code></pre>
+
+<h1 id="creando-una-base-de-datos-para-sonarqube-en-mysql">Creando una base de datos para SonarQube en MySQL</h1>
+
 <p>Creamos la base de datos siguiendo las instrucciones de la <a href="https://hub.docker.com/_/mysql/">página en Docker Hub para MySQL</a>:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ sudo docker run -d --name mysql-sonarqube --network backend-sonarqube <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>--mount source<span style="color:#f92672">=</span>data-mysql-sonarqube,target<span style="color:#f92672">=</span>/var/lib/mysql <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>-e MYSQL_ROOT_PASSWORD<span style="color:#f92672">=</span>J8wqnvJicbpv <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>-e MYSQL_DATABASE<span style="color:#f92672">=</span>sonar <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>-e MYSQL_USER<span style="color:#f92672">=</span>sonar -e MYSQL_PASSWORD<span style="color:#f92672">=</span>cF68nTVgP8Nq <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>mysql:5.7
+
+<pre><code class="language-shell">$ sudo docker run -d --name mysql-sonarqube --network backend-sonarqube \
+--mount source=data-mysql-sonarqube,target=/var/lib/mysql \
+-e MYSQL_ROOT_PASSWORD=J8wqnvJicbpv \
+-e MYSQL_DATABASE=sonar \
+-e MYSQL_USER=sonar -e MYSQL_PASSWORD=cF68nTVgP8Nq \
+mysql:5.7
 c12b24cbe07b4026ae7deda7e9085775fa3f794ca28778b665d36cfdf1bd9fa4
 $
-</code></pre></div><p>Al lanzar de nuevo el contenedor, seguimos obteniendo el mismo error.</p>
+</code></pre>
+
+<p>Al lanzar de nuevo el contenedor, seguimos obteniendo el mismo error.</p>
+
 <h2 id="modificando-la-cadena-de-conexión">Modificando la cadena de conexión</h2>
+
 <p>Revisando <a href="https://github.com/SonarSource/docker-sonarqube/issues/61">docker image of sonarqube is not running with mysql db configuration</a>, observo dos cosas: primero, cómo añadir la propiedad <code>useUnicode=true</code> y segundo, que en la cadena de conexión se hace referencia a <code>localhost</code> y la base de datos no se encuentra en el contenedor de SonarQube.</p>
+
 <p>En los logs aparece la excepción:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ sudo docker logs sonarqube
-Exception in thread <span style="color:#e6db74">&#34;main&#34;</span> org.sonar.process.MessageException: JDBC URL must have the property <span style="color:#e6db74">&#39;useUnicode=true&#39;</span>
+
+<pre><code class="language-shell">$ sudo docker logs sonarqube
+Exception in thread &quot;main&quot; org.sonar.process.MessageException: JDBC URL must have the property 'useUnicode=true'
 $
-</code></pre></div><p>Corrijo la cadena de conexión indicando el nombre del contendor con MySQL (SonarQube) y la propiedad indicada en los logs:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ sudo docker run -d --name sonarqube -p 9000:9000 -p 9092:9092 <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>-e SONARQUBE_JDBC_USERNAME<span style="color:#f92672">=</span>sonar <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>-e SONARQUBE_JDBC_PASSWORD<span style="color:#f92672">=</span>cF68nTVgP8Nq <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>-e SONARQUBE_JDBC_URL<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;jdbc:mysql://mysql-sonarqube:3306/sonar?useUnicode=true&amp;characterEncoding=utf8&#39;</span> <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>sonarqube:7.1-alpine
+</code></pre>
+
+<p>Corrijo la cadena de conexión indicando el nombre del contendor con MySQL (SonarQube) y la propiedad indicada en los logs:</p>
+
+<pre><code class="language-shell">$ sudo docker run -d --name sonarqube -p 9000:9000 -p 9092:9092 \
+-e SONARQUBE_JDBC_USERNAME=sonar \
+-e SONARQUBE_JDBC_PASSWORD=cF68nTVgP8Nq \
+-e SONARQUBE_JDBC_URL='jdbc:mysql://mysql-sonarqube:3306/sonar?useUnicode=true&amp;characterEncoding=utf8' \
+sonarqube:7.1-alpine
 2887a8817afe286966712ad202a5ed50f4b7a67eba2409c185dc70deaec7ceb9
-<span style="color:#f92672">[</span>2<span style="color:#f92672">]</span>+  Exit <span style="color:#ae81ff">1</span> sudo docker run -d --name sonarqube -p 9000:9000 -p 9092:9092 -e SONARQUBE_JDBC_USERNAME<span style="color:#f92672">=</span>sonar -e SONARQUBE_JDBC_PASSWORD<span style="color:#f92672">=</span>cF68nTVgP8Nq -e SONARQUBE_JDBC_URL<span style="color:#f92672">=</span>jdbc:mysql://mysql-sonarqube:3306/sonar?useUnicode<span style="color:#f92672">=</span>true
+[2]+  Exit 1 sudo docker run -d --name sonarqube -p 9000:9000 -p 9092:9092 -e SONARQUBE_JDBC_USERNAME=sonar -e SONARQUBE_JDBC_PASSWORD=cF68nTVgP8Nq -e SONARQUBE_JDBC_URL=jdbc:mysql://mysql-sonarqube:3306/sonar?useUnicode=true
 $
-</code></pre></div><h2 id="problemas-de-conexión">Problemas de conexión</h2>
+</code></pre>
+
+<h2 id="problemas-de-conexión">Problemas de conexión</h2>
+
 <p>Revisando los logs de nuevo, destaca el mensaje <code>java.lang.IllegalStateException: Can not connect to database. Please check connectivity and settings (see the properties prefixed by 'sonar.jdbc.')</code>.</p>
+
 <p>La cadena de conexión en el comando <em>docker run</em> parece correcta, así que el problema debe estar en otro lugar. Analizando el problema veo que el contenedor <code>sonarqube</code> no está conectado a la red <code>backend-sonarqube</code>, por lo que no encuentra la base de datos especificada en <code>SONARQUBE_JDBC_URL='jdbc:mysql://mysql-sonarqube:3306/...</code></p>
+
 <p>Volvemos a intentarlo con:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ sudo docker run -d --name sonarqube -p 9000:9000 -p 9092:9092 <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>-e SONARQUBE_JDBC_USERNAME<span style="color:#f92672">=</span>sonar <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>-e SONARQUBE_JDBC_PASSWORD<span style="color:#f92672">=</span>cF68nTVgP8Nq <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>-e SONARQUBE_JDBC_URL<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;jdbc:mysql://mysql-sonarqube:3306/sonar?useUnicode=true&amp;characterEncoding=utf8&#39;</span> <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>--network backend-sonarqube <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>sonarqube:7.1-alpine
+
+<pre><code class="language-shell">$ sudo docker run -d --name sonarqube -p 9000:9000 -p 9092:9092 \
+-e SONARQUBE_JDBC_USERNAME=sonar \
+-e SONARQUBE_JDBC_PASSWORD=cF68nTVgP8Nq \
+-e SONARQUBE_JDBC_URL='jdbc:mysql://mysql-sonarqube:3306/sonar?useUnicode=true&amp;characterEncoding=utf8' \
+--network backend-sonarqube \
+sonarqube:7.1-alpine
 2866c2e4c4540157da2040b03083010ce8563e8f07e3bb1ffdcf953b0ecbf849
 $
-</code></pre></div><p>El contenedor sigue sin arrancar.</p>
-<h2 id="_warnings_-en-la-conexión"><em>Warnings</em> en la conexión</h2>
+</code></pre>
+
+<p>El contenedor sigue sin arrancar.</p>
+
+<h2 id="warnings-en-la-conexión"><em>Warnings</em> en la conexión</h2>
+
 <p>Revisando de nuevo los logs, vemos que tenemos un par de avisos sobre propiedades que deberían usarse en la cadena de conexión y fallos en la conexión usando SSL (que no está configurado):</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ sudo docker logs sonarqube
-20:00:15.435 <span style="color:#f92672">[</span>main<span style="color:#f92672">]</span> WARN org.sonar.application.config.JdbcSettings - JDBC URL is recommended to have the property <span style="color:#e6db74">&#39;rewriteBatchedStatements=true&#39;</span>
-20:00:15.441 <span style="color:#f92672">[</span>main<span style="color:#f92672">]</span> WARN org.sonar.application.config.JdbcSettings - JDBC URL is recommended to have the property <span style="color:#e6db74">&#39;useConfigs=maxPerformance&#39;</span>
+
+<pre><code class="language-shell">$ sudo docker logs sonarqube
+20:00:15.435 [main] WARN org.sonar.application.config.JdbcSettings - JDBC URL is recommended to have the property 'rewriteBatchedStatements=true'
+20:00:15.441 [main] WARN org.sonar.application.config.JdbcSettings - JDBC URL is recommended to have the property 'useConfigs=maxPerformance'
 ...
-2018.04.26 20:00:32 INFO  web<span style="color:#f92672">[][</span>o.sonar.db.Database<span style="color:#f92672">]</span> Create JDBC data source <span style="color:#66d9ef">for</span> jdbc:mysql://mysql-sonarqube:3306/sonar?useUnicode<span style="color:#f92672">=</span>true&amp;characterEncoding<span style="color:#f92672">=</span>utf8
-Thu Apr <span style="color:#ae81ff">26</span> 20:00:32 GMT <span style="color:#ae81ff">2018</span> WARN: Establishing SSL connection without server<span style="color:#e6db74">&#39;s identity verification is not recommended. According to MySQL 5.5.45+, 5.6.26+ and 5.7.6+ requirements SSL connection must be established by default if explicit option isn&#39;</span>t set. For compliance with existing applications not using SSL the verifyServerCertificate property is set to <span style="color:#e6db74">&#39;false&#39;</span>. You need either to explicitly disable SSL by setting useSSL<span style="color:#f92672">=</span>false, or set useSSL<span style="color:#f92672">=</span>true and provide truststore <span style="color:#66d9ef">for</span> server certificate verification.
-2018.04.26 20:00:33 ERROR web<span style="color:#f92672">[][</span>o.s.s.p.Platform<span style="color:#f92672">]</span> Web server startup failed
-java.lang.IllegalStateException: Can not connect to database. Please check connectivity and settings <span style="color:#f92672">(</span>see the properties prefixed by <span style="color:#e6db74">&#39;sonar.jdbc.&#39;</span><span style="color:#f92672">)</span>.
+2018.04.26 20:00:32 INFO  web[][o.sonar.db.Database] Create JDBC data source for jdbc:mysql://mysql-sonarqube:3306/sonar?useUnicode=true&amp;characterEncoding=utf8
+Thu Apr 26 20:00:32 GMT 2018 WARN: Establishing SSL connection without server's identity verification is not recommended. According to MySQL 5.5.45+, 5.6.26+ and 5.7.6+ requirements SSL connection must be established by default if explicit option isn't set. For compliance with existing applications not using SSL the verifyServerCertificate property is set to 'false'. You need either to explicitly disable SSL by setting useSSL=false, or set useSSL=true and provide truststore for server certificate verification.
+2018.04.26 20:00:33 ERROR web[][o.s.s.p.Platform] Web server startup failed
+java.lang.IllegalStateException: Can not connect to database. Please check connectivity and settings (see the properties prefixed by 'sonar.jdbc.').
 ...
-</code></pre></div><p>Añadiremos las dos propiedades recomendadas a la cadena de conexión e indicamos <code>useSSL=false</code> para deshacernos del error de verificación del certificado SSL (que no estamos usando):</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ sudo docker run -d --name sonarqube -p 9000:9000 -p 9092:9092 <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>-e SONARQUBE_JDBC_USERNAME<span style="color:#f92672">=</span>sonar <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>-e SONARQUBE_JDBC_PASSWORD<span style="color:#f92672">=</span>cF68nTVgP8Nq <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>-e SONARQUBE_JDBC_URL<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;jdbc:mysql://mysql-sonarqube:3306/sonar?useUnicode=true&amp;characterEncoding=utf8&amp;rewriteBatchedStatements=true&amp;useConfigs=maxPerformance&amp;useSSL=false&#39;</span> <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>--network backend-sonarqube <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>sonarqube:7.1-alpine
-</code></pre></div><p>El contenedor sigue sin arrancar.</p>
+</code></pre>
+
+<p>Añadiremos las dos propiedades recomendadas a la cadena de conexión e indicamos <code>useSSL=false</code> para deshacernos del error de verificación del certificado SSL (que no estamos usando):</p>
+
+<pre><code class="language-shell">$ sudo docker run -d --name sonarqube -p 9000:9000 -p 9092:9092 \
+-e SONARQUBE_JDBC_USERNAME=sonar \
+-e SONARQUBE_JDBC_PASSWORD=cF68nTVgP8Nq \
+-e SONARQUBE_JDBC_URL='jdbc:mysql://mysql-sonarqube:3306/sonar?useUnicode=true&amp;characterEncoding=utf8&amp;rewriteBatchedStatements=true&amp;useConfigs=maxPerformance&amp;useSSL=false' \
+--network backend-sonarqube \
+sonarqube:7.1-alpine
+</code></pre>
+
+<p>El contenedor sigue sin arrancar.</p>
+
 <h2 id="acceso-denegado">Acceso denegado</h2>
+
 <p>Revisando los logs, seguimos sin poder conectar con la base de datos, pero ahora es un problema de acceso denegado:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ sudo docker logs sonarqube
+
+<pre><code class="language-shell">$ sudo docker logs sonarqube
 ...
-Caused by: org.apache.commons.dbcp.SQLNestedException: Cannot create PoolableConnectionFactory <span style="color:#f92672">(</span>Access denied <span style="color:#66d9ef">for</span> user <span style="color:#e6db74">&#39;sonar&#39;</span>@<span style="color:#e6db74">&#39;172.18.0.3&#39;</span> <span style="color:#f92672">(</span>using password: YES<span style="color:#f92672">))</span>
+Caused by: org.apache.commons.dbcp.SQLNestedException: Cannot create PoolableConnectionFactory (Access denied for user 'sonar'@'172.18.0.3' (using password: YES))
 ...
-Caused by: java.sql.SQLException: Access denied <span style="color:#66d9ef">for</span> user <span style="color:#e6db74">&#39;sonar&#39;</span>@<span style="color:#e6db74">&#39;172.18.0.3&#39;</span> <span style="color:#f92672">(</span>using password: YES<span style="color:#f92672">)</span>
+Caused by: java.sql.SQLException: Access denied for user 'sonar'@'172.18.0.3' (using password: YES)
 ...
-</code></pre></div><p>Es decir, parece que el contenedor con SonarQube sí que establece conexión con el servidor de MySQL-SonarQube, pero el usuario <code>sonar</code> no tiene acceso para conectarse.</p>
+</code></pre>
+
+<p>Es decir, parece que el contenedor con SonarQube sí que establece conexión con el servidor de MySQL-SonarQube, pero el usuario <code>sonar</code> no tiene acceso para conectarse.</p>
+
 <h2 id="borrado-del-volumen-de-datos-para-mysql">Borrado del volumen de datos para MySQL</h2>
+
 <p>Al arrancar MySQL pasando las variables <code>MYSQL_USER</code> y <code>MYSQL_PASSWORD</code>, debería haberse asignado permisos sobre la base de datos especificada en <code>MYSQL_DATABASE</code>. Como en nuestro caso habíamos arrancado la base de datos MySQL usando el volumen <code>data-mysql-sonarqube</code>, mi hipótesis es que ya existía una base de datos y por tanto no se han dado permisos al nuevo usuario.</p>
+
 <blockquote>
 <p>Podríamos haber dado permisos manualmente al usuario sobre la base de datos, pero corríamos el riesgo de que el proceso de creación del <em>schema</em> en la base de datos no se lanzara (porque la base de datos ya exitía). Al no tener datos en la base de datos, lo más sencillo es eliminar el volumen de datos y el contenedor de MySQL.</p>
 </blockquote>
+
 <p>Para comprobar mi hipótesis, detengo y elimino el contenedor con base de datos <code>mysql-sonarqube</code>, así como el volumen <code>data-mysql-sonarqube</code>:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ sudo docker stop mysql-sonarqube
+
+<pre><code class="language-shell">$ sudo docker stop mysql-sonarqube
 mysql-sonarqube
 $ sudo docker rm mysql-sonarqube
 mysql-sonarqube
 $ sudo docker volume rm data-mysql-sonarqube
 data-mysql-sonarqube
 $
-</code></pre></div><p>Lo creamos todo de nuevo:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ sudo docker volume create data-mysql-sonarqube
+</code></pre>
+
+<p>Lo creamos todo de nuevo:</p>
+
+<pre><code class="language-shell">$ sudo docker volume create data-mysql-sonarqube
 data-mysql-sonarqube
 
-$ sudo docker run -d --name mysql-sonarqube --network backend-sonarqube <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>--mount source<span style="color:#f92672">=</span>data-mysql-sonarqube,target<span style="color:#f92672">=</span>/var/lib/mysql <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>-e MYSQL_ROOT_PASSWORD<span style="color:#f92672">=</span>J8wqnvJicbpv <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>-e MYSQL_DATABASE<span style="color:#f92672">=</span>sonar <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>-e MYSQL_USER<span style="color:#f92672">=</span>sonar -e MYSQL_PASSWORD<span style="color:#f92672">=</span>cF68nTVgP8Nq mysql:5.7
+$ sudo docker run -d --name mysql-sonarqube --network backend-sonarqube \
+--mount source=data-mysql-sonarqube,target=/var/lib/mysql \
+-e MYSQL_ROOT_PASSWORD=J8wqnvJicbpv \
+-e MYSQL_DATABASE=sonar \
+-e MYSQL_USER=sonar -e MYSQL_PASSWORD=cF68nTVgP8Nq mysql:5.7
 6966a54978df35eaafe6bf10dea7f3f4fcfdb3c5340e0e3ea5cddffd9bd02d06
 
-$ sudo docker run -d --name sonarqube -p 9000:9000 -p 9092:9092 <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>  -e SONARQUBE_JDBC_USERNAME<span style="color:#f92672">=</span>sonar <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>  -e SONARQUBE_JDBC_PASSWORD<span style="color:#f92672">=</span>cF68nTVgP8Nq <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>  -e SONARQUBE_JDBC_URL<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;jdbc:mysql://mysql-sonarqube:3306/sonar?useUnicode=true&amp;characterEncoding=utf8&amp;rewriteBatchedStatements=true&amp;useConfigs=maxPerformance&amp;useSSL=false&#39;</span> <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>  --network backend-sonarqube <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>  sonarqube:7.1-alpine
+$ sudo docker run -d --name sonarqube -p 9000:9000 -p 9092:9092 \
+  -e SONARQUBE_JDBC_USERNAME=sonar \
+  -e SONARQUBE_JDBC_PASSWORD=cF68nTVgP8Nq \
+  -e SONARQUBE_JDBC_URL='jdbc:mysql://mysql-sonarqube:3306/sonar?useUnicode=true&amp;characterEncoding=utf8&amp;rewriteBatchedStatements=true&amp;useConfigs=maxPerformance&amp;useSSL=false' \
+  --network backend-sonarqube \
+  sonarqube:7.1-alpine
 4fc7eea457db05e7ad9837ca5f4407d5023e227cb94b188c5f021eca65e39332
-</code></pre></div><p>Después de unos segundos, al revisar los logs, vemos que esta vez sí que se está creando el <em>schema</em> de la base de datos para SonarQube:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ sudo docker logs sonarqube
-...
-2018.04.26 20:19:04 INFO  web<span style="color:#f92672">[][</span>o.s.s.p.d.m.AutoDbMigration<span style="color:#f92672">]</span> Automatically perform DB migration on fresh install
-2018.04.26 20:19:04 INFO  web<span style="color:#f92672">[][</span>DbMigrations<span style="color:#f92672">]</span> Executing DB migrations...
-2018.04.26 20:19:04 INFO  web<span style="color:#f92672">[][</span>DbMigrations<span style="color:#f92672">]</span> <span style="color:#75715e">#1 &#39;Create initial schema&#39;...</span>
-2018.04.26 20:19:14 INFO  web<span style="color:#f92672">[][</span>DbMigrations<span style="color:#f92672">]</span> <span style="color:#75715e">#1 &#39;Create initial schema&#39;: success | time=10068ms</span>
-2018.04.26 20:19:14 INFO  web<span style="color:#f92672">[][</span>DbMigrations<span style="color:#f92672">]</span> <span style="color:#75715e">#2 &#39;Populate initial schema&#39;...</span>
-2018.04.26 20:19:14 INFO  web<span style="color:#f92672">[][</span>DbMigrations<span style="color:#f92672">]</span> <span style="color:#75715e">#2 &#39;Populate initial schema&#39;: success | time=430ms</span>
-...
-</code></pre></div><p>Cuando finaliza el proceso:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ sudo docker logs sonarqube
-...
-2018.04.26 20:20:37 INFO  ce<span style="color:#f92672">[][</span>o.s.ce.app.CeServer<span style="color:#f92672">]</span> Compute Engine is operational
-2018.04.26 20:20:37 INFO  app<span style="color:#f92672">[][</span>o.s.a.SchedulerImpl<span style="color:#f92672">]</span> Process<span style="color:#f92672">[</span>ce<span style="color:#f92672">]</span> is up
-2018.04.26 20:20:37 INFO  app<span style="color:#f92672">[][</span>o.s.a.SchedulerImpl<span style="color:#f92672">]</span> SonarQube is up
-$
-</code></pre></div><p>Y accediendo desde el navegador a <em>http://$IPHOST:9000/</em>:</p>
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<pre><code>SonarQube home
 </code></pre>
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
+
+<p>Después de unos segundos, al revisar los logs, vemos que esta vez sí que se está creando el <em>schema</em> de la base de datos para SonarQube:</p>
+
+<pre><code class="language-shell">$ sudo docker logs sonarqube
+...
+2018.04.26 20:19:04 INFO  web[][o.s.s.p.d.m.AutoDbMigration] Automatically perform DB migration on fresh install
+2018.04.26 20:19:04 INFO  web[][DbMigrations] Executing DB migrations...
+2018.04.26 20:19:04 INFO  web[][DbMigrations] #1 'Create initial schema'...
+2018.04.26 20:19:14 INFO  web[][DbMigrations] #1 'Create initial schema': success | time=10068ms
+2018.04.26 20:19:14 INFO  web[][DbMigrations] #2 'Populate initial schema'...
+2018.04.26 20:19:14 INFO  web[][DbMigrations] #2 'Populate initial schema': success | time=430ms
+...
+</code></pre>
+
+<p>Cuando finaliza el proceso:</p>
+
+<pre><code class="language-shell">$ sudo docker logs sonarqube
+...
+2018.04.26 20:20:37 INFO  ce[][o.s.ce.app.CeServer] Compute Engine is operational
+2018.04.26 20:20:37 INFO  app[][o.s.a.SchedulerImpl] Process[ce] is up
+2018.04.26 20:20:37 INFO  app[][o.s.a.SchedulerImpl] SonarQube is up
+$
+</code></pre>
+
+<p>Y accediendo desde el navegador a <em>http://$IPHOST:9000/</em>:</p>
+
+<figure>
+  <amp-img src="https://onthedock.github.io/images/180521/sonarqube-home.png" alt="Pipeline - Troubleshooting del arranque del contenedor con Sonarqube images/180521/sonarqube-home.png" width=1111 height=523 layout="responsive"></amp-img>
+  
+  <figcaption>
+    
+    SonarQube home
+    
+  </figcaption>
+  
+</figure>
+
 <h3 id="volumen-data-sonarqube-no-montado-en-sonarqube">Volumen data-sonarqube no montado en sonarqube</h3>
+
 <p>Con todos los problemas relacionados con la base de datos de SonarQube, no me dado cuenta de que no he montado el volumen <code>data-sonarqube</code>  en el contenedor de <code>sonarqube</code>.</p>
+
 <p>Docker ha creado un volumen automáticamente y lo ha montado en el contenedor; podemos ver el contenedor &ldquo;sin nombre&rdquo; lanzando:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ sudo docker volume ls
+
+<pre><code class="language-shell">$ sudo docker volume ls
 DRIVER              VOLUME NAME
 local               caf392a6189a23dce515817e2e02c5bc2bc05d89cd1b97da4739f0203c59192b
 local               data-gogs
@@ -273,41 +343,60 @@ local               data-mysql-gogs
 local               data-mysql-sonarqube
 local               data-nexus
 local               data-portainer
-</code></pre></div><p>Aunque a nivel funcional no supone ninguna diferencia; disponer de nombres identificativos para los volúmenes de datos nos ayuda a simplificar la gestión del entorno.</p>
+</code></pre>
+
+<p>Aunque a nivel funcional no supone ninguna diferencia; disponer de nombres identificativos para los volúmenes de datos nos ayuda a simplificar la gestión del entorno.</p>
+
 <p>Vamos a lanzar un contenedor efímero que monte tanto el volumen actual <code>caf392a6189...</code> como el volumen <code>data-sonarqube</code> y copiaremos el contenido de uno a otro. A continuación, lanzaremos de nuevo el contenedor <code>sonarqube</code> y una vez que hayamos comprobado que funciona correctamente, eliminaremos el volumen <code>caf392a6189...</code>.</p>
+
 <p>Creamos el volumen de datos:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ sudo docker volume create data-sonarqube
+
+<pre><code class="language-shell">$ sudo docker volume create data-sonarqube
 data-sonarqube
-</code></pre></div><p>Detenemos el contenedor de SonarQube y lo eliminamos (para reutilizar el nombre):</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ sudo docker stop sonarqube <span style="color:#f92672">&amp;&amp;</span> sudo docker rm sonarqube
+</code></pre>
+
+<p>Detenemos el contenedor de SonarQube y lo eliminamos (para reutilizar el nombre):</p>
+
+<pre><code class="language-shell">$ sudo docker stop sonarqube &amp;&amp; sudo docker rm sonarqube
 sonarqube
 sonarqube
-</code></pre></div><p>Creamos el contenedor efímero y montamos los volúmenes:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ sudo docker run --rm -it --mount source<span style="color:#f92672">=</span>caf392a6189a23dce515817e2e02c5bc2bc05d89cd1b97da4739f0203c59192b,target<span style="color:#f92672">=</span>/in --mount source<span style="color:#f92672">=</span>data-sonarqube,target<span style="color:#f92672">=</span>/out sonarqube:7.1-alpine /bin/sh
-/opt/sonarqube <span style="color:#75715e"># ls /in</span>
+</code></pre>
+
+<p>Creamos el contenedor efímero y montamos los volúmenes:</p>
+
+<pre><code class="language-shell">$ sudo docker run --rm -it --mount source=caf392a6189a23dce515817e2e02c5bc2bc05d89cd1b97da4739f0203c59192b,target=/in --mount source=data-sonarqube,target=/out sonarqube:7.1-alpine /bin/sh
+/opt/sonarqube # ls /in
 README.txt  es5         web
-/opt/sonarqube <span style="color:#75715e"># ls /out</span>
-/opt/sonarqube <span style="color:#75715e"># cd /in/</span>
-/in <span style="color:#75715e"># cp -a . /out</span>
-/in <span style="color:#75715e"># ls /out/</span>
+/opt/sonarqube # ls /out
+/opt/sonarqube # cd /in/
+/in # cp -a . /out
+/in # ls /out/
 README.txt  es5         web
 /in #
-</code></pre></div><p>Una vez copiados los datos, salimos del contenedor usando <code>exit</code>.</p>
+</code></pre>
+
+<p>Una vez copiados los datos, salimos del contenedor usando <code>exit</code>.</p>
+
 <blockquote>
 <p>En la versión actual de Docker (18.03.1-ce) no hay ningún comando para renombrar un volumen o para copiar su contenido a otro volumen.</p>
 </blockquote>
+
 <p>Finalmente, lanzamos un nuevo contenedor para SonarQube, montando el volumen <code>data-sonarqube</code>:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ sudo docker run -d --name sonarqube -p 9000:9000 -p 9092:9092 <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>  --mount source<span style="color:#f92672">=</span>data-sonarqube,target<span style="color:#f92672">=</span>/opt/sonarqube/data <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>  -e SONARQUBE_JDBC_USERNAME<span style="color:#f92672">=</span>sonar <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>  -e SONARQUBE_JDBC_PASSWORD<span style="color:#f92672">=</span>cF68nTVgP8Nq <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>  -e SONARQUBE_JDBC_URL<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;jdbc:mysql://mysql-sonarqube:3306/sonar?useUnicode=true&amp;characterEncoding=utf8&amp;rewriteBatchedStatements=true&amp;useConfigs=maxPerformance&amp;useSSL=false&#39;</span> <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>  --network backend-sonarqube <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>  sonarqube:7.1-alpine
+
+<pre><code class="language-shell">$ sudo docker run -d --name sonarqube -p 9000:9000 -p 9092:9092 \
+  --mount source=data-sonarqube,target=/opt/sonarqube/data \
+  -e SONARQUBE_JDBC_USERNAME=sonar \
+  -e SONARQUBE_JDBC_PASSWORD=cF68nTVgP8Nq \
+  -e SONARQUBE_JDBC_URL='jdbc:mysql://mysql-sonarqube:3306/sonar?useUnicode=true&amp;characterEncoding=utf8&amp;rewriteBatchedStatements=true&amp;useConfigs=maxPerformance&amp;useSSL=false' \
+  --network backend-sonarqube \
+  sonarqube:7.1-alpine
 443cb80ef5bdc7168c654b0bea0883cfc8e665e465f3d12fa8bb06bdb1856f14
 $
-</code></pre></div><p>Después de verificar que SonarQube arranca con normalidad, podemos eliminar el volumen &ldquo;sin nombre&rdquo;:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ sudo docker volume ls
+</code></pre>
+
+<p>Después de verificar que SonarQube arranca con normalidad, podemos eliminar el volumen &ldquo;sin nombre&rdquo;:</p>
+
+<pre><code class="language-shell">$ sudo docker volume ls
 DRIVER              VOLUME NAME
 local               caf392a6189a23dce515817e2e02c5bc2bc05d89cd1b97da4739f0203c59192b
 local               data-gogs
@@ -320,31 +409,46 @@ local               data-sonarqube
 $ sudo docker volume rm caf392a6189a23dce515817e2e02c5bc2bc05d89cd1b97da4739f0203c59192b
 caf392a6189a23dce515817e2e02c5bc2bc05d89cd1b97da4739f0203c59192b
 $
-</code></pre></div><h2 id="volumen-para-_plugins_">Volumen para <em>plugins</em></h2>
+</code></pre>
+
+<h2 id="volumen-para-plugins">Volumen para <em>plugins</em></h2>
+
 <p>Examinando el <a href="https://github.com/SonarSource/docker-sonarqube/blob/442f950dae232fca8e1e919e017270971cee46f6/4.5.6/Dockerfile#L37%20Sonarqube%20Dockerfile">fichero <code>Dockerfile</code> en GitHub</a> podemos ver que SonarQube expone otro volumen para las <a href="https://docs.sonarqube.org/display/DEV/Extension+Guide">extensiones (o <em>plugins</em>)</a>:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">VOLUME <span style="color:#f92672">[</span><span style="color:#e6db74">&#34;</span>$SONARQUBE_HOME<span style="color:#e6db74">/data&#34;</span>, <span style="color:#e6db74">&#34;</span>$SONARQUBE_HOME<span style="color:#e6db74">/extensions&#34;</span><span style="color:#f92672">]</span>
-</code></pre></div><p>Si es necesario, podemos crear un nuevo volumen <code>data-sonarqube-extensions</code> y montarlo en un nuevo contenedor para SonarQube repitiendo los pasos descritos en esta sección.</p>
+
+<pre><code class="language-shell">VOLUME [&quot;$SONARQUBE_HOME/data&quot;, &quot;$SONARQUBE_HOME/extensions&quot;]
+</code></pre>
+
+<p>Si es necesario, podemos crear un nuevo volumen <code>data-sonarqube-extensions</code> y montarlo en un nuevo contenedor para SonarQube repitiendo los pasos descritos en esta sección.</p>
+
 <h2 id="puerto-9092">Puerto 9092</h2>
+
 <p>Revisando la documentación de SonarQube, en el fichero de configuración <a href="https://github.com/SonarSource/sonarqube/blob/master/sonar-application/src/main/assembly/conf/sonar.properties"><code>sonar.properties</code></a> el puerto 9092 se usa para conectar con la base de datos <em>incrustada</em> (<em>embedded</em>) H2:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">...
-<span style="color:#75715e">#----- Embedded Database (default)</span>
-<span style="color:#75715e"># H2 embedded database server listening port, defaults to 9092</span>
-<span style="color:#75715e">#sonar.embeddedDatabase.port=9092</span>
+
+<pre><code class="language-shell">...
+#----- Embedded Database (default)
+# H2 embedded database server listening port, defaults to 9092
+#sonar.embeddedDatabase.port=9092
 ...
-</code></pre></div><p>Dado que nosotros usamos MySQL, podemos relanzar el contenedor sin publicar el puerto 9092:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ sudo docker stop sonarqube
+</code></pre>
+
+<p>Dado que nosotros usamos MySQL, podemos relanzar el contenedor sin publicar el puerto 9092:</p>
+
+<pre><code class="language-shell">$ sudo docker stop sonarqube
 sonarqube
 $ sudo docker rm sonarqube
 sonarqube
-$ sudo docker run -d --name sonarqube -p 9000:9000 <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>  --mount source<span style="color:#f92672">=</span>data-sonarqube,target<span style="color:#f92672">=</span>/opt/sonarqube/data <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>  -e SONARQUBE_JDBC_USERNAME<span style="color:#f92672">=</span>sonar <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>  -e SONARQUBE_JDBC_PASSWORD<span style="color:#f92672">=</span>cF68nTVgP8Nq <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>  -e SONARQUBE_JDBC_URL<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;jdbc:mysql://mysql-sonarqube:3306/sonar?useUnicode=true&amp;characterEncoding=utf8&amp;rewriteBatchedStatements=true&amp;useConfigs=maxPerformance&amp;useSSL=false&#39;</span> <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>  --network backend-sonarqube <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>  sonarqube:7.1-alpine
+$ sudo docker run -d --name sonarqube -p 9000:9000 \
+  --mount source=data-sonarqube,target=/opt/sonarqube/data \
+  -e SONARQUBE_JDBC_USERNAME=sonar \
+  -e SONARQUBE_JDBC_PASSWORD=cF68nTVgP8Nq \
+  -e SONARQUBE_JDBC_URL='jdbc:mysql://mysql-sonarqube:3306/sonar?useUnicode=true&amp;characterEncoding=utf8&amp;rewriteBatchedStatements=true&amp;useConfigs=maxPerformance&amp;useSSL=false' \
+  --network backend-sonarqube \
+  sonarqube:7.1-alpine
 $
-</code></pre></div><h1 id="resumen">Resumen</h1>
+</code></pre>
+
+<h1 id="resumen">Resumen</h1>
+
 <p>Después de depurar los diferentes errores surgidos en la creación del contenedor SonarQube, la aplicación está en marcha y funcionando.</p></div>
 
   <aside class="p-share">

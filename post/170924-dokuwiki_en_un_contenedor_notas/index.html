@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.68.3" />
+<meta name="generator" content="Hugo 0.55.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -75,7 +75,7 @@
         "height": 60
       }
     },
-    "description": "\x3cp\x3eAntes de convertir todas las Raspberry Pi de casa en \x3cem\x3ehosts\x3c\/em\x3e de Docker, usaba la Raspberry Pi B\x2b como wiki casero. En él documentaba todo lo que iba aprendiendo sobre las diferentes tecnologías de mi día a día.\x3c\/p\x3e\n\x3cp\x3eHoy he vuelto a instalar Dokuwiki, aunque esta vez usando un contenedor. En este artículo comento algunos de los puntos relevantes que han surgido durante el proceso.\x3c\/p\x3e"
+    "description": "\x3cp\x3eAntes de convertir todas las Raspberry Pi de casa en \x3cem\x3ehosts\x3c\/em\x3e de Docker, usaba la Raspberry Pi B\x2b como wiki casero. En él documentaba todo lo que iba aprendiendo sobre las diferentes tecnologías de mi día a día.\x3c\/p\x3e\n\n\x3cp\x3eHoy he vuelto a instalar Dokuwiki, aunque esta vez usando un contenedor. En este artículo comento algunos de los puntos relevantes que han surgido durante el proceso.\x3c\/p\x3e"
   }
 </script>
 
@@ -121,94 +121,162 @@
   </div>
 
   <div class="article-body"><p>Antes de convertir todas las Raspberry Pi de casa en <em>hosts</em> de Docker, usaba la Raspberry Pi B+ como wiki casero. En él documentaba todo lo que iba aprendiendo sobre las diferentes tecnologías de mi día a día.</p>
+
 <p>Hoy he vuelto a instalar Dokuwiki, aunque esta vez usando un contenedor. En este artículo comento algunos de los puntos relevantes que han surgido durante el proceso.</p>
+
 <h1 id="un-poco-de-historia">Un poco de historia</h1>
+
 <p>Aquel wiki casero del que hablaba en la intro fue creciendo hasta convertirse en parte de mi <em>memoria extendida</em>: instalé <a href="https://ngrok.com/">Ngrok</a> para poder acceder desde cualquier sitio a la información contenida en el wiki.</p>
+
 <p>Con Ngrok sólo podía crear un túnel hacia la RPi, lo que impedía que mis compañeros de trabajo pudieran consultar el wiki. Ahí fue donde empecé mi andadura con los contenedores, replicando el wiki en Red Hat Cloud: <a href="http://wiki-ameisin.rhcloud.com/">Wiki-Ameisin</a>. Pero tenía dificultades para mantener mi <em>copia local</em>, en la RPi y la <em>copia en la nube</em> (en RHCloud) sincronizadas, por lo que la versión online se fue quedando cada vez más desactualizada.</p>
+
 <p>Después de un cambio de trabajo, el wiki fue perdiendo relevancia hasta que empecé a usar Docker y Kubernetes como <em>hobby</em>. Pero como he canalizado gran parte del aprendizaje hacia este blog, la necesidad de disponer de un wiki  no resultaba apremiante. Además, siempre estaba presente el problema con el almacenamiento (especialmente en Kubernetes, como he comentado en <a href="https://onthedock.github.io/post/170819-usando-un-contenedor-sidecar/">otras</a> <a href="https://onthedock.github.io/post/170817-almacenamiento-en-k8s-problema-abierto/">ocasiones</a>).</p>
-<h2 id="problemas-de-_concepto_">Problemas de <em>concepto</em></h2>
+
+<h2 id="problemas-de-concepto">Problemas de <em>concepto</em></h2>
+
 <h3 id="docker-o-kubernetes">Docker o Kubernetes</h3>
+
 <p>Mi objetivo inicial era crear un wiki en Kubernetes. Al no tener resuelto el problema del almacenamiento nativo sobre el clúster, la única vía disponible es la del almacenamiento local (en uno de los nodos) del clúster. Pero eso significa que el <em>pod</em> debe estar ligado al nodo donde se encuentra el almacenamiento.</p>
+
 <p>Aunque se puede conseguir especificando afinidad con uno de los nodos, es más sencillo crear el contenedor en Docker, sin usar el clúster.</p>
+
 <h3 id="un-contenedor-o-varios">Un contenedor o varios</h3>
+
 <p>La filosofía de los contenedores es que cada contenedor debe ejecutar un solo proceso. Así que había pensado en <em>conectar</em> varios contenedores: uno para el servidor web, otro para el <em>middleware</em>, PHP y finalmente otro con los datos. En el caso de Dokuwiki, los datos se almacenan en ficheros de texto plano, por lo que no es necesaria una base de datos o nada por el estilo.</p>
+
 <p>El problema de esta configuración es que el servidor web se ejecuta usando un usuario (por ejemplo <code>www-data</code>), mientras que el contenedor de PHP es probable que use otro usuario&hellip; Cuando he intentado esta configuración en el pasado, he acabado con muchos problemas de permisos.</p>
+
 <p>Así que he seguido el camino inverso y he decidido <em>meterlo todo</em> en un solo contenedor: servidor web, PHP y datos.</p>
+
 <h3 id="configuración-inicial-de-dokuwiki">Configuración inicial de Dokuwiki</h3>
+
 <blockquote>
 <p>Puedes encontrar todos los ficheros en <a href="https://github.com/onthedock/alpine-caddy-php">Github: ontheDock/alpine-caddy-php</a> y la imagen final en <a href="https://hub.docker.com/r/xaviaznar/alpine-caddy-php/">DockerHub: xaviaznar/alpine-caddy-php</a></p>
 </blockquote>
+
 <p>No ha sido difícil crear una imagen base con Nginx, PHP (y PHP-FPM), pero todavía quedaba la parte difícil: configurarlo todo para que funcionase.</p>
+
 <p>He realizado algunas pruebas de configuración de PHP en Nginx, sin éxito.</p>
+
 <p>En cualquier caso, mirando un poco más allá, he pensado que en la primera ejecución del wiki se lanza <code>install.php</code> para configurar el wiki. Si los ficheros se encuentran en la imagen base, no pueden ser modificados, lo que significa que en cada ejecución del wiki se deberían reconfigurar de nuevo.</p>
+
 <p>Sacando los ficheros del contenedor podría solucionarse el problema, por ejemplo creando un contenedor de datos o colocando los ficheros del wiki en un volumen del <em>host</em>.</p>
+
 <p>También habría que apartarse de la <a href="https://www.dokuwiki.org/install:nginx">configuración recomendada del Dokuwiki para Nginx</a>, que entre otras cosas impide el acceso al fichero <code>install.php</code>.</p>
+
 <p>Al final he decidido realizar algunos cambios:</p>
+
 <ul>
 <li>usar Caddy, con una <a href="https://github.com/caddyserver/examples/tree/master/dokuwiki">configuración de PHP específica para Dokuwiki</a> más sencilla</li>
 <li><em>montar</em> los ficheros de Dokuwiki desde una carpeta en el <em>host</em>.</li>
 </ul>
+
 <h3 id="caddy-y-php">Caddy y PHP</h3>
+
 <p>He empezado con un <code>Dockerfile</code> lo más sencillo posible, instalando únicamente lo esencial. He usado <a href="https://bitbucket.org/yobasystems/alpine-caddy/overview">este <code>Dockerfile</code></a> como inspiración.</p>
+
 <p>Inicialmente, sólo instalo Caddy, PHP y las bibliotecas de funciones requeridas por Dokuwiki:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-Dockerfile" data-lang="Dockerfile"><span style="color:#66d9ef">FROM</span><span style="color:#e6db74"> alpine:3.6</span><span style="color:#960050;background-color:#1e0010">
-</span><span style="color:#960050;background-color:#1e0010">
-</span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">RUN</span> apk add --no-cache caddy php7 php7-fpm php7-gd<span style="color:#960050;background-color:#1e0010">
-</span></code></pre></div><p>Siguiendo las buenas prácticas de Docker, he decidido usar un usuario <em>no-root</em> llamado <code>caddy</code> (el usuario y el grupo se crear durante la instalación de Caddy).</p>
+
+<pre><code class="language-Dockerfile">FROM alpine:3.6
+
+RUN apk add --no-cache caddy php7 php7-fpm php7-gd
+</code></pre>
+
+<p>Siguiendo las buenas prácticas de Docker, he decidido usar un usuario <em>no-root</em> llamado <code>caddy</code> (el usuario y el grupo se crear durante la instalación de Caddy).</p>
+
 <p>También he optado por copiar la línea de configuración de <code>php-fpm</code>:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-Dockerfile" data-lang="Dockerfile"><span style="color:#66d9ef">RUN</span> echo <span style="color:#e6db74">&#34;clear_env = no&#34;</span> &gt;&gt; /etc/php7/php7-fpm.conf<span style="color:#960050;background-color:#1e0010">
-</span><span style="color:#960050;background-color:#1e0010">
-</span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">RUN</span> chown -R caddy:caddy /var/www /var/log<span style="color:#960050;background-color:#1e0010">
-</span><span style="color:#960050;background-color:#1e0010">
-</span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">WORKDIR</span><span style="color:#e6db74"> /var/www</span><span style="color:#960050;background-color:#1e0010">
-</span></code></pre></div><p>Aunque en el <code>Dockerfile</code> se usa la instrucción <code>WORKDIR</code> para cambiar al directorio base que usará Caddy, yo prefiero especificarlo en el fichero de configuración. Aunque en este caso es redundante, he preferido dejarlo para establecer un directorio por defecto para el servidor en la imagen (que quiero utilizar como base para otras aplicaciones basadas en PHP).</p>
+
+<pre><code class="language-Dockerfile">RUN echo &quot;clear_env = no&quot; &gt;&gt; /etc/php7/php7-fpm.conf
+
+RUN chown -R caddy:caddy /var/www /var/log
+
+WORKDIR /var/www
+</code></pre>
+
+<p>Aunque en el <code>Dockerfile</code> se usa la instrucción <code>WORKDIR</code> para cambiar al directorio base que usará Caddy, yo prefiero especificarlo en el fichero de configuración. Aunque en este caso es redundante, he preferido dejarlo para establecer un directorio por defecto para el servidor en la imagen (que quiero utilizar como base para otras aplicaciones basadas en PHP).</p>
+
 <p>A continuación he copiado el fichero de configuración de Caddy y el fichero <code>info.php</code>, que contienen la instrucción <a href="http://php.net/manual/es/function.phpinfo.php"><code>phpinfo();</code></a>.</p>
+
 <p>Para acabar, exponemos el puerto en el que escucha Caddy por defecto, cambiamos al usuario <code>caddy</code> y especificamos el <code>ENTRYPOINT</code> y el <code>CMD</code>:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-Dockerfile" data-lang="Dockerfile"><span style="color:#66d9ef">EXPOSE</span><span style="color:#e6db74"> 2015</span><span style="color:#960050;background-color:#1e0010">
-</span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">USER</span><span style="color:#e6db74"> caddy</span><span style="color:#960050;background-color:#1e0010">
-</span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">ENTRYPOINT</span> [<span style="color:#e6db74">&#34;/usr/sbin/caddy&#34;</span>]<span style="color:#960050;background-color:#1e0010">
-</span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">CMD</span> [<span style="color:#e6db74">&#34;--conf&#34;</span>, <span style="color:#e6db74">&#34;/etc/Caddyfile&#34;</span>]<span style="color:#960050;background-color:#1e0010">
-</span></code></pre></div><h3 id="fichero-de-configuración-caddyfile">Fichero de configuración <code>Caddyfile</code></h3>
+
+<pre><code class="language-Dockerfile">EXPOSE 2015
+USER caddy
+ENTRYPOINT [&quot;/usr/sbin/caddy&quot;]
+CMD [&quot;--conf&quot;, &quot;/etc/Caddyfile&quot;]
+</code></pre>
+
+<h3 id="fichero-de-configuración-caddyfile">Fichero de configuración <code>Caddyfile</code></h3>
+
 <p>El fichero de configuración de Caddy es mucho más sencillo que el Nginx; sin embargo, he tenido problemas (por no leer la documentación).</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-Dockerfile" data-lang="Dockerfile">0.0.0.0<span style="color:#960050;background-color:#1e0010">
-</span><span style="color:#960050;background-color:#1e0010"></span>root /var/www/wiki<span style="color:#960050;background-color:#1e0010">
-</span><span style="color:#960050;background-color:#1e0010"></span>gzip<span style="color:#960050;background-color:#1e0010">
-</span><span style="color:#960050;background-color:#1e0010"></span>startup php-fpm7<span style="color:#960050;background-color:#1e0010">
-</span><span style="color:#960050;background-color:#1e0010">
-</span><span style="color:#960050;background-color:#1e0010"></span>fastcgi / 127.0.0.1:9000 php <span style="color:#f92672">{</span><span style="color:#960050;background-color:#1e0010">
-</span><span style="color:#960050;background-color:#1e0010"></span>  index index.php index.htm doku.php<span style="color:#960050;background-color:#1e0010">
-</span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#f92672">}</span><span style="color:#960050;background-color:#1e0010">
-</span><span style="color:#960050;background-color:#1e0010">
-</span><span style="color:#960050;background-color:#1e0010"></span>log stdout<span style="color:#960050;background-color:#1e0010">
-</span><span style="color:#960050;background-color:#1e0010"></span>errors stdout<span style="color:#960050;background-color:#1e0010">
-</span></code></pre></div><p>Caddy por defecto escucha en el puerto 2015, no en el 80 como suele ser habitual. Esto es fácil de detectar, porque el usuario <code>caddy</code> no tiene permisos para usar un puerto por debajo de 1024. Así que al modificar la primera línea del fichero <code>Caddyfile</code> de <code>0.0.0.0</code> a <code>0.0.0.0:80</code>, el contenedor falla.</p>
+
+<pre><code class="language-Dockerfile">0.0.0.0
+root /var/www/wiki
+gzip
+startup php-fpm7
+
+fastcgi / 127.0.0.1:9000 php {
+  index index.php index.htm doku.php
+}
+
+log stdout
+errors stdout
+</code></pre>
+
+<p>Caddy por defecto escucha en el puerto 2015, no en el 80 como suele ser habitual. Esto es fácil de detectar, porque el usuario <code>caddy</code> no tiene permisos para usar un puerto por debajo de 1024. Así que al modificar la primera línea del fichero <code>Caddyfile</code> de <code>0.0.0.0</code> a <code>0.0.0.0:80</code>, el contenedor falla.</p>
+
 <p>He dudado entre usar <code>0.0.0.0</code> o <code>localhost</code>, pero no he observado ninguna diferencia al usar uno u otro -en el contenedor- y al final he dejado <code>0.0.0.0</code>.</p>
+
 <p>Otro punto que me ha tenido bastante <em>ocupado</em> ha sido la línea <code>startup php-fpm</code>. No sabía que <code>php-fpm</code> debía arrancarse, ya que pensaba que se llamaba desde el servidor web cuando hacía falta (para interpretar código php).</p>
+
 <p>La configuración de los parámetros <code>root</code> y <code>fastcgi</code> también me han dado problemas, de nuevo, por no haber leído la documentación. El parámetro <code>root</code> indica a Caddy la ruta en el sistema de ficheros donde encontrar los ficheros a publicar vía web. En <code>fastcgi</code> la ruta es relativa a la URL.</p>
+
 <p>Otro punto que me ha despistado es que el fichero inicial de pruebas <code>index.htm</code> incluye un fragmento de código en PHP, pero que no he conseguido que se interprete (por eso hay una copia del mismo fichero pero con extensión <code>php</code>). Finalmente he podido validar el funcionamiento de Caddy y PHP usando el fichero <code>info.php</code>.</p>
+
 <h2 id="ejecutando-el-contenedor">Ejecutando el contenedor</h2>
+
 <p>Una vez he conseguido crear un contenedor con Caddy y PHP funcional (verificado a partir de <code>$BASEURL/info.php</code>), el siguiente paso era <em>conectarlo</em> con los ficheros de Dokuwiki. La manera más sencilla ha sido creando una carpeta local en la <em>host</em> y montarla en el contenedor como un volumen.</p>
+
 <p>He descargado y descomprimido la última versión estable de Dokuwiki en la carpeta <code>~/dokuwiki</code> y la he montado en el contenedor:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">docker run -d --name wiki -p 8910:2015 -v /home/operador/dokuwiki:/var/www xaviaznar/alpine-caddy-php
-</code></pre></div><h3 id="permisos">Permisos</h3>
+
+<pre><code class="language-shell">docker run -d --name wiki -p 8910:2015 -v /home/operador/dokuwiki:/var/www xaviaznar/alpine-caddy-php
+</code></pre>
+
+<h3 id="permisos">Permisos</h3>
+
 <p>Como el usuario con el que se ejecuta Caddy en el contenedor no existe en el sistema local, he cambiado los permisos de <code>~/dokuwiki</code> a <code>777</code> (todo el mundo tiene acceso). A diferencia del usuario <code>root</code>, el usuario <code>caddy</code> no existe en el <em>host</em>, por lo que tendría problemas para &ldquo;salir&rdquo; de la carpeta <code>dokuwiki</code> y acceder a otras partes del sistema más sensibles.</p>
+
 <h3 id="librerías-adicionales">Librerías adicionales</h3>
+
 <p>Dado que he optado por reducir al mínimo las <em>librerías</em> de PHP incluidas en el contenedor, al arrancar Dokuwiki he encontrado algunos errores en el funcionamiento del mismo.</p>
+
 <p>Al final, he tenido que añadir <code>php7-session php7-xm</code> para arrancar Dokuwiki sin errores, y <code>php7-openssl php7-zlib</code> cuando he intentado añadir <em>plugins</em>, con lo que la línea definitiva en el <code>Dockerfile</code> ha quedado:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-Dockerfile" data-lang="Dockerfile"><span style="color:#66d9ef">RUN</span> apk add --no-cache caddy php7 php7-fpm php7-gd <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>    php7-session php7-xml php7-openssl php7-zlib<span style="color:#960050;background-color:#1e0010">
-</span></code></pre></div><h2 id="ficheros-auxiliares">Ficheros auxiliares</h2>
+
+<pre><code class="language-Dockerfile">RUN apk add --no-cache caddy php7 php7-fpm php7-gd \
+    php7-session php7-xml php7-openssl php7-zlib
+</code></pre>
+
+<h2 id="ficheros-auxiliares">Ficheros auxiliares</h2>
+
 <p>Dado que todo el proceso por el que he pasado ha sido el resultado de innumerables iteraciones, en cierto punto he decidido <em>automatizar</em> parte del proceso.</p>
+
 <p>He creado unos scripts auxiliares para construir la imagen, parar y eliminar el contenedor y para ejecutarlo de nuevo. Para poder conectar al contenedor y revisar la configuración, la correcta ubicación de los ficheros (o si el proceso <code>php-fpm</code> estaba funcionando), también he credo un script para conectar al contenedor y ejecutar una terminal.</p>
+
 <p>Obviamente dista mucho de ser un <em>pipeline</em> de integración continua, pero es un primer paso en la dirección correcta ;)</p>
+
 <h2 id="siguientes-pasos">Siguientes pasos</h2>
+
 <p>Todo el proceso de desarrollo lo he realizado en mi equipo de laboratorio, sobre una máquina virtual x64 para evitar añadir problemas de compatibilidad o de disponibilidad de librerías al proceso.</p>
+
 <p>El paso de una imagen x64 a una ARM no debería suponer ningún problema, ya que estuve revisando que todos los paquetes estuvieran disponibles para las dos arquitecturas.</p>
+
 <p>El siguiente paso es aprovechar todo lo aprendido con la imagen de prueba y crear una imagen para la Raspberry Pi.</p>
+
 <blockquote>
 <p><a href="https://onthedock.github.io/post/170930-nuevos-problemas-para-construir-la-imagen-para-rpi/">Nuevos problemas al construir la imagen con Caddy y PHP, ahora para Raspberry Pi</a></p>
 </blockquote>
+
 <p>Y la guía paso a paso:</p>
+
 <blockquote>
 <p><a href="https://onthedock.github.io/post/170930-como-crear-una-imagen-con-caddy-y-php/">Cómo crear una imagen con Caddy y PHP</a></p>
 </blockquote></div>

@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.68.3" />
+<meta name="generator" content="Hugo 0.55.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -75,7 +75,7 @@
         "height": 60
       }
     },
-    "description": "\x3cp\x3eAlpine Linux se ha convertido en la distribución por defecto con la que construir contenedores.\x3c\/p\x3e\n\x3cp\x3eAlpine tiene sus propias particularidades, ya que no deriva de otra distribución, de manera que he pensado que sería una buena idea tener una máquina virtual con la que entrenarme.\x3c\/p\x3e\n\x3cp\x3eEn este artículo explico qué diferencias he encontrado en Alpine.\x3c\/p\x3e"
+    "description": "\x3cp\x3eAlpine Linux se ha convertido en la distribución por defecto con la que construir contenedores.\x3c\/p\x3e\n\n\x3cp\x3eAlpine tiene sus propias particularidades, ya que no deriva de otra distribución, de manera que he pensado que sería una buena idea tener una máquina virtual con la que entrenarme.\x3c\/p\x3e\n\n\x3cp\x3eEn este artículo explico qué diferencias he encontrado en Alpine.\x3c\/p\x3e"
   }
 </script>
 
@@ -121,18 +121,30 @@
   </div>
 
   <div class="article-body"><p>Alpine Linux se ha convertido en la distribución por defecto con la que construir contenedores.</p>
+
 <p>Alpine tiene sus propias particularidades, ya que no deriva de otra distribución, de manera que he pensado que sería una buena idea tener una máquina virtual con la que entrenarme.</p>
+
 <p>En este artículo explico qué diferencias he encontrado en Alpine.</p>
+
 <h1 id="descargando-alpine-linux">Descargando Alpine Linux</h1>
+
 <p>La primera diferencia respecto al resto de distribuciones es el tamaño de la ISO de instalación. En la <a href="https://alpinelinux.org/downloads/">página de descarga</a> de Alpine Linux, tienes varias versiones para descargar. Además de las habituales, en función de la arquitectura (x86, x86-64, Raspberry Pi, Generic ARM), tienes disponibles versiones orientadas a entornos virtuales, para Xen, etc.</p>
+
 <p>En mi caso he descargado la versión <code>Virtual</code>, orientada a sistemas virtuales y la imagen de instalación ocupa 35MB!.</p>
+
 <h1 id="máquina-virtual">Máquina virtual</h1>
+
 <p>He creado una máquina virtual y he conectado la ISO.</p>
+
 <p>Al arrancar la máquina, el sistema arranca en modo <em>live-CD</em>, ejecutándose completamente en memoria.</p>
+
 <p>Para acceder al sistema, teclea <code>root</code>.</p>
+
 <p>Mi primera sorpresa ha sido que no se ha solicitado la contraseña.</p>
+
 <p>Una vez dentro, ara configurar el sistema, lanza la utilidad <code>setup-alpine</code>.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">Welcome to Alpine!
+
+<pre><code class="language-sh">Welcome to Alpine!
 
 The Alpine Wiki contains a large amount of how-to guides and general
 information about administrating Alpine systems.
@@ -141,8 +153,12 @@ See &lt;http://wiki.alpinelinux.org&gt;.
 You can setup the system with the command: setup-alpine
 
 You may change this message by editing /etc/motd.
-</code></pre></div><p>El teclado, por defecto, está en inglés, por lo que el <code>-</code> se encuentra bajo la tecla <code>?</code> en un teclado en castellano.</p>
+</code></pre>
+
+<p>El teclado, por defecto, está en inglés, por lo que el <code>-</code> se encuentra bajo la tecla <code>?</code> en un teclado en castellano.</p>
+
 <p>El script de instalación pasa por los diferentes pasos de configuración:</p>
+
 <ul>
 <li>teclado: <code>es</code></li>
 <li>variacion de teclado: <code>es-cat</code></li>
@@ -160,30 +176,51 @@ You may change this message by editing /etc/motd.
 <li>uso del disco: <code>sys</code> (selecciona <code>?</code> para ver las diferencias entre las opciones presentadas)</li>
 <li>confirmar el borrado del disco: <code>y</code></li>
 </ul>
+
 <p>Y ¡ya está! Sólo queda reiniciar.</p>
+
 <p>En mi caso, he escrito <code>reboot</code> y el sistema se ha reiniciado al cabo de unos pocos segundos.</p>
+
 <p>Al hacer login de nuevo, me ha sorprendido que no se me haya solicitado el password y que se haya perdido la configuración introducida :(</p>
+
 <p>Alpine Linux es una distribución tan ligera -y en la máquina de laboratorio tengo un SSD- que me ha costado un momento darme cuenta de que, al reiniciar, la máquina virtual no ha perdido la configuración, sino que ha arrancado de nuevo la versión del <em>live-CD</em>.</p>
+
 <p>Una vez expulsada la ISO, he reiniciado de nuevo y he accedido al sistema ya instalado en la VM ;)</p>
+
 <h1 id="acceso-remoto-vía-ssh">Acceso remoto vía SSH</h1>
+
 <p>Por comodidad, prefiero trabajar desde la consola del Mac, pero no quiero crear un nuevo usuario.</p>
+
 <p>Por defecto, OpenSSH no permite la conexión remota del usuario <code>root</code>, así que el siguiente paso es modificar el fichero de configuración.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">vi /etc/ssh/sshd_config
-</code></pre></div><ul>
+
+<pre><code class="language-sh">vi /etc/ssh/sshd_config
+</code></pre>
+
+<ul>
 <li>Desplázate hasta la línea <code>PermitRootLogin</code></li>
 <li>Pulsa <code>i</code> para entrar en el modo interactivo de Vi</li>
 <li>Escribe en una nueva línea: <code>PermitRootLogin yes</code></li>
 <li>Pulsa <code>ESC</code> para volver al modo de comandos</li>
 <li>Escribe <code>:wq</code> (<em>write</em>, <em>quit</em>) para guardar los cambios y salir de Vi.</li>
 </ul>
+
 <p>Para que los cambios tengan efecto, reinicia el servicio SSH:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-txt" data-lang="txt"># service sshd restart
-</code></pre></div><h1 id="siguientes-pasos">Siguientes pasos</h1>
+
+<pre><code class="language-txt"># service sshd restart
+</code></pre>
+
+<h1 id="siguientes-pasos">Siguientes pasos</h1>
+
 <p>A continuación realizaré la instalación de algunos paquetes.</p>
+
 <p>El objetivo es probar el proceso que se realiza durante la creación de una imagen en Docker, pero en un entorno donde poder observar la salida de los comandos ejecutados, etc.</p>
+
 <h1 id="resumen">Resumen</h1>
+
 <p>En este artículo hemos instalado Alpine Linux en una máquina virtual.</p>
+
 <p>También hemos modificado el servidor SSH para poder conectar remotamente como <code>root</code> (por comodidad, en un entorno seguro de laboratorio).</p>
+
 <p>En los próximos artículos seguiremos familiarizándonos con Alpine Linux.</p></div>
 
   <aside class="p-share">

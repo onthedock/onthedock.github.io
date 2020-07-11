@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.68.3" />
+<meta name="generator" content="Hugo 0.55.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -75,7 +75,7 @@
         "height": 60
       }
     },
-    "description": "\x3cp\x3eEn la entrada \x3ca href=\x22https:\/\/onthedock.github.io\/post\/200118-alpine-para-desarrollo-con-python\/\x22\x3eAlpine para desarrollo con Python\x3c\/a\x3e indiqué cómo configurar una máquina virtual con Alpine Linux para desarrollar con Python.\nAunque es posible editar código en Vi o Emacs en un sistema sin entorno gráfico, yo me siento más cómodo usando algo como Visual Studio Code.\x3c\/p\x3e\n\x3cblockquote\x3e\n\x3cp\x3eNo es posible usar \x3cem\x3eRemote - SSH\x3c\/em\x3e con Alpine Linux; más detalles, en \x3ca href=\x22https:\/\/onthedock.github.io\/post\/200119-porque-remote-ssh-no-funciona-con-alpine\/\x22\x3e¿Por qué Remote - SSH no funciona con Alpine?\x3c\/a\x3e.\x3c\/p\x3e\n\x3c\/blockquote\x3e\n\x3cp\x3eLa funcionalidad de Visual Studio Code -VS Code o simplemente, Code- puede ampliarse mediante el uso de \x3ca href=\x22https:\/\/code.visualstudio.com\/docs\/editor\/extension-gallery\x22\x3e\x3cem\x3eextensiones\x3c\/em\x3e\x3c\/a\x3e.\nEn esta entrada explico cómo usar Code desde tu equipo para editar código remoto a través de SSH.\x3c\/p\x3e"
+    "description": "\x3cp\x3eEn la entrada \x3ca href=\x22https:\/\/onthedock.github.io\/post\/200118-alpine-para-desarrollo-con-python\/\x22\x3eAlpine para desarrollo con Python\x3c\/a\x3e indiqué cómo configurar una máquina virtual con Alpine Linux para desarrollar con Python.\nAunque es posible editar código en Vi o Emacs en un sistema sin entorno gráfico, yo me siento más cómodo usando algo como Visual Studio Code.\x3c\/p\x3e\n\n\x3cblockquote\x3e\n\x3cp\x3eNo es posible usar \x3cem\x3eRemote - SSH\x3c\/em\x3e con Alpine Linux; más detalles, en \x3ca href=\x22https:\/\/onthedock.github.io\/post\/200119-porque-remote-ssh-no-funciona-con-alpine\/\x22\x3e¿Por qué Remote - SSH no funciona con Alpine?\x3c\/a\x3e.\x3c\/p\x3e\n\x3c\/blockquote\x3e\n\n\x3cp\x3eLa funcionalidad de Visual Studio Code -VS Code o simplemente, Code- puede ampliarse mediante el uso de \x3ca href=\x22https:\/\/code.visualstudio.com\/docs\/editor\/extension-gallery\x22\x3e\x3cem\x3eextensiones\x3c\/em\x3e\x3c\/a\x3e.\nEn esta entrada explico cómo usar Code desde tu equipo para editar código remoto a través de SSH.\x3c\/p\x3e"
   }
 </script>
 
@@ -122,85 +122,122 @@
 
   <div class="article-body"><p>En la entrada <a href="https://onthedock.github.io/post/200118-alpine-para-desarrollo-con-python/">Alpine para desarrollo con Python</a> indiqué cómo configurar una máquina virtual con Alpine Linux para desarrollar con Python.
 Aunque es posible editar código en Vi o Emacs en un sistema sin entorno gráfico, yo me siento más cómodo usando algo como Visual Studio Code.</p>
+
 <blockquote>
 <p>No es posible usar <em>Remote - SSH</em> con Alpine Linux; más detalles, en <a href="https://onthedock.github.io/post/200119-porque-remote-ssh-no-funciona-con-alpine/">¿Por qué Remote - SSH no funciona con Alpine?</a>.</p>
 </blockquote>
+
 <p>La funcionalidad de Visual Studio Code -VS Code o simplemente, Code- puede ampliarse mediante el uso de <a href="https://code.visualstudio.com/docs/editor/extension-gallery"><em>extensiones</em></a>.
 En esta entrada explico cómo usar Code desde tu equipo para editar código remoto a través de SSH.</p>
+
 <p>Microsoft <a href="https://code.visualstudio.com/blogs/2019/07/25/remote-ssh">publicó</a> la extensión <a href="https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-ssh">Remote - SSH</a> a mediados de 2019. Para usar <em>Remote - SSH</em> necesitas un cliente SSH compatible con OpenSSH instalado localmente y un <em>host</em> remoto al que conectar vía SSH.</p>
+
 <p>En mi caso, he configurado sin problemas Code en Linux (Elementary 5.1) y en Mac OS X (Catalina). En Windows (10) he tenido más problemas, aunque al tratarse del equipo del trabajo hay otros factores que pueden influir (Code y SSH en modo portable, <em>proxy</em> y seguridad corporativa de por medio, sin permisos de administración, etc).</p>
+
 <blockquote>
 <p>&ldquo;Remote - SSH&rdquo; <strong>envía telemetría a Microsoft</strong>, como se detalla en la descripción de la extensión. Si quieres usar estas extensiones en un entorno <em>controlado</em>, quizás debas consultar al equipo de seguridad de tu empresa.</p>
+
 <p>Además de <em>Remote - SSH</em>, Microsoft también ofrece otras extensiones para trabajar &ldquo;remotamente&rdquo;, como <a href="https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-wsl">Remote - WSL</a> o <a href="https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers">Remote - Containers</a>, para conectar con el subsistema de Linux en Windows o con contenedores, respectivamente.</p>
 </blockquote>
+
 <h2 id="pasos-previos-a-la-instalación-de-la-extensión">Pasos previos a la instalación de la extensión</h2>
+
 <p>Para facilitar la conexión de Code con la máquina remota, es recomendable establecer autenticación basada en claves SSH.</p>
+
 <h3 id="crea-un-par-de-claves-ssh">Crea un par de claves SSH</h3>
+
 <blockquote>
 <p>Este paso es opcional, si ya dispones de un par de claves.</p>
 </blockquote>
+
 <p>Creo un par de claves con el comando <code>ssh-keygen</code>. El comando permite especificar el tipo de algoritmo de cigfrado, la fortaleza de la clave, etc&hellip;</p>
+
 <p>Lanzo el comando sin ningún parámetro:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ ssh-keygen
+
+<pre><code class="language-bash">$ ssh-keygen
 Generating public/private rsa key pair.
-Enter file in which to save the key <span style="color:#f92672">(</span>/home/operador/.ssh/id_rsa<span style="color:#f92672">)</span>: /home/operador/.ssh/id_rsa_code
-Enter passphrase <span style="color:#f92672">(</span>empty <span style="color:#66d9ef">for</span> no passphrase<span style="color:#f92672">)</span>:
+Enter file in which to save the key (/home/operador/.ssh/id_rsa): /home/operador/.ssh/id_rsa_code
+Enter passphrase (empty for no passphrase):
 Enter same passphrase again:
 Your identification has been saved in /home/operador/.ssh/id_rsa_code.
 Your public key has been saved in /home/operador/.ssh/id_rsa_code.pub.
 The key fingerprint is:
 SHA256:5nq8pzuXPiYZEOxO+vKr8ubn9IDQg++X1ggvvixevyg operador@D630
-The key<span style="color:#960050;background-color:#1e0010">&#39;</span>s randomart image is:
-+---<span style="color:#f92672">[</span>RSA 2048<span style="color:#f92672">]</span>----+
+The key's randomart image is:
++---[RSA 2048]----+
 |     .           |
 |      o          |
 |     . .         |
 |   o  +          |
 |  o o+ .S        |
 |   ooo.o.        |
-|    ++o<span style="color:#f92672">=</span>.o .     |
+|    ++o=.o .     |
 |  E+++O+B *      |
-| ..OX@B+<span style="color:#f92672">=</span>@..     |
-+----<span style="color:#f92672">[</span>SHA256<span style="color:#f92672">]</span>-----+
-</code></pre></div><p>Lo primero que pregunta el comando es el fichero en el que guardar la clave. En mi caso, prefiero tener la clave en un fichero independiente: <code>id_rsa_code</code>.</p>
+| ..OX@B+=@..     |
++----[SHA256]-----+
+</code></pre>
+
+<p>Lo primero que pregunta el comando es el fichero en el que guardar la clave. En mi caso, prefiero tener la clave en un fichero independiente: <code>id_rsa_code</code>.</p>
+
 <p>Configuraré Code para usar esta clave para conectar a máquinas remotas donde editar código, por lo que no especifico una contraseña (o <em>passphrase</em>).</p>
+
 <h3 id="copiar-la-clave-pública-al-equipo-remoto">Copiar la clave <strong>pública</strong> al equipo remoto</h3>
+
 <blockquote>
 <p>Este paso es opcional, si ya has copiado la clave <strong>pública</strong> al servidor remoto.</p>
 </blockquote>
+
 <p>En aquellos sistemas en los que existe el comando <code>ssh-copy-id</code>:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ ssh-copy-id -i ~/.ssh/id_rsa_code.pub &lt;username&gt;@&lt;ip-equipo-remoto&gt;
-/usr/bin/ssh-copy-id: INFO: Source of key<span style="color:#f92672">(</span>s<span style="color:#f92672">)</span> to be installed: <span style="color:#e6db74">&#34;/home/operador/.ssh/id_rsa_code.pub&#34;</span>
-/usr/bin/ssh-copy-id: INFO: attempting to log in with the new key<span style="color:#f92672">(</span>s<span style="color:#f92672">)</span>, to filter out any that are already installed
-/usr/bin/ssh-copy-id: INFO: <span style="color:#ae81ff">1</span> key<span style="color:#f92672">(</span>s<span style="color:#f92672">)</span> remain to be installed -- <span style="color:#66d9ef">if</span> you are prompted now it is to install the new keys
-&lt;username&gt;@&lt;ip-equipo-remoto&gt;<span style="color:#e6db74">&#39;s password:
-</span><span style="color:#e6db74">
-</span><span style="color:#e6db74">Number of key(s) added: 1
-</span><span style="color:#e6db74">
-</span><span style="color:#e6db74">Now try logging into the machine, with:   &#34;ssh &#39;</span>&lt;username&gt;@&lt;ip-equipo-remoto&gt;<span style="color:#960050;background-color:#1e0010">&#39;</span><span style="color:#e6db74">&#34;
-</span><span style="color:#e6db74">and check to make sure that only the key(s) you wanted were added.
-</span></code></pre></div><p>El comando se conecta a la máquina remota por SSH (autenticándose con la contraseña) y a continuación copia la clave pública en el fichero <code>~/.ssh/authorized_keys</code>. Si tu equipo no dispone de <code>ssh-copy-id</code>, debes realizar estos pasos manualmente.</p>
+
+<pre><code class="language-bash">$ ssh-copy-id -i ~/.ssh/id_rsa_code.pub &lt;username&gt;@&lt;ip-equipo-remoto&gt;
+/usr/bin/ssh-copy-id: INFO: Source of key(s) to be installed: &quot;/home/operador/.ssh/id_rsa_code.pub&quot;
+/usr/bin/ssh-copy-id: INFO: attempting to log in with the new key(s), to filter out any that are already installed
+/usr/bin/ssh-copy-id: INFO: 1 key(s) remain to be installed -- if you are prompted now it is to install the new keys
+&lt;username&gt;@&lt;ip-equipo-remoto&gt;'s password:
+
+Number of key(s) added: 1
+
+Now try logging into the machine, with:   &quot;ssh '&lt;username&gt;@&lt;ip-equipo-remoto&gt;'&quot;
+and check to make sure that only the key(s) you wanted were added.
+</code></pre>
+
+<p>El comando se conecta a la máquina remota por SSH (autenticándose con la contraseña) y a continuación copia la clave pública en el fichero <code>~/.ssh/authorized_keys</code>. Si tu equipo no dispone de <code>ssh-copy-id</code>, debes realizar estos pasos manualmente.</p>
+
 <blockquote>
 <p>SSH usa la clave pública <code>~/.ssh/id_rsa</code> por defecto; como en mi caso uso un fichero de clave diferente, debo indicar la ruta al fichero que contiene la clave mediante el parámetro <code>-i ruta/al/fichero/clave</code>.</p>
 </blockquote>
+
 <h2 id="permisos-para-las-claves-ssh">Permisos para las claves SSH</h2>
+
 <p>He generado un par de claves: <code>id_rsa_code</code> (privada) y <code>id_rsa_code.pub</code> (pública).</p>
+
 <p>Si no se establecen los permisos correctos para cada tipo de clave, <em>Remote - SSH</em> puede rechazar usar las claves con un mensaje de la forma <em>permissions are too open</em>.</p>
+
 <p>Los permisos correctos para cada tipo de clave son:</p>
+
 <ul>
 <li>Clave privada: 600 <code>-rw-------</code></li>
 <li>Clave pública: 644 <code>-rw-r--r--</code></li>
 </ul>
-<h2 id="instalación-de-la-extensión-remote---ssh">Instalación de la extensión Remote - SSH</h2>
+
+<h2 id="instalación-de-la-extensión-remote-ssh">Instalación de la extensión Remote - SSH</h2>
+
 <p>En el panel lateral, pulsa el selector de las Extensiones; busca la extensión que quieres instalar y pulsa <em>Install</em>.</p>
+
 <p>En <a href="https://code.visualstudio.com/docs/editor/extension-gallery">Extension Marketplace</a> tienes todos los detalles.</p>
-<h2 id="configuración-de-la-extensión-remote---ssh">Configuración de la extensión Remote - SSH</h2>
+
+<h2 id="configuración-de-la-extensión-remote-ssh">Configuración de la extensión Remote - SSH</h2>
+
 <p>Para configurar la extensión <em>Remote - SSH</em> pulsa <code>F1</code> para abrir la <em>paleta de comandos</em> y selecciona <em>Remote-SSH: Connect to Host</em>, y en el siguiente menú, selecciona <em>Configure remote hosts</em>. Selecciona el fichero -local o global- de configuración y edítalo.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ini" data-lang="ini"><span style="color:#a6e22e">Host pydev</span>
-  <span style="color:#a6e22e">HostName 192.168.1.141</span>
-  <span style="color:#a6e22e">User operador</span>
-  <span style="color:#a6e22e">IdentityFile ~/.ssh/id_rsa_code</span>
-</code></pre></div><p>La variable <code>Host</code> permite dar un nombre <em>amigable</em> al equipo remoto, mientras que en <code>HostName</code> se indica el nombre DNS o IP del equipo. En el fichero también se indica con qué usuario y fichero de clave conectará Code con el equipo remoto.</p>
+
+<pre><code class="language-ini">Host pydev
+  HostName 192.168.1.141
+  User operador
+  IdentityFile ~/.ssh/id_rsa_code
+</code></pre>
+
+<p>La variable <code>Host</code> permite dar un nombre <em>amigable</em> al equipo remoto, mientras que en <code>HostName</code> se indica el nombre DNS o IP del equipo. En el fichero también se indica con qué usuario y fichero de clave conectará Code con el equipo remoto.</p>
+
 <p>Para otras situaciones más específicas -como por ejemplo tener que acceder a la máquina remota a través de un <em>jumpserver</em>, conectar a través de un proxy, etc, revisa la documentación <a href="https://code.visualstudio.com/docs/remote/troubleshooting">Remote Development Tips and Tricks</a>.</p></div>
 
   <aside class="p-share">

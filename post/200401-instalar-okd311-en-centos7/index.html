@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.68.3" />
+<meta name="generator" content="Hugo 0.55.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -75,7 +75,7 @@
         "height": 60
       }
     },
-    "description": "\x3cp\x3eLa instalación de \x3ca href=\x22https:\/\/www.okd.io\/\x22\x3eOKD\x3c\/a\x3e, la distribución \x3cem\x3eopensource\x3c\/em\x3e de \x3ca href=\x22https:\/\/www.openshift.com\/\x22\x3eOpenShift\x3c\/a\x3e es compleja y tiene unos prerequisitos que, al menos en mi caso, me han echado un poco \x3cem\x3epa\x26rsquo;trás\x3c\/em\x3e a la hora de instalarlo.\x3c\/p\x3e\n\x3cp\x3eRecientemente he encontrado una instalación basada completamente en contenedores que, aunque no es exactamente igual a la versión \x3cem\x3eestándard\x3c\/em\x3e, permite familiarizarse con el producto, el despliegue de aplicaciones, etc\x26hellip;\x3c\/p\x3e\n\x3cp\x3eEn esta entrada indico cómo instalar OKD 3.11 sobre Centos 7 (Minimal).\x3c\/p\x3e"
+    "description": "\x3cp\x3eLa instalación de \x3ca href=\x22https:\/\/www.okd.io\/\x22\x3eOKD\x3c\/a\x3e, la distribución \x3cem\x3eopensource\x3c\/em\x3e de \x3ca href=\x22https:\/\/www.openshift.com\/\x22\x3eOpenShift\x3c\/a\x3e es compleja y tiene unos prerequisitos que, al menos en mi caso, me han echado un poco \x3cem\x3epa\x26rsquo;trás\x3c\/em\x3e a la hora de instalarlo.\x3c\/p\x3e\n\n\x3cp\x3eRecientemente he encontrado una instalación basada completamente en contenedores que, aunque no es exactamente igual a la versión \x3cem\x3eestándard\x3c\/em\x3e, permite familiarizarse con el producto, el despliegue de aplicaciones, etc\x26hellip;\x3c\/p\x3e\n\n\x3cp\x3eEn esta entrada indico cómo instalar OKD 3.11 sobre Centos 7 (Minimal).\x3c\/p\x3e"
   }
 </script>
 
@@ -121,82 +121,139 @@
   </div>
 
   <div class="article-body"><p>La instalación de <a href="https://www.okd.io/">OKD</a>, la distribución <em>opensource</em> de <a href="https://www.openshift.com/">OpenShift</a> es compleja y tiene unos prerequisitos que, al menos en mi caso, me han echado un poco <em>pa&rsquo;trás</em> a la hora de instalarlo.</p>
+
 <p>Recientemente he encontrado una instalación basada completamente en contenedores que, aunque no es exactamente igual a la versión <em>estándard</em>, permite familiarizarse con el producto, el despliegue de aplicaciones, etc&hellip;</p>
+
 <p>En esta entrada indico cómo instalar OKD 3.11 sobre Centos 7 (Minimal).</p>
+
 <p>La entrada se basa en las notas que fui recogiendo hace un par de días del proceso de instalación, por lo que no hay capturas de pantalla ni nada <em>fancy</em>, pero a mí me vale.</p>
+
 <blockquote>
 <p>Estas notas contienen nombres específicos -como el de la tarjeta de red o direcciones IP- que debes cambiar para adaptar a tu entorno.</p>
 </blockquote>
+
 <h2 id="prerequisitos">Prerequisitos</h2>
+
 <p>La instalación la he realizado sobre VirtualBox 6.1, en una máquina con 16Gb de RAM y 50Gb de disco.</p>
+
 <p>Tras instalar las <em>VBoxGuestAdditions</em>, observo que el consumo inicial de RAM es de unos 300MB. Al lanzar el clúster, el uso empieza a subir, pero sin dispararse, quedando sobre unos 2GB de RAM al finalizar el proceso de arranque. Más tarde, el consumo de memoria ha ido aumentando y ahora ya está en 3.5Gb (y sigue aumentando), por lo que parece <em>overkill</em> asignar 16GB de RAM.</p>
+
 <p>He asignado sólo 1 vCPU -lo que diría que es un error-, pero de momento funciona. Intentaré asignarle más vCPUs para ver si cambia alguna cosa.</p>
+
 <h2 id="instalación-de-centos-7-minimal">Instalación de Centos 7 (Minimal)</h2>
+
 <p>Realicé una instalación estándard a partir de Centos 7 (Minimal). La única configuración &ldquo;especial&rdquo; durante la instalación fue añadir el soporte para la distribución de teclado &ldquo;ES&rdquo;.</p>
+
 <blockquote>
 <p>Todos los comandos se ejecutan como usuario <code>root</code>. Para convertirte en <code>root</code>, <code>sudo -i</code>, por ejemplo.</p>
 </blockquote>
+
 <p>Tras la instalación, establezco la el <em>mapa de teclado</em> mediante (Referencia: <a href="https://linuxconfig.org/how-to-change-system-keyboard-keymap-layout-on-centos-7-linux">How to change system keyboard keymap layout on CentOS 7 Linux</a>):</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">localectl set-keymap es
-</code></pre></div><h2 id="habilitar-la-tarjeta-de-red">Habilitar la tarjeta de red</h2>
+
+<pre><code class="language-bash">localectl set-keymap es
+</code></pre>
+
+<h2 id="habilitar-la-tarjeta-de-red">Habilitar la tarjeta de red</h2>
+
 <p>En CentOS, la tarjeta de red está deshabilitada por defecto.</p>
+
 <p>Para que <em>autoarranque</em> automáticamente al iniciar el sistema, hay que modificar el fichero (como <code>root</code>) <code>/etc/sysconfig/network-scripts/ifcfg-enp0s3/</code> y modificar la línea <code>ONBOOT=yes</code>.</p>
+
 <p>Para habilitarla (la <code>c</code> es de <em>connection</em>),</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">nmcli c up enp0s3
-</code></pre></div><h2 id="instalación-de-docker">Instalación de Docker</h2>
+
+<pre><code class="language-bash">nmcli c up enp0s3
+</code></pre>
+
+<h2 id="instalación-de-docker">Instalación de Docker</h2>
+
 <p>Nos convertimos en el usuario <code>root</code> e instalamos Docker:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">sudo -i
+
+<pre><code class="language-bash">sudo -i
 yum update
 yum install docker -y
-</code></pre></div><p>Docker está instalado pero no activo. Podemos validarlo con <code>systemctl status docker</code>
+</code></pre>
+
+<p>Docker está instalado pero no activo. Podemos validarlo con <code>systemctl status docker</code>
 Para habilitarlo, (como <em>root</em>) <code>systemctl enable docker</code>. Antes de activarlo, vamos a configurar un registro privado.</p>
+
 <h3 id="configuración-de-un-registro-inseguro">Configuración de un registro inseguro</h3>
+
 <blockquote>
 <p>Este paso es necesario para poder usar el <em>registry</em> interno proporcionado por la instalación de OKD/OpenShift. Si no habilitamos el uso de registros inseguros, el comando <code>oc cluster up</code> <strong>fallará</strong>.</p>
 </blockquote>
+
 <p>Como <code>root</code>, crea el fichero <code>/etc/docker/daemon.json</code>:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#75715e"># cat &lt;&lt; EOF &gt;/etc/docker/daemon.json</span>
-<span style="color:#f92672">{</span>
- <span style="color:#e6db74">&#34;insecure-registries&#34;</span>: <span style="color:#f92672">[</span>
- <span style="color:#e6db74">&#34;172.30.0.0/16&#34;</span>
- <span style="color:#f92672">]</span>
-<span style="color:#f92672">}</span>
+
+<pre><code class="language-bash"># cat &lt;&lt; EOF &gt;/etc/docker/daemon.json
+{
+ &quot;insecure-registries&quot;: [
+ &quot;172.30.0.0/16&quot;
+ ]
+}
 EOF
-</code></pre></div><p>Finalmente, arrancamos Docker: <code>systemctl start docker</code> (y lo validamos con <code>systemctl status docker</code>).</p>
+</code></pre>
+
+<p>Finalmente, arrancamos Docker: <code>systemctl start docker</code> (y lo validamos con <code>systemctl status docker</code>).</p>
+
 <h2 id="configuración-del-firewall">Configuración del firewall</h2>
+
 <p>La configuración por defecto del firewall no permite el tráfico por los puertos requeridos por Openshift. Hay que ajustarlos mediante la herramienta <code>firewall-cmd</code>:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">firewall-cmd --permanent --new-zone dockerc
+
+<pre><code class="language-bash">firewall-cmd --permanent --new-zone dockerc
 firewall-cmd --permanent --zone dockerc --add-source 172.17.0.0/16
 firewall-cmd --permanent --zone dockerc --add-port 8443/tcp
 firewall-cmd --permanent --zone dockerc --add-port 53/udp
 firewall-cmd --permanent --zone dockerc --add-port 8053/udp
 firewall-cmd --reload
-</code></pre></div><h2 id="descargando-la-herramienta-oc">Descargando la herramienta <code>oc</code></h2>
+</code></pre>
+
+<h2 id="descargando-la-herramienta-oc">Descargando la herramienta <code>oc</code></h2>
+
 <p>El cliente de Openshift es una herramienta llamada <code>oc</code>, disponible en los repositorios. Se puede descargar de <a href="https://github.com/openshift/origin/releases">https://github.com/openshift/origin/releases</a> (idealmente deberías usar los repositorios de CentOS).</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">yum -y install centos-release-openshift-origin311
+
+<pre><code class="language-bash">yum -y install centos-release-openshift-origin311
 yum -y install origin-clients
-</code></pre></div><h2 id="arrancando-un-clúster-de-openshift">Arrancando un clúster de OpenShift</h2>
+</code></pre>
+
+<h2 id="arrancando-un-clúster-de-openshift">Arrancando un clúster de OpenShift</h2>
+
 <p>Una vez tenemos todos los prerequisitos, podemos arrancar el clúster con <code>oc cluster up</code>. Este comando descarga todas las imágenes requeridas de repositorios públicos y arrancará los contenedores que haga falta (tardará un rato, en función de la velocidad de tu conexión de red).</p>
+
 <p>Puedes especificar una versión concreta mediante <code>--version=3.9.0</code>, por ejemplo. Si la omites, descarga la última versión disponible (la 3.11)</p>
+
 <blockquote>
 <p>Para poder acceder a la consola desde un equipo <em>diferente</em> a la VM donde estás instalando OKD, pasa el parámetro <code>--public-hostname=&lt;public ip&gt;</code>. Sin embargo, esto no me ha funcionado y existe un <em>issue</em> abierto al respecto <a href="https://github.com/openshift/origin/issues/20726">Access fail with &lsquo;oc cluster up &ndash;public-hostname={public ip}&rsquo; and redirect to 127.0.0.1 #20726</a></p>
 </blockquote>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">oc cluster up
-</code></pre></div><p>Cuando finaliza la instalación, se muestra un mensaje que nos indica cómo acceder -vía línea de comandos- a OpenShift:</p>
+
+<pre><code class="language-bash">oc cluster up
+</code></pre>
+
+<p>Cuando finaliza la instalación, se muestra un mensaje que nos indica cómo acceder -vía línea de comandos- a OpenShift:</p>
+
 <ul>
 <li><strong>Como developer</strong>: Ya estás logado como <code>developer</code> (cualquier valor es admitido como <em>password</em>). P.ej. <code>developer</code>.</li>
 <li><strong>Como administrador</strong>: <code>oc login -u system:admin</code>. Puedes indicar cualquier password, por ejemplo <code>admin</code>.</li>
 </ul>
+
 <blockquote>
 <p>En realidad puedes acceder con cualquier usuario que te inventes, que asumirá el rol de <em>developer</em>. Prueba <code>oc login -u anthonymachine</code>.</p>
 </blockquote>
+
 <h2 id="conectar-a-la-consola-de-openshift-desde-otro-equipo">Conectar a la consola de OpenShift (desde otro equipo)</h2>
-<p>Debería ser posible acceder a la consola web de OKD a través de <a href="https://%7Bvm-ip%7D:8443">https://{vm-ip}:8443</a> abriendo el firewall. Sin embargo, tras aceptar el <em>warning</em> del navegador (por usar un certificado autofirmado), se redirige a <a href="https://localhost:8443/console">https://localhost:8443/console</a>, que sólo funciona si estás intentando acceder a OKD desde la misma máquina donde está instalado.</p>
+
+<p>Debería ser posible acceder a la consola web de OKD a través de <a href="https://{vm-ip}:8443">https://{vm-ip}:8443</a> abriendo el firewall. Sin embargo, tras aceptar el <em>warning</em> del navegador (por usar un certificado autofirmado), se redirige a <a href="https://localhost:8443/console">https://localhost:8443/console</a>, que sólo funciona si estás intentando acceder a OKD desde la misma máquina donde está instalado.</p>
+
 <p>Como he indicado antes, hay un <em>issue</em> abierto en GitHub al respecto <a href="https://github.com/openshift/origin/issues/20726">Access fail with &lsquo;oc cluster up &ndash;public-hostname={public ip}&rsquo; and redirect to 127.0.0.1 #20726</a>. El <em>issue</em> es del 2018 y se informó inicialmente para la versión 3.10, pero en la 3.11 también sucede.</p>
+
 <p>Dado que, aunque todavía está soportada, RedHat ya está trabajando en la rama 4.x, es poco probable que lo solucionen.</p>
+
 <p>La única manera con la que he conseguido acceder a la consola es mediante un túnel SSH:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">ssh -N -L 8443:127.0.0.1:8443 <span style="color:#f92672">{</span>username<span style="color:#f92672">}</span>@<span style="color:#f92672">{</span>vm-ip<span style="color:#f92672">}</span>
-</code></pre></div><h2 id="créditos">Créditos</h2>
+
+<pre><code class="language-bash">ssh -N -L 8443:127.0.0.1:8443 {username}@{vm-ip}
+</code></pre>
+
+<h2 id="créditos">Créditos</h2>
+
 <p>Para realizar la instalación seguí las instrucciones del artículo <a href="https://medium.com/@fabiojose/working-with-oc-cluster-up-a052339ea219">Working with oc cluster up</a>.</p></div>
 
   <aside class="p-share">

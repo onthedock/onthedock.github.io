@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.68.3" />
+<meta name="generator" content="Hugo 0.55.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -75,7 +75,7 @@
         "height": 60
       }
     },
-    "description": "\x3cp\x3eEl principal objetivo de esta serie de artículos es aprender a construir un \x3cem\x3epipeline\x3c\/em\x3e siguiendo, en la medida de lo posible, las mejores prácticas de cada producto.\x3c\/p\x3e\n\x3cp\x3eEn esta guía, se muestran los pasos a seguir de principio a fin sin que falle nada; sin embargo, el proceso real es \x3cstrong\x3emuy diferente\x3c\/strong\x3e, con multitud de errores a lo largo del camino.\x3c\/p\x3e\n\x3cp\x3eEn esta entrada quiero exponer algunos de los cambios que he realizado, a nivel de diseño de la arquitectura durante la creación del \x3cem\x3epipeline\x3c\/em\x3e.\x3c\/p\x3e"
+    "description": "\x3cp\x3eEl principal objetivo de esta serie de artículos es aprender a construir un \x3cem\x3epipeline\x3c\/em\x3e siguiendo, en la medida de lo posible, las mejores prácticas de cada producto.\x3c\/p\x3e\n\n\x3cp\x3eEn esta guía, se muestran los pasos a seguir de principio a fin sin que falle nada; sin embargo, el proceso real es \x3cstrong\x3emuy diferente\x3c\/strong\x3e, con multitud de errores a lo largo del camino.\x3c\/p\x3e\n\n\x3cp\x3eEn esta entrada quiero exponer algunos de los cambios que he realizado, a nivel de diseño de la arquitectura durante la creación del \x3cem\x3epipeline\x3c\/em\x3e.\x3c\/p\x3e"
   }
 </script>
 
@@ -121,51 +121,89 @@
   </div>
 
   <div class="article-body"><p>El principal objetivo de esta serie de artículos es aprender a construir un <em>pipeline</em> siguiendo, en la medida de lo posible, las mejores prácticas de cada producto.</p>
+
 <p>En esta guía, se muestran los pasos a seguir de principio a fin sin que falle nada; sin embargo, el proceso real es <strong>muy diferente</strong>, con multitud de errores a lo largo del camino.</p>
+
 <p>En esta entrada quiero exponer algunos de los cambios que he realizado, a nivel de diseño de la arquitectura durante la creación del <em>pipeline</em>.</p>
+
 <h1 id="una-base-de-datos-por-aplicación">Una base de datos por aplicación</h1>
+
 <p>De las aplicaciones consideradas, Gogs y SonarQube requieren una base de datos. Inicialmente había pensado en usar un solo servidor de MySQL para las dos aplicaciones, pero hay varios motivos que me han hecho cambiar de opinión:</p>
+
 <ul>
 <li>El uso de &ldquo;redes puente&rdquo; para conectar los contenedores de aplicación y de base de datos.</li>
 <li>Consideraciones de seguridad.</li>
 <li>Diferencias en el ciclo de actualización de las aplicaciones.</li>
 </ul>
+
 <h2 id="uso-de-una-red-puente-para-conectar-dos-contenedores">Uso de una red puente para conectar dos contenedores</h2>
+
 <p>En internet hay multitud de tutoriales que usan el parámetro <code>--link</code> para enlazar dos contenedores. El caso más común es el de enlazar la aplicación con el servidor de datos.</p>
+
 <p>El problema de la opción <code>--link</code> es que parámetro está considerado <a href="https://docs.docker.com/network/links/"><em>legacy</em></a> y <strong>puede ser eliminado en cualquier versión de Docker</strong>, por lo que no es conveniente usarlo.</p>
+
 <p>La alternativa es usar una red puente definida por el usuario (<em>user-defined bridge network</em>). Esta es la forma recomendada en la documentación de MySQL para desplegar MySQL en Linux con Docker: <a href="https://dev.mysql.com/doc/mysql-installation-excerpt/5.7/en/docker-mysql-more-topics.html#docker-app-in-another-container">Connect to MySQL from an Application in Another Docker Container</a>.</p>
+
 <h3 id="red-puente-definida-por-el-usuario">Red puente definida por el usuario</h3>
+
 <p>Una <a href="https://docs.docker.com/network/bridge/"><em>user-defined bridge network</em></a> es una red virtual adicional a la red a la que están conectados los contenedores. Con esta red puente conseguimos los mismos resultados que con el parámetro <code>--link</code>: los contenedores conectados a la misma red puente automáticamente exponen <strong>todos los puertos</strong> entre sí, pero no exponen ningún puerto al exterior. Los contenedores conectados a la misma red puente pueden contactar con el resto de contenedores mediante la resolución del nombre o el alias del contenedor.</p>
+
 <p>Podemos conectar un contenedor a una <em>user-defined bridge network</em> tanto al crear el contenedor como una vez el contenedor está en marcha.</p>
+
 <h2 id="consideraciones-de-seguridad">Consideraciones de seguridad</h2>
+
 <p>Al exponer todos los puertos entre las aplicaciones conectadas a la misma red, a medida que conectamos más contenedores, también aumenta el riesgo de que un fallo de seguridad en un contenedor afecte al resto de contenedores conectados.</p>
+
 <h2 id="diferentes-ritmos-de-actualización">Diferentes ritmos de actualización</h2>
+
 <p>Usar el mismo servidor de base de datos para dos aplicaciones independientes supone que una nueva versión de cualquiera de las aplicaciones puede requerir una actualización de la base de datos que no sea compatible con el resto de aplicaciones.</p>
+
 <p>Imagina el escenario en el que la nueva versión 2.0 de la aplicación 1 requiere que la versión de base de datos sea la 4.5 mientras que la versión soportada para la aplicación para la aplicación 2 es la 3.0, por ejemplo. Esto supone tener que quedarse con una versión desactualizada de la aplicación 1 o usar una configuración no soportada por el proveedor de la aplicación 2.</p>
+
 <p>Para evitar este tipo de problemas, es mejor disponer de dos bases de datos diferentes, una para cada aplicación.</p>
+
 <h2 id="filosofía-de-los-contenedores">Filosofía de los contenedores</h2>
+
 <p>Finalmente, otro argumento a favor de la separación de las bases de datos es la filosofía de &ldquo;un proceso por contenedor&rdquo;; por eso también parece más adecuado usar una base de datos para cada aplicación en su propio contenedor.</p>
+
 <h1 id="usuario-diferente-a-root-en-la-base-de-datos">Usuario diferente a root en la base de datos</h1>
+
 <p>En las primeras versiones del documento, al lanzar del contenedor para MySQL sólo creaba el usuario <code>root</code>. Por tanto, al conectar desde la aplicación, se usaba el usuario <code>root</code> en la cadena de conexión con MySQL.</p>
+
 <p>Esto es una mala práctica, por lo que he eliminado las bases de datos creadas y he lanzado los contenedores con un usuario <em>no root</em>. Para ello, he usado las variables de entornos <code>-e MYSQL_USER</code> y <code>-e MYSQL_PASSWORD</code> como se indica en la <a href="https://hub.docker.com/_/mysql/">página de MySQL en Docker Hub</a>.</p>
+
 <p>El usuario especificado de esta manera durante la creación del contenedor se le asignan permisos completos sobre la base de datos especificada mediante <code>-e MYSQL_DATABASE</code>.</p>
+
 <p>La base de datos indicada en la variable de entorno <code>MYSQL_DATABASE</code> se crea automáticamente durante la inicialización del contenedor y no es necesario crearla manualmente. También evitamos usar el usuario <code>root</code> en la cadena de conexión desde la aplicación y mejoramos la seguridad de nuestro entorno.</p>
+
 <h1 id="volúmenes-de-datos">Volúmenes de datos</h1>
+
 <p>Los <a href="https://docs.docker.com/storage/volumes/">volúmenes</a> son el mecanismo preferido para persistir los datos generados y usados por los contenedores. Los volúmenes montados directamente sobre el <em>host</em> dependen de la estructura de ficheros del sistema, mientras que los volúmenes son gestionados directamente por Docker.</p>
+
 <p>En la versión 18.03.1-ce de Docker, todavía no hay comandos para renombrar volúmenes o para copiar el contenido de un volumen a otro. Para migrar el contenido de la base de datos de Gogs del volumen de base de datos compartida a la base de datos específica, he tenido que montar el volumen inicial y el de destino en un contenedor intermedio.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">docker volume create data-mysql-gogs
+
+<pre><code class="language-shell">docker volume create data-mysql-gogs
 docker run --rm -it
-   --mount source<span style="color:#f92672">=</span>data-mysql,target<span style="color:#f92672">=</span>/in <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>   --mount source<span style="color:#f92672">=</span>data-mysql-gogs,target<span style="color:#f92672">=</span>/out <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>   mysql:5.7 /bin/sh
-</code></pre></div><p>Una vez montados los contenedores, he lanzado una copia del contenido de un volumen a otro:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#75715e"># cd /in</span>
-<span style="color:#75715e"># cp -a . /out</span>
-<span style="color:#75715e"># exit</span>
-</code></pre></div><p>(Referencia: <a href="https://askubuntu.com/questions/86822/how-can-i-copy-the-contents-of-a-folder-to-another-folder-in-a-different-directo">How can I copy the contents of a folder to another folder in a different directory using terminal?</a>)</p>
+   --mount source=data-mysql,target=/in \
+   --mount source=data-mysql-gogs,target=/out \
+   mysql:5.7 /bin/sh
+</code></pre>
+
+<p>Una vez montados los contenedores, he lanzado una copia del contenido de un volumen a otro:</p>
+
+<pre><code class="language-shell"># cd /in
+# cp -a . /out
+# exit
+</code></pre>
+
+<p>(Referencia: <a href="https://askubuntu.com/questions/86822/how-can-i-copy-the-contents-of-a-folder-to-another-folder-in-a-different-directo">How can I copy the contents of a folder to another folder in a different directory using terminal?</a>)</p>
+
 <p>Finalmente, montamos el volumen de datos en el nuevo contenedor de la base de datos.</p>
+
 <h1 id="resumen">Resumen</h1>
+
 <p>En el proceso de creación de cualquier solución compleja hay que valorar otros enfoques diferentes al puramente técnico. Deben tenerse en cuenta factores como la seguridad o el ciclo de vida de las aplicaciones. El coste de operar una solución en la que se han considerado estas variables será significativamente menor.</p>
+
 <p>En los tutoriales todo funciona a la perfección siguiendo las instrucciones; en el mundo real no tenemos una guía de los pasos a seguir y tan importante como documentar el procedimiento final es documentar las decisiones tomadas y las soluciones aplicadas en el procedimiento de ensayo y error.</p></div>
 
   <aside class="p-share">

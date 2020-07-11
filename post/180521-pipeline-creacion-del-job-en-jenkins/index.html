@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.68.3" />
+<meta name="generator" content="Hugo 0.55.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -121,20 +121,27 @@
   </div>
 
   <div class="article-body"><p>Una vez tenemos código en el repositorio de <a href="https://onthedock.github.io/post/180521-subiendo-el-codigo-a-gogs/">Gogs</a>, para poder avanzar tenemos que definir y configurar el <em>pipeline</em> en Jenkins.</p>
+
 <ol>
 <li>Accedemos a Jenkins y pulsamos sobre el enlace <em>New item</em> en el panel lateral.</li>
 <li>Especificamos un nombre para el nuevo <em>job</em>; por ejemplo <code>Hello World</code>.</li>
 <li>Seleccionamos <em>Pipeline</em> en la lista de tipos de proyectos.</li>
 <li>Pulsamos <em>Ok</em> para crear el <em>job</em>.</li>
 </ol>
+
 <p>No configuramos nada y pulsamos <em>Save</em>.</p>
+
 <p>Hemos creado un <em>job</em> en Jenkins, aunque todavía no hace nada.</p>
+
 <h1 id="configuración-de-credenciales">Configuración de credenciales</h1>
+
 <p>Primero configuramos las credenciales que necesitamos para conectar con Gogs (se trata de un repositorio <em>privado</em>).</p>
+
 <ol>
 <li>Desde la página principal de Jenkins, pulsamos sobre <em>Credentials</em> en el panel lateral.</li>
 <li>Pulsamos sobre el almacén global de credencials (llamado <em>Jenkins</em>).</li>
 <li>Pulsamos sobre <em>Global credentials (unrestricted)</em> y seleccionamos la opción <em>Add credentials</em>.
+
 <ol>
 <li>En el desplegable para el tipo de credencial, seleccionamos <em>Username with password</em> (es la opción por defecto).</li>
 <li>En el <em>scope</em>, seleccionamos <em>Global</em>.</li>
@@ -142,107 +149,142 @@
 <li>En el campo <em>Password</em>, introducimos la contraseña del usuario.</li>
 <li>Podemos dejar el campo <em>ID</em> en blanco; Jenkins genera un ID aleatorio. Para facilitarnos la tarea de identificar las credenciales guardadas -para su uso en scripts, por ejemplo, podemos especificar un <em>ID</em> específico (siempre que sea <strong>único</strong> en Jenkins).</li>
 <li>En el campo <em>Description</em> podemos dar una descripción detallada de las credenciales, normas de uso, etc.</li>
-</ol>
-</li>
+</ol></li>
 <li>Tras especificar los campos necesarios para definir las credenciales, pulsamos el botón <em>Ok</em>. Esta descripción se muestra junto al nombre de usuario de las credenciales guardadas.</li>
 </ol>
+
 <h1 id="borrador-del-pipeline">Borrador del pipeline</h1>
+
 <p>En el job, pulsamos sobre <em>Configure</em> en el panel lateral y vamos a la sección <em>Pipeline</em>.</p>
+
 <p>Para empezar con un armazón de <em>pipeline</em> como referencia, usamos el ejemplo de la página de Jenkins <a href="https://jenkins.io/doc/book/pipeline/jenkinsfile/#creating-a-jenkinsfile">Using a Jenkinsfile</a>:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">pipeline <span style="color:#f92672">{</span>
+
+<pre><code class="language-shell">pipeline {
     agent any
 
-    stages <span style="color:#f92672">{</span>
-        stage<span style="color:#f92672">(</span><span style="color:#e6db74">&#39;Build&#39;</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-            steps <span style="color:#f92672">{</span>
-                echo <span style="color:#e6db74">&#39;Building..&#39;</span>
-            <span style="color:#f92672">}</span>
-        <span style="color:#f92672">}</span>
-        stage<span style="color:#f92672">(</span><span style="color:#e6db74">&#39;Test&#39;</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-            steps <span style="color:#f92672">{</span>
-                echo <span style="color:#e6db74">&#39;Testing..&#39;</span>
-            <span style="color:#f92672">}</span>
-        <span style="color:#f92672">}</span>
-        stage<span style="color:#f92672">(</span><span style="color:#e6db74">&#39;Deploy&#39;</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-            steps <span style="color:#f92672">{</span>
-                echo <span style="color:#e6db74">&#39;Deploying....&#39;</span>
-            <span style="color:#f92672">}</span>
-        <span style="color:#f92672">}</span>
-    <span style="color:#f92672">}</span>
-<span style="color:#f92672">}</span>
-</code></pre></div><p>Copiamos esta <em>pipeline</em> en el apartado <em>Pipeline</em> del job <em>Hello World</em> y pulsamos <em>Apply</em> para guardar los cambios.</p>
-<p>Puedes ejecutar este job para comprobar que funciona mediante la opción <em>Build Now</em>:</p>
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<pre><code>Job - First run
+    stages {
+        stage('Build') {
+            steps {
+                echo 'Building..'
+            }
+        }
+        stage('Test') {
+            steps {
+                echo 'Testing..'
+            }
+        }
+        stage('Deploy') {
+            steps {
+                echo 'Deploying....'
+            }
+        }
+    }
+}
 </code></pre>
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
+
+<p>Copiamos esta <em>pipeline</em> en el apartado <em>Pipeline</em> del job <em>Hello World</em> y pulsamos <em>Apply</em> para guardar los cambios.</p>
+
+<p>Puedes ejecutar este job para comprobar que funciona mediante la opción <em>Build Now</em>:</p>
+
+<figure>
+  <amp-img src="https://onthedock.github.io/images/180521/jenkins-pipeline-first-run.png" alt="Pipeline - Creacion del job en Jenkins images/180521/jenkins-pipeline-first-run.png" width=1042 height=714 layout="responsive"></amp-img>
+  
+  <figcaption>
+    
+    Job - First run
+    
+  </figcaption>
+  
+</figure>
+
 <h2 id="checkout-del-código-desde-jenkins">Checkout del código desde Jenkins</h2>
+
 <p>Para generar el artefacto a partir del código, el primer paso es que Jenkins descargue el código desde el repositorio. Para ello, definimos el primer paso en el <em>pipeline</em> como <em>checkout: General SCM</em>.</p>
+
 <blockquote>
 <p>Seleccionamos el job <em>Hello World</em> y pulsamos sobre el enlace <em>Pipeline Syntax</em> en el panel lateral. Usaremos la herramienta <em>Snipper Generator</em> de Jenkins para ayudarnos a construir el <em>pipeline</em>.</p>
 </blockquote>
+
 <p>Como <em>SCM</em> (<em>source control method</em>) especificamos <em>Git</em>. En el campo <em>Repository URL</em> indicamos la URL al repositorio en Gogs: <code>http://192.168.1.209:10080/operador/gs-maven.git</code>. En <em>Credentials</em>, seleccionamos las credenciales definidas en el apartado anterior para el usuario <em>operador</em>.</p>
+
 <p>Al pulsar sobre <em>Generate Pipeline Script</em>, se genera el código a incluir en el <em>pipeline</em>:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">checkout<span style="color:#f92672">([</span>$class: <span style="color:#e6db74">&#39;GitSCM&#39;</span>, branches: <span style="color:#f92672">[[</span>name: <span style="color:#e6db74">&#39;*/master&#39;</span><span style="color:#f92672">]]</span>, doGenerateSubmoduleConfigurations: false, extensions: <span style="color:#f92672">[]</span>, submoduleCfg: <span style="color:#f92672">[]</span>, userRemoteConfigs: <span style="color:#f92672">[[</span>credentialsId: <span style="color:#e6db74">&#39;e49daa75-9d6a-4f7b-8ccc-d85288708053&#39;</span>, url: <span style="color:#e6db74">&#39;http://192.168.1.209:10080/operador/gs-maven.git&#39;</span><span style="color:#f92672">]]])</span>
-</code></pre></div><p>En nuestro <em>pipeline</em>, incluimos un nuevo <em>stage</em> para hacer el <em>checkout</em> del código. También podríamos haberlo añadido como un <em>step</em> adicional en el <em>stage</em> <strong><em>Build</em></strong>.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">pipeline <span style="color:#f92672">{</span>
+
+<pre><code class="language-shell">checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'e49daa75-9d6a-4f7b-8ccc-d85288708053', url: 'http://192.168.1.209:10080/operador/gs-maven.git']]])
+</code></pre>
+
+<p>En nuestro <em>pipeline</em>, incluimos un nuevo <em>stage</em> para hacer el <em>checkout</em> del código. También podríamos haberlo añadido como un <em>step</em> adicional en el <em>stage</em> <strong><em>Build</em></strong>.</p>
+
+<pre><code class="language-shell">pipeline {
     agent any
 
-    stages <span style="color:#f92672">{</span>
-        stage<span style="color:#f92672">(</span><span style="color:#e6db74">&#39;Checkout&#39;</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-            steps <span style="color:#f92672">{</span>
-                checkout<span style="color:#f92672">([</span>$class: <span style="color:#e6db74">&#39;GitSCM&#39;</span>, branches: <span style="color:#f92672">[[</span>name: <span style="color:#e6db74">&#39;*/master&#39;</span><span style="color:#f92672">]]</span>, doGenerateSubmoduleConfigurations: false, extensions: <span style="color:#f92672">[]</span>, submoduleCfg: <span style="color:#f92672">[]</span>, userRemoteConfigs: <span style="color:#f92672">[[</span>credentialsId: <span style="color:#e6db74">&#39;e49daa75-9d6a-4f7b-8ccc-d85288708053&#39;</span>, url: <span style="color:#e6db74">&#39;http://192.168.1.209:10080/operador/gs-maven.git&#39;</span><span style="color:#f92672">]]])</span>
-            <span style="color:#f92672">}</span>
-        <span style="color:#f92672">}</span>
-        stage<span style="color:#f92672">(</span><span style="color:#e6db74">&#39;Build&#39;</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-            steps <span style="color:#f92672">{</span>
-                echo <span style="color:#e6db74">&#39;Building..&#39;</span>
-            <span style="color:#f92672">}</span>
-        <span style="color:#f92672">}</span>
-        stage<span style="color:#f92672">(</span><span style="color:#e6db74">&#39;Test&#39;</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-            steps <span style="color:#f92672">{</span>
-                echo <span style="color:#e6db74">&#39;Testing..&#39;</span>
-            <span style="color:#f92672">}</span>
-        <span style="color:#f92672">}</span>
-        stage<span style="color:#f92672">(</span><span style="color:#e6db74">&#39;Deploy&#39;</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
-            steps <span style="color:#f92672">{</span>
-                echo <span style="color:#e6db74">&#39;Deploying....&#39;</span>
-            <span style="color:#f92672">}</span>
-        <span style="color:#f92672">}</span>
-    <span style="color:#f92672">}</span>
-<span style="color:#f92672">}</span>
-</code></pre></div><h1 id="fichero-jenkinsfile">Fichero `Jenkinsfile``</h1>
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'e49daa75-9d6a-4f7b-8ccc-d85288708053', url: 'http://192.168.1.209:10080/operador/gs-maven.git']]])
+            }
+        }
+        stage('Build') {
+            steps {
+                echo 'Building..'
+            }
+        }
+        stage('Test') {
+            steps {
+                echo 'Testing..'
+            }
+        }
+        stage('Deploy') {
+            steps {
+                echo 'Deploying....'
+            }
+        }
+    }
+}
+</code></pre>
+
+<h1 id="fichero-jenkinsfile">Fichero <code>Jenkinsfile</code>`</h1>
+
 <p>En vez de editar el <em>pipeline</em> directamente desde Jenkins, es una buena práctica crear el fichero <code>Jenkinsfile</code> y tenerlo controlado en un  repositorio; en nuestro caso, lo colocamos en la raíz del repositorio de código Java.</p>
+
 <p>Accedemos a la máquina de desarrollo y creamos el fichero <code>Jenkinsfile</code> con el contenido del campo <code>Pipeline</code> del job en Jenkins:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">vi Jenkinsfile
-</code></pre></div><p>Pegamos el contenido en el fichero y lo guardamos.</p>
+
+<pre><code class="language-shell">vi Jenkinsfile
+</code></pre>
+
+<p>Pegamos el contenido en el fichero y lo guardamos.</p>
+
 <blockquote>
 <p>Para obtener el <em>pipeline</em> contenido en el fichero <code>Jenkinsfile</code>, Jenkins hace un <em>checkout</em> del repositorio, por lo que eliminamos del <code>Jenkinsfile</code> el paso de <em>checkout</em> introducido anteriormente.</p>
 </blockquote>
+
 <p>Finalmente, lo guardamos en el repositorio:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ git add Jenkinsfile
-$ git commit Jenkinsfile -m <span style="color:#e6db74">&#34;Añadido Jenkinsfile al repositorio.&#34;</span>
-$ git commit -m <span style="color:#e6db74">&#34;Añadido Jenkinsfile al repositorio.&#34;</span>
+
+<pre><code class="language-shell">$ git add Jenkinsfile
+$ git commit Jenkinsfile -m &quot;Añadido Jenkinsfile al repositorio.&quot;
+$ git commit -m &quot;Añadido Jenkinsfile al repositorio.&quot;
 On branch master
-Your branch is ahead of <span style="color:#e6db74">&#39;origin/master&#39;</span> by <span style="color:#ae81ff">1</span> commit.
-  <span style="color:#f92672">(</span>use <span style="color:#e6db74">&#34;git push&#34;</span> to publish your local commits<span style="color:#f92672">)</span>
+Your branch is ahead of 'origin/master' by 1 commit.
+  (use &quot;git push&quot; to publish your local commits)
 nothing to commit, working tree clean
 $ git push gogs-origin master
-Counting objects: 3, <span style="color:#66d9ef">done</span>.
-Delta compression using up to <span style="color:#ae81ff">2</span> threads.
-Compressing objects: 100% <span style="color:#f92672">(</span>3/3<span style="color:#f92672">)</span>, <span style="color:#66d9ef">done</span>.
-Writing objects: 100% <span style="color:#f92672">(</span>3/3<span style="color:#f92672">)</span>, <span style="color:#ae81ff">598</span> bytes | <span style="color:#ae81ff">0</span> bytes/s, <span style="color:#66d9ef">done</span>.
-Total <span style="color:#ae81ff">3</span> <span style="color:#f92672">(</span>delta 1<span style="color:#f92672">)</span>, reused <span style="color:#ae81ff">0</span> <span style="color:#f92672">(</span>delta 0<span style="color:#f92672">)</span>
-Username <span style="color:#66d9ef">for</span> <span style="color:#e6db74">&#39;http://192.168.1.209:10080&#39;</span>: operador
-Password <span style="color:#66d9ef">for</span> <span style="color:#e6db74">&#39;http://operador@192.168.1.209:10080&#39;</span>:
+Counting objects: 3, done.
+Delta compression using up to 2 threads.
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 598 bytes | 0 bytes/s, done.
+Total 3 (delta 1), reused 0 (delta 0)
+Username for 'http://192.168.1.209:10080': operador
+Password for 'http://operador@192.168.1.209:10080':
 To http://192.168.1.209:10080/operador/gs-maven.git
    c2bf553..ec7fc8e  master -&gt; master
 $
-</code></pre></div><p>Una vez modificado el <code>Jenkinsfile</code> y subido a Gogs, debemos modificar la configuración del job para indicar la ubicación del fichero.</p>
+</code></pre>
+
+<p>Una vez modificado el <code>Jenkinsfile</code> y subido a Gogs, debemos modificar la configuración del job para indicar la ubicación del fichero.</p>
+
 <p>En la sección de <em>Pipeline</em> del job, en el desplegable seleccionamos <em>Pipeline script from SCM</em>.</p>
+
 <p>Indicamos que el SCM usado es Git y especificamos la URL y credenciales de acceso. En el campo <em>Script Path</em>, como hemos guardado el <code>Jenkinsfile</code> en la raíz del repositorio, dejamos <code>Jenkinsfile</code>.</p>
+
 <p>Guardamos los cambios y comprobamos que el job se sigue ejecutando con éxito.</p></div>
 
   <aside class="p-share">

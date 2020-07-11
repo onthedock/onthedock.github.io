@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.68.3" />
+<meta name="generator" content="Hugo 0.55.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -121,60 +121,89 @@
   </div>
 
   <div class="article-body"><p>Ya hemos instalado <a href="https://onthedock.github.io/post/180520-pipeline-gogs-el-repositorio-de-codigo/">Gogs</a> y <a href="https://onthedock.github.io/post/180520-pipeline-instalacion-y-actualizacion-de-jenkins/">Jenkins</a> en nuestro sistema; ahora es el momento de empezar a subir código y ver qué podemos hacer con él.</p>
+
 <p>Gogs, como repositorio de código, es el punto de partida del proceso de integración continua.</p>
+
 <p>Como mis habilidades programando son limitadas, usaremos el código fuente del tutorial sobre Maven ofrecido por los desarrolladores del <em>framework</em> para Java <strong>Sping</strong>: <a href="https://spring.io/guides/gs/maven/">Building Java Projects with Maven</a>. El código fuente se encuentra publicado en GitHub: <a href="https://github.com/spring-guides/gs-maven">spring-guides/gs-maven
 </a>.</p>
+
 <p>Clonamos el repositorio en una máquina de desarrollo (en <code>~/gs-maven</code>) mediante :</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ git clone https://github.com/spring-guides/gs-maven.git
-Cloning into <span style="color:#e6db74">&#39;gs-maven&#39;</span>...
-remote: Counting objects: 478, <span style="color:#66d9ef">done</span>.
-remote: Total <span style="color:#ae81ff">478</span> <span style="color:#f92672">(</span>delta 0<span style="color:#f92672">)</span>, reused <span style="color:#ae81ff">0</span> <span style="color:#f92672">(</span>delta 0<span style="color:#f92672">)</span>, pack-reused <span style="color:#ae81ff">478</span>
-Receiving objects: 100% <span style="color:#f92672">(</span>478/478<span style="color:#f92672">)</span>, 140.22 KiB | <span style="color:#ae81ff">0</span> bytes/s, <span style="color:#66d9ef">done</span>.
-Resolving deltas: 100% <span style="color:#f92672">(</span>238/238<span style="color:#f92672">)</span>, <span style="color:#66d9ef">done</span>.
+
+<pre><code class="language-shell">$ git clone https://github.com/spring-guides/gs-maven.git
+Cloning into 'gs-maven'...
+remote: Counting objects: 478, done.
+remote: Total 478 (delta 0), reused 0 (delta 0), pack-reused 478
+Receiving objects: 100% (478/478), 140.22 KiB | 0 bytes/s, done.
+Resolving deltas: 100% (238/238), done.
 $
-</code></pre></div><h1 id="creación-del-repositorio">Creación del repositorio</h1>
-<p>En primer lugar, accedemos a Gogs y creamos un repositorio para nuestro código:</p>
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<pre><code>Gogs - New repository
 </code></pre>
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
+
+<h1 id="creación-del-repositorio">Creación del repositorio</h1>
+
+<p>En primer lugar, accedemos a Gogs y creamos un repositorio para nuestro código:</p>
+
+<figure>
+  <amp-img src="https://onthedock.github.io/images/180521/gogs-new-repo.png" alt="Pipeline - Subiendo el código a Gogs images/180521/gogs-new-repo.png" width=320 height=205 layout="responsive"></amp-img>
+  
+  <figcaption>
+    
+    Gogs - New repository
+    
+  </figcaption>
+  
+</figure>
+
 <p>Le damos un nombre como <code>gs-maven</code> y tras la creación del repositorio, se nos indica cómo añadir un repositorio existente en el repositorio recién creado:</p>
+
 <blockquote>
 <p>Como el nombre <code>origin</code> se ha añadido automáticamente al clonar el repositorio desde GitHub, cambiamos el nombre del <em>remoto</em> en Gogs por <code>gogs-origin</code>:</p>
 </blockquote>
-<pre><code class="language-shel" data-lang="shel">git remote add gogs-origin http://192.168.1.209:10080/operador/gs-maven.git
+
+<pre><code class="language-shel">git remote add gogs-origin http://192.168.1.209:10080/operador/gs-maven.git
 git push -u gogs-origin master
-</code></pre><h1 id="configuración-del-remoto-gogs-origin-y-subida-del-código">Configuración del remoto <code>gogs-origin</code> y subida del código</h1>
+</code></pre>
+
+<h1 id="configuración-del-remoto-gogs-origin-y-subida-del-código">Configuración del remoto <code>gogs-origin</code> y subida del código</h1>
+
 <p>Siguiendo las instrucciones proporcionadas por Gogs convenientemente modificadas, subimos el código desde la máquina de desarrollo a Gogs:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ git remote add gogs-origin http://192.168.1.209:10080/operador/gs-maven.git
+
+<pre><code class="language-shell">$ git remote add gogs-origin http://192.168.1.209:10080/operador/gs-maven.git
 $
-</code></pre></div><p>Verificamos que se ha añadido el remoto correctamente:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ git remote -v
-gogs-origin http://192.168.1.209:10080/operador/gs-maven.git <span style="color:#f92672">(</span>fetch<span style="color:#f92672">)</span>
-gogs-origin http://192.168.1.209:10080/operador/gs-maven.git <span style="color:#f92672">(</span>push<span style="color:#f92672">)</span>
-origin https://github.com/spring-guides/gs-maven.git <span style="color:#f92672">(</span>fetch<span style="color:#f92672">)</span>
-origin https://github.com/spring-guides/gs-maven.git <span style="color:#f92672">(</span>push<span style="color:#f92672">)</span>
-</code></pre></div><p>Observamos que se muestra tanto el remoto en GitHub <em>origin</em> como en Gogs <em>gogs-origin</em>.</p>
+</code></pre>
+
+<p>Verificamos que se ha añadido el remoto correctamente:</p>
+
+<pre><code class="language-shell">$ git remote -v
+gogs-origin http://192.168.1.209:10080/operador/gs-maven.git (fetch)
+gogs-origin http://192.168.1.209:10080/operador/gs-maven.git (push)
+origin https://github.com/spring-guides/gs-maven.git (fetch)
+origin https://github.com/spring-guides/gs-maven.git (push)
+</code></pre>
+
+<p>Observamos que se muestra tanto el remoto en GitHub <em>origin</em> como en Gogs <em>gogs-origin</em>.</p>
+
 <p>Ahora ya sólo tenemos que subir el código mediante:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ git status
+
+<pre><code class="language-shell">$ git status
 On branch master
-Your branch is up-to-date with <span style="color:#e6db74">&#39;origin/master&#39;</span>.
+Your branch is up-to-date with 'origin/master'.
 nothing to commit, working tree clean
 $ git push gogs-origin master
-Counting objects: 478, <span style="color:#66d9ef">done</span>.
-Delta compression using up to <span style="color:#ae81ff">2</span> threads.
-Compressing objects: 100% <span style="color:#f92672">(</span>214/214<span style="color:#f92672">)</span>, <span style="color:#66d9ef">done</span>.
-Writing objects: 100% <span style="color:#f92672">(</span>478/478<span style="color:#f92672">)</span>, 140.24 KiB | <span style="color:#ae81ff">0</span> bytes/s, <span style="color:#66d9ef">done</span>.
-Total <span style="color:#ae81ff">478</span> <span style="color:#f92672">(</span>delta 238<span style="color:#f92672">)</span>, reused <span style="color:#ae81ff">478</span> <span style="color:#f92672">(</span>delta 238<span style="color:#f92672">)</span>
-Username <span style="color:#66d9ef">for</span> <span style="color:#e6db74">&#39;http://192.168.1.209:10080&#39;</span>: operador
-Password <span style="color:#66d9ef">for</span> <span style="color:#e6db74">&#39;http://operador@192.168.1.209:10080&#39;</span>:
-remote: Resolving deltas: 100% <span style="color:#f92672">(</span>238/238<span style="color:#f92672">)</span>, <span style="color:#66d9ef">done</span>.
+Counting objects: 478, done.
+Delta compression using up to 2 threads.
+Compressing objects: 100% (214/214), done.
+Writing objects: 100% (478/478), 140.24 KiB | 0 bytes/s, done.
+Total 478 (delta 238), reused 478 (delta 238)
+Username for 'http://192.168.1.209:10080': operador
+Password for 'http://operador@192.168.1.209:10080':
+remote: Resolving deltas: 100% (238/238), done.
 To http://192.168.1.209:10080/operador/gs-maven.git
- * <span style="color:#f92672">[</span>new branch<span style="color:#f92672">]</span>      master -&gt; master
+ * [new branch]      master -&gt; master
 $
-</code></pre></div><p>Primero comprobamos con <code>git status</code> que no hay cambios pendientes que añadir. A continuación añadimos el código a <code>gogs-origin</code>.</p>
+</code></pre>
+
+<p>Primero comprobamos con <code>git status</code> que no hay cambios pendientes que añadir. A continuación añadimos el código a <code>gogs-origin</code>.</p>
+
 <p>Accediendo a Gogs podemos validar que el código se ha subido correctamente.</p></div>
 
   <aside class="p-share">

@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.68.3" />
+<meta name="generator" content="Hugo 0.55.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -75,7 +75,7 @@
         "height": 60
       }
     },
-    "description": "\x3cp\x3ePortainer permite gestionar \x3cem\x3eendpoints\x3c\/em\x3e remotos para Docker (y Docker Swarm) mediante el API REST de Docker Engine. El problema es que el API está desactivado por defecto.\x3c\/p\x3e\n\x3cp\x3eA continuación indico cómo activar y verificar el acceso remoto al API de Docker Engine.\x3c\/p\x3e"
+    "description": "\x3cp\x3ePortainer permite gestionar \x3cem\x3eendpoints\x3c\/em\x3e remotos para Docker (y Docker Swarm) mediante el API REST de Docker Engine. El problema es que el API está desactivado por defecto.\x3c\/p\x3e\n\n\x3cp\x3eA continuación indico cómo activar y verificar el acceso remoto al API de Docker Engine.\x3c\/p\x3e"
   }
 </script>
 
@@ -121,76 +121,100 @@
   </div>
 
   <div class="article-body"><p>Portainer permite gestionar <em>endpoints</em> remotos para Docker (y Docker Swarm) mediante el API REST de Docker Engine. El problema es que el API está desactivado por defecto.</p>
+
 <p>A continuación indico cómo activar y verificar el acceso remoto al API de Docker Engine.</p>
+
 <p>Buscando en Google cómo habilitar el API remoto de Docker Engine probablemente encuentres el artículo <a href="https://www.ivankrizsan.se/2016/05/18/enabling-docker-remote-api-on-ubuntu-16-04/">Enabling Docker Remote API on Ubuntu 16.04</a>. Como bien dice en el párrafo inicial, no es fácil encontrar unas instrucciones claras sobre cómo configurar el API de principio a fin.</p>
+
 <p>Lanzando <code>docker man</code>, vemos que la opción que buscamos es:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">-H, --host<span style="color:#f92672">=[</span>unix:///var/run/docker.sock<span style="color:#f92672">]</span>: tcp://<span style="color:#f92672">[</span>host<span style="color:#f92672">]</span>:<span style="color:#f92672">[</span>port<span style="color:#f92672">][</span>path<span style="color:#f92672">]</span> to bind or
-       unix://<span style="color:#f92672">[</span>/path/to/socket<span style="color:#f92672">]</span> to use.
-         The socket<span style="color:#f92672">(</span>s<span style="color:#f92672">)</span> to bind to in daemon mode specified using one or more
+
+<pre><code class="language-shell">-H, --host=[unix:///var/run/docker.sock]: tcp://[host]:[port][path] to bind or
+       unix://[/path/to/socket] to use.
+         The socket(s) to bind to in daemon mode specified using one or more
          tcp://host:port/path, unix:///path/to/socket, fd://* or fd://socketfd.
-         If the tcp port is not specified, <span style="color:#66d9ef">then</span> it will default to either <span style="color:#ae81ff">2375</span> when
-         --tls is off, or <span style="color:#ae81ff">2376</span> when --tls is on, or --tlsverify is specified.
-</code></pre></div><p>Esta opción debe pasarse en el arranque del <em>daemon</em> de Docker. Para configurar esta opción durante el arranque de Docker Engine tenemos dos opciones:</p>
+         If the tcp port is not specified, then it will default to either 2375 when
+         --tls is off, or 2376 when --tls is on, or --tlsverify is specified.
+</code></pre>
+
+<p>Esta opción debe pasarse en el arranque del <em>daemon</em> de Docker. Para configurar esta opción durante el arranque de Docker Engine tenemos dos opciones:</p>
+
 <ul>
 <li>modificar el arranque del <em>daemon</em> modificando la configuración de <code>/lib/systemd/system/docker.service</code></li>
 <li>añadiendo las opciones en el fichero de configuración de Docker Engine. Para sistemas Linux con <em>systemd</em>, la <a href="https://docs.docker.com/engine/admin/systemd/#start-automatically-at-system-boot">configuración del <em>daemon</em> de Docker</a> se realiza a través del fichero <code>daemon.json</code> ubicado en <code>/etc/docker/</code>.</li>
 </ul>
+
 <blockquote>
 <p>He intentado configurar Docker Engine mediante el segundo método <em>daemon.json</em> pero no he sido capaz de activar el API.</p>
 </blockquote>
+
 <p>Primero, hacemos una copia de seguridad del fichero <code>/lib/systemd/system/docker.service</code>:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="color:#75715e"># cp /lib/systemd/system/docker.service /lib/systemd/system/docker.service.original</span>
+
+<pre><code class="language-sh"># cp /lib/systemd/system/docker.service /lib/systemd/system/docker.service.original
 #
-</code></pre></div><p>Editamos el fichero <code>/lib/systemd/system/docker.service</code></p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="color:#75715e"># nano /lib/systemd/system/docker.service</span>
-<span style="color:#f92672">[</span>Unit<span style="color:#f92672">]</span>
-Description<span style="color:#f92672">=</span>Docker Application Container Engine
-Documentation<span style="color:#f92672">=</span>https://docs.docker.com
-After<span style="color:#f92672">=</span>network-online.target docker.socket firewalld.service
-Wants<span style="color:#f92672">=</span>network-online.target
-Requires<span style="color:#f92672">=</span>docker.socket
+</code></pre>
 
-<span style="color:#f92672">[</span>Service<span style="color:#f92672">]</span>
-Type<span style="color:#f92672">=</span>notify
-<span style="color:#75715e"># the default is not to use systemd for cgroups because the delegate issues still</span>
-<span style="color:#75715e"># exists and systemd currently does not support the cgroup feature set required</span>
-<span style="color:#75715e"># for containers run by docker</span>
-ExecStart<span style="color:#f92672">=</span>/usr/bin/dockerd -H fd://
-ExecReload<span style="color:#f92672">=</span>/bin/kill -s HUP $MAINPID
-LimitNOFILE<span style="color:#f92672">=</span><span style="color:#ae81ff">1048576</span>
-<span style="color:#75715e"># Having non-zero Limit*s causes performance problems due to accounting overhead</span>
-<span style="color:#75715e"># in the kernel. We recommend using cgroups to do container-local accounting.</span>
-LimitNPROC<span style="color:#f92672">=</span>infinity
-LimitCORE<span style="color:#f92672">=</span>infinity
-<span style="color:#75715e"># Uncomment TasksMax if your systemd version supports it.</span>
-<span style="color:#75715e"># Only systemd 226 and above support this version.</span>
-<span style="color:#75715e">#TasksMax=infinity</span>
-TimeoutStartSec<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>
-<span style="color:#75715e"># set delegate yes so that systemd does not reset the cgroups of docker containers</span>
-Delegate<span style="color:#f92672">=</span>yes
-<span style="color:#75715e"># kill only the docker process, not all processes in the cgroup</span>
-KillMode<span style="color:#f92672">=</span>process
-<span style="color:#75715e"># restart the docker process if it exits prematurely</span>
-Restart<span style="color:#f92672">=</span>on-failure
-StartLimitBurst<span style="color:#f92672">=</span><span style="color:#ae81ff">3</span>
-StartLimitInterval<span style="color:#f92672">=</span>60s
+<p>Editamos el fichero <code>/lib/systemd/system/docker.service</code></p>
 
-<span style="color:#f92672">[</span>Install<span style="color:#f92672">]</span>
-WantedBy<span style="color:#f92672">=</span>multi-user.target
-</code></pre></div><p>Modificamos la línea <code>ExecStart=/usr/bin/dockerd -H fd://</code> y añadimos: <code>-H tcp://0.0.0.0:2375</code> de manera que quede:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-txt" data-lang="txt">ExecStart=/usr/bin/dockerd -H fd:// -H tcp://0.0.0.0:2375
-</code></pre></div><blockquote>
+<pre><code class="language-sh"># nano /lib/systemd/system/docker.service
+[Unit]
+Description=Docker Application Container Engine
+Documentation=https://docs.docker.com
+After=network-online.target docker.socket firewalld.service
+Wants=network-online.target
+Requires=docker.socket
+
+[Service]
+Type=notify
+# the default is not to use systemd for cgroups because the delegate issues still
+# exists and systemd currently does not support the cgroup feature set required
+# for containers run by docker
+ExecStart=/usr/bin/dockerd -H fd://
+ExecReload=/bin/kill -s HUP $MAINPID
+LimitNOFILE=1048576
+# Having non-zero Limit*s causes performance problems due to accounting overhead
+# in the kernel. We recommend using cgroups to do container-local accounting.
+LimitNPROC=infinity
+LimitCORE=infinity
+# Uncomment TasksMax if your systemd version supports it.
+# Only systemd 226 and above support this version.
+#TasksMax=infinity
+TimeoutStartSec=0
+# set delegate yes so that systemd does not reset the cgroups of docker containers
+Delegate=yes
+# kill only the docker process, not all processes in the cgroup
+KillMode=process
+# restart the docker process if it exits prematurely
+Restart=on-failure
+StartLimitBurst=3
+StartLimitInterval=60s
+
+[Install]
+WantedBy=multi-user.target
+</code></pre>
+
+<p>Modificamos la línea <code>ExecStart=/usr/bin/dockerd -H fd://</code> y añadimos: <code>-H tcp://0.0.0.0:2375</code> de manera que quede:</p>
+
+<pre><code class="language-txt">ExecStart=/usr/bin/dockerd -H fd:// -H tcp://0.0.0.0:2375
+</code></pre>
+
+<blockquote>
 <p>Esto hace que <em>dockerd</em> escuche en todas las interfaces disponibles. En el caso de la máquina virtual en la que estoy probando, sólo tengo una, pero lo correcto sería especificar la dirección IP donde quieres que escuche <em>dockerd</em>.</p>
 </blockquote>
+
 <p>Guardamos los cambios.</p>
+
 <p>Recargamos la configuración y reiniciamos el servicio.</p>
+
 <p>Para comprobar que hemos el API funciona, lanzamos una consulta usando <em>curl</em>:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="color:#75715e"># systemctl daemon-reload</span>
-<span style="color:#75715e"># systemctl restart docker</span>
-<span style="color:#75715e"># curl http://localhost:2375/version</span>
-<span style="color:#f92672">{</span><span style="color:#e6db74">&#34;Version&#34;</span>:<span style="color:#e6db74">&#34;17.05.0-ce&#34;</span>,<span style="color:#e6db74">&#34;ApiVersion&#34;</span>:<span style="color:#e6db74">&#34;1.29&#34;</span>,<span style="color:#e6db74">&#34;MinAPIVersion&#34;</span>:<span style="color:#e6db74">&#34;1.12&#34;</span>,<span style="color:#e6db74">&#34;GitCommit&#34;</span>:<span style="color:#e6db74">&#34;89658be&#34;</span>,<span style="color:#e6db74">&#34;GoVersion&#34;</span>:<span style="color:#e6db74">&#34;go1.7.5&#34;</span>,<span style="color:#e6db74">&#34;Os&#34;</span>:<span style="color:#e6db74">&#34;linux&#34;</span>,<span style="color:#e6db74">&#34;Arch&#34;</span>:<span style="color:#e6db74">&#34;amd64&#34;</span>,<span style="color:#e6db74">&#34;KernelVersion&#34;</span>:<span style="color:#e6db74">&#34;3.16.0-4-amd64&#34;</span>,<span style="color:#e6db74">&#34;BuildTime&#34;</span>:<span style="color:#e6db74">&#34;2017-05-04T22:04:27.257991431+00:00&#34;</span><span style="color:#f92672">}</span>
+
+<pre><code class="language-sh"># systemctl daemon-reload
+# systemctl restart docker
+# curl http://localhost:2375/version
+{&quot;Version&quot;:&quot;17.05.0-ce&quot;,&quot;ApiVersion&quot;:&quot;1.29&quot;,&quot;MinAPIVersion&quot;:&quot;1.12&quot;,&quot;GitCommit&quot;:&quot;89658be&quot;,&quot;GoVersion&quot;:&quot;go1.7.5&quot;,&quot;Os&quot;:&quot;linux&quot;,&quot;Arch&quot;:&quot;amd64&quot;,&quot;KernelVersion&quot;:&quot;3.16.0-4-amd64&quot;,&quot;BuildTime&quot;:&quot;2017-05-04T22:04:27.257991431+00:00&quot;}
 #
-</code></pre></div><blockquote>
+</code></pre>
+
+<blockquote>
 <p>Debes tener en cuenta que esta configuración <strong>supone un riesgo de seguridad</strong> al permitir el acceso al API de Docker Engine sin ningún tipo de control.</p>
 </blockquote></div>
 

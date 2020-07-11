@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.68.3" />
+<meta name="generator" content="Hugo 0.55.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -75,7 +75,7 @@
         "height": 60
       }
     },
-    "description": "\x3cp\x3eAl hacer login en un sistema Ubuntu, se suele presentar información acerca de los paquetes disponibles para actualización y otra información relevante.\x3c\/p\x3e\n\x3cp\x3eEn esta entrada indico cómo conseguir el mismo resultado mostrando la información que te interesa sobre el sistema.\x3c\/p\x3e"
+    "description": "\x3cp\x3eAl hacer login en un sistema Ubuntu, se suele presentar información acerca de los paquetes disponibles para actualización y otra información relevante.\x3c\/p\x3e\n\n\x3cp\x3eEn esta entrada indico cómo conseguir el mismo resultado mostrando la información que te interesa sobre el sistema.\x3c\/p\x3e"
   }
 </script>
 
@@ -121,25 +121,30 @@
   </div>
 
   <div class="article-body"><p>Al hacer login en un sistema Ubuntu, se suele presentar información acerca de los paquetes disponibles para actualización y otra información relevante.</p>
-<p>En esta entrada indico cómo conseguir el mismo resultado mostrando la información que te interesa sobre el sistema.</p>
-<p>En la entrada anterior <a href="https://onthedock.github.io/post/180517-transmission-y-samba/">Transmission y Samba</a> hemos configurado un servidor para descargar ficheros de internet vía BitTorrent.</p>
-<p>La interacción con el equipo se realizará en general a través del interfaz web de Transmission, por lo que los logins en el equipo serán muy esporádicos.</p>
-<p>Sería interesante saber el estado de los discos y de Transmission al hacer login.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ ssh operador@192.168.1.101
-operador@192.168.1.101<span style="color:#e6db74">&#39;s password:
-</span><span style="color:#e6db74">Welcome to Ubuntu 17.10 (GNU/Linux 4.13.0-41-generic i686)
-</span><span style="color:#e6db74">
-</span><span style="color:#e6db74"> * Documentation:  https://help.ubuntu.com
-</span><span style="color:#e6db74"> * Management:     https://landscape.canonical.com
-</span><span style="color:#e6db74"> * Support:        https://ubuntu.com/advantage
-</span><span style="color:#e6db74">
-</span><span style="color:#e6db74">3 packages can be updated.
-</span><span style="color:#e6db74">3 updates are security updates.
-</span><span style="color:#e6db74">
-</span><span style="color:#e6db74">New release &#39;</span>18.04 LTS<span style="color:#e6db74">&#39; available.
-</span><span style="color:#e6db74">Run &#39;</span><span style="color:#66d9ef">do</span>-release-upgrade<span style="color:#960050;background-color:#1e0010">&#39;</span> to upgrade to it.
 
-Last login: Wed May <span style="color:#ae81ff">16</span> 22:09:31 <span style="color:#ae81ff">2018</span> from 192.168.1.100
+<p>En esta entrada indico cómo conseguir el mismo resultado mostrando la información que te interesa sobre el sistema.</p>
+
+<p>En la entrada anterior <a href="https://onthedock.github.io/post/180517-transmission-y-samba/">Transmission y Samba</a> hemos configurado un servidor para descargar ficheros de internet vía BitTorrent.</p>
+
+<p>La interacción con el equipo se realizará en general a través del interfaz web de Transmission, por lo que los logins en el equipo serán muy esporádicos.</p>
+
+<p>Sería interesante saber el estado de los discos y de Transmission al hacer login.</p>
+
+<pre><code class="language-shell">$ ssh operador@192.168.1.101
+operador@192.168.1.101's password:
+Welcome to Ubuntu 17.10 (GNU/Linux 4.13.0-41-generic i686)
+
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/advantage
+
+3 packages can be updated.
+3 updates are security updates.
+
+New release '18.04 LTS' available.
+Run 'do-release-upgrade' to upgrade to it.
+
+Last login: Wed May 16 22:09:31 2018 from 192.168.1.100
 Disk usage
 ----------
 /dev/sda1        37G  3.6G   31G  11% /
@@ -148,50 +153,74 @@ Disk usage
 Transmission en ejecución.
 
 $
-</code></pre></div><h1 id="creación-del-script">Creación del script</h1>
+</code></pre>
+
+<h1 id="creación-del-script">Creación del script</h1>
+
 <p>Creamos el script para mostrar la información que nos interesa.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">touch monitor.sh
+
+<pre><code class="language-shell">touch monitor.sh
 nano monitor.sh
-</code></pre></div><p>La información de uso de los discos se obtiene mediante el comando <code>df</code>. Sin embargo, el resultado del comando muestra mucha más información de la que necesitamos.</p>
+</code></pre>
+
+<p>La información de uso de los discos se obtiene mediante el comando <code>df</code>. Sin embargo, el resultado del comando muestra mucha más información de la que necesitamos.</p>
+
 <p>Para filtrar la salida del comando, usaremos <code>grep</code>, de manera que sólo se muestre la información de las particiones en los discos físicos (<code>/dev/sda1</code> y <code>/dev/sdb1</code> en nuestro caso):</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ df -h | grep <span style="color:#e6db74">&#39;/dev/sd&#39;</span>
+
+<pre><code class="language-shell">$ df -h | grep '/dev/sd'
 /dev/sda1        37G  3.6G   31G  11% /
 /dev/sdb1       110G   14G   91G  13% /samba
-</code></pre></div><p>La información sobre si el proceso de Transmission está en ejecución la obtenemos mediante el comando <code>ps</code>.</p>
+</code></pre>
+
+<p>La información sobre si el proceso de Transmission está en ejecución la obtenemos mediante el comando <code>ps</code>.</p>
+
 <p>Usamos <code>-u debian-transmission</code> para obtener los procesos ejecutados por este usuario y filtramos para encontrar el proceso <code>transmission-daemon</code>:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ ps -u debian-transmission | grep transmission
-<span style="color:#ae81ff">5445</span> ?        00:09:22 transmission-da
-</code></pre></div><blockquote>
+
+<pre><code class="language-shell">$ ps -u debian-transmission | grep transmission
+5445 ?        00:09:22 transmission-da
+</code></pre>
+
+<blockquote>
 <p>La salida del comando corta el nombre del proceso, por lo que sólo filtramos por <code>transmision</code> y no <code>transmission-daemon</code>.</p>
 </blockquote>
+
 <p>Cuando el proceso esté parado, este comando no dará ningún resultado. Para poder distinguir el resultado, lo más sencillo es contar el número de caracteres de la salida del comando usando el comando <code>wc -c</code>.</p>
+
 <p>Usando estos comandos en el script:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#75715e">#!/bin/sh
-</span><span style="color:#75715e"></span>DISK_USAGE<span style="color:#f92672">=</span><span style="color:#66d9ef">$(</span>df -h | grep /dev/sd<span style="color:#66d9ef">)</span>
-TRANSMISSION<span style="color:#f92672">=</span><span style="color:#66d9ef">$(</span>ps -u debian-transmission | grep transmission | wc -c<span style="color:#66d9ef">)</span>
 
-echo  <span style="color:#e6db74">&#34;Disk usage\n----------\n</span>$DISK_USAGE<span style="color:#e6db74">&#34;</span>
+<pre><code class="language-shell">#!/bin/sh
+DISK_USAGE=$(df -h | grep /dev/sd)
+TRANSMISSION=$(ps -u debian-transmission | grep transmission | wc -c)
 
-<span style="color:#66d9ef">if</span> <span style="color:#f92672">[</span> $TRANSMISSION -eq <span style="color:#ae81ff">0</span> <span style="color:#f92672">]</span>; <span style="color:#66d9ef">then</span>
-  echo <span style="color:#e6db74">&#34;\033[0;31m********************\nTransmission parado!\n********************\033[0m&#34;</span>
-<span style="color:#66d9ef">else</span>
-  echo <span style="color:#e6db74">&#34;\nTransmission en ejecución.\n&#34;</span>
-<span style="color:#66d9ef">fi</span>
-</code></pre></div><blockquote>
+echo  &quot;Disk usage\n----------\n$DISK_USAGE&quot;
+
+if [ $TRANSMISSION -eq 0 ]; then
+  echo &quot;\033[0;31m********************\nTransmission parado!\n********************\033[0m&quot;
+else
+  echo &quot;\nTransmission en ejecución.\n&quot;
+fi
+</code></pre>
+
+<blockquote>
 <p>Los códigos <code>\033[0;31m</code> y <code>\033[0m</code> son para cambiar el color de la salida por consola.</p>
 </blockquote>
+
 <h1 id="ejecución-del-script-en-el-login">Ejecución del script en el login</h1>
+
 <p>Para que el script se ejecute al iniciar una sesión interactiva (al hacer login), añadimos el comando al final del archivo <code>~/.profile</code>.</p>
+
 <p>En primer lugar, lo convertimos en ejecutable con <code>chmod +x monitor.sh</code>.</p>
+
 <p>Editamos el fichero <code>~/.profile</code> y añadimos el script al final:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">...
-<span style="color:#75715e"># set PATH so it includes user&#39;s private bin if it exists</span>
-<span style="color:#66d9ef">if</span> <span style="color:#f92672">[</span> -d <span style="color:#e6db74">&#34;</span>$HOME<span style="color:#e6db74">/bin&#34;</span> <span style="color:#f92672">]</span> ; <span style="color:#66d9ef">then</span>
-    PATH<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;</span>$HOME<span style="color:#e6db74">/bin:</span>$PATH<span style="color:#e6db74">&#34;</span>
-<span style="color:#66d9ef">fi</span>
+
+<pre><code class="language-shell">...
+# set PATH so it includes user's private bin if it exists
+if [ -d &quot;$HOME/bin&quot; ] ; then
+    PATH=&quot;$HOME/bin:$PATH&quot;
+fi
 
 ./monitor.sh
-</code></pre></div></div>
+</code></pre></div>
 
   <aside class="p-share">
   <a href="http://twitter.com/intent/tweet?url=https%3a%2f%2fonthedock.github.io%2fpost%2f180517-ejecutar-script-al-hacer-login%2f&text=Ejecutar%20script%20al%20hacer%20login%20en%20el%20sistema&tw_p=tweetbutton" title="Twitterでシェア" class="tw" target="_blank" rel="nofollow"></a>

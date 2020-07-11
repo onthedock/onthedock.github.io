@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.68.3" />
+<meta name="generator" content="Hugo 0.55.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -75,7 +75,7 @@
         "height": 60
       }
     },
-    "description": "\x3cp\x3e\x3ca href=\x22https:\/\/www.sonarqube.org\/\x22\x3eSonarQube\x3c\/a\x3e es una herramienta de análisis continuo de código.\x3c\/p\x3e\n\x3cp\x3eLa versión \x3cem\x3eopen source\x3c\/em\x3e ofrece soporte para 20 lenguajes de programación, mientras que la versión comercial amplía el número de \x3cem\x3eanalizadores\x3c\/em\x3e. También hay \x3cem\x3eanalizadores\x3c\/em\x3e creados por la comunidad.\x3c\/p\x3e"
+    "description": "\x3cp\x3e\x3ca href=\x22https:\/\/www.sonarqube.org\/\x22\x3eSonarQube\x3c\/a\x3e es una herramienta de análisis continuo de código.\x3c\/p\x3e\n\n\x3cp\x3eLa versión \x3cem\x3eopen source\x3c\/em\x3e ofrece soporte para 20 lenguajes de programación, mientras que la versión comercial amplía el número de \x3cem\x3eanalizadores\x3c\/em\x3e. También hay \x3cem\x3eanalizadores\x3c\/em\x3e creados por la comunidad.\x3c\/p\x3e"
   }
 </script>
 
@@ -121,32 +121,54 @@
   </div>
 
   <div class="article-body"><p><a href="https://www.sonarqube.org/">SonarQube</a> es una herramienta de análisis continuo de código.</p>
+
 <p>La versión <em>open source</em> ofrece soporte para 20 lenguajes de programación, mientras que la versión comercial amplía el número de <em>analizadores</em>. También hay <em>analizadores</em> creados por la comunidad.</p>
+
 <p>SonarQube <a href="https://docs.sonarqube.org/display/SONAR/Requirements">requiere una base de datos</a>, por lo que vamos a usar una instancia de MySQL conectada al contenedor de SonarQube mediante la red <code>backend-sonarqube</code>.</p>
+
 <h1 id="red-bridge-para-conectar-sonarqube-y-mysql">Red <code>bridge</code> para conectar SonarQube y MySQL</h1>
+
 <p>Creamos la red <em>bridge</em>:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ sudo docker network create backend-sonarqube
+
+<pre><code class="language-shell">$ sudo docker network create backend-sonarqube
 abd566a43dd75befb6d2233b3377f8aa4c80ba0371efa56b4e681b37734e8650
-</code></pre></div><h1 id="volumen-de-datos-para-mysql">Volumen de datos para MySQL</h1>
+</code></pre>
+
+<h1 id="volumen-de-datos-para-mysql">Volumen de datos para MySQL</h1>
+
 <p>Creamos un volumen para almacenar la base de datos:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ sudo docker volume create data-mysql-sonarqube
+
+<pre><code class="language-shell">$ sudo docker volume create data-mysql-sonarqube
 data-mysql-sonarqube
-</code></pre></div><h1 id="contenedor-con-mysql">Contenedor con MySQL</h1>
+</code></pre>
+
+<h1 id="contenedor-con-mysql">Contenedor con MySQL</h1>
+
 <p>A continuación, creamos un contenedor para MySQL y lo conectamos a la red <code>backend-sonarqube</code> montando el volumen <code>data-mysql-sonarqube</code>.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ sudo docker run -d --name mysql-sonarqube --network backend-sonarqube <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>--mount source<span style="color:#f92672">=</span>data-mysql-sonarqube,target<span style="color:#f92672">=</span>/var/lib/mysql <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>-e MYSQL_ROOT_PASSWORD<span style="color:#f92672">=</span>J8wqnvJicbpv <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>-e MYSQL_DATABASE<span style="color:#f92672">=</span>sonar <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>-e MYSQL_USER<span style="color:#f92672">=</span>sonar -e MYSQL_PASSWORD<span style="color:#f92672">=</span>cF68nTVgP8Nq mysql:5.7
+
+<pre><code class="language-shell">$ sudo docker run -d --name mysql-sonarqube --network backend-sonarqube \
+--mount source=data-mysql-sonarqube,target=/var/lib/mysql \
+-e MYSQL_ROOT_PASSWORD=J8wqnvJicbpv \
+-e MYSQL_DATABASE=sonar \
+-e MYSQL_USER=sonar -e MYSQL_PASSWORD=cF68nTVgP8Nq mysql:5.7
 6966a54978df35eaafe6bf10dea7f3f4fcfdb3c5340e0e3ea5cddffd9bd02d06
-</code></pre></div><h1 id="instalación-de-sonarqube">Instalación de SonarQube</h1>
+</code></pre>
+
+<h1 id="instalación-de-sonarqube">Instalación de SonarQube</h1>
+
 <h2 id="volumen-de-datos-para-sonarqube">Volumen de datos para SonarQube</h2>
+
 <p>Creamos un volumen para almacenar datos de SonarQube:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ sudo docker volume create data-sonarqube
+
+<pre><code class="language-shell">$ sudo docker volume create data-sonarqube
 data-sonarqube
-</code></pre></div><h2 id="contenedor-con-sonarqube">Contenedor con SonarQube</h2>
+</code></pre>
+
+<h2 id="contenedor-con-sonarqube">Contenedor con SonarQube</h2>
+
 <p>Empezamos descargando la imagen desde Docker Hub:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ sudo docker pull sonarqube:7.1-alpine
+
+<pre><code class="language-shell">$ sudo docker pull sonarqube:7.1-alpine
 7.1-alpine: Pulling from library/sonarqube
 ff3a5c916c92: Pull complete
 5de5f69f42d7: Pull complete
@@ -155,91 +177,133 @@ fd869c8b9b59: Pull complete
 a17c64d63dca: Pull complete
 7773f7c061ed: Pull complete
 Digest: sha256:f7f581a4de517d23f96aa3d6612a892a9741138c60e99933d24d5d2ee26a5332
-Status: Downloaded newer image <span style="color:#66d9ef">for</span> sonarqube:7.1-alpine
+Status: Downloaded newer image for sonarqube:7.1-alpine
 $
-</code></pre></div><p>Una vez descargada la imagen, lanzamos el contenedor:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ sudo docker run -d --name sonarqube -p 9000:9000 -p 9092:9092 <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>  --mount source<span style="color:#f92672">=</span>data-sonarqube,target<span style="color:#f92672">=</span>/opt/sonarqube/data <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>  -e SONARQUBE_JDBC_USERNAME<span style="color:#f92672">=</span>sonar <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>  -e SONARQUBE_JDBC_PASSWORD<span style="color:#f92672">=</span>cF68nTVgP8Nq <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>  -e SONARQUBE_JDBC_URL<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;jdbc:mysql://mysql-sonarqube:3306/sonar?useUnicode=true&amp;characterEncoding=utf8&amp;rewriteBatchedStatements=true&amp;useConfigs=maxPerformance&amp;useSSL=false&#39;</span> <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>  --network backend-sonarqube <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>  sonarqube:7.1-alpine
+</code></pre>
+
+<p>Una vez descargada la imagen, lanzamos el contenedor:</p>
+
+<pre><code class="language-shell">$ sudo docker run -d --name sonarqube -p 9000:9000 -p 9092:9092 \
+  --mount source=data-sonarqube,target=/opt/sonarqube/data \
+  -e SONARQUBE_JDBC_USERNAME=sonar \
+  -e SONARQUBE_JDBC_PASSWORD=cF68nTVgP8Nq \
+  -e SONARQUBE_JDBC_URL='jdbc:mysql://mysql-sonarqube:3306/sonar?useUnicode=true&amp;characterEncoding=utf8&amp;rewriteBatchedStatements=true&amp;useConfigs=maxPerformance&amp;useSSL=false' \
+  --network backend-sonarqube \
+  sonarqube:7.1-alpine
 443cb80ef5bdc7168c654b0bea0883cfc8e665e465f3d12fa8bb06bdb1856f14
 $
-</code></pre></div><p>El comando para lanzar la imagen de SonarQube publica dos puertos, el 9000, acceso al interfaz web y el 9092, de conexión a la base de datos incrustada H2.</p>
-<p>Montamos el volumen creado para SonarQube en el contenedor.</p>
-<p>Mediante variables de entorno, especificamos el usuario y password de conexión a la base de datos. En la cadena de conexión, especificamos las variables necesarias para evitar <em>Warnings</em> en los logs.</p>
-<p>Finalmente, especificamos que el contenedor de SonarQube debe estar conectado a la red <em>backend-sonarqube</em>.</p>
-<p>Después de unos segundos, al revisar los logs, vemos que se está creando el <em>schema</em> de la base de datos para SonarQube:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ sudo docker logs sonarqube
-...
-2018.04.26 20:19:04 INFO  web<span style="color:#f92672">[][</span>o.s.s.p.d.m.AutoDbMigration<span style="color:#f92672">]</span> Automatically perform DB migration on fresh install
-2018.04.26 20:19:04 INFO  web<span style="color:#f92672">[][</span>DbMigrations<span style="color:#f92672">]</span> Executing DB migrations...
-2018.04.26 20:19:04 INFO  web<span style="color:#f92672">[][</span>DbMigrations<span style="color:#f92672">]</span> <span style="color:#75715e">#1 &#39;Create initial schema&#39;...</span>
-2018.04.26 20:19:14 INFO  web<span style="color:#f92672">[][</span>DbMigrations<span style="color:#f92672">]</span> <span style="color:#75715e">#1 &#39;Create initial schema&#39;: success | time=10068ms</span>
-2018.04.26 20:19:14 INFO  web<span style="color:#f92672">[][</span>DbMigrations<span style="color:#f92672">]</span> <span style="color:#75715e">#2 &#39;Populate initial schema&#39;...</span>
-2018.04.26 20:19:14 INFO  web<span style="color:#f92672">[][</span>DbMigrations<span style="color:#f92672">]</span> <span style="color:#75715e">#2 &#39;Populate initial schema&#39;: success | time=430ms</span>
-...
-</code></pre></div><p>Cuando finaliza el proceso:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ sudo docker logs sonarqube
-...
-2018.04.26 20:20:37 INFO  ce<span style="color:#f92672">[][</span>o.s.ce.app.CeServer<span style="color:#f92672">]</span> Compute Engine is operational
-2018.04.26 20:20:37 INFO  app<span style="color:#f92672">[][</span>o.s.a.SchedulerImpl<span style="color:#f92672">]</span> Process<span style="color:#f92672">[</span>ce<span style="color:#f92672">]</span> is up
-2018.04.26 20:20:37 INFO  app<span style="color:#f92672">[][</span>o.s.a.SchedulerImpl<span style="color:#f92672">]</span> SonarQube is up
-$
-</code></pre></div><p>Y accediendo desde el navegador a <em><a href="http://$IPHOST:9000/">http://$IPHOST:9000/</a></em>:</p>
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<pre><code>SonarQube home
 </code></pre>
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<h3 id="puerto-9092">Puerto 9092</h3>
-<p>Revisando la documentación de SonarQube, en el fichero de configuración <a href="https://github.com/SonarSource/sonarqube/blob/master/sonar-application/src/main/assembly/conf/sonar.properties"><code>sonar.properties</code></a> el puerto 9092 se usa para conectar con la base de datos <em>incrustada</em> (<em>embedded</em>) H2:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">...
-<span style="color:#75715e">#----- Embedded Database (default)</span>
-<span style="color:#75715e"># H2 embedded database server listening port, defaults to 9092</span>
-<span style="color:#75715e">#sonar.embeddedDatabase.port=9092</span>
+
+<p>El comando para lanzar la imagen de SonarQube publica dos puertos, el 9000, acceso al interfaz web y el 9092, de conexión a la base de datos incrustada H2.</p>
+
+<p>Montamos el volumen creado para SonarQube en el contenedor.</p>
+
+<p>Mediante variables de entorno, especificamos el usuario y password de conexión a la base de datos. En la cadena de conexión, especificamos las variables necesarias para evitar <em>Warnings</em> en los logs.</p>
+
+<p>Finalmente, especificamos que el contenedor de SonarQube debe estar conectado a la red <em>backend-sonarqube</em>.</p>
+
+<p>Después de unos segundos, al revisar los logs, vemos que se está creando el <em>schema</em> de la base de datos para SonarQube:</p>
+
+<pre><code class="language-shell">$ sudo docker logs sonarqube
 ...
-</code></pre></div><p>Dado que nosotros usamos MySQL, podemos relanzar el contenedor sin publicar el puerto 9092:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ sudo docker stop sonarqube
+2018.04.26 20:19:04 INFO  web[][o.s.s.p.d.m.AutoDbMigration] Automatically perform DB migration on fresh install
+2018.04.26 20:19:04 INFO  web[][DbMigrations] Executing DB migrations...
+2018.04.26 20:19:04 INFO  web[][DbMigrations] #1 'Create initial schema'...
+2018.04.26 20:19:14 INFO  web[][DbMigrations] #1 'Create initial schema': success | time=10068ms
+2018.04.26 20:19:14 INFO  web[][DbMigrations] #2 'Populate initial schema'...
+2018.04.26 20:19:14 INFO  web[][DbMigrations] #2 'Populate initial schema': success | time=430ms
+...
+</code></pre>
+
+<p>Cuando finaliza el proceso:</p>
+
+<pre><code class="language-shell">$ sudo docker logs sonarqube
+...
+2018.04.26 20:20:37 INFO  ce[][o.s.ce.app.CeServer] Compute Engine is operational
+2018.04.26 20:20:37 INFO  app[][o.s.a.SchedulerImpl] Process[ce] is up
+2018.04.26 20:20:37 INFO  app[][o.s.a.SchedulerImpl] SonarQube is up
+$
+</code></pre>
+
+<p>Y accediendo desde el navegador a <em><a href="http://$IPHOST:9000/">http://$IPHOST:9000/</a></em>:</p>
+
+<figure>
+  <amp-img src="https://onthedock.github.io/images/180521/sonarqube-home.png" alt="Pipeline - Instalación de Sonarqube images/180521/sonarqube-home.png" width=1111 height=523 layout="responsive"></amp-img>
+  
+  <figcaption>
+    
+    SonarQube home
+    
+  </figcaption>
+  
+</figure>
+
+<h3 id="puerto-9092">Puerto 9092</h3>
+
+<p>Revisando la documentación de SonarQube, en el fichero de configuración <a href="https://github.com/SonarSource/sonarqube/blob/master/sonar-application/src/main/assembly/conf/sonar.properties"><code>sonar.properties</code></a> el puerto 9092 se usa para conectar con la base de datos <em>incrustada</em> (<em>embedded</em>) H2:</p>
+
+<pre><code class="language-shell">...
+#----- Embedded Database (default)
+# H2 embedded database server listening port, defaults to 9092
+#sonar.embeddedDatabase.port=9092
+...
+</code></pre>
+
+<p>Dado que nosotros usamos MySQL, podemos relanzar el contenedor sin publicar el puerto 9092:</p>
+
+<pre><code class="language-shell">$ sudo docker stop sonarqube
 sonarqube
 $ sudo docker rm sonarqube
 sonarqube
-$ sudo docker run -d --name sonarqube -p 9000:9000 <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>  --mount source<span style="color:#f92672">=</span>data-sonarqube,target<span style="color:#f92672">=</span>/opt/sonarqube/data <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>  -e SONARQUBE_JDBC_USERNAME<span style="color:#f92672">=</span>sonar <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>  -e SONARQUBE_JDBC_PASSWORD<span style="color:#f92672">=</span>cF68nTVgP8Nq <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>  -e SONARQUBE_JDBC_URL<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;jdbc:mysql://mysql-sonarqube:3306/sonar?useUnicode=true&amp;characterEncoding=utf8&amp;rewriteBatchedStatements=true&amp;useConfigs=maxPerformance&amp;useSSL=false&#39;</span> <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>  --network backend-sonarqube <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>  sonarqube:7.1-alpine
+$ sudo docker run -d --name sonarqube -p 9000:9000 \
+  --mount source=data-sonarqube,target=/opt/sonarqube/data \
+  -e SONARQUBE_JDBC_USERNAME=sonar \
+  -e SONARQUBE_JDBC_PASSWORD=cF68nTVgP8Nq \
+  -e SONARQUBE_JDBC_URL='jdbc:mysql://mysql-sonarqube:3306/sonar?useUnicode=true&amp;characterEncoding=utf8&amp;rewriteBatchedStatements=true&amp;useConfigs=maxPerformance&amp;useSSL=false' \
+  --network backend-sonarqube \
+  sonarqube:7.1-alpine
 443cb80ef5bdc7168c654b0bea0883cfc8e665e465f3d12fa8bb06bdb1856f14
-</code></pre></div><h2 id="volumen-para-plugins-de-sonarqube">Volumen para plugins de SonarQube</h2>
+</code></pre>
+
+<h2 id="volumen-para-plugins-de-sonarqube">Volumen para plugins de SonarQube</h2>
+
 <p>Examinando el <a href="https://github.com/SonarSource/docker-sonarqube/blob/442f950dae232fca8e1e919e017270971cee46f6/4.5.6/Dockerfile#L37%20Sonarqube%20Dockerfile">fichero <code>Dockerfile</code> en GitHub</a> podemos ver que SonarQube expone otro volumen para las <a href="https://docs.sonarqube.org/display/DEV/Extension+Guide">extensiones (o <em>plugins</em>)</a>:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">...
-VOLUME <span style="color:#f92672">[</span><span style="color:#e6db74">&#34;</span>$SONARQUBE_HOME<span style="color:#e6db74">/data&#34;</span>, <span style="color:#e6db74">&#34;</span>$SONARQUBE_HOME<span style="color:#e6db74">/extensions&#34;</span><span style="color:#f92672">]</span>
+
+<pre><code class="language-shell">...
+VOLUME [&quot;$SONARQUBE_HOME/data&quot;, &quot;$SONARQUBE_HOME/extensions&quot;]
 ...
-</code></pre></div><p>Si es necesario, podemos crear un nuevo volumen <code>data-sonarqube-extensions</code> y montarlo en un nuevo contenedor para SonarQube.</p>
+</code></pre>
+
+<p>Si es necesario, podemos crear un nuevo volumen <code>data-sonarqube-extensions</code> y montarlo en un nuevo contenedor para SonarQube.</p>
+
 <h2 id="acceso-a-sonarqube-y-cambio-del-password-por-defecto">Acceso a SonarQube y cambio del password por defecto</h2>
+
 <p>Pulsando sobre <em>Log in</em> accedemos a la página de acceso a Sonarqube.</p>
+
 <p>Las credenciales de acceso por defecto, tal y como se detalla en <a href="https://docs.sonarqube.org/display/SONAR/Authentication#Authentication-AdminCredentialsDefaultAdminCredentials">Default Admin Credentials</a>  son <code>admin</code> y <code>admin</code>.</p>
+
 <p>Después de acceder a Sonarqube con las credenciales por defecto, pulsamos <em>Skip this tutorial</em> en la parte superior derecha de la pantalla <em>&ldquo;Welcome to SonarQube&rdquo;</em>.</p>
+
 <p>Para cambiar el password:</p>
+
 <ol>
 <li>Pulsamos sobre la letra &ldquo;A&rdquo; que actúa como <em>avatar</em> para el usuario <code>admin</code>.</li>
 <li>En el menú desplegable, seleccionamos <em>My Account</em></li>
 <li>Pulsamos sobre <em>Security</em></li>
 <li>En la parte inferior de la pantalla, podemos realizar el cambio de password, introduciendo el password actual y repitiendo el nuevo password dos veces.</li>
 </ol>
+
 <h3 id="configuración-del-servidor-de-correo">Configuración del servidor de correo</h3>
+
 <ol>
 <li>Accedemos a SonarQube como administrador</li>
 <li>En la barra superior, pulsamos <em>Administration</em></li>
 <li>En la página de <em>Administration</em>, pulsamos en <em>Configuration</em>. En el desplegable, seleccionamos <em>General Settings</em></li>
 <li>Hacemos <em>scroll</em> hasta el apartado <em>Email</em></li>
 </ol>
+
 <p>En esta sección podemos indicar:</p>
+
 <ul>
 <li>Prefijo de los correos enviados: <code>[SONARQUBE]</code> (por defecto)</li>
 <li>Dirección del remitente (<em>From address</em>): <code>sonarqube-notify@local.dev</code></li>
@@ -250,6 +314,7 @@ VOLUME <span style="color:#f92672">[</span><span style="color:#e6db74">&#34;</sp
 <li>Puerto SMTP (<em>SMTP port</em>): 10025 (el configurado para MailDev)</li>
 <li>Usuario con permisos para enviar correo (<em>SMTP username</em>): Lo dejamos en blanco (MailDev no requiere autenticación)</li>
 </ul>
+
 <p>Finalmente, podemos comprobar si el envío de correos funciona usando la opción <em>Test configuration</em>.</p></div>
 
   <aside class="p-share">

@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.68.3" />
+<meta name="generator" content="Hugo 0.55.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -121,13 +121,15 @@
   </div>
 
   <div class="article-body"><p>Las instrucciones para instalar Powershell en Linux <a href="https://github.com/PowerShell/PowerShell/blob/master/docs/installation/linux.md">Package Installation Instructions</a> hacen referencia a Ubuntu. Cuando se intenta instalar Powershell en Debian 9, se obtiene un error relativo a paquetes que no se encuentran.</p>
+
 <p>En concreto, el error es el siguiente:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ sudo apt-get install powershell
+
+<pre><code class="language-shell">$ sudo apt-get install powershell
 Reading package lists... Done
 Building dependency tree
 Reading state information... Done
 Some packages could not be installed. This may mean that you have
-requested an impossible situation or <span style="color:#66d9ef">if</span> you are using the unstable
+requested an impossible situation or if you are using the unstable
 distribution that some required packages have not yet been created
 or been moved out of Incoming.
 The following information may help to resolve the situation:
@@ -136,9 +138,13 @@ The following packages have unmet dependencies:
  powershell : Depends: libssl1.0.0 but it is not installable
               Depends: libicu55 but it is not installable
 E: Unable to correct problems, you have held broken packages.
-</code></pre></div><p>La solución pasa por modificar el fichero <code>/etc/apt/sources.list.d/microsoft.list</code> y cambiarlo por <code>deb [arch=amd64] https://packages.microsoft.com/debian/stretch/prod stretch main</code> tal y como se indica en <a href="https://github.com/PowerShell/PowerShell/issues/4320">PowerShell fails to install on Debian-9</a>.</p>
+</code></pre>
+
+<p>La solución pasa por modificar el fichero <code>/etc/apt/sources.list.d/microsoft.list</code> y cambiarlo por <code>deb [arch=amd64] https://packages.microsoft.com/debian/stretch/prod stretch main</code> tal y como se indica en <a href="https://github.com/PowerShell/PowerShell/issues/4320">PowerShell fails to install on Debian-9</a>.</p>
+
 <p>Tras modificar el fichero <code>/etc/apt/sources.list.d/microsoft.list</code>:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">~$ sudo apt-get install powershell
+
+<pre><code class="language-shell">~$ sudo apt-get install powershell
 Reading package lists... Done
 Building dependency tree
 Reading state information... Done
@@ -146,51 +152,54 @@ The following additional packages will be installed:
   liblttng-ust-ctl2 liblttng-ust0 libunwind8 liburcu4
 The following NEW packages will be installed:
   liblttng-ust-ctl2 liblttng-ust0 libunwind8 liburcu4 powershell
-<span style="color:#ae81ff">0</span> upgraded, <span style="color:#ae81ff">5</span> newly installed, <span style="color:#ae81ff">0</span> to remove and <span style="color:#ae81ff">0</span> not upgraded.
+0 upgraded, 5 newly installed, 0 to remove and 0 not upgraded.
 Need to get 52.5 MB of archives.
-After this operation, <span style="color:#ae81ff">142</span> MB of additional disk space will be used.
-Do you want to <span style="color:#66d9ef">continue</span>? <span style="color:#f92672">[</span>Y/n<span style="color:#f92672">]</span> y
-Get:1 http://ftp.us.debian.org/debian stretch/main amd64 libunwind8 amd64 1.1-4.1 <span style="color:#f92672">[</span>48.7 kB<span style="color:#f92672">]</span>
-Get:2 https://packages.microsoft.com/debian/stretch/prod stretch/main amd64 powershell amd64 6.0.1-1.debian.9 <span style="color:#f92672">[</span>52.1 MB<span style="color:#f92672">]</span>
-Get:3 http://ftp.us.debian.org/debian stretch/main amd64 liburcu4 amd64 0.9.3-1 <span style="color:#f92672">[</span>61.9 kB<span style="color:#f92672">]</span>
-Get:4 http://ftp.us.debian.org/debian stretch/main amd64 liblttng-ust-ctl2 amd64 2.9.0-2 <span style="color:#f92672">[</span>99.5 kB<span style="color:#f92672">]</span>
-Get:5 http://ftp.us.debian.org/debian stretch/main amd64 liblttng-ust0 amd64 2.9.0-2 <span style="color:#f92672">[</span><span style="color:#ae81ff">174</span> kB<span style="color:#f92672">]</span>
-Fetched 52.5 MB in 2s <span style="color:#f92672">(</span>23.5 MB/s<span style="color:#f92672">)</span>
+After this operation, 142 MB of additional disk space will be used.
+Do you want to continue? [Y/n] y
+Get:1 http://ftp.us.debian.org/debian stretch/main amd64 libunwind8 amd64 1.1-4.1 [48.7 kB]
+Get:2 https://packages.microsoft.com/debian/stretch/prod stretch/main amd64 powershell amd64 6.0.1-1.debian.9 [52.1 MB]
+Get:3 http://ftp.us.debian.org/debian stretch/main amd64 liburcu4 amd64 0.9.3-1 [61.9 kB]
+Get:4 http://ftp.us.debian.org/debian stretch/main amd64 liblttng-ust-ctl2 amd64 2.9.0-2 [99.5 kB]
+Get:5 http://ftp.us.debian.org/debian stretch/main amd64 liblttng-ust0 amd64 2.9.0-2 [174 kB]
+Fetched 52.5 MB in 2s (23.5 MB/s)
 Selecting previously unselected package libunwind8.
-<span style="color:#f92672">(</span>Reading database ... <span style="color:#ae81ff">43191</span> files and directories currently installed.<span style="color:#f92672">)</span>
+(Reading database ... 43191 files and directories currently installed.)
 Preparing to unpack .../libunwind8_1.1-4.1_amd64.deb ...
-Unpacking libunwind8 <span style="color:#f92672">(</span>1.1-4.1<span style="color:#f92672">)</span> ...
+Unpacking libunwind8 (1.1-4.1) ...
 Selecting previously unselected package liburcu4:amd64.
 Preparing to unpack .../liburcu4_0.9.3-1_amd64.deb ...
-Unpacking liburcu4:amd64 <span style="color:#f92672">(</span>0.9.3-1<span style="color:#f92672">)</span> ...
+Unpacking liburcu4:amd64 (0.9.3-1) ...
 Selecting previously unselected package liblttng-ust-ctl2:amd64.
 Preparing to unpack .../liblttng-ust-ctl2_2.9.0-2_amd64.deb ...
-Unpacking liblttng-ust-ctl2:amd64 <span style="color:#f92672">(</span>2.9.0-2<span style="color:#f92672">)</span> ...
+Unpacking liblttng-ust-ctl2:amd64 (2.9.0-2) ...
 Selecting previously unselected package liblttng-ust0:amd64.
 Preparing to unpack .../liblttng-ust0_2.9.0-2_amd64.deb ...
-Unpacking liblttng-ust0:amd64 <span style="color:#f92672">(</span>2.9.0-2<span style="color:#f92672">)</span> ...
+Unpacking liblttng-ust0:amd64 (2.9.0-2) ...
 Selecting previously unselected package powershell.
 Preparing to unpack .../powershell_6.0.1-1.debian.9_amd64.deb ...
-Unpacking powershell <span style="color:#f92672">(</span>6.0.1-1.debian.9<span style="color:#f92672">)</span> ...
-Setting up liburcu4:amd64 <span style="color:#f92672">(</span>0.9.3-1<span style="color:#f92672">)</span> ...
-Setting up liblttng-ust-ctl2:amd64 <span style="color:#f92672">(</span>2.9.0-2<span style="color:#f92672">)</span> ...
-Setting up libunwind8 <span style="color:#f92672">(</span>1.1-4.1<span style="color:#f92672">)</span> ...
-Processing triggers <span style="color:#66d9ef">for</span> libc-bin <span style="color:#f92672">(</span>2.24-11+deb9u1<span style="color:#f92672">)</span> ...
-Processing triggers <span style="color:#66d9ef">for</span> man-db <span style="color:#f92672">(</span>2.7.6.1-2<span style="color:#f92672">)</span> ...
-Setting up liblttng-ust0:amd64 <span style="color:#f92672">(</span>2.9.0-2<span style="color:#f92672">)</span> ...
-Setting up powershell <span style="color:#f92672">(</span>6.0.1-1.debian.9<span style="color:#f92672">)</span> ...
-Processing triggers <span style="color:#66d9ef">for</span> libc-bin <span style="color:#f92672">(</span>2.24-11+deb9u1<span style="color:#f92672">)</span> ...
+Unpacking powershell (6.0.1-1.debian.9) ...
+Setting up liburcu4:amd64 (0.9.3-1) ...
+Setting up liblttng-ust-ctl2:amd64 (2.9.0-2) ...
+Setting up libunwind8 (1.1-4.1) ...
+Processing triggers for libc-bin (2.24-11+deb9u1) ...
+Processing triggers for man-db (2.7.6.1-2) ...
+Setting up liblttng-ust0:amd64 (2.9.0-2) ...
+Setting up powershell (6.0.1-1.debian.9) ...
+Processing triggers for libc-bin (2.24-11+deb9u1) ...
 $
-</code></pre></div><p>Una vez solucionado el problema de la instalación, podemos lanzar Powershell mediante:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ pwsh
+</code></pre>
+
+<p>Una vez solucionado el problema de la instalación, podemos lanzar Powershell mediante:</p>
+
+<pre><code class="language-shell">$ pwsh
 PowerShell v6.0.1
-Copyright <span style="color:#f92672">(</span>c<span style="color:#f92672">)</span> Microsoft Corporation. All rights reserved.
+Copyright (c) Microsoft Corporation. All rights reserved.
 
 https://aka.ms/pscore6-docs
-Type <span style="color:#e6db74">&#39;help&#39;</span> to get help.
+Type 'help' to get help.
 
 PS /home/vagrant&gt;
-</code></pre></div></div>
+</code></pre></div>
 
   <aside class="p-share">
   <a href="http://twitter.com/intent/tweet?url=https%3a%2f%2fonthedock.github.io%2fpost%2f180207-instalacion-de-powershell-en-debian-9%2f&text=Instalaci%c3%b3n%20de%20Powershell%20en%20Debian%209&tw_p=tweetbutton" title="Twitterでシェア" class="tw" target="_blank" rel="nofollow"></a>

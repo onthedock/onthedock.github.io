@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.68.3" />
+<meta name="generator" content="Hugo 0.55.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -75,7 +75,7 @@
         "height": 60
       }
     },
-    "description": "\x3cp\x3eEn la entrada  \x3ca href=\x22https:\/\/onthedock.github.io\/post\/180317-portainer\/\x22\x3ePortainer: gestión de servidores Docker\x3c\/a\x3e comentaba la necesidad de habilitar el acceso remoto al API de Docker \x3cstrong\x3ede manera segura\x3c\/strong\x3e, apuntando a la documentación oficial de Docker sobre cómo realizar esta configuración.\x3c\/p\x3e\n\x3cp\x3eEn esta entrada indico cómo proteger el acceso remoto a un servidor de Docker a través de la API, siguiendo las indicaciones de la documentación oficial en \x3ca href=\x22https:\/\/docs.docker.com\/engine\/security\/https\/\x22\x3eProtect the Docker daemon socket\x3c\/a\x3e.\x3c\/p\x3e"
+    "description": "\x3cp\x3eEn la entrada  \x3ca href=\x22https:\/\/onthedock.github.io\/post\/180317-portainer\/\x22\x3ePortainer: gestión de servidores Docker\x3c\/a\x3e comentaba la necesidad de habilitar el acceso remoto al API de Docker \x3cstrong\x3ede manera segura\x3c\/strong\x3e, apuntando a la documentación oficial de Docker sobre cómo realizar esta configuración.\x3c\/p\x3e\n\n\x3cp\x3eEn esta entrada indico cómo proteger el acceso remoto a un servidor de Docker a través de la API, siguiendo las indicaciones de la documentación oficial en \x3ca href=\x22https:\/\/docs.docker.com\/engine\/security\/https\/\x22\x3eProtect the Docker daemon socket\x3c\/a\x3e.\x3c\/p\x3e"
   }
 </script>
 
@@ -121,162 +121,245 @@
   </div>
 
   <div class="article-body"><p>En la entrada  <a href="https://onthedock.github.io/post/180317-portainer/">Portainer: gestión de servidores Docker</a> comentaba la necesidad de habilitar el acceso remoto al API de Docker <strong>de manera segura</strong>, apuntando a la documentación oficial de Docker sobre cómo realizar esta configuración.</p>
+
 <p>En esta entrada indico cómo proteger el acceso remoto a un servidor de Docker a través de la API, siguiendo las indicaciones de la documentación oficial en <a href="https://docs.docker.com/engine/security/https/">Protect the Docker daemon socket</a>.</p>
+
 <p>Básicamente, esta entrada es una traducción comentada de la página oficial de Docker, por lo que en caso de duda, consulta la fuente original.</p>
+
 <h2 id="escenario">Escenario</h2>
+
 <p>Vamos a habilitar el acceso remoto a un <em>host</em> donde se ejecuta Docker de manera que otras aplicaciones puedan realizar acciones usando la API de forma segura.</p>
+
 <p>En el siguiente diagrama se muestra el equipo <em>Docker remoto</em> a la izquierda; el objetivo es conectar Portainer a través de TLS para poder gestionar los contenedores en el <em>host remoto</em>. La autenticación de la aplicación se realizará a través de los certificados que vamos a generar en esta entrada para proteger el acceso remoto a Docker.</p>
+
 <p>Portainer corre en otro servidor Docker &ldquo;local&rdquo; (a la derecha, en el diagrama), aunque este hecho no es relevante para la protección del servidor remoto.</p>
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
+
+<figure>
+  <amp-img src="https://onthedock.github.io/images/180318/docker-remote-secure-configuration.png" alt="Cómo proteger el acceso remoto a Docker images/180318/docker-remote-secure-configuration.png" width=640 height=323 layout="responsive"></amp-img>
+  
+</figure>
+
 <h2 id="crea-una-entidad-certificadora-ca">Crea una entidad certificadora (CA)</h2>
+
 <blockquote>
 <p>Estos comandos deben ejecutarse en la máquina con el servidor Docker, es decir, donde corre el <em>Docker daemon, dockerd</em>. Esta es la máquina &ldquo;Docker remote&rdquo;.</p>
 </blockquote>
+
 <p>Generamos las claves privadas y públicas de la entidad certificadora (CA):</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ openssl genrsa -aes256 -out ca-key.pem <span style="color:#ae81ff">4096</span>
-Generating RSA private key, <span style="color:#ae81ff">4096</span> bit long modulus
+
+<pre><code class="language-shell">$ openssl genrsa -aes256 -out ca-key.pem 4096
+Generating RSA private key, 4096 bit long modulus
 ...........................................++
 ..................................................................................................................++
-e is <span style="color:#ae81ff">65537</span> <span style="color:#f92672">(</span>0x10001<span style="color:#f92672">)</span>
-Enter pass phrase <span style="color:#66d9ef">for</span> ca-key.pem:
-Verifying - Enter pass phrase <span style="color:#66d9ef">for</span> ca-key.pem:
+e is 65537 (0x10001)
+Enter pass phrase for ca-key.pem:
+Verifying - Enter pass phrase for ca-key.pem:
 $ ls
 ca-key.pem
 
-$ openssl req -new -x509 -days <span style="color:#ae81ff">365</span> -key ca-key.pem -sha256 -out ca.pem
-Enter pass phrase <span style="color:#66d9ef">for</span> ca-key.pem:
+$ openssl req -new -x509 -days 365 -key ca-key.pem -sha256 -out ca.pem
+Enter pass phrase for ca-key.pem:
 You are about to be asked to enter information that will be incorporated
 into your certificate request.
 What you are about to enter is what is called a Distinguished Name or a DN.
 There are quite a few fields but you can leave some blank
 For some fields there will be a default value,
-If you enter <span style="color:#e6db74">&#39;.&#39;</span>, the field will be left blank.
+If you enter '.', the field will be left blank.
 -----
-Country Name <span style="color:#f92672">(</span><span style="color:#ae81ff">2</span> letter code<span style="color:#f92672">)</span> <span style="color:#f92672">[</span>AU<span style="color:#f92672">]</span>:ES
-State or Province Name <span style="color:#f92672">(</span>full name<span style="color:#f92672">)</span> <span style="color:#f92672">[</span>Some-State<span style="color:#f92672">]</span>:Barcelona
-Locality Name <span style="color:#f92672">(</span>eg, city<span style="color:#f92672">)</span> <span style="color:#f92672">[]</span>:
-Organization Name <span style="color:#f92672">(</span>eg, company<span style="color:#f92672">)</span> <span style="color:#f92672">[</span>Internet Widgits Pty Ltd<span style="color:#f92672">]</span>:Ameisin Labs
-Organizational Unit Name <span style="color:#f92672">(</span>eg, section<span style="color:#f92672">)</span> <span style="color:#f92672">[]</span>:Development
-Common Name <span style="color:#f92672">(</span>e.g. server FQDN or YOUR name<span style="color:#f92672">)</span> <span style="color:#f92672">[]</span>:192.168.1.24
-Email Address <span style="color:#f92672">[]</span>:xavi.aznar@xxxxxxxxxxxx.xxx
-operador@docker-api:~$ openssl genrsa -out server-key.pem <span style="color:#ae81ff">4096</span>
-Generating RSA private key, <span style="color:#ae81ff">4096</span> bit long modulus
+Country Name (2 letter code) [AU]:ES
+State or Province Name (full name) [Some-State]:Barcelona
+Locality Name (eg, city) []:
+Organization Name (eg, company) [Internet Widgits Pty Ltd]:Ameisin Labs
+Organizational Unit Name (eg, section) []:Development
+Common Name (e.g. server FQDN or YOUR name) []:192.168.1.24
+Email Address []:xavi.aznar@xxxxxxxxxxxx.xxx
+operador@docker-api:~$ openssl genrsa -out server-key.pem 4096
+Generating RSA private key, 4096 bit long modulus
 .......................................++
 ..............................................................................................................................................................++
-e is <span style="color:#ae81ff">65537</span> <span style="color:#f92672">(</span>0x10001<span style="color:#f92672">)</span>
-</code></pre></div><h2 id="crea-una-clave-para-el-servidor-y-una-petición-de-firma-del-certificado-csr">Crea una clave para el servidor y una petición de firma del certificado (CSR)</h2>
+e is 65537 (0x10001)
+</code></pre>
+
+<h2 id="crea-una-clave-para-el-servidor-y-una-petición-de-firma-del-certificado-csr">Crea una clave para el servidor y una petición de firma del certificado (CSR)</h2>
+
 <p>Una vez tenemos la entidad certificadora, creamos una clave para el servidor y una <em>certificate signing request</em> (CSR). Como indica la documentación de Docker, asegúrate que el &ldquo;Common Name&rdquo; coincide con el <em>hostname</em> que se usará para conectar al servidor remoto de Docker.</p>
+
 <p>En este ejemplo usaremos la IP del servidor remoto para el <em>common name (CN)</em>, ya que no está dado de alta en el DNS.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ openssl genrsa -out server-key.pem <span style="color:#ae81ff">4096</span>
-Generating RSA private key, <span style="color:#ae81ff">4096</span> bit long modulus
+
+<pre><code class="language-shell">$ openssl genrsa -out server-key.pem 4096
+Generating RSA private key, 4096 bit long modulus
 .......................................++
 ..............................................................................................................................................................++
-e is <span style="color:#ae81ff">65537</span> <span style="color:#f92672">(</span>0x10001<span style="color:#f92672">)</span>
-$ openssl req -subj <span style="color:#e6db74">&#34;/CN=192.168.1.24&#34;</span> -sha256 -new -key server-key.pem -out server.csr
+e is 65537 (0x10001)
+$ openssl req -subj &quot;/CN=192.168.1.24&quot; -sha256 -new -key server-key.pem -out server.csr
 $ ls
 ca-key.pem  ca.pem  server-key.pem  server.csr
-</code></pre></div><h2 id="firma-la-petición-de-firma-del-certificado-csr">Firma la petición de firma del certificado (CSR)</h2>
+</code></pre>
+
+<h2 id="firma-la-petición-de-firma-del-certificado-csr">Firma la petición de firma del certificado (CSR)</h2>
+
 <p>Las conexiones TLS se pueden realizar usando la IP o el <em>hostname</em>, por lo que debemos especificar los dos métodos en la creación del certificado.</p>
+
 <blockquote>
 <p>En mi caso el equipo remoto no está dado de alta en el DNS; pero para no modificar demasiado las instrucciones de la página de Docker, he indicado la IP como &ldquo;nombre&rdquo; DNS del equipo.</p>
 </blockquote>
+
 <p>Como direcciones IP usamos tanto la IP privada asignada al equipo, como la dirección de bucle local, <em>localhost</em>, 127.0.0.1.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ echo subjectAltName <span style="color:#f92672">=</span> DNS:192.168.1.24,IP:192.168.1.24,IP:127.0.0.1 &gt;&gt; extfile.cnf
-</code></pre></div><p>A continuación indicamos en los atributos extendidos de la clave del servidor que únicamente se usará para autenticación del servidor</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ echo extendedKeyUsage <span style="color:#f92672">=</span> serverAuth &gt;&gt; extfile.cnf
-</code></pre></div><p>El contenido del fichero <code>extfile.cnf</code>  queda:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ cat extfile.cnf
-subjectAltName <span style="color:#f92672">=</span> DNS:192.168.1.24,IP:192.168.1.24,IP:127.0.0.1
-extendedKeyUsage <span style="color:#f92672">=</span> serverAuth
-</code></pre></div><p>Ahora, firmamos el CSR (con una validez de 1 año):</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ openssl x509 -req -days <span style="color:#ae81ff">365</span> -sha256 -in server.csr -CA ca.pem -CAkey ca-key.pem <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>&gt;   -CAcreateserial -out server-cert.pem -extfile extfile.cnf
+
+<pre><code class="language-shell">$ echo subjectAltName = DNS:192.168.1.24,IP:192.168.1.24,IP:127.0.0.1 &gt;&gt; extfile.cnf
+</code></pre>
+
+<p>A continuación indicamos en los atributos extendidos de la clave del servidor que únicamente se usará para autenticación del servidor</p>
+
+<pre><code class="language-shell">$ echo extendedKeyUsage = serverAuth &gt;&gt; extfile.cnf
+</code></pre>
+
+<p>El contenido del fichero <code>extfile.cnf</code>  queda:</p>
+
+<pre><code class="language-shell">$ cat extfile.cnf
+subjectAltName = DNS:192.168.1.24,IP:192.168.1.24,IP:127.0.0.1
+extendedKeyUsage = serverAuth
+</code></pre>
+
+<p>Ahora, firmamos el CSR (con una validez de 1 año):</p>
+
+<pre><code class="language-shell">$ openssl x509 -req -days 365 -sha256 -in server.csr -CA ca.pem -CAkey ca-key.pem \
+&gt;   -CAcreateserial -out server-cert.pem -extfile extfile.cnf
 Signature ok
-subject<span style="color:#f92672">=</span>/CN<span style="color:#f92672">=</span>192.168.1.24
+subject=/CN=192.168.1.24
 Getting CA Private Key
-Enter pass phrase <span style="color:#66d9ef">for</span> ca-key.pem:
-</code></pre></div><h2 id="crea-la-clave-para-el-cliente-y-la-petición-de-firma-del-certificado-csr">Crea la clave para el cliente y la petición de firma del certificado (CSR)</h2>
+Enter pass phrase for ca-key.pem:
+</code></pre>
+
+<h2 id="crea-la-clave-para-el-cliente-y-la-petición-de-firma-del-certificado-csr">Crea la clave para el cliente y la petición de firma del certificado (CSR)</h2>
+
 <blockquote>
 <p>Los siguientes comandos se pueden ejecutar, por comodidad, en la máquina del servidor de Docker</p>
 </blockquote>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ openssl genrsa -out key.pem <span style="color:#ae81ff">4096</span>
-Generating RSA private key, <span style="color:#ae81ff">4096</span> bit long modulus
+
+<pre><code class="language-shell">$ openssl genrsa -out key.pem 4096
+Generating RSA private key, 4096 bit long modulus
 ............++
 .......++
-e is <span style="color:#ae81ff">65537</span> <span style="color:#f92672">(</span>0x10001<span style="color:#f92672">)</span>
-$ openssl req -subj <span style="color:#e6db74">&#39;/CN=client&#39;</span> -new -key key.pem -out client.csr
-</code></pre></div><p>Para que la clave generada pueda ser usada para autenticar a un cliente, creamos un fichero de configuración de extensiones:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ echo extendedKeyUsage <span style="color:#f92672">=</span> clientAuth &gt;&gt; extfile.cnf
-</code></pre></div><p>Ahora ya podemos firmar el certificado:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ openssl x509 -req -days <span style="color:#ae81ff">365</span> -sha256 -in client.csr -CA ca.pem -CAkey ca-key.pem <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>&gt;   -CAcreateserial -out cert.pem -extfile extfile.cnf
+e is 65537 (0x10001)
+$ openssl req -subj '/CN=client' -new -key key.pem -out client.csr
+</code></pre>
+
+<p>Para que la clave generada pueda ser usada para autenticar a un cliente, creamos un fichero de configuración de extensiones:</p>
+
+<pre><code class="language-shell">$ echo extendedKeyUsage = clientAuth &gt;&gt; extfile.cnf
+</code></pre>
+
+<p>Ahora ya podemos firmar el certificado:</p>
+
+<pre><code class="language-shell">$ openssl x509 -req -days 365 -sha256 -in client.csr -CA ca.pem -CAkey ca-key.pem \
+&gt;   -CAcreateserial -out cert.pem -extfile extfile.cnf
 Signature ok
-subject<span style="color:#f92672">=</span>/CN<span style="color:#f92672">=</span>client
+subject=/CN=client
 Getting CA Private Key
-Enter pass phrase <span style="color:#66d9ef">for</span> ca-key.pem:
-</code></pre></div><p>Una vez generados los certificados <code>cert.pem</code>  y <code>server-cert.pem</code>, podemos borrarlos las peticiones de firma CSR:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ rm -v client.csr server.csr
-removed <span style="color:#e6db74">&#39;client.csr&#39;</span>
-removed <span style="color:#e6db74">&#39;server.csr&#39;</span>
-</code></pre></div><h2 id="protege-las-claves-secretas">Protege las claves secretas</h2>
+Enter pass phrase for ca-key.pem:
+</code></pre>
+
+<p>Una vez generados los certificados <code>cert.pem</code>  y <code>server-cert.pem</code>, podemos borrarlos las peticiones de firma CSR:</p>
+
+<pre><code class="language-shell">$ rm -v client.csr server.csr
+removed 'client.csr'
+removed 'server.csr'
+</code></pre>
+
+<h2 id="protege-las-claves-secretas">Protege las claves secretas</h2>
+
 <p>Para proteger los ficheros con las claves secretas en el servidor el siguiente paso es cambiar los permisos de manera que sólo sean legibles por tu usuario:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ chmod -v <span style="color:#ae81ff">0400</span> ca-key.pem key.pem server-key.pem
-mode of <span style="color:#e6db74">&#39;ca-key.pem&#39;</span> changed from <span style="color:#ae81ff">0664</span> <span style="color:#f92672">(</span>rw-rw-r--<span style="color:#f92672">)</span> to <span style="color:#ae81ff">0400</span> <span style="color:#f92672">(</span>r--------<span style="color:#f92672">)</span>
-mode of <span style="color:#e6db74">&#39;key.pem&#39;</span> changed from <span style="color:#ae81ff">0664</span> <span style="color:#f92672">(</span>rw-rw-r--<span style="color:#f92672">)</span> to <span style="color:#ae81ff">0400</span> <span style="color:#f92672">(</span>r--------<span style="color:#f92672">)</span>
-mode of <span style="color:#e6db74">&#39;server-key.pem&#39;</span> changed from <span style="color:#ae81ff">0664</span> <span style="color:#f92672">(</span>rw-rw-r--<span style="color:#f92672">)</span> to <span style="color:#ae81ff">0400</span> <span style="color:#f92672">(</span>r--------<span style="color:#f92672">)</span>
-</code></pre></div><h1 id="configura-el-_daemon_-de-docker">Configura el <em>daemon</em> de Docker</h1>
+
+<pre><code class="language-shell">$ chmod -v 0400 ca-key.pem key.pem server-key.pem
+mode of 'ca-key.pem' changed from 0664 (rw-rw-r--) to 0400 (r--------)
+mode of 'key.pem' changed from 0664 (rw-rw-r--) to 0400 (r--------)
+mode of 'server-key.pem' changed from 0664 (rw-rw-r--) to 0400 (r--------)
+</code></pre>
+
+<h1 id="configura-el-daemon-de-docker">Configura el <em>daemon</em> de Docker</h1>
+
 <p>Hasta ahora hemos generado los diferentes certificados para poder proteger las conexiones con Docker.</p>
+
 <p>El siguiente paso es configurar Docker para aceptar únicamente conexiones desde clientes que proporcionen certificados firmados por la CA creada al principio de este artículo.</p>
+
 <p>Edita el fichero <code>/etc/systemd/system/docker.service.d/override.conf</code> de manera que a línea <code>ExecStart</code> incluya los parámetros de configuración de TLS:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">ExecStart<span style="color:#f92672">=</span>/usr/bin/dockerd --tlsverify --tlscacert<span style="color:#f92672">=</span>/home/operador/ca.pem --tlscert<span style="color:#f92672">=</span>/home/operador/server-cert.pem  --tlskey<span style="color:#f92672">=</span>/home/operador/server-key.pem -H fd:// -H tcp://0.0.0.0:2376
-</code></pre></div><ul>
+
+<pre><code class="language-shell">ExecStart=/usr/bin/dockerd --tlsverify --tlscacert=/home/operador/ca.pem --tlscert=/home/operador/server-cert.pem  --tlskey=/home/operador/server-key.pem -H fd:// -H tcp://0.0.0.0:2376
+</code></pre>
+
+<ul>
 <li><code>—tlsverify</code> Habilita la validación de los clientes usando TLS</li>
 <li><code>—tlscacert</code> y <code>—tlscert</code> certificados de la CA y del servidor</li>
 <li><code>--tlskey</code> clave privada del servidor</li>
 <li><code>-H fd://</code> seguimos usando escuchando conexiones a través del <em>socket</em> de Docker (suponemos que los usuarios &ldquo;locales&rdquo; -o vía SSH- al servidor son de confianza)</li>
 <li><code>-H tcp://0.0.0.0:2376</code> escuchamos conexiones en cualquier IP del <em>host</em> vía TCP en el puerto 2376 (el puerto elegido por convención para las conexiones cifradas)</li>
 </ul>
+
 <p>Después de guardar los cambios realizados en el fichero <code>override.conf</code>, recargamos la configuración del <em>daemon</em> de Docker y reiniciamos el servicio para que tenga efecto:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ sudo systemctl daemon-reload
+
+<pre><code class="language-shell">$ sudo systemctl daemon-reload
 $ sudo systemctl restart docker
-</code></pre></div><h2 id="conecta-usando-tls">Conecta usando TLS</h2>
+</code></pre>
+
+<h2 id="conecta-usando-tls">Conecta usando TLS</h2>
+
 <p>Para probar que Docker acepta conexiones protegidas por TLS, copia los ficheros <code>ca.pem</code>, <code>cert.pem</code> y <code>key.pem</code> al equipo desde donde deben realizarse las conexiones.</p>
+
 <blockquote>
 <p>Disponiendo de las claves cualquier usuario puede realizar operaciones en el equipo remoto donde se ejecuta Docker. Como un usuario con permisos de ejecución de Docker tiene permisos equivalentes a los del <em>root</em>, las claves deben protegerse del mismo modo que el password de <code>root</code>.</p>
 </blockquote>
+
 <p>Para validar que todo funciona como debe, ejecuta <code>docker version</code> usando TLS:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ docker --tlsverify --tlscacert<span style="color:#f92672">=</span>ca.pem --tlscert<span style="color:#f92672">=</span>cert.pem --tlskey<span style="color:#f92672">=</span>key.pem <span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span>&gt;   -H<span style="color:#f92672">=</span>192.168.1.24:2376 version
+
+<pre><code class="language-shell">$ docker --tlsverify --tlscacert=ca.pem --tlscert=cert.pem --tlskey=key.pem \
+&gt;   -H=192.168.1.24:2376 version
 Client:
  Version:	17.12.1-ce
  API version:	1.35
  Go version:	go1.9.4
  Git commit:	7390fc6
- Built:	Tue Feb <span style="color:#ae81ff">27</span> 22:17:40 <span style="color:#ae81ff">2018</span>
+ Built:	Tue Feb 27 22:17:40 2018
  OS/Arch:	linux/amd64
 
 Server:
  Engine:
   Version:	17.12.1-ce
-  API version:	1.35 <span style="color:#f92672">(</span>minimum version 1.12<span style="color:#f92672">)</span>
+  API version:	1.35 (minimum version 1.12)
   Go version:	go1.9.4
   Git commit:	7390fc6
-  Built:	Tue Feb <span style="color:#ae81ff">27</span> 22:16:13 <span style="color:#ae81ff">2018</span>
+  Built:	Tue Feb 27 22:16:13 2018
   OS/Arch:	linux/amd64
   Experimental:	false
-</code></pre></div><h2 id="configura-un-_endpoint_-seguro-desde-portainer">Configura un <em>endpoint</em> seguro desde Portainer</h2>
+</code></pre>
+
+<h2 id="configura-un-endpoint-seguro-desde-portainer">Configura un <em>endpoint</em> seguro desde Portainer</h2>
+
 <p>Si recuedas el escenario descrito al inicio de la entrada, el objetivo era utilizar las conexiones remotas <strong>seguras</strong> desde Portainer para gestionar los contenedores en el servidor de Docker remoto:</p>
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
+
+<figure>
+  <amp-img src="https://onthedock.github.io/images/180318/docker-remote-secure-configuration.png" alt="Cómo proteger el acceso remoto a Docker images/180318/docker-remote-secure-configuration.png" width=640 height=323 layout="responsive"></amp-img>
+  
+</figure>
+
 <p>Después de configurar el servidor de Docker remoto para aceptar únicamente conexiones remotas protegidas por TLS, ahora creamos un nuevo <em>endpoint</em> en Portainer. Habilitamos TLS y seleccionamos la opción <em>TLS with server and client verification</em>, para lo que tenemos que subir a la aplicación los certificados  <code>ca.pem</code>, <code>cert.pem</code> y <code>key.pem</code> :</p>
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
+
+<figure>
+  <amp-img src="https://onthedock.github.io/images/180318/portainer-tls-config.png" alt="Cómo proteger el acceso remoto a Docker images/180318/portainer-tls-config.png" width=640 height=834 layout="responsive"></amp-img>
+  
+</figure>
+
 <p>Después de configurar el <em>endpoint</em> seguro, validamos que podemos visualizar la información usando Portainer:</p>
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
+
+<figure>
+  <amp-img src="https://onthedock.github.io/images/180318/portainer-connected-via-tls.png" alt="Cómo proteger el acceso remoto a Docker images/180318/portainer-connected-via-tls.png" width=640 height=365 layout="responsive"></amp-img>
+  
+</figure>
+
 <h1 id="resumen">Resumen</h1>
+
 <p>En esta entrada se indican los pasos a seguir para configurar el acceso remoto a un servidor Docker usando la API http protegida por TLS.</p>
+
 <p>La primera parte del artículo se centra en la creación de los certificados, mientras que en la segunda se configura el Docker <em>daemon</em> para aceptar conexiones cifradas con TLS. Al final, se indica cómo configurar Portainer para conectar usando TLS con el servidor Docker.</p></div>
 
   <aside class="p-share">

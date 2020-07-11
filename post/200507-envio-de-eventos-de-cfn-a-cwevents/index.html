@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.68.3" />
+<meta name="generator" content="Hugo 0.55.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -75,7 +75,7 @@
         "height": 60
       }
     },
-    "description": "\x3cp\x3eRecientemente ha surgido la necesidad de notificar por correo valores como respuesta a la creación de recursos vía CloudFormation. En la notificación debe incluirse información relativa a los recursos creados en el \x3cem\x3estack\x3c\/em\x3e (como el ARN de un rol o el ID de un \x3cem\x3esecurity group\x3c\/em\x3e).\x3c\/p\x3e\n\x3cp\x3eLa solución habitual\/recomendada es ejecutar una Lambda que envíe un mensaje a un \x3cem\x3etopic\x3c\/em\x3e SNS configurado para enviar un correo con el ARN del rol recién creado, por ejemplo. En la \x3ca href=\x22https:\/\/aws.amazon.com\/premiumsupport\/knowledge-center\/cloudformation-rollback-email\/\x22\x3epropuesta del Soporte Premium de AWS\x3c\/a\x3e se lanza la notificación cuando se produce un \x3cem\x3erollback\x3c\/em\x3e del \x3cem\x3estack\x3c\/em\x3e, pero se podría modificar el evento para lanzar la notificación con \x3ccode\x3eCREATION_COMPLETE\x3c\/code\x3e.\x3c\/p\x3e\n\x3cp\x3eEn este ejemplo se envía el error que se ha producido en la notificación, pero podría modificarse para incluir alguna otra información generada en tiempo de ejecución (como el ARN o ID de algún recurso creado por el \x3cem\x3estack\x3c\/em\x3e).\x3c\/p\x3e\n\x3cp\x3eSin embargo en este artículo exploro una vía alternativa que, en mi opinión, puede ser más adecuada en determinados escenarios y que permite no tener que escribir ni una línea de código (usando sólo servicios de AWS).\x3c\/p\x3e"
+    "description": "\x3cp\x3eRecientemente ha surgido la necesidad de notificar por correo valores como respuesta a la creación de recursos vía CloudFormation. En la notificación debe incluirse información relativa a los recursos creados en el \x3cem\x3estack\x3c\/em\x3e (como el ARN de un rol o el ID de un \x3cem\x3esecurity group\x3c\/em\x3e).\x3c\/p\x3e\n\n\x3cp\x3eLa solución habitual\/recomendada es ejecutar una Lambda que envíe un mensaje a un \x3cem\x3etopic\x3c\/em\x3e SNS configurado para enviar un correo con el ARN del rol recién creado, por ejemplo. En la \x3ca href=\x22https:\/\/aws.amazon.com\/premiumsupport\/knowledge-center\/cloudformation-rollback-email\/\x22\x3epropuesta del Soporte Premium de AWS\x3c\/a\x3e se lanza la notificación cuando se produce un \x3cem\x3erollback\x3c\/em\x3e del \x3cem\x3estack\x3c\/em\x3e, pero se podría modificar el evento para lanzar la notificación con \x3ccode\x3eCREATION_COMPLETE\x3c\/code\x3e.\x3c\/p\x3e\n\n\x3cp\x3eEn este ejemplo se envía el error que se ha producido en la notificación, pero podría modificarse para incluir alguna otra información generada en tiempo de ejecución (como el ARN o ID de algún recurso creado por el \x3cem\x3estack\x3c\/em\x3e).\x3c\/p\x3e\n\n\x3cp\x3eSin embargo en este artículo exploro una vía alternativa que, en mi opinión, puede ser más adecuada en determinados escenarios y que permite no tener que escribir ni una línea de código (usando sólo servicios de AWS).\x3c\/p\x3e"
   }
 </script>
 
@@ -121,136 +121,199 @@
   </div>
 
   <div class="article-body"><p>Recientemente ha surgido la necesidad de notificar por correo valores como respuesta a la creación de recursos vía CloudFormation. En la notificación debe incluirse información relativa a los recursos creados en el <em>stack</em> (como el ARN de un rol o el ID de un <em>security group</em>).</p>
+
 <p>La solución habitual/recomendada es ejecutar una Lambda que envíe un mensaje a un <em>topic</em> SNS configurado para enviar un correo con el ARN del rol recién creado, por ejemplo. En la <a href="https://aws.amazon.com/premiumsupport/knowledge-center/cloudformation-rollback-email/">propuesta del Soporte Premium de AWS</a> se lanza la notificación cuando se produce un <em>rollback</em> del <em>stack</em>, pero se podría modificar el evento para lanzar la notificación con <code>CREATION_COMPLETE</code>.</p>
+
 <p>En este ejemplo se envía el error que se ha producido en la notificación, pero podría modificarse para incluir alguna otra información generada en tiempo de ejecución (como el ARN o ID de algún recurso creado por el <em>stack</em>).</p>
+
 <p>Sin embargo en este artículo exploro una vía alternativa que, en mi opinión, puede ser más adecuada en determinados escenarios y que permite no tener que escribir ni una línea de código (usando sólo servicios de AWS).</p>
+
 <p>Al provisionar recursos mediante CloudFormation, puedes &ldquo;traspasar&rdquo; información de un <em>stack</em> a otro mediante los <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/outputs-section-structure.html"><em>outputs</em></a>.</p>
+
 <p>Me gustaría poder extender esta capacidad de reaccionar a la creación de recursos en CloudFormation manteniendo la capacidad de traspasar información sobre los recursos creados, sin tener que escribir código.</p>
+
 <h2 id="la-situación-ideal">La situación ideal</h2>
+
 <p>Lanzo una plantilla de CloudFormation y se generan unos cuantos recursos.</p>
+
 <p>A medida que CloudFormation procesa la plantilla se lanzan una serie de eventos. Estos eventos está asociados al estado de creación de los diferentes recursos descritos en la plantilla. En esta página de la documentación de CloudFormation tienes un ejemplo de los eventos que se generan para una plantilla que crea un <em>bucket</em> S3: <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-cfn-listing-event-history.html">Viewing Stack Event History</a>.</p>
+
 <p>Parecería lógico que estos eventos se recogiesen en CloudWatch Events, con la información que ofrece el comando <code>aws cloudformation describe-stack-events --stack-name myteststack</code>:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{
-    <span style="color:#f92672">&#34;StackEvents&#34;</span>: [
+
+<pre><code class="language-json">{
+    &quot;StackEvents&quot;: [
         {
-            <span style="color:#f92672">&#34;StackId&#34;</span>: <span style="color:#e6db74">&#34;arn:aws:cloudformation:us-east-2:123456789012:stack/myteststack/466df9e0-0dff-08e3-8e2f-5088487c4896&#34;</span>,
-            <span style="color:#f92672">&#34;EventId&#34;</span>: <span style="color:#e6db74">&#34;af67ef60-0b8f-11e3-8b8a-500150b352e0&#34;</span>,
-            <span style="color:#f92672">&#34;ResourceStatus&#34;</span>: <span style="color:#e6db74">&#34;CREATE_COMPLETE&#34;</span>,
-            <span style="color:#f92672">&#34;ResourceType&#34;</span>: <span style="color:#e6db74">&#34;AWS::CloudFormation::Stack&#34;</span>,
-            <span style="color:#f92672">&#34;Timestamp&#34;</span>: <span style="color:#e6db74">&#34;2013-08-23T01:02:30.070Z&#34;</span>,
-            <span style="color:#f92672">&#34;StackName&#34;</span>: <span style="color:#e6db74">&#34;myteststack&#34;</span>,
-            <span style="color:#f92672">&#34;PhysicalResourceId&#34;</span>: <span style="color:#e6db74">&#34;arn:aws:cloudformation:us-east-2:123456789012:stack/myteststack/a69442d0-0b8f-11e3-8b8a-500150b352e0&#34;</span>,
-            <span style="color:#f92672">&#34;LogicalResourceId&#34;</span>: <span style="color:#e6db74">&#34;myteststack&#34;</span>
+            &quot;StackId&quot;: &quot;arn:aws:cloudformation:us-east-2:123456789012:stack/myteststack/466df9e0-0dff-08e3-8e2f-5088487c4896&quot;,
+            &quot;EventId&quot;: &quot;af67ef60-0b8f-11e3-8b8a-500150b352e0&quot;,
+            &quot;ResourceStatus&quot;: &quot;CREATE_COMPLETE&quot;,
+            &quot;ResourceType&quot;: &quot;AWS::CloudFormation::Stack&quot;,
+            &quot;Timestamp&quot;: &quot;2013-08-23T01:02:30.070Z&quot;,
+            &quot;StackName&quot;: &quot;myteststack&quot;,
+            &quot;PhysicalResourceId&quot;: &quot;arn:aws:cloudformation:us-east-2:123456789012:stack/myteststack/a69442d0-0b8f-11e3-8b8a-500150b352e0&quot;,
+            &quot;LogicalResourceId&quot;: &quot;myteststack&quot;
         },
         {
-            <span style="color:#f92672">&#34;StackId&#34;</span>: <span style="color:#e6db74">&#34;arn:aws:cloudformation:us-east-2:123456789012:stack/myteststack/466df9e0-0dff-08e3-8e2f-5088487c4896&#34;</span>,
-            <span style="color:#f92672">&#34;EventId&#34;</span>: <span style="color:#e6db74">&#34;S3Bucket-CREATE_COMPLETE-1377219748025&#34;</span>,
-            <span style="color:#f92672">&#34;ResourceStatus&#34;</span>: <span style="color:#e6db74">&#34;CREATE_COMPLETE&#34;</span>,
-            <span style="color:#f92672">&#34;ResourceType&#34;</span>: <span style="color:#e6db74">&#34;AWS::S3::Bucket&#34;</span>,
-            <span style="color:#f92672">&#34;Timestamp&#34;</span>: <span style="color:#e6db74">&#34;2013-08-23T01:02:28.025Z&#34;</span>,
-            <span style="color:#f92672">&#34;StackName&#34;</span>: <span style="color:#e6db74">&#34;myteststack&#34;</span>,
-            <span style="color:#f92672">&#34;ResourceProperties&#34;</span>: <span style="color:#e6db74">&#34;{\&#34;AccessControl\&#34;:\&#34;PublicRead\&#34;}&#34;</span>,
-            <span style="color:#f92672">&#34;PhysicalResourceId&#34;</span>: <span style="color:#e6db74">&#34;myteststack-s3bucket-jssofi1zie2w&#34;</span>,
-            <span style="color:#f92672">&#34;LogicalResourceId&#34;</span>: <span style="color:#e6db74">&#34;S3Bucket&#34;</span>
+            &quot;StackId&quot;: &quot;arn:aws:cloudformation:us-east-2:123456789012:stack/myteststack/466df9e0-0dff-08e3-8e2f-5088487c4896&quot;,
+            &quot;EventId&quot;: &quot;S3Bucket-CREATE_COMPLETE-1377219748025&quot;,
+            &quot;ResourceStatus&quot;: &quot;CREATE_COMPLETE&quot;,
+            &quot;ResourceType&quot;: &quot;AWS::S3::Bucket&quot;,
+            &quot;Timestamp&quot;: &quot;2013-08-23T01:02:28.025Z&quot;,
+            &quot;StackName&quot;: &quot;myteststack&quot;,
+            &quot;ResourceProperties&quot;: &quot;{\&quot;AccessControl\&quot;:\&quot;PublicRead\&quot;}&quot;,
+            &quot;PhysicalResourceId&quot;: &quot;myteststack-s3bucket-jssofi1zie2w&quot;,
+            &quot;LogicalResourceId&quot;: &quot;S3Bucket&quot;
         },
-<span style="color:#960050;background-color:#1e0010">...</span>
-</code></pre></div><p>Los diferentes eventos para todos los recursos de un <em>stack</em> se podrían agrupar de manera similar a como se agrupan los logs en un <em>flow log group name</em> en CloudWatch Logs, por ejemplo.</p>
+...
+</code></pre>
+
+<p>Los diferentes eventos para todos los recursos de un <em>stack</em> se podrían agrupar de manera similar a como se agrupan los logs en un <em>flow log group name</em> en CloudWatch Logs, por ejemplo.</p>
+
 <p>Pero no; <strong>CloudFormation no envía los eventos a CloudWatch Events</strong>, como puedes comprobar en <a href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/EventTypes.html">CloudWatch Events Event Examples From Supported Services</a> (en Mayo 2020).</p>
+
 <h3 id="la-recomendación-oficial">La recomendación oficial</h3>
+
 <p>Suponiendo que no sigues la sugerencia de crear una función Lambda que reaccione a los eventos de CloudFormation,  Amazon recomienda <a href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/EventTypes.html#events-for-services-not-listed">usar el registro que dejan las llamadas de CloudFormation en CloudTrail</a>.</p>
+
 <p>El problema de esta solución es que lo que queda registrado en CloudTrail es la llamada a la API y en un gran número de casos, esta llamada no devuelve información sobre el recurso creado. Esto es debido a que la llamada a la API devuelve un identificador de la petición. Este identificador se puede usar en llamadas posteriores -por ejemplo, desde la CLI- para revisar el estado de la petición, pero no ayuda en el caso de CloudFormation (que devuelve el <em>request id</em> para el <em>stack</em>).</p>
+
 <h2 id="buscando-una-alternativa">Buscando una alternativa</h2>
+
 <p>Del mismo modo que los valores de salida de un <em>stack</em> se encuentran disponibles para otros <em>stacks</em>, queremos que otros servicios a parte de CloudFormation puedan usarlos (como parámetros de entrada) cuando son creados o actualizados sin necesidad de escribir una Lambda.</p>
+
 <p>Como decía al principio, la opción más directa es usar una función Lambda. Pero en mi opinión esto añade una nueva pieza al <em>workflow</em> que debemos mantener. Además, por un lado tendremos la plantilla de CloudFormation y por otro el código de la Lambda&hellip;</p>
+
 <p>Como solución alternativa -sin necesidad de tener que escribir una línea de código- tienes otro servicio de AWS que <strong><a href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/EventTypes.html#SSM-Parameter-Store-event-types">sí que envía eventos a CloudWatch Events</a></strong>: <em>Systems Manager Parameter Store</em>.</p>
+
 <h2 id="systems-manager-parameter-store">Systems Manager Parameter Store</h2>
+
 <p>La ventaja de Systems Manager Parameter Store es que podemos introducir el valor de una referencia a un recurso de CloudFormation <strong>directamente desde CloudFormation</strong>, ya que el parámetro en Parameter Store es, simplemente, un recurso más gestionado por el <em>stack</em>.</p>
+
 <p>Usando como base el ejemplo en la documentación sobre parámetros de Parameter Store en CloudFormation <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ssm-parameter.html#aws-resource-ssm-parameter--examples">AWS Systems Manager Parameter String Example</a>, podemos usar como valor del parámetro una referencia a otro recurso creado en el mismo <em>stack</em> (o como <em>output</em> de otros <em>stacks</em>):</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#66d9ef">Resources</span>:
-    <span style="color:#66d9ef">BasicParameter</span>:
-        <span style="color:#66d9ef">Type</span>: AWS::SSM::Parameter
-        <span style="color:#66d9ef">Properties</span>:
-            <span style="color:#66d9ef">Name</span>: EC2InstanceId
-            <span style="color:#66d9ef">Type</span>: String
-            <span style="color:#66d9ef">Value</span>: !Ref EC2Instance
-            <span style="color:#66d9ef">Description</span>: Target instance for running date command.
-</code></pre></div><h2 id="entrando-a-fondo-en-los-detalles">Entrando a fondo en los detalles</h2>
+
+<pre><code class="language-yaml">Resources:
+    BasicParameter:
+        Type: AWS::SSM::Parameter
+        Properties:
+            Name: EC2InstanceId
+            Type: String
+            Value: !Ref EC2Instance
+            Description: Target instance for running date command.
+</code></pre>
+
+<h2 id="entrando-a-fondo-en-los-detalles">Entrando a fondo en los detalles</h2>
+
 <p>Los anglosajones dicen <a href="https://en.wikipedia.org/wiki/The_devil_is_in_the_detail">The devil is in the detail</a> cuando una cosa parece sencilla al principio pero que, al entrar al detalle, es mucho más complicada de lo que parece inicialmente.</p>
+
 <p>Algo parecido pasa en este caso; aunque los eventos asociados a la modificación de un parámetro en Parameter Store sí que se envían a CloudWatch Events, no contienen toda la información en la que estoy interesado; en particular, <strong>no registran el valor del parámetro</strong>, sólo su nombre. Esto limita la información que podemos traspasar a otros servicios.</p>
+
 <p>En el <a href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/EventTypes.html#SSM-Parameter-Store-event-types">evento de ejemplo que ofrece AWS</a> para la actualización de un parámetro, vemos que en <code>$.detail</code> aparece el campo <code>&quot;name&quot;: &quot;foo&quot;</code>, pero no hay un campo para <code>&quot;value&quot;</code>:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{
-  <span style="color:#f92672">&#34;version&#34;</span>: <span style="color:#e6db74">&#34;0&#34;</span>,
-  <span style="color:#f92672">&#34;id&#34;</span>: <span style="color:#e6db74">&#34;9547ef2d-3b7e-4057-b6cb-5fdf09ee7c8f&#34;</span>,
-  <span style="color:#f92672">&#34;detail-type&#34;</span>: <span style="color:#e6db74">&#34;Parameter Store Change&#34;</span>,
-  <span style="color:#f92672">&#34;source&#34;</span>: <span style="color:#e6db74">&#34;aws.ssm&#34;</span>,
-  <span style="color:#f92672">&#34;account&#34;</span>: <span style="color:#e6db74">&#34;123456789012&#34;</span>,
-  <span style="color:#f92672">&#34;time&#34;</span>: <span style="color:#e6db74">&#34;2017-05-22T16:44:48Z&#34;</span>,
-  <span style="color:#f92672">&#34;region&#34;</span>: <span style="color:#e6db74">&#34;us-east-1&#34;</span>,
-  <span style="color:#f92672">&#34;resources&#34;</span>: [
-    <span style="color:#e6db74">&#34;arn:aws:ssm:us-east-1:123456789012:parameter/foo&#34;</span>
+
+<pre><code class="language-json">{
+  &quot;version&quot;: &quot;0&quot;,
+  &quot;id&quot;: &quot;9547ef2d-3b7e-4057-b6cb-5fdf09ee7c8f&quot;,
+  &quot;detail-type&quot;: &quot;Parameter Store Change&quot;,
+  &quot;source&quot;: &quot;aws.ssm&quot;,
+  &quot;account&quot;: &quot;123456789012&quot;,
+  &quot;time&quot;: &quot;2017-05-22T16:44:48Z&quot;,
+  &quot;region&quot;: &quot;us-east-1&quot;,
+  &quot;resources&quot;: [
+    &quot;arn:aws:ssm:us-east-1:123456789012:parameter/foo&quot;
   ],
-  <span style="color:#f92672">&#34;detail&#34;</span>: {
-    <span style="color:#f92672">&#34;operation&#34;</span>: <span style="color:#e6db74">&#34;Update&#34;</span>,
-    <span style="color:#f92672">&#34;name&#34;</span>: <span style="color:#e6db74">&#34;foo&#34;</span>,
-    <span style="color:#f92672">&#34;type&#34;</span>: <span style="color:#e6db74">&#34;String&#34;</span>,
-    <span style="color:#f92672">&#34;description&#34;</span>: <span style="color:#e6db74">&#34;Sample Parameter&#34;</span>
+  &quot;detail&quot;: {
+    &quot;operation&quot;: &quot;Update&quot;,
+    &quot;name&quot;: &quot;foo&quot;,
+    &quot;type&quot;: &quot;String&quot;,
+    &quot;description&quot;: &quot;Sample Parameter&quot;
   }
 }
-</code></pre></div><h2 id="volviendo--más-o-menos--a-la-recomendación-oficial">Volviendo -más o menos- a la recomendación oficial</h2>
+</code></pre>
+
+<h2 id="volviendo-más-o-menos-a-la-recomendación-oficial">Volviendo -más o menos- a la recomendación oficial</h2>
+
 <p>Systems Manager Parameter Store envía información asociada al evento a CloudWatch Events; además, la llamada a la API de Parameter Store queda registrada en CloudTrail.</p>
+
 <p>Revisando la información contenida en CloudTrail para la acción <code>PutParameter</code> realizada en Parameter Store, observamos que incluye una sección llamada <code>requestParameters</code> que contiene tanto el <strong>nombre</strong> del parámetro como el <strong>valor</strong> del parámetro:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json"><span style="color:#960050;background-color:#1e0010">...</span>
-<span style="color:#e6db74">&#34;requestParameters&#34;</span><span style="color:#960050;background-color:#1e0010">:</span> {
-    <span style="color:#f92672">&#34;name&#34;</span>: <span style="color:#e6db74">&#34;myparameter&#34;</span>,
-    <span style="color:#f92672">&#34;description&#34;</span>: <span style="color:#e6db74">&#34;Test parameter&#34;</span>,
-    <span style="color:#f92672">&#34;value&#34;</span>: <span style="color:#e6db74">&#34;LAB-test-parameter&#34;</span>,
-    <span style="color:#f92672">&#34;type&#34;</span>: <span style="color:#e6db74">&#34;String&#34;</span>,
-    <span style="color:#f92672">&#34;overwrite&#34;</span>: <span style="color:#66d9ef">true</span>,
-    <span style="color:#f92672">&#34;tier&#34;</span>: <span style="color:#e6db74">&#34;Standard&#34;</span>
-}<span style="color:#960050;background-color:#1e0010">,</span>
-<span style="color:#960050;background-color:#1e0010">...</span>
-</code></pre></div><p>Es decir, que usando en el evento de CloudTrail sí que tenemos la información que pasamos desde CloudFormation.</p>
+
+<pre><code class="language-json">...
+&quot;requestParameters&quot;: {
+    &quot;name&quot;: &quot;myparameter&quot;,
+    &quot;description&quot;: &quot;Test parameter&quot;,
+    &quot;value&quot;: &quot;LAB-test-parameter&quot;,
+    &quot;type&quot;: &quot;String&quot;,
+    &quot;overwrite&quot;: true,
+    &quot;tier&quot;: &quot;Standard&quot;
+},
+...
+</code></pre>
+
+<p>Es decir, que usando en el evento de CloudTrail sí que tenemos la información que pasamos desde CloudFormation.</p>
+
 <h2 id="reaccionando-a-la-creación-del-recurso-sin-lambdas">Reaccionando a la creación del recurso (sin Lambdas!)</h2>
+
 <p>Recuerda que el objetivo es poder hacer &ldquo;algo&rdquo; con los valores &ldquo;dinámicos&rdquo; generados durante la creación de un recurso vía CloudFormation (como el ARN de un rol o el ID de un <em>security group</em>). Ese &ldquo;algo&rdquo; que queremos hacer es pasar la información a otro servicio de AWS (por ejemplo, enviando un mensaje a un <em>topic</em> SNS).</p>
+
 <p>La clave de usar el registro en CloudWatch Events es que podemos definir reglas que actúen cuando se produce una modificación de un determinado recurso. Para ello, en la plantilla de CloudFormation tenemos la creación del recurso en sí, que produce un identificador en el que estamos interesados. Como CloudFormation no envía la información a CloudWatch Events, no me entero de que se ha creado un recurso concreto ni cuales son sus propiedades. Sin embargo, dentro del <em>stack</em> este valor está disponible como una <em>referencia</em>, que puedo usar en la propia plantilla en la creación de otro recurso; un parámetro de Parameter Store.</p>
+
 <p>Como hemos visto hasta ahora, aunque Parameter Store envía el evento a CloudWatch Events, no contiene el valor del parámetro. La información sí que se encuentra en el registro en CloudTrail de la creación/actualización del recurso vía API desde CloudFormation.</p>
+
 <p>Siguiendo las instrucciones en <a href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/Create-CloudWatch-Events-CloudTrail-Rule.html">Creating a CloudWatch Events Rule That Triggers on an AWS API Call Using AWS CloudTrail</a>, podemos definir una regla que reaccione cuando se produce un determinado evento.</p>
+
 <p>En patrón del evento sería del tipo:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{
-  <span style="color:#f92672">&#34;source&#34;</span>: [
-    <span style="color:#e6db74">&#34;aws.ssm&#34;</span>
+
+<pre><code class="language-json">{
+  &quot;source&quot;: [
+    &quot;aws.ssm&quot;
   ],
-  <span style="color:#f92672">&#34;detail-type&#34;</span>: [
-    <span style="color:#e6db74">&#34;AWS API Call via CloudTrail&#34;</span>
+  &quot;detail-type&quot;: [
+    &quot;AWS API Call via CloudTrail&quot;
   ],
-  <span style="color:#f92672">&#34;detail&#34;</span>: {
-    <span style="color:#f92672">&#34;eventSource&#34;</span>: [
-      <span style="color:#e6db74">&#34;ssm.amazonaws.com&#34;</span>
+  &quot;detail&quot;: {
+    &quot;eventSource&quot;: [
+      &quot;ssm.amazonaws.com&quot;
     ],
-    <span style="color:#f92672">&#34;eventName&#34;</span>: [
-      <span style="color:#e6db74">&#34;PutParameter&#34;</span>
+    &quot;eventName&quot;: [
+      &quot;PutParameter&quot;
     ]
   }
 }
-</code></pre></div><p>Si organizas los parámetros en Parameter Store como las &ldquo;rutas&rdquo; en &ldquo;carpetas&rdquo; de los objetos en S3 (o de los <em>path</em> para entidades en IAM), puedes crear reglas específicas para la modificación de parámetros de un determinado proyecto, incluyendo en el patrón de eventos los <em>resources</em> que debe monitorizar una regla: <a href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/CloudWatchEventsandEventPatterns.html">Event Patterns in CloudWatch Events</a>.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json"><span style="color:#960050;background-color:#1e0010">...</span>
-<span style="color:#e6db74">&#34;resources&#34;</span><span style="color:#960050;background-color:#1e0010">:</span> [
-    <span style="color:#e6db74">&#34;arn:aws:ssm:${region}:${accountID}:parameter/${idProyecto}&#34;</span>
-]<span style="color:#960050;background-color:#1e0010">,</span>
-<span style="color:#960050;background-color:#1e0010">...</span>
-</code></pre></div><p>Con la regla configurada en CloudWatch Events, cada vez que se modifique un parámetro compatible con la lista de recursos incluidos en la regla, se dispara una acción.</p>
+</code></pre>
+
+<p>Si organizas los parámetros en Parameter Store como las &ldquo;rutas&rdquo; en &ldquo;carpetas&rdquo; de los objetos en S3 (o de los <em>path</em> para entidades en IAM), puedes crear reglas específicas para la modificación de parámetros de un determinado proyecto, incluyendo en el patrón de eventos los <em>resources</em> que debe monitorizar una regla: <a href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/CloudWatchEventsandEventPatterns.html">Event Patterns in CloudWatch Events</a>.</p>
+
+<pre><code class="language-json">...
+&quot;resources&quot;: [
+    &quot;arn:aws:ssm:${region}:${accountID}:parameter/${idProyecto}&quot;
+],
+...
+</code></pre>
+
+<p>Con la regla configurada en CloudWatch Events, cada vez que se modifique un parámetro compatible con la lista de recursos incluidos en la regla, se dispara una acción.</p>
+
 <h2 id="enviando-una-notificación-desde-cloudwatch-events">Enviando una notificación desde CloudWatch Events</h2>
+
 <p>Con CloudWatch Events puedes elegir (en estos momentos, en Mayo del 2020) 17 <em>targets</em> para realizar una acción en respuesta a la detección de un evento concreto. Puedes consultar la lista completa de <em>targets</em> en <a href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/WhatIsCloudWatchEvents.html">What Is Amazon CloudWatch Events?</a>.</p>
+
 <p>Siguiendo con nuestro escenario inicial de notificar sobre la creación de un determinado recurso, tenemos la opción de ejecutar una Lambda, reiniciar una instancia EC2 o enviar el mensaje a un bus de eventos de otra cuenta AWS. Puedes consultar una lista de <a href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/CloudWatch-Events-Tutorials.html">CloudWatch Events Tutorials</a>.</p>
+
 <p>Al configurar el <em>target</em>, podemos incluir la información del evento tal y como lo hemos recibido en CloudWatch, sólo una parte del evento e incluso transformar el contenido del evento recibido para adecuarlo a lo que espera el servicio configurado como destino.</p>
-<h2 id="diagrama-de-la-solución-aka-tldr">Diagrama de la solución (aka TL;DR)</h2>
+
+<h2 id="diagrama-de-la-solución-aka-tl-dr">Diagrama de la solución (aka TL;DR)</h2>
+
 <p>En el siguiente diagrama se muestra el esquema de las acciones que hemos configurado para poder obtener una notificación con información de un evento creado vía CloudFormation.</p>
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
+
+<figure>
+  <amp-img src="https://onthedock.github.io/images/200507/reacting-to-resource-creation-on-cfn-wout-lambdas.svg" alt="Envío de eventos de CloudFormation a CloudWatch Events images/200507/reacting-to-resource-creation-on-cfn-wout-lambdas.svg" width=640 height=400 layout="responsive"></amp-img>
+  
+</figure>
+
 <p>La clave del mecanismo es poder enviar un evento con la información que necesitamos a CloudWatch desde CloudFormation. Usamos la capacidad de &ldquo;disparar&rdquo; acciones basándose en determinadas reglas como sustituto de la ejecución de una Lambda.</p>
+
 <p>En cierto modo, usamos la creación/modificación de un parámetro en Parameter Store como alternativa basada en CloudFormation a la llamada a la API para <a href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/AddEventsPutEvents.html"><code>PutEvents</code></a>, lo que nos permite crear un &ldquo;evento personalizado&rdquo; desde CloudFormation (más o menos).</p>
+
 <h2 id="conclusión-y-siguientes-pasos">Conclusión y siguientes pasos</h2>
+
 <p>Usando Parameter Store para almacenar información de los recursos creados mediante una plantilla de CloudFormation podemos evitar el uso de Lambda para traspasar información a otros servicios.</p>
+
 <p>He probado el concepto a través de la consola mientras realizaba la &ldquo;investigación&rdquo; del contenido de los eventos generados por los servicios y funciona. Queda pendiente realizar una prueba &ldquo;real&rdquo; con la creación de un recurso vía CloudFormation.</p></div>
 
   <aside class="p-share">

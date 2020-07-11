@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.68.3" />
+<meta name="generator" content="Hugo 0.55.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 <link rel="alternate" type="application/rss+xml" title="RSS" href="/tags/kubernetes/index.xml"> 
@@ -117,7 +117,9 @@
     </header>
   </div>
   <div class="article-body summary"><p>Después de estabilizar el clúster, el siguiente paso es poner en marcha aplicaciones. Pero ¿qué es exactamente lo que hay que desplegar?: ¿<em>pods</em>?, ¿<em>replication controllers</em>?, ¿<em>deployments</em>?</p>
+
 <p>Muchos artículos empiezan creando el fichero YAML para un <em>pod</em>, después construyen el <em>replication controller</em>, etc&hellip; Sin embargo, revisando la documentación oficial, crear <em>pods</em> directamente en Kubernetes no tiene mucho sentido.</p>
+
 <p>En este artículo intento determinar qué objetos son los que deben crearse en un clúster Kubernetes.</p></div>
   <footer class="readmore"><a href="https://onthedock.github.io/post/170528-revision-de-conceptos/">LEER M&Aacute;S</a></footer>
 </article>
@@ -137,7 +139,9 @@
     </header>
   </div>
   <div class="article-body summary"><p>En la entrada <a href="https://onthedock.github.io/post/170506-troubleshooting-kubernetes-ii/">Troubleshooting Kubernetes (II)</a> encontré restos de la instalación de <a href="https://github.com/coreos/flannel">Flannel</a> en la Raspberry Pi. Eliminé los <em>pods</em> que hacían referencia a Flannel y conseguí que el nodo <strong>k2</strong> no se volviera a colgar.</p>
+
 <p>Sin embargo, el problema sigue dándose en el nodo <strong>k3</strong>.</p>
+
 <p>Revisando el contenido de <code>/var/lib/kubernetes/pods/</code> he visto que algunos <em>pods</em> hacían referencia, todavía, a Flannel.</p></div>
   <footer class="readmore"><a href="https://onthedock.github.io/post/170517-el-nodo-k3-sigue-colgandose-por-culpa-de-flannel/">LEER M&Aacute;S</a></footer>
 </article>
@@ -157,6 +161,7 @@
     </header>
   </div>
   <div class="article-body summary"><p>Sigo con el <em>troubleshooting</em> del <em>cuelgue</em> de los nodos sobre Raspberry Pi 3 del clúster.</p>
+
 <p>Ayer estuve <em>haciendo limpieza</em> siguiendo <em>vagamente</em> la recomendación de <a href="https://github.com/kubernetes/kubernetes/issues/43593#issuecomment-288899231">esta respuesta</a> en el hilo <a href="https://github.com/kubernetes/kubernetes/issues/43593#issuecomment-288899231">Kubernetes memory consumption explosion</a>.</p></div>
   <footer class="readmore"><a href="https://onthedock.github.io/post/170506-troubleshooting-kubernetes-ii/">LEER M&Aacute;S</a></footer>
 </article>
@@ -176,6 +181,7 @@
     </header>
   </div>
   <div class="article-body summary"><p>Una de las cosas que más me sorprenden de Kubernetes es que es necesario instalar una <em>capa de red</em> sobre el clúster.</p>
+
 <p>En el caso concreto del que he obtenido las <em>capturas de pantalla</em>, el clúster corre sobre máquinas virtuales con Debian Jessie.</p></div>
   <footer class="readmore"><a href="https://onthedock.github.io/post/170505-instala-weave-net-en-kubernetes-1.6/">LEER M&Aacute;S</a></footer>
 </article>
@@ -195,6 +201,7 @@
     </header>
   </div>
   <div class="article-body summary"><p>Tras la alegría inicial pensando que la configuración de <em>rsyslog</em> era la causante de los cuelgues de las dos RPi 3 (<a href="https://onthedock.github.io/post/170430-k3-colgado-de-nuevo/">El nodo k3 del clúster colgado de nuevo</a>), pasadas unas horas los dos nodos <strong>k2</strong> y <strong>k3</strong> han dejado de responder de nuevo.</p>
+
 <p>Así que es el momento de atacar el problema de forma algo más sistemática. Para ello seguiré las instrucciones que proporcina la página de Kubernetes <a href="https://kubernetes.io/docs/tasks/debug-application-cluster/debug-cluster/">Troubleshooting Clusters</a>.</p></div>
   <footer class="readmore"><a href="https://onthedock.github.io/post/170430-troubleshooting-kubernetes-i/">LEER M&Aacute;S</a></footer>
 </article>
@@ -232,8 +239,11 @@
     </header>
   </div>
   <div class="article-body summary"><p>En la entrada anterior <a href="https://onthedock.github.io/post/170430-multiples-mensajes-action-17-suspended/">Múltiples mensajes &lsquo;action 17 suspended&rsquo; en los logs</a> comentaba que estaba a la espera de obtener resultados; después de apenas unas horas, ya los tengo: <strong>k3</strong> se ha vuelto a <em>colgar</em> mientras que <strong>k2</strong> no.</p>
+
 <p>Este resultado parece demostrar que la mala configuración de <em>rsyslog</em> es la causante de los <em>cuelgues</em> de las RPi 3 en el clúster de Kubernetes.</p>
+
 <p><strong>Actualización</strong>: El nodo <strong>k2</strong> sobre RPi3 sigue colgándose :(</p>
+
 <p><strong>Actualización II</strong>: <a href="https://onthedock.github.io/post/170506-troubleshooting-kubernetes-ii/">Parece solucionado</a></p></div>
   <footer class="readmore"><a href="https://onthedock.github.io/post/170430-k3-colgado-de-nuevo/">LEER M&Aacute;S</a></footer>
 </article>
@@ -253,6 +263,7 @@
     </header>
   </div>
   <div class="article-body summary"><p>Al lanzar la inicialización del clúster con <code>kubeadm init</code> en Debian Jessie, las comprobaciones inciales indican que no se encuentran los <em>cgroups</em> para la memoria (échale un vistazo al artículo <a href="https://onthedock.github.io/post/170417-instalacion-de-kubernetes-falla-missing-cgroups-memory/">La instalación de Kubernetes falla en Debian Jessie (missing cgroups: memory)</a>). Los <em>cgroups</em> son una de las piezas fundamentales en las que se basa Docker para <em>aislar</em> los procesos de los contenedores, por lo que la inicialización del clúster de Kubernetes se detiene.</p>
+
 <p>La solución es tan sencilla como habilitar los <em>cgroups</em> durante el arranque.</p></div>
   <footer class="readmore"><a href="https://onthedock.github.io/post/170422-solucion-al-error-missing-cgroups-memory-en-debian-jessie/">LEER M&Aacute;S</a></footer>
 </article>
