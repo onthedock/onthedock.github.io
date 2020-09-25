@@ -11,13 +11,13 @@
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
 
-<link rel="canonical" href="https://onthedock.github.io/post/190101-amazon-linux/">
+<link rel="canonical" href="https://onthedock.github.io/post/200925-resetear-el-password-del-admin-en-gitea/">
 
 
     
     <link href="https://fonts.googleapis.com/css?family=Lobster|Lato:400,700" rel="stylesheet">
     
-    <title>Probando Amazon Linux 2 - On The Dock</title>
+    <title>Resetear el password de administrador en Gitea - On The Dock</title>
     <style amp-boilerplate>body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}</style><noscript><style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style></noscript>
     <script async src="https://cdn.ampproject.org/v0.js"></script>
     
@@ -26,22 +26,22 @@
 <script async custom-element="amp-ad" src="https://cdn.ampproject.org/v0/amp-ad-0.1.js"></script>
 
     
-<meta name="description" content="&lt;!-- raw HTML omitted --&gt;&lt;!-- raw HTML omitted --&gt;&lt;p&gt;Como dice el chiste, las nubes están compuestas básicamente de servidores Linux. Una de estas nubes, Amazon Web Services (AWS), ofrece su propia distribución de Linux: &lt;a href=&#34;http://amazonlinux.com&#34;&gt;Amazon Linux 2&lt;/a&gt;.&lt;/p&gt;">
+<meta name="description" content="&lt;p&gt;Uno de los problemas de los entornos de laboratorio es que son &lt;em&gt;fungibles&lt;/em&gt;, casi de &amp;ldquo;usar y tirar&amp;rdquo;. Un efecto colateral es que cosas como las credenciales no se gestionan correctamente, se pone la primera que se nos ocurre y después&amp;hellip; pues no hay manera de volver a acceder.&lt;/p&gt;&lt;p&gt;En mi caso me he encontrado en esta situación con Gitea y en esta entrada voy a documentar cómo establecer una nueva contraseña para el usuario &lt;em&gt;administrador&lt;/em&gt;.&lt;/p&gt;">
 
-<meta property="og:title" content="Probando Amazon Linux 2 - On The Dock">
+<meta property="og:title" content="Resetear el password de administrador en Gitea - On The Dock">
 <meta property="og:type" content="article">
-<meta property="og:url" content="https://onthedock.github.io/post/190101-amazon-linux/">
-<meta property="og:image" content="https://onthedock.github.io/images/190101/amazonlinux.png">
+<meta property="og:url" content="https://onthedock.github.io/post/200925-resetear-el-password-del-admin-en-gitea/">
+<meta property="og:image" content="https://onthedock.github.io/images/gitea.jpg">
 <meta property="og:site_name" content="On The Dock">
-<meta property="og:description" content="&lt;!-- raw HTML omitted --&gt;&lt;!-- raw HTML omitted --&gt;&lt;p&gt;Como dice el chiste, las nubes están compuestas básicamente de servidores Linux. Una de estas nubes, Amazon Web Services (AWS), ofrece su propia distribución de Linux: &lt;a href=&#34;http://amazonlinux.com&#34;&gt;Amazon Linux 2&lt;/a&gt;.&lt;/p&gt;">
+<meta property="og:description" content="&lt;p&gt;Uno de los problemas de los entornos de laboratorio es que son &lt;em&gt;fungibles&lt;/em&gt;, casi de &amp;ldquo;usar y tirar&amp;rdquo;. Un efecto colateral es que cosas como las credenciales no se gestionan correctamente, se pone la primera que se nos ocurre y después&amp;hellip; pues no hay manera de volver a acceder.&lt;/p&gt;&lt;p&gt;En mi caso me he encontrado en esta situación con Gitea y en esta entrada voy a documentar cómo establecer una nueva contraseña para el usuario &lt;em&gt;administrador&lt;/em&gt;.&lt;/p&gt;">
 <meta property="og:locale" content="ja_JP">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="On The Dock">
-<meta name="twitter:url" content="https://onthedock.github.io/post/190101-amazon-linux/">
-<meta name="twitter:title" content="Probando Amazon Linux 2 - On The Dock">
-<meta name="twitter:description" content="&lt;!-- raw HTML omitted --&gt;&lt;!-- raw HTML omitted --&gt;&lt;p&gt;Como dice el chiste, las nubes están compuestas básicamente de servidores Linux. Una de estas nubes, Amazon Web Services (AWS), ofrece su propia distribución de Linux: &lt;a href=&#34;http://amazonlinux.com&#34;&gt;Amazon Linux 2&lt;/a&gt;.&lt;/p&gt;">
-<meta name="twitter:image" content="https://onthedock.github.io/images/190101/amazonlinux.png">
+<meta name="twitter:url" content="https://onthedock.github.io/post/200925-resetear-el-password-del-admin-en-gitea/">
+<meta name="twitter:title" content="Resetear el password de administrador en Gitea - On The Dock">
+<meta name="twitter:description" content="&lt;p&gt;Uno de los problemas de los entornos de laboratorio es que son &lt;em&gt;fungibles&lt;/em&gt;, casi de &amp;ldquo;usar y tirar&amp;rdquo;. Un efecto colateral es que cosas como las credenciales no se gestionan correctamente, se pone la primera que se nos ocurre y después&amp;hellip; pues no hay manera de volver a acceder.&lt;/p&gt;&lt;p&gt;En mi caso me he encontrado en esta situación con Gitea y en esta entrada voy a documentar cómo establecer una nueva contraseña para el usuario &lt;em&gt;administrador&lt;/em&gt;.&lt;/p&gt;">
+<meta name="twitter:image" content="https://onthedock.github.io/images/gitea.jpg">
 
 
 <script type="application/ld+json">
@@ -52,15 +52,15 @@
       "@type": "WebPage",
       "@id":"https:\/\/onthedock.github.io\/"
     },
-    "headline": "Probando Amazon Linux 2 - On The Dock",
+    "headline": "Resetear el password de administrador en Gitea - On The Dock",
     "image": {
       "@type": "ImageObject",
-      "url": "https:\/\/onthedock.github.io\/images\/190101\/amazonlinux.png",
+      "url": "https:\/\/onthedock.github.io\/images\/gitea.jpg",
       "height": 800,
       "width": 800
     },
-    "datePublished": "2019-01-01T16:43:58JST",
-    "dateModified": "2019-01-01T16:43:58JST",
+    "datePublished": "2020-09-25T21:31:30JST",
+    "dateModified": "2020-09-25T21:31:30JST",
     "author": {
       "@type": "Person",
       "name": "On The Dock"
@@ -75,7 +75,7 @@
         "height": 60
       }
     },
-    "description": "\x3c!-- raw HTML omitted --\x3e\n\x3c!-- raw HTML omitted --\x3e\n\x3cp\x3eComo dice el chiste, las nubes están compuestas básicamente de servidores Linux. Una de estas nubes, Amazon Web Services (AWS), ofrece su propia distribución de Linux: \x3ca href=\x22http:\/\/amazonlinux.com\x22\x3eAmazon Linux 2\x3c\/a\x3e.\x3c\/p\x3e"
+    "description": "\x3cp\x3eUno de los problemas de los entornos de laboratorio es que son \x3cem\x3efungibles\x3c\/em\x3e, casi de \x26ldquo;usar y tirar\x26rdquo;. Un efecto colateral es que cosas como las credenciales no se gestionan correctamente, se pone la primera que se nos ocurre y después\x26hellip; pues no hay manera de volver a acceder.\x3c\/p\x3e\n\x3cp\x3eEn mi caso me he encontrado en esta situación con Gitea y en esta entrada voy a documentar cómo establecer una nueva contraseña para el usuario \x3cem\x3eadministrador\x3c\/em\x3e.\x3c\/p\x3e"
   }
 </script>
 
@@ -104,14 +104,14 @@
     <main>
       
 <div class="l-container">
-  <article class="single article-b4fa6645c244835f679427bd29ec86fb">
+  <article class="single article-b81d424b8eb3bb8c288fe36d23387788">
   <div class="header-wrapper">
-    <a href="https://onthedock.github.io/post/190101-amazon-linux/" class="thumbnail" title="Probando Amazon Linux 2"></a>
+    <a href="https://onthedock.github.io/post/200925-resetear-el-password-del-admin-en-gitea/" class="thumbnail" title="Resetear el password de administrador en Gitea"></a>
     <header class="article-header">
       <div class="clearfix">
-        <h1 class="title">Probando Amazon Linux 2</h1>
+        <h1 class="title">Resetear el password de administrador en Gitea</h1>
         <ul class="p-facts">
-          <li><time datetime="2019-01-01T16:43:58JST">1 Jan 2019</time></li>
+          <li><time datetime="2020-09-25T21:31:30JST">25 Sep 2020</time></li>
           <li><a href="https://onthedock.github.io/post/">post</a></li>
           
           <li>Xavier Aznar</li>
@@ -120,92 +120,137 @@
     </header>
   </div>
 
-  <div class="article-body"><!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
-<p>Como dice el chiste, las nubes están compuestas básicamente de servidores Linux. Una de estas nubes, Amazon Web Services (AWS), ofrece su propia distribución de Linux: <a href="http://amazonlinux.com">Amazon Linux 2</a>.</p>
-<p>Puedes descargar Amazon Linux 2 en forma de máquina virtual para diferentes plataformas desde <a href="https://cdn.amazonlinux.com/os-images/latest/">OS Images</a>, como Hyper-V, KVM, VirtualBox o VMware, así como en forma de contenedor.</p>
-<p>Yo he descargado la imagen de disco para Hyper-V, de unos 640MB (comprimida). El zip contiene un disco en formato VHDX que descomprimido ocupa algo más de 26GB. He creado una máquina y le he pinchado el disco.</p>
-<h1 id="antes-de-arrancar-configura-cloud-init">Antes de arrancar, configura Cloud-Init</h1>
-<p>Esta máquina virtual tiene Cloud-Init preinstalado, por lo que necesitas proporcionar información de configuración (para crear un usuario y poder acceder, por ejemplo).</p>
-<p>AWS ofrece una imagen <code>seed.iso</code> que puedes descargar desde el enlace <a href="https://cdn.amazonlinux.com/os-images/latest/">OS Images</a>, aunque quizás la mejor opción es seguir las instrucciones de <a href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/amazon-linux-2-virtual-machine.html">Running Amazon Linux 2 as a Virtual Machine On-Premises</a> para crear una imagen ISO con tus ficheros personalizados. También puedes echarle un vistazo al artículo que escribí al respecto: <a href="https://onthedock.github.io/post/181009-cloud-init/">Automatizando la personalización de máquinas virtuales con cloud-init</a>.</p>
-<p>En mi caso, he creado una imagen con la configuración de red estática y con una contraseña definida para el usuario creado por defecto <code>ec2-user</code>. Además, finalizo la configuración de red para poder &ldquo;despinchar&rdquo; la imagen ISO más adelante. Los ficheros son:</p>
-<h2 id="fichero-user-data">Fichero <code>user-data</code></h2>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yml" data-lang="yml"><span style="color:#75715e">#cloud-config</span>
-<span style="color:#75715e"># vim:syntax=yaml</span>
-<span style="color:#66d9ef">users</span>:
-<span style="color:#75715e"># A user by the name ec2-user is created in the image by default.</span>
-  - default
-<span style="color:#75715e"># The following entry creates user1 and assigns a plain text password.</span>
-
-<span style="color:#66d9ef">chpasswd</span>:
-  <span style="color:#66d9ef">list</span>: <span style="color:#e6db74">|
-</span><span style="color:#e6db74">    ec2-user:sup3rs3cr3tp@55w0rd:)</span>
-<span style="color:#75715e"># In the above line, do not add any spaces after &#39;ec2-user:&#39;.</span>
-
-<span style="color:#75715e"># NOTE: Cloud-init applies network settings on every boot by default. To retain network settings from first</span>
-<span style="color:#66d9ef">boot, uncomment the following ‘write_files’ section</span>:
-<span style="color:#75715e">#write_files:</span>
-  - <span style="color:#66d9ef">path</span>: /etc/cloud/cloud.cfg.d/80_disable_network_after_firstboot.cfg
-    <span style="color:#66d9ef">content</span>: <span style="color:#e6db74">|
-</span><span style="color:#e6db74">      # Disable network configuration after first boot</span>
-      <span style="color:#66d9ef">network</span>:
-        <span style="color:#66d9ef">config</span>: disabled
-</code></pre></div><h2 id="fichero-meta-data">Fichero <code>meta-data</code></h2>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yml" data-lang="yml"><span style="color:#66d9ef">local-hostname</span>: amazonlinux.onprem
-<span style="color:#75715e"># eth0 is the default network interface enabled in the image. You can configure static network settings with an entry like the following.</span>
-<span style="color:#66d9ef">network-interfaces</span>: <span style="color:#e6db74">|
-</span><span style="color:#e6db74">  auto eth0</span>
-  iface eth0 inet static
-  address <span style="color:#ae81ff">192.168.1.225</span>
-  network <span style="color:#ae81ff">192.168.1.0</span>
-  netmask <span style="color:#ae81ff">255.255.255.0</span>
-  broadcast <span style="color:#ae81ff">192.168.1.255</span>
-  gateway <span style="color:#ae81ff">192.168.1.1</span>
-</code></pre></div><h1 id="sin-conectividad-de-red">Sin conectividad de red</h1>
-<p>La VM configura la disposición del teclado en inglés, lo que complica encontrar algunos caracteres, como el <code>-</code> necesario para acceder al sistema con el usuario <code>ec2-user</code>.</p>
-<blockquote>
-<p>El <code>-</code> se encuentra en la tecla <code>'</code> del teclado con la distribución en español.</p>
-</blockquote>
-<p>Tras acceder localmente a la máquina virtual he descubierto que la configuración de red no se ha aplicado (o eso parece). Lanzando <code>ip add show</code> se puede comprobar que la tarjeta de red <code>eth0</code> sólo tiene configurada IPv6.</p>
-<p>He intentado <em>levantar</em> el interfaz mediante <code>sudo systemctl start network</code> y he obtenido un mensaje de error. Siguiendo las intrucciones mostradas, he consultado <code>sudo systemctl status network</code>, donde se muestra, entre otras cosas <strong>vendor preset: disabled</strong>.</p>
-<p>Tras buscar en Google, descubro que en RHEL/CentOS, la red viene desactivada por defecto y <a href="https://unix.stackexchange.com/questions/468058/systemctl-status-shows-vendor-preset-disabled">hay que activarla explícitamente</a>.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">sudo systemctl enable network
-sudo systemctl start network
-</code></pre></div><h1 id="haciendo-las-cosas-bien-actualización">Haciendo las cosas bien (actualización)</h1>
-<p>En la primera prueba con Amazon Linux 2 cometí el error de especificar una IP que estaba siendo usada por una máquina Vagrant. Al tener una IP duplicada, la máquina virtual con Amazon Linux 2 no podía levantar la red.</p>
-<p>Una vez descubierto el problema (que documento paso a paso más abajo), he repetido los pasos necesarios para arrancar una máquina virtual con Amazon Linux 2 y no he tenido ningún problema.</p>
-<p>Es necesario habilitar la red después del primer arranque, aunque esto es una característica que Amazon Linux 2 hereda de RHEL/CentOS.</p>
-<p>Una vez habilitado el servicio de red, se puede <em>levantar</em> sin más.</p>
-<blockquote>
-<p>El problema para levantar la red se deben a que la IP que había especificado en el fichero de configuración <code>meta-data</code> estaba duplicada :(</p>
-</blockquote>
-<h2 id="diagnosticando-el-problema-de-red-spoiler-ip-duplicada">Diagnosticando el problema de red (spoiler: IP duplicada)</h2>
-<p>De nuevo, error, aunque esta vez <strong>Failed to start LSB: Bring up/down</strong>. El <a href="https://unix.stackexchange.com/questions/278155/network-service-failed-to-start-lsb-bring-up-down-networking-centos-7">primer resultado en Google</a> apunta a que la causa puede ser que no existe el fichero <code>/etc/sysconfig/network</code>.</p>
-<blockquote>
-<p>La <code>/</code> se encuentra en la tecla <code>-</code> del teclado con la distribución en español.</p>
-</blockquote>
-<p>Verifico que el fichero existe y que contiene información autoconfigurada por Cloud-Init:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ cat /etc/sysconfig/network
-...
-NETWORKING<span style="color:#f92672">=</span>yes
-</code></pre></div><p>La información en el <a href="https://unix.stackexchange.com/questions/396096/centos-7-network-service-failed-to-start-because-systemd-starts-the-daemon-too">segundo resultado de la búsqueda en Google</a> apunta a editar el fichero <code>/etc/sysconfig/network-scripts/ifcfg-eno1</code> (en mi caso, <code>ifcfg-eth0</code>).</p>
-<p>Revisando el contenido del fichero, todo parece OK&hellip; Hasta que me he dado cuenta que parece que había algún problema con la IP que estaba usando (estaba usando una IP asignada por DHCP a una máquina Vagrant). Solucionado el error, he podido levantar la red sin más problemas.</p>
-<blockquote>
-<p>Para salir de Vi, es necesario usar los &ldquo;dos puntos&rdquo;, <code>:</code> que se encuentran en el tecla <code>Ñ</code> (Shift+Ñ) del teclado con la distribución en español.</p>
-</blockquote>
-<p>Para acabar con la configuración de la máquina, he intentado acceder remotamente (usando PuTTY).
-He obtenido el mensaje de error indicando que no se permitía el acceso usando la autenticación basada en usuario y contraseña. Amazon Linux 2 viene configurado <em>de fábrica</em> sólo con autenticación basada en claves SSH.</p>
-<p>La solución pasa por editar el fichero <code>/etc/ssh/sshd_config</code> y descomentar la línea con el parámetro <strong>PasswordAuthentication</strong>, que debe estar en <code>yes</code>. Un reinicio más tarde del servicio de SSH (<code>sudo service restart sshd</code>), ya puedo acceder a la máquina con Amazon Linux 2 en remoto.</p>
-<h1 id="amazon-linux-2-sí-o-no">Amazon Linux 2 ¿sí o no?</h1>
-<p>Amazon Linux 2 es una distribución de Linux que usa el gestor de paquetes YUM, basada en RHEL <!-- raw HTML omitted --><a href="https://en.wikipedia.org/wiki/Amazon_Machine_Image#Amazon_Linux_AMI">Wikipedia</a><!-- raw HTML omitted -->. Personalmente, casi siempre he trabajado con distribuciones Debian o derivadas, por lo que me siento <em>más cómodo</em> con este tipo de distribuciones.</p>
-<p>A parte de este detalle puramente personal, Amazon Linux 2 es una distribución Linux que está estrechamente ligada a AWS. Por tanto, el caso más habitual de uso sería el de usarlo como base en máquinas <em>on premise</em> para desarrollo que después se vayan a desplegar sobre AWS. Otra opción sería para aquellos operadores que deban gestionar despliegues sobre AWS para familiarizarse con detalles específicos de esta distribución en entornos híbridos (<em>cloud público + on premises</em> pero dando prioridad a los despliegues en la nube).</p>
-<p>Al tratarse de una distribución específica para AWS, hay que valorar las ventajas de disponer de las herramientas de línea de comando de AWS integradas, las actualizaciones y revisiones de seguridad frecuentes que proporciona Amazon y el soporte extendido frente a otras opciones menos específicas como Debian/Ubuntu/CentOS.</p></div>
+  <div class="article-body"><p>Uno de los problemas de los entornos de laboratorio es que son <em>fungibles</em>, casi de &ldquo;usar y tirar&rdquo;. Un efecto colateral es que cosas como las credenciales no se gestionan correctamente, se pone la primera que se nos ocurre y después&hellip; pues no hay manera de volver a acceder.</p>
+<p>En mi caso me he encontrado en esta situación con Gitea y en esta entrada voy a documentar cómo establecer una nueva contraseña para el usuario <em>administrador</em>.</p>
+<p>La solución se apunta, sin demasiado detalle, en la entrada <a href="https://stackoverflow.com/questions/49057558/change-admin-password-in-gitea">Change admin password in Gitea</a> de StackOverflow.</p>
+<p>El cambio de la contraseña de un usuario en Gitea se puede realizar usando comando <code>gitea</code> desde la línea de comando. Puedes obtener más información de la <a href="https://docs.gitea.io/en-us/command-line/">documentación oficial</a>. Esta herramienta está orientada a la gestión de Gitea desde cli, cosa que en un entorno <em>containerizado</em> no es habitual.</p>
+<p>En este caso, sin embargo, es la solución a nuestro problema.</p>
+<h2 id="tldr">TL;DR</h2>
+<ul>
+<li>Conectar al contenedor de Gitea (abrir una <em>shell</em> interactiva)</li>
+</ul>
+<p>[OPCIONAL] Si no conoces el nombre del usuario administrador:</p>
+<ul>
+<li>Conecta a la base de datos del backend de Gitea (en mi caso, SQLite) <code>sqlite3 /data/gitea/gitea.db</code></li>
+<li>Muestra las tablas para obtener dónde se guardan los usuarios <code>sqlite&gt; .tables</code></li>
+<li>Muestra todos los usuarios <code>select * from user;</code></li>
+<li>Finaliza el cliente de la base de datos <code>.exit</code></li>
+</ul>
+<p>Realiza el cambio de password:</p>
+<ul>
+<li>Usar `gitea admin change-password &ndash;username $GITEA_FIRST_USER &ndash;password $COMPLEX_PASSWORD</li>
+</ul>
+<h2 id="acceso-al-contenedor-de-gitea">Acceso al contenedor de Gitea</h2>
+<p>El primer paso para acceder a la herramienta <code>gitea</code> es conectar al contenedor de Gitea. En mi caso Gitea está corriendo en un contenedor sobre Docker.</p>
+<p>Para iniciar una sesión interactiva en el contenedor:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">docker exec -it gitea /bin/sh
+</code></pre></div><p>El comando <code>docker exec</code> inicia el proceso como <code>root</code>. Si lanzamos el comando <code>gitea</code> como <code>root</code>:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">/ <span style="color:#75715e"># gitea change-password</span>
+2020/09/25 19:21:19 cmd/web.go:107:runWeb<span style="color:#f92672">()</span> <span style="color:#f92672">[</span>I<span style="color:#f92672">]</span> Starting Gitea on PID: <span style="color:#ae81ff">67</span>
+2020/09/25 19:21:19 ...s/setting/setting.go:898:NewContext<span style="color:#f92672">()</span> <span style="color:#f92672">[</span>F<span style="color:#f92672">]</span> Expect user <span style="color:#e6db74">&#39;git&#39;</span> but current user is: root
+</code></pre></div><p>Como vemos en el mensaje de error, el proceso de <code>gitea</code> se ejecuta como <code>git</code>, no como <code>root</code>.</p>
+<h2 id="cambiar-al-usuario-git">Cambiar al usuario <code>git</code></h2>
+<p>Cambiamos al usuario <code>git</code> mediante <code>su git</code>:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">/ <span style="color:#75715e"># su git</span>
+bash-5.0$ gitea change-password --username admin
+2020/09/25 19:22:15 cmd/web.go:107:runWeb<span style="color:#f92672">()</span> <span style="color:#f92672">[</span>I<span style="color:#f92672">]</span> Starting Gitea on PID: <span style="color:#ae81ff">82</span>
+2020/09/25 19:22:15 ...dules/setting/git.go:93:newGit<span style="color:#f92672">()</span> <span style="color:#f92672">[</span>I<span style="color:#f92672">]</span> Git Version: 2.26.2, Wire Protocol Version <span style="color:#ae81ff">2</span> Enabled
+2020/09/25 19:22:15 routers/init.go:119:GlobalInit<span style="color:#f92672">()</span> <span style="color:#f92672">[</span>T<span style="color:#f92672">]</span> AppPath: /usr/local/bin/gitea
+2020/09/25 19:22:15 routers/init.go:120:GlobalInit<span style="color:#f92672">()</span> <span style="color:#f92672">[</span>T<span style="color:#f92672">]</span> AppWorkPath: /usr/local/bin
+2020/09/25 19:22:15 routers/init.go:121:GlobalInit<span style="color:#f92672">()</span> <span style="color:#f92672">[</span>T<span style="color:#f92672">]</span> Custom path: /data/gitea
+2020/09/25 19:22:15 routers/init.go:122:GlobalInit<span style="color:#f92672">()</span> <span style="color:#f92672">[</span>T<span style="color:#f92672">]</span> Log path: /data/gitea/log
+bash-5.0$
+</code></pre></div><p>En primer lugar, el comando que intento ejecutar es incorrecto; debería ser <code>gitea admin change-password ...</code>, y no <code>gitea change-password ...</code>. <code>gitea</code> no devuelve ningún error, por lo que no me he dado cuenta al momento :(</p>
+<h2 id="lanzar-el-comando-con-la-sintaxis-correcta">Lanzar el comando con la sintaxis correcta</h2>
+<p>Una vez identificado el error, he lanzado el comando <em>correcto</em>:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">bash-5.0$ gitea admin change-password --username admin --password admin
+2020/09/25 19:25:36 ...dules/setting/git.go:93:newGit<span style="color:#f92672">()</span> <span style="color:#f92672">[</span>I<span style="color:#f92672">]</span> Git Version: 2.26.2, Wire Protocol Version <span style="color:#ae81ff">2</span> Enabled
+2020/09/25 19:25:36 main.go:111:main<span style="color:#f92672">()</span> <span style="color:#f92672">[</span>F<span style="color:#f92672">]</span> Failed to run app with <span style="color:#f92672">[</span>gitea admin change-password --username admin --password admin<span style="color:#f92672">]</span>: Password does not meet complexity requirements
+</code></pre></div><p>Ok, vamos avanzando; ahora la contraseña no verifica los requerimientos de complejidad&hellip; Solo que no <strong>sólo</strong> se trata de eso :( (Drama&hellip; Supense&hellip; Misterio!)</p>
+<h2 id="complejidad-del-password">Complejidad del password</h2>
+<p>El password de Gitea debe cumplir la siguiente política de complejidad:</p>
+<ul>
+<li>Longitud mínima de 6 caracteres</li>
+<li>Como mínimo, una mayúscula</li>
+<li>Como mínimo, una minúscula</li>
+<li>Como mínimo, un dígito</li>
+<li>Como mínimo, un caracter especial (puntuación, paréntesis, comillas, etc)</li>
+</ul>
+<h2 id="el-usuario-admin-no-existe">El usuario <code>admin</code> no existe</h2>
+<p>Si intentamos establecer una contraseña que cumpla con la política de complejidad:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">bash-5.0$ gitea admin change-password --username admin --password Gitea@dm1n
+2020/09/25 19:26:06 ...dules/setting/git.go:93:newGit<span style="color:#f92672">()</span> <span style="color:#f92672">[</span>I<span style="color:#f92672">]</span> Git Version: 2.26.2, Wire Protocol Version <span style="color:#ae81ff">2</span> Enabled
+2020/09/25 19:26:06 ...m.io/xorm/core/db.go:286:afterProcess<span style="color:#f92672">()</span> <span style="color:#f92672">[</span>I<span style="color:#f92672">]</span> <span style="color:#f92672">[</span>SQL<span style="color:#f92672">]</span> SELECT <span style="color:#e6db74">`</span>id<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>lower_name<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>name<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>full_name<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>email<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>keep_email_private<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>email_notifications_preference<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>passwd<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>passwd_hash_algo<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>must_change_password<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>login_type<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>login_source<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>login_name<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>type<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>location<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>website<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>rands<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>salt<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>language<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>description<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>created_unix<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>updated_unix<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>last_login_unix<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>last_repo_visibility<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>max_repo_creation<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>is_active<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>is_admin<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>is_restricted<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>allow_git_hook<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>allow_import_local<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>allow_create_organization<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>prohibit_login<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>avatar<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>avatar_email<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>use_custom_avatar<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>num_followers<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>num_following<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>num_stars<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>num_repos<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>num_teams<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>num_members<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>visibility<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>repo_admin_change_team_access<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>diff_view_style<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>theme<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>keep_activity_private<span style="color:#e6db74">`</span> FROM <span style="color:#e6db74">`</span>user<span style="color:#e6db74">`</span> WHERE <span style="color:#e6db74">`</span>lower_name<span style="color:#e6db74">`</span><span style="color:#f92672">=</span>? LIMIT <span style="color:#ae81ff">1</span> <span style="color:#f92672">[</span>admin<span style="color:#f92672">]</span> - 4.073239ms
+2020/09/25 19:26:06 main.go:111:main<span style="color:#f92672">()</span> <span style="color:#f92672">[</span>F<span style="color:#f92672">]</span> Failed to run app with <span style="color:#f92672">[</span>gitea admin change-password --username admin --password Gitea@dm1n<span style="color:#f92672">]</span>: user does not exist <span style="color:#f92672">[</span>uid: 0, name: admin, keyid: 0<span style="color:#f92672">]</span>
+</code></pre></div><p>Como se ve en la última línea: <code>user does not exist</code> 0_0.</p>
+<h2 id="averiguando-el-nombre-del-administrador-de-gitea">Averiguando el nombre del administrador de Gitea</h2>
+<p>El primer usuario creado en Gitea se considera el administrador de la aplicación. Podemos elegir el nombre que más nos guste para este &ldquo;primer usuario&rdquo;, al que se le asigna el perfil de <em>administrador</em> de Gitea.</p>
+<p>El nombre del usuario se guarda en la base de datos usada por Gitea; en esta instalación <em>de laboratorio</em> usé SQLite (la opción por defecto). Afortunadamente, el contenedor dispone del cliente <code>sqlite3</code> para poder gestionar la base de datos por defecto.</p>
+<p>La base de datos de SQLite para Gitea se encuentra en <code>/data/gitea/gitea.db</code>:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">bash-5.0$ cd /data/gitea
+bash-5.0$ ls
+avatars   conf      gitea.db  indexers  log       queues    sessions
+</code></pre></div><p>Usamos el cliente para <em>conectar</em> con la base de datos <code>gitea.bd</code>:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">bash-5.0$ sqlite3 gitea.db
+SQLite version 3.32.1 2020-05-25 16:19:56
+Enter <span style="color:#e6db74">&#34;.help&#34;</span> <span style="color:#66d9ef">for</span> usage hints.
+sqlite&gt;
+</code></pre></div><p>Es recomendable usar el comando <code>.help</code> para revisar los comandos del <code>sqlite3</code> o consultar la documentación oficial de la <em>cli</em> en <a href="https://sqlite.org/cli.html">Command Line Shell For SQLite</a>.</p>
+<p>Listamos las tablas existentes:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">codesqlite&gt; .tables
+access                     oauth2_authorization_code
+access_token               oauth2_grant
+action                     oauth2_session
+attachment                 org_user
+collaboration              protected_branch
+comment                    public_key
+commit_status              pull_request
+deleted_branch             reaction
+deploy_key                 release
+email_address              repo_indexer_status
+email_hash                 repo_redirect
+external_login_user        repo_topic
+follow                     repo_unit
+gpg_key                    repository
+gpg_key_import             review
+hook_task                  star
+issue                      stopwatch
+issue_assignees            task
+issue_dependency           team
+issue_label                team_repo
+issue_user                 team_unit
+issue_watch                team_user
+label                      topic
+language_stat              tracked_time
+lfs_lock                   two_factor
+lfs_meta_object            u2f_registration
+login_source               upload
+milestone                  user  &lt;------ Esta es la tabla que nos interesa
+mirror                     user_open_id
+notice                     version
+notification               watch
+oauth2_application         webhook
+sqlite&gt;
+</code></pre></div><p>Una vez identificada la tabla:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">sqlite&gt; <span style="color:#66d9ef">select</span> * from user;
+1|operador|operador<span style="color:#f92672">||</span>xavi.aznar@lab.home|0|enabled|d8917a3943346bf5e1a7c1cf6fca30416e4ec7216f3deb0ee6ed0e4053d1379e1e359fb11d234e876ed45991d6d58b2deec2|pbkdf2|0|0|0<span style="color:#f92672">||</span>0<span style="color:#f92672">||</span>|IW49lxdyrg|K6VRG0hkTv|en-US<span style="color:#f92672">||</span>1594831480|1601062014|1601062014|0|-1|1|1|0|0|0|1|0|085ce2e18edda712bc2b4ebcd2ae2134|xavi.aznar@lab.home|0|0|0|0|1|0|0|0|0<span style="color:#f92672">||</span>gitea|<span style="color:#ae81ff">0</span>
+sqlite&gt;
+</code></pre></div><p>Ahora ya tenemos el nombre del usuario creado; en mi caso, <code>operador</code>.</p>
+<p>Salimos del cliente <code>sqlite3</code> con <code>.exit</code>.</p>
+<h2 id="cambiando-el-password-ahora-sí">Cambiando el password (ahora sí)</h2>
+<p>Finalmente, lanzamos el comando de cambio de password para el usuario <code>operador</code> (con una contraseña que verifica la política de complejidad):</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">bash-5.0$ gitea admin change-password --username operador --password Gitea@dm1n
+2020/09/25 19:26:19 ...dules/setting/git.go:93:newGit<span style="color:#f92672">()</span> <span style="color:#f92672">[</span>I<span style="color:#f92672">]</span> Git Version: 2.26.2, Wire Protocol Version <span style="color:#ae81ff">2</span> Enabled
+2020/09/25 19:26:19 ...m.io/xorm/core/db.go:286:afterProcess<span style="color:#f92672">()</span> <span style="color:#f92672">[</span>I<span style="color:#f92672">]</span> <span style="color:#f92672">[</span>SQL<span style="color:#f92672">]</span> SELECT <span style="color:#e6db74">`</span>id<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>lower_name<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>name<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>full_name<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>email<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>keep_email_private<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>email_notifications_preference<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>passwd<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>passwd_hash_algo<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>must_change_password<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>login_type<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>login_source<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>login_name<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>type<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>location<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>website<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>rands<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>salt<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>language<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>description<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>created_unix<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>updated_unix<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>last_login_unix<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>last_repo_visibility<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>max_repo_creation<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>is_active<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>is_admin<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>is_restricted<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>allow_git_hook<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>allow_import_local<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>allow_create_organization<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>prohibit_login<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>avatar<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>avatar_email<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>use_custom_avatar<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>num_followers<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>num_following<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>num_stars<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>num_repos<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>num_teams<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>num_members<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>visibility<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>repo_admin_change_team_access<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>diff_view_style<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>theme<span style="color:#e6db74">`</span>, <span style="color:#e6db74">`</span>keep_activity_private<span style="color:#e6db74">`</span> FROM <span style="color:#e6db74">`</span>user<span style="color:#e6db74">`</span> WHERE <span style="color:#e6db74">`</span>lower_name<span style="color:#e6db74">`</span><span style="color:#f92672">=</span>? LIMIT <span style="color:#ae81ff">1</span> <span style="color:#f92672">[</span>operador<span style="color:#f92672">]</span> - 4.473739ms
+operador<span style="color:#960050;background-color:#1e0010">&#39;</span>s password has been successfully updated!
+</code></pre></div><h2 id="conclusión">Conclusión</h2>
+<p>Aunque se trata de un entorno de laboratorio, es esencial <strong>documentar</strong> todos los detalles (usuarios, contraseñas, permisos, etc).</p></div>
 
   <aside class="p-share">
-  <a href="http://twitter.com/intent/tweet?url=https%3a%2f%2fonthedock.github.io%2fpost%2f190101-amazon-linux%2f&text=Probando%20Amazon%20Linux%202&tw_p=tweetbutton" title="Twitterでシェア" class="tw" target="_blank" rel="nofollow"></a>
-  <a href="http://www.facebook.com/sharer.php?u=https%3a%2f%2fonthedock.github.io%2fpost%2f190101-amazon-linux%2f&t=Probando%20Amazon%20Linux%202" title="Facebookでシェア" class="fb" target="_blank" rel="nofollow"></a>
-  <a href="http://line.me/R/msg/text/?Probando%20Amazon%20Linux%202 https%3a%2f%2fonthedock.github.io%2fpost%2f190101-amazon-linux%2f" title="LINEでシェア" class="ln" target="_blank" rel="nofollow"></a>
-  <a href="http://b.hatena.ne.jp/add?mode=confirm&url=https%3a%2f%2fonthedock.github.io%2fpost%2f190101-amazon-linux%2f&title=Probando%20Amazon%20Linux%202" title="はてなブックマーク" class="ht" target="_blank" rel="nofollow"></a>
+  <a href="http://twitter.com/intent/tweet?url=https%3a%2f%2fonthedock.github.io%2fpost%2f200925-resetear-el-password-del-admin-en-gitea%2f&text=Resetear%20el%20password%20de%20administrador%20en%20Gitea&tw_p=tweetbutton" title="Twitterでシェア" class="tw" target="_blank" rel="nofollow"></a>
+  <a href="http://www.facebook.com/sharer.php?u=https%3a%2f%2fonthedock.github.io%2fpost%2f200925-resetear-el-password-del-admin-en-gitea%2f&t=Resetear%20el%20password%20de%20administrador%20en%20Gitea" title="Facebookでシェア" class="fb" target="_blank" rel="nofollow"></a>
+  <a href="http://line.me/R/msg/text/?Resetear%20el%20password%20de%20administrador%20en%20Gitea https%3a%2f%2fonthedock.github.io%2fpost%2f200925-resetear-el-password-del-admin-en-gitea%2f" title="LINEでシェア" class="ln" target="_blank" rel="nofollow"></a>
+  <a href="http://b.hatena.ne.jp/add?mode=confirm&url=https%3a%2f%2fonthedock.github.io%2fpost%2f200925-resetear-el-password-del-admin-en-gitea%2f&title=Resetear%20el%20password%20de%20administrador%20en%20Gitea" title="はてなブックマーク" class="ht" target="_blank" rel="nofollow"></a>
   <div class="searchbar">
       <iframe src="https://duckduckgo.com/search.html?site=https://onthedock.github.io/&prefill=Busca en este sitio usando DuckDuckGo" style="width: 25em;height: 48px" frameborder="0"></iframe>
     </div>
@@ -219,7 +264,7 @@ He obtenido el mensaje de error indicando que no se permitía el acceso usando l
         
         <li itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb"><a href="https://onthedock.github.io/post/" itemprop="url"><span itemprop="title">post</span></a></li>
         
-        <li>Probando Amazon Linux 2</li>
+        <li>Resetear el password de administrador en Gitea</li>
       </ol>
 
       
@@ -231,6 +276,8 @@ He obtenido el mensaje de error indicando que no se permitía el acceso usando l
           <ul>
             
             <li><a href="https://onthedock.github.io/categories/dev/">dev</a></li>
+            
+            <li><a href="https://onthedock.github.io/categories/ops/">ops</a></li>
             
           </ul>
         </li>
@@ -245,9 +292,9 @@ He obtenido el mensaje de error indicando que no se permitía el acceso usando l
             
             <li><a href="https://onthedock.github.io/tags/linux/">linux</a></li>
             
-            <li><a href="https://onthedock.github.io/tags/aws/">aws</a></li>
+            <li><a href="https://onthedock.github.io/tags/docker/">docker</a></li>
             
-            <li><a href="https://onthedock.github.io/tags/cloud-init/">cloud-init</a></li>
+            <li><a href="https://onthedock.github.io/tags/gitea/">gitea</a></li>
             
           </ul>
         </li>
@@ -285,22 +332,7 @@ He obtenido el mensaje de error indicando que no se permitía el acceso usando l
   <section>
     <header><span>Latests</span></header>
     <ul class="p-articles thin">
-      <li><article class="li sm article-b81d424b8eb3bb8c288fe36d23387788">
-  <div class="header-wrapper">
-    <a href="https://onthedock.github.io/post/200925-resetear-el-password-del-admin-en-gitea/" class="thumbnail" title="Resetear el password de administrador en Gitea"></a>
-    <header class="article-header">
-      <div class="clearfix">
-        <h2 class="title"><a href="https://onthedock.github.io/post/200925-resetear-el-password-del-admin-en-gitea/">Resetear el password de administrador en Gitea</a></h2>
-        <ul class="p-facts">
-          <li><time datetime="2020-09-25T21:31:30JST">25 Sep 2020</time></li>
-          <li><a href="https://onthedock.github.io/post/">post</a></li>
-          
-        </ul>
-      </div>
-    </header>
-  </div>
-</article>
-</li><li><article class="li sm article-0626a0be459395ce9ead913f3f08adc4">
+      <li><article class="li sm article-0626a0be459395ce9ead913f3f08adc4">
   <div class="header-wrapper">
     <a href="https://onthedock.github.io/post/200923-configurar-hostname-en-k3os/" class="thumbnail" title="Configurar hostname en K3OS"></a>
     <header class="article-header">
@@ -338,6 +370,21 @@ He obtenido el mensaje de error indicando que no se permitía el acceso usando l
         <h2 class="title"><a href="https://onthedock.github.io/post/200725-modificar-rango-dhcp-virtualbox/">Modificar el rango del DHCP de Virtualbox</a></h2>
         <ul class="p-facts">
           <li><time datetime="2020-07-25T20:14:05JST">25 Jul 2020</time></li>
+          <li><a href="https://onthedock.github.io/post/">post</a></li>
+          
+        </ul>
+      </div>
+    </header>
+  </div>
+</article>
+</li><li><article class="li sm article-36c4d422ca047b8a471571c76b65d6c6">
+  <div class="header-wrapper">
+    <a href="https://onthedock.github.io/post/200711-gitmoji-emojis-en-los-mensajes-de-commit/" class="thumbnail" title="gitmoji: Emojis en los mensajes de commit"></a>
+    <header class="article-header">
+      <div class="clearfix">
+        <h2 class="title"><a href="https://onthedock.github.io/post/200711-gitmoji-emojis-en-los-mensajes-de-commit/">gitmoji: Emojis en los mensajes de commit</a></h2>
+        <ul class="p-facts">
+          <li><time datetime="2020-07-11T08:01:56JST">11 Jul 2020</time></li>
           <li><a href="https://onthedock.github.io/post/">post</a></li>
           
         </ul>
