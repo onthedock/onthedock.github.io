@@ -129,10 +129,10 @@
 <p>Gitea requiere una base de datos para almacenar información de configuración de la aplicación. Esta base de datos puede ser MySQL o PostgreSQL, aunque como primera aproximación, usaré la base de datos SQLite <em>embebida</em>.</p>
 <p>Esto significa que en esta iteración (voy por la segunda) todavía no puedo escalar el número de réplicas.</p>
 <blockquote>
-<p>En la primera iteración me concentré en la <em>kubernetización</em> de la aplicación; en la segunda, en automatizar completamente el despliekgue, realizando la configuración de Gitea mediante un <em>configMap</em>. Más adelante planeo añadir la opción de usar una base de datos externa antes de pasar a realizar un despliegue completo usando Helm.</p>
+<p>En la primera iteración me concentré en la <em>kubernetización</em> de la aplicación; en la segunda, en automatizar completamente el despliegue, realizando la configuración de Gitea mediante un <em>configMap</em>. Más adelante planeo añadir la opción de usar una base de datos externa antes de pasar a realizar un despliegue completo usando Helm.</p>
 </blockquote>
 <h2 id="creación-del-namespace">Creación del <em>namespace</em></h2>
-<p>Todoslos componentes los despliego en un <em>namespace</em> personalizado llamado <em>toolbox-${nombre-aplicación}</em>, así que el primer paso es crear el fichero de definición del <em>namespace</em>:</p>
+<p>Todos los componentes los despliego en un <em>namespace</em> personalizado llamado <em>toolbox-${nombre-aplicación}</em>, así que el primer paso es crear el fichero de definición del <em>namespace</em>:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">---
 <span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">v1</span>
 <span style="color:#f92672">kind</span>: <span style="color:#ae81ff">Namespace</span>
@@ -165,8 +165,8 @@
     <span style="color:#f92672">hostPath</span>:
         <span style="color:#f92672">path</span>: <span style="color:#e6db74">&#34;/mnt/data/gitea&#34;</span>
 </code></pre></div><h3 id="creación-del-persistent-volume-claim">Creación del <em>persistent volume claim</em></h3>
-<p>Al crear el <em>persistent volume claim</em> solictamos al clúster una determinada cantidad de almacenamiento del un tipo concreto. Como en nuestro caso la <em>storageClass</em> es <code>manual</code>, un administrador debe haber creado anteriormente un <em>persistent volume</em> que permita satisfacer el requerimiento de almacenamiento expresado en el <em>claim</em>.</p>
-<p>Cuando desplegamos el <em>persistent volume claim</em>, el sistema asocia un <em>persistent volume</em> disponible para que su uso en los pods creados por el <em>deployment</em>.</p>
+<p>Al crear el <em>persistent volume claim</em> solictamos al clúster una determinada cantidad de almacenamiento de un tipo concreto. Como en nuestro caso la <em>storageClass</em> es <code>manual</code>, un administrador debe haber creado anteriormente un <em>persistent volume</em> que permita satisfacer el requerimiento de almacenamiento expresado en el <em>claim</em>.</p>
+<p>Cuando desplegamos el <em>persistent volume claim</em>, el sistema asocia un <em>persistent volume</em> disponible para su uso en los pods creados por el <em>deployment</em>.</p>
 <p>Si no hay ningún volumen disponible que satisfaga el <em>claim</em>, el pod no arranca.</p>
 <p>Para otros tipos de <em>storage class</em> diferente a <code>manual</code>, la creación del <em>persistent volume</em> se realiza de forma dinámica cuando se crea el <em>persistent volume claim</em>.</p>
 <p>La definición del <em>persistent volume claim</em>:</p>
