@@ -9,15 +9,15 @@
 <meta name="generator" content="Hugo 0.79.0" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
-<link rel="alternate" type="application/rss+xml" title="RSS" href="/tags/python/index.xml"> 
 
-<link rel="canonical" href="https://onthedock.github.io/tags/python/">
+
+<link rel="canonical" href="https://onthedock.github.io/post/210121-combinar-commits/">
 
 
     
     <link href="https://fonts.googleapis.com/css?family=Lobster|Lato:400,700" rel="stylesheet">
     
-    <title>python - On The Dock</title>
+    <title>Cómo combinar commits en Git (squash) - On The Dock</title>
     <style amp-boilerplate>body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}</style><noscript><style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style></noscript>
     <script async src="https://cdn.ampproject.org/v0.js"></script>
     
@@ -26,6 +26,60 @@
 <script async custom-element="amp-ad" src="https://cdn.ampproject.org/v0/amp-ad-0.1.js"></script>
 
     
+<meta name="description" content="&lt;p&gt;Las buenas prácticas (por ejemplo &lt;a href=&#34;https://www.git-tower.com/learn/git/ebook/en/command-line/appendix/best-practices/&#34;&gt;Version Control Best Practices&lt;/a&gt;) relacionadas con el control de versiones usando Git indican que hay que guardar (&lt;em&gt;commit&lt;/em&gt;) los cambios de forma frecuente, conteniendo únicamente pequeños cambios.&lt;/p&gt;&lt;p&gt;Sin embargo, el desarrollo no se produce de una forma lineal, de principio a fin; a veces, lo que parece una buena idea que funciona al principio, más adelante es necesario cambiarla o modificarla&amp;hellip;&lt;/p&gt;&lt;p&gt;Si guardamos todos los &lt;em&gt;commits&lt;/em&gt;, la historia del repositorio quedará llena de estos cambios de dirección durante el desarrollo. Por este motivo, una de las opciones que tenemos es la de reescribir la historia del repositorio antes de, por ejemplo, hacer &lt;em&gt;merge&lt;/em&gt; de la rama de &lt;em&gt;feaure&lt;/em&gt; sobre la rama principal.&lt;/p&gt;&lt;p&gt;En este artículo vemos cómo conseguirlo usando &lt;code&gt;git rebase&lt;/code&gt;.&lt;/p&gt;">
+
+<meta property="og:title" content="Cómo combinar commits en Git (squash) - On The Dock">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://onthedock.github.io/post/210121-combinar-commits/">
+<meta property="og:image" content="https://onthedock.github.io/images/git.png">
+<meta property="og:site_name" content="On The Dock">
+<meta property="og:description" content="&lt;p&gt;Las buenas prácticas (por ejemplo &lt;a href=&#34;https://www.git-tower.com/learn/git/ebook/en/command-line/appendix/best-practices/&#34;&gt;Version Control Best Practices&lt;/a&gt;) relacionadas con el control de versiones usando Git indican que hay que guardar (&lt;em&gt;commit&lt;/em&gt;) los cambios de forma frecuente, conteniendo únicamente pequeños cambios.&lt;/p&gt;&lt;p&gt;Sin embargo, el desarrollo no se produce de una forma lineal, de principio a fin; a veces, lo que parece una buena idea que funciona al principio, más adelante es necesario cambiarla o modificarla&amp;hellip;&lt;/p&gt;&lt;p&gt;Si guardamos todos los &lt;em&gt;commits&lt;/em&gt;, la historia del repositorio quedará llena de estos cambios de dirección durante el desarrollo. Por este motivo, una de las opciones que tenemos es la de reescribir la historia del repositorio antes de, por ejemplo, hacer &lt;em&gt;merge&lt;/em&gt; de la rama de &lt;em&gt;feaure&lt;/em&gt; sobre la rama principal.&lt;/p&gt;&lt;p&gt;En este artículo vemos cómo conseguirlo usando &lt;code&gt;git rebase&lt;/code&gt;.&lt;/p&gt;">
+<meta property="og:locale" content="ja_JP">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="On The Dock">
+<meta name="twitter:url" content="https://onthedock.github.io/post/210121-combinar-commits/">
+<meta name="twitter:title" content="Cómo combinar commits en Git (squash) - On The Dock">
+<meta name="twitter:description" content="&lt;p&gt;Las buenas prácticas (por ejemplo &lt;a href=&#34;https://www.git-tower.com/learn/git/ebook/en/command-line/appendix/best-practices/&#34;&gt;Version Control Best Practices&lt;/a&gt;) relacionadas con el control de versiones usando Git indican que hay que guardar (&lt;em&gt;commit&lt;/em&gt;) los cambios de forma frecuente, conteniendo únicamente pequeños cambios.&lt;/p&gt;&lt;p&gt;Sin embargo, el desarrollo no se produce de una forma lineal, de principio a fin; a veces, lo que parece una buena idea que funciona al principio, más adelante es necesario cambiarla o modificarla&amp;hellip;&lt;/p&gt;&lt;p&gt;Si guardamos todos los &lt;em&gt;commits&lt;/em&gt;, la historia del repositorio quedará llena de estos cambios de dirección durante el desarrollo. Por este motivo, una de las opciones que tenemos es la de reescribir la historia del repositorio antes de, por ejemplo, hacer &lt;em&gt;merge&lt;/em&gt; de la rama de &lt;em&gt;feaure&lt;/em&gt; sobre la rama principal.&lt;/p&gt;&lt;p&gt;En este artículo vemos cómo conseguirlo usando &lt;code&gt;git rebase&lt;/code&gt;.&lt;/p&gt;">
+<meta name="twitter:image" content="https://onthedock.github.io/images/git.png">
+
+
+<script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "NewsArticle",
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id":"https:\/\/onthedock.github.io\/"
+    },
+    "headline": "Cómo combinar commits en Git (squash) - On The Dock",
+    "image": {
+      "@type": "ImageObject",
+      "url": "https:\/\/onthedock.github.io\/images\/git.png",
+      "height": 800,
+      "width": 800
+    },
+    "datePublished": "2021-01-31T09:33:38JST",
+    "dateModified": "2021-01-31T09:33:38JST",
+    "author": {
+      "@type": "Person",
+      "name": "On The Dock"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "On The Dock",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https:\/\/onthedock.github.io\/images/logo.png",
+        "width": 600,
+        "height": 60
+      }
+    },
+    "description": "\u003cp\u003eLas buenas prácticas (por ejemplo \u003ca href=\u0022https:\/\/www.git-tower.com\/learn\/git\/ebook\/en\/command-line\/appendix\/best-practices\/\u0022\u003eVersion Control Best Practices\u003c\/a\u003e) relacionadas con el control de versiones usando Git indican que hay que guardar (\u003cem\u003ecommit\u003c\/em\u003e) los cambios de forma frecuente, conteniendo únicamente pequeños cambios.\u003c\/p\u003e\n\u003cp\u003eSin embargo, el desarrollo no se produce de una forma lineal, de principio a fin; a veces, lo que parece una buena idea que funciona al principio, más adelante es necesario cambiarla o modificarla\u0026hellip;\u003c\/p\u003e\n\u003cp\u003eSi guardamos todos los \u003cem\u003ecommits\u003c\/em\u003e, la historia del repositorio quedará llena de estos cambios de dirección durante el desarrollo. Por este motivo, una de las opciones que tenemos es la de reescribir la historia del repositorio antes de, por ejemplo, hacer \u003cem\u003emerge\u003c\/em\u003e de la rama de \u003cem\u003efeaure\u003c\/em\u003e sobre la rama principal.\u003c\/p\u003e\n\u003cp\u003eEn este artículo vemos cómo conseguirlo usando \u003ccode\u003egit rebase\u003c\/code\u003e.\u003c\/p\u003e"
+  }
+</script>
+
+
     <style amp-custom>
       html { font-size: 18px;}@media (max-width: 768px) { html { font-size: 15px; }}body { font-family: Lato,'Hiragino Kaku Gothic Pro',メイリオ,Meiryo,sans-serif; font-size: inherit; margin: 0; color: #263238;}html, body { margin: 0;}a { text-decoration: none; color: #e91e63;}p { margin: 0;}ul,ol { margin: 0; padding: 0;}h1, h2, h3, h4, h5, h6 { margin: 0; font-weight: 700;}h1 { font-size: 1.8rem; line-height: 2rem; margin: 1.5rem 0; }h2 { font-size: 1.4rem; line-height: 2rem; margin: 1.5rem 0; }h3 { font-size: 1.2rem; line-height: 1.5rem; margin: 1.5rem 0; }h4, h5, h6 { font-size: 1rem; line-height: 1.5rem; margin: 1.5rem 0; }.clearfix::after { content: ''; display: block; clear: both;}main{ display: block;}.searchbar{ display: block; border: none; margin: 1em auto; max-width: 780px; text-align: center;}/* Layouts */.l-header { padding: .5rem 0; margin-bottom: 2rem; border-bottom: 1px dashed #cfd8dc; text-align: center;}.l-footer { font-size: .8rem; padding: 1rem 0; border-top: 1px dashed #cfd8dc;}.l-footer .copyright-notice,.l-footer .attribution { text-align: center;}.l-container { max-width: 42rem; margin: 0 auto; padding: 0 1rem;}/* Parts:logo */.p-logo { font-family: Lobster, cursive;}.p-logo a { color: #000; font-size: 1.6rem; line-height: 2rem;}/* Parts:section */section { border-top: 2px solid #eceff1; padding: 1.5rem 0;}section>header { text-transform: uppercase; font-weight: 700; margin-bottom: 2rem; text-align: center;}section>header span { display: inline-block; background-color: #000; color: #fff; letter-spacing: 3px; font-size: .7rem; padding: .5rem .75rem;}/* Parts:facts */.p-facts { list-style: none; font-size: .8rem; margin-bottom: 1rem;}.p-facts:last-child { margin-bottom: 0;}.p-facts li { display: inline-block; margin-right: .5rem; text-transform: uppercase;}.p-facts li header { margin-bottom: .25rem; font-weight: 700;}.p-facts li header a { color: #000; text-decoration: underline;}.p-facts li li { display: inline-block; margin-right: .5rem;}.p-facts li li::after { content: ',';}.p-facts li li:last-child::after { content: '';}/* Parts:crumb */.p-crumb { list-style: none; margin-bottom: 1rem; font-size: .8rem; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}.p-crumb:last-child { margin-bottom: 0;}.p-crumb li { display: inline;}.p-crumb li::after { content: '›'; margin: 0 .5rem;}.p-crumb li:last-child::after { content: '';}/* Parts:page-title */.p-page-title { margin-bottom: 2rem;}.p-page-title .title { margin-bottom: .5rem;}/* Parts:share */.p-share { margin-bottom: 1.5rem; text-align: center;}.p-share a { display: inline-block; text-align: center; padding: .5rem .5rem; margin-right: .25rem; font-size: .6rem; background-color: #eceff1; font-weight: 700;}.p-share a.ht { color: #00a4de; }.p-share a.fb { color: #3b5998; }.p-share a.tw { color: #1da1f2; }.p-share a.ln { color: #00c300; }.p-share a.ht::before { content: 'Hatena'; }.p-share a.fb::before { content: 'Facebook'; }.p-share a.tw::before { content: 'Twitter'; }.p-share a.ln::before { content: 'LINE'; }/* Parts:terms */.p-terms { padding-left: 2rem;}/* Parts:paginator */.p-paginator { text-align: center; margin-bottom: 3rem; padding-top: 2rem;}.p-paginator a { display: inline-block; border: 2px solid #eceff1; color: #263238; line-height: 2rem; padding: 0 1rem;}/* Parts:article */.p-articles { list-style: none;}.p-articles>li { margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px dashed #cfd8dc;}.p-articles>li:last-child { border-bottom: none; padding-bottom: 0;}.p-articles.thin>li { margin-bottom: 1rem; padding-bottom: 1rem;}article .article-header { display: table-cell; height: 6rem; vertical-align: middle;}article .title { margin: 0; margin-bottom: .5rem; font-size: 1.4rem; line-height: 2rem;}article .title a { color: #000;}article .header-wrapper { margin-bottom: 1.5rem;}article .thumbnail { display: block; background-position: center; background-size: cover; background-image: url(https://onthedock.github.io/images/default.jpg); width: 6rem; height: 6rem; border-radius: 50%; box-shadow: 0 0 3px 0 #333 inset; float: left; margin-right: 1rem;}article .summary { margin-bottom: 1.5rem;}article .readmore { text-align: center;}article .readmore a { font-size: .8rem; color: #000; text-decoration: underline;}article.li.sm .header-wrapper { margin-bottom: 0;}.article-body h2 { padding: 1rem 0; color: #55bbbb; border-bottom: 2px solid #eceff1;}.article-body h2:first-child { margin-top: 0; }.article-body h3 { color: #8997e4; font-style: italic;}.article-body h4 { border-left: solid .25rem #cddc39; padding: 0 .5rem;}.article-body p { margin: 1.5rem 0; line-height: 1.5rem;}.article-body a { text-decoration: underline;}.article-body ul,.article-body ol { padding-left: 1.5rem;}.article-body li { line-height: 2rem;}.article-body code { display: inline-block; font-family: Menlo, consolas, monospace; background-color: #eceff1; font-size: .8rem; padding: 0 .5rem; line-height: 1.5rem;}.article-body pre { margin: 1.5rem 0; padding: 1.5rem; font-size: .8rem; background-color: #eeeeef; color: #444; overflow: auto;}.article-body pre code { background-color: transparent;}.article-body blockquote { /* margin: 1.2rem 0; padding: .5rem 0; */ /*font-size: .8rem;*/ border-top: 1px solid #eceff1; border-bottom: 1px solid #eceff1; color: #607d8b;}.article-body blockquote p { margin: .5rem 0; line-height: 1.5rem;}.article-body strong { /*box-shadow: 0 -.5rem 0 0 #f06292 inset;*/ font-style: bold; font-weight: 700; /*color: #ff5722; */}.article-body em { /*font-style: normal;*/ /*font-weight: 700; color: #00c300;*/ /*color: #00c300;*/ font-style: oblique;}.article-body figure { margin: 1.5rem -2rem; }.article-body figure.left,.article-body figure.right { width: 15rem; height: 12rem; margin-top: 0; margin-left: 0; margin-right: 0;}.article-body figure.left { float: left; margin-right: 1rem; margin-left: -2rem; }.article-body figure.right { float: right; margin-left: 1rem; margin-right: -2rem; }@media (max-width: 768px) { .article-body figure { margin: 1.5rem -1rem; } .article-body figure.left, .article-body figure.right { float: none; margin: 0 -1rem; width: auto; height: auto; }}.article-body figcaption { padding: .5rem 0; font-size: .8rem; text-align: center;}.article-body figcaption a { color: #263238;}
 
@@ -50,81 +104,235 @@
     <main>
       
 <div class="l-container">
-  
-  <header class="p-page-title">
-    <h1 class="title">python</h1>
-  </header>
-  
+  <article class="single article-f87949b99018c181546093186e412e32">
+  <div class="header-wrapper">
+    <a href="https://onthedock.github.io/post/210121-combinar-commits/" class="thumbnail" title="Cómo combinar commits en Git (squash)"></a>
+    <header class="article-header">
+      <div class="clearfix">
+        <h1 class="title">Cómo combinar commits en Git (squash)</h1>
+        <ul class="p-facts">
+          <li><time datetime="2021-01-31T09:33:38JST">31 Jan 2021</time></li>
+          <li><a href="https://onthedock.github.io/post/">post</a></li>
+          
+          <li>Xavier Aznar</li>
+        </ul>
+      </div>
+    </header>
+  </div>
 
+  <div class="article-body"><p>Las buenas prácticas (por ejemplo <a href="https://www.git-tower.com/learn/git/ebook/en/command-line/appendix/best-practices/">Version Control Best Practices</a>) relacionadas con el control de versiones usando Git indican que hay que guardar (<em>commit</em>) los cambios de forma frecuente, conteniendo únicamente pequeños cambios.</p>
+<p>Sin embargo, el desarrollo no se produce de una forma lineal, de principio a fin; a veces, lo que parece una buena idea que funciona al principio, más adelante es necesario cambiarla o modificarla&hellip;</p>
+<p>Si guardamos todos los <em>commits</em>, la historia del repositorio quedará llena de estos cambios de dirección durante el desarrollo. Por este motivo, una de las opciones que tenemos es la de reescribir la historia del repositorio antes de, por ejemplo, hacer <em>merge</em> de la rama de <em>feaure</em> sobre la rama principal.</p>
+<p>En este artículo vemos cómo conseguirlo usando <code>git rebase</code>.</p>
+<blockquote>
+<p>El artículo que mejor lo explica, de los que he consultado, por su claridad y orden a la hora de exponer los pasos a realizar es <a href="https://www.internalpointers.com/post/squash-commits-into-one-git">Squash commits into one with Git</a>, actualizado en 21/12/2020.</p>
+</blockquote>
+<h2 id="git-rebase-reescribe-la-historia-del-repositorio"><code>git rebase</code> reescribe la historia del repositorio</h2>
+<p>Lo principal que debes tener en cuenta a la hora de usar <code>git rebase</code> es que se modifica la historia del repositorio. Por este motivo sólo deberías usarlo, en general, en cambios que todavía no hayas compartido con otros.</p>
+<h2 id="cómo-comprimir-squash-commits-en-git">Cómo comprimir (<em>squash</em>) <em>commits</em> en Git</h2>
+<p>El comando que nos permite combinar <em>commits</em> es <code>git rebase --interactive ${id-del-commit}</code> (o <code>git rebase -i ${id-del-commit}</code>, en su forma corta).</p>
+<p>El <code>${id-del-commit}</code> especifica <strong>a partir de</strong> qué <em>commit</em> queremos reescribir la historia.</p>
+<p>Podemos especificar el SHA del <em>commit</em> o una referencia relativa (como <code>HEAD~3</code>).</p>
+<p>Suponiendo que la historia de nuestro repositorio es:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#75715e"># Esta es la historia que refleja qué ha pasado durante el desarrollo</span>
+$ git log --oneline
+ba06e7a <span style="color:#f92672">(</span>HEAD -&gt; feature-1<span style="color:#f92672">)</span> Ok, funcionalidad Y completa!
+150c964 Limpieza de código
+28506fa Corrige warnings
+529b7bc Corrige ésto y aquello <span style="color:#f92672">(</span>no podía funcionar a la primera ;<span style="color:#f92672">)</span> <span style="color:#f92672">)</span> 
+da2045b Implementación
+b185d06 Prerequisitos para la funcionalidad Y
+429c084 <span style="color:#f92672">(</span>master<span style="color:#f92672">)</span> Funcionalidad X <span style="color:#f92672">(</span>issue <span style="color:#75715e">#111111) Documenta cómo funciona git rebase -i para comprimir commits</span>
+5488b91 Primer commit
+</code></pre></div><p>Vemos que a partir del <em>commit</em> <code>429c084</code> se creó la rama <code>feature-1</code>, pero contiene <em>commits</em> con mensajes <em>mejorables</em> o que no aportan demasiado.</p>
+<p>Tras el proceso de <code>rebase</code> nos gustaría tener una historia como:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#75715e"># Esta es la historia que nos gustaría tener tras el rebase</span>
+$ git log --oneline
+XXXXXXX <span style="color:#f92672">(</span>HEAD -&gt; feature-1<span style="color:#f92672">)</span> Funcionalidad Y <span style="color:#f92672">(</span>issue <span style="color:#75715e">#123456)</span>
+429c084 <span style="color:#f92672">(</span>master<span style="color:#f92672">)</span> Funcionalidad X <span style="color:#f92672">(</span>issue <span style="color:#75715e">#111111)</span>
+5488b91 Primer commit
+</code></pre></div><p>Si queremos reescribir la historia a partir del <em>commit</em> <code>429c084</code> lanzamos:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">git rebase -i 429c084
+</code></pre></div><p>Git abre el editor predefinido con la lista de <em>commits</em> involucrados en el <em>rebase</em> (todos los posteriores al <em>commit</em> indicado).</p>
+<blockquote>
+<p>El editor que abre <code>git rebase</code> muestra los <em>commits</em> en orden inverso al del comando <code>git log</code>; <code>git rebase</code> muestra primero los <em>commits</em> más antiguos y después los más nuevos.</p>
+</blockquote>
+<p>Por defecto, el identificador de cada <em>commit</em> va precedido de la acción a realizar (por defecto, <code>pick</code>); también se muestra el mensaje de <em>commit</em> para que sea más sencillo saber qué <em>commit</em> se está modificando.</p>
+<p>Tras la lista de <em>commits</em> Git muestra ayuda con las opciones disponibles durante el proceso de <code>rebase</code>.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">pick b185d06 Prerequisitos para la funcionalidad Y
+pick da2045b Implementación
+pick 529b7bc Corrige ésto y aquello <span style="color:#f92672">(</span>no podía funcionar a la primera ;<span style="color:#f92672">)</span> <span style="color:#f92672">)</span> 
+pick 28506fa Corrige warnings
+pick 150c964 Limpieza de código
+pick ba06e7a Ok, funcionalidad Y completa!
+
+...
+</code></pre></div><p>Si queremos comprimir todos los <em>commits</em> en uno sólo, seleccionamos el primero y marcamos el resto con <code>squash</code> (o <code>s</code> para abreviar):</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">pick b185d06 Prerequisitos para la funcionalidad Y
+squash da2045b Implementación
+squash 529b7bc Corrige ésto y aquello <span style="color:#f92672">(</span>no podía funcionar a la primera ;<span style="color:#f92672">)</span> <span style="color:#f92672">)</span> 
+squash 28506fa Corrige warnings
+squash 150c964 Limpieza de código
+squash ba06e7a Ok, funcionalidad Y completa!
+</code></pre></div><blockquote>
+<p><code>git rebase</code> procesa las acciones de arriba a abajo, por lo que antes del primer <code>squash</code> debe habe un <code>pick</code>.</p>
+</blockquote>
+<p>Guarda el fichero y cierra el editor.</p>
+<p><code>git rebase</code> combina todos los <em>commits</em> marcados con <code>squash</code> con el <em>commit</em> marcado como <code>pick</code>.</p>
+<p>A continuación, se abre un nuevo editor que contiene por defecto los mensajes de <em>commit</em> de los <em>commits</em> que van a combinarse en uno solo al ejecutar el <em>rebase</em>.</p>
+<p>Puedes editar el mensaje de <em>commit</em> para ajustarlo al estilo del resto de <em>commits</em> del repositorio.</p>
+<p>Al finalizar el <em>rebase</em> la historia del repositorio sería:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ git log --oneline
+8da3fcd <span style="color:#f92672">(</span>HEAD -&gt; feature-1<span style="color:#f92672">)</span> Funcionalidad Y <span style="color:#f92672">(</span>issue <span style="color:#75715e">#123456)</span>
+429c084 <span style="color:#f92672">(</span>master<span style="color:#f92672">)</span> Funcionalidad X <span style="color:#f92672">(</span>issue <span style="color:#75715e">#111111)</span>
+5488b91 Primer commit
+</code></pre></div></div>
+
+  <aside class="p-share">
+  <a href="http://twitter.com/intent/tweet?url=https%3a%2f%2fonthedock.github.io%2fpost%2f210121-combinar-commits%2f&text=C%c3%b3mo%20combinar%20commits%20en%20Git%20%28squash%29&tw_p=tweetbutton" title="Twitterでシェア" class="tw" target="_blank" rel="nofollow"></a>
+  <a href="http://www.facebook.com/sharer.php?u=https%3a%2f%2fonthedock.github.io%2fpost%2f210121-combinar-commits%2f&t=C%c3%b3mo%20combinar%20commits%20en%20Git%20%28squash%29" title="Facebookでシェア" class="fb" target="_blank" rel="nofollow"></a>
+  <a href="http://line.me/R/msg/text/?C%c3%b3mo%20combinar%20commits%20en%20Git%20%28squash%29 https%3a%2f%2fonthedock.github.io%2fpost%2f210121-combinar-commits%2f" title="LINEでシェア" class="ln" target="_blank" rel="nofollow"></a>
+  <a href="http://b.hatena.ne.jp/add?mode=confirm&url=https%3a%2f%2fonthedock.github.io%2fpost%2f210121-combinar-commits%2f&title=C%c3%b3mo%20combinar%20commits%20en%20Git%20%28squash%29" title="はてなブックマーク" class="ht" target="_blank" rel="nofollow"></a>
   <div class="searchbar">
       <iframe src="https://duckduckgo.com/search.html?site=https://onthedock.github.io/&prefill=Busca en este sitio usando DuckDuckGo" style="width: 25em;height: 48px" frameborder="0"></iframe>
-  </div>
+    </div>
+</aside>
 
-  <img src="https://onthedock.github.io//images/MabelAmber-mini.png" class="p-articles" width="100%">
+
+  <footer class="article-footer">
+    <section>
+      <ol class="p-crumb">
+        <li><a href="https://onthedock.github.io/">On The Dock</a></li>
+        
+        <li itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb"><a href="https://onthedock.github.io/post/" itemprop="url"><span itemprop="title">post</span></a></li>
+        
+        <li>Cómo combinar commits en Git (squash)</li>
+      </ol>
+
+      
+      
+      
+      <ul class="p-facts">
+        <li>
+          <header><a href="https://onthedock.github.io/categories/">categories</a></header>
+          <ul>
+            
+            <li><a href="https://onthedock.github.io/categories/dev/">dev</a></li>
+            
+          </ul>
+        </li>
+      </ul>
+      
+      
+      
+      <ul class="p-facts">
+        <li>
+          <header><a href="https://onthedock.github.io/tags/">tags</a></header>
+          <ul>
+            
+            <li><a href="https://onthedock.github.io/tags/git/">git</a></li>
+            
+          </ul>
+        </li>
+      </ul>
+      
+      
+    </section>
+  </footer>
+</article>
+
+<article>
+  <div id="disqus_thread"></div>
+  <script>
   
-  <p style="text-align: right"><small><a href="https://www.pexels.com/photo/jetty-feet-sign-wooden-128299/">Photo</a> by <a href="https://www.pexels.com/u/mabelamber/">Mabel Amber</a></small></p>
-   
-  <ul class="p-articles">
-    <li><article class="li article-b5774c1af73ca2d2b4752dba3cca3af5">
-  <div class="header-wrapper">
-    <a href="https://onthedock.github.io/post/201013-instalar-mkdocs-en-alpine/" class="thumbnail" title="[Solucionado] Instalación de MkDocs en Alpine y en MacOS (Catalina)"></a>
-    <header class="article-header">
-      <div class="clearfix">
-        <h2 class="title"><a href="https://onthedock.github.io/post/201013-instalar-mkdocs-en-alpine/">[Solucionado] Instalación de MkDocs en Alpine y en MacOS (Catalina)</a></h2>
-        <ul class="p-facts">
-          <li><time datetime="2020-10-13T18:43:49JST">13 Oct 2020</time></li>
-          <li><a href="https://onthedock.github.io/post/">post</a></li>
-          <li>Xavier Aznar</li>
-          
-        </ul>
-      </div>
-    </header>
-  </div>
-  <div class="article-body summary"><p>Estos días he encontrado un extraño error a la hora de instalar <a href="https://www.mkdocs.org/">MkDocs</a>, pero por lo que parece, no es un problema específico ni de MkDocs ni de Alpine&hellip;</p></div>
-  <footer class="readmore"><a href="https://onthedock.github.io/post/201013-instalar-mkdocs-en-alpine/">LEER M&Aacute;S</a></footer>
+  
+
+  
+
+  (function() { 
+  var d = document, s = d.createElement('script');
+  s.src = 'https://onthedock.disqus.com/embed.js';
+  s.setAttribute('data-timestamp', +new Date());
+  (d.head || d.body).appendChild(s);
+  })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+                              
+
 </article>
-</li><li><article class="li article-fa396b4de84b2dfd9b95c5edfc10cc30">
+
+
+
+  
+  
+  <section>
+    <header><span>Latests</span></header>
+    <ul class="p-articles thin">
+      <li><article class="li sm article-fee94cef98f533fac0c5c909c2cbb884">
   <div class="header-wrapper">
-    <a href="https://onthedock.github.io/post/200118-alpine-para-desarrollo-con-python/" class="thumbnail" title="Alpine para desarrollo con Python"></a>
+    <a href="https://onthedock.github.io/post/201224-como-saber-si-un-recursos-esta-restringido-a-un-namespace/" class="thumbnail" title="Cómo saber si un recurso de Kubernetes está restringido al namespace o es global"></a>
     <header class="article-header">
       <div class="clearfix">
-        <h2 class="title"><a href="https://onthedock.github.io/post/200118-alpine-para-desarrollo-con-python/">Alpine para desarrollo con Python</a></h2>
+        <h2 class="title"><a href="https://onthedock.github.io/post/201224-como-saber-si-un-recursos-esta-restringido-a-un-namespace/">Cómo saber si un recurso de Kubernetes está restringido al namespace o es global</a></h2>
         <ul class="p-facts">
-          <li><time datetime="2020-01-18T19:00:21JST">18 Jan 2020</time></li>
+          <li><time datetime="2020-12-24T11:39:07JST">24 Dec 2020</time></li>
           <li><a href="https://onthedock.github.io/post/">post</a></li>
-          <li>Xavier Aznar</li>
           
         </ul>
       </div>
     </header>
   </div>
-  <div class="article-body summary"><p>Para practicar con Python, he instalado una máquina virtual con Alpine 3.9. En esta entrada recojo los diferentes pasos que he realizado para configurarla como entorno de ejecución de Python 3.</p></div>
-  <footer class="readmore"><a href="https://onthedock.github.io/post/200118-alpine-para-desarrollo-con-python/">LEER M&Aacute;S</a></footer>
 </article>
-</li><li><article class="li article-b764fa70c94a1d2fd4fd14237d21967d">
+</li><li><article class="li sm article-56505d63d80c0cf676712e0761ce6b57">
   <div class="header-wrapper">
-    <a href="https://onthedock.github.io/post/190428-como-instalar-pip/" class="thumbnail" title="Cómo instalar pip"></a>
+    <a href="https://onthedock.github.io/post/201212-desplegar-gitea-en-kubernetes/" class="thumbnail" title="Desplegar Gitea en Kubernetes"></a>
     <header class="article-header">
       <div class="clearfix">
-        <h2 class="title"><a href="https://onthedock.github.io/post/190428-como-instalar-pip/">Cómo instalar pip</a></h2>
+        <h2 class="title"><a href="https://onthedock.github.io/post/201212-desplegar-gitea-en-kubernetes/">Desplegar Gitea en Kubernetes</a></h2>
         <ul class="p-facts">
-          <li><time datetime="2019-04-28T13:25:13JST">28 Apr 2019</time></li>
+          <li><time datetime="2020-12-12T12:13:18JST">12 Dec 2020</time></li>
           <li><a href="https://onthedock.github.io/post/">post</a></li>
-          <li>Xavier Aznar</li>
           
         </ul>
       </div>
     </header>
   </div>
-  <div class="article-body summary"><p><code>pip</code> es el <em>instalador de paquetes</em> de Python más usado.</p>
-<p>Sin embargo, nunca me ha resultado demasiado evidente cómo instalarlo, gracias a instrucciones tan poco afortunadas como las siguientes que he tenido la mala suerte de encontrar vía Google.</p></div>
-  <footer class="readmore"><a href="https://onthedock.github.io/post/190428-como-instalar-pip/">LEER M&Aacute;S</a></footer>
+</article>
+</li><li><article class="li sm article-1be861ee6a7c05ba2a5776a68120327c">
+  <div class="header-wrapper">
+    <a href="https://onthedock.github.io/post/201208-actualizar-el-certificado-de-traefik-en-k3s/" class="thumbnail" title="Actualizar el certificado de Traefik en K3s"></a>
+    <header class="article-header">
+      <div class="clearfix">
+        <h2 class="title"><a href="https://onthedock.github.io/post/201208-actualizar-el-certificado-de-traefik-en-k3s/">Actualizar el certificado de Traefik en K3s</a></h2>
+        <ul class="p-facts">
+          <li><time datetime="2020-12-08T09:09:23JST">8 Dec 2020</time></li>
+          <li><a href="https://onthedock.github.io/post/">post</a></li>
+          
+        </ul>
+      </div>
+    </header>
+  </div>
+</article>
+</li><li><article class="li sm article-6196d298c4378d228f2ab7aeacc3b954">
+  <div class="header-wrapper">
+    <a href="https://onthedock.github.io/post/201208-problemas-relacionados-con-gitops/" class="thumbnail" title="Interesante artículo &#34;More Problems with GitOps — and How to Fix Them&#34; en TheNewStack"></a>
+    <header class="article-header">
+      <div class="clearfix">
+        <h2 class="title"><a href="https://onthedock.github.io/post/201208-problemas-relacionados-con-gitops/">Interesante artículo &#34;More Problems with GitOps — and How to Fix Them&#34; en TheNewStack</a></h2>
+        <ul class="p-facts">
+          <li><time datetime="2020-12-08T07:54:26JST">8 Dec 2020</time></li>
+          <li><a href="https://onthedock.github.io/post/">post</a></li>
+          
+        </ul>
+      </div>
+    </header>
+  </div>
 </article>
 </li>
-  </ul>
+    </ul>
+  </section>
+  
 </div>
-
-
 
 
     </main>
