@@ -11,13 +11,13 @@
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
 
-<link rel="canonical" href="https://onthedock.github.io/post/201206-side-project/">
+<link rel="canonical" href="https://onthedock.github.io/post/210212-runasuser-y-readonlyrootfilesystem/">
 
 
     
     <link href="https://fonts.googleapis.com/css?family=Lobster|Lato:400,700" rel="stylesheet">
     
-    <title>Side Project: devtoolbox - On The Dock</title>
+    <title>Seguridad en Kubernetes: runAsUser y readOnlyRootFilesystem - On The Dock</title>
     <style amp-boilerplate>body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}</style><noscript><style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style></noscript>
     <script async src="https://cdn.ampproject.org/v0.js"></script>
     
@@ -26,22 +26,22 @@
 <script async custom-element="amp-ad" src="https://cdn.ampproject.org/v0/amp-ad-0.1.js"></script>
 
     
-<meta name="description" content="&lt;p&gt;Ya hace casi dos meses de la última entrada en el blog; en esta entrada explico en qué he estado trabajando y qué me ha mantenido apartado de la publicación en el blog.&lt;/p&gt;">
+<meta name="description" content="&lt;p&gt;En la entrada anterior &lt;a href=&#34;https://onthedock.github.io/post/210212-kubelinter/&#34;&gt;KubeLinter: identifica malas configuraciones en los objetos de Kubernetes&lt;/a&gt;, KubeLinter identificaba dos errores que se solucionan usando las opciones: &lt;code&gt;runAsUser&lt;/code&gt; y &lt;code&gt;readOnlyRootFilesystem&lt;/code&gt;.&lt;/p&gt;&lt;p&gt;En esta entrada comparo los efectos de aplicar una u otra, así como qué pasa cuando se aplican las dos al mismo tiempo.&lt;/p&gt;">
 
-<meta property="og:title" content="Side Project: devtoolbox - On The Dock">
+<meta property="og:title" content="Seguridad en Kubernetes: runAsUser y readOnlyRootFilesystem - On The Dock">
 <meta property="og:type" content="article">
-<meta property="og:url" content="https://onthedock.github.io/post/201206-side-project/">
-<meta property="og:image" content="https://onthedock.github.io/images/roadmap.png">
+<meta property="og:url" content="https://onthedock.github.io/post/210212-runasuser-y-readonlyrootfilesystem/">
+<meta property="og:image" content="https://onthedock.github.io/images/kubernetes.png">
 <meta property="og:site_name" content="On The Dock">
-<meta property="og:description" content="&lt;p&gt;Ya hace casi dos meses de la última entrada en el blog; en esta entrada explico en qué he estado trabajando y qué me ha mantenido apartado de la publicación en el blog.&lt;/p&gt;">
+<meta property="og:description" content="&lt;p&gt;En la entrada anterior &lt;a href=&#34;https://onthedock.github.io/post/210212-kubelinter/&#34;&gt;KubeLinter: identifica malas configuraciones en los objetos de Kubernetes&lt;/a&gt;, KubeLinter identificaba dos errores que se solucionan usando las opciones: &lt;code&gt;runAsUser&lt;/code&gt; y &lt;code&gt;readOnlyRootFilesystem&lt;/code&gt;.&lt;/p&gt;&lt;p&gt;En esta entrada comparo los efectos de aplicar una u otra, así como qué pasa cuando se aplican las dos al mismo tiempo.&lt;/p&gt;">
 <meta property="og:locale" content="ja_JP">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="On The Dock">
-<meta name="twitter:url" content="https://onthedock.github.io/post/201206-side-project/">
-<meta name="twitter:title" content="Side Project: devtoolbox - On The Dock">
-<meta name="twitter:description" content="&lt;p&gt;Ya hace casi dos meses de la última entrada en el blog; en esta entrada explico en qué he estado trabajando y qué me ha mantenido apartado de la publicación en el blog.&lt;/p&gt;">
-<meta name="twitter:image" content="https://onthedock.github.io/images/roadmap.png">
+<meta name="twitter:url" content="https://onthedock.github.io/post/210212-runasuser-y-readonlyrootfilesystem/">
+<meta name="twitter:title" content="Seguridad en Kubernetes: runAsUser y readOnlyRootFilesystem - On The Dock">
+<meta name="twitter:description" content="&lt;p&gt;En la entrada anterior &lt;a href=&#34;https://onthedock.github.io/post/210212-kubelinter/&#34;&gt;KubeLinter: identifica malas configuraciones en los objetos de Kubernetes&lt;/a&gt;, KubeLinter identificaba dos errores que se solucionan usando las opciones: &lt;code&gt;runAsUser&lt;/code&gt; y &lt;code&gt;readOnlyRootFilesystem&lt;/code&gt;.&lt;/p&gt;&lt;p&gt;En esta entrada comparo los efectos de aplicar una u otra, así como qué pasa cuando se aplican las dos al mismo tiempo.&lt;/p&gt;">
+<meta name="twitter:image" content="https://onthedock.github.io/images/kubernetes.png">
 
 
 <script type="application/ld+json">
@@ -52,15 +52,15 @@
       "@type": "WebPage",
       "@id":"https:\/\/onthedock.github.io\/"
     },
-    "headline": "Side Project: devtoolbox - On The Dock",
+    "headline": "Seguridad en Kubernetes: runAsUser y readOnlyRootFilesystem - On The Dock",
     "image": {
       "@type": "ImageObject",
-      "url": "https:\/\/onthedock.github.io\/images\/roadmap.png",
+      "url": "https:\/\/onthedock.github.io\/images\/kubernetes.png",
       "height": 800,
       "width": 800
     },
-    "datePublished": "2020-12-06T22:02:24JST",
-    "dateModified": "2020-12-06T22:02:24JST",
+    "datePublished": "2021-02-12T23:02:05JST",
+    "dateModified": "2021-02-12T23:02:05JST",
     "author": {
       "@type": "Person",
       "name": "On The Dock"
@@ -75,7 +75,7 @@
         "height": 60
       }
     },
-    "description": "\u003cp\u003eYa hace casi dos meses de la última entrada en el blog; en esta entrada explico en qué he estado trabajando y qué me ha mantenido apartado de la publicación en el blog.\u003c\/p\u003e"
+    "description": "\u003cp\u003eEn la entrada anterior \u003ca href=\u0022https:\/\/onthedock.github.io\/post\/210212-kubelinter\/\u0022\u003eKubeLinter: identifica malas configuraciones en los objetos de Kubernetes\u003c\/a\u003e, KubeLinter identificaba dos errores que se solucionan usando las opciones: \u003ccode\u003erunAsUser\u003c\/code\u003e y \u003ccode\u003ereadOnlyRootFilesystem\u003c\/code\u003e.\u003c\/p\u003e\n\u003cp\u003eEn esta entrada comparo los efectos de aplicar una u otra, así como qué pasa cuando se aplican las dos al mismo tiempo.\u003c\/p\u003e"
   }
 </script>
 
@@ -104,14 +104,14 @@
     <main>
       
 <div class="l-container">
-  <article class="single article-989c3a6a94e729ffbdf9bda5f321b198">
+  <article class="single article-e447bc414104c15405ae169ace8c2b29">
   <div class="header-wrapper">
-    <a href="https://onthedock.github.io/post/201206-side-project/" class="thumbnail" title="Side Project: devtoolbox"></a>
+    <a href="https://onthedock.github.io/post/210212-runasuser-y-readonlyrootfilesystem/" class="thumbnail" title="Seguridad en Kubernetes: runAsUser y readOnlyRootFilesystem"></a>
     <header class="article-header">
       <div class="clearfix">
-        <h1 class="title">Side Project: devtoolbox</h1>
+        <h1 class="title">Seguridad en Kubernetes: runAsUser y readOnlyRootFilesystem</h1>
         <ul class="p-facts">
-          <li><time datetime="2020-12-06T22:02:24JST">6 Dec 2020</time></li>
+          <li><time datetime="2021-02-12T23:02:05JST">12 Feb 2021</time></li>
           <li><a href="https://onthedock.github.io/post/">post</a></li>
           
           <li>Xavier Aznar</li>
@@ -120,21 +120,220 @@
     </header>
   </div>
 
-  <div class="article-body"><p>Ya hace casi dos meses de la última entrada en el blog; en esta entrada explico en qué he estado trabajando y qué me ha mantenido apartado de la publicación en el blog.</p>
-<p>Una serie de cambios en las tareas que suelo realizar en mi día a día en el trabajo ha hecho pivotar mi atención de la infraestructura <em>pura y dura</em> al despliegue de aplicaciones sobre Kubernetes.</p>
-<p>Independientemente de los detalles de las diferentes <em>distribuciones</em> de Kubernetes -tanto de proveedores <em>cloud</em> como de otros fabricantes- las herramientas usadas son muchas veces las mismas. En este sentido, <strong>IMHO</strong>, que una determinada aplicación forme parte del <em>porfolio</em> de la CNCF ayuda a cristalizar la toma de decisiones respecto a qué herramienta adoptar a nivel empresarial.</p>
-<p>Además de cierta <em>homogeneización</em> en cuanto a herramientas, creo que también las <em>prácticas</em> están evolucionando hacia lo que se ha denominado <em>GitOps</em>. Empezamos con <em>DevOps</em>, se incluyó la &ldquo;automatización&rdquo; de la seguridad con <em>DevSecOps</em> y ahora <em>GitOps</em> sería el resumen de esa &ldquo;automatización global&rdquo;: cuando <strong>todo</strong> es código, el repositorio se convierte en el <em>hub</em> que permite la interacción segura de todos los participantes en el proyecto.</p>
-<p><strong>devtoolbox</strong> quiere ser una forma de proporcionar un conjunto de herramientas de referencia que permitan que un equipo pueda ponerse a trabajar con la menor fricción posible con los sistemas de provisión corporativos. El objetivo es que el equipo pueda ser productivo desde el &ldquo;día 2&rdquo;; de esta forma se pueden realizar los trámite burocráticos -solicitud de acceso, usuarios, etc- de forma paralela al desarrollo sin retrasarlo.</p>
-<p>La idea del proyecto es automatizar el aprovisionamiento de las herramientas necesarias para un escenario &ldquo;clásico&rdquo; de desarrollo: un repositorio Git de código, herramientas de análisis estático de código, vulnerabilidades, compilación, testing, despliegue&hellip; También quiero incluir la documentación para mostrar que esta filosofía &ldquo;devops&rdquo; es aplicable más allá del desarrollo de aplicaciones.</p>
-<p>Al tratarse de un proyecto personal me ciño a herramientas <em>open source</em> y a distribuciones Kubernetes <em>vanilla</em>. La idea es que en el proyecto puedan usar -o no usar- cualquiera de las herramientas proporcionadas en función de las preferencias del equipo. Intento evitar al máximo la dependencia entre las herramientas o usar servicios de un deteminado proveedor o fabricante.</p>
-<p>Las herramientas se seleccionan para cubrir necesidades básicas; es probable que un equipo habituado a determinada herramienta disponga de su propio sistema de automatización para desplegar y configurarla de forma rápida.</p>
-<p><strong>devtoolbox</strong> es sobretodo una herramienta de aprendizaje personal.</p></div>
+  <div class="article-body"><p>En la entrada anterior <a href="https://onthedock.github.io/post/210212-kubelinter/">KubeLinter: identifica malas configuraciones en los objetos de Kubernetes</a>, KubeLinter identificaba dos errores que se solucionan usando las opciones: <code>runAsUser</code> y <code>readOnlyRootFilesystem</code>.</p>
+<p>En esta entrada comparo los efectos de aplicar una u otra, así como qué pasa cuando se aplican las dos al mismo tiempo.</p>
+<p>La definición del Pod es:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">---
+<span style="color:#f92672">kind</span>: <span style="color:#ae81ff">Pod</span>
+<span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">v1</span>
+<span style="color:#f92672">metadata</span>:
+  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">jumpod</span>
+<span style="color:#f92672">spec</span>:
+  <span style="color:#f92672">containers</span>:
+    - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">busybox</span>
+      <span style="color:#f92672">image</span>: <span style="color:#ae81ff">busybox</span>
+      <span style="color:#f92672">command</span>:
+        - <span style="color:#ae81ff">sleep</span>
+        - <span style="color:#e6db74">&#34;3600&#34;</span>
+      <span style="color:#f92672">imagePullPolicy</span>: <span style="color:#ae81ff">IfNotPresent</span>
+      <span style="color:#f92672">resources</span>:
+        <span style="color:#f92672">requests</span>:
+          <span style="color:#f92672">memory</span>: <span style="color:#e6db74">&#34;64Mi&#34;</span>
+          <span style="color:#f92672">cpu</span>: <span style="color:#e6db74">&#34;10m&#34;</span>
+        <span style="color:#f92672">limits</span>:
+          <span style="color:#f92672">memory</span>: <span style="color:#e6db74">&#34;64Mi&#34;</span>
+          <span style="color:#f92672">cpu</span>: <span style="color:#e6db74">&#34;10m&#34;</span>
+  <span style="color:#f92672">restartPolicy</span>: <span style="color:#ae81ff">Always</span>
+</code></pre></div><p>Al analizar este fichero de definición con KubeLinter, obtenemos los errores:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">jumpod.yaml: <span style="color:#f92672">(</span>object: &lt;no namespace&gt;/jumpod /v1, Kind<span style="color:#f92672">=</span>Pod<span style="color:#f92672">)</span> container <span style="color:#e6db74">&#34;busybox&#34;</span> does not have a read-only root file system <span style="color:#f92672">(</span>check: no-read-only-root-fs, remediation: Set readOnlyRootFilesystem to true in your container<span style="color:#960050;background-color:#1e0010">&#39;</span>s securityContext.<span style="color:#f92672">)</span>
+
+jumpod.yaml: <span style="color:#f92672">(</span>object: &lt;no namespace&gt;/jumpod /v1, Kind<span style="color:#f92672">=</span>Pod<span style="color:#f92672">)</span> container <span style="color:#e6db74">&#34;busybox&#34;</span> is not set to runAsNonRoot <span style="color:#f92672">(</span>check: run-as-non-root, remediation: Set runAsUser to a non-zero number, and runAsNonRoot to true, in your pod or container securityContext. See https://kubernetes.io/docs/tasks/configure-pod-container/security-context/ <span style="color:#66d9ef">for</span> more details.<span style="color:#f92672">)</span>
+
+Error: found <span style="color:#ae81ff">2</span> lint errors
+</code></pre></div><p>Filtrando la salida anterior:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#f92672">(</span>...<span style="color:#f92672">)</span> container <span style="color:#e6db74">&#34;busybox&#34;</span> does not have a read-only root file system <span style="color:#f92672">(</span>...<span style="color:#f92672">)</span>
+
+<span style="color:#f92672">(</span>...<span style="color:#f92672">)</span> container <span style="color:#e6db74">&#34;busybox&#34;</span> is not set to runAsNonRoot <span style="color:#f92672">(</span>...<span style="color:#f92672">)</span>
+</code></pre></div><p>El primer aviso apunta a que la solución pasa por especificar un <em>root file system</em> en modo lectura. El segundo hace referencia al usuario con el que se ejecuta el contenedor (que no debería ser el usuario <em>root</em>).</p>
+<p>Para solucionar el primer error, especificamos <code>readOnlyRootFilesystem: true</code> y para el segundo, especificamos <code>runAsUser: 1001</code>:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">---
+<span style="color:#f92672">kind</span>: <span style="color:#ae81ff">Pod</span>
+<span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">v1</span>
+<span style="color:#f92672">metadata</span>:
+  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">jumpod</span>
+<span style="color:#f92672">spec</span>:
+  <span style="color:#f92672">containers</span>:
+    - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">busybox</span>
+      <span style="color:#f92672">image</span>: <span style="color:#ae81ff">busybox</span>
+      <span style="color:#f92672">command</span>:
+        - <span style="color:#ae81ff">sleep</span>
+        - <span style="color:#e6db74">&#34;3600&#34;</span>
+      <span style="color:#f92672">imagePullPolicy</span>: <span style="color:#ae81ff">IfNotPresent</span>
+      <span style="color:#f92672">securityContext</span>:
+        <span style="color:#f92672">runAsUser</span>: <span style="color:#ae81ff">1001</span>
+        <span style="color:#f92672">runAsGroup</span>: <span style="color:#ae81ff">1001</span>
+        <span style="color:#f92672">readOnlyRootFilesystem</span>: <span style="color:#66d9ef">true</span>
+      <span style="color:#f92672">resources</span>:
+        <span style="color:#f92672">requests</span>:
+          <span style="color:#f92672">memory</span>: <span style="color:#e6db74">&#34;64Mi&#34;</span>
+          <span style="color:#f92672">cpu</span>: <span style="color:#e6db74">&#34;10m&#34;</span>
+        <span style="color:#f92672">limits</span>:
+          <span style="color:#f92672">memory</span>: <span style="color:#e6db74">&#34;64Mi&#34;</span>
+          <span style="color:#f92672">cpu</span>: <span style="color:#e6db74">&#34;10m&#34;</span>
+  <span style="color:#f92672">restartPolicy</span>: <span style="color:#ae81ff">Always</span>
+</code></pre></div><h2 id="comparando-el-efecto-de-estas-opciones">Comparando el efecto de estas opciones</h2>
+<h3 id="primer-caso-runasuser-1001">Primer caso: <code>runAsUser: 1001</code></h3>
+<p>Abrimos una <em>shell</em> en el Pod desplegado con el YAML donde se indica que el contenedor debe ejecutarse como usuario 1001:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">---
+<span style="color:#f92672">kind</span>: <span style="color:#ae81ff">Pod</span>
+<span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">v1</span>
+<span style="color:#f92672">metadata</span>:
+  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">jumpod</span>
+<span style="color:#f92672">spec</span>:
+  <span style="color:#f92672">containers</span>:
+    - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">busybox</span>
+      <span style="color:#f92672">image</span>: <span style="color:#ae81ff">busybox</span>
+      <span style="color:#f92672">command</span>:
+        - <span style="color:#ae81ff">sleep</span>
+        - <span style="color:#e6db74">&#34;3600&#34;</span>
+      <span style="color:#f92672">imagePullPolicy</span>: <span style="color:#ae81ff">IfNotPresent</span>
+      <span style="color:#f92672">securityContext</span>:
+        <span style="color:#f92672">runAsUser</span>: <span style="color:#ae81ff">1001</span>
+        <span style="color:#f92672">runAsGroup</span>: <span style="color:#ae81ff">1001</span>
+        <span style="color:#75715e"># readOnlyRootFilesystem: true</span>
+      <span style="color:#f92672">resources</span>:
+        <span style="color:#f92672">requests</span>:
+          <span style="color:#f92672">memory</span>: <span style="color:#e6db74">&#34;64Mi&#34;</span>
+          <span style="color:#f92672">cpu</span>: <span style="color:#e6db74">&#34;10m&#34;</span>
+        <span style="color:#f92672">limits</span>:
+          <span style="color:#f92672">memory</span>: <span style="color:#e6db74">&#34;64Mi&#34;</span>
+          <span style="color:#f92672">cpu</span>: <span style="color:#e6db74">&#34;10m&#34;</span>
+  <span style="color:#f92672">restartPolicy</span>: <span style="color:#ae81ff">Always</span>
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">kubectl exec -it pod/jumpod -n jumpod -- /bin/sh
+</code></pre></div><p>En el Pod:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">/ $ whoami
+whoami: unknown uid <span style="color:#ae81ff">1001</span>
+</code></pre></div><p>Si revisamos a qué tiene acceso el usuario en el contenedor, vemos que sólo tiene permisos para escribir en <code>/tmp</code>, mientras que en el resto sólo tiene permisos de lectura y de ejecución: <code>drwxr-xr-x</code> (el propietario es <code>root</code>):</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">/ $ ls -lah
+total 44K    
+drwxr-xr-x    <span style="color:#ae81ff">1</span> root     root        4.0K Feb <span style="color:#ae81ff">12</span> 18:47 .
+drwxr-xr-x    <span style="color:#ae81ff">1</span> root     root        4.0K Feb <span style="color:#ae81ff">12</span> 18:47 ..
+drwxr-xr-x    <span style="color:#ae81ff">2</span> root     root       12.0K Feb  <span style="color:#ae81ff">1</span> 19:44 bin
+drwxr-xr-x    <span style="color:#ae81ff">5</span> root     root         <span style="color:#ae81ff">360</span> Feb <span style="color:#ae81ff">12</span> 18:47 dev
+drwxr-xr-x    <span style="color:#ae81ff">1</span> root     root        4.0K Feb <span style="color:#ae81ff">12</span> 18:47 etc
+drwxr-xr-x    <span style="color:#ae81ff">2</span> nobody   nobody      4.0K Feb  <span style="color:#ae81ff">1</span> 19:44 home
+dr-xr-xr-x  <span style="color:#ae81ff">368</span> root     root           <span style="color:#ae81ff">0</span> Feb <span style="color:#ae81ff">12</span> 18:47 proc
+drwx------    <span style="color:#ae81ff">2</span> root     root        4.0K Feb  <span style="color:#ae81ff">1</span> 19:44 root
+dr-xr-xr-x   <span style="color:#ae81ff">13</span> root     root           <span style="color:#ae81ff">0</span> Feb <span style="color:#ae81ff">12</span> 18:47 sys
+drwxrwxrwt    <span style="color:#ae81ff">1</span> root     root        4.0K Feb <span style="color:#ae81ff">12</span> 18:50 tmp
+drwxr-xr-x    <span style="color:#ae81ff">3</span> root     root        4.0K Feb  <span style="color:#ae81ff">1</span> 19:44 usr
+drwxr-xr-x    <span style="color:#ae81ff">1</span> root     root        4.0K Feb <span style="color:#ae81ff">12</span> 18:47 var
+/ $ touch /tmp/test
+/ $ ls /tmp/
+/tmp/test
+</code></pre></div><p>El usuario con <code>uid: 1001</code> tiene permisos sobre <code>/tmp</code> y puede crear ficheros en esa carpeta. En el resto, no tiene permisos de escritura.</p>
+<h3 id="segundo-caso-readonlyrootfilesystem-true">Segundo caso: <code>readOnlyRootFilesystem: true</code></h3>
+<p>En el segundo caso, si especficamos la opción <code>readOnlyRootFilesystem: true</code>, el usuario con el que se ejecutar el Pod es <code>root</code>:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">---
+<span style="color:#f92672">kind</span>: <span style="color:#ae81ff">Pod</span>
+<span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">v1</span>
+<span style="color:#f92672">metadata</span>:
+  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">jumpod</span>
+<span style="color:#f92672">spec</span>:
+  <span style="color:#f92672">containers</span>:
+    - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">busybox</span>
+      <span style="color:#f92672">image</span>: <span style="color:#ae81ff">busybox</span>
+      <span style="color:#f92672">command</span>:
+        - <span style="color:#ae81ff">sleep</span>
+        - <span style="color:#e6db74">&#34;3600&#34;</span>
+      <span style="color:#f92672">imagePullPolicy</span>: <span style="color:#ae81ff">IfNotPresent</span>
+      <span style="color:#f92672">securityContext</span>:
+        <span style="color:#75715e">#runAsUser: 1001</span>
+        <span style="color:#75715e">#runAsGroup: 1001</span>
+        <span style="color:#f92672">readOnlyRootFilesystem</span>: <span style="color:#66d9ef">true</span>
+      <span style="color:#f92672">resources</span>:
+        <span style="color:#f92672">requests</span>:
+          <span style="color:#f92672">memory</span>: <span style="color:#e6db74">&#34;64Mi&#34;</span>
+          <span style="color:#f92672">cpu</span>: <span style="color:#e6db74">&#34;10m&#34;</span>
+        <span style="color:#f92672">limits</span>:
+          <span style="color:#f92672">memory</span>: <span style="color:#e6db74">&#34;64Mi&#34;</span>
+          <span style="color:#f92672">cpu</span>: <span style="color:#e6db74">&#34;10m&#34;</span>
+  <span style="color:#f92672">restartPolicy</span>: <span style="color:#ae81ff">Always</span>
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">/ <span style="color:#75715e"># whoami</span>
+root
+</code></pre></div><p>Aunque el usuario tiene permisos de escritura sobre el sistema de ficheros del Pod, cuando intentamos crear un fichero:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">/ <span style="color:#75715e"># ls -lah</span>
+total 44K
+drwxr-xr-x    <span style="color:#ae81ff">1</span> root     root        4.0K Feb <span style="color:#ae81ff">12</span> 19:17 .
+drwxr-xr-x    <span style="color:#ae81ff">1</span> root     root        4.0K Feb <span style="color:#ae81ff">12</span> 19:17 ..
+drwxr-xr-x    <span style="color:#ae81ff">2</span> root     root       12.0K Feb  <span style="color:#ae81ff">1</span> 19:44 bin
+drwxr-xr-x    <span style="color:#ae81ff">5</span> root     root         <span style="color:#ae81ff">360</span> Feb <span style="color:#ae81ff">12</span> 19:17 dev
+drwxr-xr-x    <span style="color:#ae81ff">1</span> root     root        4.0K Feb <span style="color:#ae81ff">12</span> 19:17 etc
+drwxr-xr-x    <span style="color:#ae81ff">2</span> nobody   nobody      4.0K Feb  <span style="color:#ae81ff">1</span> 19:44 home
+dr-xr-xr-x  <span style="color:#ae81ff">375</span> root     root           <span style="color:#ae81ff">0</span> Feb <span style="color:#ae81ff">12</span> 19:17 proc
+drwx------    <span style="color:#ae81ff">2</span> root     root        4.0K Feb  <span style="color:#ae81ff">1</span> 19:44 root
+dr-xr-xr-x   <span style="color:#ae81ff">13</span> root     root           <span style="color:#ae81ff">0</span> Feb <span style="color:#ae81ff">12</span> 19:17 sys
+drwxrwxrwt    <span style="color:#ae81ff">2</span> root     root        4.0K Feb  <span style="color:#ae81ff">1</span> 19:44 tmp
+drwxr-xr-x    <span style="color:#ae81ff">3</span> root     root        4.0K Feb  <span style="color:#ae81ff">1</span> 19:44 usr
+drwxr-xr-x    <span style="color:#ae81ff">1</span> root     root        4.0K Feb <span style="color:#ae81ff">12</span> 19:17 var
+/ <span style="color:#75715e"># touch /bin/test</span>
+touch: /bin/test: Read-only file system
+</code></pre></div><h3 id="tercer-caso-runasuser-1001-y-readonlyrootfilesystem-true">Tercer caso: <code>runAsUser: 1001</code> y <code>readOnlyRootFilesystem: true</code></h3>
+<p>Si desplegamos un Pod en el que especificamos un usuario no-root (<code>uid: 1001</code>) y además un <strong>sistema de ficheros de sólo lectura</strong>:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">---
+<span style="color:#f92672">kind</span>: <span style="color:#ae81ff">Pod</span>
+<span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">v1</span>
+<span style="color:#f92672">metadata</span>:
+  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">jumpod</span>
+<span style="color:#f92672">spec</span>:
+  <span style="color:#f92672">containers</span>:
+    - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">busybox</span>
+      <span style="color:#f92672">image</span>: <span style="color:#ae81ff">busybox</span>
+      <span style="color:#f92672">command</span>:
+        - <span style="color:#ae81ff">sleep</span>
+        - <span style="color:#e6db74">&#34;3600&#34;</span>
+      <span style="color:#f92672">imagePullPolicy</span>: <span style="color:#ae81ff">IfNotPresent</span>
+      <span style="color:#f92672">securityContext</span>:
+        <span style="color:#f92672">runAsUser</span>: <span style="color:#ae81ff">1001</span>
+        <span style="color:#f92672">runAsGroup</span>: <span style="color:#ae81ff">1001</span>
+        <span style="color:#f92672">readOnlyRootFilesystem</span>: <span style="color:#66d9ef">true</span>
+      <span style="color:#f92672">resources</span>:
+        <span style="color:#f92672">requests</span>:
+          <span style="color:#f92672">memory</span>: <span style="color:#e6db74">&#34;64Mi&#34;</span>
+          <span style="color:#f92672">cpu</span>: <span style="color:#e6db74">&#34;10m&#34;</span>
+        <span style="color:#f92672">limits</span>:
+          <span style="color:#f92672">memory</span>: <span style="color:#e6db74">&#34;64Mi&#34;</span>
+          <span style="color:#f92672">cpu</span>: <span style="color:#e6db74">&#34;10m&#34;</span>
+  <span style="color:#f92672">restartPolicy</span>: <span style="color:#ae81ff">Always</span>
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">/ $ whoami
+whoami: unknown uid <span style="color:#ae81ff">1001</span>
+/ $ ls -lah
+total 44K    
+drwxr-xr-x    <span style="color:#ae81ff">1</span> root     root        4.0K Feb <span style="color:#ae81ff">12</span> 19:33 .
+drwxr-xr-x    <span style="color:#ae81ff">1</span> root     root        4.0K Feb <span style="color:#ae81ff">12</span> 19:33 ..
+drwxr-xr-x    <span style="color:#ae81ff">2</span> root     root       12.0K Feb  <span style="color:#ae81ff">1</span> 19:44 bin
+drwxr-xr-x    <span style="color:#ae81ff">5</span> root     root         <span style="color:#ae81ff">360</span> Feb <span style="color:#ae81ff">12</span> 19:33 dev
+drwxr-xr-x    <span style="color:#ae81ff">1</span> root     root        4.0K Feb <span style="color:#ae81ff">12</span> 19:33 etc
+drwxr-xr-x    <span style="color:#ae81ff">2</span> nobody   nobody      4.0K Feb  <span style="color:#ae81ff">1</span> 19:44 home
+dr-xr-xr-x  <span style="color:#ae81ff">373</span> root     root           <span style="color:#ae81ff">0</span> Feb <span style="color:#ae81ff">12</span> 19:33 proc
+drwx------    <span style="color:#ae81ff">2</span> root     root        4.0K Feb  <span style="color:#ae81ff">1</span> 19:44 root
+dr-xr-xr-x   <span style="color:#ae81ff">13</span> root     root           <span style="color:#ae81ff">0</span> Feb <span style="color:#ae81ff">12</span> 19:33 sys
+drwxrwxrwt    <span style="color:#ae81ff">2</span> root     root        4.0K Feb  <span style="color:#ae81ff">1</span> 19:44 tmp
+drwxr-xr-x    <span style="color:#ae81ff">3</span> root     root        4.0K Feb  <span style="color:#ae81ff">1</span> 19:44 usr
+drwxr-xr-x    <span style="color:#ae81ff">1</span> root     root        4.0K Feb <span style="color:#ae81ff">12</span> 19:33 var
+/ $ touch /tmp/test
+touch: /tmp/test: Read-only file system
+</code></pre></div><p>En este caso, aunque el usuario <code>uid: 1001</code> tiene permisos de escritura en <code>/tmp</code>, como el sistema de ficheros es <em>readOnly</em>, <strong>no puede escribir en el sistema de ficheros</strong>.</p>
+<h2 id="conclusión">Conclusión</h2>
+<p>Configurar el <em>root volume filesystem</em> como sólo lectura es la opción que puede tener un mayor impacto en el funcionamiento de la aplicación. Al activar esta configuración ningún usuario (incluyendo al usuario <em>root</em>) puede escribir en el sistema de ficheros raíz.</p>
+<p>Si especificamos sólo <code>readOnlyRootFilesystem: true</code> el contenedor sigue ejecutándose como <em>root</em>, lo que va en contra de las buenas prácticas. Por tanto, también es recomendable usar la opción de <code>runAsUser</code> para usar un usuario con menos privilegios.</p>
+<p>Una solución de compromiso podría ser usar sólo <code>runAsUser</code> con un usuario no <em>root</em>; de esta forma el sistema de permisos de Linux permite limitar dónde puede escribir el proceso iniciado por el usuario indicado, mientras que permite el acceso a carpetas como <code>/tmp</code> que algunos procesos pueden utilizar por defecto.</p></div>
 
   <aside class="p-share">
-  <a href="http://twitter.com/intent/tweet?url=https%3a%2f%2fonthedock.github.io%2fpost%2f201206-side-project%2f&text=Side%20Project%3a%20devtoolbox&tw_p=tweetbutton" title="Twitterでシェア" class="tw" target="_blank" rel="nofollow"></a>
-  <a href="http://www.facebook.com/sharer.php?u=https%3a%2f%2fonthedock.github.io%2fpost%2f201206-side-project%2f&t=Side%20Project%3a%20devtoolbox" title="Facebookでシェア" class="fb" target="_blank" rel="nofollow"></a>
-  <a href="http://line.me/R/msg/text/?Side%20Project%3a%20devtoolbox https%3a%2f%2fonthedock.github.io%2fpost%2f201206-side-project%2f" title="LINEでシェア" class="ln" target="_blank" rel="nofollow"></a>
-  <a href="http://b.hatena.ne.jp/add?mode=confirm&url=https%3a%2f%2fonthedock.github.io%2fpost%2f201206-side-project%2f&title=Side%20Project%3a%20devtoolbox" title="はてなブックマーク" class="ht" target="_blank" rel="nofollow"></a>
+  <a href="http://twitter.com/intent/tweet?url=https%3a%2f%2fonthedock.github.io%2fpost%2f210212-runasuser-y-readonlyrootfilesystem%2f&text=Seguridad%20en%20Kubernetes%3a%20runAsUser%20y%20readOnlyRootFilesystem&tw_p=tweetbutton" title="Twitterでシェア" class="tw" target="_blank" rel="nofollow"></a>
+  <a href="http://www.facebook.com/sharer.php?u=https%3a%2f%2fonthedock.github.io%2fpost%2f210212-runasuser-y-readonlyrootfilesystem%2f&t=Seguridad%20en%20Kubernetes%3a%20runAsUser%20y%20readOnlyRootFilesystem" title="Facebookでシェア" class="fb" target="_blank" rel="nofollow"></a>
+  <a href="http://line.me/R/msg/text/?Seguridad%20en%20Kubernetes%3a%20runAsUser%20y%20readOnlyRootFilesystem https%3a%2f%2fonthedock.github.io%2fpost%2f210212-runasuser-y-readonlyrootfilesystem%2f" title="LINEでシェア" class="ln" target="_blank" rel="nofollow"></a>
+  <a href="http://b.hatena.ne.jp/add?mode=confirm&url=https%3a%2f%2fonthedock.github.io%2fpost%2f210212-runasuser-y-readonlyrootfilesystem%2f&title=Seguridad%20en%20Kubernetes%3a%20runAsUser%20y%20readOnlyRootFilesystem" title="はてなブックマーク" class="ht" target="_blank" rel="nofollow"></a>
   <div class="searchbar">
       <iframe src="https://duckduckgo.com/search.html?site=https://onthedock.github.io/&prefill=Busca en este sitio usando DuckDuckGo" style="width: 25em;height: 48px" frameborder="0"></iframe>
     </div>
@@ -148,7 +347,7 @@
         
         <li itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb"><a href="https://onthedock.github.io/post/" itemprop="url"><span itemprop="title">post</span></a></li>
         
-        <li>Side Project: devtoolbox</li>
+        <li>Seguridad en Kubernetes: runAsUser y readOnlyRootFilesystem</li>
       </ol>
 
       
@@ -161,8 +360,6 @@
             
             <li><a href="https://onthedock.github.io/categories/dev/">dev</a></li>
             
-            <li><a href="https://onthedock.github.io/categories/ops/">ops</a></li>
-            
           </ul>
         </li>
       </ul>
@@ -174,9 +371,7 @@
           <header><a href="https://onthedock.github.io/tags/">tags</a></header>
           <ul>
             
-            <li><a href="https://onthedock.github.io/tags/blog/">blog</a></li>
-            
-            <li><a href="https://onthedock.github.io/tags/devtoolbox/">devtoolbox</a></li>
+            <li><a href="https://onthedock.github.io/tags/kubernetes/">kubernetes</a></li>
             
           </ul>
         </li>
@@ -214,22 +409,7 @@
   <section>
     <header><span>Latests</span></header>
     <ul class="p-articles thin">
-      <li><article class="li sm article-e447bc414104c15405ae169ace8c2b29">
-  <div class="header-wrapper">
-    <a href="https://onthedock.github.io/post/210212-runasuser-y-readonlyrootfilesystem/" class="thumbnail" title="Seguridad en Kubernetes: runAsUser y readOnlyRootFilesystem"></a>
-    <header class="article-header">
-      <div class="clearfix">
-        <h2 class="title"><a href="https://onthedock.github.io/post/210212-runasuser-y-readonlyrootfilesystem/">Seguridad en Kubernetes: runAsUser y readOnlyRootFilesystem</a></h2>
-        <ul class="p-facts">
-          <li><time datetime="2021-02-12T23:02:05JST">12 Feb 2021</time></li>
-          <li><a href="https://onthedock.github.io/post/">post</a></li>
-          
-        </ul>
-      </div>
-    </header>
-  </div>
-</article>
-</li><li><article class="li sm article-38e84f875db85488c523f3257aba8fdd">
+      <li><article class="li sm article-38e84f875db85488c523f3257aba8fdd">
   <div class="header-wrapper">
     <a href="https://onthedock.github.io/post/210212-kubelinter/" class="thumbnail" title="KubeLinter: identifica malas configuraciones en los objetos de Kubernetes"></a>
     <header class="article-header">
@@ -267,6 +447,21 @@
         <h2 class="title"><a href="https://onthedock.github.io/post/201224-como-saber-si-un-recursos-esta-restringido-a-un-namespace/">Cómo saber si un recurso de Kubernetes está restringido al namespace o es global</a></h2>
         <ul class="p-facts">
           <li><time datetime="2020-12-24T11:39:07JST">24 Dec 2020</time></li>
+          <li><a href="https://onthedock.github.io/post/">post</a></li>
+          
+        </ul>
+      </div>
+    </header>
+  </div>
+</article>
+</li><li><article class="li sm article-56505d63d80c0cf676712e0761ce6b57">
+  <div class="header-wrapper">
+    <a href="https://onthedock.github.io/post/201212-desplegar-gitea-en-kubernetes/" class="thumbnail" title="Desplegar Gitea en Kubernetes"></a>
+    <header class="article-header">
+      <div class="clearfix">
+        <h2 class="title"><a href="https://onthedock.github.io/post/201212-desplegar-gitea-en-kubernetes/">Desplegar Gitea en Kubernetes</a></h2>
+        <ul class="p-facts">
+          <li><time datetime="2020-12-12T12:13:18JST">12 Dec 2020</time></li>
           <li><a href="https://onthedock.github.io/post/">post</a></li>
           
         </ul>
