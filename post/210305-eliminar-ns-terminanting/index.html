@@ -128,14 +128,14 @@ toolbox-argocd             Terminating   147d
 toolbox-tekton-pipelines   Terminating   147d
 
 </code></pre></div><p>He intentado varias cosas (incluso reiniciando la VM), pero los <em>namespaces</em> seguían sin eliminarse&hellip;</p>
-<p>El problema es que hay &ldquo;<em>algo</em>&rdquo; que impide que el <em>namespace</em> se borre; puedes identificar ese <em>algo</em> lanzando un <code>kubectl get ns ${nombre_namespace} -o yaml</code> del <em>namespace</em> y buscando en la sección de <code>spec.finalizers</code>.</p>
+<p>El problema es que hay &ldquo;<em>algo</em>&rdquo; que impide que el <em>namespace</em> se borre; puedes identificar ese <em>algo</em> lanzando un <code>kubectl get ns ${nombre_namespace} -o yaml</code> del <em>namespace</em> y buscando en la sección de <code>metadata.finalizers</code>.</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#f92672">[</span>...<span style="color:#f92672">]</span>
 metadata:
   finalizers:
   - controller.cattle.io/namespace-auth
 <span style="color:#f92672">[</span>...<span style="color:#f92672">]</span>
-</code></pre></div><p>Aunque no puedo borrar este elemento que bloquea el borrado del <em>Namespace</em>, sí que puedo <strong>editar</strong> el <em>Namespace</em> para <strong>eliminar</strong> el <em>finalizer</em>. Así Kubernetes cree que no hay nada que impide la eliminación del objeto.</p>
-<p>Edito el objeto mediante <code>kubectl edit ns toolbox-gitea</code> y elimino la línea correspondiente a <code>- kubernetes</code>:</p>
+</code></pre></div><p>Aunque no puedo borrar este elemento que bloquea el borrado del <em>Namespace</em>, sí que puedo <strong>editar</strong> el <em>Namespace</em> para <strong>eliminar</strong> el <em>finalizer</em>. Así Kubernetes cree que no hay nada que impida la eliminación del objeto.</p>
+<p>Edito el objeto mediante <code>kubectl edit ns toolbox-argocd</code> y elimino la línea correspondiente a <code>- controller.cattle.io/namespace-auth</code>:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#f92672">[</span>...<span style="color:#f92672">]</span>
   finalizers:
 <span style="color:#f92672">[</span>...<span style="color:#f92672">]</span>
