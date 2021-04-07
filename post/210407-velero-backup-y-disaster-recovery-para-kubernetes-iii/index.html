@@ -11,13 +11,13 @@
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
 
-<link rel="canonical" href="https://onthedock.github.io/post/200118-alpine-para-desarrollo-con-python/">
+<link rel="canonical" href="https://onthedock.github.io/post/210407-velero-backup-y-disaster-recovery-para-kubernetes-iii/">
 
 
     
     <link href="https://fonts.googleapis.com/css?family=Special+Elite|Fira+Sans:400,700" rel="stylesheet">
     
-    <title>Alpine para desarrollo con Python - On The Dock</title>
+    <title>Velero - Backup Y Disaster Recovery Para Kubernetes (III) Recuperación desde una copia de seguridad - On The Dock</title>
     <style amp-boilerplate>body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}</style><noscript><style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style></noscript>
     <script async src="https://cdn.ampproject.org/v0.js"></script>
     
@@ -26,22 +26,22 @@
 <script async custom-element="amp-ad" src="https://cdn.ampproject.org/v0/amp-ad-0.1.js"></script>
 
     
-<meta name="description" content="&lt;p&gt;Para practicar con Python, he instalado una máquina virtual con Alpine 3.9. En esta entrada recojo los diferentes pasos que he realizado para configurarla como entorno de ejecución de Python 3.&lt;/p&gt;">
+<meta name="description" content="&lt;p&gt;Velero realiza copias de seguridad (puntuales o recurrentes) para recuperarnos con rapidez de un desastre en el clúster de Kubernetes.&lt;/p&gt;&lt;p&gt;En la entrada anterior &lt;a href=&#34;https://onthedock.github.io/post/210405-velero-backup-y-disaster-recovery-para-kubernetes-ii/&#34;&gt;Velero - Backup y Disaster Recovery para Kubernetes (II) Crear copia de seguridad&lt;/a&gt; desplegamos una aplicación de prueba en el clúster (dos réplicas de Nginx en el &lt;em&gt;Namespace&lt;/em&gt; &lt;code&gt;nginx-example&lt;/code&gt;). Simulamos la pérdida &amp;ldquo;accidental&amp;rdquo; del &lt;em&gt;Namespace&lt;/em&gt; &lt;code&gt;nginx-example&lt;/code&gt; para ver cómo recuperarnos usando la copia creada por Velero.&lt;/p&gt;">
 
-<meta property="og:title" content="Alpine para desarrollo con Python - On The Dock">
+<meta property="og:title" content="Velero - Backup Y Disaster Recovery Para Kubernetes (III) Recuperación desde una copia de seguridad - On The Dock">
 <meta property="og:type" content="article">
-<meta property="og:url" content="https://onthedock.github.io/post/200118-alpine-para-desarrollo-con-python/">
-<meta property="og:image" content="https://onthedock.github.io/images/python.png">
+<meta property="og:url" content="https://onthedock.github.io/post/210407-velero-backup-y-disaster-recovery-para-kubernetes-iii/">
+<meta property="og:image" content="https://onthedock.github.io/images/velero.jpg">
 <meta property="og:site_name" content="On The Dock">
-<meta property="og:description" content="&lt;p&gt;Para practicar con Python, he instalado una máquina virtual con Alpine 3.9. En esta entrada recojo los diferentes pasos que he realizado para configurarla como entorno de ejecución de Python 3.&lt;/p&gt;">
+<meta property="og:description" content="&lt;p&gt;Velero realiza copias de seguridad (puntuales o recurrentes) para recuperarnos con rapidez de un desastre en el clúster de Kubernetes.&lt;/p&gt;&lt;p&gt;En la entrada anterior &lt;a href=&#34;https://onthedock.github.io/post/210405-velero-backup-y-disaster-recovery-para-kubernetes-ii/&#34;&gt;Velero - Backup y Disaster Recovery para Kubernetes (II) Crear copia de seguridad&lt;/a&gt; desplegamos una aplicación de prueba en el clúster (dos réplicas de Nginx en el &lt;em&gt;Namespace&lt;/em&gt; &lt;code&gt;nginx-example&lt;/code&gt;). Simulamos la pérdida &amp;ldquo;accidental&amp;rdquo; del &lt;em&gt;Namespace&lt;/em&gt; &lt;code&gt;nginx-example&lt;/code&gt; para ver cómo recuperarnos usando la copia creada por Velero.&lt;/p&gt;">
 <meta property="og:locale" content="ja_JP">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="On The Dock">
-<meta name="twitter:url" content="https://onthedock.github.io/post/200118-alpine-para-desarrollo-con-python/">
-<meta name="twitter:title" content="Alpine para desarrollo con Python - On The Dock">
-<meta name="twitter:description" content="&lt;p&gt;Para practicar con Python, he instalado una máquina virtual con Alpine 3.9. En esta entrada recojo los diferentes pasos que he realizado para configurarla como entorno de ejecución de Python 3.&lt;/p&gt;">
-<meta name="twitter:image" content="https://onthedock.github.io/images/python.png">
+<meta name="twitter:url" content="https://onthedock.github.io/post/210407-velero-backup-y-disaster-recovery-para-kubernetes-iii/">
+<meta name="twitter:title" content="Velero - Backup Y Disaster Recovery Para Kubernetes (III) Recuperación desde una copia de seguridad - On The Dock">
+<meta name="twitter:description" content="&lt;p&gt;Velero realiza copias de seguridad (puntuales o recurrentes) para recuperarnos con rapidez de un desastre en el clúster de Kubernetes.&lt;/p&gt;&lt;p&gt;En la entrada anterior &lt;a href=&#34;https://onthedock.github.io/post/210405-velero-backup-y-disaster-recovery-para-kubernetes-ii/&#34;&gt;Velero - Backup y Disaster Recovery para Kubernetes (II) Crear copia de seguridad&lt;/a&gt; desplegamos una aplicación de prueba en el clúster (dos réplicas de Nginx en el &lt;em&gt;Namespace&lt;/em&gt; &lt;code&gt;nginx-example&lt;/code&gt;). Simulamos la pérdida &amp;ldquo;accidental&amp;rdquo; del &lt;em&gt;Namespace&lt;/em&gt; &lt;code&gt;nginx-example&lt;/code&gt; para ver cómo recuperarnos usando la copia creada por Velero.&lt;/p&gt;">
+<meta name="twitter:image" content="https://onthedock.github.io/images/velero.jpg">
 
 
 <script type="application/ld+json">
@@ -52,15 +52,15 @@
       "@type": "WebPage",
       "@id":"https:\/\/onthedock.github.io\/"
     },
-    "headline": "Alpine para desarrollo con Python - On The Dock",
+    "headline": "Velero - Backup Y Disaster Recovery Para Kubernetes (III) Recuperación desde una copia de seguridad - On The Dock",
     "image": {
       "@type": "ImageObject",
-      "url": "https:\/\/onthedock.github.io\/images\/python.png",
+      "url": "https:\/\/onthedock.github.io\/images\/velero.jpg",
       "height": 800,
       "width": 800
     },
-    "datePublished": "2020-01-18T19:00:21JST",
-    "dateModified": "2020-01-18T19:00:21JST",
+    "datePublished": "2021-04-07T19:54:57JST",
+    "dateModified": "2021-04-07T19:54:57JST",
     "author": {
       "@type": "Person",
       "name": "On The Dock"
@@ -75,7 +75,7 @@
         "height": 60
       }
     },
-    "description": "\x3cp\x3ePara practicar con Python, he instalado una máquina virtual con Alpine 3.9. En esta entrada recojo los diferentes pasos que he realizado para configurarla como entorno de ejecución de Python 3.\x3c\/p\x3e"
+    "description": "\x3cp\x3eVelero realiza copias de seguridad (puntuales o recurrentes) para recuperarnos con rapidez de un desastre en el clúster de Kubernetes.\x3c\/p\x3e\n\x3cp\x3eEn la entrada anterior \x3ca href=\x22https:\/\/onthedock.github.io\/post\/210405-velero-backup-y-disaster-recovery-para-kubernetes-ii\/\x22\x3eVelero - Backup y Disaster Recovery para Kubernetes (II) Crear copia de seguridad\x3c\/a\x3e desplegamos una aplicación de prueba en el clúster (dos réplicas de Nginx en el \x3cem\x3eNamespace\x3c\/em\x3e \x3ccode\x3enginx-example\x3c\/code\x3e). Simulamos la pérdida \x26ldquo;accidental\x26rdquo; del \x3cem\x3eNamespace\x3c\/em\x3e \x3ccode\x3enginx-example\x3c\/code\x3e para ver cómo recuperarnos usando la copia creada por Velero.\x3c\/p\x3e"
   }
 </script>
 
@@ -114,14 +114,14 @@
     <main>
       
 <div class="l-container">
-  <article class="single article-fa396b4de84b2dfd9b95c5edfc10cc30">
+  <article class="single article-76d7cde355b8100291f84cb2fb168ffc">
   <div class="header-wrapper">
-    <a href="https://onthedock.github.io/post/200118-alpine-para-desarrollo-con-python/" class="thumbnail" title="Alpine para desarrollo con Python"></a>
+    <a href="https://onthedock.github.io/post/210407-velero-backup-y-disaster-recovery-para-kubernetes-iii/" class="thumbnail" title="Velero - Backup Y Disaster Recovery Para Kubernetes (III) Recuperación desde una copia de seguridad"></a>
     <header class="article-header">
       <div class="clearfix">
-        <h1 class="title">Alpine para desarrollo con Python</h1>
+        <h1 class="title">Velero - Backup Y Disaster Recovery Para Kubernetes (III) Recuperación desde una copia de seguridad</h1>
         <ul class="p-facts">
-          <li><time datetime="2020-01-18T19:00:21JST">18 Jan 2020</time></li>
+          <li><time datetime="2021-04-07T19:54:57JST">7 Apr 2021</time></li>
           <li><a href="https://onthedock.github.io/post/">post</a></li>
           
           <li>Xavi Aznar</li>
@@ -130,71 +130,190 @@
     </header>
   </div>
 
-  <div class="article-body"><p>Para practicar con Python, he instalado una máquina virtual con Alpine 3.9. En esta entrada recojo los diferentes pasos que he realizado para configurarla como entorno de ejecución de Python 3.</p>
-<h2 id="habilitar-usuario-no-root">Habilitar usuario no <em>root</em></h2>
-<p>Alpine arranca en modo <em>live</em> y mediante la ejecución del script <code>setup-alpine</code> configuro e instalo la distrbución en el disco duro de la máquina virtual.</p>
-<p>Tras la instalación de Alpine únicamente tengo el usuario <em>root</em>; es conveniente crear un usuario <em>no-root</em> para poder trabajar con los mínimos permisos posibles.</p>
-<p>Para crear un usuario <em>no-root</em> uso <code>adduser</code></p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">adduser operador
-</code></pre></div><p>Instalo <code>sudo</code> y añado el usuario al fichero <code>/etc/sudoers</code>:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">apk add sudo
-visudo
-</code></pre></div><p>En el fichero he añadido la línea:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-ini" data-lang="ini">operador ALL<span style="color:#719e07">=</span><span style="color:#2aa198">(ALL) ALL</span>
-</code></pre></div><blockquote>
-<p>Inicialmente he creado un fichero <code>/etc/sudoers.d/operador.usr</code> (con permisos <code>0440</code>) pero al intentar elevar permisos recibía el mensaje <code>user is not in the sudoers file</code>, por lo que finalmente he dado permisos directamente en <code>/etc/sudoers</code>.</p>
-</blockquote>
-<p>Al disponer de un usuario <em>no-root</em>, ya puedo conectar remotamente vía SSH.</p>
-<h2 id="instalación-de-python">Instalación de Python</h2>
-<p>En Alpine (3.9) Python no está instalado por defecto (ni Python 2.7 ni 3.x).</p>
+  <div class="article-body"><p>Velero realiza copias de seguridad (puntuales o recurrentes) para recuperarnos con rapidez de un desastre en el clúster de Kubernetes.</p>
+<p>En la entrada anterior <a href="https://onthedock.github.io/post/210405-velero-backup-y-disaster-recovery-para-kubernetes-ii/">Velero - Backup y Disaster Recovery para Kubernetes (II) Crear copia de seguridad</a> desplegamos una aplicación de prueba en el clúster (dos réplicas de Nginx en el <em>Namespace</em> <code>nginx-example</code>). Simulamos la pérdida &ldquo;accidental&rdquo; del <em>Namespace</em> <code>nginx-example</code> para ver cómo recuperarnos usando la copia creada por Velero.</p>
+<h2 id="pérdida-accidental-de-un-namespace">Pérdida &ldquo;accidental&rdquo; de un <em>Namespace</em></h2>
+<p>Eliminamos el <em>Namespace</em> <code>nginx-example</code> para simular un desastre:</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl delete ns nginx-example
+namespace <span style="color:#2aa198">&#34;nginx-example&#34;</span> deleted
+</code></pre></div><h2 id="consultar-las-copias-de-seguridad-disponibles">Consultar las copias de seguridad disponibles</h2>
+<p>Si hemos programado un <em>schedule</em>, disponemos de múltiples copias de seguridad.</p>
+<p>Consultamos las copias disponibles:</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
+<span style="color:#719e07">kind</span>: Job
+<span style="color:#719e07">apiVersion</span>:  batch/v1
+<span style="color:#719e07">metadata</span>:
+  <span style="color:#719e07">labels</span>:
+      <span style="color:#719e07">app</span>: backup-nginx
+  <span style="color:#719e07">namespace</span>: velero-cli
+  <span style="color:#719e07">generateName</span>: velero-restore-get-
+<span style="color:#719e07">spec</span>:
+  <span style="color:#719e07">template</span>:
+    <span style="color:#719e07">metadata</span>:
+      <span style="color:#719e07">labels</span>:
+        <span style="color:#719e07">app</span>: backup-nginx
+    <span style="color:#719e07">spec</span>:
+      <span style="color:#719e07">serviceAccount</span>: velerocli
+      <span style="color:#719e07">restartPolicy</span>: Never
+      <span style="color:#719e07">containers</span>:
+        - <span style="color:#719e07">name</span>: velero-restore-get
+          <span style="color:#719e07">image</span>: docker.io/xaviaznar/velero-cli:<span style="color:#2aa198">1.5.3</span>
+          <span style="color:#719e07">imagePullPolicy</span>: IfNotPresent
+          <span style="color:#719e07">command</span>: [<span style="color:#2aa198">&#34;/bin/sh&#34;</span>]
+          <span style="color:#719e07">args</span>: [<span style="color:#2aa198">&#34;-c&#34;</span>, <span style="color:#2aa198">&#34;velero restore get&#34;</span>]
+</code></pre></div><p>Lo que devuelve, en los logs:</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">NAME STATUS ERRORS WARNINGS CREATED EXPIRES STORAGE LOCATION SELECTOR
+nginx-backup Completed <span style="color:#2aa198">0</span> <span style="color:#2aa198">0</span> 2021-04-04 18:12:00 +0000 UTC 26d default &lt;none&gt;
+nginx-backup-2021-04-04 Completed <span style="color:#2aa198">0</span> <span style="color:#2aa198">0</span> 2021-04-04 18:47:20 +0000 UTC 26d default &lt;none&gt;
+nginx-example-backups-20210404203557 Completed <span style="color:#2aa198">0</span> <span style="color:#2aa198">0</span> 2021-04-04 20:35:57 +0000 UTC 27d default &lt;none&gt;
+nginx-example-backups-20210404203057 Completed <span style="color:#2aa198">0</span> <span style="color:#2aa198">0</span> 2021-04-04 20:30:57 +0000 UTC 27d default &lt;none&gt;
+nginx-example-backups-20210404202557 Completed <span style="color:#2aa198">0</span> <span style="color:#2aa198">0</span> 2021-04-04 20:25:57 +0000 UTC 27d default &lt;none&gt;
+nginx-example-backups-20210404202057 Completed <span style="color:#2aa198">0</span> <span style="color:#2aa198">0</span> 2021-04-04 20:20:57 +0000 UTC 27d default &lt;none&gt;
+nginx-example-backups-20210404201557 Completed <span style="color:#2aa198">0</span> <span style="color:#2aa198">0</span> 2021-04-04 20:15:57 +0000 UTC 27d default &lt;none&gt;
+nginx-example-backups-20210404201057 Completed <span style="color:#2aa198">0</span> <span style="color:#2aa198">0</span> 2021-04-04 20:10:57 +0000 UTC 27d default &lt;none&gt;
+nginx-example-backups-20210404200830 Completed <span style="color:#2aa198">0</span> <span style="color:#2aa198">0</span> 2021-04-04 20:08:30 +0000 UTC 27d default &lt;none&gt;
+nginx-example-backups-20210404193557 Completed <span style="color:#2aa198">0</span> <span style="color:#2aa198">0</span> 2021-04-04 19:35:57 +0000 UTC 27d default &lt;none&gt;
+nginx-example-backups-20210404193057 Completed <span style="color:#2aa198">0</span> <span style="color:#2aa198">0</span> 2021-04-04 19:30:57 +0000 UTC 27d default &lt;none&gt;
+nginx-example-backups-20210404192557 Completed <span style="color:#2aa198">0</span> <span style="color:#2aa198">0</span> 2021-04-04 19:25:57 +0000 UTC 27d default &lt;none&gt;
+nginx-example-backups-20210404192057 Completed <span style="color:#2aa198">0</span> <span style="color:#2aa198">0</span> 2021-04-04 19:20:57 +0000 UTC 27d default &lt;none&gt;
+nginx-example-backups-20210404191557 Completed <span style="color:#2aa198">0</span> <span style="color:#2aa198">0</span> 2021-04-04 19:15:57 +0000 UTC 26d default &lt;none&gt;
+nginx-example-backups-20210404191057 Completed <span style="color:#2aa198">0</span> <span style="color:#2aa198">0</span> 2021-04-04 19:10:57 +0000 UTC 26d default &lt;none&gt;
+nginx-example-backups-20210404190557 Completed <span style="color:#2aa198">0</span> <span style="color:#2aa198">0</span> 2021-04-04 19:05:57 +0000 UTC 26d default &lt;none&gt;
+nginx-example-backups-20210404190013 Completed <span style="color:#2aa198">0</span> <span style="color:#2aa198">0</span> 2021-04-04 19:00:13 +0000 UTC 26d default &lt;none&gt;
+</code></pre></div><p>En general recuperamos a partir de la última copia de seguridad realizada, pero podemos seleccionar la copia específica desde la que restaurar. Si lo indicamos, también podemos realizar la recuperación en un <em>Namespace</em> <strong>diferente</strong> al de la copia original.</p>
+<p>Restauramos a partir de la última copia realizada:</p>
 <blockquote>
-<p><a href="https://www.python.org/dev/peps/pep-0373/#update">Desde el 01/01/2020 Python 2.7 ha alcanzado la fecha final de soporte</a> y <strong>no está mantenido oficialmente</strong>.</p>
+<p>Definimos el nombre de la copia específica de la que queremos recuperar en una variable de entorno: <code>$BACKUP2RESTORE</code></p>
 </blockquote>
-<p>Instalo Python 3 mediante:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">sudo apk update
-sudo apk add python3
-</code></pre></div><p>Compruebo la versión instalada mediante:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ python3 --version
-Python 3.6.9
-</code></pre></div><p>Valido que también se ha instalado <code>pip3</code>:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ pip3 --version
-pip 18.1 from /usr/lib/python3.6/site-packages/pip <span style="color:#719e07">(</span>python 3.6<span style="color:#719e07">)</span>
-</code></pre></div><h2 id="creación-de-entornos-virtuales">Creación de entornos virtuales</h2>
-<p>El módulo <code>venv</code> permite crear &ldquo;entornos virtuales&rdquo; autocontenidos en una carpeta. De esta forma podemos tener diferentes versiones de Python o de alguno de sus paquetes sin interferencias entre ellos.</p>
-<p>Para crear un <em>entorno virtual</em> llamado <code>pydev</code>:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">python3 -m venv pydev
-</code></pre></div><blockquote>
-<p>De forma general <code>python3 -m venv /ruta/a/la/carpeta/del/entorno/virtual</code></p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
+<span style="color:#719e07">kind</span>: Job
+<span style="color:#719e07">apiVersion</span>:  batch/v1
+<span style="color:#719e07">metadata</span>:
+  <span style="color:#719e07">labels</span>:
+      <span style="color:#719e07">app</span>: backup-nginx
+  <span style="color:#719e07">namespace</span>: velero-cli
+  <span style="color:#719e07">generateName</span>: velero-restore-create-
+<span style="color:#719e07">spec</span>:
+  <span style="color:#719e07">template</span>:
+    <span style="color:#719e07">metadata</span>:
+      <span style="color:#719e07">labels</span>:
+        <span style="color:#719e07">app</span>: backup-nginx
+    <span style="color:#719e07">spec</span>:
+      <span style="color:#719e07">serviceAccount</span>: velerocli
+      <span style="color:#719e07">restartPolicy</span>: Never
+      <span style="color:#719e07">containers</span>:
+        - <span style="color:#719e07">name</span>: velero-restore-create
+          <span style="color:#719e07">image</span>: docker.io/xaviaznar/velero-cli:<span style="color:#2aa198">1.5.3</span>
+          <span style="color:#719e07">imagePullPolicy</span>: IfNotPresent
+          <span style="color:#719e07">env</span>:
+            - <span style="color:#719e07">name</span>: BACKUP2RESTORE
+              <span style="color:#719e07">value</span>: <span style="color:#2aa198">&#34;nginx-example-backups-20210404203557&#34;</span>
+          <span style="color:#719e07">command</span>: [<span style="color:#2aa198">&#34;/bin/sh&#34;</span>]
+          <span style="color:#719e07">args</span>: [<span style="color:#2aa198">&#34;-c&#34;</span>, <span style="color:#2aa198">&#34;velero restore create --from-backup $BACKUP2RESTORE&#34;</span>]
+</code></pre></div><p>Consultando los logs del <em>Job</em>:</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">Restore request <span style="color:#2aa198">&#34;nginx-example-backups-20210404203557-20210407190834&#34;</span> submitted successfully.
+Run <span style="color:#586e75">`</span>velero restore describe nginx-example-backups-20210404203557-20210407190834<span style="color:#586e75">`</span> or <span style="color:#586e75">`</span>velero restore logs nginx-example-backups-20210404203557-20210407190834<span style="color:#586e75">`</span> <span style="color:#719e07">for</span> more details.
+</code></pre></div><p>Al cabo de un instante, cuando ha finalizado la restauración a partir de la copia de seguridad, se han creado todos los recursos eliminados y la aplicación vuelve a estar disponible:</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ curl http://nginx.k3s.lab:31142
+...
+&lt;h1&gt;Welcome to nginx!&lt;/h1&gt;
+&lt;p&gt;If you see this page, the nginx web server is successfully installed and
+working. Further configuration is required.&lt;/p&gt;
+...
+</code></pre></div><p>Tanto el <em>Namespace</em> como todos los recursos desplegados por la aplicación vuelven a estar disponibles (incluídos los creados automáticamente por Kubernetes, como <code>configmap/kube-root-ca.crt</code>, <code>secret/default-token-fj9gv</code>, etc&hellip;):</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl get all,secret,cm,sa -n nginx-example
+NAME                                   READY   STATUS    RESTARTS   AGE
+pod/nginx-deployment-57d5dcb68-jc7jx   1/1     Running   <span style="color:#2aa198">0</span>          24m
+pod/nginx-deployment-57d5dcb68-jbbjj   1/1     Running   <span style="color:#2aa198">0</span>          24m
+
+NAME               TYPE       CLUSTER-IP     EXTERNAL-IP   PORT<span style="color:#719e07">(</span>S<span style="color:#719e07">)</span>        AGE
+service/my-nginx   NodePort   10.43.207.52   &lt;none&gt;        80:31142/TCP   24m
+
+NAME                               READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/nginx-deployment   2/2     <span style="color:#2aa198">2</span>            <span style="color:#2aa198">2</span>           24m
+
+NAME                                         DESIRED   CURRENT   READY   AGE
+replicaset.apps/nginx-deployment-57d5dcb68   <span style="color:#2aa198">2</span>         <span style="color:#2aa198">2</span>         <span style="color:#2aa198">2</span>       24m
+
+NAME                         TYPE                                  DATA   AGE
+secret/default-token-fj9gv   kubernetes.io/service-account-token   <span style="color:#2aa198">3</span>      24m
+
+NAME                         DATA   AGE
+configmap/kube-root-ca.crt   <span style="color:#2aa198">1</span>      24m
+
+NAME                     SECRETS   AGE
+serviceaccount/default   <span style="color:#2aa198">1</span>         24m
+</code></pre></div><p>Si lo deseamos, podemos consultar los logs del <em>Job</em> de restauración para obtener el detalle de todas las acciones realizadas para recuperar la copia:</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
+<span style="color:#719e07">kind</span>: Job
+<span style="color:#719e07">apiVersion</span>:  batch/v1
+<span style="color:#719e07">metadata</span>:
+  <span style="color:#719e07">labels</span>:
+      <span style="color:#719e07">app</span>: backup-nginx
+  <span style="color:#719e07">namespace</span>: velero-cli
+  <span style="color:#719e07">generateName</span>: velero-restore-get-
+<span style="color:#719e07">spec</span>:
+  <span style="color:#719e07">template</span>:
+    <span style="color:#719e07">metadata</span>:
+      <span style="color:#719e07">labels</span>:
+        <span style="color:#719e07">app</span>: backup-nginx
+    <span style="color:#719e07">spec</span>:
+      <span style="color:#719e07">serviceAccount</span>: velerocli
+      <span style="color:#719e07">restartPolicy</span>: Never
+      <span style="color:#719e07">containers</span>:
+        - <span style="color:#719e07">name</span>: velero-restore-get
+          <span style="color:#719e07">image</span>: docker.io/xaviaznar/velero-cli:<span style="color:#2aa198">1.5.3</span>
+          <span style="color:#719e07">imagePullPolicy</span>: IfNotPresent
+          <span style="color:#719e07">env</span>:
+            - <span style="color:#719e07">name</span>: RESTORE_NAME
+              value <span style="color:#2aa198">&#34;nginx-example-backups-20210404203557-20210407190834&#34;</span>
+          <span style="color:#719e07">command</span>: [<span style="color:#2aa198">&#34;/bin/sh&#34;</span>]
+          <span style="color:#719e07">args</span>: [<span style="color:#2aa198">&#34;-c&#34;</span>, <span style="color:#2aa198">&#34;velero restore logs $RESTORE_NAME&#34;</span>]
+</code></pre></div><div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash"><span style="color:#268bd2">time</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;2021-04-07T19:08:34Z&#34;</span> <span style="color:#268bd2">level</span><span style="color:#719e07">=</span>info <span style="color:#268bd2">msg</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;starting restore&#34;</span> <span style="color:#268bd2">logSource</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;pkg/controller/restore_controller.go:467&#34;</span> <span style="color:#268bd2">restore</span><span style="color:#719e07">=</span>velero/nginx-example-backups-20210404203557-20210407190834
+...
+<span style="color:#268bd2">time</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;2021-04-07T19:08:35Z&#34;</span> <span style="color:#268bd2">level</span><span style="color:#719e07">=</span>info <span style="color:#268bd2">msg</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;Attempting to restore Endpoints: my-nginx&#34;</span> <span style="color:#268bd2">logSource</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;pkg/restore/restore.go:1107&#34;</span> <span style="color:#268bd2">restore</span><span style="color:#719e07">=</span>velero/nginx-example-backups-20210404203557-20210407190834
+<span style="color:#268bd2">time</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;2021-04-07T19:08:35Z&#34;</span> <span style="color:#268bd2">level</span><span style="color:#719e07">=</span>info <span style="color:#268bd2">msg</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;Restoring resource &#39;endpointslices.discovery.k8s.io&#39; into namespace &#39;nginx-example&#39;&#34;</span> <span style="color:#268bd2">logSource</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;pkg/restore/restore.go:724&#34;</span> <span style="color:#268bd2">restore</span><span style="color:#719e07">=</span>velero/nginx-example-backups-20210404203557-20210407190834
+<span style="color:#268bd2">time</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;2021-04-07T19:08:35Z&#34;</span> <span style="color:#268bd2">level</span><span style="color:#719e07">=</span>info <span style="color:#268bd2">msg</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;Getting client for discovery.k8s.io/v1beta1, Kind=EndpointSlice&#34;</span> <span style="color:#268bd2">logSource</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;pkg/restore/restore.go:768&#34;</span> <span style="color:#268bd2">restore</span><span style="color:#719e07">=</span>velero/nginx-example-backups-20210404203557-20210407190834
+<span style="color:#268bd2">time</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;2021-04-07T19:08:35Z&#34;</span> <span style="color:#268bd2">level</span><span style="color:#719e07">=</span>info <span style="color:#268bd2">msg</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;Attempting to restore EndpointSlice: my-nginx-r8ggk&#34;</span> <span style="color:#268bd2">logSource</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;pkg/restore/restore.go:1107&#34;</span> <span style="color:#268bd2">restore</span><span style="color:#719e07">=</span>velero/nginx-example-backups-20210404203557-20210407190834
+<span style="color:#268bd2">time</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;2021-04-07T19:08:35Z&#34;</span> <span style="color:#268bd2">level</span><span style="color:#719e07">=</span>info <span style="color:#268bd2">msg</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;Restoring resource &#39;services&#39; into namespace &#39;nginx-example&#39;&#34;</span> <span style="color:#268bd2">logSource</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;pkg/restore/restore.go:724&#34;</span> <span style="color:#268bd2">restore</span><span style="color:#719e07">=</span>velero/nginx-example-backups-20210404203557-20210407190834
+<span style="color:#268bd2">time</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;2021-04-07T19:08:35Z&#34;</span> <span style="color:#268bd2">level</span><span style="color:#719e07">=</span>info <span style="color:#268bd2">msg</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;Getting client for /v1, Kind=Service&#34;</span> <span style="color:#268bd2">logSource</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;pkg/restore/restore.go:768&#34;</span> <span style="color:#268bd2">restore</span><span style="color:#719e07">=</span>velero/nginx-example-backups-20210404203557-20210407190834
+<span style="color:#268bd2">time</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;2021-04-07T19:08:35Z&#34;</span> <span style="color:#268bd2">level</span><span style="color:#719e07">=</span>info <span style="color:#268bd2">msg</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;Executing item action for services&#34;</span> <span style="color:#268bd2">logSource</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;pkg/restore/restore.go:1002&#34;</span> <span style="color:#268bd2">restore</span><span style="color:#719e07">=</span>velero/nginx-example-backups-20210404203557-20210407190834
+<span style="color:#268bd2">time</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;2021-04-07T19:08:35Z&#34;</span> <span style="color:#268bd2">level</span><span style="color:#719e07">=</span>info <span style="color:#268bd2">msg</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;Attempting to restore Service: my-nginx&#34;</span> <span style="color:#268bd2">logSource</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;pkg/restore/restore.go:1107&#34;</span> <span style="color:#268bd2">restore</span><span style="color:#719e07">=</span>velero/nginx-example-backups-20210404203557-20210407190834
+<span style="color:#268bd2">time</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;2021-04-07T19:08:35Z&#34;</span> <span style="color:#268bd2">level</span><span style="color:#719e07">=</span>info <span style="color:#268bd2">msg</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;Waiting for all restic restores to complete&#34;</span> <span style="color:#268bd2">logSource</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;pkg/restore/restore.go:488&#34;</span> <span style="color:#268bd2">restore</span><span style="color:#719e07">=</span>velero/nginx-example-backups-20210404203557-20210407190834
+<span style="color:#268bd2">time</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;2021-04-07T19:08:35Z&#34;</span> <span style="color:#268bd2">level</span><span style="color:#719e07">=</span>info <span style="color:#268bd2">msg</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;Done waiting for all restic restores to complete&#34;</span> <span style="color:#268bd2">logSource</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;pkg/restore/restore.go:504&#34;</span> <span style="color:#268bd2">restore</span><span style="color:#719e07">=</span>velero/nginx-example-backups-20210404203557-20210407190834
+<span style="color:#268bd2">time</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;2021-04-07T19:08:35Z&#34;</span> <span style="color:#268bd2">level</span><span style="color:#719e07">=</span>info <span style="color:#268bd2">msg</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;Waiting for all post-restore-exec hooks to complete&#34;</span> <span style="color:#268bd2">logSource</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;pkg/restore/restore.go:508&#34;</span> <span style="color:#268bd2">restore</span><span style="color:#719e07">=</span>velero/nginx-example-backups-20210404203557-20210407190834
+<span style="color:#268bd2">time</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;2021-04-07T19:08:35Z&#34;</span> <span style="color:#268bd2">level</span><span style="color:#719e07">=</span>info <span style="color:#268bd2">msg</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;Done waiting for all post-restore exec hooks to complete&#34;</span> <span style="color:#268bd2">logSource</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;pkg/restore/restore.go:516&#34;</span> <span style="color:#268bd2">restore</span><span style="color:#719e07">=</span>velero/nginx-example-backups-20210404203557-20210407190834
+<span style="color:#268bd2">time</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;2021-04-07T19:08:35Z&#34;</span> <span style="color:#268bd2">level</span><span style="color:#719e07">=</span>info <span style="color:#268bd2">msg</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;restore completed&#34;</span> <span style="color:#268bd2">logSource</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;pkg/controller/restore_controller.go:482&#34;</span> <span style="color:#268bd2">restore</span><span style="color:#719e07">=</span>velero/nginx-example-backups-20210404203557-20210407190834
+</code></pre></div><h2 id="conclusión">Conclusión</h2>
+<p>Velero es una de esas herramientas que hace una cosa y la hace bien; a través del uso de unos pocos <em>Custom Resources</em>, Velero realiza copias de seguridad de manera sencilla y a la vez, flexible, permitiendo incluir o excluir elementos durante el <em>backup</em> o los <em>restores</em>.</p>
+<p>La posibilidad de programar las copias de seguridad como una tarea usando un <em>Job</em> permite integrar esta la configuracón de los <em>backups</em> en el proceso de despliegue de cualquier aplicación en un entorno productivo.</p>
+<p>Para las tareas de consulta de las copias disponibles lanzar un <em>Job</em> puede parece un poco <em>overkill</em>, pero permte tener un &ldquo;registro&rdquo; de cualquier acción realizada en el clúster y se puede integrar en la metodología &ldquo;GitOps&rdquo;.</p>
+<p>Una mejora a lo expuesto en estas entradas sobre Velero sería ajustar los permisos de la <em>ServiceAccount</em> <code>velerocli</code> usada por la herramienta de línea de comandos <strong>velero</strong> en los ejemplos para que únicamente permita realizar acciones sobre los <em>Custom Resources</em> definidos por Velero. La documentación oficial también describe cómo ajustar los permisos de Velero (la parte &ldquo;servidor&rdquo;) para que no sea necesario proporcionar permisos de <code>cluster-admin</code>: <a href="https://velero.io/docs/v1.5/rbac/">Run Velero more securely with restrictive RBAC settings</a>.</p>
+<p>El único <em>inconveniente</em>, por ponerle alguna pega a Velero, es que no es posible prescindir de la herramienta de comandos <strong>velero</strong> para crear o configurar los <em>Custom Resources</em> desplegados, como se indica en <a href="https://velero.io/docs/v1.5/api-types/">API types</a>:</p>
+<blockquote>
+<p>Here’s a list the API types that have some functionality that you can only configure via json/yaml vs the velero cli (hooks)</p>
 </blockquote>
-<p>Este comando crea la carpeta <code>pydev</code> y un fichero <code>pyvenv.cfg</code> que contiene la ruta al intérprete de Python usado en el entorno virtual, la versión y otros parámetros de configuración:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-ini" data-lang="ini">home <span style="color:#719e07">=</span> <span style="color:#2aa198">/usr/bin</span>
-include-system-site-packages <span style="color:#719e07">=</span> <span style="color:#2aa198">false</span>
-version <span style="color:#719e07">=</span> <span style="color:#2aa198">3.6.9</span>
-</code></pre></div><p>Una vez creado el entorno virtual, es necesario activarlo. Para ello se usa un script (la ubicación específica depende de la plataforma y <em>shell</em> que uses, ver <a href="https://docs.python.org/3/library/venv.html">la documentación oficial</a>).</p>
-<p>ASH, la <em>shell</em> que usa Alpine Linux no forma parte de la documentación de <code>venv</code>, pero compruebo que el fichero <code>activate</code> está en la ruta <code>(venv)/bin/activate</code>. Como el comando <code>source</code> no se reconoce en Alpine, uso la forma &ldquo;general&rdquo;, mediante un &ldquo;.&quot;:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ . pydev/bin/activate
-<span style="color:#719e07">(</span>pydev<span style="color:#719e07">)</span> pydev:~$
-</code></pre></div><p>Observa que el <em>prompt</em> cambia para indicar te encuentras en el entorno virtual <code>pydev</code>.</p></div>
+<p>Pese a este inconveniente menor, la funcionalidad y la simplicidad con lo que Velero permite realizar copias de seguridad y restauraiones del clúster convierte a <a href="https://velero.io/">Velero</a> en una herramienta imprescindible.</p></div>
 
   <aside class="p-share">
 
 
-  <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3a%2f%2fonthedock.github.io%2fpost%2f200118-alpine-para-desarrollo-con-python%2f&amp;source=https%3a%2f%2fonthedock.github.io%2fpost%2f200118-alpine-para-desarrollo-con-python%2f&amp;title=Alpine%20para%20desarrollo%20con%20Python" target="_blank" rel="noopener" aria-label="Share on LinkedIn">
+  <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3a%2f%2fonthedock.github.io%2fpost%2f210407-velero-backup-y-disaster-recovery-para-kubernetes-iii%2f&amp;source=https%3a%2f%2fonthedock.github.io%2fpost%2f210407-velero-backup-y-disaster-recovery-para-kubernetes-iii%2f&amp;title=Velero%20-%20Backup%20Y%20Disaster%20Recovery%20Para%20Kubernetes%20%28III%29%20Recuperaci%c3%b3n%20desde%20una%20copia%20de%20seguridad" target="_blank" rel="noopener" aria-label="Share on LinkedIn">
     <svg width="2rem" height="2rem" viewBox="0 0 352 352"><path d="M0 40v272c0 21.9 18.1 40 40 40h272c21.9.0 40-18.1 40-40V40c0-21.9-18.1-40-40-40H40C18.1.0.0 18.1.0 40zm312-8c4.6.0 8 3.4 8 8v272c0 4.6-3.4 8-8 8H40c-4.6.0-8-3.4-8-8V40c0-4.6 3.4-8 8-8H312zM59.5 87c0 15.2 12.3 27.5 27.5 27.5s27.5-12.3 27.5-27.5S102.2 59.5 87 59.5 59.5 71.8 59.5 87zM187 157h-1v-21h-45v152h47v-75c0-19.8 3.9-39 28.5-39 24.2.0 24.5 22.4 24.5 40v74h47v-83.5c0-40.9-8.7-72-56.5-72-23 0-38.2 12.6-44.5 24.5zM64 288h47.5V136H64V288z"></path></svg>
     <p>LinkedIn</p>
   </a>
 
-  <a href="https://twitter.com/intent/tweet?hashtags=onthedock&amp;url=https%3a%2f%2fonthedock.github.io%2fpost%2f200118-alpine-para-desarrollo-con-python%2f&amp;text=Alpine%20para%20desarrollo%20con%20Python" target="_blank" rel="noopener" aria-label="Share on Twitter" class="share-btn twitter">
+  <a href="https://twitter.com/intent/tweet?hashtags=onthedock&amp;url=https%3a%2f%2fonthedock.github.io%2fpost%2f210407-velero-backup-y-disaster-recovery-para-kubernetes-iii%2f&amp;text=Velero%20-%20Backup%20Y%20Disaster%20Recovery%20Para%20Kubernetes%20%28III%29%20Recuperaci%c3%b3n%20desde%20una%20copia%20de%20seguridad" target="_blank" rel="noopener" aria-label="Share on Twitter" class="share-btn twitter">
     <svg width="2rem" height="2rem" viewBox="0 0 384 312"><path d="m384 36.9c-14.1 6.3-29.3 10.5-45.2 12.4 16.3-9.7 28.8-25.2 34.6-43.6-15.2 9-32.1 15.6-50 19.1-14.4-15.2-34.9-24.8-57.5-24.8-43.5.0-78.8 35.3-78.8 78.8.0 6.2.7 12.2 2 17.9-65.5-3.3-123.5-34.6-162.4-82.3C20 26 16.1 39.6 16.1 54c0 27.3 13.9 51.4 35 65.6-12.9-.4-25.1-4-35.7-9.9v1c0 38.2 27.2 70 63.2 77.2-6.6 1.8-13.6 2.8-20.8 2.8-5.1.0-10-.5-14.8-1.4 10 31.3 39.1 54.1 73.6 54.7-27 21.1-60.9 33.7-97.8 33.7-6.4.0-12.6-.4-18.8-1.1C34.9 299 76.3 312 120.8 312c144.9.0 224.1-120 224.1-224.1.0-3.4-.1-6.8-.2-10.2 15.4-11.1 28.7-25 39.3-40.8z"></path></svg>
     <p>Twitter</p>
   </a>
 
-  <a href="mailto:?subject=Alpine%20para%20desarrollo%20con%20Python.&amp;body=Alpine%20para%20desarrollo%20con%20Python%0a%0ahttps%3a%2f%2fonthedock.github.io%2fpost%2f200118-alpine-para-desarrollo-con-python%2f%0a" target="_blank" class="share-btn email">
+  <a href="mailto:?subject=Velero%20-%20Backup%20Y%20Disaster%20Recovery%20Para%20Kubernetes%20%28III%29%20Recuperaci%c3%b3n%20desde%20una%20copia%20de%20seguridad.&amp;body=Velero%20-%20Backup%20Y%20Disaster%20Recovery%20Para%20Kubernetes%20%28III%29%20Recuperaci%c3%b3n%20desde%20una%20copia%20de%20seguridad%0a%0ahttps%3a%2f%2fonthedock.github.io%2fpost%2f210407-velero-backup-y-disaster-recovery-para-kubernetes-iii%2f%0a" target="_blank" class="share-btn email">
     <svg width="2rem" height="2rem" viewBox="0 0 416 288"><path d="m0 16v256 16h16 384 16v-16V16 0h-16H16 0zm347 16-139 92.5L69 32zM199 157.5l9 5.5 9-5.5L384 46v210H32V46z"></path></svg>
     <p>Email</p>
   </a>
 
-  <a href="whatsapp://send?text=Alpine%20para%20desarrollo%20con%20Python%0a%0ahttps%3a%2f%2fonthedock.github.io%2fpost%2f200118-alpine-para-desarrollo-con-python%2f%0a" target="_blank">
+  <a href="whatsapp://send?text=Velero%20-%20Backup%20Y%20Disaster%20Recovery%20Para%20Kubernetes%20%28III%29%20Recuperaci%c3%b3n%20desde%20una%20copia%20de%20seguridad%0a%0ahttps%3a%2f%2fonthedock.github.io%2fpost%2f210407-velero-backup-y-disaster-recovery-para-kubernetes-iii%2f%0a" target="_blank">
     <svg  width="2rem" height="2rem" viewBox="0 0 24 24">
     <path d="M20.1 3.9C17.9 1.7 15 .5 12 .5 5.8.5.7 5.6.7 11.9c0 2 .5 3.9 1.5 5.6L.6 23.4l6-1.6c1.6.9 3.5 1.3 5.4 1.3 6.3.0 11.4-5.1 11.4-11.4-.1-2.8-1.2-5.7-3.3-7.8zM12 21.4c-1.7.0-3.3-.5-4.8-1.3l-.4-.2-3.5 1 1-3.4L4 17c-1-1.5-1.4-3.2-1.4-5.1.0-5.2 4.2-9.4 9.4-9.4 2.5.0 4.9 1 6.7 2.8s2.8 4.2 2.8 6.7c-.1 5.2-4.3 9.4-9.5 9.4zm5.1-7.1c-.3-.1-1.7-.9-1.9-1-.3-.1-.5-.1-.7.1-.2.3-.8 1-.9 1.1-.2.2-.3.2-.6.1s-1.2-.5-2.3-1.4c-.9-.8-1.4-1.7-1.6-2s0-.5.1-.6.3-.3.4-.5c.2-.1.3-.3.4-.5s0-.4.0-.5C10 9 9.3 7.6 9 7c-.1-.4-.4-.3-.5-.3h-.6s-.4.1-.7.3c-.3.3-1 1-1 2.4s1 2.8 1.1 3c.1.2 2 3.1 4.9 4.3.7.3 1.2.5 1.6.6.7.2 1.3.2 1.8.1.6-.1 1.7-.7 1.9-1.3.2-.7.2-1.2.2-1.3-.1-.3-.3-.4-.6-.5z"></path></svg>
     <p>Whatsapp</p>
@@ -215,7 +334,7 @@ version <span style="color:#719e07">=</span> <span style="color:#2aa198">3.6.9</
         
         <li itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb"><a href="https://onthedock.github.io/post/" itemprop="url"><span itemprop="title">post</span></a></li>
         
-        <li>Alpine para desarrollo con Python</li>
+        <li>Velero - Backup Y Disaster Recovery Para Kubernetes (III) Recuperación desde una copia de seguridad</li>
       </ol>
 
       
@@ -226,7 +345,7 @@ version <span style="color:#719e07">=</span> <span style="color:#2aa198">3.6.9</
           <header><a href="https://onthedock.github.io/categories/">categories</a></header>
           <ul>
             
-            <li><a href="https://onthedock.github.io/categories/dev/">dev</a></li>
+            <li><a href="https://onthedock.github.io/categories/ops/">ops</a></li>
             
           </ul>
         </li>
@@ -241,9 +360,9 @@ version <span style="color:#719e07">=</span> <span style="color:#2aa198">3.6.9</
             
             <li><a href="https://onthedock.github.io/tags/linux/">linux</a></li>
             
-            <li><a href="https://onthedock.github.io/tags/alpine/">alpine</a></li>
+            <li><a href="https://onthedock.github.io/tags/kubernetes/">kubernetes</a></li>
             
-            <li><a href="https://onthedock.github.io/tags/python/">python</a></li>
+            <li><a href="https://onthedock.github.io/tags/velero/">velero</a></li>
             
           </ul>
         </li>
@@ -281,22 +400,7 @@ version <span style="color:#719e07">=</span> <span style="color:#2aa198">3.6.9</
   <section>
     <header><span>Latests</span></header>
     <ul class="p-articles thin">
-      <li><article class="li sm article-76d7cde355b8100291f84cb2fb168ffc">
-  <div class="header-wrapper">
-    <a href="https://onthedock.github.io/post/210407-velero-backup-y-disaster-recovery-para-kubernetes-iii/" class="thumbnail" title="Velero - Backup Y Disaster Recovery Para Kubernetes (III) Recuperación desde una copia de seguridad"></a>
-    <header class="article-header">
-      <div class="clearfix">
-        <h2 class="title"><a href="https://onthedock.github.io/post/210407-velero-backup-y-disaster-recovery-para-kubernetes-iii/">Velero - Backup Y Disaster Recovery Para Kubernetes (III) Recuperación desde una copia de seguridad</a></h2>
-        <ul class="p-facts">
-          <li><time datetime="2021-04-07T19:54:57JST">7 Apr 2021</time></li>
-          <li><a href="https://onthedock.github.io/post/">post</a></li>
-          
-        </ul>
-      </div>
-    </header>
-  </div>
-</article>
-</li><li><article class="li sm article-1051ad2177cdf2e68b778fc89968e88c">
+      <li><article class="li sm article-1051ad2177cdf2e68b778fc89968e88c">
   <div class="header-wrapper">
     <a href="https://onthedock.github.io/post/210405-velero-backup-y-disaster-recovery-para-kubernetes-ii/" class="thumbnail" title="Velero - Backup y Disaster Recovery para Kubernetes (II) Crear copia de seguridad"></a>
     <header class="article-header">
@@ -334,6 +438,21 @@ version <span style="color:#719e07">=</span> <span style="color:#2aa198">3.6.9</
         <h2 class="title"><a href="https://onthedock.github.io/post/210403-configura-minio-en-k8s-usando-jobs-y-el-cliente-mc/">Configura MinIO en Kubernetes usando Jobs y el cliente de MinIO &#39;mc&#39;</a></h2>
         <ul class="p-facts">
           <li><time datetime="2021-04-03T09:58:50JST">3 Apr 2021</time></li>
+          <li><a href="https://onthedock.github.io/post/">post</a></li>
+          
+        </ul>
+      </div>
+    </header>
+  </div>
+</article>
+</li><li><article class="li sm article-06af8aeec184c848eb2cf0e795b9c0c4">
+  <div class="header-wrapper">
+    <a href="https://onthedock.github.io/post/210403-minio-en-kubernetes/" class="thumbnail" title="Minio en Kubernetes"></a>
+    <header class="article-header">
+      <div class="clearfix">
+        <h2 class="title"><a href="https://onthedock.github.io/post/210403-minio-en-kubernetes/">Minio en Kubernetes</a></h2>
+        <ul class="p-facts">
+          <li><time datetime="2021-04-03T09:02:58JST">3 Apr 2021</time></li>
           <li><a href="https://onthedock.github.io/post/">post</a></li>
           
         </ul>
