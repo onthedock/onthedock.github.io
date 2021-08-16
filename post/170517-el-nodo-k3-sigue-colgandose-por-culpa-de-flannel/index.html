@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.82.1" />
+<meta name="generator" content="Hugo 0.87.0" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -133,7 +133,7 @@
   <div class="article-body"><p>En la entrada <a href="https://onthedock.github.io/post/170506-troubleshooting-kubernetes-ii/">Troubleshooting Kubernetes (II)</a> encontré restos de la instalación de <a href="https://github.com/coreos/flannel">Flannel</a> en la Raspberry Pi. Eliminé los <em>pods</em> que hacían referencia a Flannel y conseguí que el nodo <strong>k2</strong> no se volviera a colgar.</p>
 <p>Sin embargo, el problema sigue dándose en el nodo <strong>k3</strong>.</p>
 <p>Revisando el contenido de <code>/var/lib/kubernetes/pods/</code> he visto que algunos <em>pods</em> hacían referencia, todavía, a Flannel.</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">...
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">...
 /var/lib/kubelet/pods/3a5e2819-21e5-11e7-bcfd-b827eb650fdb/volumes/kubernetes.io~configmap/wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_flannel-cfg.deleting~470691428.deleting~439642480.deleting~747926470.deleting~067946013.deleting~791070092.deleting~964331938.deleting~717873461.deleting~755129373.deleting~499171027
 /var/lib/kubelet/pods/3a5e2819-21e5-11e7-bcfd-b827eb650fdb/volumes/kubernetes.io~configmap/wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_flannel-cfg.deleting~504683568.deleting~184413472.deleting~138413964.deleting~985160408.deleting~943143520.deleting~459558341.deleting~578589077.deleting~501462031.deleting~769373718
 /var/lib/kubelet/pods/3a5e2819-21e5-11e7-bcfd-b827eb650fdb/volumes/kubernetes.io~configmap/wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_wrapped_flannel-cfg.deleting~613861491.deleting~841547526.deleting~012178845.deleting~177797190.deleting~192052322.deleting~958792988.deleting~338401309.deleting~623810479.deleting~369130424
@@ -146,7 +146,7 @@
 </code></pre></div><p>Esta vez he detectado el problema al intentar calcular el espacio usado por esta carpeta, ya que la Raspberry Pi se ha quedado como &ldquo;colgada&rdquo;, aunque al lanzar <em>htop</em> no se observaba un uso excesivo de CPU.</p>
 <p>Finalmente, he usado el mismo sistema que la otra vez: eliminar todas las subcarpetas de cada uno de los <em>pods</em> (dejando únicamente los que no se pueden borrar al estar en uso).</p>
 <p>Después de la purga masiva de <code>rm -rf /var/lib/kubelet/pods/</code> sólo han quedado dos carpetas <em>en uso</em>; el número corresponde con el número de <em>pods</em> planificados sobre el nodo <strong>k3</strong> desde <code>kubectl</code>:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ kubectl get pods --all-namespaces -o wide
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ kubectl get pods --all-namespaces -o wide
 NAMESPACE     NAME                         READY     STATUS    RESTARTS   AGE       IP             NODE
 kube-system   etcd-k1                      1/1       Running   <span style="color:#2aa198">4</span>          36d       192.168.1.11   k1
 kube-system   kube-apiserver-k1            1/1       Running   <span style="color:#2aa198">4</span>          36d       192.168.1.11   k1

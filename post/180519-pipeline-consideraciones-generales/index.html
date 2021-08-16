@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.82.1" />
+<meta name="generator" content="Hugo 0.87.0" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -163,13 +163,13 @@
 <h1 id="volúmenes-de-datos">Volúmenes de datos</h1>
 <p>Los <a href="https://docs.docker.com/storage/volumes/">volúmenes</a> son el mecanismo preferido para persistir los datos generados y usados por los contenedores. Los volúmenes montados directamente sobre el <em>host</em> dependen de la estructura de ficheros del sistema, mientras que los volúmenes son gestionados directamente por Docker.</p>
 <p>En la versión 18.03.1-ce de Docker, todavía no hay comandos para renombrar volúmenes o para copiar el contenido de un volumen a otro. Para migrar el contenido de la base de datos de Gogs del volumen de base de datos compartida a la base de datos específica, he tenido que montar el volumen inicial y el de destino en un contenedor intermedio.</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">docker volume create data-mysql-gogs
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">docker volume create data-mysql-gogs
 docker run --rm -it
    --mount <span style="color:#268bd2">source</span><span style="color:#719e07">=</span>data-mysql,target<span style="color:#719e07">=</span>/in <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>   --mount <span style="color:#268bd2">source</span><span style="color:#719e07">=</span>data-mysql-gogs,target<span style="color:#719e07">=</span>/out <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>   mysql:5.7 /bin/sh
 </code></pre></div><p>Una vez montados los contenedores, he lanzado una copia del contenido de un volumen a otro:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell"><span style="color:#586e75"># cd /in</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell"><span style="color:#586e75"># cd /in</span>
 <span style="color:#586e75"># cp -a . /out</span>
 <span style="color:#586e75"># exit</span>
 </code></pre></div><p>(Referencia: <a href="https://askubuntu.com/questions/86822/how-can-i-copy-the-contents-of-a-folder-to-another-folder-in-a-different-directo">How can I copy the contents of a folder to another folder in a different directory using terminal?</a>)</p>

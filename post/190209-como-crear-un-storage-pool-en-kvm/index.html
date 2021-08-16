@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.82.1" />
+<meta name="generator" content="Hugo 0.87.0" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -135,12 +135,12 @@
 <p>Al disponer únicamente del disco local como espacio de almacenamiento la creación de <em>storage pools</em> adicionales sirve para separar los discos de las VMs (que dejaré en el <em>pool</em> <strong>default</strong>) de las ISOs y de paso, aprender cómo funcionan los <em>storage pool</em> en KVM ;)</p>
 <h2 id="storage-pool-default"><em>Storage pool</em> <code>default</code></h2>
 <p>Empezamos listando los <em>pools</em> existentes:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ virsh pool-list
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ virsh pool-list
 Name                 State      Autostart
 -------------------------------------------
  default              active     yes
 </code></pre></div><p>Examinamos con detalle este <em>pool</em> creado por defecto por KVM:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ virsh pool-info default
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ virsh pool-info default
 Name:           default
 UUID:           2be211ef-6810-4f2d-b672-e72761696020
 State:          running
@@ -151,7 +151,7 @@ Allocation:     10.74 GiB
 Available:      457.71 GiB
 </code></pre></div><p>Vemos que el <em>pool</em> está en activo (<em>running</em>), que es persistente (sobrevive a los reinicios) y que arranca junto con KVM.</p>
 <p>Podemos volcar la definición del <em>pool</em> a XML mediante el comando <code>pool-dumpxml</code>:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ virsh pool-dumpxml default
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ virsh pool-dumpxml default
 &lt;pool <span style="color:#268bd2">type</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#39;dir&#39;</span>&gt;
   &lt;name&gt;default&lt;/name&gt;
   &lt;uuid&gt;2be211ef-6810-4f2d-b672-e72761696020&lt;/uuid&gt;
@@ -175,11 +175,11 @@ Available:      457.71 GiB
 <p>El comando <code>pool-create</code> crea y arranca un <em>storage pool</em> <strong>no persistente</strong> (<em>transient storage pool</em>). Este tipo de <em>pool</em> no guarda la definición del <em>pool</em> en disco y se elimina al apagar KVM.</p>
 <p>Para crear un <em>storage pool</em> <strong>persistente</strong> usamos el comando <code>pool-define</code>. Este comando crea un fichero XML con la definición del <em>storage pool</em> en <code>/etc/libvirt/storage</code>. (Referencia: <a href="https://www.redhat.com/archives/libvirt-users/2010-August/msg00042.html">Unable to autostart storage pool</a>).</p>
 <p>Podemos comprobar que la carpeta indicada contiene el fichero de definición del <em>pool</em> <code>default</code>:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ sudo ls /etc/libvirt/storage/
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ sudo ls /etc/libvirt/storage/
 <span style="color:#719e07">[</span>sudo<span style="color:#719e07">]</span> password <span style="color:#719e07">for</span> operador:
 autostart  default.xml
 </code></pre></div><p>Examinando el fichero XML:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ sudo cat /etc/libvirt/storage/default.xml
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ sudo cat /etc/libvirt/storage/default.xml
 &lt;!--
 WARNING: THIS IS AN AUTO-GENERATED FILE. CHANGES TO IT ARE LIKELY TO BE
 OVERWRITTEN AND LOST. Changes to this xml configuration should be made using:
@@ -200,40 +200,40 @@ or other application using the libvirt API.
   &lt;/target&gt;
 &lt;/pool&gt;
 </code></pre></div><p>Podemos crear el <em>storage pool</em> desde línea de comandos o usando <code>virsh pool-define isos.xml</code> desde un fichero XML como:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-XML" data-lang="XML"><span style="color:#268bd2">&lt;pool</span> type=<span style="color:#2aa198">&#34;dir&#34;</span><span style="color:#268bd2">&gt;</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-XML" data-lang="XML"><span style="color:#268bd2">&lt;pool</span> type=<span style="color:#2aa198">&#34;dir&#34;</span><span style="color:#268bd2">&gt;</span>
   <span style="color:#268bd2">&lt;name&gt;</span>isos<span style="color:#268bd2">&lt;/name&gt;</span>
     <span style="color:#268bd2">&lt;target&gt;</span>
       <span style="color:#268bd2">&lt;path&gt;</span>/var/lib/libvirt/isos<span style="color:#268bd2">&lt;/path&gt;</span>
   <span style="color:#268bd2">&lt;/target&gt;</span>
 <span style="color:#268bd2">&lt;/pool&gt;</span>
 </code></pre></div><p>Desde la línea de comandos, crearíamos el <em>pool</em> mediante:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ sudo mkdir /var/lib/libvirt/isos
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ sudo mkdir /var/lib/libvirt/isos
 $ virsh pool-define-as isos --type dir --target /var/lib/libvirt/isos
 Pool isos created
 </code></pre></div><p><code>pool-define</code> sólo crea el <em>pool</em>; podemos comprobarlo mediante:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ virsh pool-list --all
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ virsh pool-list --all
 Name                 State      Autostart
 -------------------------------------------
 default              active     yes
 isos                 inactive   no
 </code></pre></div><p>Para arrancarlo y hacer que autoarranque con KVM, usamos los comandos:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ virsh pool-start isos
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ virsh pool-start isos
 Pool isos started
 $ virsh pool-start isos
 Pool isos started
 </code></pre></div><h2 id="cómo-añadir-contenido-al-_pool_">Cómo añadir contenido al <em>pool</em></h2>
 <p>Descargamos una imagen ISO y la copiamos al <em>pool</em>:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">curl http://ftp.caliu.cat/debian-cd/9.6.0/amd64/iso-cd/debian-9.6.0-amd64-netinst.iso -o debian-9.6.0-amd64-netinst.iso
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">curl http://ftp.caliu.cat/debian-cd/9.6.0/amd64/iso-cd/debian-9.6.0-amd64-netinst.iso -o debian-9.6.0-amd64-netinst.iso
   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
                                  Dload  Upload   Total   Spent    Left  Speed
 <span style="color:#2aa198">100</span>  291M  <span style="color:#2aa198">100</span>  291M    <span style="color:#2aa198">0</span>     <span style="color:#2aa198">0</span>  2480k      <span style="color:#2aa198">0</span>  0:02:00  0:02:00 --:--:-- 2283k
 $ sudo cp debian-9.6.0-amd64-netinst.iso /var/lib/libvirt/isos/
 </code></pre></div><p>Al añadir contenido a un <em>storage pool</em> es posible que no se muestre inmediatamente:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ virsh vol-list isos
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ virsh vol-list isos
  Name                 Path
 ------------------------------------------------------------------------------
 </code></pre></div><p>Actualizamos el contenido del <em>storage pool</em> mediante el comando <code>pool-refresh</code>:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ virsh pool-refresh isos
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ virsh pool-refresh isos
 Pool isos refreshed
 
 $ virsh vol-list isos

@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.82.1" />
+<meta name="generator" content="Hugo 0.87.0" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -138,12 +138,12 @@ Esto permite que las máquinas virtuales user la CPU de manera directa, lo que m
 Para el sistema operativo, cada máquina virtual es un proceso de Linux.</p>
 <h2 id="comprobación-de-las-capacidades-de-virtualización-del-procesador">Comprobación de las capacidades de virtualización del procesador</h2>
 <p>Para comprobar si el procesador dispone de las extensiones de virtualización, revisa el contenido del fichero <code>/proc/cpuinfo</code> en busca de <code>vmx</code> (para Intel) o <code>svm</code> para AMD.</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">cat /proc/cpuinfo | egrep <span style="color:#2aa198">&#39;vmx|svm&#39;</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">cat /proc/cpuinfo | egrep <span style="color:#2aa198">&#39;vmx|svm&#39;</span>
 </code></pre></div><h2 id="instalación">Instalación</h2>
 <p>Empezamos con la instalación de los paquetes relacionados con KVM:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">sudo apt install qemu-kvm libvirt-clients libvirt-daemon-system bridge-utils virtinst libvirt-daemon virt-manager virt-viewer
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">sudo apt install qemu-kvm libvirt-clients libvirt-daemon-system bridge-utils virtinst libvirt-daemon virt-manager virt-viewer
 </code></pre></div><p>Una vez finalice la instalación de los paquetes, comprueba que <code>librvirtd</code> ha arrancado automáticamente:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">sudo systemctl status libvirtd
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">sudo systemctl status libvirtd
 ● libvirtd.service - Virtualization daemon
      Loaded: loaded <span style="color:#719e07">(</span>/lib/systemd/system/libvirtd.service; enabled; vendor preset: enabled<span style="color:#719e07">)</span>
      Active: active <span style="color:#719e07">(</span>running<span style="color:#719e07">)</span> since Fri 2020-06-26 20:23:46 CEST; 3min 45s ago
@@ -152,19 +152,19 @@ TriggeredBy: ● libvirtd-ro.socket
              ● libvirtd.socket
 ...
 </code></pre></div><p>Otra forma de comprobar que la instalación de KVM ha sido un éxito es usando el comando <code>kvm-ok</code>:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ sudo kvm-ok
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ sudo kvm-ok
 INFO: /dev/kvm exists
 KVM acceleration can be used
 </code></pre></div><h3 id="revisión-de-la-configuración-de-red">Revisión de la configuración de red</h3>
 <p>Por defecto, KVM crea un <em>virtual switch</em> llamado <code>virbr0</code> que podemos ver mediante el comando <code>ip address show virbr0</code>:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ ip address show virbr0
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ ip address show virbr0
 4: virbr0: &lt;NO-CARRIER,BROADCAST,MULTICAST,UP&gt; mtu <span style="color:#2aa198">1500</span> qdisc noqueue state DOWN group default qlen <span style="color:#2aa198">1000</span>
     link/ether 52:54:00:0a:4b:da brd ff:ff:ff:ff:ff:ff
     inet 192.168.122.1/24 brd 192.168.122.255 scope global virbr0
        valid_lft forever preferred_lft forever
 </code></pre></div><p><code>virbr0</code> funciona en modo NAT, lo que permite a las máquinas virtuales la comunicación <em>hacia fuera</em> (hacia el anfitrión e internet) pero sólo conexiones entrantes desde el equipo anfitrión (y máquinas en la misma subred).</p>
 <p>Usando la utilidad <code>virsh</code> podemos revisar las redes disponibles para las máquinas virtuales:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">l$ sudo virsh net-list --all
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">l$ sudo virsh net-list --all
 Name      State    Autostart   Persistent
 --------------------------------------------
 default   active   yes         yes
@@ -173,7 +173,7 @@ default   active   yes         yes
 </blockquote>
 <h2 id="configuración-del-almacenamiento">Configuración del almacenamiento</h2>
 <p>El <em>storage-pool</em> por defecto se encuentra en <code>/var/lib/libvirt/images/</code>. Sin embargo, si tenemos un disco dedicado donde almacenar las imágenes nos puede interesar crear una nueva <em>storage pool</em>, por ejemplo, en <code>/data/kvm/pool</code>:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ sudo virsh pool-list --all
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ sudo virsh pool-list --all
  Name      State    Autostart
 -------------------------------
  default   active   yes
@@ -190,7 +190,7 @@ $ virsh pool-list --all
  default              active     yes
  kvmpool              active     yes
 </code></pre></div><p>Puedes revisar el espacio disponible mediante:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">l$ sudo virsh pool-list --details
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">l$ sudo virsh pool-list --details
  Name      State     Autostart   Persistent   Capacity     Allocation   Available
 ------------------------------------------------------------------------------------
  default   running   yes         yes          878,70 GiB   9,02 GiB     869,68 GiB

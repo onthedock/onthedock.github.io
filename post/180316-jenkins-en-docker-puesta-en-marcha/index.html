@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.82.1" />
+<meta name="generator" content="Hugo 0.87.0" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -151,19 +151,18 @@
 <p>Puedes realizar configuraciones adicionales a través de parámetros al ejecutar el contenedor, como ajustar el nivel de detalle en los <em>logs</em>, configurar el número de <em>ejecutores</em>, etc.</p>
 <h3 id="preinstalación-de-plugins">Preinstalación de plugins</h3>
 <p>Para preinstalar <em>plugins</em> en Jenkins, debes crear una imagen personalizada. En la imagen, puedes usar el script <code>install-plugins.sh</code> para descargar los plugins indicados. Puedes pasar una lista de plugins a instalar al script mediante:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">...
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">...
 COPY plugins.txt /usr/share/jenkins/ref/plugins.txt
 RUN /usr/local/bin/install-plugins.sh &lt; /usr/share/jenkins/ref/plugins.txt
 </code></pre></div><p>Cuando el contenedor de Jenkins arranca, comprueba si los <em>plugins</em> indicados existen en <code>JENKINS_HOME</code> y los copia si es necesario. <strong>No sobrescribirá los ficheros</strong>, por lo que si has actualizado los <em>plugins</em> desde la interfaz web, no los modificará.</p>
 <p>Es posible <strong>sobrescribir</strong> los <em>plugins</em> si lo necesitas; para ello debes añadir <code>.override</code> al nombre del <em>plugin</em> que quieras sobrescribir.</p>
 <h2 id="primer-acceso-a-jenkins">Primer acceso a Jenkins</h2>
 <p>Abre un navegador y accede a http://IP-del-host-docker:8080. Después de unos segundos en los que Jenkins debe acabar de arrancar, se muestra el siguiente mensaje:</p>
-<figure>
-    <img src="/images/180316/jenkins-unlock.png"/> 
+<figure><img src="/images/180316/jenkins-unlock.png"/>
 </figure>
 
 <p>Jenkins genera una contraseña segura en <code>/var/jenkins_home/secrets/initialAdminPassword</code>. Puedes obtener esta contraseña inicial de diferentes maneras, pero la más sencilla es revisando los logs de arranque de Jenkins:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ docker logs jenkins
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ docker logs jenkins
 ...
 
 Jenkins initial setup is required. An admin user has been created and a password generated.
@@ -192,40 +191,35 @@ INFO: Jenkins is fully up and running
 --&gt; setting agent port <span style="color:#719e07">for</span> jnlp
 --&gt; setting agent port <span style="color:#719e07">for</span> jnlp... <span style="color:#719e07">done</span>
 </code></pre></div><p>Personalmente considero más útil aprovechar que el password inicial se encuentra en el fichero <code>/var/jenkins_home/secrets/initialAdminPassword</code> y obtenerlo usando <code>cat /var/jenkins_home/secrets/initialAdminPassword</code> mediante <code>docker exec</code>.</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ docker <span style="color:#b58900">exec</span> jenkins cat /var/jenkins_home/secrets/initialAdminPassword
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ docker <span style="color:#b58900">exec</span> jenkins cat /var/jenkins_home/secrets/initialAdminPassword
 cb6e558c91e946ab8f06cf085c9cf88b
 </code></pre></div><p>De esta forma puedes guardar el password en una variable de entorno y usarlo en un script, para acceder desde otra aplicación usando la API, etc.</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ <span style="color:#268bd2">JENKINS_InitialPassword</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>docker <span style="color:#b58900">exec</span> jenkins cat /var/jenkins_home/secrets/initialAdminPassword<span style="color:#719e07">)</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ <span style="color:#268bd2">JENKINS_InitialPassword</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>docker <span style="color:#b58900">exec</span> jenkins cat /var/jenkins_home/secrets/initialAdminPassword<span style="color:#719e07">)</span>
 
 $ <span style="color:#b58900">echo</span> <span style="color:#268bd2">$JENKINS_InitialPassword</span>
 cb6e558c91e946ab8f06cf085c9cf88b
 </code></pre></div><p>Copia el password e introdúcelo para acceder a Jenkins.</p>
 <h2 id="instalación-de-plugins">Instalación de plugins</h2>
 <p>Jenkins ofrece la posibilidad de instalar los <em>plugins</em> sugeridos por la comunidad o realizar nosotros la selección de forma manual. Podemos instalar o desinstalar <em>plugins</em> después, por lo que pulsamos en la opción <em>Install suggested plugins</em>:</p>
-<figure>
-    <img src="/images/180316/jenkins_suggested_plugins.png"/> 
+<figure><img src="/images/180316/jenkins_suggested_plugins.png"/>
 </figure>
 
 <p>El sistema descarga los <em>plugins</em>:</p>
-<figure>
-    <img src="/images/180316/jenkins_suggested_plugins_installation.png"/> 
+<figure><img src="/images/180316/jenkins_suggested_plugins_installation.png"/>
 </figure>
 
 <h2 id="creación-de-un-usuario-administrador">Creación de un usuario administrador</h2>
 <p>Tras la instalación, se muestra el formulario para crear un usuario administrador:</p>
-<figure>
-    <img src="/images/180316/jenkins_first-admin-user.png"/> 
+<figure><img src="/images/180316/jenkins_first-admin-user.png"/>
 </figure>
 
 <p>Jenkins ofrece la posibilidad de seguir usando el usuario <em>admin</em>, sin crear usuarios adicionales.</p>
 <p>Tras la creación del usuario, podemos empezar a usar Jenkins:</p>
-<figure>
-    <img src="/images/180316/jenkins_is_ready.png"/> 
+<figure><img src="/images/180316/jenkins_is_ready.png"/>
 </figure>
 
 <p>Si hemos creado un nuevo usuario administrador, accedemos a Jenkins con el usuario recién creado:</p>
-<figure>
-    <img src="/images/180316/jenkins_landingpage.png"/> 
+<figure><img src="/images/180316/jenkins_landingpage.png"/>
 </figure>
 
 <h2 id="resumen">Resumen</h2>

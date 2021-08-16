@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.82.1" />
+<meta name="generator" content="Hugo 0.87.0" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -133,7 +133,7 @@
   <div class="article-body"><p>Investigando las causas por las que los dos nodos con Raspberry Pi 3 se <em>cuelgan</em>, he encontrado múltiples apariciones de este mensaje en <code>/var/log/messages</code>:</p>
 <pre><code class="language-log" data-lang="log">Apr 30 06:40:42 k3 rsyslogd-2007: action 'action 17' suspended, next retry is Sun Apr 30 06:41:12 2017 [try http://www.rsyslog.com/e/2007 ]
 </code></pre><p>De hecho, revisando el origen del problema he encontrado este comando que cuenta las apariciones del mensaje:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ sudo grep <span style="color:#2aa198">&#34;action.*suspend&#34;</span> /var/log/messages | wc -l
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ sudo grep <span style="color:#2aa198">&#34;action.*suspend&#34;</span> /var/log/messages | wc -l
 <span style="color:#2aa198">1394</span>
 </code></pre></div><p>Además de <em>spamear</em> los logs, provoca un montón de escrituras innecesarias sobre la tarjeta microSD, lo que puede acortar la vida útil de la misma.</p>
 <p>No tengo claro si este puede ser la causa que hace que las dos Raspberry Pi 3 se cuelguen pasado un tiempo y que dejen de responder, lo que hace que deba reiniciarlas (desconectando/conectando el cable) para recuperarlas. Sin embargo, en el nodo <em>master</em> (Raspberry Pi 2 B+) no aparece el mensaje en los logs y no se cuelga (aunque la configuración de <em>rsyslog</em> es la misma).</p>
@@ -142,7 +142,7 @@
 <p>La solución la explica Danny Tuppeny en su blog, en <a href="https://blog.dantup.com/2016/04/removing-rsyslog-spam-on-raspberry-pi-raspbian-jessie/">Removing [action &lsquo;action 17&rsquo; suspended] rsyslog Spam on Raspberry Pi (Raspian Jessie)</a>. Él mismo abrió un <em>bug</em> en RPI-Distro: <a href="https://github.com/RPi-Distro/repo/issues/28">Default Raspbian Jessie Lite install spams syslog with &ldquo;rsyslogd-2007: action &lsquo;action 17&rsquo; suspended, next retry is #28</a> en él explicaba cómo había eliminado la línea que hace referencia a <code>/dev/xconsole</code> de la configuración de <em>rasyslog</em> y que el mensaje desaparecía (después de reiniciar).</p>
 <p>Para comprobar si esta es la causa del <em>cuelgue</em> de la RPi 3, he modificado la configuración de <em>rsyslog</em> en el nodo <strong>k2</strong> del clúster, pero no en el <strong>k3</strong>. De esta forma podré averiguar si la configuración de <em>rsyslog</em> es la causante del <em>cuelgue</em>.</p>
 <p>También he actualizado el sistema (en todos los nodos) y <em>kubelet</em>, <em>kubectl</em> y <em>kubeadm</em> se han actualizado a la versión 1.6.2:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">...
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">...
 Setting up libldap-2.4-2:armhf <span style="color:#719e07">(</span>2.4.40+dfsg-1+deb8u2<span style="color:#719e07">)</span> ...
 Setting up libicu52:armhf <span style="color:#719e07">(</span>52.1-8+deb8u5<span style="color:#719e07">)</span> ...
 Setting up kubelet <span style="color:#719e07">(</span>1.6.2-00<span style="color:#719e07">)</span> ...
@@ -150,7 +150,7 @@ Setting up kubectl <span style="color:#719e07">(</span>1.6.2-00<span style="colo
 Setting up kubeadm <span style="color:#719e07">(</span>1.6.2-00<span style="color:#719e07">)</span> ...
 Processing triggers <span style="color:#719e07">for</span> libc-bin <span style="color:#719e07">(</span>2.19-18+deb8u7<span style="color:#719e07">)</span>
 ...
-</code></pre></div><div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ kubectl get nodes
+</code></pre></div><div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ kubectl get nodes
 NAME      STATUS    AGE       VERSION
 k1        Ready     19d       v1.6.2
 k2        Ready     14d       v1.6.2

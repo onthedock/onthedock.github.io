@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.82.1" />
+<meta name="generator" content="Hugo 0.87.0" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -132,10 +132,10 @@
 
   <div class="article-body"><p>Hoy, al intentar lanzar un comando con <code>kubectl</code>, he obtenido el típico mensaje indicando que no se puede conectar con el servidor. El problema está en el servidor de API, que es el que actua como intermediario entre el usuario y Kubernetes. Últimamente he encontrado el mismo error y lo he solucionado reiniciando el nodo <em>master</em> del clúster. Pero hoy he investigado un poco&hellip; Y lo que he encontrado no me ha gustado demasiado.</p>
 <p>El problema se observa en cuanto intentas lanzar un comando con <code>kubectl</code>:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ kubectl get nodes
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ kubectl get nodes
 The connection to the server 192.168.1.11:6443 was refused - did you specify the right host or port?
 </code></pre></div><p>Como no hay forma de comunicar con Kubernetes, uso <code>docker ps</code> para observar el estado de los diferentes contenedores del <em>control plane</em> de Kubernetes:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ docker ps -a
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ docker ps -a
 CONTAINER ID        IMAGE                                                  COMMAND                  CREATED             STATUS                     PORTS               NAMES
 6ef208ad4c36        gcr.io/google_containers/kube-apiserver-arm            <span style="color:#2aa198">&#34;kube-apiserver --...&#34;</span>   <span style="color:#2aa198">3</span> days ago          Exited <span style="color:#719e07">(</span>255<span style="color:#719e07">)</span> <span style="color:#2aa198">3</span> days ago                        k8s_kube-apiserver_kube-apiserver-k1_kube-system_c0f77be12d1bf28aaecf7cc373a774b6_5
 45cee0251e6e        gcr.io/google_containers/k8s-dns-sidecar-arm           <span style="color:#2aa198">&#34;/sidecar --v=2 --...&#34;</span>   <span style="color:#2aa198">9</span> days ago          Up <span style="color:#2aa198">9</span> days                                      k8s_sidecar_kube-dns-66ffd5c588-5gvsc_kube-system_5ef537a4-b67c-11e7-8cb3-b827eb650fdb_1
@@ -144,10 +144,10 @@ a832db03112d        gcr.io/google_containers/k8s-dns-dnsmasq-nanny-arm     <span
 ...
 </code></pre></div><p>Como puede observarse en la salida del comando, el contenedor del API server falló hace tres días (he estado fuera 4 días). He intentado arrancar el contenedor mediante <code>docker start</code>, pero no ha funcionado.</p>
 <p>He intentado obtener los logs del contenedor, pero tampoco he tenido éxito, precisamente porque no puedo conectar con el API server:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ kubectl logs 6ef208ad4c36
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ kubectl logs 6ef208ad4c36
 The connection to the server 192.168.1.11:6443 was refused - did you specify the right host or port?
 </code></pre></div><p>Así que, de nuevo, he intentado usar Docker directamente:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ docker logs 6ef208ad4c36
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ docker logs 6ef208ad4c36
 Error response from daemon: stat /var/lib/docker/overlay2/1d2dd8b0acc2ec2c153faf571fd80c27b8ff113ece23a97860a5b049f9d3b183: no such file or directory
 </code></pre></div><p>Sin información de qué es lo que le ha pasado al contenedor, no puedo avanzar mucho. En la documentación oficial de Kubernetes, en la <a href="https://kubernetes.io/docs/tasks/debug-application-cluster/debug-cluster/">sección de <em>troubleshooting</em></a> se indica que los <em>logs</em> se encuentran en:</p>
 <blockquote>
@@ -164,10 +164,10 @@ Error response from daemon: stat /var/lib/docker/overlay2/1d2dd8b0acc2ec2c153faf
 </ul>
 </blockquote>
 <p>Sin embargo, los logs no se encuentran en la ubicación indicada:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ ls /var/log/kube-*
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ ls /var/log/kube-*
 ls: cannot access /var/log/kube-*: No such file or directory
 </code></pre></div><p>Para encontrar dónde se encuentra el fichero, busco usando:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ sudo find / -iname <span style="color:#2aa198">&#34;kube*log&#34;</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ sudo find / -iname <span style="color:#2aa198">&#34;kube*log&#34;</span>
 /var/log/pods/dda418d2bc54e897654d295f2156b331/kube-controller-manager_0.log
 /var/log/pods/c0f77be12d1bf28aaecf7cc373a774b6/kube-apiserver_0.log
 /var/log/pods/864488f96fd16d6c70d1eb754228dd63/kube-scheduler_0.log
@@ -180,7 +180,7 @@ ls: cannot access /var/log/kube-*: No such file or directory
 /var/log/containers/kube-dns-66ffd5c588-5gvsc_kube-system_sidecar-07fb05e5e076de09c4ca8e898865cf7d23e120ba2d4a1f12168bacf5a358fb1c.log
 /var/log/containers/kube-dns-66ffd5c588-5gvsc_kube-system_dnsmasq-198e2648d2aeab19642c386ddae02d373af6950bc68ce82121785fd41ae0e64f.log
 </code></pre></div><p>Entre los resultados observo que se encuentra el fichero <code>kube-appiserver_0.log</code>, que es lo más parecido al log que busco.</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ sudo !!
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ sudo !!
 sudo tail /var/log/pods/c0f77be12d1bf28aaecf7cc373a774b6/kube-apiserver_0.log
 <span style="color:#719e07">{</span><span style="color:#2aa198">&#34;log&#34;</span>:<span style="color:#2aa198">&#34;I1023 01:18:42.960933       1 trace.go:76] Trace[337274143]: \&#34;Get /api/v1/namespaces/kube-system\&#34; (started: 2017-10-23 01:18:42.38724446 +0000 UTC) (total time: 573.403754ms):\n&#34;</span>,<span style="color:#2aa198">&#34;stream&#34;</span>:<span style="color:#2aa198">&#34;stderr&#34;</span>,<span style="color:#2aa198">&#34;time&#34;</span>:<span style="color:#2aa198">&#34;2017-10-23T01:18:42.961947592Z&#34;</span><span style="color:#719e07">}</span>
 <span style="color:#719e07">{</span><span style="color:#2aa198">&#34;log&#34;</span>:<span style="color:#2aa198">&#34;Trace[337274143]: [572.874013ms] [572.800003ms] About to write a response\n&#34;</span>,<span style="color:#2aa198">&#34;stream&#34;</span>:<span style="color:#2aa198">&#34;stderr&#34;</span>,<span style="color:#2aa198">&#34;time&#34;</span>:<span style="color:#2aa198">&#34;2017-10-23T01:18:42.962312802Z&#34;</span><span style="color:#719e07">}</span>
@@ -203,7 +203,7 @@ Nov 05 06:07:57 k1 kubelet[319]: E1105 06:07:57.236495     319 kuberuntime_manag
 ...
 </code></pre><p>En primer lugar, el mensaje de <em>connection refused</em> que se obtiene al intentar ejecutar cualquier comando con <em>kubectl</em>. A continuación, mensajes de errores de RPC del <em>pod</em> donde se ejecuta el API Server: <em>Error response from daemon</em>. Y la causa parece ser que al intentar abrir <code>/var/lib/docker/overlay2/74217d05e7d37d111ce00a444c0a4237618a5474a8ca72393feeea664532d30b/lower</code> se produce un error <code>structure needs cleaning</code>.</p>
 <p>Al intentar averiguar qué le pasa al fichero, lanzo <code>sudo ls -la  /var/lib/docker/overlay2/74217d05e7d37d111ce00a444c0a4237618a5474a8ca72393feeea664532d30b/</code> y la salida es preocupante:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ sudo ls -la  /var/lib/docker/overlay2/74217d05e7d37d111ce00a444c0a4237618a5474a8ca72393feeea664532d30b/
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ sudo ls -la  /var/lib/docker/overlay2/74217d05e7d37d111ce00a444c0a4237618a5474a8ca72393feeea664532d30b/
 ls: cannot access /var/lib/docker/overlay2/74217d05e7d37d111ce00a444c0a4237618a5474a8ca72393feeea664532d30b/link: Structure needs cleaning
 ls: cannot access /var/lib/docker/overlay2/74217d05e7d37d111ce00a444c0a4237618a5474a8ca72393feeea664532d30b/lower: Structure needs cleaning
 total <span style="color:#2aa198">32</span>
@@ -215,7 +215,7 @@ drwxr-xr-x  <span style="color:#2aa198">2</span> root root  <span style="color:#
 drwxr-xr-x  <span style="color:#2aa198">1</span> root root  <span style="color:#2aa198">4096</span> Oct <span style="color:#2aa198">23</span> 04:17 merged
 drwx------  <span style="color:#2aa198">3</span> root root  <span style="color:#2aa198">4096</span> Oct <span style="color:#2aa198">23</span> 04:17 work
 </code></pre></div><p>El sistema operativo no sabe qué son los fichero <code>link</code> o <code>lower</code>. Si intentas inspeccionar su contenido:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ sudo cat /var/lib/docker/overlay2/74217d05e7d37d111ce00a444c0a4237618a5474a8ca72393feeea664532d30b/lower
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ sudo cat /var/lib/docker/overlay2/74217d05e7d37d111ce00a444c0a4237618a5474a8ca72393feeea664532d30b/lower
 cat: /var/lib/docker/overlay2/74217d05e7d37d111ce00a444c0a4237618a5474a8ca72393feeea664532d30b/lower: Structure needs cleaning
 </code></pre></div><p>Al buscar en Google <code>Structure needs cleaning</code> todas las respuestas apuntan a una corrupción del sistema de ficheros (por ejemplo: <a href="https://www.reddit.com/r/linuxquestions/comments/4b47r2/has_anyone_ever_gotten_structure_needs_cleaning/">Has anyone ever gotten &ldquo;structure needs cleaning&rdquo; errors on their EXT4 file system?</a> o <a href="https://unix.stackexchange.com/questions/330742/cannot-remove-file-structure-needs-cleaning">Cannot remove file: “Structure needs cleaning”</a>).</p>
 <p>Aunque todas las soluciones apuntan de una forma u otra a ejecutar un <code>fsck</code>, siempre se refieren a particiones diferentes a <code>/</code>, que al estar montada no puede analizarse (o que puede provocar más problemas de los que soluciona).

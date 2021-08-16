@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.82.1" />
+<meta name="generator" content="Hugo 0.87.0" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -134,7 +134,7 @@
 <p>En esta entrada veremos cómo crear copias de seguridad puntuales y recurrentes usando la herramienta de línea de comandos <strong>velero</strong> (lanzada desde un <em>Job</em>)</p>
 <h2 id="aplicación-de-prueba---nginx">Aplicación de prueba - Nginx</h2>
 <p>Para demostrar las capacidades de Velero desplegamos una aplicación de prueba: un servicio con dos réplicas de Nginx inspirada en la que proporciona el equipo de Velero <a href="https://github.com/vmware-tanzu/velero/blob/main/examples/nginx-app/base.yaml"><code>base.yaml</code></a>.:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
 <span style="color:#268bd2">apiVersion</span>: v1
 <span style="color:#268bd2">kind</span>: Namespace
 <span style="color:#268bd2">metadata</span>:
@@ -190,7 +190,7 @@
 <p>En cada organización la gestión de las copias de seguidad puede estar administradas de forma diferente: puede estar centralizada en un equipo &ldquo;de operaciones&rdquo;, asignada al equipo de desarrollo o alguna situación intermedia (en el entorno de desarrollo se encarga el equipo de desarrollo y en el de producción el de operaciones, por ejemplo).</p>
 <p>En mi caso, voy a lanzar el <em>backup</em> usando la <em>ServiceAccount</em> <code>velerocli</code> en el <em>Namespace</em> <code>velero-cli</code>, desde donde he realizado la instalación de Velero.</p>
 <p>Generamos un <em>Job</em> para crear una copia de seguridad del <em>Namespace</em> <code>nginx</code>:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
 <span style="color:#268bd2">kind</span>: Job
 <span style="color:#268bd2">apiVersion</span>:  batch/v1
 <span style="color:#268bd2">metadata</span>:
@@ -213,10 +213,10 @@
           <span style="color:#268bd2">command</span>: [<span style="color:#2aa198">&#34;/bin/sh&#34;</span>]
           <span style="color:#268bd2">args</span>: [<span style="color:#2aa198">&#34;-c&#34;</span>, <span style="color:#2aa198">&#34;velero create backup nginx-backup --include-namespaces nginx&#34;</span>]
 </code></pre></div><p>El comando <code>velero create backup</code> indica al operador de Velero que realice una copia de seguridad del <em>Namespace</em> indicado. Si revisamos los logs del <em>Job</em>:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">Backup request <span style="color:#2aa198">&#34;nginx-backup&#34;</span> submitted successfully.
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">Backup request <span style="color:#2aa198">&#34;nginx-backup&#34;</span> submitted successfully.
 Run <span style="color:#586e75">`</span>velero backup describe nginx-backup<span style="color:#586e75">`</span> or <span style="color:#586e75">`</span>velero backup logs nginx-backup<span style="color:#586e75">`</span> <span style="color:#719e07">for</span> more details.
 </code></pre></div><p>Siguiendo las instrucciones de la salida del comando anterior, generamos un <em>Job</em> (copiando la definición del <em>Job</em> anterior) para &ldquo;describir&rdquo; el <em>backup</em> generado:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
 <span style="color:#268bd2">kind</span>: Job
 <span style="color:#268bd2">apiVersion</span>:  batch/v1
 <span style="color:#268bd2">metadata</span>:
@@ -239,7 +239,7 @@ Run <span style="color:#586e75">`</span>velero backup describe nginx-backup<span
           <span style="color:#268bd2">command</span>: [<span style="color:#2aa198">&#34;/bin/sh&#34;</span>]
           <span style="color:#268bd2">args</span>: [<span style="color:#2aa198">&#34;-c&#34;</span>, <span style="color:#2aa198">&#34;velero describe backup nginx-backup&#34;</span>]
 </code></pre></div><p>En la salida del <em>Pod</em> generado por el <em>Job</em> vemos que la copia de seguridad se ha creado con éxito:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">Name: nginx-backup
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">Name: nginx-backup
 Namespace: velero
 Labels: velero.io/storage-location<span style="color:#719e07">=</span>default
 Annotations: velero.io/source-cluster-k8s-gitversion<span style="color:#719e07">=</span>v1.20.4+k3s1
@@ -270,7 +270,7 @@ Velero-Native Snapshots: &lt;none included&gt;
 </code></pre></div><p>Como vemos, la copia de seguridad se ha realizado inmediatamente, en cuanto se ha definido el objeto <em>backup</em> en la API de Kubernetes.</p>
 <p>Revisando el contenido del <em>bucket</em> <code>velero-backup</code>, vemos que se han creado los ficheros de la copia de seguridad en <code>/valero-backup/backups/nginx-backup/</code>.</p>
 <p>Del mismo modo, generamos un <em>Job</em> para obtener los logs del proceso <code>velero backup logs nginx-backup</code>:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
 <span style="color:#268bd2">kind</span>: Job
 <span style="color:#268bd2">apiVersion</span>:  batch/v1
 <span style="color:#268bd2">metadata</span>:
@@ -293,7 +293,7 @@ Velero-Native Snapshots: &lt;none included&gt;
           <span style="color:#268bd2">command</span>: [<span style="color:#2aa198">&#34;/bin/sh&#34;</span>]
           <span style="color:#268bd2">args</span>: [<span style="color:#2aa198">&#34;-c&#34;</span>, <span style="color:#2aa198">&#34;velero backup logs nginx-backup&#34;</span>]
 </code></pre></div><p>Con lo que podemos consultar el resultado de la ejecución del proceso de creación de la copia de seguridad:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">...
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">...
 <span style="color:#268bd2">time</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;2021-04-04T18:12:01Z&#34;</span> <span style="color:#268bd2">level</span><span style="color:#719e07">=</span>info <span style="color:#268bd2">msg</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;Backing up item&#34;</span> <span style="color:#268bd2">backup</span><span style="color:#719e07">=</span>velero/nginx-backup <span style="color:#268bd2">logSource</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;pkg/backup/item_backupper.go:121&#34;</span> <span style="color:#268bd2">name</span><span style="color:#719e07">=</span>nginx <span style="color:#268bd2">namespace</span><span style="color:#719e07">=</span>nginx <span style="color:#268bd2">resource</span><span style="color:#719e07">=</span>namespaces
 <span style="color:#268bd2">time</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;2021-04-04T18:12:01Z&#34;</span> <span style="color:#268bd2">level</span><span style="color:#719e07">=</span>info <span style="color:#268bd2">msg</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;Backed up 45 items out of an estimated total of 49 (estimate will change throughout the backup)&#34;</span> <span style="color:#268bd2">backup</span><span style="color:#719e07">=</span>velero/nginx-backup <span style="color:#268bd2">logSource</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;pkg/backup/backup.go:394&#34;</span> <span style="color:#268bd2">name</span><span style="color:#719e07">=</span>nginx <span style="color:#268bd2">namespace</span><span style="color:#719e07">=</span> <span style="color:#268bd2">progress</span><span style="color:#719e07">=</span> <span style="color:#268bd2">resource</span><span style="color:#719e07">=</span>namespaces
 <span style="color:#268bd2">time</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;2021-04-04T18:12:01Z&#34;</span> <span style="color:#268bd2">level</span><span style="color:#719e07">=</span>info <span style="color:#268bd2">msg</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;Processing item&#34;</span> <span style="color:#268bd2">backup</span><span style="color:#719e07">=</span>velero/nginx-backup <span style="color:#268bd2">logSource</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;pkg/backup/backup.go:354&#34;</span> <span style="color:#268bd2">name</span><span style="color:#719e07">=</span>my-nginx <span style="color:#268bd2">namespace</span><span style="color:#719e07">=</span>nginx <span style="color:#268bd2">progress</span><span style="color:#719e07">=</span> <span style="color:#268bd2">resource</span><span style="color:#719e07">=</span>endpoints
@@ -311,7 +311,7 @@ Velero-Native Snapshots: &lt;none included&gt;
 <span style="color:#268bd2">time</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;2021-04-04T18:12:02Z&#34;</span> <span style="color:#268bd2">level</span><span style="color:#719e07">=</span>info <span style="color:#268bd2">msg</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;Backed up a total of 49 items&#34;</span> <span style="color:#268bd2">backup</span><span style="color:#719e07">=</span>velero/nginx-backup <span style="color:#268bd2">logSource</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;pkg/backup/backup.go:419&#34;</span> <span style="color:#268bd2">progress</span><span style="color:#719e07">=</span>
 </code></pre></div><h2 id="generando-un-nuevo-backup">Generando un nuevo <em>backup</em></h2>
 <p>Si intentamos crear una nueva copia de seguridad del <em>Namespace</em> <code>nginx</code> ejecutando de nuevo el <em>Job</em> de creación del <em>backup</em>:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
 <span style="color:#268bd2">kind</span>: Job
 <span style="color:#268bd2">apiVersion</span>:  batch/v1
 <span style="color:#268bd2">metadata</span>:
@@ -334,9 +334,9 @@ Velero-Native Snapshots: &lt;none included&gt;
           <span style="color:#268bd2">command</span>: [<span style="color:#2aa198">&#34;/bin/sh&#34;</span>]
           <span style="color:#268bd2">args</span>: [<span style="color:#2aa198">&#34;-c&#34;</span>, <span style="color:#2aa198">&#34;velero create backup nginx-backup --include-namespaces nginx&#34;</span>]
 </code></pre></div><p>El <em>Job</em> falla con el mensaje:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">An error occurred: backups.velero.io <span style="color:#2aa198">&#34;nginx-backup&#34;</span> already exists
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">An error occurred: backups.velero.io <span style="color:#2aa198">&#34;nginx-backup&#34;</span> already exists
 </code></pre></div><p>Como vemos, los <em>backups</em> puntuales deben tener nombres únicos; una sencilla modificación al <em>Job</em> sería incluir la fecha del <em>backup</em>, por ejemplo:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">...
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">...
   <span style="color:#268bd2">command</span>: [<span style="color:#2aa198">&#34;/bin/sh&#34;</span>]
   <span style="color:#268bd2">args</span>: [<span style="color:#2aa198">&#34;-c&#34;</span>, <span style="color:#2aa198">&#34;velero create backup nginx-backup-$(date +%F) --include-namespaces nginx&#34;</span>]
 </code></pre></div><p>Sin embargo, Velero ofrece una opción más práctica para la ejecución de copias de seguridad recurrentes.</p>
@@ -344,7 +344,7 @@ Velero-Native Snapshots: &lt;none included&gt;
 <p>Aunque realizar una copia de seguridad puntual es necesario en momentos determinados, lo habitual es realizar copias periódicas (cada día, por ejemplo).</p>
 <p>Velero ofrece la posibilidad de crear copias recurrentes a través de la configuración del <em>Custom Resource</em> <code>schedules</code> (usando la herramienta <strong>velero</strong>).</p>
 <p>El siguiente <em>Job</em> crea una copia de seguridad del <em>Namespace</em> <code>nginx</code> cada cinco minutos mediante el comando <code>velero schedule create</code>:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
 <span style="color:#268bd2">kind</span>: Job
 <span style="color:#268bd2">apiVersion</span>:  batch/v1
 <span style="color:#268bd2">metadata</span>:
@@ -368,7 +368,7 @@ Velero-Native Snapshots: &lt;none included&gt;
           <span style="color:#268bd2">args</span>: [<span style="color:#2aa198">&#34;-c&#34;</span>, <span style="color:#2aa198">&#34;velero schedule create nginx-backups --schedule=&#39;*/5 * * * *&#39; --include-namespaces nginx&#34;</span>]
 </code></pre></div><p>El formato de la frecuencia de las copias de seguridad especificado en el parámetro <code>--schedule</code> es el de <a href="https://en.wikipedia.org/wiki/Cron">Cron</a>.</p>
 <p>En el log del <em>Job</em> vemos que se ha programado el <em>backup</em> correctamente:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">Schedule <span style="color:#2aa198">&#34;nginx-backups&#34;</span> created successfully.
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">Schedule <span style="color:#2aa198">&#34;nginx-backups&#34;</span> created successfully.
 </code></pre></div><p>En MinIO se genera una &ldquo;carpeta&rdquo; para cada ejecución de cada repetición del <em>backup</em> en <code>/velero-backup/backups/nginx-backups-YYYYMMDDhhmmss/</code> que contiene los ficheros que componen la copia de seguridad de los objetos de Kubernetes incluidos en el <em>backup</em>.</p>
 <p>En la siguiente entrada, veremos cómo recuperar una copia de seguridad.</p></div>
 

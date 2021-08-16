@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.82.1" />
+<meta name="generator" content="Hugo 0.87.0" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -143,7 +143,7 @@
 </blockquote>
 <h2 id="creación-del-namespace">Creación del <em>namespace</em></h2>
 <p>Todos los componentes los despliego en un <em>namespace</em> personalizado llamado <em>toolbox-${nombre-aplicación}</em>, así que el primer paso es crear el fichero de definición del <em>namespace</em>:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
 <span style="color:#268bd2">apiVersion</span>: v1
 <span style="color:#268bd2">kind</span>: Namespace
 <span style="color:#268bd2">metadata</span>:
@@ -158,7 +158,7 @@
 <blockquote>
 <p>La carpeta local elegida (en mi caso, <code>/mnt/data</code>) debe existir en los nodos del clúster: <code>mkdir -p /mnt/data</code>.</p>
 </blockquote>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
 <span style="color:#268bd2">apiVersion</span>: v1
 <span style="color:#268bd2">kind</span>: PersistentVolume
 <span style="color:#268bd2">metadata</span>:
@@ -180,7 +180,7 @@
 <p>Si no hay ningún volumen disponible que satisfaga el <em>claim</em>, el pod no arranca.</p>
 <p>Para otros tipos de <em>storage class</em> diferente a <code>manual</code>, la creación del <em>persistent volume</em> se realiza de forma dinámica cuando se crea el <em>persistent volume claim</em>.</p>
 <p>La definición del <em>persistent volume claim</em>:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
 <span style="color:#268bd2">apiVersion</span>: v1
 <span style="color:#268bd2">kind</span>: PersistentVolumeClaim
 <span style="color:#268bd2">metadata</span>:
@@ -200,8 +200,8 @@
 </blockquote>
 <p>El fichero <code>app.ini</code> podemos crearlo desde cero, usar un fichero de configuración de referencia (como <a href="https://github.com/go-gitea/gitea/blob/master/custom/conf/app.example.ini">app.example.ini</a> en el repositorio oficial de Gitea en Github) o <em>exportalo</em> de una instancia en marcha (<code>kubectl exec &lt;gitea-pod-name&gt; -- cat /data/gitea/conf/app.ini &gt; app.ini</code>)</p>
 <p>Una vez configurado el fichero <code>app.ini</code> (en <a href="https://docs.gitea.io/en-us/config-cheat-sheet/">Configuration Cheat Sheet</a> tienes el detalle de las opciones de configuración), crea el fichero de definición del <em>configMap</em> mediante:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">kubectl create configmap gitea-config -n toolbox-gitea --from-file<span style="color:#719e07">=</span>app.ini -o yaml --dry-run
-</code></pre></div><div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">kubectl create configmap gitea-config -n toolbox-gitea --from-file<span style="color:#719e07">=</span>app.ini -o yaml --dry-run
+</code></pre></div><div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
 <span style="color:#268bd2">apiVersion</span>: v1
 <span style="color:#268bd2">kind</span>: configMap
 <span style="color:#268bd2">metadata</span>:
@@ -235,7 +235,7 @@
 </span><span style="color:#2aa198">    = false\nENABLE_OPENID_SIGNUP = false\n\n&#34;</span>
 </code></pre></div><h2 id="fichero-de-despliegue">Fichero de despliegue</h2>
 <p>Una vez tenemos todos los elementos necesarios, creamos el fichero de definición del <em>deployment</em> de Gitea:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
 <span style="color:#268bd2">apiVersion</span>: apps/v1
 <span style="color:#268bd2">kind</span>: Deployment
 <span style="color:#268bd2">metadata</span>:
@@ -282,7 +282,7 @@
 <p>El fichero de configuración <code>app.ini</code> lo montamos en <code>/data/gitea/conf</code> (la ubicación por defecto) usando un volumen. El otro volumen montado en el <em>pod</em> contiene los datos de los repositorios gestionados por Gitea.</p>
 <h2 id="creación-del-servicio">Creación del servicio</h2>
 <p>Gitea expone dos puertos: 22 (SSH) y 3000 (gitea-ui). El uso de Git a través de SSH requiere configuración adicional, ya que los <em>ingress</em> sólo permiten tráfico HTTP y HTTPS. Por este motivo sólo exponemos el puerto 3000 para conectar con Gitea usando HTTPS.</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
 <span style="color:#268bd2">apiVersion</span>: v1
 <span style="color:#268bd2">kind</span>: Service
 <span style="color:#268bd2">metadata</span>:
@@ -297,7 +297,7 @@
 </code></pre></div><h2 id="creación-del-ingress-para-proporcionar-acceso-a-gitea-desde-fuera-del-clúster">Creación del <em>ingress</em> para proporcionar acceso a Gitea desde fuera del clúster</h2>
 <p>Al crear el servicio anterior, por defecto, se asigna una IP de tipo <code>ClusterIP</code> al servicio. Esto impide que se pueda acceder a la aplicación desde <em>fuera</em> del clúster.</p>
 <p>Usamos un <em>ingress</em> para exponer el servicio al exterior:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
 <span style="color:#268bd2">apiVersion</span>: extensions/v1beta1
 <span style="color:#268bd2">kind</span>: Ingress
 <span style="color:#268bd2">metadata</span>:
@@ -318,7 +318,7 @@
 </code></pre></div><p>En K3s el <em>ingress</em> desplegado por defecto es <a href="https://doc.traefik.io/traefik/">Traefik</a>, por lo que las anotaciones quizás no tengan sentido para otras <em>ingress controllers</em>.</p>
 <h2 id="despliegue">Despliegue</h2>
 <p>Hemos creado el fichero <code>gitea-sqlite.yaml</code> con los diferentes fragmentos de código del artículo. De esta forma, podemos desplegar todos los recursos necesarios para el funcionamiento de Gitea mediante un único comando:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl apply -f gitea-sqlite.yaml
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl apply -f gitea-sqlite.yaml
 namespace/toolbox-gitea created
 persistentvolume/gitea-volume created
 persistentvolumeclaim/gitea-volume-claim created

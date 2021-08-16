@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.82.1" />
+<meta name="generator" content="Hugo 0.87.0" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -147,7 +147,7 @@
 <p>Sin embargo, la documentación indica que <strong>no debe especificarse</strong> un <em>Principal</em> en una política que asignemos a un usuario o un grupo, ya que en estos casos implícitamente el <em>principal</em> se obtiene del usuario al que está asociada la política. (En el caso del grupo, el grupo <strong>no es un <em>principal</em></strong>, pero contiene usuarios que sí que lo son, que son de donde se obtiene el <em>principal</em> para la <em>policy</em>).</p>
 <h2 id="volviendo-a-los-problemas-de-permisos-sobre-el-topic">Volviendo a los problemas de permisos sobre el <em>topic</em></h2>
 <p>La confusión surgió porque la política aplicada al <em>topic</em> SNS por defecto proporciona acceso al propietario del <em>topic</em> (quien lo ha creado) mediante una combinación de <code>&quot;Principal&quot;: {&quot;AWS&quot;: &quot;*&quot;}</code> y una condición que restringe al <code>AWS:SourceOwner</code>:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-json" data-lang="json">{
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-json" data-lang="json">{
   <span style="color:#268bd2">&#34;Version&#34;</span>: <span style="color:#2aa198">&#34;2008-10-17&#34;</span>,
   <span style="color:#268bd2">&#34;Id&#34;</span>: <span style="color:#2aa198">&#34;__default_policy_ID&#34;</span>,
   <span style="color:#268bd2">&#34;Statement&#34;</span>: [
@@ -174,9 +174,8 @@
 <p>Como un <em>topic</em> tiene asociada una <em>resource-based policy</em>, hay que indicar el <em>principal</em> de quien va a realizar acciones sobre el mismo. En este caso, el <em>principal</em> es CloudWatch Events, que es un <strong>servicio</strong>, por lo que el <em>principal</em> es <code>&quot;Princial&quot;: { &quot;Service&quot;: &quot;events.amazonaws.com&quot; }</code>.</p>
 <h2 id="conclusión">Conclusión</h2>
 <p>Debo revisar la página <a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_evaluation-logic.html">Policy Evaluation Logic</a> y estudiarla a fondo; creo que al final me imprimiré y colgaré el diagrama de <a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_evaluation-logic.html#policy-eval-denyallow">Determining Whether a Request Is Allowed or Denied Within an Account</a> en un sitio que siempre tenga a la vista:</p>
-<figure>
-    <img src="/images/200510/PolicyEvaluationHorizontal.png"
-         alt="Policy evaluation whitin an account"/> <figcaption>
+<figure><img src="/images/200510/PolicyEvaluationHorizontal.png"
+         alt="Policy evaluation whitin an account"/><figcaption>
             <p>Policy evaluation whitin an account</p>
         </figcaption>
 </figure></div>
