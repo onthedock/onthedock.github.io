@@ -11,13 +11,13 @@
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
 
-<link rel="canonical" href="https://onthedock.github.io/post/210403-configura-minio-en-k8s-usando-jobs-y-el-cliente-mc/">
+<link rel="canonical" href="https://onthedock.github.io/post/210920-provisionar-kubernetes-con-vagrant-y-k3sup-2/">
 
 
     
     <link href="https://fonts.googleapis.com/css?family=Special+Elite|Fira+Sans:400,700" rel="stylesheet">
     
-    <title>Configura MinIO en Kubernetes usando Jobs y el cliente de MinIO &#39;mc&#39; - On The Dock</title>
+    <title>Provisionar Kubernetes con Vagrant y K3sup - 2a parte - On The Dock</title>
     <style amp-boilerplate>body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}</style><noscript><style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style></noscript>
     <script async src="https://cdn.ampproject.org/v0.js"></script>
     
@@ -26,22 +26,22 @@
 <script async custom-element="amp-ad" src="https://cdn.ampproject.org/v0/amp-ad-0.1.js"></script>
 
     
-<meta name="description" content="&lt;p&gt;En la entrada anterior, &lt;a href=&#34;https://onthedock.github.io/post/210403-minio-en-kubernetes/&#34;&gt;MinIO en Kubernetes&lt;/a&gt;, explicaba cómo desplegar MinIO en Kubernetes (de forma manual).&lt;/p&gt;&lt;p&gt;&lt;a href=&#34;https://docs.min.io/docs/minio-client-quickstart-guide.html&#34;&gt;&lt;code&gt;mc&lt;/code&gt;&lt;/a&gt; se puede usar como herramienta de línea de comandos o como contenedor &lt;a href=&#34;https://hub.docker.com/r/minio/mc&#34;&gt;&lt;code&gt;minio/mc&lt;/code&gt;&lt;/a&gt;; sin embargo, en esta entrada veremos cómo usarlo en &lt;em&gt;Jobs&lt;/em&gt; de Kubernetes para configurar el &lt;em&gt;alias&lt;/em&gt; de un servidor de MinIO y crear un &lt;em&gt;bucket&lt;/em&gt;.&lt;/p&gt;">
+<meta name="description" content="&lt;ol&gt;&lt;li&gt;&lt;a href=&#34;https://onthedock.github.io/post/210919-provisionar-kubernetes-con-vagrant-y-k3sup-1/&#34;&gt;Provisionar Kubernetes con Vagrant y K3sup - 1a parte&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&#34;https://onthedock.github.io/post/210920-provisionar-kubernetes-con-vagrant-y-k3sup-2/&#34;&gt;Provisionar Kubernetes con Vagrant y K3sup - 2a parte&lt;/a&gt;&lt;/li&gt;&lt;/ol&gt;&lt;p&gt;En la entrada anterior, tenemos un fichero &lt;code&gt;Vagrantfile&lt;/code&gt; que permite provisionar máquinas virtuales a partir de la imagen base seleccionada. Las máquinas generadas están configuradas a nivel de hipervisor, con los recursos de CPU y memoria elegidos. También se ha configurado el nombre de la máquina virtual y se ha establecido una IP estática. También se han deshabilitado algunos aspectos específicos de Vagrant, como las carpetas compartidas o la comprobación de actualizaciones de la imagen base.&lt;/p&gt;&lt;p&gt;En esta segunda parte nos centramos en la configuración del sistema operativo aprovechando la capacidad de Vagrant de ejecutar &lt;em&gt;scripts&lt;/em&gt; en las máquinas creadas.&lt;/p&gt;">
 
-<meta property="og:title" content="Configura MinIO en Kubernetes usando Jobs y el cliente de MinIO &#39;mc&#39; - On The Dock">
+<meta property="og:title" content="Provisionar Kubernetes con Vagrant y K3sup - 2a parte - On The Dock">
 <meta property="og:type" content="article">
-<meta property="og:url" content="https://onthedock.github.io/post/210403-configura-minio-en-k8s-usando-jobs-y-el-cliente-mc/">
-<meta property="og:image" content="https://onthedock.github.io/images/minio.jpg">
+<meta property="og:url" content="https://onthedock.github.io/post/210920-provisionar-kubernetes-con-vagrant-y-k3sup-2/">
+<meta property="og:image" content="https://onthedock.github.io/images/kubernetes.png">
 <meta property="og:site_name" content="On The Dock">
-<meta property="og:description" content="&lt;p&gt;En la entrada anterior, &lt;a href=&#34;https://onthedock.github.io/post/210403-minio-en-kubernetes/&#34;&gt;MinIO en Kubernetes&lt;/a&gt;, explicaba cómo desplegar MinIO en Kubernetes (de forma manual).&lt;/p&gt;&lt;p&gt;&lt;a href=&#34;https://docs.min.io/docs/minio-client-quickstart-guide.html&#34;&gt;&lt;code&gt;mc&lt;/code&gt;&lt;/a&gt; se puede usar como herramienta de línea de comandos o como contenedor &lt;a href=&#34;https://hub.docker.com/r/minio/mc&#34;&gt;&lt;code&gt;minio/mc&lt;/code&gt;&lt;/a&gt;; sin embargo, en esta entrada veremos cómo usarlo en &lt;em&gt;Jobs&lt;/em&gt; de Kubernetes para configurar el &lt;em&gt;alias&lt;/em&gt; de un servidor de MinIO y crear un &lt;em&gt;bucket&lt;/em&gt;.&lt;/p&gt;">
+<meta property="og:description" content="&lt;ol&gt;&lt;li&gt;&lt;a href=&#34;https://onthedock.github.io/post/210919-provisionar-kubernetes-con-vagrant-y-k3sup-1/&#34;&gt;Provisionar Kubernetes con Vagrant y K3sup - 1a parte&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&#34;https://onthedock.github.io/post/210920-provisionar-kubernetes-con-vagrant-y-k3sup-2/&#34;&gt;Provisionar Kubernetes con Vagrant y K3sup - 2a parte&lt;/a&gt;&lt;/li&gt;&lt;/ol&gt;&lt;p&gt;En la entrada anterior, tenemos un fichero &lt;code&gt;Vagrantfile&lt;/code&gt; que permite provisionar máquinas virtuales a partir de la imagen base seleccionada. Las máquinas generadas están configuradas a nivel de hipervisor, con los recursos de CPU y memoria elegidos. También se ha configurado el nombre de la máquina virtual y se ha establecido una IP estática. También se han deshabilitado algunos aspectos específicos de Vagrant, como las carpetas compartidas o la comprobación de actualizaciones de la imagen base.&lt;/p&gt;&lt;p&gt;En esta segunda parte nos centramos en la configuración del sistema operativo aprovechando la capacidad de Vagrant de ejecutar &lt;em&gt;scripts&lt;/em&gt; en las máquinas creadas.&lt;/p&gt;">
 <meta property="og:locale" content="ja_JP">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="On The Dock">
-<meta name="twitter:url" content="https://onthedock.github.io/post/210403-configura-minio-en-k8s-usando-jobs-y-el-cliente-mc/">
-<meta name="twitter:title" content="Configura MinIO en Kubernetes usando Jobs y el cliente de MinIO &#39;mc&#39; - On The Dock">
-<meta name="twitter:description" content="&lt;p&gt;En la entrada anterior, &lt;a href=&#34;https://onthedock.github.io/post/210403-minio-en-kubernetes/&#34;&gt;MinIO en Kubernetes&lt;/a&gt;, explicaba cómo desplegar MinIO en Kubernetes (de forma manual).&lt;/p&gt;&lt;p&gt;&lt;a href=&#34;https://docs.min.io/docs/minio-client-quickstart-guide.html&#34;&gt;&lt;code&gt;mc&lt;/code&gt;&lt;/a&gt; se puede usar como herramienta de línea de comandos o como contenedor &lt;a href=&#34;https://hub.docker.com/r/minio/mc&#34;&gt;&lt;code&gt;minio/mc&lt;/code&gt;&lt;/a&gt;; sin embargo, en esta entrada veremos cómo usarlo en &lt;em&gt;Jobs&lt;/em&gt; de Kubernetes para configurar el &lt;em&gt;alias&lt;/em&gt; de un servidor de MinIO y crear un &lt;em&gt;bucket&lt;/em&gt;.&lt;/p&gt;">
-<meta name="twitter:image" content="https://onthedock.github.io/images/minio.jpg">
+<meta name="twitter:url" content="https://onthedock.github.io/post/210920-provisionar-kubernetes-con-vagrant-y-k3sup-2/">
+<meta name="twitter:title" content="Provisionar Kubernetes con Vagrant y K3sup - 2a parte - On The Dock">
+<meta name="twitter:description" content="&lt;ol&gt;&lt;li&gt;&lt;a href=&#34;https://onthedock.github.io/post/210919-provisionar-kubernetes-con-vagrant-y-k3sup-1/&#34;&gt;Provisionar Kubernetes con Vagrant y K3sup - 1a parte&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&#34;https://onthedock.github.io/post/210920-provisionar-kubernetes-con-vagrant-y-k3sup-2/&#34;&gt;Provisionar Kubernetes con Vagrant y K3sup - 2a parte&lt;/a&gt;&lt;/li&gt;&lt;/ol&gt;&lt;p&gt;En la entrada anterior, tenemos un fichero &lt;code&gt;Vagrantfile&lt;/code&gt; que permite provisionar máquinas virtuales a partir de la imagen base seleccionada. Las máquinas generadas están configuradas a nivel de hipervisor, con los recursos de CPU y memoria elegidos. También se ha configurado el nombre de la máquina virtual y se ha establecido una IP estática. También se han deshabilitado algunos aspectos específicos de Vagrant, como las carpetas compartidas o la comprobación de actualizaciones de la imagen base.&lt;/p&gt;&lt;p&gt;En esta segunda parte nos centramos en la configuración del sistema operativo aprovechando la capacidad de Vagrant de ejecutar &lt;em&gt;scripts&lt;/em&gt; en las máquinas creadas.&lt;/p&gt;">
+<meta name="twitter:image" content="https://onthedock.github.io/images/kubernetes.png">
 
 
 <script type="application/ld+json">
@@ -52,15 +52,15 @@
       "@type": "WebPage",
       "@id":"https:\/\/onthedock.github.io\/"
     },
-    "headline": "Configura MinIO en Kubernetes usando Jobs y el cliente de MinIO \u0027mc\u0027 - On The Dock",
+    "headline": "Provisionar Kubernetes con Vagrant y K3sup - 2a parte - On The Dock",
     "image": {
       "@type": "ImageObject",
-      "url": "https:\/\/onthedock.github.io\/images\/minio.jpg",
+      "url": "https:\/\/onthedock.github.io\/images\/kubernetes.png",
       "height": 800,
       "width": 800
     },
-    "datePublished": "2021-04-03T09:58:50JST",
-    "dateModified": "2021-04-03T09:58:50JST",
+    "datePublished": "2021-09-20T19:25:15JST",
+    "dateModified": "2021-09-20T19:25:15JST",
     "author": {
       "@type": "Person",
       "name": "On The Dock"
@@ -75,7 +75,7 @@
         "height": 60
       }
     },
-    "description": "\u003cp\u003eEn la entrada anterior, \u003ca href=\u0022https:\/\/onthedock.github.io\/post\/210403-minio-en-kubernetes\/\u0022\u003eMinIO en Kubernetes\u003c\/a\u003e, explicaba cómo desplegar MinIO en Kubernetes (de forma manual).\u003c\/p\u003e\n\u003cp\u003e\u003ca href=\u0022https:\/\/docs.min.io\/docs\/minio-client-quickstart-guide.html\u0022\u003e\u003ccode\u003emc\u003c\/code\u003e\u003c\/a\u003e se puede usar como herramienta de línea de comandos o como contenedor \u003ca href=\u0022https:\/\/hub.docker.com\/r\/minio\/mc\u0022\u003e\u003ccode\u003eminio\/mc\u003c\/code\u003e\u003c\/a\u003e; sin embargo, en esta entrada veremos cómo usarlo en \u003cem\u003eJobs\u003c\/em\u003e de Kubernetes para configurar el \u003cem\u003ealias\u003c\/em\u003e de un servidor de MinIO y crear un \u003cem\u003ebucket\u003c\/em\u003e.\u003c\/p\u003e"
+    "description": "\u003col\u003e\n\u003cli\u003e\u003ca href=\u0022https:\/\/onthedock.github.io\/post\/210919-provisionar-kubernetes-con-vagrant-y-k3sup-1\/\u0022\u003eProvisionar Kubernetes con Vagrant y K3sup - 1a parte\u003c\/a\u003e\u003c\/li\u003e\n\u003cli\u003e\u003ca href=\u0022https:\/\/onthedock.github.io\/post\/210920-provisionar-kubernetes-con-vagrant-y-k3sup-2\/\u0022\u003eProvisionar Kubernetes con Vagrant y K3sup - 2a parte\u003c\/a\u003e\u003c\/li\u003e\n\u003c\/ol\u003e\n\u003cp\u003eEn la entrada anterior, tenemos un fichero \u003ccode\u003eVagrantfile\u003c\/code\u003e que permite provisionar máquinas virtuales a partir de la imagen base seleccionada. Las máquinas generadas están configuradas a nivel de hipervisor, con los recursos de CPU y memoria elegidos. También se ha configurado el nombre de la máquina virtual y se ha establecido una IP estática. También se han deshabilitado algunos aspectos específicos de Vagrant, como las carpetas compartidas o la comprobación de actualizaciones de la imagen base.\u003c\/p\u003e\n\u003cp\u003eEn esta segunda parte nos centramos en la configuración del sistema operativo aprovechando la capacidad de Vagrant de ejecutar \u003cem\u003escripts\u003c\/em\u003e en las máquinas creadas.\u003c\/p\u003e"
   }
 </script>
 
@@ -114,14 +114,14 @@
     <main>
       
 <div class="l-container">
-  <article class="single article-ace111f0f33ff102b67a759fd91c3066">
+  <article class="single article-b8ce86f48a7df657dee38337218d57fe">
   <div class="header-wrapper">
-    <a href="https://onthedock.github.io/post/210403-configura-minio-en-k8s-usando-jobs-y-el-cliente-mc/" class="thumbnail" title="Configura MinIO en Kubernetes usando Jobs y el cliente de MinIO &#39;mc&#39;"></a>
+    <a href="https://onthedock.github.io/post/210920-provisionar-kubernetes-con-vagrant-y-k3sup-2/" class="thumbnail" title="Provisionar Kubernetes con Vagrant y K3sup - 2a parte"></a>
     <header class="article-header">
       <div class="clearfix">
-        <h1 class="title">Configura MinIO en Kubernetes usando Jobs y el cliente de MinIO &#39;mc&#39;</h1>
+        <h1 class="title">Provisionar Kubernetes con Vagrant y K3sup - 2a parte</h1>
         <ul class="p-facts">
-          <li><time datetime="2021-04-03T09:58:50JST">3 Apr 2021</time></li>
+          <li><time datetime="2021-09-20T19:25:15JST">20 Sep 2021</time></li>
           <li><a href="https://onthedock.github.io/post/">post</a></li>
           
           <li>Xavi Aznar</li>
@@ -130,226 +130,158 @@
     </header>
   </div>
 
-  <div class="article-body"><p>En la entrada anterior, <a href="https://onthedock.github.io/post/210403-minio-en-kubernetes/">MinIO en Kubernetes</a>, explicaba cómo desplegar MinIO en Kubernetes (de forma manual).</p>
-<p><a href="https://docs.min.io/docs/minio-client-quickstart-guide.html"><code>mc</code></a> se puede usar como herramienta de línea de comandos o como contenedor <a href="https://hub.docker.com/r/minio/mc"><code>minio/mc</code></a>; sin embargo, en esta entrada veremos cómo usarlo en <em>Jobs</em> de Kubernetes para configurar el <em>alias</em> de un servidor de MinIO y crear un <em>bucket</em>.</p>
-<p>En primer lugar, definimos un <em>Persistent Volume Claim</em> para almacenar la configuración del cliente de MinIO y no tener que configurarlo en cada ejecución.</p>
-<p>La configuración de <strong>mc</strong> consiste en unos ficheros JSON, por lo que creamos un <em>pvc</em> de sólo 1 Mi.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
-<span style="color:#268bd2">kind</span>: PersistentVolumeClaim
-<span style="color:#268bd2">apiVersion</span>: v1
-<span style="color:#268bd2">metadata</span>:
-  <span style="color:#268bd2">namespace</span>: minio
-  <span style="color:#268bd2">name</span>: minio-config
-<span style="color:#268bd2">spec</span>:
-  <span style="color:#268bd2">accessModes</span>:
-    - ReadWriteOnce
-  <span style="color:#268bd2">resources</span>:
-    <span style="color:#268bd2">requests</span>:
-      <span style="color:#268bd2">storage</span>: 1Mi
-</code></pre></div><p>La configuración de <strong>mc</strong> se almacena en <code>~/.mc/</code>; como el usuario en el contenedor <code>minio/mc</code> es <code>root</code>, montamos el volumen en <code>/root/.mc</code>.</p>
-<h2 id="crear-un-alias-para-el-servidor-de-minio">Crear un <em>alias</em> para el servidor de MinIO</h2>
-<p>Para simplificar la interacción entre el cliente de MinIO y el servidor, podemos asociar un <em>alias</em> al <em>endpoint</em> de MinIO. Por defecto, el cliente de MinIO tiene definidos -aunque no están configurados- <em>alias</em> para Google Cloud Storage (<code>gcs</code>), AWS S3 (<code>s3</code>) y un <em>sandbox</em> público de pruebas (<code>play</code>).</p>
-<p>En nuestro caso, vamos a denominar <code>minio</code> al servidor de MinIO desplegado en Kubernetes.</p>
-<p>Definimos un <em>Job</em> para crear el <em>alias</em>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
-<span style="color:#268bd2">kind</span>: Job
-<span style="color:#268bd2">apiVersion</span>:  batch/v1
-<span style="color:#268bd2">metadata</span>:
-  <span style="color:#268bd2">namespace</span>: minio
-  <span style="color:#268bd2">generateName</span>: mc-alias-set
-<span style="color:#268bd2">spec</span>:
-  <span style="color:#268bd2">template</span>:
-    <span style="color:#268bd2">metadata</span>:
-      <span style="color:#268bd2">labels</span>:
-        <span style="color:#268bd2">app</span>: minio
-    <span style="color:#268bd2">spec</span>:
-      <span style="color:#268bd2">restartPolicy</span>: Never
-      <span style="color:#268bd2">containers</span>:
-        - <span style="color:#268bd2">name</span>: mc-alias-set
-          <span style="color:#268bd2">image</span>: minio/mc
-          <span style="color:#268bd2">env</span>:
-            - <span style="color:#268bd2">name</span>: MINIO_ROOT_USER
-              <span style="color:#268bd2">valueFrom</span>:
-                <span style="color:#268bd2">secretKeyRef</span>:
-                  <span style="color:#268bd2">name</span>: minio-secret
-                  <span style="color:#268bd2">key</span>: minio-root-user
-            - <span style="color:#268bd2">name</span>: MINIO_ROOT_PASSWORD
-              <span style="color:#268bd2">valueFrom</span>:
-                <span style="color:#268bd2">secretKeyRef</span>:
-                  <span style="color:#268bd2">name</span>: minio-secret
-                  <span style="color:#268bd2">key</span>: minio-root-password
-          <span style="color:#268bd2">command</span>: [<span style="color:#2aa198">&#34;mc&#34;</span>]
-          <span style="color:#268bd2">args</span>: [<span style="color:#2aa198">&#34;alias&#34;</span>, <span style="color:#2aa198">&#34;set&#34;</span>, <span style="color:#2aa198">&#34;minio&#34;</span>, <span style="color:#2aa198">&#34;http://minio:9000&#34;</span>, <span style="color:#2aa198">&#34;--debug&#34;</span>]
-</code></pre></div><blockquote>
-<p>El <em>Job</em> se completa con éxito, pero el <em>alias</em> creado no contiene las credenciales de acceso a MinIO (debido a limitaciones de <strong>mc</strong>). Sigue leyendo&hellip;</p>
+  <div class="article-body"><ol>
+<li><a href="https://onthedock.github.io/post/210919-provisionar-kubernetes-con-vagrant-y-k3sup-1/">Provisionar Kubernetes con Vagrant y K3sup - 1a parte</a></li>
+<li><a href="https://onthedock.github.io/post/210920-provisionar-kubernetes-con-vagrant-y-k3sup-2/">Provisionar Kubernetes con Vagrant y K3sup - 2a parte</a></li>
+</ol>
+<p>En la entrada anterior, tenemos un fichero <code>Vagrantfile</code> que permite provisionar máquinas virtuales a partir de la imagen base seleccionada. Las máquinas generadas están configuradas a nivel de hipervisor, con los recursos de CPU y memoria elegidos. También se ha configurado el nombre de la máquina virtual y se ha establecido una IP estática. También se han deshabilitado algunos aspectos específicos de Vagrant, como las carpetas compartidas o la comprobación de actualizaciones de la imagen base.</p>
+<p>En esta segunda parte nos centramos en la configuración del sistema operativo aprovechando la capacidad de Vagrant de ejecutar <em>scripts</em> en las máquinas creadas.</p>
+<blockquote>
+<p>Todavía estoy refinando esta parte, por lo que es la que está sujeta a mayores cambios. La última versión se encuentra disponible en el repositorio <a href="https://github.com/onthedock/vagrant/">onthedock/vagrant</a> en GitHub.</p>
 </blockquote>
-<p>Algunos detalles a destacar:</p>
+<h2 id="mis-requerimientos">Mis requerimientos</h2>
+<p>Quiero poder trabajar con las máquinas provisionadas por Vagrant como lo haría con máquinas creadas  de cualquier otra manera. Eso significa configurar acceso directo a las máquinas virtuales vía SSH. También necesito poder conectar a las máquinas virtuales a través de cualquier puerto (vía HTTP) sin necesidad de configurar <em>port-forwarding</em> en VirtualBox o de cualquier otra forma.</p>
+<p>Para poder instalar Kubernetes (<strong>k3s</strong>) usando <strong><a href="https://github.com/alexellis/k3sup#pre-requisites-for-k3sup-servers-and-agents">k3sup</a></strong>, necesito un usuario con posibilidad de conectar a las máquinas vía SSH y con capacidad de elevar permisos vía <strong>sudo</strong> sin contraseña. Los nodos deben tener una IP estática. También es necesario que las máquinas puedan comunicarse directamente entre ellas (es un requerimiento de Kubernetes).</p>
+<h3 id="problemas-con-la-configuración-por-defecto-de-vagrant">Problemas con la configuración por defecto de Vagrant</h3>
+<p>Por defecto, Vagrant configura la interfaz de red <code>eth0</code> como NAT; esto es un requerimiento fundamental de Vagrant, como se indica en el <em>issue 2093</em> <a href="https://github.com/hashicorp/vagrant/issues/2093#issuecomment-23458455">Vagrant Box - eth0 NAT</a>. Aunque este <em>issue</em> es de 2013, no parece que se haya modificado el comportamiento por defecto de Vagrant, así que <code>eth0</code> sigue configurándose por defecto como NAT.</p>
+<p>Buscando en Google se pueden encontrar varias alternativas o <em>workarounds</em> a este requerimiento, pero en mi caso la solución ha pasado por añadir una segunda interfaz de red y conectarla a una red pública (que en <a href="https://www.vagrantup.com/docs/networking/public_network">Vagrant quiere decir, más o menos, una red <em>bridged</em></a>).</p>
+<p>El problema es que al tener que configurar la interfaz de red &ldquo;local&rdquo; en el equipo físico, ésta será diferente en cada equipo, en general.</p>
+<p>La solución de Vagrant es preguntar al usuario con qué interfaz de red físico debe crearse el <em>bridge</em>, ofreciendo una lista de posibilidades. Esto interrumpe el proceso automático de creación de las máquinas virtuales, así que la única opción para que el proceso funcione de forma desatendida es proporcionando la interfaz en el fichero de configuración.</p>
+<p>Mientras no resuelva el <em>issue</em> <a href="https://github.com/onthedock/vagrant/issues/1">El nombre de la tarjeta de red &ldquo;bridged&rdquo; está fijado en el Vagrantfile #1</a>, el nombre de la interfaz de red física con la que debe crear el <em>bridge</em> con la interfaz de la VM <strong>está <em>hardcodeado</em></strong> en el fichero <code>Vagrantfile</code>.</p>
+<p>Las máquinas virtuales deben poder comunicarse entre ellas y con internet, así que la única manera de conseguirlo es haciendo que estén conectadas a la red &ldquo;local&rdquo; del laboratorio (192.168.1.x).</p>
+<p>Sin este requerimiento, no es posible instalar Kubernetes en las máquinas provisionadas, hasta donde he podido averiguar.</p>
+<h3 id="acceso-vía-ssh">Acceso vía SSH</h3>
+<p>Usé como punto de partida los ficheros de Venkat Nagappan del repositorio <a href="https://github.com/justmeandopensource/vagrant/tree/master/vagrantfiles/ubuntu20">justmeandopensource/vagrant</a>. Venkat usa un fichero de <em>bootstrap</em> en el que habilita el acceso para el usuario <code>root</code> via SSH (y establece el <em>password</em> como <code>admin</code>). Sin embargo, no me sentía del todo cómodo con esta opción, por lo que creé un usuario <em>no-root</em> llamado <code>operador</code>. De esta forma no es necesario modificar el fichero de configuración de SSH. Y aunque soy consciente de que se trata de una máquina de laboratorio sin acceso directo desde internet y la posibilidad de que un <em>bot</em> consiga acceder como se indica en <a href="https://unix.stackexchange.com/a/82639">Why is root login via SSH so bad that everyone advises to disable it?</a> es muy baja, creo que es una buena práctica que no está de más adoptar siempre.</p>
+<p>Todavía mantengo los comandos <em>heredados</em> de Venkat para el acceso usando <code>root</code> (aunque están comentados en el <code>Vagrantfile</code>), pero tras la creación del usuario <em>no-root</em>, es posible que los acabe elimiando ( issue <a href="https://github.com/onthedock/vagrant/issues/10">Eliminar líneas para permitir el acceso vía SSH para el usuario root #10</a>).</p>
+<p>El usuario <em>no-root</em> también es necesario para realizar la instalación de <em>K3s</em> mediante <em>k3sup</em>. Como requerimiento adicional de <em>k3sup</em>, este usuario <em>no-root</em> debe poder elevar permisos mediante <em>sudo</em> sin necesidad de proporcionar la contraseña.</p>
+<h3 id="script-de-bootstrap"><em>Script</em> de <em>bootstrap</em></h3>
+<p>Este <em>script</em> está basado en el fichero de Venkat Nagappan:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash"><span style="color:#268bd2">$bootstrap</span> <span style="color:#719e07">=</span> <span style="color:#2aa198">&lt;&lt;-SCRIPT
+</span><span style="color:#2aa198">#!/bin/bash
+</span><span style="color:#2aa198">
+</span><span style="color:#2aa198"># Enable ssh password authentication
+</span><span style="color:#2aa198">echo &#34;Enable ssh password authentication&#34;
+</span><span style="color:#2aa198">sed -i &#39;s/^PasswordAuthentication no/PasswordAuthentication yes/&#39; /etc/ssh/sshd_config
+</span><span style="color:#2aa198"># No need for root SSH login
+</span><span style="color:#2aa198"># sed -i &#39;s/.*PermitRootLogin.*/PermitRootLogin yes/&#39; /etc/ssh/sshd_config
+</span><span style="color:#2aa198">systemctl reload sshd
+</span><span style="color:#2aa198">
+</span><span style="color:#2aa198"># Create operador user
+</span><span style="color:#2aa198">echo &#34;Create user operador&#34;
+</span><span style="color:#2aa198">useradd -s /bin/bash -m -G sudo -U operador
+</span><span style="color:#2aa198">echo &#34;Set operador password&#34;
+</span><span style="color:#2aa198">echo -e &#34;admin\nadmin&#34; | passwd operador &gt;/dev/null 2&gt;&amp;1
+</span><span style="color:#2aa198"> 
+</span><span style="color:#2aa198"># Set Root password
+</span><span style="color:#2aa198">echo &#34;Set root password&#34;
+</span><span style="color:#2aa198">echo -e &#34;admin\nadmin&#34; | passwd root &gt;/dev/null 2&gt;&amp;1
+</span><span style="color:#2aa198">SCRIPT</span>
+</code></pre></div><p>La primera sección modifica el fichero de configuración de SSH para permitir el acceso usando autenticación con contraseña; aunque fue útil al principio, una vez configurado el acceso usando claves SSH, ya no es necesario y probablemente acabe eliminando estas líneas:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># Enable ssh password authentication</span>
+<span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;Enable ssh password authentication&#34;</span>
+sed -i <span style="color:#2aa198">&#39;s/^PasswordAuthentication no/PasswordAuthentication yes/&#39;</span> /etc/ssh/sshd_config
+</code></pre></div><p>A continuación, se habilita el acceso SSH para el usuario <code>root</code>; tras validar la creación del usuario <em>no-root</em> <code>operador</code>, no es necesario acceder con <code>root</code>, así que comenté estas líneas y, de nuevo, las eliminaré en una iteración futura.</p>
+<p>En la siguiente sección genero el usuario <em>no-root</em> <code>operador</code> y establezco su contraseña (como <code>admin</code>, que sin duda no es una elección acertada):</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># Create operador user</span>
+<span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;Create user operador&#34;</span>
+useradd -s /bin/bash -m -G sudo -U operador
+<span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;Set operador password&#34;</span>
+<span style="color:#b58900">echo</span> -e <span style="color:#2aa198">&#34;admin\nadmin&#34;</span> | passwd operador &gt;/dev/null 2&gt;&amp;<span style="color:#2aa198">1</span>
+</code></pre></div><p>Dado que conseguí habilitar el acceso usando claves SSH para acceder a las máquinas virtuales provisionadas usando el usuario <code>operador</code>, ya no es necesario establecer la contraseña para el usuario.</p>
+<p>En la parte final del <em>script</em> se establece la contraseña para el usuario <code>root</code>; de nuevo, esto no es necesario, ya que el usuario <em>no-root</em> puede elevar permisos usando <em>sudo</em>.</p>
+<p>En algún momento del futuro, este <em>script</em> se reducirá a:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash"><span style="color:#268bd2">$bootstrap</span> <span style="color:#719e07">=</span> <span style="color:#2aa198">&lt;&lt;-SCRIPT
+</span><span style="color:#2aa198">#!/bin/bash
+</span><span style="color:#2aa198">
+</span><span style="color:#2aa198"># Create operador user
+</span><span style="color:#2aa198">echo &#34;Create user operador&#34;
+</span><span style="color:#2aa198">useradd -s /bin/bash -m -G sudo -U operador
+</span><span style="color:#2aa198">SCRIPT</span>
+</code></pre></div><h3 id="elevación-de-permisos-con-sudo-sin-contraseña">Elevación de permisos con <em>sudo</em> sin contraseña</h3>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash"><span style="color:#268bd2">$passwordlessSudo</span> <span style="color:#719e07">=</span> <span style="color:#2aa198">&lt;&lt;-SCRIPT
+</span><span style="color:#2aa198">#!/bin/bash
+</span><span style="color:#2aa198">
+</span><span style="color:#2aa198">echo &#34;operador    ALL=(ALL) NOPASSWD:ALL&#34; &gt;&gt; &#34;/etc/sudoers.d/operador&#34;
+</span><span style="color:#2aa198">SCRIPT</span>
+</code></pre></div><p>Este segundo <em>script</em>  crea un fichero en la carpeta <em>sudoers.d</em> para que el usuario recién creado pueda elevar permisos sin proporcionar la contraseña (como requiere <em>k3sup</em>).</p>
+<p>Dado que se trata de una sola línea, probablemente tiene mucho más sentido agrupar este comando con la creación del usuario <code>operador</code>.</p>
+<p>Una mejora del <em>script</em> es que el nombre elegido para el usuario <em>no-root</em> pueda ser definido a través de una variable.</p>
+<h3 id="copia-de-la-clave-ssh-a-las-máquinas-provisionadas">Copia de la clave SSH a las máquinas provisionadas</h3>
+<p>Este es un ejemplo de lo <em>terriblemente hardcodeado</em> que está el nombre del usuario, el nombre de la clave pública, la ruta de destino&hellip; <em>Gets the job done</em>, pero necesita darle un poco de cariño y refinarlo para darle algo más de flexibilidad:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># Passwordless SSH access for operador</span>
+node.vm.provision <span style="color:#2aa198">&#34;file&#34;</span>, source: <span style="color:#2aa198">&#34;~/.ssh/id_rsa.pub&#34;</span>, destination: <span style="color:#2aa198">&#34;/tmp/xavi.pub&#34;</span>
+node.vm.provision <span style="color:#2aa198">&#34;shell&#34;</span>, inline: <span style="color:#2aa198">&lt;&lt;-SHELL
+</span><span style="color:#2aa198">    sudo su operador
+</span><span style="color:#2aa198">    sudo mkdir -p /home/operador/.ssh/
+</span><span style="color:#2aa198">    cat /tmp/xavi.pub &gt;&gt; /home/operador/.ssh/authorized_keys
+</span><span style="color:#2aa198">SHELL</span>
+</code></pre></div><h3 id="detección-de-la-tarjeta-de-red-física-activa">Detección de la tarjeta de red física activa</h3>
+<blockquote>
+<p>Este <em>script</em> todavía no forma parte del fichero <code>Vagrantfile</code>, sólo existe de momento como <a href="https://github.com/onthedock/vagrant/issues/1#issuecomment-902933074">comentario</a> del <em>issue</em> en GitHub.</p>
+</blockquote>
+<p>Para configurar la tarjeta de red adicional en las máquinas provisionadas en modo <em>bridge</em>, debe indicarse qué tarjeta física es la que está conectada a la red local.</p>
+<p><strong>Suponiendo que sólo hay una tarjeta de red activa</strong> y haciendo algo de fontanería:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$  ip link
+1: lo: &lt;LOOPBACK,UP,LOWER_UP&gt; mtu <span style="color:#2aa198">65536</span> qdisc noqueue state UNKNOWN mode DEFAULT group default qlen <span style="color:#2aa198">1000</span>
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+2: enp2s0: &lt;NO-CARRIER,BROADCAST,MULTICAST,UP&gt; mtu <span style="color:#2aa198">1500</span> qdisc fq_codel state DOWN mode DEFAULT group default qlen <span style="color:#2aa198">1000</span>
+    link/ether XX:YY:ZZ:2c:de:58 brd ff:ff:ff:ff:ff:ff
+3: wlp3s0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu <span style="color:#2aa198">1500</span> qdisc noqueue state UP mode DORMANT group default qlen <span style="color:#2aa198">1000</span>
+    link/ether XX:YY:ZZc6:ec:6f brd ff:ff:ff:ff:ff:ff
+4: br-ad180e80edaa: &lt;NO-CARRIER,BROADCAST,MULTICAST,UP&gt; mtu <span style="color:#2aa198">1500</span> qdisc noqueue state DOWN mode DEFAULT group default 
+    link/ether 02:42:50:bd:70:39 brd ff:ff:ff:ff:ff:ff
+5: docker0: &lt;NO-CARRIER,BROADCAST,MULTICAST,UP&gt; mtu <span style="color:#2aa198">1500</span> qdisc noqueue state DOWN mode DEFAULT group default 
+    link/ether 02:42:d1:e7:c5:d8 brd ff:ff:ff:ff:ff:ff
+
+$ ip link show | grep -i <span style="color:#2aa198">&#39;state UP&#39;</span> | awk <span style="color:#2aa198">&#39;{gsub(/:/,&#34;&#34;) ; print $2}&#39;</span>
+wlp3s0
+</code></pre></div><p>La idea es usar algo en esta línea para poder determinar la tarjeta <em>física</em> activa y así poder configurar las máquinas virtuales sin tener que <em>hardcodear</em> nada en el <em>script</em>.</p>
+<h2 id="instalación-de-k3s-con-k3sup">Instalación de K3s con <em>k3sup</em></h2>
+<p>De momento, la instalación de Kubernetes en las máquinas provisionadas se realiza con un <em>script</em> separado, desde CLI, una vez ha finalizado la creación y configuración de las máquinas virtuales usando Vagrant.</p>
+<p>De nuevo, el <em>script</em> &ldquo;funciona&rdquo;, pero tiene serias limitaciones:</p>
 <ul>
-<li>El <em>Job</em> usa <code>metadata.generatedName</code> y no <code>metadata.name</code>, lo que permite lanzar el <em>Job</em> múltipes veces, ya que en cada ejecución el <em>Job</em> tiene un nombre diferente. Si usas <code>metadata.name</code>, la segunda ejecución del <em>Job</em> falla porque ya existe un <em>Job</em> con el mismo nombre.</li>
-<li>Al usar <code>metadata.generatedName</code> no puedes usar <code>kubectl apply</code> para lanzar el <em>Job</em>; tienes que usar <code>kubectl create</code>.</li>
-<li>El nombre del <em>alias</em> está fijado (<code>minio</code>); se podría obtener el valor del alias añadiendo un campo adicional en el <em>Secret</em> del que obtenemos las credenciales, por ejemplo&hellip;</li>
-<li>Si MinIO está desplegado en otro <em>Namespace</em> o fuera de Kubernetes, debes ajustar la URL de MinIO.</li>
+<li>el número de nodos que se configura no está relacionado con el número de máquinas que se provisionan</li>
+<li>lo mismo para las direcciones IPs de los nodos</li>
+<li>sólo permite usar un nodo <em>server</em> en el clúster</li>
 </ul>
-<h3 id="limitaciones-del-cliente-de-minio">Limitaciones del cliente de MinIO</h3>
-<p>Revisando la documentación del cliente de MinIO <strong>mc</strong> <a href="https://docs.min.io/docs/minio-client-complete-guide.html">MinIO Client Complete Guide</a>, vemos que se indica que <strong>mc</strong> sólo acepta las credenciales como argumento o a través de <em>standard input</em>; es decir, no <em>recoge</em> las credenciales si se especifican como variables de entorno.</p>
-<p>Al ejecutar el <em>Job</em> anterior, se crea el <em>alias</em> <code>minio</code>, pero las credenciales están en blanco:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-ini" data-lang="ini">...
-minio
-  URL       : http://minio:9000
-  AccessKey : 
-  SecretKey : 
-  API       : 
-  Path      : auto
-...
-</code></pre></div><p>Esto es debido al comportamiento actual de <strong>mc</strong>, ignorando las variables de entorno, aunque estén definidas.</p>
-<p>Especificando las variables de entorno como argumentos del comando ejecutado por el <em>Job</em> anterior, tampoco funciona:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">...
-<span style="color:#268bd2">command</span>: [<span style="color:#2aa198">&#34;mc&#34;</span>]
-<span style="color:#268bd2">args</span>: [<span style="color:#2aa198">&#34;alias&#34;</span>, <span style="color:#2aa198">&#34;set&#34;</span>, <span style="color:#2aa198">&#34;minio&#34;</span>, <span style="color:#2aa198">&#34;http://minio:9000&#34;</span>, $MINIO_ROOT_USER , $MINIO_ROOT_PASSWORD ,&#34;--debug&#34;]
-</code></pre></div><p>En este caso, <code>$MINIO_ROOT_USER</code> y <code>$MINIO_ROOT_PASSWORD</code> se interpretan como cadenas literales, no se sustituyen con los valores de las variables de entorno.</p>
-<p>Tampoco funcionan el resto de opciones indicadas en la documentación: <strong>Pipe from STDIN</strong>, <strong>Specify temporary host configuration through environment variable</strong>, con <code>export MC_HOST_&lt;alias&gt;=https://&lt;Access Key&gt;:&lt;Secret Key&gt;@&lt;YOUR-S3-ENDPOINT&gt;</code>).</p>
-<h3 id="plan-b-usar-un-script">Plan B: usar un <em>script</em></h3>
-<p>Después de comprobar que no es posible configurar el <em>alias</em> usando directamente el cliente de MinIO <strong>mc</strong>, modificamos el comando ejecutado por el <em>Job</em> para ejecutar <strong>bash</strong> en el contenedor:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">...
-<span style="color:#268bd2">command</span>: [<span style="color:#2aa198">&#34;/bin/bash&#34;</span>]
-<span style="color:#268bd2">args</span>:
-  - <span style="color:#2aa198">&#34;-c&#34;</span>
-  - <span style="color:#2aa198">&#34;mc alias set minio http://minio:9000 $MINIO_ROOT_USER $MINIO_ROOT_PASSWORD&#34;</span>
-</code></pre></div><p>A través de los logs del <em>Pod</em> generado por el <em>Job</em>, vemos que de esta forma <strong>sí</strong> que se configura el <em>alias</em> para MinIO:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl logs mc-alias-set-832smd-8md3l -n minio
-...
-minio
-URL : http://minio:9000
-AccessKey : ACCESSKEYEXAMPLE123
-SecretKey : wdvb5rtghn76yujm
-API : s3v4
-Path : auto
-...
-</code></pre></div><h2 id="persistiendo-la-configuración-del-cliente-de-minio-mc">Persistiendo la configuración del cliente de MinIO <strong>mc</strong></h2>
-<p>Una vez hemos validado que el <em>Job</em> configura el <em>alias</em> para <strong>mc</strong> correctamente, modificamos la definición del <em>Job</em> para montar el <em>PVC</em> definido al principio del artículo; para ello, añadimos el bloque <code>volumeMounts</code> montando el <em>PVC</em> en <code>/root/.mc</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">...
-<span style="color:#268bd2">volumeMounts</span>:
-  - <span style="color:#268bd2">name</span>: minio-config
-    <span style="color:#268bd2">mountPath</span>: <span style="color:#2aa198">&#34;/root/.mc&#34;</span>
-...
-</code></pre></div><p>También añadimos la referencia al volumen (en <code>spec.template.spec</code>):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">...
-<span style="color:#268bd2">volumes</span>:
-  - <span style="color:#268bd2">name</span>: minio-config
-    <span style="color:#268bd2">persistentVolumeClaim</span>:
-      <span style="color:#268bd2">claimName</span>: minio-config
-</code></pre></div><p>Para validar que la configuración del cliente de MinIO <strong>mc</strong> se guarda correctamente en el volumen creado, definimos un <em>Job</em> que consulte los <em>alias</em> definidos:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
-<span style="color:#268bd2">kind</span>: Job
-<span style="color:#268bd2">apiVersion</span>:  batch/v1
-<span style="color:#268bd2">metadata</span>:
-  <span style="color:#268bd2">namespace</span>: minio
-  <span style="color:#268bd2">generateName</span>: mc-alias-list-
-<span style="color:#268bd2">spec</span>:
-  <span style="color:#268bd2">template</span>:
-    <span style="color:#268bd2">metadata</span>:
-      <span style="color:#268bd2">labels</span>:
-        <span style="color:#268bd2">app</span>: minio
-    <span style="color:#268bd2">spec</span>:
-      <span style="color:#268bd2">restartPolicy</span>: Never
-      <span style="color:#268bd2">containers</span>:
-        - <span style="color:#268bd2">name</span>: mc-alias-list
-          <span style="color:#268bd2">image</span>: minio/mc
-          <span style="color:#268bd2">env</span>:
-            - <span style="color:#268bd2">name</span>: MINIO_ROOT_USER
-              <span style="color:#268bd2">valueFrom</span>:
-                <span style="color:#268bd2">secretKeyRef</span>:
-                  <span style="color:#268bd2">name</span>: minio-secret
-                  <span style="color:#268bd2">key</span>: minio-root-user
-            - <span style="color:#268bd2">name</span>: MINIO_ROOT_PASSWORD
-              <span style="color:#268bd2">valueFrom</span>:
-                <span style="color:#268bd2">secretKeyRef</span>:
-                  <span style="color:#268bd2">name</span>: minio-secret
-                  <span style="color:#268bd2">key</span>: minio-root-password
-          <span style="color:#268bd2">command</span>: [<span style="color:#2aa198">&#34;mc&#34;</span>]
-          <span style="color:#268bd2">args</span>: [<span style="color:#2aa198">&#34;alias&#34;</span>, <span style="color:#2aa198">&#34;list&#34;</span>, <span style="color:#2aa198">&#34;--debug&#34;</span>]
-          <span style="color:#268bd2">volumeMounts</span>:
-            - <span style="color:#268bd2">name</span>: minio-config
-              <span style="color:#268bd2">mountPath</span>: <span style="color:#2aa198">&#34;/root/.mc&#34;</span>
-      <span style="color:#268bd2">volumes</span>:
-        - <span style="color:#268bd2">name</span>: minio-config
-          <span style="color:#268bd2">persistentVolumeClaim</span>:
-            <span style="color:#268bd2">claimName</span>: minio-config
-</code></pre></div><p>En los logs del <em>Job</em> reconocemos la configuración del <em>alias</em> creado por el <em>Job</em> definido anteriormente:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl logs mc-alias-list-9l9md-k6w2h -n minio
-...
-minio
-URL : http://minio:9000
-AccessKey : ACCESSKEYEXAMPLE123
-SecretKey : wdvb5rtghn76yujm
-API : s3v4
-Path : auto
-...
-</code></pre></div><h2 id="crear-un-bucket-en-minio">Crear un <em>bucket</em> en MinIO</h2>
-<p>Para crear el <em>bucket</em> desde un <em>Job</em> podemos usar la &ldquo;sintaxis&rdquo; del <em>script</em> o directamente el cliente de MinIO <strong>mc</strong>. Prefiero usar directamente el cliente de MinIO en este caso.</p>
-<p>Copiamos la definición del <em>Job</em> para listar los <em>alias</em> y modificamos el comando y los argumentos para crear el <em>bucket</em> en MinIO:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">kind</span>: Job
-<span style="color:#268bd2">apiVersion</span>:  batch/v1
-<span style="color:#268bd2">metadata</span>:
-  <span style="color:#268bd2">namespace</span>: minio
-  <span style="color:#268bd2">name</span>: mc-makebucket-velero-backups
-<span style="color:#268bd2">spec</span>:
-  <span style="color:#268bd2">template</span>:
-    <span style="color:#268bd2">metadata</span>:
-      <span style="color:#268bd2">labels</span>:
-        <span style="color:#268bd2">app</span>: minio
-    <span style="color:#268bd2">spec</span>:
-      <span style="color:#268bd2">restartPolicy</span>: Never
-      <span style="color:#268bd2">containers</span>:
-        - <span style="color:#268bd2">name</span>: mc-makebucket-velero-backups
-          <span style="color:#268bd2">image</span>: minio/mc
-          <span style="color:#268bd2">env</span>:
-            - <span style="color:#268bd2">name</span>: MINIO_ROOT_USER
-              <span style="color:#268bd2">valueFrom</span>:
-                <span style="color:#268bd2">secretKeyRef</span>:
-                  <span style="color:#268bd2">name</span>: minio-secret
-                  <span style="color:#268bd2">key</span>: minio-root-user
-            - <span style="color:#268bd2">name</span>: MINIO_ROOT_PASSWORD
-              <span style="color:#268bd2">valueFrom</span>:
-                <span style="color:#268bd2">secretKeyRef</span>:
-                  <span style="color:#268bd2">name</span>: minio-secret
-                  <span style="color:#268bd2">key</span>: minio-root-password
-          <span style="color:#268bd2">command</span>: [<span style="color:#2aa198">&#34;mc&#34;</span>]
-          <span style="color:#268bd2">args</span>: [<span style="color:#2aa198">&#34;mb&#34;</span>, <span style="color:#2aa198">&#34;mino/velero-backups&#34;</span>]
-          <span style="color:#268bd2">volumeMounts</span>:
-            - <span style="color:#268bd2">name</span>: minio-config
-              <span style="color:#268bd2">mountPath</span>: <span style="color:#2aa198">&#34;/root/.mc&#34;</span>
-      <span style="color:#268bd2">volumes</span>:
-        - <span style="color:#268bd2">name</span>: minio-config
-          <span style="color:#268bd2">persistentVolumeClaim</span>:
-            <span style="color:#268bd2">claimName</span>: minio-config
-</code></pre></div><p>En los logs del <em>Job</em> comprobamos que se ha creado el <em>bucket</em> correctamente:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl logs mc-makebucket-velero-backup-fwxg7 -n minio
-Bucket created successfully <span style="color:#586e75">`</span>minio/velero-backup<span style="color:#586e75">`</span>.
-</code></pre></div><p>En este caso, en la definición del <em>Job</em> he usado <code>metadata.name</code> y no <code>metadata.generatedName</code>; la creación de un <em>bucket</em> sólo debe realizarse una vez. Si lanzamos de nuevo el mismo <em>Job</em>, como la definición no ha cambiado, el <em>Job</em> no se ejecuta de nuevo:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl -n minio apply -f minio-mc-job-makebucket-velero-backups.yaml 
-job.batch/mc-makebucket-velero-backups unchanged
-</code></pre></div></div>
+<p>El <em>script</em> no tiene misterio si has revisado la documentación de <a href="https://github.com/alexellis/k3sup">k3sup</a>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash"><span style="color:#719e07">#!/usr/bin/env bash
+</span><span style="color:#719e07"></span>
+<span style="color:#b58900">export</span> <span style="color:#268bd2">IPControlPlaneNode</span><span style="color:#719e07">=</span>192.168.1.101
+<span style="color:#b58900">export</span> <span style="color:#268bd2">IPWorkerNode1</span><span style="color:#719e07">=</span>192.168.1.102
+<span style="color:#b58900">export</span> <span style="color:#268bd2">IPWorkerNode2</span><span style="color:#719e07">=</span>192.168.1.103
+<span style="color:#b58900">export</span> <span style="color:#268bd2">REMOTE_USER</span><span style="color:#719e07">=</span>operador
+
+<span style="color:#586e75"># Install the ControlPlane</span>
+k3sup install --ip <span style="color:#268bd2">$IPControlPlaneNode</span> --user <span style="color:#268bd2">$REMOTE_USER</span> --k3s-extra-args<span style="color:#719e07">=</span><span style="color:#2aa198">&#39;--flannel-iface enp0s8&#39;</span>
+<span style="color:#586e75"># Install the agents/worker nodes</span>
+k3sup join --ip <span style="color:#268bd2">$IPWorkerNode1</span> --server-ip <span style="color:#268bd2">$IPControlPlaneNode</span> --user <span style="color:#268bd2">$REMOTE_USER</span> --k3s-extra-args<span style="color:#719e07">=</span><span style="color:#2aa198">&#39;--flannel-iface enp0s8&#39;</span>
+k3sup join --ip <span style="color:#268bd2">$IPWorkerNode2</span> --server-ip <span style="color:#268bd2">$IPControlPlaneNode</span> --user <span style="color:#268bd2">$REMOTE_USER</span> --k3s-extra-args<span style="color:#719e07">=</span><span style="color:#2aa198">&#39;--flannel-iface enp0s8&#39;</span>
+</code></pre></div><p>En algún momento del futuro me gustaría integrarlo dentro del fichero <code>Vagrantfile</code> si es posible, de manera que al finalizar la ejecución de <code>vagrant up</code> tuviéramos un clúster de Kubernetes (de cualquier número de nodos <em>agents</em>, aunque sólo tenga un nodo <em>server</em>).</p>
+<h2 id="conclusión">Conclusión</h2>
+<p>Este es sin duda el artículo más <em>work in progress</em> que he escrito hasta el momento. Normalmente enfoco el artículo como un registro de todo el proceso, pruebas y fallos incluidos, pero una vez que todo está <em>presentable</em>.</p>
+<p>Quizás es que cada vez más me siento más cómodo con esta forma <em>agile</em> de trabajar, de conseguir un producto mínimo que funcione e ir avanzando, refinando, a partir de ahí. Quizás es sólo el efecto <em>post-vacaciones</em> y que me siento más relajado&hellip;</p>
+<p>En cualquier caso, el código sigue avanzando en el repositorio <a href="https://github.com/onthedock/vagrant">onthedock/vagrant</a>.</p></div>
 
   <aside class="p-share">
 
 
-  <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3a%2f%2fonthedock.github.io%2fpost%2f210403-configura-minio-en-k8s-usando-jobs-y-el-cliente-mc%2f&amp;source=https%3a%2f%2fonthedock.github.io%2fpost%2f210403-configura-minio-en-k8s-usando-jobs-y-el-cliente-mc%2f&amp;title=Configura%20MinIO%20en%20Kubernetes%20usando%20Jobs%20y%20el%20cliente%20de%20MinIO%20%27mc%27" target="_blank" rel="noopener" aria-label="Share on LinkedIn">
+  <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3a%2f%2fonthedock.github.io%2fpost%2f210920-provisionar-kubernetes-con-vagrant-y-k3sup-2%2f&amp;source=https%3a%2f%2fonthedock.github.io%2fpost%2f210920-provisionar-kubernetes-con-vagrant-y-k3sup-2%2f&amp;title=Provisionar%20Kubernetes%20con%20Vagrant%20y%20K3sup%20-%202a%20parte" target="_blank" rel="noopener" aria-label="Share on LinkedIn">
     <svg width="2rem" height="2rem" viewBox="0 0 352 352"><path d="M0 40v272c0 21.9 18.1 40 40 40h272c21.9.0 40-18.1 40-40V40c0-21.9-18.1-40-40-40H40C18.1.0.0 18.1.0 40zm312-8c4.6.0 8 3.4 8 8v272c0 4.6-3.4 8-8 8H40c-4.6.0-8-3.4-8-8V40c0-4.6 3.4-8 8-8H312zM59.5 87c0 15.2 12.3 27.5 27.5 27.5s27.5-12.3 27.5-27.5S102.2 59.5 87 59.5 59.5 71.8 59.5 87zM187 157h-1v-21h-45v152h47v-75c0-19.8 3.9-39 28.5-39 24.2.0 24.5 22.4 24.5 40v74h47v-83.5c0-40.9-8.7-72-56.5-72-23 0-38.2 12.6-44.5 24.5zM64 288h47.5V136H64V288z"></path></svg>
     <p>LinkedIn</p>
   </a>
 
-  <a href="https://twitter.com/intent/tweet?hashtags=onthedock&amp;url=https%3a%2f%2fonthedock.github.io%2fpost%2f210403-configura-minio-en-k8s-usando-jobs-y-el-cliente-mc%2f&amp;text=Configura%20MinIO%20en%20Kubernetes%20usando%20Jobs%20y%20el%20cliente%20de%20MinIO%20%27mc%27" target="_blank" rel="noopener" aria-label="Share on Twitter" class="share-btn twitter">
+  <a href="https://twitter.com/intent/tweet?hashtags=onthedock&amp;url=https%3a%2f%2fonthedock.github.io%2fpost%2f210920-provisionar-kubernetes-con-vagrant-y-k3sup-2%2f&amp;text=Provisionar%20Kubernetes%20con%20Vagrant%20y%20K3sup%20-%202a%20parte" target="_blank" rel="noopener" aria-label="Share on Twitter" class="share-btn twitter">
     <svg width="2rem" height="2rem" viewBox="0 0 384 312"><path d="m384 36.9c-14.1 6.3-29.3 10.5-45.2 12.4 16.3-9.7 28.8-25.2 34.6-43.6-15.2 9-32.1 15.6-50 19.1-14.4-15.2-34.9-24.8-57.5-24.8-43.5.0-78.8 35.3-78.8 78.8.0 6.2.7 12.2 2 17.9-65.5-3.3-123.5-34.6-162.4-82.3C20 26 16.1 39.6 16.1 54c0 27.3 13.9 51.4 35 65.6-12.9-.4-25.1-4-35.7-9.9v1c0 38.2 27.2 70 63.2 77.2-6.6 1.8-13.6 2.8-20.8 2.8-5.1.0-10-.5-14.8-1.4 10 31.3 39.1 54.1 73.6 54.7-27 21.1-60.9 33.7-97.8 33.7-6.4.0-12.6-.4-18.8-1.1C34.9 299 76.3 312 120.8 312c144.9.0 224.1-120 224.1-224.1.0-3.4-.1-6.8-.2-10.2 15.4-11.1 28.7-25 39.3-40.8z"></path></svg>
     <p>Twitter</p>
   </a>
 
-  <a href="mailto:?subject=Configura%20MinIO%20en%20Kubernetes%20usando%20Jobs%20y%20el%20cliente%20de%20MinIO%20%27mc%27.&amp;body=Configura%20MinIO%20en%20Kubernetes%20usando%20Jobs%20y%20el%20cliente%20de%20MinIO%20%27mc%27%0a%0ahttps%3a%2f%2fonthedock.github.io%2fpost%2f210403-configura-minio-en-k8s-usando-jobs-y-el-cliente-mc%2f%0a" target="_blank" class="share-btn email">
+  <a href="mailto:?subject=Provisionar%20Kubernetes%20con%20Vagrant%20y%20K3sup%20-%202a%20parte.&amp;body=Provisionar%20Kubernetes%20con%20Vagrant%20y%20K3sup%20-%202a%20parte%0a%0ahttps%3a%2f%2fonthedock.github.io%2fpost%2f210920-provisionar-kubernetes-con-vagrant-y-k3sup-2%2f%0a" target="_blank" class="share-btn email">
     <svg width="2rem" height="2rem" viewBox="0 0 416 288"><path d="m0 16v256 16h16 384 16v-16V16 0h-16H16 0zm347 16-139 92.5L69 32zM199 157.5l9 5.5 9-5.5L384 46v210H32V46z"></path></svg>
     <p>Email</p>
   </a>
 
-  <a href="whatsapp://send?text=Configura%20MinIO%20en%20Kubernetes%20usando%20Jobs%20y%20el%20cliente%20de%20MinIO%20%27mc%27%0a%0ahttps%3a%2f%2fonthedock.github.io%2fpost%2f210403-configura-minio-en-k8s-usando-jobs-y-el-cliente-mc%2f%0a" target="_blank">
+  <a href="whatsapp://send?text=Provisionar%20Kubernetes%20con%20Vagrant%20y%20K3sup%20-%202a%20parte%0a%0ahttps%3a%2f%2fonthedock.github.io%2fpost%2f210920-provisionar-kubernetes-con-vagrant-y-k3sup-2%2f%0a" target="_blank">
     <svg  width="2rem" height="2rem" viewBox="0 0 24 24">
     <path d="M20.1 3.9C17.9 1.7 15 .5 12 .5 5.8.5.7 5.6.7 11.9c0 2 .5 3.9 1.5 5.6L.6 23.4l6-1.6c1.6.9 3.5 1.3 5.4 1.3 6.3.0 11.4-5.1 11.4-11.4-.1-2.8-1.2-5.7-3.3-7.8zM12 21.4c-1.7.0-3.3-.5-4.8-1.3l-.4-.2-3.5 1 1-3.4L4 17c-1-1.5-1.4-3.2-1.4-5.1.0-5.2 4.2-9.4 9.4-9.4 2.5.0 4.9 1 6.7 2.8s2.8 4.2 2.8 6.7c-.1 5.2-4.3 9.4-9.5 9.4zm5.1-7.1c-.3-.1-1.7-.9-1.9-1-.3-.1-.5-.1-.7.1-.2.3-.8 1-.9 1.1-.2.2-.3.2-.6.1s-1.2-.5-2.3-1.4c-.9-.8-1.4-1.7-1.6-2s0-.5.1-.6.3-.3.4-.5c.2-.1.3-.3.4-.5s0-.4.0-.5C10 9 9.3 7.6 9 7c-.1-.4-.4-.3-.5-.3h-.6s-.4.1-.7.3c-.3.3-1 1-1 2.4s1 2.8 1.1 3c.1.2 2 3.1 4.9 4.3.7.3 1.2.5 1.6.6.7.2 1.3.2 1.8.1.6-.1 1.7-.7 1.9-1.3.2-.7.2-1.2.2-1.3-.1-.3-.3-.4-.6-.5z"></path></svg>
     <p>Whatsapp</p>
@@ -370,7 +302,7 @@ job.batch/mc-makebucket-velero-backups unchanged
         
         <li itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb"><a href="https://onthedock.github.io/post/" itemprop="url"><span itemprop="title">post</span></a></li>
         
-        <li>Configura MinIO en Kubernetes usando Jobs y el cliente de MinIO &#39;mc&#39;</li>
+        <li>Provisionar Kubernetes con Vagrant y K3sup - 2a parte</li>
       </ol>
 
       
@@ -380,8 +312,6 @@ job.batch/mc-makebucket-velero-backups unchanged
         <li>
           <header><a href="https://onthedock.github.io/categories/">categories</a></header>
           <ul>
-            
-            <li><a href="https://onthedock.github.io/categories/dev/">dev</a></li>
             
           </ul>
         </li>
@@ -398,7 +328,11 @@ job.batch/mc-makebucket-velero-backups unchanged
             
             <li><a href="https://onthedock.github.io/tags/kubernetes/">kubernetes</a></li>
             
-            <li><a href="https://onthedock.github.io/tags/minio/">minio</a></li>
+            <li><a href="https://onthedock.github.io/tags/vagrant/">vagrant</a></li>
+            
+            <li><a href="https://onthedock.github.io/tags/k3s/">k3s</a></li>
+            
+            <li><a href="https://onthedock.github.io/tags/k3sup/">k3sup</a></li>
             
           </ul>
         </li>
@@ -436,22 +370,7 @@ job.batch/mc-makebucket-velero-backups unchanged
   <section>
     <header><span>Latests</span></header>
     <ul class="p-articles thin">
-      <li><article class="li sm article-b8ce86f48a7df657dee38337218d57fe">
-  <div class="header-wrapper">
-    <a href="https://onthedock.github.io/post/210920-provisionar-kubernetes-con-vagrant-y-k3sup-2/" class="thumbnail" title="Provisionar Kubernetes con Vagrant y K3sup - 2a parte"></a>
-    <header class="article-header">
-      <div class="clearfix">
-        <h2 class="title"><a href="https://onthedock.github.io/post/210920-provisionar-kubernetes-con-vagrant-y-k3sup-2/">Provisionar Kubernetes con Vagrant y K3sup - 2a parte</a></h2>
-        <ul class="p-facts">
-          <li><time datetime="2021-09-20T19:25:15JST">20 Sep 2021</time></li>
-          <li><a href="https://onthedock.github.io/post/">post</a></li>
-          
-        </ul>
-      </div>
-    </header>
-  </div>
-</article>
-</li><li><article class="li sm article-7ae8050779a114c257e701191d67c24b">
+      <li><article class="li sm article-7ae8050779a114c257e701191d67c24b">
   <div class="header-wrapper">
     <a href="https://onthedock.github.io/post/210919-provisionar-kubernetes-con-vagrant-y-k3sup-1/" class="thumbnail" title="Provisionar Kubernetes con Vagrant y K3sup - 1a parte"></a>
     <header class="article-header">
@@ -489,6 +408,21 @@ job.batch/mc-makebucket-velero-backups unchanged
         <h2 class="title"><a href="https://onthedock.github.io/post/210819-sealed-secrets/">Instalación de Sealed Secrets (SealedSecrets-I)</a></h2>
         <ul class="p-facts">
           <li><time datetime="2021-08-19T20:18:20JST">19 Aug 2021</time></li>
+          <li><a href="https://onthedock.github.io/post/">post</a></li>
+          
+        </ul>
+      </div>
+    </header>
+  </div>
+</article>
+</li><li><article class="li sm article-f25feebe66e0406812c11c4c42d988e9">
+  <div class="header-wrapper">
+    <a href="https://onthedock.github.io/post/210816-documentacion-como-codigo-prueba-de-concepto-2a-parte/" class="thumbnail" title="Documentación como código - 2a parte"></a>
+    <header class="article-header">
+      <div class="clearfix">
+        <h2 class="title"><a href="https://onthedock.github.io/post/210816-documentacion-como-codigo-prueba-de-concepto-2a-parte/">Documentación como código - 2a parte</a></h2>
+        <ul class="p-facts">
+          <li><time datetime="2021-08-16T20:16:34JST">16 Aug 2021</time></li>
           <li><a href="https://onthedock.github.io/post/">post</a></li>
           
         </ul>
