@@ -9,15 +9,15 @@
 <meta name="generator" content="Hugo 0.82.1" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
-<link rel="alternate" type="application/rss+xml" title="RSS" href="/index.xml"> 
 
-<link rel="canonical" href="https://onthedock.github.io/">
+
+<link rel="canonical" href="https://onthedock.github.io/post/211230-porque-los-deployments-usan-replicasets-pero-no-los-statefulsets-ni-los-daemonsets/">
 
 
     
     <link href="https://fonts.googleapis.com/css?family=Special+Elite|Fira+Sans:400,700" rel="stylesheet">
     
-    <title>On The Dock</title>
+    <title>¿Por qué los Deployments usan Replicasets pero los Statefulsets y los Daemonsets no? - On The Dock</title>
     <style amp-boilerplate>body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}</style><noscript><style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style></noscript>
     <script async src="https://cdn.ampproject.org/v0.js"></script>
     
@@ -26,6 +26,60 @@
 <script async custom-element="amp-ad" src="https://cdn.ampproject.org/v0/amp-ad-0.1.js"></script>
 
     
+<meta name="description" content="&lt;p&gt;Revisando el &lt;em&gt;feed&lt;/em&gt; del foro de Kubernetes &lt;a href=&#34;https://discuss.kubernetes.io/&#34;&gt;discuss.kubernetes.io&lt;/a&gt;, me llamó la atención la pregunta de &lt;code&gt;user2&lt;/code&gt; &lt;a href=&#34;https://discuss.kubernetes.io/t/why-deployment-need-replicaset-but-daemonset-and-statefulset-dont-need/18334&#34;&gt;Why deployment need replicaset, but daemonset and statefulset don’t need&lt;/a&gt;.&lt;/p&gt;&lt;p&gt;&lt;a href=&#34;https://discuss.kubernetes.io/t/why-deployment-need-replicaset-but-daemonset-and-statefulset-dont-need/18334/2?u=xavi&#34;&gt;Respondí en el foro&lt;/a&gt;, pero quiero ampliar la respuesta aquí.&lt;/p&gt;">
+
+<meta property="og:title" content="¿Por qué los Deployments usan Replicasets pero los Statefulsets y los Daemonsets no? - On The Dock">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://onthedock.github.io/post/211230-porque-los-deployments-usan-replicasets-pero-no-los-statefulsets-ni-los-daemonsets/">
+<meta property="og:image" content="https://onthedock.github.io/images/kubernetes.png">
+<meta property="og:site_name" content="On The Dock">
+<meta property="og:description" content="&lt;p&gt;Revisando el &lt;em&gt;feed&lt;/em&gt; del foro de Kubernetes &lt;a href=&#34;https://discuss.kubernetes.io/&#34;&gt;discuss.kubernetes.io&lt;/a&gt;, me llamó la atención la pregunta de &lt;code&gt;user2&lt;/code&gt; &lt;a href=&#34;https://discuss.kubernetes.io/t/why-deployment-need-replicaset-but-daemonset-and-statefulset-dont-need/18334&#34;&gt;Why deployment need replicaset, but daemonset and statefulset don’t need&lt;/a&gt;.&lt;/p&gt;&lt;p&gt;&lt;a href=&#34;https://discuss.kubernetes.io/t/why-deployment-need-replicaset-but-daemonset-and-statefulset-dont-need/18334/2?u=xavi&#34;&gt;Respondí en el foro&lt;/a&gt;, pero quiero ampliar la respuesta aquí.&lt;/p&gt;">
+<meta property="og:locale" content="ja_JP">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="On The Dock">
+<meta name="twitter:url" content="https://onthedock.github.io/post/211230-porque-los-deployments-usan-replicasets-pero-no-los-statefulsets-ni-los-daemonsets/">
+<meta name="twitter:title" content="¿Por qué los Deployments usan Replicasets pero los Statefulsets y los Daemonsets no? - On The Dock">
+<meta name="twitter:description" content="&lt;p&gt;Revisando el &lt;em&gt;feed&lt;/em&gt; del foro de Kubernetes &lt;a href=&#34;https://discuss.kubernetes.io/&#34;&gt;discuss.kubernetes.io&lt;/a&gt;, me llamó la atención la pregunta de &lt;code&gt;user2&lt;/code&gt; &lt;a href=&#34;https://discuss.kubernetes.io/t/why-deployment-need-replicaset-but-daemonset-and-statefulset-dont-need/18334&#34;&gt;Why deployment need replicaset, but daemonset and statefulset don’t need&lt;/a&gt;.&lt;/p&gt;&lt;p&gt;&lt;a href=&#34;https://discuss.kubernetes.io/t/why-deployment-need-replicaset-but-daemonset-and-statefulset-dont-need/18334/2?u=xavi&#34;&gt;Respondí en el foro&lt;/a&gt;, pero quiero ampliar la respuesta aquí.&lt;/p&gt;">
+<meta name="twitter:image" content="https://onthedock.github.io/images/kubernetes.png">
+
+
+<script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "NewsArticle",
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id":"https:\/\/onthedock.github.io\/"
+    },
+    "headline": "¿Por qué los Deployments usan Replicasets pero los Statefulsets y los Daemonsets no? - On The Dock",
+    "image": {
+      "@type": "ImageObject",
+      "url": "https:\/\/onthedock.github.io\/images\/kubernetes.png",
+      "height": 800,
+      "width": 800
+    },
+    "datePublished": "2021-12-30T12:12:02JST",
+    "dateModified": "2021-12-30T12:12:02JST",
+    "author": {
+      "@type": "Person",
+      "name": "On The Dock"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "On The Dock",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https:\/\/onthedock.github.io\/images/logo.png",
+        "width": 600,
+        "height": 60
+      }
+    },
+    "description": "\u003cp\u003eRevisando el \u003cem\u003efeed\u003c\/em\u003e del foro de Kubernetes \u003ca href=\u0022https:\/\/discuss.kubernetes.io\/\u0022\u003ediscuss.kubernetes.io\u003c\/a\u003e, me llamó la atención la pregunta de \u003ccode\u003euser2\u003c\/code\u003e \u003ca href=\u0022https:\/\/discuss.kubernetes.io\/t\/why-deployment-need-replicaset-but-daemonset-and-statefulset-dont-need\/18334\u0022\u003eWhy deployment need replicaset, but daemonset and statefulset don’t need\u003c\/a\u003e.\u003c\/p\u003e\n\u003cp\u003e\u003ca href=\u0022https:\/\/discuss.kubernetes.io\/t\/why-deployment-need-replicaset-but-daemonset-and-statefulset-dont-need\/18334\/2?u=xavi\u0022\u003eRespondí en el foro\u003c\/a\u003e, pero quiero ampliar la respuesta aquí.\u003c\/p\u003e"
+  }
+</script>
+
+
     <style amp-custom>
       html { font-size: 18px;}@media (max-width: 768px) { html { font-size: 15px; }}body { font-family: 'Fira Sans', sans-serif; font-size: inherit; margin: 0; color: #263238;}html, body { margin: 0;}a { text-decoration: none; color: #e91e63;}p { margin: 0;}ul,ol { margin: 0; padding: 0;}h1, h2, h3, h4, h5, h6 { margin: 0; font-weight: 700;}h1 { font-size: 1.8rem; line-height: 2rem; margin: 1.5rem 0; }h2 { font-size: 1.4rem; line-height: 2rem; margin: 1.5rem 0; }h3 { font-size: 1.2rem; line-height: 1.5rem; margin: 1.5rem 0; }h4, h5, h6 { font-size: 1rem; line-height: 1.5rem; margin: 1.5rem 0; }.clearfix::after { content: ''; display: block; clear: both;}main{ display: block;}.searchbar{ display: block; border: none; margin: 1em auto; max-width: 780px; text-align: center;}/* Layouts */.l-header { padding: .5rem 0; margin-bottom: 2rem; border-bottom: 1px dashed #cfd8dc; text-align: center;}.l-footer { font-size: .8rem; padding: 1rem 0; border-top: 1px dashed #a3aaad;}.l-footer .copyright-notice,.l-footer .attribution { text-align: center; line-height: 1.5rem;}.l-container { max-width: 42rem; margin: 0 auto; padding: 0 1rem;}/* Parts:logo */.p-logo { font-family: 'Special Elite', cursive; font-weight: 700;}.p-logo a { color: #000; font-size: 1.8rem; line-height: 2rem;}.p-sublogo,.p-sublogo a { font-size: 1rem; line-height: 2rem;}img.linkedin { height: 1.1rem; border: 0; padding: 0; position: relative; top: 0.25rem;}.p-movetop { margin: 0 auto;}/* Parts:section */section { border-top: 2px solid #eceff1; padding: 1.5rem 0;}section>header { text-transform: uppercase; font-weight: 700; margin-bottom: 2rem; text-align: center;}section>header span { display: inline-block; background-color: #000; color: #fff; letter-spacing: 3px; font-size: .7rem; padding: .5rem .75rem;}/* Parts:facts */.p-facts { list-style: none; font-size: .8rem; margin-bottom: 1rem;}.p-facts:last-child { margin-bottom: 0;}.p-facts li { display: inline-block; margin-right: .5rem; text-transform: uppercase;}.p-facts li header { margin-bottom: .25rem; font-weight: 700;}.p-facts li header a { color: #000; text-decoration: underline;}.p-facts li li { display: inline-block; margin-right: .5rem;}.p-facts li li::after { content: ',';}.p-facts li li:last-child::after { content: '';}/* Parts:crumb */.p-crumb { list-style: none; margin-bottom: 1rem; font-size: .8rem; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}.p-crumb:last-child { margin-bottom: 0;}.p-crumb li { display: inline;}.p-crumb li::after { content: '›'; margin: 0 .5rem;}.p-crumb li:last-child::after { content: '';}/* Parts:page-title */.p-page-title { margin-bottom: 2rem;}.p-page-title .title { margin-bottom: .5rem;}/* Parts:share */.p-share { margin-bottom: 1.5rem; text-align: center;}.p-share a { display: inline-block; text-align: center; padding: .5rem .5rem; margin-right: .25rem; font-size: .6rem; background-color: #eceff1; font-weight: 700;}.p-share a { color: #1da1f2; }/* Parts:terms */.p-terms { padding-left: 2rem;}/* Parts:paginator */.p-paginator { text-align: center; margin-bottom: 3rem; padding-top: 2rem;}.p-paginator a { display: inline-block; border: 2px solid #eceff1; color: #263238; line-height: 2rem; padding: 0 1rem;}/* Parts:article */.p-articles { list-style: none;}.p-articles>li { margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px dashed #cfd8dc;}.p-articles>li:last-child { border-bottom: none; padding-bottom: 0;}.p-articles.thin>li { margin-bottom: 1rem; padding-bottom: 1rem;}article .article-header { display: table-cell; height: 6rem; vertical-align: middle;}article .title { margin: 0; margin-bottom: .5rem; font-size: 1.4rem; line-height: 2rem;}article .title a { color: #000;}article .header-wrapper { margin-bottom: 1.5rem;}article .thumbnail { display: block; background-position: center; background-size: cover; background-image: url(https://onthedock.github.io/images/default.jpg); width: 6rem; height: 6rem; border-radius: 50%; box-shadow: 0 0 3px 0 #333 inset; float: left; margin-right: 1rem;}article .summary { margin-bottom: 1.5rem;}article .readmore { text-align: center;}article .readmore a { font-size: .8rem; color: #000; text-decoration: underline;}article.li.sm .header-wrapper { margin-bottom: 0;}.article-body h2 { padding: 1rem 0; color: #55bbbb; border-bottom: 2px solid #eceff1;}.article-body h2:first-child { margin-top: 0; }.article-body h3 { color: #8997e4; font-style: italic;}.article-body h4 { border-left: solid .25rem #cddc39; padding: 0 .5rem;}.article-body p { margin: 1.5rem 0; line-height: 1.5rem;}.article-body a { text-decoration: underline;}.article-body ul,.article-body ol { padding-left: 1.5rem;}.article-body li { line-height: 2rem;}.article-body code { display: inline-block; font-family: Menlo, consolas, monospace; background-color: #eceff1; font-size: .8rem; padding: 0 .5rem; line-height: 1.5rem;}.article-body pre { margin: 1.5rem 0; padding: 1.5rem; font-size: .8rem; background-color: #eeeeef; color: #444; overflow: auto;}.article-body pre code { background-color: transparent;}.article-body blockquote { /* margin: 1.2rem 0; padding: .5rem 0; */ /*font-size: .8rem;*/ border-top: 1px solid #eceff1; border-bottom: 1px solid #eceff1; color: #607d8b;}.article-body blockquote p { margin: .5rem 0; line-height: 1.5rem;}.article-body strong { /*box-shadow: 0 -.5rem 0 0 #f06292 inset;*/ font-style: bold; font-weight: 700; /*color: #ff5722; */}.article-body em { /*font-style: normal;*/ /*font-weight: 700; color: #00c300;*/ /*color: #00c300;*/ font-style: oblique;}.article-body figure { margin: 1.5rem -2rem; }.article-body figure.left,.article-body figure.right { width: 15rem; height: 12rem; margin-top: 0; margin-left: 0; margin-right: 0;}.article-body figure.left { float: left; margin-right: 1rem; margin-left: -2rem; }.article-body figure.right { float: right; margin-left: 1rem; margin-right: -2rem; }@media (max-width: 768px) { .article-body figure { margin: 1.5rem -1rem; } .article-body figure.left, .article-body figure.right { float: none; margin: 0 -1rem; width: auto; height: auto; }}.article-body figcaption { padding: .5rem 0; font-size: .8rem; text-align: center;}.article-body figcaption a { color: #263238;}
 
@@ -60,65 +114,239 @@
     <main>
       
 <div class="l-container">
-  
+  <article class="single article-c6c5adffce8b6b9ccd06dc1dfb537555">
+  <div class="header-wrapper">
+    <a href="https://onthedock.github.io/post/211230-porque-los-deployments-usan-replicasets-pero-no-los-statefulsets-ni-los-daemonsets/" class="thumbnail" title="¿Por qué los Deployments usan Replicasets pero los Statefulsets y los Daemonsets no?"></a>
+    <header class="article-header">
+      <div class="clearfix">
+        <h1 class="title">¿Por qué los Deployments usan Replicasets pero los Statefulsets y los Daemonsets no?</h1>
+        <ul class="p-facts">
+          <li><time datetime="2021-12-30T12:12:02JST">30 Dec 2021</time></li>
+          <li><a href="https://onthedock.github.io/post/">post</a></li>
+          
+          <li>Xavi Aznar</li>
+        </ul>
+      </div>
+    </header>
+  </div>
+
+  <div class="article-body"><p>Revisando el <em>feed</em> del foro de Kubernetes <a href="https://discuss.kubernetes.io/">discuss.kubernetes.io</a>, me llamó la atención la pregunta de <code>user2</code> <a href="https://discuss.kubernetes.io/t/why-deployment-need-replicaset-but-daemonset-and-statefulset-dont-need/18334">Why deployment need replicaset, but daemonset and statefulset don’t need</a>.</p>
+<p><a href="https://discuss.kubernetes.io/t/why-deployment-need-replicaset-but-daemonset-and-statefulset-dont-need/18334/2?u=xavi">Respondí en el foro</a>, pero quiero ampliar la respuesta aquí.</p>
+<p>La pregunta me pareció interesante porque &ldquo;nadie se fija&rdquo; en los <em>ReplicaSets</em>; para desplegar un componente de la aplicación se usa, en general, un <em>Deployment</em>; en el <em>Deployment</em> especificamos el número de réplicas que queremos, lo aplicamos en el clúster y el sistema se encarga de que en todo momento tengamos tantos pods como hayamos especificados.</p>
+<p>Fin de la historia.</p>
+<p>Pero lo cierto es que, como se apunta en la pregunta, el <em>Deployment</em> -de hecho, su <em>controller</em>- genera un <em>ReplicaSet</em> y <strong>es ahí donde se definen los pods que se crean</strong> (los gestiona el <em>ReplicaSet controller</em>), no el <em>Deployment</em>.</p>
+<p>Sin embargo, cuando en un <em>StatefulSet</em> especificamos varias réplicas, es el propio <em>StatefulSet</em> el que define los pods que se generan, sin necesidad de generar un <em>ReplicaSet</em> &ldquo;intermedio&rdquo;. Algo &ldquo;parecido&rdquo; pasa con el <em>DaemonSet</em>, ya que aquí no definimos un número de réplicas, sino que se genera un pod en cada nodo -<em>compute</em>- del clúster.</p>
+<p>Así que la pregunta es ¿porqué?</p>
+<p>Voy a responder por partes&hellip;</p>
+<h2 id="por-qué-los-statefulset-no-requieren-un-replicaset">¿Por qué los <em>StatefulSet</em> no requieren un <em>ReplicaSet</em>?</h2>
+<p>De la definición del <a href="https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/"><em>ReplicaSet</em></a> en la documentación oficial de Kubernetes (las negritas son mías):</p>
+<blockquote>
+<p>El objeto de un ReplicaSet es el de mantener un conjunto estable de réplicas de Pods ejecutándose en todo momento. Así, se usa en numerosas ocasiones para garantizar la disponibilidad de un número específico de <strong>Pods idénticos</strong>.</p>
+</blockquote>
+<p>Si comparamos con la definición del <a href="https://kubernetes.io/es/docs/concepts/workloads/controllers/statefulset/"><em>StatefulSet</em></a> (de nuevo, las negritas son mías):</p>
+<blockquote>
+<p>Gestiona el despliegue y escalado de un conjunto de Pods, y <em><strong>garantiza el orden y unicidad de dichos Pods</strong></em>.</p>
+<p>Al igual que un Deployment, un StatefulSet gestiona Pods que se basan en una especificación idéntica de contenedor. <strong>A diferencia de un Deployment, un StatefulSet mantiene una identidad asociada a sus Pods</strong>. Estos pods se crean a partir de la misma especificación, pero no pueden intercambiarse; <strong>cada uno tiene su propio identificador persistente</strong> que mantiene a lo largo de cualquier re-programación.</p>
+</blockquote>
+<p>La definición ya especifica que en el caso del <em>StatefulSet</em> los pods no son idénticos, aunque se generan a partir de una misma definición. Como los pods generados por el <em>StatefulSet</em> no son idénticos, no podrían gestionarse con un <em>ReplicaSet</em>.</p>
+<h2 id="por-qué-los-deamonset-no-requieren-un-replicaset">¿Por qué los <em>DeamonSet</em> no requieren un <em>ReplicaSet</em>?</h2>
+<p>De nuevo, de la definición del <a href="https://kubernetes.io/es/docs/concepts/workloads/controllers/daemonset/"><em>DaemonSet</em></a> (las negritas son mías):</p>
+<blockquote>
+<p>Un DaemonSet garantiza que todos (o algunos) de los nodos ejecuten <strong>una copia</strong> de un Pod.</p>
+</blockquote>
+<p>En este caso, tenemos una copia por nodo; las copias del <em>ReplicaSet</em> no están asociadas a un nodo en particular, por lo que, de nuevo, el <em>ReplicaSet</em> no es necesario para gestionar los pods del <em>DaemonSet</em>.</p>
+<h2 id="por-qué-el-deployment-sí-requiere-un-replicaset">¿Por qué el <em>Deployment</em> <strong>sí requiere</strong> un <em>ReplicaSet</em>?</h2>
+<p>Hasta ahora nos hemos centrado en ver porqué el <em>StatefulSet</em> y el <em>DaemonSet</em> no usan un <em>ReplicaSet</em>. Pero ¿por qué el <em>Deployment</em> <strong>sí lo requiere</strong> (en vez de gestionar los pods directamente, como hacen los <em>StatefulSet</em> y los <em>ReplicaSet</em>)?</p>
+<p>La respuesta corta es &ldquo;por las actualizaciones&rdquo;.</p>
+<p>Inicialmente, el encargado de gestionar las réplicas de un mismo pod era el <a href="https://kubernetes.io/es/docs/concepts/workloads/controllers/replicationcontroller/"><em>ReplicationController</em></a>. Al realizar las <a href="https://kubernetes.io/docs/concepts/workloads/controllers/replicationcontroller/#rolling-updates">actualizaciones</a>, el proceso acordado era:</p>
+<ul>
+<li>generar un nuevo <em>ReplicationController</em></li>
+<li>escalar hacia arriba (+1) un pod del <em>nuevo</em> <em>ReplicationController</em></li>
+<li>escalar hacia abajo (-1) un pod del <em>ReplicationController</em> a reemplazar</li>
+</ul>
+<p>Se repite el proceso hasta que se han reemplazado todos los pods del <em>ReplicationController</em> &ldquo;antiguo&rdquo; y se elimina el <em>ReplicationController</em> cuando quedan 0 pods. Para poder realizar la actualización, el <em>antiguo</em> y el <em>nuevo</em> <em>ReplicationController</em> debían diferenciarse <strong>como mínimo</strong> en una etiqueta.</p>
+<p>Este proceso es robusto, porque permite ir validando que los pods del <em>nuevo</em> <em>ReplicationController</em> están listos para realizar tareas (a través de las <em>readiness probes</em>) o revertir el proceso si algo sale mal durante la actualización.</p>
+<p>Además, es un proceso <strong>automatizable</strong>, de ahí que se definiera un nuevo objeto que incluyera esta capacidad de actualización.</p>
+<p>Para no romper la compatibilidad hacia atrás, se creó un objeto diferente al <em>ReplicationController</em>:  el <em>ReplicaSet</em>. El &ldquo;meta-objeto&rdquo; que permite realizar las <em>rolling updates</em>, pasando de un <em>ReplicaSet</em> a otro, es el <em>Deployment</em>.</p>
+<p>El <em>Deployment <strong>Controller</strong></em> es el que se encarga de automatizar el escalado arriba y abajo de los diferentes <em>ReplicaSet</em> sin que sea necesario realizar la intervención manual, teniendo en cuenta los resultados de las <em>readiness probes</em> durante el proceso de actualización para garantizar que no hay pérdida de servicio.</p>
+<h2 id="y-cómo-se-actualizan-los-statefulset-y-los-daemonset-sin-replicaset">¿Y cómo se actualizan los <em>StatefulSet</em> y los <em>DaemonSet</em> sin <em>ReplicaSet</em>?</h2>
+<p>Pues interrumpiendo el servicio; en el caso de las <a href="https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#rolling-updates">Rolling updates - <em>StatefulSet</em></a>:</p>
+<blockquote>
+<p>When a StatefulSet&rsquo;s <code>.spec.updateStrategy.type</code> is set to <code>RollingUpdate</code>, the StatefulSet controller will delete and recreate each Pod in the StatefulSet. It will proceed in the same order as Pod termination (from the largest ordinal to the smallest), updating each Pod one at a time.</p>
+</blockquote>
+<p>Y de forma similar, para las <a href="https://kubernetes.io/docs/tasks/manage-daemon/update-daemon-set/#daemonset-update-strategy">Rolling Update - <em>DaemonSets</em></a>:</p>
+<blockquote>
+<p>With <code>RollingUpdate</code> update strategy, after you update a DaemonSet template, old DaemonSet pods will be killed, and new DaemonSet pods will be created automatically, in a controlled fashion. At most one pod of the DaemonSet will be running on each node during the whole update process.</p>
+</blockquote></div>
+
+  <aside class="p-share">
+
+
+  <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3a%2f%2fonthedock.github.io%2fpost%2f211230-porque-los-deployments-usan-replicasets-pero-no-los-statefulsets-ni-los-daemonsets%2f&amp;source=https%3a%2f%2fonthedock.github.io%2fpost%2f211230-porque-los-deployments-usan-replicasets-pero-no-los-statefulsets-ni-los-daemonsets%2f&amp;title=%c2%bfPor%20qu%c3%a9%20los%20Deployments%20usan%20Replicasets%20pero%20los%20Statefulsets%20y%20los%20Daemonsets%20no%3f" target="_blank" rel="noopener" aria-label="Share on LinkedIn">
+    <svg width="2rem" height="2rem" viewBox="0 0 352 352"><path d="M0 40v272c0 21.9 18.1 40 40 40h272c21.9.0 40-18.1 40-40V40c0-21.9-18.1-40-40-40H40C18.1.0.0 18.1.0 40zm312-8c4.6.0 8 3.4 8 8v272c0 4.6-3.4 8-8 8H40c-4.6.0-8-3.4-8-8V40c0-4.6 3.4-8 8-8H312zM59.5 87c0 15.2 12.3 27.5 27.5 27.5s27.5-12.3 27.5-27.5S102.2 59.5 87 59.5 59.5 71.8 59.5 87zM187 157h-1v-21h-45v152h47v-75c0-19.8 3.9-39 28.5-39 24.2.0 24.5 22.4 24.5 40v74h47v-83.5c0-40.9-8.7-72-56.5-72-23 0-38.2 12.6-44.5 24.5zM64 288h47.5V136H64V288z"></path></svg>
+    <p>LinkedIn</p>
+  </a>
+
+  <a href="https://twitter.com/intent/tweet?hashtags=onthedock&amp;url=https%3a%2f%2fonthedock.github.io%2fpost%2f211230-porque-los-deployments-usan-replicasets-pero-no-los-statefulsets-ni-los-daemonsets%2f&amp;text=%c2%bfPor%20qu%c3%a9%20los%20Deployments%20usan%20Replicasets%20pero%20los%20Statefulsets%20y%20los%20Daemonsets%20no%3f" target="_blank" rel="noopener" aria-label="Share on Twitter" class="share-btn twitter">
+    <svg width="2rem" height="2rem" viewBox="0 0 384 312"><path d="m384 36.9c-14.1 6.3-29.3 10.5-45.2 12.4 16.3-9.7 28.8-25.2 34.6-43.6-15.2 9-32.1 15.6-50 19.1-14.4-15.2-34.9-24.8-57.5-24.8-43.5.0-78.8 35.3-78.8 78.8.0 6.2.7 12.2 2 17.9-65.5-3.3-123.5-34.6-162.4-82.3C20 26 16.1 39.6 16.1 54c0 27.3 13.9 51.4 35 65.6-12.9-.4-25.1-4-35.7-9.9v1c0 38.2 27.2 70 63.2 77.2-6.6 1.8-13.6 2.8-20.8 2.8-5.1.0-10-.5-14.8-1.4 10 31.3 39.1 54.1 73.6 54.7-27 21.1-60.9 33.7-97.8 33.7-6.4.0-12.6-.4-18.8-1.1C34.9 299 76.3 312 120.8 312c144.9.0 224.1-120 224.1-224.1.0-3.4-.1-6.8-.2-10.2 15.4-11.1 28.7-25 39.3-40.8z"></path></svg>
+    <p>Twitter</p>
+  </a>
+
+  <a href="mailto:?subject=%c2%bfPor%20qu%c3%a9%20los%20Deployments%20usan%20Replicasets%20pero%20los%20Statefulsets%20y%20los%20Daemonsets%20no%3f.&amp;body=%c2%bfPor%20qu%c3%a9%20los%20Deployments%20usan%20Replicasets%20pero%20los%20Statefulsets%20y%20los%20Daemonsets%20no%3f%0a%0ahttps%3a%2f%2fonthedock.github.io%2fpost%2f211230-porque-los-deployments-usan-replicasets-pero-no-los-statefulsets-ni-los-daemonsets%2f%0a" target="_blank" class="share-btn email">
+    <svg width="2rem" height="2rem" viewBox="0 0 416 288"><path d="m0 16v256 16h16 384 16v-16V16 0h-16H16 0zm347 16-139 92.5L69 32zM199 157.5l9 5.5 9-5.5L384 46v210H32V46z"></path></svg>
+    <p>Email</p>
+  </a>
+
+  <a href="whatsapp://send?text=%c2%bfPor%20qu%c3%a9%20los%20Deployments%20usan%20Replicasets%20pero%20los%20Statefulsets%20y%20los%20Daemonsets%20no%3f%0a%0ahttps%3a%2f%2fonthedock.github.io%2fpost%2f211230-porque-los-deployments-usan-replicasets-pero-no-los-statefulsets-ni-los-daemonsets%2f%0a" target="_blank">
+    <svg  width="2rem" height="2rem" viewBox="0 0 24 24">
+    <path d="M20.1 3.9C17.9 1.7 15 .5 12 .5 5.8.5.7 5.6.7 11.9c0 2 .5 3.9 1.5 5.6L.6 23.4l6-1.6c1.6.9 3.5 1.3 5.4 1.3 6.3.0 11.4-5.1 11.4-11.4-.1-2.8-1.2-5.7-3.3-7.8zM12 21.4c-1.7.0-3.3-.5-4.8-1.3l-.4-.2-3.5 1 1-3.4L4 17c-1-1.5-1.4-3.2-1.4-5.1.0-5.2 4.2-9.4 9.4-9.4 2.5.0 4.9 1 6.7 2.8s2.8 4.2 2.8 6.7c-.1 5.2-4.3 9.4-9.5 9.4zm5.1-7.1c-.3-.1-1.7-.9-1.9-1-.3-.1-.5-.1-.7.1-.2.3-.8 1-.9 1.1-.2.2-.3.2-.6.1s-1.2-.5-2.3-1.4c-.9-.8-1.4-1.7-1.6-2s0-.5.1-.6.3-.3.4-.5c.2-.1.3-.3.4-.5s0-.4.0-.5C10 9 9.3 7.6 9 7c-.1-.4-.4-.3-.5-.3h-.6s-.4.1-.7.3c-.3.3-1 1-1 2.4s1 2.8 1.1 3c.1.2 2 3.1 4.9 4.3.7.3 1.2.5 1.6.6.7.2 1.3.2 1.8.1.6-.1 1.7-.7 1.9-1.3.2-.7.2-1.2.2-1.3-.1-.3-.3-.4-.6-.5z"></path></svg>
+    <p>Whatsapp</p>
+  </a>
+
 
   <div class="searchbar">
       <iframe src="https://duckduckgo.com/search.html?site=https://onthedock.github.io/&prefill=Busca en este sitio usando DuckDuckGo" style="width: 25em;height: 48px" frameborder="0"></iframe>
-  </div>
+    </div>
+</aside>
 
-  <img src="https://onthedock.github.io//images/MabelAmber-mini.png" class="p-articles" width="100%">
-  
-  <p style="text-align: right"><small><a href="https://www.pexels.com/photo/jetty-feet-sign-wooden-128299/">Photo</a> by <a href="https://www.pexels.com/u/mabelamber/">Mabel Amber</a></small></p>
-   
-  <ul class="p-articles">
-    <li><article class="li article-f027d2889032f918da8e3cc9c03169e0">
-  <div class="header-wrapper">
-    <a href="https://onthedock.github.io/post/170110-configura-apt-en-ubuntu-server-16.04/" class="thumbnail" title="Configura el proxy para APT en Ubuntu Server 16.04"></a>
-    <header class="article-header">
-      <div class="clearfix">
-        <h2 class="title"><a href="https://onthedock.github.io/post/170110-configura-apt-en-ubuntu-server-16.04/">Configura el proxy para APT en Ubuntu Server 16.04</a></h2>
-        <ul class="p-facts">
-          <li><time datetime="2017-01-10T15:01:55JST">10 Jan 2017</time></li>
-          <li><a href="https://onthedock.github.io/post/">post</a></li>
-          <li>Xavi Aznar</li>
-          
-        </ul>
-      </div>
-    </header>
-  </div>
-  <div class="article-body summary"><p>Cómo configurar <code>apt</code> para salir a internet a través de un <em>proxy</em> que requiere autenticación.</p></div>
-  <footer class="readmore"><a href="https://onthedock.github.io/post/170110-configura-apt-en-ubuntu-server-16.04/">LEER M&Aacute;S</a></footer>
+
+
+  <footer class="article-footer">
+    <section>
+      <ol class="p-crumb">
+        <li><a href="https://onthedock.github.io/">On The Dock</a></li>
+        
+        <li itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb"><a href="https://onthedock.github.io/post/" itemprop="url"><span itemprop="title">post</span></a></li>
+        
+        <li>¿Por qué los Deployments usan Replicasets pero los Statefulsets y los Daemonsets no?</li>
+      </ol>
+
+      
+      
+      
+      <ul class="p-facts">
+        <li>
+          <header><a href="https://onthedock.github.io/categories/">categories</a></header>
+          <ul>
+            
+            <li><a href="https://onthedock.github.io/categories/ops/">ops</a></li>
+            
+          </ul>
+        </li>
+      </ul>
+      
+      
+      
+      <ul class="p-facts">
+        <li>
+          <header><a href="https://onthedock.github.io/tags/">tags</a></header>
+          <ul>
+            
+            <li><a href="https://onthedock.github.io/tags/linux/">linux</a></li>
+            
+            <li><a href="https://onthedock.github.io/tags/kubernetes/">kubernetes</a></li>
+            
+          </ul>
+        </li>
+      </ul>
+      
+      
+    </section>
+  </footer>
 </article>
-</li><li><article class="li article-6db4ecfe853552466ce5a71b1221a2a0">
+
+<article>
+  <div id="disqus_thread"></div>
+  <script>
+  
+  
+
+  
+
+  (function() { 
+  var d = document, s = d.createElement('script');
+  s.src = 'https://onthedock.disqus.com/embed.js';
+  s.setAttribute('data-timestamp', +new Date());
+  (d.head || d.body).appendChild(s);
+  })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+                              
+
+</article>
+
+
+
+  
+  
+  <section>
+    <header><span>Latests</span></header>
+    <ul class="p-articles thin">
+      <li><article class="li sm article-8664cf7a79475eafdd5fab6d49114ce4">
   <div class="header-wrapper">
-    <a href="https://onthedock.github.io/post/161105-introduccion-a-hypriotos/" class="thumbnail" title="Introducción a Hypriot OS"></a>
+    <a href="https://onthedock.github.io/post/211229-tema-personalizado-de-oh-my-zsh/" class="thumbnail" title="Tema personalizado de Oh My Zsh"></a>
     <header class="article-header">
       <div class="clearfix">
-        <h2 class="title"><a href="https://onthedock.github.io/post/161105-introduccion-a-hypriotos/">Introducción a Hypriot OS</a></h2>
+        <h2 class="title"><a href="https://onthedock.github.io/post/211229-tema-personalizado-de-oh-my-zsh/">Tema personalizado de Oh My Zsh</a></h2>
         <ul class="p-facts">
-          <li><time datetime="2016-11-05T10:37:47JST">5 Nov 2016</time></li>
+          <li><time datetime="2021-12-29T23:22:36JST">29 Dec 2021</time></li>
           <li><a href="https://onthedock.github.io/post/">post</a></li>
-          <li>Xavi Aznar</li>
           
         </ul>
       </div>
     </header>
   </div>
-  <div class="article-body summary"><p><a href="http://blog.hypriot.com/about/#hypriotos:6083a88ee3411b0d17ce02d738f69d47">HypriotOS</a> es un sistema operativo basado en <a href="http://www.debian.org/">Debian</a> optimizado para ejecutar <a href="http://www.docker.com/">Docker</a> en plataformas ARM como las <a href="https://www.raspberrypi.org/">Raspberry Pi</a>.</p></div>
-  <footer class="readmore"><a href="https://onthedock.github.io/post/161105-introduccion-a-hypriotos/">LEER M&Aacute;S</a></footer>
+</article>
+</li><li><article class="li sm article-5bb7a96e439d2c2d5ee4e2f4d837904b">
+  <div class="header-wrapper">
+    <a href="https://onthedock.github.io/post/211212-gophercicio-1-the-quiz-parte-2/" class="thumbnail" title="Quiz Game, 2a parte (Ejercicios en Go) #gophercises"></a>
+    <header class="article-header">
+      <div class="clearfix">
+        <h2 class="title"><a href="https://onthedock.github.io/post/211212-gophercicio-1-the-quiz-parte-2/">Quiz Game, 2a parte (Ejercicios en Go) #gophercises</a></h2>
+        <ul class="p-facts">
+          <li><time datetime="2021-12-12T11:18:48JST">12 Dec 2021</time></li>
+          <li><a href="https://onthedock.github.io/post/">post</a></li>
+          
+        </ul>
+      </div>
+    </header>
+  </div>
+</article>
+</li><li><article class="li sm article-ae2e3a2fb76ee811669977168c57b216">
+  <div class="header-wrapper">
+    <a href="https://onthedock.github.io/post/211212-gophercicio-1-the-quiz-parte-1/" class="thumbnail" title="Quiz Game, 1a parte (Ejercicios en Go) #gophercises"></a>
+    <header class="article-header">
+      <div class="clearfix">
+        <h2 class="title"><a href="https://onthedock.github.io/post/211212-gophercicio-1-the-quiz-parte-1/">Quiz Game, 1a parte (Ejercicios en Go) #gophercises</a></h2>
+        <ul class="p-facts">
+          <li><time datetime="2021-12-12T09:59:29JST">12 Dec 2021</time></li>
+          <li><a href="https://onthedock.github.io/post/">post</a></li>
+          
+        </ul>
+      </div>
+    </header>
+  </div>
+</article>
+</li><li><article class="li sm article-b4d146d3be69758158c7ba5e1b4c6f1e">
+  <div class="header-wrapper">
+    <a href="https://onthedock.github.io/post/211211-shifting-left/" class="thumbnail" title="Shifting Left - Aprendiendo a programar en Go"></a>
+    <header class="article-header">
+      <div class="clearfix">
+        <h2 class="title"><a href="https://onthedock.github.io/post/211211-shifting-left/">Shifting Left - Aprendiendo a programar en Go</a></h2>
+        <ul class="p-facts">
+          <li><time datetime="2021-12-11T21:10:44JST">11 Dec 2021</time></li>
+          <li><a href="https://onthedock.github.io/post/">post</a></li>
+          
+        </ul>
+      </div>
+    </header>
+  </div>
 </article>
 </li>
-  </ul>
+    </ul>
+  </section>
+  
 </div>
-
-
-<nav class="p-paginator">
-  
-  <a href="/page/18/" rel="prev" class="prev">Anterior</a>
-  
-  
-</nav>
-
 
 
     </main>
