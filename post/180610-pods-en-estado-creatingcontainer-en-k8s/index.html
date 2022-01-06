@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.87.0" />
+<meta name="generator" content="Hugo 0.82.1" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -136,19 +136,20 @@
 <p>A partir de aquí, tanto la instalación de los prerequisitos como la inicialización del clúster funcionan sin problemas; sin embargo, al intentar desplegar una aplicación, los <em>pods</em> se quedan en el estado <em>CreatingContainer</em>.</p>
 <h1 id="análisis-de-logs">Análisis de logs</h1>
 <p>Analizando los logs el problema apuntaba a un problema de red con Weave.net. Al parecer, cada <em>pod</em> de Weave Net obtiene una lista de los nodos que componen el clúster e intenta conectar con los <em>pods</em> que corren en cada nodo. Esto implica que también intenta conectar consigo mismo, lo que genera un error.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell"><span style="color:#719e07">[</span>...<span style="color:#719e07">]</span> connection shutting down due to error: Cannot connect to ourself
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell"><span style="color:#719e07">[</span>...<span style="color:#719e07">]</span> connection shutting down due to error: Cannot connect to ourself
 </code></pre></div><p>Sin embargo, este error es &ldquo;normal&rdquo; (hay alguna <a href="https://github.com/weaveworks/weave/issues/1305"><em>queja</em></a> en internet).</p>
 <p>Aunque el error al intentar conectar consigo mismo es inocuo, otro error debido a colisión de nombres no lo es:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell"><span style="color:#719e07">[</span>...<span style="color:#719e07">]</span> connection shutting down due to error: <span style="color:#b58900">local</span> and remote peer names collision
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell"><span style="color:#719e07">[</span>...<span style="color:#719e07">]</span> connection shutting down due to error: <span style="color:#b58900">local</span> and remote peer names collision
 </code></pre></div><p>Junto al mensaje de error aparecen las <em>MAC address</em> de las interfaces de red generadas por Weave, que coincidían en los tres nodos del clúster.</p>
 <p>Finalmente he encontrado la explicación y la solución en <a href="https://github.com/weaveworks/weave/issues/2767">Quorum not being reached on machines with identical IDs</a></p>
 <h2 id="causa">Causa</h2>
-<figure class="right"><img src="/images/vagrant.png"/>
+<figure class="right">
+    <img src="/images/vagrant.png"/> 
 </figure>
 
 <p>Las tres máquinas se han generado a partir de la misma imagen de Vagrant, por lo que el <strong>identificador de máquina</strong> en los ficheros <code>/etc/machine-id</code> y <code>/var/lib/dbus/machine-id</code> eran el mismo en los tres nodos.</p>
 <p>De alguna manera, la <em>MAC</em> de la interfaz virtual <code>weave</code> se genera a partir del <em>machine-id</em> (que debería ser único). Pero en este caso, al ser el mismo en las tres máquinas virtuales, la <em>MAC</em> del interfaz <code>weave</code> también coincidía en los <em>pods</em> generados por Weave Net. Por este motivo se obtenía el error de colisión de nombres.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ ip address show
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ ip address show
 ...
 6: weave: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu <span style="color:#2aa198">1376</span> qdisc noqueue state UP group default qlen <span style="color:#2aa198">1000</span>
     link/ether 76:2f:d2:46:f8:94 brd ff:ff:ff:ff:ff:ff
@@ -157,7 +158,7 @@
 ...
 </code></pre></div><h2 id="solución">Solución</h2>
 <p>La solución es elimnar el <em>machine-id</em> y generar uno nuevo:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">sudo rm /etc/machine-id
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">sudo rm /etc/machine-id
 sudo rm /var/lib/dbus/machine-id
 sudo systemd-machine-id-setup
 </code></pre></div><p>Tras reiniciar los nodos del clúster, el <em>pod</em> de prueba del clúster se ha iniciado con normalidad.</p>

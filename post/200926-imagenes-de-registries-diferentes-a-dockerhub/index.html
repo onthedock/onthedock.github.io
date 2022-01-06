@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.87.0" />
+<meta name="generator" content="Hugo 0.82.1" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -138,7 +138,7 @@
 <p>El nombre es en realidad el <em>repositorio</em> en el que se guardan todas las versiones de la imagen.</p>
 <p>Las etiquetas se usan, en general, para identificar diferentes versiones de una imagen, (<code>v1</code>, <code>v2</code>), pero en realidad son arbitrarias, a elección del creador de la imagen. Se pueden aplicar múltiples etiquetas a una misma imagen.</p>
 <p>Observa, por ejemplo, cómo el <code>IMAGE ID</code> de estas dos imágenes es el mismo, aunque tienen etiquetas diferentes (<code>8.2</code> y <code>latest</code>):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ docker images
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ docker images
 REPOSITORY                                    TAG      IMAGE ID       CREATED       SIZE
 registry.access.redhat.com/ubi8/ubi-minimal   8.2      28095021e526   <span style="color:#2aa198">3</span> weeks ago   142MB
 registry.access.redhat.com/ubi8/ubi-minimal   latest   28095021e526   <span style="color:#2aa198">3</span> weeks ago   142MB
@@ -164,7 +164,7 @@ registry.access.redhat.com/ubi8/ubi-minimal   latest   28095021e526   <span styl
 <h2 id="usar-imágenes-de-otros-repositorios-en-los-ficheros-dockerfile">Usar imágenes de otros repositorios en los ficheros <code>Dockerfile</code></h2>
 <p>Si has llegado hasta aquí, ya habrás intuído que lo único que hay que hacer para usar una imagen de un repositorio diferente a Docker Hub es especificar el <strong>nombre completo</strong> de la imagen en el <code>Dockerfile</code>.</p>
 <p>Siguiendo con el ejemplo de la entrada anterior, si SUPERCORP Inc nos indica que debemos usar como imagen base <a href="https://catalog.redhat.com/software/containers/ubi8/ubi-minimal/5c359a62bed8bd75a2c3fba8?container-tabs=gti&amp;gti-tabs=unauthenticated">UBI</a> (<em>Universal Base Image</em> basada en Red Hat Enterprise Linux), modificamos el <code>Dockerfile</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-Dockerfile" data-lang="Dockerfile"><span style="color:#719e07">FROM</span><span style="color:#2aa198"> golang:1.14.2-alpine AS builder</span>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-Dockerfile" data-lang="Dockerfile"><span style="color:#719e07">FROM</span><span style="color:#2aa198"> golang:1.14.2-alpine AS builder</span>
 <span style="color:#719e07">WORKDIR</span><span style="color:#2aa198"> /src</span>
 <span style="color:#719e07">COPY</span> src .
 <span style="color:#719e07">RUN</span> go build -o /out/helloworld .
@@ -175,7 +175,7 @@ registry.access.redhat.com/ubi8/ubi-minimal   latest   28095021e526   <span styl
 <span style="color:#719e07">CMD</span> [<span style="color:#2aa198">&#34;/helloworld&#34;</span>]
 </code></pre></div><p>En este caso usamos el acceso a la imagen que no requiere autenticación (público). Para el resto de accesos, es necesario hacer pasos adicionales.</p>
 <p>Construimos la imagen de la manera habitual:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">docker build -t helloworld:multi-ubi8-v1.1 .
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">docker build -t helloworld:multi-ubi8-v1.1 .
 Sending build context to Docker daemon  7.168kB
 Step 1/8 : FROM golang:1.14.2-alpine AS builder
  ---&gt; dda4232b2bd5
@@ -201,10 +201,10 @@ Removing intermediate container 0aa55f19d5e7
 Successfully built 22eadb871ff7
 Successfully tagged helloworld:multi-ubi8-v1.1
 </code></pre></div><p>Y finalmente validamos que la aplicación sigue funcionando con normalidad:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ docker run -it helloworld:multi-ubi8-v1.1
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ docker run -it helloworld:multi-ubi8-v1.1
 Hello World from Go!
 </code></pre></div><p>Como ejercicio, podemos comparar el tamaño de todas las imágenes generadas en estas dos entradas:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ docker images
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ docker images
 REPOSITORY                                    TAG                 IMAGE ID            CREATED             SIZE
 helloworld                                    multi-ubi8-v1.1     22eadb871ff7        <span style="color:#2aa198">28</span> seconds ago      144MB
 helloworld                                    multi-alpine-v1.1   44253a0a8e89        <span style="color:#2aa198">2</span> hours ago         7.64MB

@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.87.0" />
+<meta name="generator" content="Hugo 0.82.1" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -133,7 +133,7 @@
   <div class="article-body"><p>Después de <a href="https://onthedock.github.io/post/170410-k8s-en-rpi-teaser/">conseguir arrancar Kubernetes tras la instalación</a>, al intentar ejecutar comandos vía <code>kubectl</code> obtengo el mensaje de error <code>The connection to the server localhost:8080 was refused - did you specify the right host or port?</code></p>
 <p>A continuación explico cómo solucionar el error y evitar que vuelva a mostrarse.</p>
 <p>En la guía oficial para instalar Kubernetes en Linux con <code>kubeadm</code> <a href="https://kubernetes.io/docs/getting-started-guides/kubeadm/">Installing Kubernetes on Linux with kubeadm</a>, en la salida del comando <code>kubeadm init</code> en el punto <em>(2/4) - Initializing your master</em>, se muestra:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">Your Kubernetes master has initialized successfully!
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">Your Kubernetes master has initialized successfully!
 
 To start using your cluster, you need to run <span style="color:#719e07">(</span>as a regular &gt;user<span style="color:#719e07">)</span>:
 
@@ -142,10 +142,10 @@ To start using your cluster, you need to run <span style="color:#719e07">(</span
  <span style="color:#b58900">export</span> <span style="color:#268bd2">KUBECONFIG</span><span style="color:#719e07">=</span><span style="color:#268bd2">$HOME</span>/admin.conf
 </code></pre></div><p>El problema es que la <em>exportación</em> de la variable de entorno realizada mediante <code>export KUBECONFIG=$HOME/admin.conf</code> <strong>se pierde en cuanto se cierra la sesión</strong>.
 Por tanto, cuando reconectamos más tarde, la variable <code>KUBECONFIG</code> está vacía y el comando <code>kubectl</code> intenta conectar con <code>localhost:8080</code>. Como el API server no está escuchando en esta IP y puerto, lo que obtenemos el mensaje de error:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">The connection to the server localhost:8080 was refused - did you specify the right host or port?
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">The connection to the server localhost:8080 was refused - did you specify the right host or port?
 </code></pre></div><p>Si miramos el contenido del fichero <code>$HOME/admin.conf</code> mediante <code>cat $HOME/admin.conf</code> encontramos una línea que identifica el servidor: <code>server: https://192.168.1.11:6443</code></p>
 <p>Parece que lo único que tenemos que hacer es especificar el servidor como parámetro para <code>kubectl</code>, pero&hellip;</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ kubectl get nodes --server<span style="color:#719e07">=</span>https://192.168.1.11:6443
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ kubectl get nodes --server<span style="color:#719e07">=</span>https://192.168.1.11:6443
 Please enter Username: pirate
 Please enter Password: ********
   Unable to connect to the server: x509: certificate signed by unknown authority
@@ -153,7 +153,7 @@ Please enter Password: ********
 <p>Si usamos el usuario <code>root</code>, el resultado es el mismo.</p>
 </blockquote>
 <p>Observando el contenido del fichero <code>admin.conf</code> vemos que para el parámetro <code>user</code> se especifican certificados (mediante <code>client-certificate-data</code> y <code>client-key-data</code>):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-txt" data-lang="txt">...
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-txt" data-lang="txt">...
 users:
 - name: kubernetes-admin
   user:
@@ -162,26 +162,26 @@ users:
 $
 </code></pre></div><p>Así que no podemos autenticarnos en el API Server con los usuarios del sistema y tenemos que usar los certificados en el fichero <code>admin.conf</code>.</p>
 <p>Esto nos lleva de nuevo a la variable <code>KUBECONFIG</code>. Si lanzamos el comando <code>export KUBECONFIG...</code>, los comandos funcionarán durante la sesión en curso, pero tendremos que lanzar el comando <code>export</code> en cada nueva sesión:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh"><span style="color:#b58900">export</span> <span style="color:#268bd2">KUBECONFIG</span><span style="color:#719e07">=</span><span style="color:#268bd2">$HOME</span>/admin.conf
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh"><span style="color:#b58900">export</span> <span style="color:#268bd2">KUBECONFIG</span><span style="color:#719e07">=</span><span style="color:#268bd2">$HOME</span>/admin.conf
 </code></pre></div><p>La solución para que la variable se establezca automáticamente en cada inicio de sesión es añadiéndo el valor en el fichero <code>$HOME/.bashrc</code>.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ nano <span style="color:#268bd2">$HOME</span>/.bashrc
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ nano <span style="color:#268bd2">$HOME</span>/.bashrc
 <span style="color:#b58900">export</span> <span style="color:#268bd2">KUBECONFIG</span><span style="color:#719e07">=</span><span style="color:#268bd2">$HOME</span>/admin.conf
 </code></pre></div><p>Para verificar que funciona como debe, cierra sesión y vuelve a iniciarla.</p>
 <p>Comprueba que puedes lanzar comandos sin problemas:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ kubectl get nodes
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ kubectl get nodes
 NAME      STATUS    AGE       VERSION
 k1        Ready     3d        v1.6.1
 $
 </code></pre></div><p>¡Problema solucionado!</p>
 <p>Otra solución alternativa, si no quieres modificar el fichero <code>$HOME/admin.conf</code> es pasar la ubicación del fichero como parámetro a <code>kubectl</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ kubectl get nodes
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ kubectl get nodes
 The connection to the server localhost:8080 was refused - did you specify the right host or port?
 $ kubectl --kubeconfig ./admin.conf get nodes
 NAME      STATUS    AGE       VERSION
 k1        Ready     3d        v1.6.1
 $
 </code></pre></div><p>Puedes usar también este método para conectar, por ejemplo, desde otro equipo al nodo master del clúster (debes copiar primero el fichero <code>admin.conf</code> a tu equipo, desde su ubicación original <code>/etc/kubernetes/admin.conf</code> o desde la carpeta <code>$HOME</code> del usuario, si lo has copiado):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ scp pirate@k1.local:/home/pirate/admin.conf .
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ scp pirate@k1.local:/home/pirate/admin.conf .
 kubectl --kubeconfig ./admin.conf get nodes
 </code></pre></div></div>
 

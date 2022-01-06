@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.87.0" />
+<meta name="generator" content="Hugo 0.82.1" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -144,7 +144,7 @@
 <p>El <code>${id-del-commit}</code> especifica <strong>a partir de</strong> qué <em>commit</em> queremos reescribir la historia.</p>
 <p>Podemos especificar el SHA del <em>commit</em> o una referencia relativa (como <code>HEAD~3</code>).</p>
 <p>Suponiendo que la historia de nuestro repositorio es:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># Esta es la historia que refleja qué ha pasado durante el desarrollo</span>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># Esta es la historia que refleja qué ha pasado durante el desarrollo</span>
 $ git log --oneline
 ba06e7a <span style="color:#719e07">(</span>HEAD -&gt; feature-1<span style="color:#719e07">)</span> Ok, funcionalidad Y completa!
 150c964 Limpieza de código
@@ -156,20 +156,20 @@ b185d06 Prerequisitos para la funcionalidad Y
 5488b91 Primer commit
 </code></pre></div><p>Vemos que a partir del <em>commit</em> <code>429c084</code> se creó la rama <code>feature-1</code>, pero contiene <em>commits</em> con mensajes <em>mejorables</em> o que no aportan demasiado.</p>
 <p>Tras el proceso de <code>rebase</code> nos gustaría tener una historia como:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># Esta es la historia que nos gustaría tener tras el rebase</span>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># Esta es la historia que nos gustaría tener tras el rebase</span>
 $ git log --oneline
 XXXXXXX <span style="color:#719e07">(</span>HEAD -&gt; feature-1<span style="color:#719e07">)</span> Funcionalidad Y <span style="color:#719e07">(</span>issue <span style="color:#586e75">#123456)</span>
 429c084 <span style="color:#719e07">(</span>master<span style="color:#719e07">)</span> Funcionalidad X <span style="color:#719e07">(</span>issue <span style="color:#586e75">#111111)</span>
 5488b91 Primer commit
 </code></pre></div><p>Si queremos reescribir la historia a partir del <em>commit</em> <code>429c084</code> lanzamos:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">git rebase -i 429c084
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">git rebase -i 429c084
 </code></pre></div><p>Git abre el editor predefinido con la lista de <em>commits</em> involucrados en el <em>rebase</em> (todos los posteriores al <em>commit</em> indicado).</p>
 <blockquote>
 <p>El editor que abre <code>git rebase</code> muestra los <em>commits</em> en orden inverso al del comando <code>git log</code>; <code>git rebase</code> muestra primero los <em>commits</em> más antiguos y después los más nuevos.</p>
 </blockquote>
 <p>Por defecto, el identificador de cada <em>commit</em> va precedido de la acción a realizar (por defecto, <code>pick</code>); también se muestra el mensaje de <em>commit</em> para que sea más sencillo saber qué <em>commit</em> se está modificando.</p>
 <p>Tras la lista de <em>commits</em> Git muestra ayuda con las opciones disponibles durante el proceso de <code>rebase</code>.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">pick b185d06 Prerequisitos para la funcionalidad Y
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">pick b185d06 Prerequisitos para la funcionalidad Y
 pick da2045b Implementación
 pick 529b7bc Corrige ésto y aquello <span style="color:#719e07">(</span>no podía funcionar a la primera ;<span style="color:#719e07">)</span> <span style="color:#719e07">)</span> 
 pick 28506fa Corrige warnings
@@ -178,7 +178,7 @@ pick ba06e7a Ok, funcionalidad Y completa!
 
 ...
 </code></pre></div><p>Si queremos comprimir todos los <em>commits</em> en uno sólo, seleccionamos el primero y marcamos el resto con <code>squash</code> (o <code>s</code> para abreviar):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">pick b185d06 Prerequisitos para la funcionalidad Y
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">pick b185d06 Prerequisitos para la funcionalidad Y
 squash da2045b Implementación
 squash 529b7bc Corrige ésto y aquello <span style="color:#719e07">(</span>no podía funcionar a la primera ;<span style="color:#719e07">)</span> <span style="color:#719e07">)</span> 
 squash 28506fa Corrige warnings
@@ -192,7 +192,7 @@ squash ba06e7a Ok, funcionalidad Y completa!
 <p>A continuación, se abre un nuevo editor que contiene por defecto los mensajes de <em>commit</em> de los <em>commits</em> que van a combinarse en uno solo al ejecutar el <em>rebase</em>.</p>
 <p>Puedes editar el mensaje de <em>commit</em> para ajustarlo al estilo del resto de <em>commits</em> del repositorio.</p>
 <p>Al finalizar el <em>rebase</em> la historia del repositorio sería:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ git log --oneline
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ git log --oneline
 8da3fcd <span style="color:#719e07">(</span>HEAD -&gt; feature-1<span style="color:#719e07">)</span> Funcionalidad Y <span style="color:#719e07">(</span>issue <span style="color:#586e75">#123456)</span>
 429c084 <span style="color:#719e07">(</span>master<span style="color:#719e07">)</span> Funcionalidad X <span style="color:#719e07">(</span>issue <span style="color:#586e75">#111111)</span>
 5488b91 Primer commit

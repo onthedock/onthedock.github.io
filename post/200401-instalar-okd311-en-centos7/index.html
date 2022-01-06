@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.87.0" />
+<meta name="generator" content="Hugo 0.82.1" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -147,15 +147,15 @@
 <p>Todos los comandos se ejecutan como usuario <code>root</code>. Para convertirte en <code>root</code>, <code>sudo -i</code>, por ejemplo.</p>
 </blockquote>
 <p>Tras la instalación, establezco la el <em>mapa de teclado</em> mediante (Referencia: <a href="https://linuxconfig.org/how-to-change-system-keyboard-keymap-layout-on-centos-7-linux">How to change system keyboard keymap layout on CentOS 7 Linux</a>):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">localectl set-keymap es
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">localectl set-keymap es
 </code></pre></div><h2 id="habilitar-la-tarjeta-de-red">Habilitar la tarjeta de red</h2>
 <p>En CentOS, la tarjeta de red está deshabilitada por defecto.</p>
 <p>Para que <em>autoarranque</em> automáticamente al iniciar el sistema, hay que modificar el fichero (como <code>root</code>) <code>/etc/sysconfig/network-scripts/ifcfg-enp0s3/</code> y modificar la línea <code>ONBOOT=yes</code>.</p>
 <p>Para habilitarla (la <code>c</code> es de <em>connection</em>),</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">nmcli c up enp0s3
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">nmcli c up enp0s3
 </code></pre></div><h2 id="instalación-de-docker">Instalación de Docker</h2>
 <p>Nos convertimos en el usuario <code>root</code> e instalamos Docker:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">sudo -i
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">sudo -i
 yum update
 yum install docker -y
 </code></pre></div><p>Docker está instalado pero no activo. Podemos validarlo con <code>systemctl status docker</code>
@@ -165,7 +165,7 @@ Para habilitarlo, (como <em>root</em>) <code>systemctl enable docker</code>. Ant
 <p>Este paso es necesario para poder usar el <em>registry</em> interno proporcionado por la instalación de OKD/OpenShift. Si no habilitamos el uso de registros inseguros, el comando <code>oc cluster up</code> <strong>fallará</strong>.</p>
 </blockquote>
 <p>Como <code>root</code>, crea el fichero <code>/etc/docker/daemon.json</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># cat &lt;&lt; EOF &gt;/etc/docker/daemon.json</span>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># cat &lt;&lt; EOF &gt;/etc/docker/daemon.json</span>
 <span style="color:#719e07">{</span>
  <span style="color:#2aa198">&#34;insecure-registries&#34;</span>: <span style="color:#719e07">[</span>
  <span style="color:#2aa198">&#34;172.30.0.0/16&#34;</span>
@@ -175,7 +175,7 @@ EOF
 </code></pre></div><p>Finalmente, arrancamos Docker: <code>systemctl start docker</code> (y lo validamos con <code>systemctl status docker</code>).</p>
 <h2 id="configuración-del-firewall">Configuración del firewall</h2>
 <p>La configuración por defecto del firewall no permite el tráfico por los puertos requeridos por Openshift. Hay que ajustarlos mediante la herramienta <code>firewall-cmd</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">firewall-cmd --permanent --new-zone dockerc
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">firewall-cmd --permanent --new-zone dockerc
 firewall-cmd --permanent --zone dockerc --add-source 172.17.0.0/16
 firewall-cmd --permanent --zone dockerc --add-port 8443/tcp
 firewall-cmd --permanent --zone dockerc --add-port 53/udp
@@ -183,7 +183,7 @@ firewall-cmd --permanent --zone dockerc --add-port 8053/udp
 firewall-cmd --reload
 </code></pre></div><h2 id="descargando-la-herramienta-oc">Descargando la herramienta <code>oc</code></h2>
 <p>El cliente de Openshift es una herramienta llamada <code>oc</code>, disponible en los repositorios. Se puede descargar de <a href="https://github.com/openshift/origin/releases">https://github.com/openshift/origin/releases</a> (idealmente deberías usar los repositorios de CentOS).</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">yum -y install centos-release-openshift-origin311
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">yum -y install centos-release-openshift-origin311
 yum -y install origin-clients
 </code></pre></div><h2 id="arrancando-un-clúster-de-openshift">Arrancando un clúster de OpenShift</h2>
 <p>Una vez tenemos todos los prerequisitos, podemos arrancar el clúster con <code>oc cluster up</code>. Este comando descarga todas las imágenes requeridas de repositorios públicos y arrancará los contenedores que haga falta (tardará un rato, en función de la velocidad de tu conexión de red).</p>
@@ -191,7 +191,7 @@ yum -y install origin-clients
 <blockquote>
 <p>Para poder acceder a la consola desde un equipo <em>diferente</em> a la VM donde estás instalando OKD, pasa el parámetro <code>--public-hostname=&lt;public ip&gt;</code>. Sin embargo, esto no me ha funcionado y existe un <em>issue</em> abierto al respecto <a href="https://github.com/openshift/origin/issues/20726">Access fail with &lsquo;oc cluster up &ndash;public-hostname={public ip}&rsquo; and redirect to 127.0.0.1 #20726</a></p>
 </blockquote>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">oc cluster up
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">oc cluster up
 </code></pre></div><p>Cuando finaliza la instalación, se muestra un mensaje que nos indica cómo acceder -vía línea de comandos- a OpenShift:</p>
 <ul>
 <li><strong>Como developer</strong>: Ya estás logado como <code>developer</code> (cualquier valor es admitido como <em>password</em>). P.ej. <code>developer</code>.</li>
@@ -205,7 +205,7 @@ yum -y install origin-clients
 <p>Como he indicado antes, hay un <em>issue</em> abierto en GitHub al respecto <a href="https://github.com/openshift/origin/issues/20726">Access fail with &lsquo;oc cluster up &ndash;public-hostname={public ip}&rsquo; and redirect to 127.0.0.1 #20726</a>. El <em>issue</em> es del 2018 y se informó inicialmente para la versión 3.10, pero en la 3.11 también sucede.</p>
 <p>Dado que, aunque todavía está soportada, RedHat ya está trabajando en la rama 4.x, es poco probable que lo solucionen.</p>
 <p>La única manera con la que he conseguido acceder a la consola es mediante un túnel SSH:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">ssh -N -L 8443:127.0.0.1:8443 <span style="color:#719e07">{</span>username<span style="color:#719e07">}</span>@<span style="color:#719e07">{</span>vm-ip<span style="color:#719e07">}</span>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">ssh -N -L 8443:127.0.0.1:8443 <span style="color:#719e07">{</span>username<span style="color:#719e07">}</span>@<span style="color:#719e07">{</span>vm-ip<span style="color:#719e07">}</span>
 </code></pre></div><h2 id="créditos">Créditos</h2>
 <p>Para realizar la instalación seguí las instrucciones del artículo <a href="https://medium.com/@fabiojose/working-with-oc-cluster-up-a052339ea219">Working with oc cluster up</a>.</p></div>
 

@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.87.0" />
+<meta name="generator" content="Hugo 0.82.1" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -159,7 +159,7 @@
 <p>Aunque sólo se puede establecer una <em>stack policy</em> por <em>stack</em>, ésta permite controlar las modificaciones sobre tantos recursos del <em>stack</em> como queramos.</p>
 <p>Debes tener en cuenta que el <em>stack policy</em> sólo &ldquo;protege&rdquo; los recursos de acciones realizadas a través de <strong>actualizaciones realizadas a través de CloudFormation</strong>, pero no impide la modificación de los recursos directamente. Si quieres evitar que se modifique o elimine un recurso, debes restringir el acceso mediante políticas IAM. La <em>stack policy</em> es un mecanismo de protección contra modificaciones inadvertidas sobre recursos de un <em>stack</em>.</p>
 <p>Un ejemplo de <em>stack policy</em> sería:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-json" data-lang="json">{
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-json" data-lang="json">{
   <span style="color:#268bd2">&#34;Statement&#34;</span> : [
     {
       <span style="color:#268bd2">&#34;Effect&#34;</span> : <span style="color:#2aa198">&#34;Allow&#34;</span>,
@@ -181,7 +181,7 @@
 <p>Por defecto, la presencia de una <em>stack policy</em> asociada al <em>stack</em> <strong>deniega</strong> implícitamente la actualización de todos los recursos del <em>stack</em>. Sin embargo, AWS recomienda usar <code>Deny</code> <strong>explícitos</strong> si realmente queremos evitar la modificación de alguno de los recursos contenidos en el <em>stack</em>.</p>
 <p>Los valores de <code>Action</code> también son particulares, ya que en vez de ser de la forma habitual <code>servicio:permiso</code> son <code>Update:*</code>. Esta acción permite cualquier tipo de actualización sobre el recurso mientras que <code>Update:Modify</code>, <code>Update:Replace</code> o <code>Update:Delete</code> sólo permiten las acciones especificadas. Las <em>stack policy</em> también aceptan entradas de tipo <code>NotAction</code>, pero como en el caso de las IAM policies, es mejor evitarlas si es posible.</p>
 <p>En cuanto a los recursos, la <em>stack policy</em> permite usar condiciones del tipo <code>StringEquals</code> o <code>StringLike</code> para <strong>clases de recursos</strong>. Esto permite denegar el borrado de todos los recursos del tipo <code>AWS::EC2::Instance</code> e incluso, todos los recursos de tipo EC2 mediante <code>AWS::EC2::*</code>: instancias, <em>security groups</em>, <em>subnets</em>, etc.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-json" data-lang="json"><span style="color:#2aa198">&#34;Condition&#34;</span> : {
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-json" data-lang="json"><span style="color:#2aa198">&#34;Condition&#34;</span> : {
   <span style="color:#268bd2">&#34;StringLike&#34;</span> : {
     <span style="color:#268bd2">&#34;ResourceType&#34;</span> : [<span style="color:#2aa198">&#34;AWS::EC2::*&#34;</span>]
   }
@@ -194,7 +194,7 @@
 <p>AWS permite especificar una <em>stack policy</em> <strong>temporal</strong> que permita la modificación de un recurso protegido. Desde la consola web de AWS, en la página de configuración de opciones del <em>stack</em>, en la sección <code>Advanced options</code>, selecciona <code>Stack policy</code> y sube la <em>stack policy</em> que permita la modificación del recurso.</p>
 <p>Esta <em>stack policy</em> temporal sólo tiene validez durante la actualización del <em>stack</em>; cuando finaliza, la <em>stack policy</em> &ldquo;temporal&rdquo; deja de ser válida y por tanto los recursos vuelven a estar protegidos contra modificaciones.</p>
 <p>En la documentación de AWS <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/protect-stack-resources.html#stack-policy-samples">More Example Stack Policies</a> tienes algunos ejemplos de <em>stack policies</em>, como ésta que evita la actualización de cualquier <em>stack</em> anidado:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-json" data-lang="json">{
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-json" data-lang="json">{
   <span style="color:#268bd2">&#34;Statement&#34;</span> : [
     {
       <span style="color:#268bd2">&#34;Effect&#34;</span> : <span style="color:#2aa198">&#34;Deny&#34;</span>,
@@ -218,7 +218,7 @@
 </code></pre></div><h2 id="bonus-usando-deletionpolicy-para-importar-recursos-en-stacks">Bonus: Usando <code>DeletionPolicy</code> para importar recursos en <em>stacks</em></h2>
 <p>CloudFormation permite crear y actualizar <em>stacks</em> partiendo de recursos ya existentes. Para incorporar un recurso al <em>stack</em> debemos describirlo en la plantilla de CloudFormation y <strong>especificar</strong> <code>DeletionPolicy: Retain</code>.</p>
 <p>Una manera sencilla y efectiva de incluir todas las propiedades del recurso existente en CloudFormation es usando &ldquo;get&rdquo; o &ldquo;describe&rdquo; desde la CLI; por ejemplo, para un usuario IAM:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">User</span>:
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">User</span>:
   <span style="color:#268bd2">Arn</span>: arn:aws:iam::123456789012:user/iam-username-no-path
   <span style="color:#268bd2">CreateDate</span>: <span style="color:#2aa198">&#39;2020-05-28T16:40:57+00:00&#39;</span>
   <span style="color:#268bd2">Path</span>: /

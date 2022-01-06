@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.87.0" />
+<meta name="generator" content="Hugo 0.82.1" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -135,12 +135,12 @@
 <p>Alpine arranca en modo <em>live</em> y mediante la ejecución del script <code>setup-alpine</code> configuro e instalo la distrbución en el disco duro de la máquina virtual.</p>
 <p>Tras la instalación de Alpine únicamente tengo el usuario <em>root</em>; es conveniente crear un usuario <em>no-root</em> para poder trabajar con los mínimos permisos posibles.</p>
 <p>Para crear un usuario <em>no-root</em> uso <code>adduser</code></p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">adduser operador
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">adduser operador
 </code></pre></div><p>Instalo <code>sudo</code> y añado el usuario al fichero <code>/etc/sudoers</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">apk add sudo
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">apk add sudo
 visudo
 </code></pre></div><p>En el fichero he añadido la línea:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-ini" data-lang="ini">operador ALL<span style="color:#719e07">=</span><span style="color:#2aa198">(ALL) ALL</span>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-ini" data-lang="ini">operador ALL<span style="color:#719e07">=</span><span style="color:#2aa198">(ALL) ALL</span>
 </code></pre></div><blockquote>
 <p>Inicialmente he creado un fichero <code>/etc/sudoers.d/operador.usr</code> (con permisos <code>0440</code>) pero al intentar elevar permisos recibía el mensaje <code>user is not in the sudoers file</code>, por lo que finalmente he dado permisos directamente en <code>/etc/sudoers</code>.</p>
 </blockquote>
@@ -151,28 +151,28 @@ visudo
 <p><a href="https://www.python.org/dev/peps/pep-0373/#update">Desde el 01/01/2020 Python 2.7 ha alcanzado la fecha final de soporte</a> y <strong>no está mantenido oficialmente</strong>.</p>
 </blockquote>
 <p>Instalo Python 3 mediante:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">sudo apk update
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">sudo apk update
 sudo apk add python3
 </code></pre></div><p>Compruebo la versión instalada mediante:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ python3 --version
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ python3 --version
 Python 3.6.9
 </code></pre></div><p>Valido que también se ha instalado <code>pip3</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ pip3 --version
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ pip3 --version
 pip 18.1 from /usr/lib/python3.6/site-packages/pip <span style="color:#719e07">(</span>python 3.6<span style="color:#719e07">)</span>
 </code></pre></div><h2 id="creación-de-entornos-virtuales">Creación de entornos virtuales</h2>
 <p>El módulo <code>venv</code> permite crear &ldquo;entornos virtuales&rdquo; autocontenidos en una carpeta. De esta forma podemos tener diferentes versiones de Python o de alguno de sus paquetes sin interferencias entre ellos.</p>
 <p>Para crear un <em>entorno virtual</em> llamado <code>pydev</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">python3 -m venv pydev
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">python3 -m venv pydev
 </code></pre></div><blockquote>
 <p>De forma general <code>python3 -m venv /ruta/a/la/carpeta/del/entorno/virtual</code></p>
 </blockquote>
 <p>Este comando crea la carpeta <code>pydev</code> y un fichero <code>pyvenv.cfg</code> que contiene la ruta al intérprete de Python usado en el entorno virtual, la versión y otros parámetros de configuración:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-ini" data-lang="ini">home <span style="color:#719e07">=</span> <span style="color:#2aa198">/usr/bin</span>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-ini" data-lang="ini">home <span style="color:#719e07">=</span> <span style="color:#2aa198">/usr/bin</span>
 include-system-site-packages <span style="color:#719e07">=</span> <span style="color:#2aa198">false</span>
 version <span style="color:#719e07">=</span> <span style="color:#2aa198">3.6.9</span>
 </code></pre></div><p>Una vez creado el entorno virtual, es necesario activarlo. Para ello se usa un script (la ubicación específica depende de la plataforma y <em>shell</em> que uses, ver <a href="https://docs.python.org/3/library/venv.html">la documentación oficial</a>).</p>
 <p>ASH, la <em>shell</em> que usa Alpine Linux no forma parte de la documentación de <code>venv</code>, pero compruebo que el fichero <code>activate</code> está en la ruta <code>(venv)/bin/activate</code>. Como el comando <code>source</code> no se reconoce en Alpine, uso la forma &ldquo;general&rdquo;, mediante un &ldquo;.&quot;:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ . pydev/bin/activate
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ . pydev/bin/activate
 <span style="color:#719e07">(</span>pydev<span style="color:#719e07">)</span> pydev:~$
 </code></pre></div><p>Observa que el <em>prompt</em> cambia para indicar te encuentras en el entorno virtual <code>pydev</code>.</p></div>
 

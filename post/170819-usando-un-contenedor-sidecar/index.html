@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.87.0" />
+<meta name="generator" content="Hugo 0.82.1" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -146,8 +146,9 @@
 <p>Desgraciadamente, no tiene soporte -todavía- para ARM (issue #26 <a href="https://github.com/minio/minfs/issues/26">ARM support for MinFS</a>).</p>
 <h1 id="una-opción-viable">Una opción viable</h1>
 <p>Dándole vueltas a la posibilidad de usar Minio, he decidido cambiar el problema: si la aplicación no puede escribir sobre el almacenamiento de Minio, que sea el propio Minio el que obtenga la información de la aplicación. La solución que me ha venido a la cabeza tiene que ver con el <em>pattern</em> del <strong>contenedor sidecar</strong>: <a href="http://blog.kubernetes.io/2015/06/the-distributed-system-toolkit-patterns.html">The Distributed System ToolKit: Patterns for Composite Containers</a>.</p>
-<figure><img src="/images/170819/example-1-sidecar-container.png"
-         alt="Ejemplo 1 Contenedor sidecar"/><figcaption>
+<figure>
+    <img src="/images/170819/example-1-sidecar-container.png"
+         alt="Ejemplo 1 Contenedor sidecar"/> <figcaption>
             <p>Ejemplo 1 Contenedor sidecar</p>
         </figcaption>
 </figure>
@@ -156,7 +157,8 @@
 <h2 id="el-contenedor-sidecar">El contenedor sidecar</h2>
 <p>El contenedor <em>sidecar</em> reside junto al contenedor de la aplicación y realiza una función auxiliar a la del contenedor principal. En mi caso, el contenedor sidecar contendría el cliente de Minio <code>mc</code>.</p>
 <p>El contenedor principal lee y escribe sobre un volumen local (en el <em>pod</em>). El contenedor sidecar se encarga de copiar ficheros del pod hacia el exterior (hacia el <em>bucket</em> definido en el servidor de Minio).</p>
-<figure><img src="/images/170819/k8s-pod-sidecar-pattern.svg"/>
+<figure>
+    <img src="/images/170819/k8s-pod-sidecar-pattern.svg"/> 
 </figure>
 
 <p>Al tratarse de volúmenes locales al <em>pod</em>, el <em>scheduler</em> los crea junto con el <em>pod</em> (a partir de la definición en el <em>deployment</em>). Kubernetes los crea automáticamente, sin ninguna dependencia de los <em>plugins</em> de almacenamiento ni de si permiten provisionamiento dinámico o no. Así podemos escalar la aplicación sin necesidad de provisionar nuevos <em>PersistentVolumes</em>.</p>
@@ -164,18 +166,21 @@
 <p>Una vez que ha finalizado la copia inicial de la información desde el <em>bucket</em> remoto al volumen local, se lanzan los contenedores de la aplicación y el sidecar, en paralelo.</p>
 <p>A partir de la &ldquo;puesta en marcha&rdquo; del <em>pod</em> (cuando el contenedor <em>init</em> finaliza con éxito), el contenedor sidecar se encarga de ir sincronizando el contenido del volumen con el del <em>bucket</em> remoto.</p>
 <p>El servidor de Minio se puede desplegar sobre Docker como un contenedor.</p>
-<figure><img src="/images/170819/k8-storage-solution-minio.svg"/>
+<figure>
+    <img src="/images/170819/k8-storage-solution-minio.svg"/> 
 </figure>
 
 <p>Para garantizar que en todo momento tenemos un servidor de Minio capaz de atender las peticiones desde cualquiera de los clientes, podemos desplegarlo en forma <em>deployment</em>. Para evitar que el <em>scheduler</em> lo planifique en un nodo diferente al que tiene montado, tendremos que definir afinidad con el nodo en el que se encuentra.</p>
-<figure><img src="/images/170819/k8s-storage-solution.svg"/>
+<figure>
+    <img src="/images/170819/k8s-storage-solution.svg"/> 
 </figure>
 
 <p>Aunque esta última variante sólo proporciona balanceo para el servidor de Minio, el almacenamiento no está replicado y un fallo del hardware subyacente nos deja sin datos.</p>
 <p>Con esta configuración es posible proporcionar almacenamiento local de un nodo como almacenamiento &ldquo;<em>cloud local</em>&rdquo;, es decir, desde cualquier nodo del clúster, externo a la aplicación. El servidor de Minio actúa como <em>proxy</em> del almacenamiento local del nodo. Este contenedor sidecar puede usarse con cualquier aplicación sin necesidad de modificación, ya que el cliente de Minio es el que se relaciona con el almacenamiento externo (la aplicación trabaja sobre el almacenamiento local en el <em>pod</em>). Cuando el <em>pod</em> se planifica en cualquier otro nodo del clúster, el contenedor <em>init</em> recupera la información desde el servidor antes de la creación de los contenedores de la aplicación y el cliente de Minio. Una vez inicializado, el <em>pod</em> opera con normalidad, la aplicación leyendo y escribiendo ficheros en el volumen local del <em>pod</em> y el cliente Minio sincronizándolos contra el <em>bucket</em> remoto en el servidor de Minio.</p>
 <p>El siguiente gif animado describe este proceso:</p>
-<figure><img src="/images/170819/k8s-minio-localstorage-proxy.gif"
-         alt="Pod keeps persistent storage across nodes"/><figcaption>
+<figure>
+    <img src="/images/170819/k8s-minio-localstorage-proxy.gif"
+         alt="Pod keeps persistent storage across nodes"/> <figcaption>
             <p>Pod keeps persistent storage across nodes</p>
         </figcaption>
 </figure>

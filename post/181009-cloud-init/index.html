@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.87.0" />
+<meta name="generator" content="Hugo 0.82.1" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -138,7 +138,7 @@
 <p>Una de las formas más potentes y sencillas de conseguir personalizar la máquina virtual es usar <code>cloud-init</code>.</p>
 <h2 id="personalizando-la-máquina-virtual-con-_cloud-init_">Personalizando la máquina virtual con <em>cloud-init</em></h2>
 <p><code>cloud-init</code> se instala como un paquete más en cualquiera de las distribuciones linux en las que está soportado. En mi caso, usaré Debian. (Ubuntu proporciona las <a href="http://cloud-images.ubuntu.com/"><em>cloud images</em></a>, que incluyen <code>cloud-init</code>, pero no he tenido éxito con ellas). La instalación se realiza como la de cualquier otro paquete:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">sudo apt install cloud-init
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">sudo apt install cloud-init
 </code></pre></div><p>Una vez instalado, <code>cloud-init</code> se ejecuta durante el proceso de arranque de la máquina virtual e intenta obtener la configuración de la instancia a partir de algún <em>datasource</em>.</p>
 <p>El <em>datasource</em> es una abstracción que permite que <code>cloud-init</code> se adapte a los diferentes entornos en los que se ejecuta. Por ejemplo, el <em>datasource</em> <code>NoCloud</code> proporciona información de configuración desde medios locales, como un diskette o una imagen de CD/DVD montada en la máquina virtual. Esto permite especificar parámetros de configuración incluso antes de que el sistema operativo haya <em>levantado</em> la conexión de red.</p>
 <p><code>cloud-init</code> puede obtener los parámetros de configuración para la máquina a partir de ficheros en formato YAML o de <em>scripts</em>.</p>
@@ -152,12 +152,12 @@
 </blockquote>
 <p>Como no existe ningún <em>cmdlet</em> en PowerShell para crear una imagen ISO, he descargado de la versión para Windows del paquete <code>cdrtools</code>, que incluye <code>mkisofs.exe</code> desde <a href="https://www.student.tugraz.at/thomas.plank/index_en.html">Cdrtools: Win x86_64 Binaries</a>.</p>
 <p>Para que <code>cloud-init</code> identifique la ISO como un <em>datasource</em> debemos etiquetarla como <code>cidata</code>. En comando con el que he construido las imágenes es (<code>.\initimg</code> es la carpeta donde se encuentran los ficheros a copiar en la ISO):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">mkisofs.exe -volid cidata -juliet -rational-rock -iso-level <span style="color:#2aa198">2</span> -output init.iso .<span style="color:#cb4b16">\i</span>nitimg<span style="color:#cb4b16">\
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">mkisofs.exe -volid cidata -juliet -rational-rock -iso-level <span style="color:#2aa198">2</span> -output init.iso .<span style="color:#cb4b16">\i</span>nitimg<span style="color:#cb4b16">\
 </span></code></pre></div><p>Conectamos la ISO y arrancamos la VM:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-ps" data-lang="ps"><span style="color:#268bd2">Set-VMDvdDrive</span> <span style="color:#268bd2">-VMName</span> <span style="color:#268bd2">TestVM</span> <span style="color:#268bd2">-Path</span> <span style="color:#268bd2">.\init.iso</span>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-ps" data-lang="ps"><span style="color:#268bd2">Set-VMDvdDrive</span> <span style="color:#268bd2">-VMName</span> <span style="color:#268bd2">TestVM</span> <span style="color:#268bd2">-Path</span> <span style="color:#268bd2">.\init.iso</span>
 <span style="color:#268bd2">Start-VM</span> <span style="color:#268bd2">-Name</span> <span style="color:#268bd2">TestVM</span>
 </code></pre></div><p>El fichero <code>meta-data</code> contiene el <em>ID</em> de la instancia y la configuración IP:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yml" data-lang="yml"><span style="color:#268bd2">instance-id</span>: cloudimg
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yml" data-lang="yml"><span style="color:#268bd2">instance-id</span>: cloudimg
 <span style="color:#268bd2">network-interfaces</span>: |<span style="color:#2aa198">
 </span><span style="color:#2aa198">  iface eth0 inet static
 </span><span style="color:#2aa198">  address 192.168.1.199
@@ -166,7 +166,7 @@
 </span><span style="color:#2aa198">  broadcast 192.168.1.255
 </span><span style="color:#2aa198">  gateway 192.168.1.1</span>  
 </code></pre></div><p>El fichero <code>user-data</code> contiene el grueso de la configuración.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yml" data-lang="yml"><span style="color:#586e75">#cloud-config</span>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yml" data-lang="yml"><span style="color:#586e75">#cloud-config</span>
 <span style="color:#268bd2">manage_etc_hosts</span>: <span style="color:#cb4b16">true</span>
 <span style="color:#268bd2">hostname</span>: vm-userdata-04
 <span style="color:#268bd2">fqdn</span>: vm-userdata-04.lab.local

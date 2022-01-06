@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.87.0" />
+<meta name="generator" content="Hugo 0.82.1" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -140,26 +140,26 @@
 <p>Una manera eficiente de crear un conjunto de máquinas homogéneas es clonando el disco después de realizar la instalación y configuración en una máquina de referencia.</p>
 <p>En nuestro caso, supomemos que hemos configurado a nuestro gusto la máquina virtual <code>debian9</code>.</p>
 <p>En primer apagamos la máquina virtual:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ virsh shutdown debian9
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ virsh shutdown debian9
 Domain debian9 is being shutdown
 </code></pre></div><p>Usaremos esta máquina virtual como base para crear la <em>machine image</em> que usaremos como plantilla para crear el resto de máquinas virtuales. Para clonar la máquina usamos <code>virt-clone</code>.</p>
 <blockquote>
 <p><code>virt-clone</code> forma parte del paquete <code>virtinst</code></p>
 </blockquote>
 <p>Puedes usar <code>--auto-clone</code> para que <code>virt-clone</code> genere un nombre de disco automáticamente (añadiendo <code>-clone</code> al nombre del disco):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ virt-clone --original debian9 --name debian-machine-image --auto-clone
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ virt-clone --original debian9 --name debian-machine-image --auto-clone
 Allocating <span style="color:#2aa198">&#39;vdisk-u39572-clone.qcow2&#39;</span>                 |  <span style="color:#2aa198">10</span> GB  00:00:02
 
 Clone <span style="color:#2aa198">&#39;debian-machine-image&#39;</span> created successfully.
 </code></pre></div><p>Al tratarse de una <em>machine image</em>, es recomendable especificar un nombre significativo para el disco que permita identificarlo fácilmente; para ello, usamos el parámetro <code>--file</code> y especificamos el nombre de disco que deseamos:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ virt-clone --original debian9 --name debian-machine-image2 --file /var/lib/libvirt/images/debian-machine-image.qcow2
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ virt-clone --original debian9 --name debian-machine-image2 --file /var/lib/libvirt/images/debian-machine-image.qcow2
 Allocating <span style="color:#2aa198">&#39;debian-machine-image.qcow2&#39;</span>                                     |  <span style="color:#2aa198">10</span> GB  00:00:02
 
 Clone <span style="color:#2aa198">&#39;debian-machine-image2&#39;</span> created successfully.
 </code></pre></div><blockquote>
 <p>Cambiamos el nombre de las máquinas virtuales por estética:</p>
 </blockquote>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ virsh domrename debian-machine-image debian-machine-image-funny-disk-name
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ virsh domrename debian-machine-image debian-machine-image-funny-disk-name
 Domain successfully renamed
 $ virsh domrename debian-machine-image2 debian-machine-image
 Domain successfully renamed
@@ -170,7 +170,7 @@ Id    Name                                 State
 -     debian-machine-image-funny-disk-name shut off
 -     debian9                              shut off
 </code></pre></div><p>Lanzamos <code>virt-sysprep</code> para generalizar la máquina <code>debian-machine-image</code>; <code>virt-sysprep</code> también puede realizar algunas operaciones, como establecer el <code>hostname</code>de la máquina o la contraseña de los usuarios, entre otras muchas acciones:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">sudo virt-sysprep -d debian-machine-image --hostname debian-machine-image --root-password password:Sup3rs3cr3tp@55w0rd!
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">sudo virt-sysprep -d debian-machine-image --hostname debian-machine-image --root-password password:Sup3rs3cr3tp@55w0rd!
 <span style="color:#719e07">[</span>sudo<span style="color:#719e07">]</span> password <span style="color:#719e07">for</span> operador:
 <span style="color:#719e07">[</span>   0.0<span style="color:#719e07">]</span> Examining the guest ...
 <span style="color:#719e07">[</span>   9.1<span style="color:#719e07">]</span> Performing <span style="color:#2aa198">&#34;abrt-data&#34;</span> ...
@@ -214,14 +214,14 @@ Id    Name                                 State
 </code></pre></div><p>Como vemos, <code>virt-sysprep</code> ha eliminado todas aquellas configuraciones específicas para la máquina, de manera que podemos usar esta VM como base para generar nuevas máquinas virtuales.</p>
 <h2 id="generar-una-vm-a-partir-de-la-_machine-image_">Generar una VM a partir de la <em>machine image</em></h2>
 <p>Generamos una máquina virtual a partir de la <em>machine image</em> generalizada:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ virt-clone --original debian-machine-image --name vm-debian-01 --file vm-debian-01.qcow2
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ virt-clone --original debian-machine-image --name vm-debian-01 --file vm-debian-01.qcow2
 Allocating <span style="color:#2aa198">&#39;vm-debian-01.qcow2&#39;</span>                                         |  <span style="color:#2aa198">10</span> GB  00:00:02
 
 Clone <span style="color:#2aa198">&#39;vm-debian-01&#39;</span> created successfully.
 </code></pre></div><p>El siguiente paso es personalizar esta nueva instancia aprovechando la potencia de <code>virt-customize</code>; usando las opciones que proporciona <a href="http://libguestfs.org/virt-customize.1.html"><code>virt-customize</code></a> puedes generar máquinas personalizadas sin necesidad de recurrir a otras opciones como <a href="https://cloudinit.readthedocs.io/en/latest/">Cloud-Init</a>.</p>
 <p>Mediante <code>virt-customize</code> puedes establecer el <em>hostname</em> de la nueva VM, inyectar claves SSH, instalar paquetes, etc&hellip;</p>
 <p>En el siguiente ejemplo, personalizamos la máquina <code>vm-debian-01</code> (creada a partir de la <em>machine image</em>) estableciendo el <em>hostname</em> y la contraseña del usuario <em>operador</em>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ sudo virt-customize -d vm-debian-01 --hostname vm-debian-01 --password operador:password:SecretPasswrd!
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ sudo virt-customize -d vm-debian-01 --hostname vm-debian-01 --password operador:password:SecretPasswrd!
 <span style="color:#719e07">[</span>   0.0<span style="color:#719e07">]</span> Examining the guest ...
 <span style="color:#719e07">[</span>   2.8<span style="color:#719e07">]</span> Setting a random seed
 <span style="color:#719e07">[</span>   2.8<span style="color:#719e07">]</span> Setting the hostname: vm-debian-01
@@ -230,7 +230,7 @@ Clone <span style="color:#2aa198">&#39;vm-debian-01&#39;</span> created successf
 </code></pre></div><h3 id="problemas-con-el-acceso-ssh">Problemas con el acceso SSH</h3>
 <p>Al intentar acceder remotamente a la máquina recién clonada, se produce un error de <em>connection refused</em>.
 Después de comprobar que el puerto 22 está abierto, al revisar el estado del servicio SSH (<code>sudo systemctl status sshd</code>) se observan varios errores indicando que no se encuentran las claves de <em>host</em>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">...
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">...
 debian sshd<span style="color:#719e07">[</span>387<span style="color:#719e07">]</span>: Server listening on 0.0.0.0 port 22.
 debian sshd<span style="color:#719e07">[</span>387<span style="color:#719e07">]</span>: Server listening on :: port 22.
 debian sshd<span style="color:#719e07">[</span>473<span style="color:#719e07">]</span>: error: Could not load host key: /etc/ssh/ssh_host_rsa_key
@@ -239,13 +239,13 @@ debian sshd<span style="color:#719e07">[</span>473<span style="color:#719e07">]<
 debian sshd<span style="color:#719e07">[</span>473<span style="color:#719e07">]</span>: fatal: No supported key exchange algorithms <span style="color:#719e07">[</span>preauth<span style="color:#719e07">]</span>
 ...
 </code></pre></div><p>Revisando la salida del comando <code>virt-sysprep</code> se puede ver que estas claves se han borrado:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">...
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">...
 Performing <span style="color:#2aa198">&#34;smolt-uuid&#34;</span> ...
 Performing <span style="color:#2aa198">&#34;ssh-hostkeys&#34;</span> ... &lt;-- Oops, ssh-hostkeys have been deleted :<span style="color:#719e07">(</span>
 Performing <span style="color:#2aa198">&#34;ssh-userdir&#34;</span> ...
 ...
 </code></pre></div><p>La solución es volver a generar las diferentes claves de forma manual:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ sudo ssh-keygen -f /etc/ssh/ssh_host_rsa_key -N <span style="color:#2aa198">&#39;&#39;</span> -t rsa
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ sudo ssh-keygen -f /etc/ssh/ssh_host_rsa_key -N <span style="color:#2aa198">&#39;&#39;</span> -t rsa
 Generating public/private rsa key pair.
 Your identification has been saved in /etc/ssh/ssh_host_rsa_key.
 Your public key has been saved in /etc/ssh/ssh_host_rsa_key.pub.
@@ -266,14 +266,14 @@ The key&#39;s randomart image is:
 </code></pre></div><p>(Referencia: <a href="https://www.cloudvps.com/helpcenter/knowledgebase/linux-vps-configuration/regenerating-ssh-host-keys">Regenerating SSH host keys</a>)</p>
 <p>Tras reiniciar el servicio SSH (<code>sudo systemctl restart sshd</code>) se puede conectar vía SSH a la máquina.</p>
 <p><strong>Actualización</strong>: Todas las claves SSH para el host eliminadas por <code>virt-sysprep</code> se pueden regenerar <strong>a la vez</strong> mediante <code>sudo ssh-keygen -A</code>.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ sudo ssh-keygen -A
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ sudo ssh-keygen -A
 ssh-keygen: generating new host keys: RSA DSA ECDSA ED25519
 </code></pre></div><p>En la documentación <a href="http://libguestfs.org/virt-sysprep.1.html#ssh-hostkeys">virt-sysprep - Reset, unconfigure or customize a virtual machine so clones can be made</a> se indica que las claves SSH para el <em>host</em> se deberían recrear automáticamente al arrancar de nuevo la máquina.</p>
 <p>En la instalación de Debian 9.6 que estoy usando es necesario recrear las <em>host keys</em> manualmente, aunque quizás se trate de un error específico de mi instalación.</p>
 <p>Una opción que puedes considerar es regenerar las claves SSH en la <em>machine image</em>; sin embargo, todas las máquinas clonadas a partir de la imagen base compartirán las claves SSH de host. En <a href="https://security.stackexchange.com/questions/41380/are-duplicate-ssh-server-host-keys-a-problem">Are duplicate SSH server host keys a problem?</a> se explica en qué casos tener <em>ssh host keys</em> duplicadas es &ldquo;malo&rdquo; (casi siempre) y cuando no. En un entorno de laboratorio no es crítico, aunque puede solucionarse fácilmente mediante un script que regenere las claves SSH del <em>host</em> (<code>sudo ssh-keygen -A</code>) al arrancar si no se encuentran.</p>
 <h3 id="mensaje-remote-host-identification-has-changed-en-equipos-cliente">Mensaje &ldquo;Remote host identification has changed!&rdquo; en equipos cliente</h3>
 <p>Al regenerar las claves en el <em>host</em> es necesario actualizarlas también en los ficheros <code>.ssh/known_hosts</code> de los equipos en los que se haya agregado alguna de las claves anteriores. Si no se actualiza, se mostrará un mensaje como:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">ssh operador@192.168.1.237
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">ssh operador@192.168.1.237
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 @    WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!     @
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@

@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.87.0" />
+<meta name="generator" content="Hugo 0.82.1" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -135,7 +135,7 @@
 <p>En este artículo vemos cómo configurar un Cronjob que ejecute KubeLinter para obtener los ficheros de un repositorio remoto y analizarlos.</p>
 <h2 id="crear-una-imagen-base-con-kubelinter-y-git">Crear una imagen base con KubeLinter y Git</h2>
 <p>Usamos como referencia el <code>Dockerfile</code> del usuario <code>cwadley</code> en DockerHub para crear una imagen con Git y KubeLinter basada en Alpine:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-Dockerfile" data-lang="Dockerfile"><span style="color:#586e75"># Thanks to https://hub.docker.com/r/cwadley/kube-linter/dockerfile</span>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-Dockerfile" data-lang="Dockerfile"><span style="color:#586e75"># Thanks to https://hub.docker.com/r/cwadley/kube-linter/dockerfile</span>
 <span style="color:#719e07">FROM</span><span style="color:#2aa198"> alpine:3.13</span>
 <span style="color:#719e07">RUN</span> apk add git
 <span style="color:#719e07">RUN</span> wget https://github.com/stackrox/kube-linter/releases/download/0.1.6/kube-linter-linux.tar.gz <span style="color:#719e07">&amp;&amp;</span> <span style="color:#cb4b16">\
@@ -145,7 +145,7 @@
 <span style="color:#719e07">ENTRYPOINT</span> [<span style="color:#2aa198">&#34;kube-linter&#34;</span>]
 </code></pre></div><p>Subimos la imagen al repositorio en DockerHub: <a href="https://hub.docker.com/r/xaviaznar/kubelinter/tags?page=1&amp;ordering=last_updated">xaviaznar/kubelinter:v0.1.6-git</a> (la imagen con etiqueta <code>v0.1.6</code> no incorpora Git).</p>
 <p>Como sempre, creamos un <em>namespace</em> para aislar las pruebas que realizamos; en este caso, llamo al <em>namespace</em> <code>cronjobs</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
 <span style="color:#268bd2">kind</span>: Namespace
 <span style="color:#268bd2">apiVersion</span>: v1
 <span style="color:#268bd2">metadata</span>:
@@ -155,7 +155,7 @@ Esto es necesario porque el volumen raíz del contenedor se configura como <em>r
 <blockquote>
 <p>Debes ajustar el tamaño del volumen en función del tamaño en disco del repositorio a analizar, aunque puedes usar opciones como <code>--depth=1</code> para clonar únicamente el último <em>commit</em> y no toda la historia del repositorio.</p>
 </blockquote>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">kind</span>: PersistentVolumeClaim
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">kind</span>: PersistentVolumeClaim
 <span style="color:#268bd2">apiVersion</span>: v1
 <span style="color:#268bd2">metadata</span>:
   <span style="color:#268bd2">name</span>: volume-repo
@@ -167,7 +167,7 @@ Esto es necesario porque el volumen raíz del contenedor se configura como <em>r
   <span style="color:#268bd2">accessModes</span>:
     - ReadWriteOnce
 </code></pre></div><p>El siguiente paso es crear un <em>ConfigMap</em> para el <em>script</em> que se encarga de clonar el repositorio remoto y lanzar <code>kube-linter</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
 <span style="color:#268bd2">kind</span>: ConfigMap
 <span style="color:#268bd2">apiVersion</span>: v1
 <span style="color:#268bd2">metadata</span>:
@@ -211,7 +211,7 @@ Esto es necesario porque el volumen raíz del contenedor se configura como <em>r
 </blockquote>
 <h2 id="cronjob">Cronjob</h2>
 <p>Ya tenemos todas las piezas necesarias para crear el <em>Cronjob</em>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
 <span style="color:#268bd2">kind</span>: CronJob
 <span style="color:#268bd2">apiVersion</span>: batch/v1beta1
 <span style="color:#268bd2">metadata</span>:
@@ -271,12 +271,12 @@ Esto es necesario porque el volumen raíz del contenedor se configura como <em>r
 <p>Para evitar que Kubernetes reintente la ejecución del Job, especificamos <code>spec.jobTemplate.spec.backoffLimit: 0</code> (para la definición del CronJob) y <code>spec.jobTemplate.spec.template.spec.restartPolicy: Never</code>.</p>
 <p>En los logs del Pod creado durante la ejecución del CronJob podemos observar las acciones que realiza el <em>script</em>.</p>
 <p>En caso de error, por ejemplo:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl get pods -n cronjobs
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl get pods -n cronjobs
 NAME                                              READY   STATUS      RESTARTS   AGE
 kubelinter-repo-testkubelinter-1613909820-r9jrq   0/1     Error       <span style="color:#2aa198">0</span>          47m
 </code></pre></div><h2 id="resultado-del-análisis-con-kubelinter">Resultado del análisis con KubeLinter</h2>
 <p>Revisando logs logs del contenedor creado por la ejecución del CronJob:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl -n cronjobs logs pod kubelinter-repo-testkubelinter-1613909820-r9jrq
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl -n cronjobs logs pod kubelinter-repo-testkubelinter-1613909820-r9jrq
 
 <span style="color:#719e07">[</span>INFO<span style="color:#719e07">]</span> Fetching https://github.com/onthedock/testkubelinter.git
 POST git-upload-pack <span style="color:#719e07">(</span><span style="color:#2aa198">294</span> bytes<span style="color:#719e07">)</span>
@@ -296,12 +296,12 @@ cronojb-kubnelinter.yaml | <span style="color:#2aa198">7</span> +++++++
 
 Error: found <span style="color:#2aa198">2</span> lint errors
 </code></pre></div><p>Y en caso de que los ficheros de definición de los objetos no contengan errores, el Job acaba como &ldquo;Completed&rdquo;:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl get pods -n cronjobs
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl get pods -n cronjobs
 NAME                                              READY   STATUS      RESTARTS   AGE
 kubelinter-repo-testkubelinter-1613909820-r9jrq   0/1     Error       <span style="color:#2aa198">0</span>          47m
 kubelinter-repo-testkubelinter-1613909880-2fkbg   0/1     Completed   <span style="color:#2aa198">0</span>          46m
 </code></pre></div><p>Y en los logs observamos cómo KubeLinter indica que no se han encontrado problemas en los ficheros analizados:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl -n cronjobs logs pod/kubelinter-repo-testkubelinter-1613909880-2fkbg
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl -n cronjobs logs pod/kubelinter-repo-testkubelinter-1613909880-2fkbg
 <span style="color:#719e07">[</span>INFO<span style="color:#719e07">]</span> Fetching https://github.com/onthedock/testkubelinter.git
 POST git-upload-pack <span style="color:#719e07">(</span><span style="color:#2aa198">294</span> bytes<span style="color:#719e07">)</span>
 POST git-upload-pack <span style="color:#719e07">(</span><span style="color:#2aa198">310</span> bytes<span style="color:#719e07">)</span>
@@ -318,7 +318,7 @@ No lint errors found!
 </code></pre></div><h3 id="suspender-temporalmente-el-cronjob">Suspender temporalmente el CronJob</h3>
 <p>Si queremos pausar temporalmente la ejecución del CronJob, actualizaremos el fichero de definición incluyendo la opción <code>.spec.suspend: true</code>.</p>
 <p>Tras actualizar el CronJob, el campo <code>SUSPEND</code> se marca como <em>True</em> y no se lanzan nuevas ejecuciones del Job (aunque aquellos en ejecución finalizarán con normalidad):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl get cj -n cronjobs
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl get cj -n cronjobs
 NAME                             SCHEDULE      SUSPEND   ACTIVE   LAST SCHEDULE   AGE
 kubelinter-repo-testkubelinter   * */1 * * *   True      <span style="color:#2aa198">0</span>        34s             33m
 </code></pre></div><h2 id="conclusiones-y-mejoras">Conclusiones y mejoras</h2>

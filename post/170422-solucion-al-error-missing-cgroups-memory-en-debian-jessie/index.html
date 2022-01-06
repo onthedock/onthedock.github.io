@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.87.0" />
+<meta name="generator" content="Hugo 0.82.1" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -133,10 +133,10 @@
   <div class="article-body"><p>Al lanzar la inicialización del clúster con <code>kubeadm init</code> en Debian Jessie, las comprobaciones inciales indican que no se encuentran los <em>cgroups</em> para la memoria (échale un vistazo al artículo <a href="https://onthedock.github.io/post/170417-instalacion-de-kubernetes-falla-missing-cgroups-memory/">La instalación de Kubernetes falla en Debian Jessie (missing cgroups: memory)</a>). Los <em>cgroups</em> son una de las piezas fundamentales en las que se basa Docker para <em>aislar</em> los procesos de los contenedores, por lo que la inicialización del clúster de Kubernetes se detiene.</p>
 <p>La solución es tan sencilla como habilitar los <em>cgroups</em> durante el arranque.</p>
 <p>En primer lugar, verificamos la versión del <em>kernel</em> que tenemos instalada:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh"><span style="color:#586e75"># uname -a</span>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh"><span style="color:#586e75"># uname -a</span>
 Linux k8s 3.16.0-4-amd64 <span style="color:#586e75">#1 SMP Debian 3.16.39-1+deb8u2 (2017-03-07) x86_64 GNU/Linux</span>
 </code></pre></div><p>Al lanzar <code>kubeadm init</code> obtenemos el error:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh"><span style="color:#586e75"># kubeadm init</span>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh"><span style="color:#586e75"># kubeadm init</span>
 <span style="color:#719e07">[</span>kubeadm<span style="color:#719e07">]</span> WARNING: kubeadm is in beta, please <span style="color:#719e07">do</span> not use it <span style="color:#719e07">for</span> production clusters.
 <span style="color:#719e07">[</span>init<span style="color:#719e07">]</span> Using Kubernetes version: v1.6.0
 <span style="color:#719e07">[</span>init<span style="color:#719e07">]</span> Using Authorization mode: RBAC
@@ -185,7 +185,7 @@ DOCKER_VERSION: 17.04.0-ce
 <li>Actualizamos <em>grub</em>: <code>update-grub2</code></li>
 <li>Reiniciamos la máquina: <code>reboot</code></li>
 </ol>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">...
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">...
 <span style="color:#719e07">[</span>preflight<span style="color:#719e07">]</span> WARNING: docker version is greater than the most recently validated version. Docker version: 17.04.0-ce. Max validated version: 1.12
 <span style="color:#719e07">[</span>preflight<span style="color:#719e07">]</span> Some fatal errors occurred:
   missing cgroups: memory
@@ -198,7 +198,7 @@ Found initrd image: /boot/initrd.img-3.16.0-4-amd64
 <span style="color:#719e07">done</span>
 root@k8s:~# reboot
 </code></pre></div><p>Al lanzar <code>kubeadm init</code> de nuevo, el clúster arranca con normalidad:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">root@k8s:~# kubeadm init
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">root@k8s:~# kubeadm init
 <span style="color:#719e07">[</span>kubeadm<span style="color:#719e07">]</span> WARNING: kubeadm is in beta, please <span style="color:#719e07">do</span> not use it <span style="color:#719e07">for</span> production clusters.
 <span style="color:#719e07">[</span>init<span style="color:#719e07">]</span> Using Kubernetes version: v1.6.0
 <span style="color:#719e07">[</span>init<span style="color:#719e07">]</span> Using Authorization mode: RBAC

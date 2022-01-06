@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.87.0" />
+<meta name="generator" content="Hugo 0.82.1" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -138,7 +138,7 @@
 <p>El ejercicio consiste en construir una versión web de los libros de <a href="https://es.wikipedia.org/wiki/Elige_tu_propia_aventura">Elige tu propia aventura</a>.</p>
 <p>Jon proporciona un fichero JSON (<code>gopher.json</code>) con los diferentes capítulos de la historia y las opciones para ir al siguiente punto del <em>libro</em> tras cada capítulo (en función de lo que elije el lector).</p>
 <p>El primer reto consiste en convertir el fichero JSON en algo manipulable desde la aplicación. Para ello, Jon define un par de <a href="https://gobyexample.com/structs"><em>struct</em></a>, en vez de uns <em>struct</em> con una estructura complicada:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> Chapter <span style="color:#268bd2">struct</span> {
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> Chapter <span style="color:#268bd2">struct</span> {
     Title      <span style="color:#dc322f">string</span>   <span style="color:#2aa198">`json:&#34;title&#34;`</span>
     Paragraphs []<span style="color:#dc322f">string</span> <span style="color:#2aa198">`json:&#34;paragraphs&#34;`</span>
     Options    []Option <span style="color:#2aa198">`json:&#34;options&#34;`</span>
@@ -152,21 +152,23 @@
 <p>En el fichero <code>gopher.json</code> los campos del fichero JSON <strong>no corresponden</strong> con los definidos en estos <em>struct</em>. Jon inicialmente llamó <code>arc</code> a los <code>chapter</code> y <code>story</code> a los <code>paragraphs</code>&hellip;</p>
 <p>Esto provocó que, aunque durante todo el desarrollo inicial del <em>parser</em> del fichero JSON se mostrara por consola la <em>struct</em>, <strong>no me fijé</strong> en que algunos de los campos estaba vacíos. En realidad, no le di importancia porque, en la definición del ejercicio se comentaba que <code>Options</code> podía estar vacío (al final de una historia, por ejemplo).</p>
 <p>El caso es que no fue hasta <em>mucho</em> después, al empezar a mostrar la <em>aventura</em> en el navegador, que descubrí que había algo que fallaba: el título y las opciones tras cada capítulo se mostraban, pero no el contenido del capítulo en sí (el contenido de <code>Paragraphs</code>).</p>
-<figure><img src="/images/220105/debugging.jpg" width="100%"/>
+<figure>
+    <img src="/images/220105/debugging.jpg" width="100%"/> 
 </figure>
 
 <p>La parte buena fue que estuve haciendo mucho <em>debugging</em>, empezando desde la publicación web, hacia atrás, hasta dar con el problema (a base de paciencia y <code>log.Println()</code>), revisando los vídeos de Jon, las soluciones de otros estudiantes&hellip; Hasta descubrir dónde estaba la causa raíz y solucionarla.</p>
 <h2 id="el-momento-wtf-newhandler">El momento <em>wtf</em>: <code>NewHandler</code></h2>
 <p>Cuando llegamos al momento de <em>publicar</em> en la web la historia de <em>elige tu propia aventura</em>, la proposición es aparentemente sencilla: tenemos que construir una función que acepte una <em>Story</em> como entrada y que devuelva algo que pueda ser <em>servido</em> vía web, un <code>http.Handler</code>.</p>
 <p>Así que cuando Jon empieza a crear primero, la función <code>func NewHandler (s Story) http.Handler</code>, parece que tiene sentido&hellip; Pero a continuación crea un nuevo tipo: <code>handler</code></p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> handler <span style="color:#268bd2">struct</span> {
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-go" data-lang="go"><span style="color:#268bd2">type</span> handler <span style="color:#268bd2">struct</span> {
     s Story
 }
 </code></pre></div><p>Y no contendo con ello, un <em>método</em> asociado al <em>handler</em> <code>func (h handler) ServeHTTP(w http.ResponseWriter, r *http.Request)</code>.</p>
 <p>En este punto me dejé llevar; por un lado, era consciente <em>grosso modo</em> de lo que estaba haciendo Jon, pero sin los conocimientos/experiencia necesarios para poder entenderlo <em>a fondo</em>.</p>
 <p>Justo tras la publicación vía web descubrí el problema de que el cuerpo de cada capítulo no se mostraba en el navegador, aunque el resto funcionaba correctamente (y no se mostraba ningún error por consola)&hellip; Mi primera idea era que había cometigo algún error con todo el tema del <em>handler</em>; pero el sin errores y fallando únicamente en el <em>cuerpo</em> del capítulo, no parecía probable.</p>
 <p>Como comentaba más arriba, estuve un rato buscando qué pasaba hasta dar con la solución (y descubrir que no tenía nada que ver con el <em>handler</em>).</p>
-<figure><img src="/images/220105/ihateprogramming.png" width="100%"/>
+<figure>
+    <img src="/images/220105/ihateprogramming.png" width="100%"/> 
 </figure>
 
 <p>Revisando la documentación, un <a href="https://pkg.go.dev/net/http#Handler"><code>http.Handler</code></a> responde a una petición HTTP. <code>http.Handler</code> es un <em>interface</em>, que define el <em>método</em> (¿?) <code>ServeHTTP(ResponseWriter, *Request)</code>, que es justo lo que Jon implementa en <code>func (h handler) ServeHTTP(w http.ResponseWriter, r *http.Request)</code></p>

@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.87.0" />
+<meta name="generator" content="Hugo 0.82.1" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -168,7 +168,7 @@
 </table>
 <p>La <em>Helm Chart</em> oficial despliega el <strong>controlador</strong> de <em>Sealed Secrets</em> en el clúster.</p>
 <p>Para generar los <em>SealedSecrets</em> usamos la herramienta <strong>kubeseal</strong>; se trata de un ejecutable en Go, sin dependencias externas.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ wget -O kubeseal https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.16.0/kubeseal-linux-amd64
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ wget -O kubeseal https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.16.0/kubeseal-linux-amd64
 --2021-08-18 22:00:38--  https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.16.0/kubeseal-linux-amd64
 Resolving github.com <span style="color:#719e07">(</span>github.com<span style="color:#719e07">)</span>... 140.82.121.4
 Connecting to github.com <span style="color:#719e07">(</span>github.com<span style="color:#719e07">)</span>|140.82.121.4|:443... connected.
@@ -185,7 +185,7 @@ kubeseal                         100%<span style="color:#719e07">[==============
 
 2021-08-18 22:00:48 <span style="color:#719e07">(</span>3,91 MB/s<span style="color:#719e07">)</span> - ‘kubeseal’ saved <span style="color:#719e07">[</span>35626806/35626806<span style="color:#719e07">]</span>
 </code></pre></div><p>Lo <em>instalamos</em> (moviéndolo a una ruta dentro del <em>path</em>) usando:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ sudo install kubeseal /usr/local/bin
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ sudo install kubeseal /usr/local/bin
 $ kubeseal --version
 kubeseal version: v0.16.0
 </code></pre></div><h2 id="crear-un-secret-temporal-usando---dry-runclient">Crear un <em>Secret</em> temporal (usando <code>--dry-run=client</code>)</h2>
@@ -213,13 +213,13 @@ kubeseal version: v0.16.0
 </tbody>
 </table>
 <p>El siguiente comando generaría el fichero de definición de un <em>Secret</em> (sin llegar a crearlo):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl create secret generic aws_credentials <span style="color:#cb4b16">\
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl create secret generic aws_credentials <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>  -n demo <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>  --from-literal<span style="color:#719e07">=</span><span style="color:#2aa198">&#39;AWS_ACCESS_KEY_ID=AKIAEXAMPLEIOSFODNN7&#39;</span> <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>  --from-literal<span style="color:#719e07">=</span><span style="color:#2aa198">&#39;AWS_SECRET_KEY=EXAMPLEKEYwJalrXUtnFEMI/K7MDENG/bPxRfiCY&#39;</span> <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>  -o yaml --dry-run<span style="color:#719e07">=</span>client
 </code></pre></div><p>Para crear un <code>SealedSecret</code> enviamos la salida del comando anterior hacia <strong>kubeseal</strong>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl create secret generic aws_credentials <span style="color:#cb4b16">\
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl create secret generic aws_credentials <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>  -n demo <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>  --from-literal<span style="color:#719e07">=</span><span style="color:#2aa198">&#39;AWS_ACCESS_KEY_ID=AKIAEXAMPLEIOSFODNN7&#39;</span> <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>  --from-literal<span style="color:#719e07">=</span><span style="color:#2aa198">&#39;AWS_SECRET_KEY=EXAMPLEKEYwJalrXUtnFEMI/K7MDENG/bPxRfiCY&#39;</span> <span style="color:#cb4b16">\
@@ -246,7 +246,7 @@ spec:
 <p><code>kubeseal</code> ha obtenido la parte pública del certificado generado por el controlador <em>SealedSecrets</em> contectando con el clúster vía API usando la información y las credenciales contenidas en el fichero <code>~/.kube/config</code> (en mi caso).</p>
 <p>Si <strong>kubeseal</strong> no puede acceder al clúster, se pueden <em>sellar</em> los secretos especificando la ruta al certificado público del controler con la opción <code>--cert</code>.</p>
 <p><strong>kubeseal</strong> permite obtener el certificado público del controlador mediante el comando <code>kubeseal --fetch-cert</code> (require conectividad y acceso a la API del clúster).</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubeseal --fetch-cert | tee controller-public-cert.crt
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubeseal --fetch-cert | tee controller-public-cert.crt
 -----BEGIN CERTIFICATE-----
 MIIErTCCApWgAwIBAgIQBiQc7Z+Z8n8xtYME0Bs40jANBgkqhkiG9w0BAQsFADAA
 MB4XDTIxMDgxODE5MjM1NFoXDTMxMDgxNjE5MjM1NFowADCCAiIwDQYJKoZIhvcN
@@ -282,7 +282,7 @@ GEQNRr+qeaJqUYguD2F5a6Mm1lIquZPI/UdmeHnfIs+CHWmcG5itvvNGhbxb8ALu
 <p>La política por defecto para <em>SealedSecrets</em> es <code>strict</code>; este comportamiento hace que el <em>SealedSecret</em> sellado por <strong>kubeseal</strong> sólo puede desplegarse con el mismo nombre y en el mismo <em>namespace</em> con el que ha sido <em>sellado</em>.</p>
 <p>En el ejemplo, el <em>SealedSecret</em> sólo puede ser desplegado en el <em>namespace</em> <code>demo</code>.</p>
 <p>Si se intenta desplegar en otro <em>namespace</em> (o con otro nombre), la acción falla con el mensaje:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl apply -f aws-credentials-sealed-secret.yaml -n not-demo
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl apply -f aws-credentials-sealed-secret.yaml -n not-demo
 error: the namespace from the provided object <span style="color:#2aa198">&#34;demo&#34;</span> does not match the namespace <span style="color:#2aa198">&#34;not-demo&#34;</span>. You must pass <span style="color:#2aa198">&#39;--namespace=demo&#39;</span> to perform this operation.
 </code></pre></div><h3 id="importante---nombre-del-controller">Importante - Nombre del <em>controller</em></h3>
 <p><strong>kubeseal</strong> usa como nombre por defecto del controlador de <em>SealedSecrets</em> <code>sealed-secrets-controller</code>. Si se ha desplegado con otro nombre, es necesario indicarlo a <strong>kubeseal</strong> mediante la opción <code>--controller-name</code>.</p>

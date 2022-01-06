@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.87.0" />
+<meta name="generator" content="Hugo 0.82.1" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -144,7 +144,7 @@
 <p>Para validarnos contra la API de Kubernetes, usaremos una <em>Service Account</em> con los permisos necesarios (<code>cluster-admin</code>).</p>
 <h3 id="descarga-de-velero">Descarga de <strong>velero</strong></h3>
 <p>Descargamos la última versión estable de <strong>velero</strong> en la subcarpeta <code>./velero-cli</code>. Para ello, podemos usar el <em>script</em>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash"><span style="color:#719e07">#!/bin/bash
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash"><span style="color:#719e07">#!/bin/bash
 </span><span style="color:#719e07"></span><span style="color:#268bd2">REPO_ROOT_DIR</span><span style="color:#719e07">=</span><span style="color:#2aa198">${</span><span style="color:#268bd2">PWD</span><span style="color:#2aa198">}</span>
 <span style="color:#268bd2">VELERO_RELEASE</span><span style="color:#719e07">=</span>v1.5.3
 <span style="color:#b58900">echo</span> <span style="color:#268bd2">$VELERO_RELEASE</span>
@@ -161,13 +161,13 @@ rm -rf velero-<span style="color:#268bd2">$VELERO_RELEASE</span>-linux-amd64/
 rm -i velero-<span style="color:#268bd2">$VELERO_RELEASE</span>-linux-amd64.tar.gz
 </code></pre></div><h3 id="dockerfile"><code>Dockerfile</code></h3>
 <p>Generamos un <code>Dockerfile</code> usando como imagen base la última versión de Alpine Linux:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-Dockerfile" data-lang="Dockerfile"><span style="color:#719e07">FROM</span><span style="color:#2aa198"> alpine</span>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-Dockerfile" data-lang="Dockerfile"><span style="color:#719e07">FROM</span><span style="color:#2aa198"> alpine</span>
 <span style="color:#719e07">COPY</span> ./velero-cli/velero /usr/local/bin/velero
 <span style="color:#719e07">RUN</span> chmod +x /usr/local/bin/velero
 <span style="color:#719e07">CMD</span> [<span style="color:#2aa198">&#34;velero&#34;</span>]
 </code></pre></div><h3 id="construcción-de-la-imagen">Construcción de la imagen</h3>
 <p>Generamos la imagen mediante:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ docker build -t velero-cli:1.5.3 .
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ docker build -t velero-cli:1.5.3 .
 Sending build context to Docker daemon  65.54MB
 Step 1/4 : FROM alpine
 latest: Pulling from library/alpine
@@ -188,7 +188,7 @@ Removing intermediate container 71a3b244cfef
 Successfully built a7ec148f22f3
 Successfully tagged velero-cli:1.5.3
 </code></pre></div><p>Una vez construida, la subimos a DockerHub como <a href="https://hub.docker.com/r/xaviaznar/velero-cli/">xaviaznar/velero-cli:1.5.3</a>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ docker tag velero-cli:1.5.3 xaviaznar/velero-cli:1.5.3
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ docker tag velero-cli:1.5.3 xaviaznar/velero-cli:1.5.3
 $ docker login 
 Login with your Docker ID to push and pull images from Docker Hub. If you don&#39;t have a Docker ID, head over to https://hub.docker.com to create one.
 Username: xaviaznar                  
@@ -208,7 +208,7 @@ The push refers to repository <span style="color:#719e07">[</span>docker.io/xavi
 <blockquote>
 <p>Velero se despliegua por defecto en un <em>Namespace</em> llamado <code>velero</code>.</p>
 </blockquote>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
 <span style="color:#268bd2">kind</span>: Namespace
 <span style="color:#268bd2">apiVersion</span>: v1
 <span style="color:#268bd2">metadata</span>:
@@ -216,7 +216,7 @@ The push refers to repository <span style="color:#719e07">[</span>docker.io/xavi
 </code></pre></div><p>Dentro de cada <em>Namespace</em> se genera una <em>ServiceAccount</em> llamada <code>default</code>. Los <em>Pods</em> creados en un <em>Namespace</em> usan la <em>ServiceAccount</em> <code>default</code> si no se especifica una en la definición del <em>Pod</em>. El <a href="https://kubernetes.io/docs/reference/access-authn-authz/service-accounts-admin/#serviceaccount-admission-controller">Service Account Admission Controller</a> se encarga de montar un <em>token</em> que proporciona acceso a la API de Kubernetes a esta cuenta <code>default</code>.</p>
 <p>La <em>ServiceAccount</em> <code>default</code> sólo tiene permisos dentro del propio <em>Namespace</em> en la que se encuentra, por lo que no dispone de los permisos necesarios para desplegar los <em>Custom Resource Definitions</em> que requiere Velero para su instalación.</p>
 <p>Para realizar la instalación, definimos la <em>ServiceAccount</em> <code>velerocli</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
 <span style="color:#268bd2">kind</span>: ServiceAccount
 <span style="color:#268bd2">apiVersion</span>: v1
 <span style="color:#268bd2">metadata</span>:
@@ -225,7 +225,7 @@ The push refers to repository <span style="color:#719e07">[</span>docker.io/xavi
   <span style="color:#268bd2">labels</span>:
     <span style="color:#268bd2">app</span>: velero-cli
 </code></pre></div><p>Para asociar los permisos del rol <code>cluster-admin</code> a la <em>ServiceAccount</em>  <code>velerocli</code>, definimos un <em>ClusterRoleBinding</em>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
 <span style="color:#268bd2">kind</span>: ClusterRoleBinding
 <span style="color:#268bd2">apiVersion</span>: rbac.authorization.k8s.io/v1
 <span style="color:#268bd2">metadata</span>:
@@ -246,7 +246,7 @@ El fichero <code>--secret-file</code> (que contiene las credenciales para MinIO)
 <p>Para poder usar la sustitución de variables ejecutamos el comando <code>velero install</code> desde una <em>shell</em> (<code>/bin/sh</code>, <a href="https://en.wikipedia.org/wiki/Almquist_shell">ash</a>, en Alpine Linux).</p>
 <h3 id="fichero-de-variables-para-la-instalación-de-velero">Fichero de variables para la instalación de Velero</h3>
 <p>Usamos la opción descrita en <a href="https://kubernetes.io/docs/tasks/configure-pod-container/configure-pod-configmap/#configure-all-key-value-pairs-in-a-configmap-as-container-environment-variables">Configure all key-value pairs in a ConfigMap as container environment variables</a> para definir un <em>ConfigMap</em> con todos las variables de entorno que usaremos en el comando <code>velero install</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
 <span style="color:#268bd2">kind</span>: ConfigMap
 <span style="color:#268bd2">apiVersion</span>: v1
 <span style="color:#268bd2">metadata</span>:
@@ -262,11 +262,11 @@ El fichero <code>--secret-file</code> (que contiene las credenciales para MinIO)
   <span style="color:#268bd2">SNAPSHOT_LOCATION_CONFIG_URL</span>: http://minio.minio.svc:9000 
 </code></pre></div><h3 id="configmap-con-las-credenciales"><em>ConfigMap</em> con las credenciales</h3>
 <p>El fichero de credenciales usado por Velero debe tener la estructura:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-ini" data-lang="ini"><span style="color:#719e07">[default]</span>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-ini" data-lang="ini"><span style="color:#719e07">[default]</span>
 aws_access_key_id<span style="color:#719e07">=</span><span style="color:#2aa198">ACCESSKEYEXAMPLE123</span>
 aws_secret_access_key<span style="color:#719e07">=</span><span style="color:#2aa198">wdvb5rtghn76yujm</span>
 </code></pre></div><p>Generamos la definición del <em>ConfigMap</em> usando la opción <code>dry-run</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl -n velero-cli create configmap credentials-minio <span style="color:#cb4b16">\
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl -n velero-cli create configmap credentials-minio <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>&gt; --from-file<span style="color:#719e07">=</span>credentials-minio --dry-run<span style="color:#719e07">=</span>client <span style="color:#cb4b16">\ </span>
 &gt; -o yaml | tee velero-cli-cm-minio-credentials.yaml
 apiVersion: v1
@@ -281,7 +281,7 @@ metadata:
   name: credentials-minio
   namespace: velero-cli
 </code></pre></div><p>Al fichero generado añadimos la etiqueta <code>app: velero-cli</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">apiVersion</span>: v1
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">apiVersion</span>: v1
 <span style="color:#268bd2">data</span>:
   <span style="color:#268bd2">credentials-minio</span>: |-<span style="color:#2aa198">
 </span><span style="color:#2aa198">    [default]
@@ -296,7 +296,7 @@ metadata:
 </code></pre></div><h2 id="instalación-de-velero">Instalación de Velero</h2>
 <p>Después de haber preparado los diferentes bloques del <em>Job</em>, ya podemos lanzar la instalación de Velero.</p>
 <p>En el caso de MinIO, no tiene sentido especificar la región en la que se encuentra el <em>bucket</em> (a diferencia de S3), pero es necesario proporcionar un valor. Usando como referencia el ejemplo de <a href="https://velero.io/docs/v1.5/contributions/minio/">Quick start evaluation install with Minio</a>, especificamos <code>region=minio</code>.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
 <span style="color:#268bd2">kind</span>: Job
 <span style="color:#268bd2">apiVersion</span>:  batch/v1
 <span style="color:#268bd2">metadata</span>:
@@ -329,7 +329,7 @@ metadata:
           <span style="color:#268bd2">configMap</span>:
             <span style="color:#268bd2">name</span>: minio-credentials
 </code></pre></div><p>Revisando los logs del <em>Pod</em> generado por el <em>Job</em> de instalación, validamos que Velero se ha desplegado correctamente:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">...
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">...
 CustomResourceDefinition/restores.velero.io: created
 CustomResourceDefinition/schedules.velero.io: attempting to create resource
 CustomResourceDefinition/schedules.velero.io: created
@@ -354,7 +354,7 @@ Deployment/velero: attempting to create resource
 Deployment/velero: created
 Velero is installed! ⛵ Use <span style="color:#2aa198">&#39;kubectl logs deployment/velero -n velero&#39;</span> to view the status.
 </code></pre></div><p>Revisando los logs del <em>Pod</em> de Velero como se indica en la salida, observamos mensajes informativos (ningún error):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">...
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">...
 <span style="color:#268bd2">time</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;2021-04-03T21:24:12Z&#34;</span> <span style="color:#268bd2">level</span><span style="color:#719e07">=</span>info <span style="color:#268bd2">msg</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;No backup locations were ready to be verified&#34;</span> <span style="color:#268bd2">controller</span><span style="color:#719e07">=</span>backupstoragelocation <span style="color:#268bd2">logSource</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;pkg/controller/backupstoragelocation_controller.go:120&#34;</span>
 <span style="color:#268bd2">time</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;2021-04-03T21:24:34Z&#34;</span> <span style="color:#268bd2">level</span><span style="color:#719e07">=</span>info <span style="color:#268bd2">msg</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;Checking for existing backup locations ready to be verified; there needs to be at least 1 backup location available&#34;</span> <span style="color:#268bd2">controller</span><span style="color:#719e07">=</span>backupstoragelocation <span style="color:#268bd2">logSource</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;pkg/controller/backupstoragelocation_controller.go:58&#34;</span>
 <span style="color:#268bd2">time</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;2021-04-03T21:24:34Z&#34;</span> <span style="color:#268bd2">level</span><span style="color:#719e07">=</span>info <span style="color:#268bd2">msg</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;No backup locations were ready to be verified&#34;</span> <span style="color:#268bd2">controller</span><span style="color:#719e07">=</span>backupstoragelocation <span style="color:#268bd2">logSource</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;pkg/controller/backupstoragelocation_controller.go:120&#34;</span>

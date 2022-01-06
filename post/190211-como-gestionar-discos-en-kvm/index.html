@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.87.0" />
+<meta name="generator" content="Hugo 0.82.1" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -135,23 +135,23 @@
 <p>Ahora vamos a crear discos para las máquinas virtuales.</p>
 <h1 id="crear-discos-en-kvm">Crear discos en KVM</h1>
 <p>Para crear un disco (un <em>volumen</em>), usamos el comando <code>vol-create-as</code>, indicando el <em>pool</em> donde vamos a almacenarlo, el nombre del disco y su tamaño:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ virsh vol-create-as default vdisk-b12447 10G
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ virsh vol-create-as default vdisk-b12447 10G
 Vol vdisk-b12447 created
 </code></pre></div><p>Comprobamos que el disco se ha creado:</p>
 <blockquote>
 <p>Un gran número de comandos admiten el parámetro <code>--details</code>, que muestra información adicional en la salida del comando.</p>
 </blockquote>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ virsh vol-list default --details
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ virsh vol-list default --details
  Name          Path                                  Type   Capacity  Allocation
 ---------------------------------------------------------------------------------
  vdisk-b12447  /var/lib/libvirt/images/vdisk-b12447  file  10.00 GiB   10.00 GiB
 </code></pre></div><p>KVM soporta diferentes tipos de discos; por defecto <code>vol-create-as</code> crea el disco en formato <code>raw</code>. El formato <code>raw</code> proporciona mejor rendimiento que <code>qcow2</code> ya que no se aplica ningún formato a las imágenes de los discos (pero todo el almacenamiento debe provisionarse de entrada).</p>
 <p>El formato <code>qcow2</code> es el formato nativo de KVM y usa <em>copy on write</em>. De esta forma se desacopla la capa física de almacenamiento de la capa lógica y los bloques físicos. (Referencia: <a href="https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Virtualization/3.5/html/Technical_Guide/QCOW2.html">2.4. Storage Formats for Virtual Machine Disk Images</a>)</p>
 <p>Para crear un disco en formato <code>qcow2</code>, debemos especificarlo durante la creación del disco:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ virsh vol-create-as --pool default --format qcow2 vdisk-u39572.qcow2 10G
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ virsh vol-create-as --pool default --format qcow2 vdisk-u39572.qcow2 10G
 Vol vdisk-u39572.qcow2 created
 </code></pre></div><p>A diferencia de los discos <code>raw</code>, el espacio de los discos <code>qcow2</code> crece a medida que se necesita:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ virsh vol-list default --details
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ virsh vol-list default --details
  Name                Path                                        Type   Capacity  Allocation
 ---------------------------------------------------------------------------------------------
  vdisk-b12447        /var/lib/libvirt/images/vdisk-b12447        file  10.00 GiB   10.00 GiB
@@ -160,10 +160,10 @@ Vol vdisk-u39572.qcow2 created
 <h2 id="clonar-discos">Clonar discos</h2>
 <p>Otra operación habitual a realizar con los discos es clonarlos (por ejemplo, para hacer copias de una <em>machine image</em> que sirve de base para crear máquinas homogéneas).</p>
 <p>Para clonar un disco, especificamos el <em>pool</em>, el nombre del disco a clonar y el nombre del disco clonado:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ virsh vol-clone --pool default vdisk-u39572.qcow2 vdisk-cloned-disk.qcow2
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ virsh vol-clone --pool default vdisk-u39572.qcow2 vdisk-cloned-disk.qcow2
 Vol vdisk-cloned-disk.qcow2 cloned from vdisk-u39572.qcow2
 </code></pre></div><p>Al finalizar el clon, comprobamos que tenemos un disco adicional en el <em>pool</em> <code>default</code>: <code>vdisk-cloned-disk.qcow2</code></p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ virsh vol-list default --details
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ virsh vol-list default --details
  Name                     Path                                             Type   Capacity  Allocation
 ------------------------------------------------------------------------------------------------------
  vdisk-b12447             /var/lib/libvirt/images/vdisk-b12447             file  10.00 GiB   10.00 GiB

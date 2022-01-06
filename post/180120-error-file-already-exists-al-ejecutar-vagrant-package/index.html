@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.87.0" />
+<meta name="generator" content="Hugo 0.82.1" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -134,14 +134,14 @@
 <p>En esta entrada comento los pasos que hay que realizar paso a paso para crear una <em>box</em> personalizada. También indico el origen y cómo solucionar el error <code>File already exists</code> que he encontrado al ejecutar <code>vagrant package</code>.</p>
 <p>Partimos de una máquina creada con Vagrant mediante el comando <code>vagrant up</code>. En esta nueva máquina, nos conectamos mediante <code>vagrant ssh</code> y realizamos las modificaciones necesarias para personalizar y adecuar la VM a nuestras necesidades.</p>
 <p>En mi caso, la idea es incorporar a la imagen base la instalación de Docker CE, en vez de instalar vía script de <em>provisioning</em> después de crear la máquina (como vimos en la entrada anterior [Instalando Docker-CE usando Vagrant shell provisioning]({{ref &ldquo;180114-instalando-docker-ce-usando-vagrant-shell-provisioning.md&rdquo;}})). También he aprovechado para actualizar la imagen base. Para ello, he conectado a la máquina mediante <code>vagrant ssh</code> y a continuación:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ sudo apt-get update <span style="color:#719e07">&amp;&amp;</span> sudo apt-get upgrade -y
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ sudo apt-get update <span style="color:#719e07">&amp;&amp;</span> sudo apt-get upgrade -y
 ...
 $ sudo apt-get autoremove
 ...
 $ sudo apt-get dist-upgrade
 </code></pre></div><h2 id="pasos-previos">Pasos previos</h2>
 <p>Para preparar la VM para su <em>re-empaquetado</em>, Vagrant recomienda rellenar con ceros para mejorar la compresión del disco. En Ubuntu los comandos son:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">vagrant@debian9-docker:~$ sudo dd <span style="color:#719e07">if</span><span style="color:#719e07">=</span>/dev/zero <span style="color:#268bd2">of</span><span style="color:#719e07">=</span>/EMPTY <span style="color:#268bd2">bs</span><span style="color:#719e07">=</span>1M
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">vagrant@debian9-docker:~$ sudo dd <span style="color:#719e07">if</span><span style="color:#719e07">=</span>/dev/zero <span style="color:#268bd2">of</span><span style="color:#719e07">=</span>/EMPTY <span style="color:#268bd2">bs</span><span style="color:#719e07">=</span>1M
 dd: error writing <span style="color:#2aa198">&#39;/EMPTY&#39;</span>: No space left on device
 25700+0 records in
 25699+0 records out
@@ -150,13 +150,13 @@ vagrant@debian9-docker:~$ sudo rm -f /EMPTY
 </code></pre></div><p>En este caso, no parece que haya funcionado.</p>
 <h2 id="limpiar-historial-de-comandos">Limpiar historial de comandos</h2>
 <p>A continuación, eliminamos los ficheros con el registro de comandos:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">vagrant@debian9-docker:~$ cat /dev/null &gt; ~/.bash_history <span style="color:#719e07">&amp;&amp;</span> <span style="color:#b58900">history</span> -c <span style="color:#719e07">&amp;&amp;</span> <span style="color:#b58900">exit</span>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">vagrant@debian9-docker:~$ cat /dev/null &gt; ~/.bash_history <span style="color:#719e07">&amp;&amp;</span> <span style="color:#b58900">history</span> -c <span style="color:#719e07">&amp;&amp;</span> <span style="color:#b58900">exit</span>
 <span style="color:#b58900">logout</span>
 Connection to 192.168.1.245 closed.
 </code></pre></div><h2 id="empaquetando-la-vm">Empaquetando la VM</h2>
 <p>Siguendo la documentación, la opción para preparar una nueva <em>box</em> debería ser tan sencilla como lanzar el comando <code>vagrant package --output $nombreBox.box</code>.</p>
 <p>Sin embargo, al lanzar el comando:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">&gt; vagrant package --output debian9docker.box
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">&gt; vagrant package --output debian9docker.box
 <span style="color:#719e07">==</span>&gt; default: Verifying Hyper-V is enabled...
 <span style="color:#719e07">==</span>&gt; default: Attempting graceful shutdown of VM...
 <span style="color:#719e07">==</span>&gt; default: <span style="color:#268bd2">off</span>
@@ -190,7 +190,7 @@ At C:<span style="color:#cb4b16">\H</span>ashiCorp<span style="color:#cb4b16">\V
 </blockquote>
 <p>He modificado el parámetro a <code>config.vm.provider.differencing_disk = false</code> y he repetido los pasos para actualizar la máquina, rellenar de ceros el disco y borrar la historia.</p>
 <p>Al lanzar de nuevo el comando <code>vagrant package</code>, esta vez la exportación y la creación de la nueva <em>box</em> funciona sin problemas:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">M:<span style="color:#cb4b16">\V</span>MS<span style="color:#cb4b16">\v</span>agrant-vms<span style="color:#cb4b16">\d</span>ebian-docker&gt; vagrant package --output debian9docker17.12.box
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">M:<span style="color:#cb4b16">\V</span>MS<span style="color:#cb4b16">\v</span>agrant-vms<span style="color:#cb4b16">\d</span>ebian-docker&gt; vagrant package --output debian9docker17.12.box
 <span style="color:#719e07">==</span>&gt; default: Verifying Hyper-V is enabled...
 <span style="color:#719e07">==</span>&gt; default: Attempting graceful shutdown of VM...
 <span style="color:#719e07">==</span>&gt; default: <span style="color:#268bd2">off</span>
@@ -199,7 +199,7 @@ At C:<span style="color:#cb4b16">\H</span>ashiCorp<span style="color:#cb4b16">\V
 M:<span style="color:#cb4b16">\V</span>MS<span style="color:#cb4b16">\v</span>agrant-vms<span style="color:#cb4b16">\d</span>ebian-docker&gt;
 </code></pre></div><h2 id="añadir-la-box-personalizada-a-nuestro-inventario">Añadir la box personalizada a nuestro inventario</h2>
 <p>Ya sólo queda el paso final, que es añadir la nueva <em>box</em> al repositorio local para ser reutilizada:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">M:<span style="color:#cb4b16">\V</span>MS<span style="color:#cb4b16">\v</span>agrant-vms<span style="color:#cb4b16">\d</span>ebian-docker&gt; vagrant box add debian9docker17.12 debian9docker17.12.box
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">M:<span style="color:#cb4b16">\V</span>MS<span style="color:#cb4b16">\v</span>agrant-vms<span style="color:#cb4b16">\d</span>ebian-docker&gt; vagrant box add debian9docker17.12 debian9docker17.12.box
 <span style="color:#719e07">==</span>&gt; box: Box file was not detected as metadata. Adding it directly...
 <span style="color:#719e07">==</span>&gt; box: Adding box <span style="color:#2aa198">&#39;debian9docker17.12&#39;</span> <span style="color:#719e07">(</span>v0<span style="color:#719e07">)</span> <span style="color:#719e07">for</span> provider:
     box: Unpacking necessary files from: file://M:/VMS/vagrant-vms/debian-docker/debian9docker17.12.box
@@ -207,7 +207,7 @@ M:<span style="color:#cb4b16">\V</span>MS<span style="color:#cb4b16">\v</span>ag
 <span style="color:#719e07">==</span>&gt; box: Successfully added box <span style="color:#2aa198">&#39;debian9docker17.12&#39;</span> <span style="color:#719e07">(</span>v0<span style="color:#719e07">)</span> <span style="color:#719e07">for</span> <span style="color:#2aa198">&#39;hyperv&#39;</span>!
 M:<span style="color:#cb4b16">\V</span>MS<span style="color:#cb4b16">\v</span>agrant-vms<span style="color:#cb4b16">\d</span>ebian-docker&gt;
 </code></pre></div><p>Comprobamos que se ha añadido correctamente mediante:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">M:<span style="color:#cb4b16">\V</span>MS<span style="color:#cb4b16">\v</span>agrant-vms<span style="color:#cb4b16">\d</span>ebian-docker&gt; vagrant box list
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">M:<span style="color:#cb4b16">\V</span>MS<span style="color:#cb4b16">\v</span>agrant-vms<span style="color:#cb4b16">\d</span>ebian-docker&gt; vagrant box list
 debian9docker17.12 <span style="color:#719e07">(</span>hyperv, 0<span style="color:#719e07">)</span>
 generic/alpine36   <span style="color:#719e07">(</span>hyperv, 1.3.30<span style="color:#719e07">)</span>
 generic/debian9    <span style="color:#719e07">(</span>hyperv, 1.3.30<span style="color:#719e07">)</span>

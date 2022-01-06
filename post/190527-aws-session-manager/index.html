@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.87.0" />
+<meta name="generator" content="Hugo 0.82.1" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -134,14 +134,16 @@
 <p><a href="https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html">Session Manager</a> forma parte de <a href="https://docs.aws.amazon.com/systems-manager/latest/userguide/what-is-systems-manager.html">AWS System Manager</a>. Systems Manager anteriormente se llamaba <em>Simple Systems Manager</em>, por lo que verás múltiples referencias a las siglas SSM (por ejemplo, en el nombre del usuario que el sistema crea en las máquinas Linux gestionadas).</p>
 <p>Aunque Systems Manager incluye múltiples funcionalidades, voy a centrarme únicamente en la función de gestión de sesiones, <em>Session Manager</em>.</p>
 <p>Session Manager permite conectar a las instancias en AWS sin necesidad de abrir los puertos para SSH o RDP, lo que puede considerarse una mejora de la seguridad de las máquinas. El acceso, además, se realiza a través del propio navegador, lo que simplifica enormemente la conexión remota desde prácticamente cualquier dispositivo.</p>
-<figure class="center"><img src="/images/190527/no-open-ports.png"
-         alt="El grupo de seguridad no permite tráfico entrante."/><figcaption>
+<figure class="center">
+    <img src="/images/190527/no-open-ports.png"
+         alt="El grupo de seguridad no permite tráfico entrante."/> <figcaption>
             <p>El grupo de seguridad no permite tráfico entrante.</p>
         </figcaption>
 </figure>
 
-<figure class="center"><img src="/images/190527/security-group.png"
-         alt="Detalle de las reglas del security group."/><figcaption>
+<figure class="center">
+    <img src="/images/190527/security-group.png"
+         alt="Detalle de las reglas del security group."/> <figcaption>
             <p>Detalle de las reglas del security group.</p>
         </figcaption>
 </figure>
@@ -158,25 +160,28 @@
 <p>En mi caso, la instancia estaba apagada cuando he aplicado el rol; el usuario remoto y la &ldquo;activación&rdquo; del agente se ha realizado durante el arranque.</p>
 <p>Para poder iniciar una sesión de Session Manager, es necesario que el usuario tenga los permisos necesarios. Aunque puedes restringir los accesos en función de tus necesidades, lo más sencillo es usar la política gestionada por Amazon <code>AmazonEC2RoleforSSM</code>.</p>
 <p>En la consola de AWS, he buscado el servicio de Systems Manager y en el panel lateral, he pulsado sobre <em>Managed Instances</em>. Tal y como era de esperar, la instancia aparece listada.</p>
-<figure class="center"><img src="/images/190527/managed-instances.png"/>
+<figure class="center">
+    <img src="/images/190527/managed-instances.png"/> 
 </figure>
 
 <p>Para iniciar una sesión, selecciona la instancia y en el menú <em>Actions</em>, selecciona <em>Start session</em>.</p>
 <p>A continuación se abre una nueva pestaña del navegador con una sesión iniciada en la instancia EC2.</p>
-<figure class="center"><img src="/images/190527/session.png"/>
+<figure class="center">
+    <img src="/images/190527/session.png"/> 
 </figure>
 
 <h2 id="consideraciones-a-tener-en-cuenta">Consideraciones a tener en cuenta</h2>
 <h3 id="usuario-ssm-user">Usuario <code>ssm-user</code></h3>
 <p>El usuario <code>ssm-user</code> creado en la instancia remota forma parte del grupo de administradores. Puedes comprobarlo revisando el fichero <code>/etc/sudoers.d/ssm-agent-users</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ sudo cat /etc/sudoers.d/ssm-agent-users
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ sudo cat /etc/sudoers.d/ssm-agent-users
 <span style="color:#586e75"># User rules for ssm-user</span>
 ssm-user <span style="color:#268bd2">ALL</span><span style="color:#719e07">=(</span>ALL<span style="color:#719e07">)</span> NOPASSWD:ALL
 </code></pre></div><p>Como puedes ver, el usuario tiene la capacidad de elevar privilegios sin restricción de comandos (y sin facilitar un password), lo que lo convierte en un usuario equivalente a <code>root</code>.</p>
 <p>Puedes modificar este comportamiento siguiendo las instrucciones de la documentación <a href="https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-getting-started-ssm-user-permissions.html">Step 6: (Optional) Disable or Enable ssm-user Account Administrative Permissions</a>.</p>
 <h3 id="registro-de-actividad">Registro de actividad</h3>
 <p>Puedes configurar Session Manager para guardar un registro de todos los comandos que se ejecutan en la instancia remota. Esta información se puede almacenar tanto en CloudWatch logs como en un bucket S3. Esta información se guarda en texto plano por defecto, por lo que deberías considerar encriptar el bucket.</p>
-<figure class="center"><img src="/images/190527/preferences.png"/>
+<figure class="center">
+    <img src="/images/190527/preferences.png"/> 
 </figure>
 
 <h3 id="encriptación-adicional">Encriptación adicional</h3>

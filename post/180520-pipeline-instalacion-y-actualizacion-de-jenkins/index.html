@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.87.0" />
+<meta name="generator" content="Hugo 0.82.1" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -133,7 +133,7 @@
   <div class="article-body"><p><a href="https://jenkins.io/">Jenkins</a> es un servidor de <em>automatización</em> de código abierto escrito en Java. Es una herramienta clave en el proceso de integración continua y un facilitador de cara a realizar despliegues continuos.</p>
 <p>Jenkins almacena la información de configuración, plugins, etc <a href="https://wiki.jenkins.io/display/JENKINS/Administering+Jenkins">en ficheros XML</a>, por lo que no necesita una base de datos.</p>
 <p>La estructura de ficheros dentro de <code>JENKINS_HOME</code> es la siguiente:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">JENKINS_HOME
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">JENKINS_HOME
  +- config.xml     <span style="color:#719e07">(</span>jenkins root configuration<span style="color:#719e07">)</span>
  +- *.xml          <span style="color:#719e07">(</span>other site-wide configuration files<span style="color:#719e07">)</span>
  +- userContent    <span style="color:#719e07">(</span>files in this directory will be served under your http://server/userContent/<span style="color:#719e07">)</span>
@@ -152,11 +152,11 @@
                  +- changelog.xml  <span style="color:#719e07">(</span>change log<span style="color:#719e07">)</span>
 </code></pre></div><h1 id="volumen-de-datos-para-jenkins">Volumen de datos para Jenkins</h1>
 <p>En primer lugar, creamos el volumen dedicado para Jenkins:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ sudo docker volume create data-jenkins
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ sudo docker volume create data-jenkins
 data-jenkins
 </code></pre></div><h1 id="contenedor-de-jenkins">Contenedor de Jenkins</h1>
 <p>A continuación, descargamos la imagen de Docker Hub (<code>jenkins/jenkins</code>):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ sudo docker pull jenkins/jenkins:2.118-alpine
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ sudo docker pull jenkins/jenkins:2.118-alpine
 2.118-alpine: Pulling from jenkins/jenkins
 ff3a5c916c92: Already exists
 5de5f69f42d7: Already exists
@@ -176,14 +176,14 @@ Digest: sha256:276b32f777b9fcf2019f62c9d1b99f053a4dfd4cc6d29e739ab88c68b58bdf5a
 Status: Downloaded newer image <span style="color:#719e07">for</span> jenkins/jenkins:2.118-alpine
 $
 </code></pre></div><p>Creamos el contedor montando el volumen recién creado:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ sudo docker run -d --name jenkins -p 8080:8080 -p 50000:50000 <span style="color:#cb4b16">\
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ sudo docker run -d --name jenkins -p 8080:8080 -p 50000:50000 <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>   --mount <span style="color:#268bd2">source</span><span style="color:#719e07">=</span>data-jenkins,target<span style="color:#719e07">=</span>/var/jenkins_home <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>   jenkins/jenkins:2.118-alpine
 538872e49dc5eaa7a45222c5378b14e77542acb9b622b19251ea93026aa6a5de
 </code></pre></div><p>El puerto 8080 es el de la interfaz web, mientras que el 50000 se usa para conectar con los <em>jenkins esclavos</em>.</p>
 <p>Esperamos unos segundos hasta que Jenkins arranca completamente. Puedes seguir el proceso de arranque de Jenkins mediante <code>sudo docker logs -f jenkins</code>.</p>
 <p>Revisando los logs, observamos el password inicial del administrador:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ sudo docker logs jenkins
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ sudo docker logs jenkins
 ...
 Apr 27, <span style="color:#2aa198">2018</span> 4:06:45 PM jenkins.install.SetupWizard init
 INFO:
@@ -220,45 +220,51 @@ INFO: Jenkins is fully up and running
 $
 </code></pre></div><h2 id="acceso-inicial-a-jenkins">Acceso inicial a Jenkins</h2>
 <p>Copiamos el password inicial para acceder a Jenkins a través del navegador:</p>
-<figure><img src="/images/180520/jenkins-unlock.png"
-         alt="Jenkins - Acceso con password autogenerado"/><figcaption>
+<figure>
+    <img src="/images/180520/jenkins-unlock.png"
+         alt="Jenkins - Acceso con password autogenerado"/> <figcaption>
             <p>Jenkins - Acceso con password autogenerado</p>
         </figcaption>
 </figure>
 
 <p>Tras acceder, Jenkins nos proporciona la oportunidad de instalar un conjunto de <em>plugins</em> sugeridos o de seleccionar los que queremos instalar.</p>
 <p>De momento, seleccionamos la opción  de <em>Install suggested plugins</em>:</p>
-<figure><img src="/images/180520/jenkins-suggested-plugins.png"
-         alt="Jenkins - Suggested plugins"/><figcaption>
+<figure>
+    <img src="/images/180520/jenkins-suggested-plugins.png"
+         alt="Jenkins - Suggested plugins"/> <figcaption>
             <p>Jenkins - Suggested plugins</p>
         </figcaption>
 </figure>
 
 <p>Jenkins descarga los plugins:</p>
-<figure><img src="/images/180520/jenkins-installing-plugins.png"
-         alt="Jenkins - Downloading and Installing plugins"/><figcaption>
+<figure>
+    <img src="/images/180520/jenkins-installing-plugins.png"
+         alt="Jenkins - Downloading and Installing plugins"/> <figcaption>
             <p>Jenkins - Downloading and Installing plugins</p>
         </figcaption>
 </figure>
 
 <p>Tras la descarga, se lanza la opción de crear un nuevo usuario administrador (o continuar con el usuario <code>admin</code>):</p>
-<figure><img src="/images/180520/jenkins-create-admin.png"
-         alt="Jenkins - Create new admin"/><figcaption>
+<figure>
+    <img src="/images/180520/jenkins-create-admin.png"
+         alt="Jenkins - Create new admin"/> <figcaption>
             <p>Jenkins - Create new admin</p>
         </figcaption>
 </figure>
 
 <p>He creado el usuario <code>operador</code> (<code>operador@jenkins.dev</code>) como usuario administrador de Jenkins.</p>
 <p>Tras la creación del nuevo administrador, el proceso de configuración inicial finaliza:</p>
-<figure><img src="/images/180520/jenkins-setup-complete.png"
-         alt="Jenkins - Setup Complete!"/><figcaption>
+<figure>
+    <img src="/images/180520/jenkins-setup-complete.png"
+         alt="Jenkins - Setup Complete!"/> <figcaption>
             <p>Jenkins - Setup Complete!</p>
         </figcaption>
 </figure>
 
 <p>Al pulsar el botón <em>Start using Jenkins</em> accedemos a la pantalla principal de Jenkins:</p>
-<figure><img src="/images/180520/jenkins-homepage.png"
-         alt="Jenkins - Homepage"/><figcaption>
+<figure>
+    <img src="/images/180520/jenkins-homepage.png"
+         alt="Jenkins - Homepage"/> <figcaption>
             <p>Jenkins - Homepage</p>
         </figcaption>
 </figure>
@@ -268,22 +274,25 @@ $
 <p>En la parte inferior de la página, en la sección <em>E-mail Notification</em> establecemos la configuración del servidor de correo.</p>
 <p>Introduce la dirección IP del <em>host</em> de Docker, donde se ejecuta el contenedor <code>maildev</code>.</p>
 <p>Como nuestro &ldquo;servidor de correo&rdquo; usa un puerto diferente al estándar, debemos especificarlo. Para ello, pulsa en el botón <em>Advanced…</em> e introduce el puerto 10025 en el campo <em>SMTP Port</em>:</p>
-<figure><img src="/images/180520/jenkins-mailserver-configuration.png"
-         alt="Jenkins - Mailserver configuration"/><figcaption>
+<figure>
+    <img src="/images/180520/jenkins-mailserver-configuration.png"
+         alt="Jenkins - Mailserver configuration"/> <figcaption>
             <p>Jenkins - Mailserver configuration</p>
         </figcaption>
 </figure>
 
 <p>Después de aplicar (<em>Apply</em>) la configuración, podemos probar la configuración enviando un email de prueba:</p>
-<figure><img src="/images/180520/jenkins-test-mail-configuration.png"
-         alt="Jenkins - Test mail"/><figcaption>
+<figure>
+    <img src="/images/180520/jenkins-test-mail-configuration.png"
+         alt="Jenkins - Test mail"/> <figcaption>
             <p>Jenkins - Test mail</p>
         </figcaption>
 </figure>
 
 <p>Y en <code>maildev</code>:</p>
-<figure><img src="/images/180520/jenkins-received-test-mail.png"
-         alt="Jenkins - Mail received"/><figcaption>
+<figure>
+    <img src="/images/180520/jenkins-received-test-mail.png"
+         alt="Jenkins - Mail received"/> <figcaption>
             <p>Jenkins - Mail received</p>
         </figcaption>
 </figure>
@@ -295,7 +304,7 @@ $
 <ul>
 <li>Descargamos la imagen actualizada de Jenkins desde DockerHub: <a href="https://hub.docker.com/r/jenkins/jenkins/tags/">jenkins/jenkins</a></li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ sudo docker pull jenkins/jenkins:2.119-alpine
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ sudo docker pull jenkins/jenkins:2.119-alpine
 2.119-alpine: Pulling from jenkins/jenkins
 ff3a5c916c92: Already exists
 5de5f69f42d7: Already exists
@@ -317,7 +326,7 @@ $
 </code></pre></div><ul>
 <li>Verificamos que tenemos la nueva imagen en el registro local:</li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ sudo docker images
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ sudo docker images
 REPOSITORY            TAG                 IMAGE ID            CREATED             SIZE
 jenkins/jenkins       2.119-alpine        a66359bc8e58        <span style="color:#2aa198">5</span> days ago          223MB
 jenkins/jenkins       2.118-alpine        756b4704e481        <span style="color:#2aa198">13</span> days ago         223MB
@@ -327,7 +336,7 @@ jenkins/jenkins       2.118-alpine        756b4704e481        <span style="color
 <li>Eliminamos el contenedor <code>jenkins</code>: <code>sudo docker rm jenkins</code></li>
 <li>Lanzamos un nuevo contenedor a partir de la imagen actualizada:</li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ sudo docker run -d --name jenkins -p 8080:8080 -p 50000:50000 <span style="color:#cb4b16">\
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ sudo docker run -d --name jenkins -p 8080:8080 -p 50000:50000 <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>   --mount <span style="color:#268bd2">source</span><span style="color:#719e07">=</span>data-jenkins,target<span style="color:#719e07">=</span>/var/jenkins_home <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>   jenkins/jenkins:2.119-alpine
 f5d9c8d36a4e424f5ae03e086a3b92e00c73667079ff235062c588d2554a7ac3

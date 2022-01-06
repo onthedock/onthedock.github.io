@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.87.0" />
+<meta name="generator" content="Hugo 0.82.1" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -138,8 +138,9 @@
 <p>El <a href="https://kubernetes.io/docs/tutorials/kubernetes-basics/deploy-intro/">tutorial de Kubernetes</a> usa el método <em>online</em>, creando los objetos directamente en la línea de comando. Sin embargo, creo que este método no debería usarse nunca en producción (porque pueden pasar cosas <strong><a href="https://aws.amazon.com/message/41926/">muy</a> <a href="http://money.cnn.com/2017/03/02/technology/amazon-s3-outage-human-error/index.html">malas</a></strong>), por lo que vamos a usar los ficheros de configuración YAML para crear y actualizar los objetos en el clúster.</p>
 <h2 id="ejemplo-de-proceso-de-aprobación">Ejemplo de proceso de aprobación</h2>
 <p>Idealmente, cualquier cambio en el estado de la aplicación en el clúster debería seguir un flujo similar al de cualquier otra modificación que afecte a un sistema de producción; es decir, el DevOp clona el repositorio con la configuración de la aplicación en su equipo, hace los cambios y los verifica. Una vez satisfecho, los sube al repositorio (pasando por el sistema de aprobación establecido, como por ejemplo, una <a href="https://help.github.com/articles/about-pull-requests/"><em>pull request</em></a>). Una vez aprobado, se incorpora el cambio al repositorio de configuración de la aplicación en producción, desde donde se aplica al entorno de producción.</p>
-<figure><img src="/images/170716/pull-request-flow.png"
-         alt="Proceso de aprobación basado en pull request."/><figcaption>
+<figure>
+    <img src="/images/170716/pull-request-flow.png"
+         alt="Proceso de aprobación basado en pull request."/> <figcaption>
             <p>Proceso de aprobación basado en pull request.</p>
         </figcaption>
 </figure>
@@ -152,7 +153,7 @@
 <li>Metadatos</li>
 <li>Especificaciones</li>
 </ol>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">apiVersion</span>: apps/v1beta1
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">apiVersion</span>: apps/v1beta1
 <span style="color:#268bd2">kind</span>: Deployment
 <span style="color:#268bd2">metadata</span>:
   <span style="color:#268bd2">name</span>: nginx
@@ -169,16 +170,16 @@
         <span style="color:#268bd2">ports</span>:
         - <span style="color:#268bd2">containerPort</span>: <span style="color:#2aa198">80</span>
 </code></pre></div><h2 id="cabecera-del-_deployment_">Cabecera del <em>deployment</em></h2>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">apiVersion</span>: apps/v1beta1
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">apiVersion</span>: apps/v1beta1
 <span style="color:#268bd2">kind</span>: Deployment
 </code></pre></div><p>En primer lugar, la <a href="https://kubernetes.io/docs/api-reference/v1.6/#deployment-v1beta1-apps">versión de API</a> que usamos para definir el <em>deployment</em>.</p>
 <p>En <code>kind</code>, especificamos el tipo de objeto que vamos a definir.</p>
 <h2 id="metadatos-del-_deployment_">Metadatos del <em>deployment</em></h2>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">metadata</span>:
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">metadata</span>:
   <span style="color:#268bd2">name</span>: nginx
 </code></pre></div><p>Datos que describen el <em>deployment</em>; el único necesario es el nombre del <em>deployment</em>.</p>
 <h2 id="especificaciones-del-_deployment_">Especificaciones del <em>deployment</em></h2>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">spec</span>:
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">spec</span>:
   <span style="color:#268bd2">replicas</span>: <span style="color:#2aa198">1</span>
   <span style="color:#268bd2">template</span>:
     <span style="color:#268bd2">metadata</span>:
@@ -200,11 +201,11 @@
 <h1 id="crea-el-_deployment_">Crea el <em>deployment</em></h1>
 <p>En el <a href="https://onthedock.github.io/post/170702-ip-en-mensaje-prelogin/">cluster de un solo nodo</a> de pruebas, he subido el fichero <code>nginx-deployment.yaml</code> con la definición del apartado anterior.</p>
 <p>Para crear el <em>deployment</em> usamos:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ kubectl create -f nginx-deployment.yaml
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ kubectl create -f nginx-deployment.yaml
 deployment <span style="color:#2aa198">&#34;nginx&#34;</span> created
 </code></pre></div><p>Otra opción es usar la opción <code>apply</code>, que actualiza el <em>deployment</em> si ya existe.</p>
 <p>Una vez creado, lo examinamos en detalle con <code>describe</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ kubectl describe deployment nginx
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ kubectl describe deployment nginx
 Name:       nginx
 Namespace:     default
 CreationTimestamp:   Sun, <span style="color:#2aa198">16</span> Jul <span style="color:#2aa198">2017</span> 11:06:48 +0200
@@ -237,7 +238,7 @@ Events:
   4m     4m    <span style="color:#2aa198">1</span>  deployment-controller         Normal      ScalingReplicaSet Scaled up replica <span style="color:#b58900">set</span> nginx-3287103792 to <span style="color:#2aa198">1</span>
 </code></pre></div><p>El <em>pod</em> creado por Kubernetes tiene una IP asignada y está escuchando en el puerto 80, pero de momento sólo es accesible <em>desde dentro</em> del clúster.</p>
 <p>Puedes comprobarlo obteniendo el nombre del <em>pod</em> y usando <code>describe</code> para obtener su IP. A continuación, mediante <code>curl</code> obtén la página de bienvenida de Nginx:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-html" data-lang="html">$ curl http://10.32.0.4:80
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-html" data-lang="html">$ curl http://10.32.0.4:80
 <span style="color:#719e07">&lt;!DOCTYPE html&gt;</span>
 &lt;<span style="color:#268bd2">html</span>&gt;
 &lt;<span style="color:#268bd2">head</span>&gt;
@@ -266,9 +267,9 @@ Commercial support is available at
 </code></pre></div><p>Si intentas algo parecido <em>desde fuera</em> del clúster, no tendrás respuesta.</p>
 <h2 id="modifica-el-número-de-réplicas">Modifica el número de réplicas</h2>
 <p>A modo de experimento, puedes modificar el número de réplicas directamente desde la línea de comandos usando:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">kubectl scale deployment nginx --replicas <span style="color:#2aa198">3</span>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">kubectl scale deployment nginx --replicas <span style="color:#2aa198">3</span>
 </code></pre></div><p>Y revisando el resultado del comando anterior:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ kubectl get pods -l <span style="color:#268bd2">app</span><span style="color:#719e07">=</span>nginx
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ kubectl get pods -l <span style="color:#268bd2">app</span><span style="color:#719e07">=</span>nginx
 NAME                     READY     STATUS    RESTARTS   AGE
 nginx-3225377387-l0hwp   1/1       Running   <span style="color:#2aa198">0</span>          3m
 nginx-3225377387-ptkdt   1/1       Running   <span style="color:#2aa198">0</span>          3m
@@ -282,7 +283,7 @@ nginx-3225377387-rrz1x   1/1       Running   <span style="color:#2aa198">0</span
 <p>En cuanto a la política de acceso, es una forma de indicar que -en la mayoría de casos- se asigna un puerto <strong>público</strong> para que se pueda acceder a la aplicación <em>desde fuera</em> del clúster.</p>
 <h1 id="define-el-_service_">Define el <em>service</em></h1>
 <p>El <em>service</em> tiene los mismos tres bloques que el <em>deployment</em>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">apiVersion</span>: v1
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">apiVersion</span>: v1
 <span style="color:#268bd2">kind</span>: Service
 <span style="color:#268bd2">metadata</span>:
   <span style="color:#268bd2">name</span>: nginx
@@ -296,7 +297,7 @@ nginx-3225377387-rrz1x   1/1       Running   <span style="color:#2aa198">0</span
       <span style="color:#268bd2">port</span>: <span style="color:#2aa198">80</span>
   <span style="color:#268bd2">type</span>: LoadBalancer
 </code></pre></div><h2 id="cabecera-del-_service_">Cabecera del <em>service</em></h2>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">apiVersion</span>: v1
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">apiVersion</span>: v1
 <span style="color:#268bd2">kind</span>: Service
 </code></pre></div><p>En la cabecera tenemos la versión de la API. Los <em>services</em> existen desde la primera versión del API de Kubernetes, a diferencia de los <em>deployments</em>.</p>
 <blockquote>
@@ -304,13 +305,13 @@ nginx-3225377387-rrz1x   1/1       Running   <span style="color:#2aa198">0</span
 </blockquote>
 <p>En cuanto al tipo de objeto, en este caso definimos un <code>Service</code>.</p>
 <h2 id="metadatos-del-_service_">Metadatos del <em>service</em></h2>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">metadata</span>:
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">metadata</span>:
   <span style="color:#268bd2">name</span>: nginx
   <span style="color:#268bd2">labels</span>:
     <span style="color:#268bd2">app</span>: nginx
 </code></pre></div><p>Tampoco hay sorpresas en cuanto a los metadatos del servicio; en este caso, además del nombre, he añadido la etiqueta <code>app: nginx</code>.</p>
 <h2 id="especificaciones-del-_service_">Especificaciones del <em>service</em></h2>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">spec</span>:
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">spec</span>:
   <span style="color:#268bd2">selector</span>:
     <span style="color:#268bd2">app</span>: nginx
   <span style="color:#268bd2">ports</span>:
@@ -330,9 +331,9 @@ nginx-3225377387-rrz1x   1/1       Running   <span style="color:#2aa198">0</span
 <p>En resumen, el servicio expone el conjunto de <em>pods</em> que verifican la condición expuesta en el <code>selector</code> y conecta los puertos locales -de los contenedores- con puertos externos a nivel de clúster de Kubernetes.</p>
 <h1 id="crea-el-_service_">Crea el <em>service</em></h1>
 <p>El método para crear/actualizar el <em>service</em> es el mismo que para el <em>deployment</em>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">kubectl apply -f nginx-service.yaml
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">kubectl apply -f nginx-service.yaml
 </code></pre></div><p>Una vez aplicado el <em>service</em>, usa <code>describe</code> para inspeccionar en detalle el objeto:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ kubectl describe service nginx
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ kubectl describe service nginx
 Name:       nginx
 Namespace:     default
 Labels:        <span style="color:#268bd2">app</span><span style="color:#719e07">=</span>nginx
@@ -350,7 +351,8 @@ Annotations:      kubectl.kubernetes.io/last-applied-configuration<span style="c
 <p>El comportamiento es el mismo que cuando se lanza un contenedor mediante <code>docker run -P</code></p>
 </blockquote>
 <p>En mi caso el <code>NodePort</code> asignado es el 31010/TCP. Esto significa que si acceso a la IP del clúster a través del puerto 31010, Kubernetes redirigirá la petición al puerto 80 del servicio, con lo que obtendré la página de bienvenida de Nginx.</p>
-<figure><img src="/images/170716/nginx-en-kubernetes.png"/>
+<figure>
+    <img src="/images/170716/nginx-en-kubernetes.png"/> 
 </figure>
 
 <p>Este es el resultado marcado como éxito para este experimento.</p>
