@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.82.1" />
+<meta name="generator" content="Hugo 0.87.0" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -134,7 +134,7 @@
 <p>A continuación indico cómo activar y verificar el acceso remoto al API de Docker Engine.</p>
 <p>Buscando en Google cómo habilitar el API remoto de Docker Engine probablemente encuentres el artículo <a href="https://www.ivankrizsan.se/2016/05/18/enabling-docker-remote-api-on-ubuntu-16-04/">Enabling Docker Remote API on Ubuntu 16.04</a>. Como bien dice en el párrafo inicial, no es fácil encontrar unas instrucciones claras sobre cómo configurar el API de principio a fin.</p>
 <p>Lanzando <code>docker man</code>, vemos que la opción que buscamos es:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">-H, --host<span style="color:#719e07">=[</span>unix:///var/run/docker.sock<span style="color:#719e07">]</span>: tcp://<span style="color:#719e07">[</span>host<span style="color:#719e07">]</span>:<span style="color:#719e07">[</span>port<span style="color:#719e07">][</span>path<span style="color:#719e07">]</span> to <span style="color:#b58900">bind</span> or
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">-H, --host<span style="color:#719e07">=[</span>unix:///var/run/docker.sock<span style="color:#719e07">]</span>: tcp://<span style="color:#719e07">[</span>host<span style="color:#719e07">]</span>:<span style="color:#719e07">[</span>port<span style="color:#719e07">][</span>path<span style="color:#719e07">]</span> to <span style="color:#b58900">bind</span> or
        unix://<span style="color:#719e07">[</span>/path/to/socket<span style="color:#719e07">]</span> to use.
          The socket<span style="color:#719e07">(</span>s<span style="color:#719e07">)</span> to <span style="color:#b58900">bind</span> to in daemon mode specified using one or more
          tcp://host:port/path, unix:///path/to/socket, fd://* or fd://socketfd.
@@ -149,10 +149,10 @@
 <p>He intentado configurar Docker Engine mediante el segundo método <em>daemon.json</em> pero no he sido capaz de activar el API.</p>
 </blockquote>
 <p>Primero, hacemos una copia de seguridad del fichero <code>/lib/systemd/system/docker.service</code>:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh"><span style="color:#586e75"># cp /lib/systemd/system/docker.service /lib/systemd/system/docker.service.original</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh"><span style="color:#586e75"># cp /lib/systemd/system/docker.service /lib/systemd/system/docker.service.original</span>
 <span style="color:#586e75">#</span>
 </code></pre></div><p>Editamos el fichero <code>/lib/systemd/system/docker.service</code></p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh"><span style="color:#586e75"># nano /lib/systemd/system/docker.service</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh"><span style="color:#586e75"># nano /lib/systemd/system/docker.service</span>
 <span style="color:#719e07">[</span>Unit<span style="color:#719e07">]</span>
 <span style="color:#268bd2">Description</span><span style="color:#719e07">=</span>Docker Application Container Engine
 <span style="color:#268bd2">Documentation</span><span style="color:#719e07">=</span>https://docs.docker.com
@@ -188,14 +188,14 @@
 <span style="color:#719e07">[</span>Install<span style="color:#719e07">]</span>
 <span style="color:#268bd2">WantedBy</span><span style="color:#719e07">=</span>multi-user.target
 </code></pre></div><p>Modificamos la línea <code>ExecStart=/usr/bin/dockerd -H fd://</code> y añadimos: <code>-H tcp://0.0.0.0:2375</code> de manera que quede:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-txt" data-lang="txt">ExecStart=/usr/bin/dockerd -H fd:// -H tcp://0.0.0.0:2375
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-txt" data-lang="txt">ExecStart=/usr/bin/dockerd -H fd:// -H tcp://0.0.0.0:2375
 </code></pre></div><blockquote>
 <p>Esto hace que <em>dockerd</em> escuche en todas las interfaces disponibles. En el caso de la máquina virtual en la que estoy probando, sólo tengo una, pero lo correcto sería especificar la dirección IP donde quieres que escuche <em>dockerd</em>.</p>
 </blockquote>
 <p>Guardamos los cambios.</p>
 <p>Recargamos la configuración y reiniciamos el servicio.</p>
 <p>Para comprobar que hemos el API funciona, lanzamos una consulta usando <em>curl</em>:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh"><span style="color:#586e75"># systemctl daemon-reload</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh"><span style="color:#586e75"># systemctl daemon-reload</span>
 <span style="color:#586e75"># systemctl restart docker</span>
 <span style="color:#586e75"># curl http://localhost:2375/version</span>
 <span style="color:#719e07">{</span><span style="color:#2aa198">&#34;Version&#34;</span>:<span style="color:#2aa198">&#34;17.05.0-ce&#34;</span>,<span style="color:#2aa198">&#34;ApiVersion&#34;</span>:<span style="color:#2aa198">&#34;1.29&#34;</span>,<span style="color:#2aa198">&#34;MinAPIVersion&#34;</span>:<span style="color:#2aa198">&#34;1.12&#34;</span>,<span style="color:#2aa198">&#34;GitCommit&#34;</span>:<span style="color:#2aa198">&#34;89658be&#34;</span>,<span style="color:#2aa198">&#34;GoVersion&#34;</span>:<span style="color:#2aa198">&#34;go1.7.5&#34;</span>,<span style="color:#2aa198">&#34;Os&#34;</span>:<span style="color:#2aa198">&#34;linux&#34;</span>,<span style="color:#2aa198">&#34;Arch&#34;</span>:<span style="color:#2aa198">&#34;amd64&#34;</span>,<span style="color:#2aa198">&#34;KernelVersion&#34;</span>:<span style="color:#2aa198">&#34;3.16.0-4-amd64&#34;</span>,<span style="color:#2aa198">&#34;BuildTime&#34;</span>:<span style="color:#2aa198">&#34;2017-05-04T22:04:27.257991431+00:00&#34;</span><span style="color:#719e07">}</span>

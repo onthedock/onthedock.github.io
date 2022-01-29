@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.82.1" />
+<meta name="generator" content="Hugo 0.87.0" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -139,7 +139,7 @@
 <blockquote>
 <p>El <em>script</em> se encuentra en el repositorio <code>onthedock/vagrant</code>: <a href="https://github.com/onthedock/vagrant/blob/main/k3s-ubuntu-cluster/k3s-cluster-install.sh">k3s-cluster-install.sh</a></p>
 </blockquote>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash"><span style="color:#719e07">#!/usr/bin/env bash
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash"><span style="color:#719e07">#!/usr/bin/env bash
 </span><span style="color:#719e07"></span>
 <span style="color:#268bd2">IPControlPlaneNode</span><span style="color:#719e07">=</span>192.168.1.101
 <span style="color:#268bd2">IPWorkerNode1</span><span style="color:#719e07">=</span>192.168.1.102
@@ -169,7 +169,7 @@ k3sup join --ip <span style="color:#268bd2">$IPWorkerNode2</span> <span style="c
 <p>Sí, todavía sigo sin resolver el <em>issue #1</em> : <a href="https://github.com/onthedock/vagrant/issues/1">El nombre de la tarjeta de red &ldquo;bridged&rdquo; está fijado en el Vagrantfile</a>.</p>
 </blockquote>
 <p>He probado la actualización en un clúster prácticamente vacío; sólo había desplegado <a href="https://longhorn.io/">Longhorn</a>. La actualización ha vuelto a configurar la <em>storageClass</em> <code>local-path</code> como <em>storageClass</em> por defecto del clúster:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl get storageclass
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl get storageclass
 NAME                   PROVISIONER             RECLAIMPOLICY   VOLUMEBINDINGMODE      ALLOWVOLUMEEXPANSION   AGE
 longhorn <span style="color:#719e07">(</span>default<span style="color:#719e07">)</span>     driver.longhorn.io      Delete          Immediate              <span style="color:#b58900">true</span>                   3h38m
 local-path <span style="color:#719e07">(</span>default<span style="color:#719e07">)</span>   rancher.io/local-path   Delete          WaitForFirstConsumer   <span style="color:#b58900">false</span>                  46d
@@ -181,24 +181,24 @@ local-path <span style="color:#719e07">(</span>default<span style="color:#719e07
 <h2 id="dejando-sólo-una-storageclass-por-defecto">Dejando sólo una <em>storageClass</em> por defecto</h2>
 <p>En mi caso, solucionar el problema de múltiples <em>storageClass</em> por defecto es sencillo; sólo una <em>storageClass</em> en el clúster debe incluir la anotación <code>storageclass.kubernetes.io/is-defult-class=true</code>; el resto deben tener el valor a <code>false</code>.</p>
 <p>Modificamos el valor para la <em>storageClass</em> <code>local-path</code>:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">kubectl patch storageclass local-path -p <span style="color:#2aa198">&#39;{&#34;metadata&#34;: {&#34;annotations&#34;:{&#34;storageclass.kubernetes.io/is-default-class&#34;:&#34;false&#34;}}}&#39;</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">kubectl patch storageclass local-path -p <span style="color:#2aa198">&#39;{&#34;metadata&#34;: {&#34;annotations&#34;:{&#34;storageclass.kubernetes.io/is-default-class&#34;:&#34;false&#34;}}}&#39;</span>
 </code></pre></div><p>Y validamos que sólo tenemos una <em>storageClass</em> por defecto:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl get storageclass
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl get storageclass
 NAME                 PROVISIONER             RECLAIMPOLICY   VOLUMEBINDINGMODE      ALLOWVOLUMEEXPANSION   AGE
 longhorn <span style="color:#719e07">(</span>default<span style="color:#719e07">)</span>   driver.longhorn.io      Delete          Immediate              <span style="color:#b58900">true</span>                   3h43m
 local-path           rancher.io/local-path   Delete          WaitForFirstConsumer   <span style="color:#b58900">false</span>                  46d
 </code></pre></div><p>Tengo pendiente probar las actualizaciones mediante el <em>System Upgrade Controller</em> propio de Rancher: <a href="https://www.suse.com/c/rancher_blog/upgrade-a-k3s-kubernetes-cluster-with-system-upgrade-controller/">Upgrade a K3s Kubernetes Cluster with System Upgrade Controller</a>.</p>
 <h2 id="actualizando-kubectl">Actualizando <code>kubectl</code></h2>
 <p>Al haber instalado Kubernetes 1.22, las versiones de <code>kubectl</code> <a href="https://kubernetes.io/releases/version-skew-policy/#kubectl">soportadas</a> son 1.21, 1.22 y 1.23&hellip; Así que toca actualizar:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl version --short
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl version --short
 Client Version: v1.19.4
 Server Version: v1.22.3+k3s1
 </code></pre></div><p>Seguimos las instrucciones de la documentación oficial para <a href="https://kubernetes.io/es/docs/tasks/tools/install-kubectl/">Instalar y Configurar kubectl</a> (la última versión disponible, 1.22):</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">curl -LO <span style="color:#2aa198">&#34;https://storage.googleapis.com/kubernetes-release/release/</span><span style="color:#719e07">$(</span>curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt<span style="color:#719e07">)</span><span style="color:#2aa198">/bin/linux/amd64/kubectl&#34;</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">curl -LO <span style="color:#2aa198">&#34;https://storage.googleapis.com/kubernetes-release/release/</span><span style="color:#719e07">$(</span>curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt<span style="color:#719e07">)</span><span style="color:#2aa198">/bin/linux/amd64/kubectl&#34;</span>
 </code></pre></div><p>Instalamos:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">sudo install kubectl /usr/local/bin
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">sudo install kubectl /usr/local/bin
 </code></pre></div><p>Y validamos que se ha actualizado a la última versión:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl version --short
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl version --short
 Client Version: v1.22.3
 Server Version: v1.22.3+k3s1
 </code></pre></div></div>

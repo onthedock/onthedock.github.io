@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.82.1" />
+<meta name="generator" content="Hugo 0.87.0" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -134,13 +134,13 @@
 <p>En el caso concreto del que he obtenido las <em>capturas de pantalla</em>, el clúster corre sobre máquinas virtuales con Debian Jessie.</p>
 <p>La instalación de Weave Net en Kubernetes consiste únicamente en una línea, como explica el artículo: <a href="https://www.weave.works/weave-net-kubernetes-integration/">Run Weave Net with Kubernetes in Just One Line</a>.</p>
 <p>Antes de instalar la <em>red</em> en el clúster (de momento, de un solo nodo), <em>kubectl</em> indica que el estado del nodo es <code>NotReady</code>:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ kubectl get nodes
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ kubectl get nodes
 NAME      STATUS     AGE       VERSION
 k8s       NotReady   5h        v1.6.1
 $
 </code></pre></div><p>En la salida del comando tenemos que la versión de Kubernetes es la 1.6.1. Este dato será importante más adelante a la hora de escoger el comando de instalación de Weave Net.</p>
 <p>Si obtenemos la lista de <em>pods</em>, comprobamos que no tenemos ningún <em>pod de red</em>:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ kubectl get pods --all-namespaces
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ kubectl get pods --all-namespaces
 NAMESPACE     NAME                          READY     STATUS    RESTARTS   AGE
 kube-system   etcd-k8s                      1/1       Running   <span style="color:#2aa198">0</span>          5h
 kube-system   kube-apiserver-k8s            1/1       Running   <span style="color:#2aa198">0</span>          5h
@@ -151,14 +151,14 @@ kube-system   kube-scheduler-k8s            1/1       Running   <span style="col
 $
 </code></pre></div><p>Además, los <em>pods</em> de <em>DNS</em> <code>kube-dns-*</code> están en estado <code>Pending</code>.</p>
 <p>Siguiendo las instrucciones del artículo de Weave Net, lanzamos el comando de instalación para versiones 1.6 (o superior):</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ kubectl apply -f https://git.io/weave-kube-1.6
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ kubectl apply -f https://git.io/weave-kube-1.6
 clusterrole <span style="color:#2aa198">&#34;weave-net&#34;</span> created
 serviceaccount <span style="color:#2aa198">&#34;weave-net&#34;</span> created
 clusterrolebinding <span style="color:#2aa198">&#34;weave-net&#34;</span> created
 daemonset <span style="color:#2aa198">&#34;weave-net&#34;</span> created
 $
 </code></pre></div><p>Obtenemos la lista de <em>pods</em> de nuevo y observamos que se están creando dos nuevos contenedores:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">operador@k8s:~$ kubectl get pods --all-namespaces
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">operador@k8s:~$ kubectl get pods --all-namespaces
 NAMESPACE     NAME                          READY     STATUS              RESTARTS   AGE
 kube-system   etcd-k8s                      1/1       Running             <span style="color:#2aa198">0</span>          5h
 kube-system   kube-apiserver-k8s            1/1       Running             <span style="color:#2aa198">0</span>          5h
@@ -170,7 +170,7 @@ kube-system   weave-net-32ptg               0/2       ContainerCreating   <span 
 operador@k8s:~$
 </code></pre></div><p>De hecho, se creado el <em>daemonset</em> &ldquo;weave-net&rdquo;. Un <em>daemonset</em> es un <em>pod</em> que se crea en cada uno de los nodos del clúster automáticamente. Kubernetes se encarga de descargar la imagen desde DockerHub y arrancar un contenedor. Los nodos en la red creada por Weave Net forman una red <em>mesh</em> que se configura automáticamente, de manera que es posible agregar nodos adicionales sin necesidad de cambiar ninguna configuración.</p>
 <p>Pasados unos segundos la creación de los nodos se ha completado:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$  kubectl get pods --all-namespaces
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$  kubectl get pods --all-namespaces
 NAMESPACE     NAME                          READY     STATUS         RESTARTS   AGE
 kube-system   etcd-k8s                      1/1       Running        <span style="color:#2aa198">0</span>          5h
 kube-system   kube-apiserver-k8s            1/1       Running        <span style="color:#2aa198">0</span>          5h
@@ -181,12 +181,12 @@ kube-system   kube-scheduler-k8s            1/1       Running        <span style
 kube-system   weave-net-32ptg               2/2       Running        <span style="color:#2aa198">0</span>          1m
 $
 </code></pre></div><p>Finalmente, verificamos que el primer nodo del clúster ya es operativo:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ kubectl get nodes
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ kubectl get nodes
 NAME      STATUS    AGE       VERSION
 k8s       Ready     5h        v1.6.1
 $
 </code></pre></div><p>Además, una vez que tenemos la red instalada en el clúster, el <em>pod</em> <code>kube-dns</code> comienza la creación de los contenedores (quizás tengas que reiniciar):</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ kubectl get pods --all-namespaces
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ kubectl get pods --all-namespaces
 NAMESPACE     NAME                          READY     STATUS              RESTARTS   AGE
 kube-system   etcd-k8s                      1/1       Running             <span style="color:#2aa198">1</span>          11d
 kube-system   kube-apiserver-k8s            1/1       Running             <span style="color:#2aa198">1</span>          11d
@@ -196,7 +196,7 @@ kube-system   kube-proxy-l02zn              1/1       Running             <span 
 kube-system   kube-scheduler-k8s            1/1       Running             <span style="color:#2aa198">1</span>          11d
 kube-system   weave-net-32ptg               2/2       Running             <span style="color:#2aa198">3</span>          10d
 </code></pre></div><p>Tras unos segundos, tenemos todos los <em>pods</em> del clúster funcionales:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ kubectl get pods --all-namespaces
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ kubectl get pods --all-namespaces
 NAMESPACE     NAME                          READY     STATUS    RESTARTS   AGE
 kube-system   etcd-k8s                      1/1       Running   <span style="color:#2aa198">1</span>          11d
 kube-system   kube-apiserver-k8s            1/1       Running   <span style="color:#2aa198">1</span>          11d

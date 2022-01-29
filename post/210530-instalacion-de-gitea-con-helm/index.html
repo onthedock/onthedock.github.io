@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.82.1" />
+<meta name="generator" content="Hugo 0.87.0" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -132,7 +132,7 @@
 
   <div class="article-body"><p>En la entrada anterior, <a href="https://onthedock.github.io/post/210529-revision-de-la-chart-de-gitea/">Revisión de la Helm chart oficial de Gitea</a>, analicé la <em>chart</em> oficial de Gitea. Después de revisarla, en esta entrada explico cómo instalar Gitea a partir de la <em>chart</em> oficial usando Helm.</p>
 <p>Antes de instalar Gitea, creamos el <em>namespace</em> <code>code</code>, en el que desplegaremos Gitea:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
 <span style="color:#268bd2">kind</span>: Namespace
 <span style="color:#268bd2">apiVersion</span>: v1
 <span style="color:#268bd2">metadata</span>:
@@ -145,12 +145,12 @@
 <p>La cuestión es que, en general, no queremos instalar la <em>chart</em> con los valores por defecto; algunos valores serán específicos para cada instalación y por tanto debemos configurarlos.</p>
 <p>Helm permite sobreescribir los valores por defecto en el comando de ejecución de <code>helm install</code> de varios modos: usando <code>--values/-f</code> o <code>--set</code> o <code>--set-file</code>.</p>
 <p>Descargamos el fichero <a href="https://gitea.com/gitea/helm-chart/raw/branch/master/values.yaml"><code>values.yaml</code></a> del repositorio oficial de la <em>chart</em> para Gitea:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">wget -O values.original.yaml <span style="color:#cb4b16">\
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">wget -O values.original.yaml <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>&gt; https://gitea.com/gitea/helm-chart/raw/branch/master/values.yaml
 </code></pre></div><p>Copiamos el fichero original para tener una copia de seguridad:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">cp values.original.yaml values.custom.yaml
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">cp values.original.yaml values.custom.yaml
 </code></pre></div><p>Editamos el fichero para adaptarlo a nuestro entorno e instalamos con (usando casi todos los valores por defecto, excepto que he deshabilitado <em>memcache</em> y que la base de datos es MariaDB (y no PostgreSQL)):</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ helm install gitea -n code -f values.custom.yaml gitea-charts/gitea
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ helm install gitea -n code -f values.custom.yaml gitea-charts/gitea
 NAME: gitea
 LAST DEPLOYED: Sat May <span style="color:#2aa198">29</span> 11:49:17 <span style="color:#2aa198">2021</span>
 NAMESPACE: code
@@ -168,7 +168,7 @@ NOTES:
 <p>Una vez validada la instalación de Gitea, actualizamos la configuración para incluir un <em>Ingress</em>.</p>
 <p>La configuración del <em>Ingress</em> depende del <em>Ingress Controller</em> instalado; en el caso de <strong>k3d</strong> (1.19.4), el <em>Ingress Controller</em> es Traefik.</p>
 <p>En el fichero <code>values.custom.yaml</code> añadimos las anotaciones necesarias para Traefik y el nombre del <em>host</em> a través del cual accedemos a Gitea (resoluble a través de una entrada en mi fichero <code>/etc/hosts</code>):</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">...
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">...
 <span style="color:#268bd2">ingress</span>:
   <span style="color:#268bd2">enabled</span>: <span style="color:#cb4b16">true</span>
   <span style="color:#268bd2">annotations</span>:
@@ -180,7 +180,7 @@ NOTES:
   <span style="color:#268bd2">tls</span>: []
 ...
 </code></pre></div><p>Con estas modificaciones, actualizamos la <em>release</em> de Gitea en el clúster:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ helm upgrade -n code gitea gitea-charts/gitea -f values.custom.yaml
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ helm upgrade -n code gitea gitea-charts/gitea -f values.custom.yaml
 Release <span style="color:#2aa198">&#34;gitea&#34;</span> has been upgraded. Happy Helming!
 NAME: gitea
 LAST DEPLOYED: Sat May <span style="color:#2aa198">29</span> 18:44:16 <span style="color:#2aa198">2021</span>
@@ -193,7 +193,7 @@ NOTES:
 </code></pre></div><h2 id="configuración-de-gitea-giteaconfig">Configuración de Gitea: <code>gitea.config</code></h2>
 <p>Con Gitea desplegado, el siguiente paso es configurar la aplicación a través del bloque <code>gitea.config</code>. En esta sección podemos modificar el valor de cualquiera de las variables que aparecen en el fichero <code>app.ini</code> <sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>.</p>
 <p>Por mostrar cómo realizar la configuración, en el fichero <code>values.custom.yaml</code> he modificado la <em>landing page</em> a &ldquo;login&rdquo; y eliminado la posibilidad de que los usuarios creen sus propias cuentas (debe generarlas el administrador de Gitea):</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">  <span style="color:#268bd2">config</span>: 
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">  <span style="color:#268bd2">config</span>: 
     <span style="color:#268bd2">server</span>:
       <span style="color:#268bd2">LANDING_PAGE</span>: login
     <span style="color:#268bd2">service</span>:
@@ -206,7 +206,7 @@ NOTES:
 <hr>
 <ol>
 <li id="fn:1" role="doc-endnote">
-<p><a href="https://docs.gitea.io/en-us/config-cheat-sheet/">Configuration Cheat Sheet</a> <a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+<p><a href="https://docs.gitea.io/en-us/config-cheat-sheet/">Configuration Cheat Sheet</a>&#160;<a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
 </li>
 </ol>
 </section></div>

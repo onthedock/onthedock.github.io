@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.82.1" />
+<meta name="generator" content="Hugo 0.87.0" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -176,14 +176,14 @@
 <p>Los comandos <code>guest-file-*</code> están deshabilitados por defecto en RHEL; además, el agente se ejecuta sujeto a las restricciones de SELinux. <a href="https://bugzilla.redhat.com/show_bug.cgi?id=1447943#c2">Ref: qemu guest agent can not read/write existing file in guest</a></p>
 </blockquote>
 <h3 id="problemas-con-el-agente-en-las-máquinas-virtuales-creadas">Problemas con el agente en las máquinas virtuales creadas</h3>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ virsh qemu-agent-command --cmd <span style="color:#2aa198">&#39;{ &#34;execute&#34;: &#34;guestinfo&#34; }&#39;</span> --domain docker
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ virsh qemu-agent-command --cmd <span style="color:#2aa198">&#39;{ &#34;execute&#34;: &#34;guestinfo&#34; }&#39;</span> --domain docker
 error: Guest agent is not responding: QEMU guest agent is not connected
 </code></pre></div><p>El problema está en que el agente está desconectado en la máquina virtual:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ virsh dumpxml docker | grep -i agent
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ virsh dumpxml docker | grep -i agent
       &lt;<span style="color:#b58900">source</span> <span style="color:#268bd2">mode</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#39;bind&#39;</span> <span style="color:#268bd2">path</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#39;/var/lib/libvirt/qemu/channel/target/domain-10-docker/org.qemu.guest_agent.0&#39;</span>/&gt;
       &lt;target <span style="color:#268bd2">type</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#39;virtio&#39;</span> <span style="color:#268bd2">name</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#39;org.qemu.guest_agent.0&#39;</span> <span style="color:#268bd2">state</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#39;disconnected&#39;</span>/&gt;
 </code></pre></div><p>Es decir, el agente está instalado en la VM pero no ha arrancado; iniciándolo manualmente se habilita la posibilidad de ejecutar comandos, por lo que una posible solución es arrancar el servicio tras la instalación vía <code>cloud-init</code>:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">...
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">...
 <span style="color:#268bd2">runcmd</span>:
   - systemctl enable qemu-guest-agent
   - systemctl start qemu-guest-agent
@@ -192,14 +192,14 @@ error: Guest agent is not responding: QEMU guest agent is not connected
 <p>Siguiendo con el tema de usar <code>qemu-agent-command</code> para comprobar la existencia del fichero <code>/var/lib/cloud/instance/boot-finished</code>, se trata de un proceso de dos pasos: primero con <code>guest-file-open</code> se obtiene un <em>handle</em> al fichero y después, con este <em>handle</em>, se lee el contenido del fichero con <code>guest-file-read</code>.</p>
 <p>En mi caso sólo quiero saber si el fichero existe, por lo que en cuanto el comando devuelve un <em>handle</em>, significa que existe y por tanto el proceso de arranque de <code>cloud-init</code> ha finalizado.</p>
 <p>Así que una forma de comprobar si el proceso ha finalizado es mediante algo como:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">virsh qemu-agent-command <span style="color:#268bd2">$VM_NAME</span> --cmd <span style="color:#2aa198">&#39;{&#34;execute&#34;: &#34;guest-file-open&#34;, &#34;arguments&#34;: {&#34;path&#34;:&#34;/var/lib/cloud/instance/boot-finished&#34;}}&#39;</span> 2&gt;/dev/null
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">virsh qemu-agent-command <span style="color:#268bd2">$VM_NAME</span> --cmd <span style="color:#2aa198">&#39;{&#34;execute&#34;: &#34;guest-file-open&#34;, &#34;arguments&#34;: {&#34;path&#34;:&#34;/var/lib/cloud/instance/boot-finished&#34;}}&#39;</span> 2&gt;/dev/null
 <span style="color:#719e07">while</span> <span style="color:#719e07">[</span> <span style="color:#268bd2">$?</span> -ne <span style="color:#2aa198">0</span> <span style="color:#719e07">]</span>; <span style="color:#719e07">do</span>
   sleep <span style="color:#2aa198">1</span>
   virsh qemu-agent-command <span style="color:#268bd2">$VM_NAME</span> --cmd <span style="color:#2aa198">&#39;{&#34;execute&#34;: &#34;guest-file-open&#34;, &#34;arguments&#34;: {&#34;path&#34;:&#34;/var/lib/cloud/instance/boot-finished&#34;}}&#39;</span> 2&gt;/dev/null
 <span style="color:#719e07">done</span>
 <span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;cloud-init configuration process finished.
 </span></code></pre></div><p>Finalmente, el bucle ha quedado:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">...
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">...
 <span style="color:#719e07">if</span> <span style="color:#719e07">[</span> <span style="color:#268bd2">$wait</span> <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;true&#34;</span> <span style="color:#719e07">]</span>; <span style="color:#719e07">then</span>
   <span style="color:#586e75"># Waiting until cloud-init finishes</span>
   virsh qemu-agent-command <span style="color:#268bd2">$VM_NAME</span> --cmd <span style="color:#2aa198">&#39;{&#34;execute&#34;: &#34;guest-file-open&#34;, &#34;arguments&#34;: {&#34;path&#34;:&#34;/var/lib/cloud/instance/boot-finished&#34;}}&#39;</span> 1&gt;/dev/null 2&gt;/dev/null

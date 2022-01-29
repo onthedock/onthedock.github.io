@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.82.1" />
+<meta name="generator" content="Hugo 0.87.0" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -136,9 +136,9 @@
 <p>En las pruebas, estoy usando K3os con K3s versión v1.18.9+k3s1 (630bebf9).</p>
 </blockquote>
 <p>El certificado usado por Traefik se encuentra en el secreto <code>traefik-default-cert</code> del <em>namespace</em> <code>kube-system</code>. Puedes exportarlo mediante:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">kubectl get secret traefik-default-cert -n kube-system -o <span style="color:#268bd2">jsonpath</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#39;{.data.tls\.crt}&#39;</span> | base64 --decode - &gt; traefik-certificate.txt
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">kubectl get secret traefik-default-cert -n kube-system -o <span style="color:#268bd2">jsonpath</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#39;{.data.tls\.crt}&#39;</span> | base64 --decode - &gt; traefik-certificate.txt
 </code></pre></div><p>El contenido del fichero <code>traefik-certificate.txt</code> será algo como:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-text" data-lang="text">-----BEGIN CERTIFICATE-----
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-text" data-lang="text">-----BEGIN CERTIFICATE-----
 MIIEmzCCA4OgAwIBAgIJAJAGQlMmC0kyMA0GCSqGSIb3DQEBBQUAMIGPMQswCQYD
 VQQGEwJVUzERMA8GA1UECBMIQ29sb3JhZG8xEDAOBgNVBAcTB0JvdWxkZXIxFDAS
 BgNVBAoTC0V4YW1wbGVDb3JwMQswCQYDVQQLEwJJVDEWMBQGA1UEAxQNKi5leGFt
@@ -166,7 +166,7 @@ pRvWen0lMbpjIRP4XZsnC45C9gVXdh3LRe1+wyQq6h9QPiloxmD6NpE9imTOn2A5
 vIFqaZx84+DlSCc93yfk/GlBt+SKG46zEHMB9hqPbA==
 -----END CERTIFICATE-----
 </code></pre></div><p>Revisa los datos del certificado usando <em>openssl</em>:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ openssl x509 -in traefik-certificate.txt -text -noout
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ openssl x509 -in traefik-certificate.txt -text -noout
 Certificate:
     Data:
         Version: <span style="color:#2aa198">3</span> <span style="color:#719e07">(</span>0x2<span style="color:#719e07">)</span>
@@ -189,10 +189,10 @@ Certificate:
 <p>En mi caso, para un entorno de Laboratorio privado, voy a usar una entidad certificadora propia.</p>
 <h3 id="crear-la-entidad-certificadora-certificate-authority">Crear la entidad certificadora (<em>Certificate Authority</em>)</h3>
 <p>Generamos la clave privada para la CA:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># Generate private key</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># Generate private key</span>
 openssl genrsa -out ca.key <span style="color:#2aa198">2048</span>
 </code></pre></div><p>Usando la clave privada recién creada, generamos el certificado raíz de la CA; en esta caso, le damos una validez de 10 años:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># Generate root certificate</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># Generate root certificate</span>
 openssl req -x509 -new -nodes -subj <span style="color:#2aa198">&#34;/C=ES/O=Internal Development CA/CN=Development certificates&#34;</span> -key ca.key -sha256 -days <span style="color:#2aa198">3650</span> -out ca.crt
 </code></pre></div><h3 id="configurar-los-navegadores">Configurar los navegadores</h3>
 <p>Los navegadores traen <em>de fábrica</em> los certificados raíz de las entidades certificadores comerciales o de confianza. De esta forma pueden validar los certificados de sitios web firmados por estas CAs.</p>
@@ -214,13 +214,13 @@ openssl req -x509 -new -nodes -subj <span style="color:#2aa198">&#34;/C=ES/O=Int
 <p>Ben Morel proporciona un <a href="https://raw.githubusercontent.com/BenMorel/dev-certificates/main/create-certificate.sh">script</a> para generar el certificado de forma automática.</p>
 <p>Para generar el certificado <em>wildcard</em> autofirmado para tu dominio <code>dev.lab</code>, usa <code>DOMAIN=dev.lab</code>.</p>
 <p>Genera la clave privada:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># Generate a private key</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># Generate a private key</span>
 openssl genrsa -out <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$DOMAIN</span><span style="color:#2aa198">.key&#34;</span> <span style="color:#2aa198">2048</span>
 </code></pre></div><p>Genera la petición de firma del certificado (<em>certificate signing request, CSR</em>)</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># Create a certificate signing request</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># Create a certificate signing request</span>
 openssl req -new -subj <span style="color:#2aa198">&#34;/C=ES/O=Local Development/CN=</span><span style="color:#268bd2">$DOMAIN</span><span style="color:#2aa198">&#34;</span> -key <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$DOMAIN</span><span style="color:#2aa198">.key&#34;</span> -out <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$DOMAIN</span><span style="color:#2aa198">.csr&#34;</span>
 </code></pre></div><p>El <em>script</em> también genera un fichero de extensiones:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># Create a config file for the extensions</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># Create a config file for the extensions</span>
 &gt;<span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$DOMAIN</span><span style="color:#2aa198">.ext&#34;</span> cat <span style="color:#2aa198">&lt;&lt;-EOF
 </span><span style="color:#2aa198">authorityKeyIdentifier=keyid,issuer
 </span><span style="color:#2aa198">basicConstraints=CA:FALSE
@@ -234,7 +234,7 @@ openssl req -new -subj <span style="color:#2aa198">&#34;/C=ES/O=Local Developmen
 <blockquote>
 <p>El <em>script</em> asume que todos los fichero se encuentran en la misma carpeta.</p>
 </blockquote>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># Create the signed certificate</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># Create the signed certificate</span>
 openssl x509 -req <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>    -in <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$DOMAIN</span><span style="color:#2aa198">.csr&#34;</span> <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>    -extfile <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$DOMAIN</span><span style="color:#2aa198">.ext&#34;</span> <span style="color:#cb4b16">\
@@ -252,21 +252,21 @@ openssl x509 -req <span style="color:#cb4b16">\
 </blockquote>
 <h3 id="agregar-los-certificados-al-secret">Agregar los certificados al <em>secret</em></h3>
 <p>Para configurar los certificados generados en Traefik, primero exporta el secret desde Kubernetes:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">kubectl get secret -n kube-system traefik-default-cert -o yaml &gt; secret-traefik-default-cert.yaml
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">kubectl get secret -n kube-system traefik-default-cert -o yaml &gt; secret-traefik-default-cert.yaml
 cp secret-traefik-default-cert.yaml secret-traefik-custom-cert.yaml
 </code></pre></div><p>Modifica los valores de los campos <code>tls.cert</code> y <code>tls.key</code> con el certificado <strong>en base64</strong> generado en el paso anterior.</p>
 <blockquote>
 <p>El valor en base64 debes copiarlo en una sola línea:</p>
 </blockquote>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">apiVersion</span>: v1
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">apiVersion</span>: v1
 <span style="color:#268bd2">data</span>:
     <span style="color:#268bd2">tls.cert</span>: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS...
     <span style="color:#268bd2">tls.key</span>: LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRV...
 ...
 </code></pre></div><p>Una vez modificado el <em>secret</em>, actualízalo en Kubernetes mediante:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">kubectl -n kube-system apply -f secret-traefik-custom-cert.yaml
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">kubectl -n kube-system apply -f secret-traefik-custom-cert.yaml
 </code></pre></div><p>Una vez actualizado, haz un rollout de Traefik (requiere Kubernetes 1.15+):</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl -n kube-system rollout restart deployment traefik
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl -n kube-system rollout restart deployment traefik
 deployment.apps/traefik restarted
 </code></pre></div><p>Así podemos publicar vía HTTPS una aplicación por subdominio (<code>git.dev.lab</code>, <code>cd.dev.lab</code>, etc&hellip;) usando un único certificado <em>wildcard</em>.</p></div>
 

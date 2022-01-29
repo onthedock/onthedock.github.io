@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.82.1" />
+<meta name="generator" content="Hugo 0.87.0" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -132,7 +132,7 @@
 
   <div class="article-body"><p>Después de resolver el <a href="https://onthedock.github.io/post/190519-iniciar-dnsmasq-durante-el-inicio-del-sistema/">problema con el DNS</a> en el equipo de laboratorio tenía varias actualizaciones pendientes de instalar.</p>
 <p>Sin embargo, una de las actualizaciones ha fallado por no tener bien resueltas las depedencias:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ sudo apt upgrade -y
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ sudo apt upgrade -y
 Reading package lists... Done
 Building dependency tree       
 Reading state information... Done
@@ -142,7 +142,7 @@ The following packages have unmet dependencies:
                 Depends: samba-libs <span style="color:#719e07">(=</span> 2:4.5.16+dfsg-1+deb9u1<span style="color:#719e07">)</span> but 2:4.5.16+dfsg-1+deb9u2 is installed
 E: Unmet dependencies. Try <span style="color:#2aa198">&#39;apt --fix-broken install&#39;</span> with no packages <span style="color:#719e07">(</span>or specify a solution<span style="color:#719e07">)</span>.
 </code></pre></div><p>Siguiendo las instrucciones de la salida del comando, he lanzado <code>sudo apt --fix-broken install</code>:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ sudo apt --fix-broken install
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ sudo apt --fix-broken install
 ...
 SyntaxError: invalid syntax
 dpkg: error processing archive /var/cache/apt/archives/python-samba_2%3a4.5.16+dfsg-1+deb9u2_amd64.deb <span style="color:#719e07">(</span>--unpack<span style="color:#719e07">)</span>:
@@ -162,7 +162,7 @@ E: Sub-process /usr/bin/dpkg returned an error code <span style="color:#719e07">
 <p>A través de Google he encontrado esta entrada en <a href="https://askubuntu.com/questions/438345/how-to-remove-install-a-package-that-is-not-fully-installed">StackExchange: How to remove/install a package that is not fully installed?</a>.</p>
 <p>La respuesta indica que el fallo se encuentra en el <em>pre-removal script returned error exit status 1</em>, por lo que lo que hay que hacer es revisar este script y ver qué hace para entenderlo.</p>
 <p>Aunque el consejo parece lícito, he perdido un buen rato revisando el script y ejecutando comandos potencialmente peligrosos como <code>root</code>; el script lista los diferentes scripts en Python que componen el paquete <code>python-samba</code> y los elimina:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ cat /var/lib/dpkg/info/python-samba.prerm 
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ cat /var/lib/dpkg/info/python-samba.prerm 
 <span style="color:#586e75">#!/bin/sh</span>
 <span style="color:#b58900">set</span> -e
 
@@ -180,7 +180,7 @@ E: Sub-process /usr/bin/dpkg returned an error code <span style="color:#719e07">
 </code></pre></div><p>Me ha parecido <em>sospechoso</em> el <code>[co]</code> tras el nombre de fichero, pero después de eliminarlo, obtenía el mismo error.</p>
 <h2 id="cambiando-el-enfoque">Cambiando el enfoque</h2>
 <p>Revisando de nuevo el error me he concentrado en la parte del <code>ImportError</code>:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ sudo apt install python-samba --upgrade
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ sudo apt install python-samba --upgrade
 ...
 ImportError: No module named <span style="color:#2aa198">&#39;ConfigParser&#39;</span>
 dpkg: error <span style="color:#719e07">while</span> cleaning up:
@@ -193,13 +193,13 @@ E: Sub-process /usr/bin/dpkg returned an error code <span style="color:#719e07">
 <p>In Python 3, <code>ConfigParser</code> has been renamed to <code>configparser</code> for PEP 8 compliance. It looks like the package you are installing does not support Python 3.</p>
 </blockquote>
 <p>He comprobado la versión de Python y ¡boom! Python 3:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ python --version
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ python --version
 Python 3.5.3
 </code></pre></div><h1 id="solución">Solución</h1>
 <p>Si el problema es que el paquete no es compatible con Python 3, ¿habría alguna manera de ejecutarlo con Python 2?</p>
 <p>Por otras instalaciones de Debian que he realizado sabía que en el sistema están instaladas tanto la versión 2 como la 3.</p>
 <p>Vamos a comprobarlo:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ ls -l /usr/bin/python*
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ ls -l /usr/bin/python*
 lrwxrwxrwx <span style="color:#2aa198">1</span> root root      <span style="color:#2aa198">16</span> May <span style="color:#2aa198">19</span> 18:08 /usr/bin/python -&gt; /usr/bin/python3
 lrwxrwxrwx <span style="color:#2aa198">1</span> root root       <span style="color:#2aa198">9</span> Jan <span style="color:#2aa198">24</span>  <span style="color:#2aa198">2017</span> /usr/bin/python2 -&gt; python2.7
 -rwxr-xr-x <span style="color:#2aa198">1</span> root root <span style="color:#2aa198">3779512</span> Sep <span style="color:#2aa198">26</span>  <span style="color:#2aa198">2018</span> /usr/bin/python2.7
@@ -210,7 +210,7 @@ lrwxrwxrwx <span style="color:#2aa198">1</span> root root      <span style="colo
 </code></pre></div><p>De hecho, cuando lanzas el comando <code>python</code>, en realidad se encuentra el enlace simbólico que desde <code>/usr/bin/python</code> apunta a <code>/usr/bin/python3</code> (que a su ver apunta a <code>/usr/bin/python3.5</code>).</p>
 <h2 id="cambiando-la-versión-de-python-usada-en-el-sistema">Cambiando la versión de Python usada en el sistema</h2>
 <p>Para &ldquo;volver&rdquo; a Python 2 lo único que tengo que hacer es deshacer el enlace que apunta de <code>/usr/bin/python</code> a Python 3.5 y hacer que apunte a Python 2.7:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ sudo unlink /usr/bin/python
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ sudo unlink /usr/bin/python
 $ sudo ln -s /usr/bin/python2.7 /usr/bin/python
 </code></pre></div><p>Después de validar que <code>python</code> apunta a la versión 2.7, lanzo de nuevo el comando <code>sudo apt upgrade -y</code> y <strong>¡esta vez todo funciona correctamente!</strong>.</p>
 <p>Tras realizar la actualización, de eliminado el enlace a la versión 2.7 y he vuelto a crear el enlace para la versión 3.5.</p></div>

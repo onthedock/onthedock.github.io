@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.82.1" />
+<meta name="generator" content="Hugo 0.87.0" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -170,18 +170,18 @@
 </tbody>
 </table>
 <p>Hay diversas formas de instalar <em>Sealed Secrets</em>; usaré la <em>Helm Chart</em> oficial proporcionada por el equipo de <em>Sealed Secrets</em>.</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ helm repo add sealed-secrets https://bitnami-labs.github.io/sealed-secrets
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ helm repo add sealed-secrets https://bitnami-labs.github.io/sealed-secrets
 
 <span style="color:#2aa198">&#34;sealed-secrets&#34;</span> has been added to your repositories
 </code></pre></div><p>Compruebo que el repositorio se ha añadido correctamente:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ helm repo list | grep -i sealed-secrets
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ helm repo list | grep -i sealed-secrets
 sealed-secrets          https://bitnami-labs.github.io/sealed-secrets
 </code></pre></div><p>Actualizo el repositorio e instalo desde la <em>chart</em>:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">helm repo update
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">helm repo update
 </code></pre></div><blockquote>
 <p><code>kubeseal</code> usa como nombre por defecto <code>sealed-secrets-controller</code>, por lo que uso este nombre para desplegar <em>Sealed Secrets</em>. De esta forma no hace falta especificar <code>--controller-name</code> en cada acción que se realice con <code>kubeseal</code>. Por el mismo motivo, instalo <em>Sealed Secrets</em> en el <em>namespace</em> <code>kube-system</code>.</p>
 </blockquote>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ helm install sealed-secrets-controller sealed-secrets/sealed-secrets -n kube-system
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ helm install sealed-secrets-controller sealed-secrets/sealed-secrets -n kube-system
 NAME: sealed-secrets-controller
 LAST DEPLOYED: Wed Aug <span style="color:#2aa198">18</span> 21:23:36 <span style="color:#2aa198">2021</span>
 NAMESPACE: kube-system
@@ -233,11 +233,11 @@ Running <span style="color:#2aa198">&#39;kubectl get secret secret-name -o [json
 Both the SealedSecret and generated Secret must have the same name and namespace.
 </code></pre></div><h2 id="validación-de-la-instalación">Validación de la instalación</h2>
 <p>Reviso los logs del <em>pod</em> de <em>Sealed Secrets</em> en el <em>namespace</em> <code>kube-system</code> para verificar que ha arrancado correctamente y que se ejecuta con normalidad:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl get pods -n kube-system <span style="color:#cb4b16">\
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl get pods -n kube-system <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>  -l app.kubernetes.io/name<span style="color:#719e07">=</span>sealed-secrets
 NAME                                         READY   STATUS    RESTARTS   AGE
 sealed-secrets-controller-7b649d967c-7zczz   1/1     Running   <span style="color:#2aa198">0</span>          2m47s
-</code></pre></div><div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl logs <span style="color:#cb4b16">\
+</code></pre></div><div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl logs <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>  <span style="color:#719e07">$(</span>kubectl get pods -n kube-system -l app.kubernetes.io/name<span style="color:#719e07">=</span>sealed-secrets -o <span style="color:#268bd2">jsonpath</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#39;{ .items[0].metadata.name }&#39;</span><span style="color:#719e07">)</span><span style="color:#719e07">)</span> <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>  -n kube-system
 
@@ -279,12 +279,12 @@ GEQNRr+qeaJqUYguD2F5a6Mm1lIquZPI/UdmeHnfIs+CHWmcG5itvvNGhbxb8ALu
 </code></pre></div><p>En los logs del <em>pod</em> del controlador de <em>Sealed Secrets</em> se puede ver la clave pública del par de claves generados durante el primer arranque.</p>
 <p>Esta es la clave pública que se usará para sellar los <code>SealedSecrets</code>.</p>
 <p>El par de claves generados por el controlador se almacena en un <em>Secret</em> (de tipo TLS):</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl get secrets -n kube-system <span style="color:#cb4b16">\
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl get secrets -n kube-system <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>  -l sealedsecrets.bitnami.com/sealed-secrets-key<span style="color:#719e07">=</span>active
 NAME                      TYPE                DATA   AGE
 sealed-secrets-keylr2w9   kubernetes.io/tls   <span style="color:#2aa198">2</span>      12m
 </code></pre></div><p>Se puede obtener la clave pública de este <em>Secret</em>:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl  get secret <span style="color:#cb4b16">\
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl  get secret <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>  <span style="color:#719e07">$(</span>kubectl get secret -n kube-system -l sealedsecrets.bitnami.com/sealed-secrets-key<span style="color:#719e07">=</span>active -o <span style="color:#268bd2">jsonpath</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#39;{ .items[0].metadata.name }&#39;</span><span style="color:#719e07">)</span> <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>  -n kube-system -o <span style="color:#268bd2">jsonpath</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#39;{ .data.tls\.crt }&#39;</span> | base64 -d
 -----BEGIN CERTIFICATE-----

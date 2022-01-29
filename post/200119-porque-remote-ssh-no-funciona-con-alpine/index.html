@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.82.1" />
+<meta name="generator" content="Hugo 0.87.0" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -141,7 +141,7 @@
 </blockquote>
 <p>Existe un <em>issue</em> abierto al respecto: <a href="https://github.com/microsoft/vscode-remote-release/issues/1671">remote-ssh: Add possibility to invoke a login shell #1671</a> en el que se están valorando diferentes opciones para permitir diferentes <em>shells</em>.</p>
 <p>En mi caso, esto implica que &ldquo;Remote - SSH&rdquo; no funciona <em>out of the box</em> con Alpine como sistema remoto, ya que el <em>shell</em> es ASH y no BASH, como se puede ver en el error que muestra Code:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">...
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">...
 Got stderr from ssh: OpenSSH_7.6p1 Ubuntu-4ubuntu0.3, OpenSSL 1.0.2n  <span style="color:#2aa198">7</span> Dec <span style="color:#2aa198">2017</span>
 Running script with connection command: ssh -T -D <span style="color:#2aa198">38627</span> -o <span style="color:#268bd2">ConnectTimeout</span><span style="color:#719e07">=</span><span style="color:#2aa198">15</span> 192.168.1.141 bash
 Install and start server <span style="color:#719e07">if</span> needed
@@ -155,12 +155,12 @@ Failed to parse remote port from server output
 ...
 </code></pre></div><h3 id="instalación-de-bash-en-alpine-linux">Instalación de <code>bash</code> en Alpine Linux</h3>
 <p>Se puede instalar <code>bash</code> en Alpine, lo que permitiría sortear este problema mientras no se soluciona el <em>issue</em> abierto en GitHub para poder elegir -o detectar- el <em>shell</em> del equipo remoto.</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">sudo apk update
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">sudo apk update
 sudo apk add bash bash-completion
 </code></pre></div><p>El paso final es modificar la <em>shell</em> que se lanza en el login de los usuarios. Para modificarla, hay que editar el fichero <code>/etc/passwd</code> (como <code>root</code>) y sustituir <code>/bin/ash</code> por <code>/bin/bash</code>.</p>
 <h3 id="problemas--irresolubles--con-bibliotecas-del-sistema-en-alpine-linux">Problemas -irresolubles- con bibliotecas del sistema en Alpine Linux</h3>
 <p>Después de instalar BASH, Remote - SSH no conecta porque <a href="https://code.visualstudio.com/docs/remote/linux#_remote-host-container-wsl-linux-prerequisites">Alpine no cumple con los requerimientos</a> de las &ldquo;librerías&rdquo; <code>glibc</code> y <code>libstdc++</code>:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">...
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">...
 &gt; a30126f6ffac: running
 &gt; Illegal option -p
 &gt; musl libc <span style="color:#719e07">(</span>x86_64<span style="color:#719e07">)</span>

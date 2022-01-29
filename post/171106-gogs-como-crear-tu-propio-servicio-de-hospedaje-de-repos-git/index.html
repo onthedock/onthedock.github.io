@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.82.1" />
+<meta name="generator" content="Hugo 0.87.0" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -138,7 +138,7 @@
 </blockquote>
 <h2 id="descarga-de-la-imagen-de-gogs">Descarga de la imagen de Gogs</h2>
 <p>Como vamos a usar Docker, lo primero es descargar la imagen desde DockerHub.</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ docker pull gogs/gogs
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ docker pull gogs/gogs
 Using default tag: latest
 latest: Pulling from gogs/gogs
 019300c8a437: Pull <span style="color:#b58900">complete</span>
@@ -156,17 +156,17 @@ Digest: sha256:c27c926b796c8ff96a4b1194414ab9a897ab200bc50ac6ec5cabf48657c1545b
 Status: Downloaded newer image <span style="color:#719e07">for</span> gogs/gogs:latest
 </code></pre></div><p>Como no hemos especificado una etiqueta concreta, Docker descarga la imagen etiquetada como <code>latest</code>.</p>
 <p>Una vez descargada, comprobamos que se ha añadido al repositorio local:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ docker images
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ docker images
 REPOSITORY                   TAG                 IMAGE ID            CREATED             SIZE
 gogs/gogs                    latest              10b32ede02df        <span style="color:#2aa198">6</span> days ago          138MB
 ...
 </code></pre></div><p>Gogs guarda la configuración propia en una base de datos. Para un proyecto personal podemos usar SQLite, lo que simplificará la configuración inicial.</p>
 <h2 id="configuraciónseguridad-de-los-datos">Configuración/seguridad de los datos</h2>
 <p>Tanto la base de datos SQLite como los repositorios los guardaremos <em>fuera</em> del contenedor. En este caso usaremos una volumen montado directamente desde el <em>host</em>. Creamos la carpeta de datos como:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">mkdir gogsdata
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">mkdir gogsdata
 </code></pre></div><p>El acceso a Gogs se realiza a través de dos puertos expuestos en el contenedor: el puerto 22, para el acceso vía SSH y el 3000, donde se publica el servidor web.</p>
 <p>En el comando para lanzar Gogs <em>mapeamos</em> los puertos 22 y 3000 a puertos libres disponibles en el host. En mi caso, usaré 8022 y 8383.</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ docker run -d --name gogsdemo -p 8022:22 -p 8383:3000 -v <span style="color:#268bd2">$PWD</span>/gogsdata:/data gogs/gogs
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ docker run -d --name gogsdemo -p 8022:22 -p 8383:3000 -v <span style="color:#268bd2">$PWD</span>/gogsdata:/data gogs/gogs
 62732f9bb46c50057e5181b1e555ea2c4e998faacaa45f0346b260046b20b614
 </code></pre></div><p>Una vez lanzado el contenedor, debemos realizar la primera configuración de Gogs. Para ello, accedermos a través de un navegador web a la IP del <em>host</em> donde corre el contenedor a través del puerto web especificado (en nuestro ejemplo, el 8383).</p>
 <p>Al nevagar a <code>http://192.168.1.20:8383</code> se nos redirige automáticamente a <code>http://192.168.1.20:8383/install</code>.</p>
@@ -188,7 +188,7 @@ gogs/gogs                    latest              10b32ede02df        <span style
 <p>Pulsamos sobre el <code>+</code> en la esquina superior derecha y seleccionamos <em>New Repository</em>.</p>
 <p>Damos un nombre al repositorio (por ejemplo, <code>gogsdemo</code>) y pulsamos el botón <em>Create Repository</em>.</p>
 <p>La creación del repositorio muestra una página con información sobre cómo añadir el repositorio a un repositorio Git local, por ejemplo:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-txt" data-lang="txt">Clone this repository
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-txt" data-lang="txt">Clone this repository
 
 Create a new repository on the command line
 
@@ -203,7 +203,7 @@ Push an existing repository from the command line
 git remote add origin http://192.168.1.20:8383/gogsadmin/gogsdemo.git
 git push -u origin master
 </code></pre></div><p>En nuestro equipo local, añadimos el <em>remoto</em> a un repositorio existente. Si no tenemos un respositorio, creamos uno:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ mkdir dev
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ mkdir dev
 $ <span style="color:#b58900">cd</span> dev
 $ git init dev
 Initialized empty Git repository in /home/operador/gogsdemo/dev/.git/
@@ -211,7 +211,7 @@ Initialized empty Git repository in /home/operador/gogsdemo/dev/.git/
 <p>A continuación, <em>git add REAME.md</em> y <em>git commit</em></p>
 <p>Añadimos el <em>remote</em> correspondiente al servicio de GIT que hemos montado con Gogs.</p>
 <p>Finalmente, <em>subimos</em> los cambios al respositorio remoto:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ git push origin master
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ git push origin master
 Counting objects: 3, <span style="color:#719e07">done</span>.
 Writing objects: 100% <span style="color:#719e07">(</span>3/3<span style="color:#719e07">)</span>, <span style="color:#2aa198">239</span> bytes | <span style="color:#2aa198">0</span> bytes/s, <span style="color:#719e07">done</span>.
 Total <span style="color:#2aa198">3</span> <span style="color:#719e07">(</span>delta 0<span style="color:#719e07">)</span>, reused <span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>delta 0<span style="color:#719e07">)</span>
@@ -221,8 +221,7 @@ To http://192.168.1.20:8383/gogsadmin/gogsdemo.git
  * <span style="color:#719e07">[</span>new branch<span style="color:#719e07">]</span>      master -&gt; master
 $
 </code></pre></div><p>Accedemos al respositorio a través del navegador y comprobamos que se ha subido el código de nuestro repositorio local:</p>
-<figure>
-    <img src="/images/171106/gogsdemo.png"/> 
+<figure><img src="/images/171106/gogsdemo.png"/>
 </figure>
 
 <h2 id="resumen">Resumen</h2>

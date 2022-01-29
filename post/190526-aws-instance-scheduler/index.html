@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.82.1" />
+<meta name="generator" content="Hugo 0.87.0" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -134,9 +134,8 @@
 Esta es una de las formas más sencillas de ahorrar en el uso de estos servicios de AWS: apagándolos cuando no se necesitan (por ejemplo en entornos de desarrollo o de test).</p>
 <p>Amazon proporciona una plantilla de <em>AWS CloudFormation</em> que permite desplegar todos los recursos necesarios de forma automática.</p>
 <h2 id="cómo-funciona-aws-instance-scheduler">Cómo funciona AWS Instance Scheduler</h2>
-<figure class="center">
-    <img src="/images/190526/instance-scheduler-architecture.png"
-         alt="AWS Instance Scheduler Architecture"/> <figcaption>
+<figure class="center"><img src="/images/190526/instance-scheduler-architecture.png"
+         alt="AWS Instance Scheduler Architecture"/><figcaption>
             <p>AWS Instance Scheduler Architecture</p>
         </figcaption>
 </figure>
@@ -148,8 +147,7 @@ Esta es una de las formas más sencillas de ahorrar en el uso de estos servicios
 <p>En mi opinión este es uno de los puntos mejorables de la documentación de AWS Instance Scheduler.</p>
 <p>En la documentación no se indica -en mi opinión- con suficiente detalle cómo crear estos periodos o programaciones. Se indica, eso sí, que se pueden crear desde la consola de DynamoDB, desde un <a href="https://docs.aws.amazon.com/solutions/latest/instance-scheduler/appendix-d.html"><em>custom resource</em></a> o desde el <em>AWS Instance Scheduler CLI</em> (un script en Python), pero no cómo hacerlo.</p>
 <p>Curiosamente, si revisas los elementos que contiene la tabla <code>&lt;NombreDelStack&gt;-ConfigTable-...</code>, verás que sí que contiene algunas entradas (tanto para definir periodos como <em>schedules</em>):</p>
-<figure class="center">
-    <img src="/images/190526/rds-config-table-default-items.png"/> 
+<figure class="center"><img src="/images/190526/rds-config-table-default-items.png"/>
 </figure>
 
 <p>Estos valores no aparcen en el fichero de CloudFormation, por lo que no tengo claro desde dónde se introducen en la base de datos.</p>
@@ -163,7 +161,7 @@ Esta es una de las formas más sencillas de ahorrar en el uso de estos servicios
 <p>Selecciona la tabla <code>...-ConfigTable-...</code> y la pestaña <em>Items</em> para ver las entradas de esta tabla (los de la imagen superior).</p>
 <p>Selecciona un <em>period</em> y en el desplegable <em>Actions</em>, selecciona <em>Duplicate</em>. A partir de ahí edita el nuevo ítem para ajustarlo al periodo que quieres definir.</p>
 <p>Por ejemplo, el siguiente periodo define como hora de inicio (arranque de las máquinas) las 06h, apagándolas a las 18h de lunes a viernes.</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-json" data-lang="json">{
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-json" data-lang="json">{
   <span style="color:#268bd2">&#34;begintime&#34;</span>: {
     <span style="color:#268bd2">&#34;S&#34;</span>: <span style="color:#2aa198">&#34;06:00&#34;</span>
   },
@@ -186,7 +184,7 @@ Esta es una de las formas más sencillas de ahorrar en el uso de estos servicios
   }
 }
 </code></pre></div><p>A continuación, repito el proceso para duplicar un <em>schedule</em> y lo &ldquo;asocio&rdquo; al periodo definido mediante el uso de la propiedad <code>name</code>:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-json" data-lang="json">{
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-json" data-lang="json">{
   <span style="color:#268bd2">&#34;description&#34;</span>: {
     <span style="color:#268bd2">&#34;S&#34;</span>: <span style="color:#2aa198">&#34;Schedule for 06h-18h&#34;</span>
   },
@@ -232,8 +230,7 @@ Esta es una de las formas más sencillas de ahorrar en el uso de estos servicios
 <p>Otra medida interesante puede ser establecer un periodo que sólo tenga <em>endtime</em>  -desde el punto de vista de recortar gastos-, de manera que las instancias se apaguen siempre a una determinada hora, pero que no arranquen automáticamente. Esto puede ser útil en entornos de desarrollo o de test en los que las instancias se usen sólo de forma esporádica, arrancándose de forma manual o como respuesta a algún evento, para evitar que se queden arrancadas indefinidamente.</p>
 <h2 id="soporte-multicuenta">Soporte multicuenta</h2>
 <p>Hacia el final de la página sobre AWS Instance Scheduler se menciona lo que es, para mí, una de las mejores características de esta solución: <strong>¡soporte multicuenta!</strong></p>
-<figure class="center">
-    <img src="/images/190526/aws-instance-scheduler-features.png"/> 
+<figure class="center"><img src="/images/190526/aws-instance-scheduler-features.png"/>
 </figure>
 
 <p>Gracias a esta característica puedes definir una serie de <em>schedules</em> en una cuenta y aplicarlos sobre el resto de cuentas en las que tienes instancias/RDS.</p>

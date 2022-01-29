@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.82.1" />
+<meta name="generator" content="Hugo 0.87.0" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -133,7 +133,7 @@
   <div class="article-body"><p>En la entrada anterior <a href="https://onthedock.github.io/post/210212-kubelinter/">KubeLinter: identifica malas configuraciones en los objetos de Kubernetes</a>, KubeLinter identificaba dos errores que se solucionan usando las opciones: <code>runAsUser</code> y <code>readOnlyRootFilesystem</code>.</p>
 <p>En esta entrada comparo los efectos de aplicar una u otra, así como qué pasa cuando se aplican las dos al mismo tiempo.</p>
 <p>La definición del Pod es:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
 <span style="color:#268bd2">kind</span>: Pod
 <span style="color:#268bd2">apiVersion</span>: v1
 <span style="color:#268bd2">metadata</span>:
@@ -155,18 +155,18 @@
           <span style="color:#268bd2">cpu</span>: <span style="color:#2aa198">&#34;10m&#34;</span>
   <span style="color:#268bd2">restartPolicy</span>: Always
 </code></pre></div><p>Al analizar este fichero de definición con KubeLinter, obtenemos los errores:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">jumpod.yaml: <span style="color:#719e07">(</span>object: &lt;no namespace&gt;/jumpod /v1, <span style="color:#268bd2">Kind</span><span style="color:#719e07">=</span>Pod<span style="color:#719e07">)</span> container <span style="color:#2aa198">&#34;busybox&#34;</span> does not have a read-only root file system <span style="color:#719e07">(</span>check: no-read-only-root-fs, remediation: Set readOnlyRootFilesystem to <span style="color:#b58900">true</span> in your container&#39;s securityContext.<span style="color:#719e07">)</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">jumpod.yaml: <span style="color:#719e07">(</span>object: &lt;no namespace&gt;/jumpod /v1, <span style="color:#268bd2">Kind</span><span style="color:#719e07">=</span>Pod<span style="color:#719e07">)</span> container <span style="color:#2aa198">&#34;busybox&#34;</span> does not have a read-only root file system <span style="color:#719e07">(</span>check: no-read-only-root-fs, remediation: Set readOnlyRootFilesystem to <span style="color:#b58900">true</span> in your container&#39;s securityContext.<span style="color:#719e07">)</span>
 
 jumpod.yaml: <span style="color:#719e07">(</span>object: &lt;no namespace&gt;/jumpod /v1, <span style="color:#268bd2">Kind</span><span style="color:#719e07">=</span>Pod<span style="color:#719e07">)</span> container <span style="color:#2aa198">&#34;busybox&#34;</span> is not <span style="color:#b58900">set</span> to runAsNonRoot <span style="color:#719e07">(</span>check: run-as-non-root, remediation: Set runAsUser to a non-zero number, and runAsNonRoot to true, in your pod or container securityContext. See https://kubernetes.io/docs/tasks/configure-pod-container/security-context/ <span style="color:#719e07">for</span> more details.<span style="color:#719e07">)</span>
 
 Error: found <span style="color:#2aa198">2</span> lint errors
 </code></pre></div><p>Filtrando la salida anterior:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash"><span style="color:#719e07">(</span>...<span style="color:#719e07">)</span> container <span style="color:#2aa198">&#34;busybox&#34;</span> does not have a read-only root file system <span style="color:#719e07">(</span>...<span style="color:#719e07">)</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash"><span style="color:#719e07">(</span>...<span style="color:#719e07">)</span> container <span style="color:#2aa198">&#34;busybox&#34;</span> does not have a read-only root file system <span style="color:#719e07">(</span>...<span style="color:#719e07">)</span>
 
 <span style="color:#719e07">(</span>...<span style="color:#719e07">)</span> container <span style="color:#2aa198">&#34;busybox&#34;</span> is not <span style="color:#b58900">set</span> to runAsNonRoot <span style="color:#719e07">(</span>...<span style="color:#719e07">)</span>
 </code></pre></div><p>El primer aviso apunta a que la solución pasa por especificar un <em>root file system</em> en modo lectura. El segundo hace referencia al usuario con el que se ejecuta el contenedor (que no debería ser el usuario <em>root</em>).</p>
 <p>Para solucionar el primer error, especificamos <code>readOnlyRootFilesystem: true</code> y para el segundo, especificamos <code>runAsUser: 1001</code>:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
 <span style="color:#268bd2">kind</span>: Pod
 <span style="color:#268bd2">apiVersion</span>: v1
 <span style="color:#268bd2">metadata</span>:
@@ -194,7 +194,7 @@ Error: found <span style="color:#2aa198">2</span> lint errors
 </code></pre></div><h2 id="comparando-el-efecto-de-estas-opciones">Comparando el efecto de estas opciones</h2>
 <h3 id="primer-caso-runasuser-1001">Primer caso: <code>runAsUser: 1001</code></h3>
 <p>Abrimos una <em>shell</em> en el Pod desplegado con el YAML donde se indica que el contenedor debe ejecutarse como usuario 1001:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
 <span style="color:#268bd2">kind</span>: Pod
 <span style="color:#268bd2">apiVersion</span>: v1
 <span style="color:#268bd2">metadata</span>:
@@ -219,12 +219,12 @@ Error: found <span style="color:#2aa198">2</span> lint errors
           <span style="color:#268bd2">memory</span>: <span style="color:#2aa198">&#34;64Mi&#34;</span>
           <span style="color:#268bd2">cpu</span>: <span style="color:#2aa198">&#34;10m&#34;</span>
   <span style="color:#268bd2">restartPolicy</span>: Always
-</code></pre></div><div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">kubectl <span style="color:#b58900">exec</span> -it pod/jumpod -n jumpod -- /bin/sh
+</code></pre></div><div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">kubectl <span style="color:#b58900">exec</span> -it pod/jumpod -n jumpod -- /bin/sh
 </code></pre></div><p>En el Pod:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">/ $ whoami
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">/ $ whoami
 whoami: unknown uid <span style="color:#2aa198">1001</span>
 </code></pre></div><p>Si revisamos a qué tiene acceso el usuario en el contenedor, vemos que sólo tiene permisos para escribir en <code>/tmp</code>, mientras que en el resto sólo tiene permisos de lectura y de ejecución: <code>drwxr-xr-x</code> (el propietario es <code>root</code>):</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">/ $ ls -lah
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">/ $ ls -lah
 total 44K    
 drwxr-xr-x    <span style="color:#2aa198">1</span> root     root        4.0K Feb <span style="color:#2aa198">12</span> 18:47 .
 drwxr-xr-x    <span style="color:#2aa198">1</span> root     root        4.0K Feb <span style="color:#2aa198">12</span> 18:47 ..
@@ -244,7 +244,7 @@ drwxr-xr-x    <span style="color:#2aa198">1</span> root     root        4.0K Feb
 </code></pre></div><p>El usuario con <code>uid: 1001</code> tiene permisos sobre <code>/tmp</code> y puede crear ficheros en esa carpeta. En el resto, no tiene permisos de escritura.</p>
 <h3 id="segundo-caso-readonlyrootfilesystem-true">Segundo caso: <code>readOnlyRootFilesystem: true</code></h3>
 <p>En el segundo caso, si especficamos la opción <code>readOnlyRootFilesystem: true</code>, el usuario con el que se ejecutar el Pod es <code>root</code>:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
 <span style="color:#268bd2">kind</span>: Pod
 <span style="color:#268bd2">apiVersion</span>: v1
 <span style="color:#268bd2">metadata</span>:
@@ -269,10 +269,10 @@ drwxr-xr-x    <span style="color:#2aa198">1</span> root     root        4.0K Feb
           <span style="color:#268bd2">memory</span>: <span style="color:#2aa198">&#34;64Mi&#34;</span>
           <span style="color:#268bd2">cpu</span>: <span style="color:#2aa198">&#34;10m&#34;</span>
   <span style="color:#268bd2">restartPolicy</span>: Always
-</code></pre></div><div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">/ <span style="color:#586e75"># whoami</span>
+</code></pre></div><div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">/ <span style="color:#586e75"># whoami</span>
 root
 </code></pre></div><p>Aunque el usuario tiene permisos de escritura sobre el sistema de ficheros del Pod, cuando intentamos crear un fichero:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">/ <span style="color:#586e75"># ls -lah</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">/ <span style="color:#586e75"># ls -lah</span>
 total 44K
 drwxr-xr-x    <span style="color:#2aa198">1</span> root     root        4.0K Feb <span style="color:#2aa198">12</span> 19:17 .
 drwxr-xr-x    <span style="color:#2aa198">1</span> root     root        4.0K Feb <span style="color:#2aa198">12</span> 19:17 ..
@@ -290,7 +290,7 @@ drwxr-xr-x    <span style="color:#2aa198">1</span> root     root        4.0K Feb
 touch: /bin/test: Read-only file system
 </code></pre></div><h3 id="tercer-caso-runasuser-1001-y-readonlyrootfilesystem-true">Tercer caso: <code>runAsUser: 1001</code> y <code>readOnlyRootFilesystem: true</code></h3>
 <p>Si desplegamos un Pod en el que especificamos un usuario no-root (<code>uid: 1001</code>) y además un <strong>sistema de ficheros de sólo lectura</strong>:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
 <span style="color:#268bd2">kind</span>: Pod
 <span style="color:#268bd2">apiVersion</span>: v1
 <span style="color:#268bd2">metadata</span>:
@@ -315,7 +315,7 @@ touch: /bin/test: Read-only file system
           <span style="color:#268bd2">memory</span>: <span style="color:#2aa198">&#34;64Mi&#34;</span>
           <span style="color:#268bd2">cpu</span>: <span style="color:#2aa198">&#34;10m&#34;</span>
   <span style="color:#268bd2">restartPolicy</span>: Always
-</code></pre></div><div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">/ $ whoami
+</code></pre></div><div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">/ $ whoami
 whoami: unknown uid <span style="color:#2aa198">1001</span>
 / $ ls -lah
 total 44K    
