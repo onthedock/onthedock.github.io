@@ -11,13 +11,13 @@
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
 
-<link rel="canonical" href="https://onthedock.github.io/post/180316-jenkins-en-docker-puesta-en-marcha/">
+<link rel="canonical" href="https://onthedock.github.io/post/220130-programando-una-aplicacion-de-lista-de-la-compra/">
 
 
     
     <link href="https://fonts.googleapis.com/css?family=Special+Elite|Fira+Sans:400,700" rel="stylesheet">
     
-    <title>Jenkins en Docker: puesta en marcha - On The Dock</title>
+    <title>Programando en Go: Aplicación de Lista de la compra - On The Dock</title>
     <style amp-boilerplate>body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}</style><noscript><style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style></noscript>
     <script async src="https://cdn.ampproject.org/v0.js"></script>
     
@@ -26,22 +26,22 @@
 <script async custom-element="amp-ad" src="https://cdn.ampproject.org/v0/amp-ad-0.1.js"></script>
 
     
-<meta name="description" content="&lt;p&gt;Uno de los casos de uso más frecuentes de Docker es formando parte de una cadena de integración y despliegue continuo (CI/CD) gestionada por Jenkins.&lt;/p&gt;&lt;p&gt;En esta serie de artículos vamos a levantar un contenedor con Jenkins sobre Docker y vamos a configur Jenkins paso a paso.&lt;/p&gt;">
+<meta name="description" content="&lt;p&gt;Como comenté hacia el final de la entrada anterior &lt;a href=&#34;https://onthedock.github.io/post/220129-aprendiendo-a-programar-en-go-pasito-a-pasito/&#34;&gt;Aprendiendo a programar en Go&amp;hellip; pasito a pasito&lt;/a&gt;, teniendo la seguridad de los tests me ha dado la confianza de empezar a desarrollar una aplicación a modo de &lt;em&gt;ejercicio de aprendizaje&lt;/em&gt;.&lt;/p&gt;&lt;p&gt;El objetivo de la aplicación es el de gestionar una &lt;em&gt;lista de la compra&lt;/em&gt;, aunque esto es sólo una excusa ;)&lt;/p&gt;">
 
-<meta property="og:title" content="Jenkins en Docker: puesta en marcha - On The Dock">
+<meta property="og:title" content="Programando en Go: Aplicación de Lista de la compra - On The Dock">
 <meta property="og:type" content="article">
-<meta property="og:url" content="https://onthedock.github.io/post/180316-jenkins-en-docker-puesta-en-marcha/">
-<meta property="og:image" content="https://onthedock.github.io/images/jenkins.png">
+<meta property="og:url" content="https://onthedock.github.io/post/220130-programando-una-aplicacion-de-lista-de-la-compra/">
+<meta property="og:image" content="https://onthedock.github.io/images/go.png">
 <meta property="og:site_name" content="On The Dock">
-<meta property="og:description" content="&lt;p&gt;Uno de los casos de uso más frecuentes de Docker es formando parte de una cadena de integración y despliegue continuo (CI/CD) gestionada por Jenkins.&lt;/p&gt;&lt;p&gt;En esta serie de artículos vamos a levantar un contenedor con Jenkins sobre Docker y vamos a configur Jenkins paso a paso.&lt;/p&gt;">
+<meta property="og:description" content="&lt;p&gt;Como comenté hacia el final de la entrada anterior &lt;a href=&#34;https://onthedock.github.io/post/220129-aprendiendo-a-programar-en-go-pasito-a-pasito/&#34;&gt;Aprendiendo a programar en Go&amp;hellip; pasito a pasito&lt;/a&gt;, teniendo la seguridad de los tests me ha dado la confianza de empezar a desarrollar una aplicación a modo de &lt;em&gt;ejercicio de aprendizaje&lt;/em&gt;.&lt;/p&gt;&lt;p&gt;El objetivo de la aplicación es el de gestionar una &lt;em&gt;lista de la compra&lt;/em&gt;, aunque esto es sólo una excusa ;)&lt;/p&gt;">
 <meta property="og:locale" content="ja_JP">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="On The Dock">
-<meta name="twitter:url" content="https://onthedock.github.io/post/180316-jenkins-en-docker-puesta-en-marcha/">
-<meta name="twitter:title" content="Jenkins en Docker: puesta en marcha - On The Dock">
-<meta name="twitter:description" content="&lt;p&gt;Uno de los casos de uso más frecuentes de Docker es formando parte de una cadena de integración y despliegue continuo (CI/CD) gestionada por Jenkins.&lt;/p&gt;&lt;p&gt;En esta serie de artículos vamos a levantar un contenedor con Jenkins sobre Docker y vamos a configur Jenkins paso a paso.&lt;/p&gt;">
-<meta name="twitter:image" content="https://onthedock.github.io/images/jenkins.png">
+<meta name="twitter:url" content="https://onthedock.github.io/post/220130-programando-una-aplicacion-de-lista-de-la-compra/">
+<meta name="twitter:title" content="Programando en Go: Aplicación de Lista de la compra - On The Dock">
+<meta name="twitter:description" content="&lt;p&gt;Como comenté hacia el final de la entrada anterior &lt;a href=&#34;https://onthedock.github.io/post/220129-aprendiendo-a-programar-en-go-pasito-a-pasito/&#34;&gt;Aprendiendo a programar en Go&amp;hellip; pasito a pasito&lt;/a&gt;, teniendo la seguridad de los tests me ha dado la confianza de empezar a desarrollar una aplicación a modo de &lt;em&gt;ejercicio de aprendizaje&lt;/em&gt;.&lt;/p&gt;&lt;p&gt;El objetivo de la aplicación es el de gestionar una &lt;em&gt;lista de la compra&lt;/em&gt;, aunque esto es sólo una excusa ;)&lt;/p&gt;">
+<meta name="twitter:image" content="https://onthedock.github.io/images/go.png">
 
 
 <script type="application/ld+json">
@@ -52,15 +52,15 @@
       "@type": "WebPage",
       "@id":"https:\/\/onthedock.github.io\/"
     },
-    "headline": "Jenkins en Docker: puesta en marcha - On The Dock",
+    "headline": "Programando en Go: Aplicación de Lista de la compra - On The Dock",
     "image": {
       "@type": "ImageObject",
-      "url": "https:\/\/onthedock.github.io\/images\/jenkins.png",
+      "url": "https:\/\/onthedock.github.io\/images\/go.png",
       "height": 800,
       "width": 800
     },
-    "datePublished": "2018-03-16T21:39:10JST",
-    "dateModified": "2018-03-16T21:39:10JST",
+    "datePublished": "2022-01-30T20:51:49JST",
+    "dateModified": "2022-01-30T20:51:49JST",
     "author": {
       "@type": "Person",
       "name": "On The Dock"
@@ -75,7 +75,7 @@
         "height": 60
       }
     },
-    "description": "\u003cp\u003eUno de los casos de uso más frecuentes de Docker es formando parte de una cadena de integración y despliegue continuo (CI\/CD) gestionada por Jenkins.\u003c\/p\u003e\n\u003cp\u003eEn esta serie de artículos vamos a levantar un contenedor con Jenkins sobre Docker y vamos a configur Jenkins paso a paso.\u003c\/p\u003e"
+    "description": "\u003cp\u003eComo comenté hacia el final de la entrada anterior \u003ca href=\u0022https:\/\/onthedock.github.io\/post\/220129-aprendiendo-a-programar-en-go-pasito-a-pasito\/\u0022\u003eAprendiendo a programar en Go\u0026hellip; pasito a pasito\u003c\/a\u003e, teniendo la seguridad de los tests me ha dado la confianza de empezar a desarrollar una aplicación a modo de \u003cem\u003eejercicio de aprendizaje\u003c\/em\u003e.\u003c\/p\u003e\n\u003cp\u003eEl objetivo de la aplicación es el de gestionar una \u003cem\u003elista de la compra\u003c\/em\u003e, aunque esto es sólo una excusa ;)\u003c\/p\u003e"
   }
 </script>
 
@@ -114,14 +114,14 @@
     <main>
       
 <div class="l-container">
-  <article class="single article-82fdfab1e200b6fc1a28801ee717993c">
+  <article class="single article-02a95cee1891bed9c0dbc604a8f5a303">
   <div class="header-wrapper">
-    <a href="https://onthedock.github.io/post/180316-jenkins-en-docker-puesta-en-marcha/" class="thumbnail" title="Jenkins en Docker: puesta en marcha"></a>
+    <a href="https://onthedock.github.io/post/220130-programando-una-aplicacion-de-lista-de-la-compra/" class="thumbnail" title="Programando en Go: Aplicación de Lista de la compra"></a>
     <header class="article-header">
       <div class="clearfix">
-        <h1 class="title">Jenkins en Docker: puesta en marcha</h1>
+        <h1 class="title">Programando en Go: Aplicación de Lista de la compra</h1>
         <ul class="p-facts">
-          <li><time datetime="2018-03-16T21:39:10JST">16 Mar 2018</time></li>
+          <li><time datetime="2022-01-30T20:51:49JST">30 Jan 2022</time></li>
           <li><a href="https://onthedock.github.io/post/">post</a></li>
           
           <li>Xavi Aznar</li>
@@ -130,127 +130,38 @@
     </header>
   </div>
 
-  <div class="article-body"><p>Uno de los casos de uso más frecuentes de Docker es formando parte de una cadena de integración y despliegue continuo (CI/CD) gestionada por Jenkins.</p>
-<p>En esta serie de artículos vamos a levantar un contenedor con Jenkins sobre Docker y vamos a configur Jenkins paso a paso.</p>
-<h1 id="descarga-y-ejecución-de-jenkins-en-un-contenedor">Descarga y ejecución de Jenkins en un contenedor</h1>
-<p>La instalación de Jenkins usando Docker no podía ser más sencilla:</p>
-<ol>
-<li>Buscamos la imagen oficial de Jenkins en Docker Hub: <code>https://hub.docker.com/r/jenkins/jenkins/</code></li>
-<li>Revisamos las etiquetas disponibles y seleccionamos la última versión disponible (al escribir este artículo) basada en Alpine Linux: <code>jenkins/jenkins:2.107.1-alpine</code>.</li>
-<li>Descargamos la imagen a nuestro repositorio local: <code>docker pull jenkins/jenkins:2.107.1-alpine</code>.</li>
-<li>Creamos un volumen local donde almacenar la configuración de Jenkins: <code>docker volume create jenkins_home</code></li>
-<li>Lanzamos el contenedor para Jenkins, montando el volumen de datos creado en el punto anterior: <code>docker run --name jenkins -p 8080:8000 -p 50000:50000 -v jenkins_home:/var/jenkins_home jenkins/jenkins:2.107.1-alpine</code></li>
-</ol>
-<h2 id="el-comando-docker-run-paso-a-paso">El comando <code>docker run</code> paso a paso</h2>
-<p>El comando anterior lanza un contenedor llamado <code>jenkins</code> (especificado mediante <code>--name jenkins</code>) basado en la imagen <code>jenkins/jenkins:2.107.1-alpine</code>.</p>
-<p>El contenedor monta el volumen <code>jenkins_home</code> en el contenedor (si no se ha creado en el punto 4, se crea el volumen al lanzar el contenedor). El volumen contiene toda la configuración de Jenkins, lo que permitirá actualizar la aplicación a otras versiones sin perder la configuración. La opción de guardar la configuración en un contenedor es preferible a la de montar un volumen local del <em>host</em>.</p>
-<p>Si decides montar un volumen local del <em>host</em> en el contenedor, debes tener en cuenta que Jenkins corre dentro del contenedor con el usuario <code>jenkins</code>, con <code>uid 1000</code>; deberás dar permisos en la carpeta local a este usuario para no tener problemas de acceso desde el contenedor. Otra opción es ejecutar Jenkins con un usuario &ldquo;local&rdquo; del <em>host</em> mediante el parámetro <code>-u nombre_de_usuario</code> al ejecutar <code>docker run</code>.</p>
-<h3 id="puertos">Puertos</h3>
-<p>El acceso web a la aplicación se realiza a través del puerto 8080 , mientras que el puerto 50000 es necesario para conectar con otros servidores Jenkins <em>esclavos</em> a través de JNLP (Java Web Start). Si solo vas a utilizar <em>esclavos</em> vía SSH, no necesitas abrir el puerto 50000.</p>
-<h3 id="otras-configuraciones">Otras configuraciones</h3>
-<p>Puedes realizar configuraciones adicionales a través de parámetros al ejecutar el contenedor, como ajustar el nivel de detalle en los <em>logs</em>, configurar el número de <em>ejecutores</em>, etc.</p>
-<h3 id="preinstalación-de-plugins">Preinstalación de plugins</h3>
-<p>Para preinstalar <em>plugins</em> en Jenkins, debes crear una imagen personalizada. En la imagen, puedes usar el script <code>install-plugins.sh</code> para descargar los plugins indicados. Puedes pasar una lista de plugins a instalar al script mediante:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">...
-COPY plugins.txt /usr/share/jenkins/ref/plugins.txt
-RUN /usr/local/bin/install-plugins.sh &lt; /usr/share/jenkins/ref/plugins.txt
-</code></pre></div><p>Cuando el contenedor de Jenkins arranca, comprueba si los <em>plugins</em> indicados existen en <code>JENKINS_HOME</code> y los copia si es necesario. <strong>No sobrescribirá los ficheros</strong>, por lo que si has actualizado los <em>plugins</em> desde la interfaz web, no los modificará.</p>
-<p>Es posible <strong>sobrescribir</strong> los <em>plugins</em> si lo necesitas; para ello debes añadir <code>.override</code> al nombre del <em>plugin</em> que quieras sobrescribir.</p>
-<h2 id="primer-acceso-a-jenkins">Primer acceso a Jenkins</h2>
-<p>Abre un navegador y accede a http://IP-del-host-docker:8080. Después de unos segundos en los que Jenkins debe acabar de arrancar, se muestra el siguiente mensaje:</p>
-<figure>
-    <img src="/images/180316/jenkins-unlock.png"/> 
-</figure>
-
-<p>Jenkins genera una contraseña segura en <code>/var/jenkins_home/secrets/initialAdminPassword</code>. Puedes obtener esta contraseña inicial de diferentes maneras, pero la más sencilla es revisando los logs de arranque de Jenkins:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ docker logs jenkins
-...
-
-Jenkins initial setup is required. An admin user has been created and a password generated.
-Please use the following password to proceed to installation:
-
-cb6e558c91e946ab8f06cf085c9cf88b
-
-This may also be found at: /var/jenkins_home/secrets/initialAdminPassword
-
-*************************************************************
-*************************************************************
-*************************************************************
-
-Mar 17, <span style="color:#2aa198">2018</span> 5:42:29 AM hudson.model.UpdateSite updateData
-INFO: Obtained the latest update center data file <span style="color:#719e07">for</span> UpdateSource default
-Mar 17, <span style="color:#2aa198">2018</span> 5:42:29 AM hudson.model.DownloadService<span style="color:#268bd2">$Downloadable</span> load
-INFO: Obtained the updated data file <span style="color:#719e07">for</span> hudson.tasks.Maven.MavenInstaller
-Mar 17, <span style="color:#2aa198">2018</span> 5:42:31 AM hudson.model.DownloadService<span style="color:#268bd2">$Downloadable</span> load
-INFO: Obtained the updated data file <span style="color:#719e07">for</span> hudson.tools.JDKInstaller
-Mar 17, <span style="color:#2aa198">2018</span> 5:42:31 AM hudson.model.AsyncPeriodicWork<span style="color:#268bd2">$1</span> run
-INFO: Finished Download metadata. 8,990 ms
-Mar 17, <span style="color:#2aa198">2018</span> 5:42:31 AM hudson.model.UpdateSite updateData
-INFO: Obtained the latest update center data file <span style="color:#719e07">for</span> UpdateSource default
-Mar 17, <span style="color:#2aa198">2018</span> 5:42:31 AM hudson.WebAppMain<span style="color:#268bd2">$3</span> run
-INFO: Jenkins is fully up and running
---&gt; setting agent port <span style="color:#719e07">for</span> jnlp
---&gt; setting agent port <span style="color:#719e07">for</span> jnlp... <span style="color:#719e07">done</span>
-</code></pre></div><p>Personalmente considero más útil aprovechar que el password inicial se encuentra en el fichero <code>/var/jenkins_home/secrets/initialAdminPassword</code> y obtenerlo usando <code>cat /var/jenkins_home/secrets/initialAdminPassword</code> mediante <code>docker exec</code>.</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ docker <span style="color:#b58900">exec</span> jenkins cat /var/jenkins_home/secrets/initialAdminPassword
-cb6e558c91e946ab8f06cf085c9cf88b
-</code></pre></div><p>De esta forma puedes guardar el password en una variable de entorno y usarlo en un script, para acceder desde otra aplicación usando la API, etc.</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ <span style="color:#268bd2">JENKINS_InitialPassword</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>docker <span style="color:#b58900">exec</span> jenkins cat /var/jenkins_home/secrets/initialAdminPassword<span style="color:#719e07">)</span>
-
-$ <span style="color:#b58900">echo</span> <span style="color:#268bd2">$JENKINS_InitialPassword</span>
-cb6e558c91e946ab8f06cf085c9cf88b
-</code></pre></div><p>Copia el password e introdúcelo para acceder a Jenkins.</p>
-<h2 id="instalación-de-plugins">Instalación de plugins</h2>
-<p>Jenkins ofrece la posibilidad de instalar los <em>plugins</em> sugeridos por la comunidad o realizar nosotros la selección de forma manual. Podemos instalar o desinstalar <em>plugins</em> después, por lo que pulsamos en la opción <em>Install suggested plugins</em>:</p>
-<figure>
-    <img src="/images/180316/jenkins_suggested_plugins.png"/> 
-</figure>
-
-<p>El sistema descarga los <em>plugins</em>:</p>
-<figure>
-    <img src="/images/180316/jenkins_suggested_plugins_installation.png"/> 
-</figure>
-
-<h2 id="creación-de-un-usuario-administrador">Creación de un usuario administrador</h2>
-<p>Tras la instalación, se muestra el formulario para crear un usuario administrador:</p>
-<figure>
-    <img src="/images/180316/jenkins_first-admin-user.png"/> 
-</figure>
-
-<p>Jenkins ofrece la posibilidad de seguir usando el usuario <em>admin</em>, sin crear usuarios adicionales.</p>
-<p>Tras la creación del usuario, podemos empezar a usar Jenkins:</p>
-<figure>
-    <img src="/images/180316/jenkins_is_ready.png"/> 
-</figure>
-
-<p>Si hemos creado un nuevo usuario administrador, accedemos a Jenkins con el usuario recién creado:</p>
-<figure>
-    <img src="/images/180316/jenkins_landingpage.png"/> 
-</figure>
-
-<h2 id="resumen">Resumen</h2>
-<p>Hemos descargado la imagen de Jenkins y hemos arrancado un contenedor a partir de ella. Hemos indicado cómo acceder usando el password generado durante el primer arranque, cómo configurar los <em>plugins</em> sugeridos y crear el primer usuario.</p>
-<p>En los siguientes artículos crearemos los primeros <em>jobs</em> de prueba en Jenkins.</p></div>
+  <div class="article-body"><p>Como comenté hacia el final de la entrada anterior <a href="https://onthedock.github.io/post/220129-aprendiendo-a-programar-en-go-pasito-a-pasito/">Aprendiendo a programar en Go&hellip; pasito a pasito</a>, teniendo la seguridad de los tests me ha dado la confianza de empezar a desarrollar una aplicación a modo de <em>ejercicio de aprendizaje</em>.</p>
+<p>El objetivo de la aplicación es el de gestionar una <em>lista de la compra</em>, aunque esto es sólo una excusa ;)</p>
+<p>El código de la aplicación (aviso, es un <em>work in pregress</em>) está en el repositorio <a href="https://github.com/onthedock/go-shoppinglist">onthedock/go-shoppinglist</a>. Voy documentando el proceso paso a paso en el <a href="https://github.com/onthedock/go-shoppinglist#readme"><code>readme.md</code></a>.</p>
+<p>La &ldquo;aplicación&rdquo; empezó como un ejercicio para poner a prueba el ciclo descrito en <a href="https://quii.gitbook.io/learn-go-with-tests/">Learn Go with tests</a>: crear un test, eliminar los errores de compilación y hacer que el test pase <strong>escribiéndo la cantidad mínima de código</strong> y después refactorizar, con la confianza de tener un test para saber que no rompes nada sin darte cuenta&hellip;</p>
+<p>Empecé con las funciones para añadir y eliminar elementos de la <em>lista de la compra</em> y poco a poco he ido haciendo cambios&hellip; Creé los tipos <code>Item</code> (para los elementos de la lista) y <code>ShoppingList</code> (para la lista en sí). Estos cambios no aportan funcionalidad adicional, pero ayudan a que sea más fácil de entender la aplicación: tiene mucho más sentido <code>func AddItem(sl ShoppingList, item Item) int</code> que <code>func AddItem(sl []string, item string) int</code>.</p>
+<p>Más adelante convertí las funciones en métodos; de nuevo, la idea es <em>vincular</em> las funciones que modifican la lista de la compra con el tipo que contiene la lista&hellip;</p>
+<p>Al disponer de los tests es fácil requerimientos, como el de que no se deben añadir elementos a la lista que ya se encuentren presentes, etc.</p>
+<p>Con las funciones de añadir y eliminar elementos de la lista de la compra, he movido las funciones a un <em>package</em> y he creado la aplicación que las usa (bueno, sólo imprime los elementos de una lista, de momento).</p>
+<p>La experiencia está resultando muy positiva; ceñirme al ciclo de crear el test, hacer que pase y después modificar hace que los pasos que voy dando sean pequeños, pero seguros.</p>
+<p>En cuanto a los siguientes pasos, la idea es seguir probando cosas nuevas: quizás usar un <code>struct</code> en vez de un <em>slice</em> de <em>strings</em>, lo que me hará usar punteros&hellip; También he pensado en usar un fichero de texto para guardar la lista de la compra y quizás más adelante, una base de datos.</p>
+<p>¿Porqué no crear una API y un servidor web para mostrar la lista de la compra en el navegador?</p>
+<p>Sólo la imaginación es el límite ;)</p></div>
 
   <aside class="p-share">
 
 
-  <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3a%2f%2fonthedock.github.io%2fpost%2f180316-jenkins-en-docker-puesta-en-marcha%2f&amp;source=https%3a%2f%2fonthedock.github.io%2fpost%2f180316-jenkins-en-docker-puesta-en-marcha%2f&amp;title=Jenkins%20en%20Docker%3a%20puesta%20en%20marcha" target="_blank" rel="noopener" aria-label="Share on LinkedIn">
+  <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3a%2f%2fonthedock.github.io%2fpost%2f220130-programando-una-aplicacion-de-lista-de-la-compra%2f&amp;source=https%3a%2f%2fonthedock.github.io%2fpost%2f220130-programando-una-aplicacion-de-lista-de-la-compra%2f&amp;title=Programando%20en%20Go%3a%20Aplicaci%c3%b3n%20de%20Lista%20de%20la%20compra" target="_blank" rel="noopener" aria-label="Share on LinkedIn">
     <svg width="2rem" height="2rem" viewBox="0 0 352 352"><path d="M0 40v272c0 21.9 18.1 40 40 40h272c21.9.0 40-18.1 40-40V40c0-21.9-18.1-40-40-40H40C18.1.0.0 18.1.0 40zm312-8c4.6.0 8 3.4 8 8v272c0 4.6-3.4 8-8 8H40c-4.6.0-8-3.4-8-8V40c0-4.6 3.4-8 8-8H312zM59.5 87c0 15.2 12.3 27.5 27.5 27.5s27.5-12.3 27.5-27.5S102.2 59.5 87 59.5 59.5 71.8 59.5 87zM187 157h-1v-21h-45v152h47v-75c0-19.8 3.9-39 28.5-39 24.2.0 24.5 22.4 24.5 40v74h47v-83.5c0-40.9-8.7-72-56.5-72-23 0-38.2 12.6-44.5 24.5zM64 288h47.5V136H64V288z"></path></svg>
     <p>LinkedIn</p>
   </a>
 
-  <a href="https://twitter.com/intent/tweet?hashtags=onthedock&amp;url=https%3a%2f%2fonthedock.github.io%2fpost%2f180316-jenkins-en-docker-puesta-en-marcha%2f&amp;text=Jenkins%20en%20Docker%3a%20puesta%20en%20marcha" target="_blank" rel="noopener" aria-label="Share on Twitter" class="share-btn twitter">
+  <a href="https://twitter.com/intent/tweet?hashtags=onthedock&amp;url=https%3a%2f%2fonthedock.github.io%2fpost%2f220130-programando-una-aplicacion-de-lista-de-la-compra%2f&amp;text=Programando%20en%20Go%3a%20Aplicaci%c3%b3n%20de%20Lista%20de%20la%20compra" target="_blank" rel="noopener" aria-label="Share on Twitter" class="share-btn twitter">
     <svg width="2rem" height="2rem" viewBox="0 0 384 312"><path d="m384 36.9c-14.1 6.3-29.3 10.5-45.2 12.4 16.3-9.7 28.8-25.2 34.6-43.6-15.2 9-32.1 15.6-50 19.1-14.4-15.2-34.9-24.8-57.5-24.8-43.5.0-78.8 35.3-78.8 78.8.0 6.2.7 12.2 2 17.9-65.5-3.3-123.5-34.6-162.4-82.3C20 26 16.1 39.6 16.1 54c0 27.3 13.9 51.4 35 65.6-12.9-.4-25.1-4-35.7-9.9v1c0 38.2 27.2 70 63.2 77.2-6.6 1.8-13.6 2.8-20.8 2.8-5.1.0-10-.5-14.8-1.4 10 31.3 39.1 54.1 73.6 54.7-27 21.1-60.9 33.7-97.8 33.7-6.4.0-12.6-.4-18.8-1.1C34.9 299 76.3 312 120.8 312c144.9.0 224.1-120 224.1-224.1.0-3.4-.1-6.8-.2-10.2 15.4-11.1 28.7-25 39.3-40.8z"></path></svg>
     <p>Twitter</p>
   </a>
 
-  <a href="mailto:?subject=Jenkins%20en%20Docker%3a%20puesta%20en%20marcha.&amp;body=Jenkins%20en%20Docker%3a%20puesta%20en%20marcha%0a%0ahttps%3a%2f%2fonthedock.github.io%2fpost%2f180316-jenkins-en-docker-puesta-en-marcha%2f%0a" target="_blank" class="share-btn email">
+  <a href="mailto:?subject=Programando%20en%20Go%3a%20Aplicaci%c3%b3n%20de%20Lista%20de%20la%20compra.&amp;body=Programando%20en%20Go%3a%20Aplicaci%c3%b3n%20de%20Lista%20de%20la%20compra%0a%0ahttps%3a%2f%2fonthedock.github.io%2fpost%2f220130-programando-una-aplicacion-de-lista-de-la-compra%2f%0a" target="_blank" class="share-btn email">
     <svg width="2rem" height="2rem" viewBox="0 0 416 288"><path d="m0 16v256 16h16 384 16v-16V16 0h-16H16 0zm347 16-139 92.5L69 32zM199 157.5l9 5.5 9-5.5L384 46v210H32V46z"></path></svg>
     <p>Email</p>
   </a>
 
-  <a href="whatsapp://send?text=Jenkins%20en%20Docker%3a%20puesta%20en%20marcha%0a%0ahttps%3a%2f%2fonthedock.github.io%2fpost%2f180316-jenkins-en-docker-puesta-en-marcha%2f%0a" target="_blank">
+  <a href="whatsapp://send?text=Programando%20en%20Go%3a%20Aplicaci%c3%b3n%20de%20Lista%20de%20la%20compra%0a%0ahttps%3a%2f%2fonthedock.github.io%2fpost%2f220130-programando-una-aplicacion-de-lista-de-la-compra%2f%0a" target="_blank">
     <svg  width="2rem" height="2rem" viewBox="0 0 24 24">
     <path d="M20.1 3.9C17.9 1.7 15 .5 12 .5 5.8.5.7 5.6.7 11.9c0 2 .5 3.9 1.5 5.6L.6 23.4l6-1.6c1.6.9 3.5 1.3 5.4 1.3 6.3.0 11.4-5.1 11.4-11.4-.1-2.8-1.2-5.7-3.3-7.8zM12 21.4c-1.7.0-3.3-.5-4.8-1.3l-.4-.2-3.5 1 1-3.4L4 17c-1-1.5-1.4-3.2-1.4-5.1.0-5.2 4.2-9.4 9.4-9.4 2.5.0 4.9 1 6.7 2.8s2.8 4.2 2.8 6.7c-.1 5.2-4.3 9.4-9.5 9.4zm5.1-7.1c-.3-.1-1.7-.9-1.9-1-.3-.1-.5-.1-.7.1-.2.3-.8 1-.9 1.1-.2.2-.3.2-.6.1s-1.2-.5-2.3-1.4c-.9-.8-1.4-1.7-1.6-2s0-.5.1-.6.3-.3.4-.5c.2-.1.3-.3.4-.5s0-.4.0-.5C10 9 9.3 7.6 9 7c-.1-.4-.4-.3-.5-.3h-.6s-.4.1-.7.3c-.3.3-1 1-1 2.4s1 2.8 1.1 3c.1.2 2 3.1 4.9 4.3.7.3 1.2.5 1.6.6.7.2 1.3.2 1.8.1.6-.1 1.7-.7 1.9-1.3.2-.7.2-1.2.2-1.3-.1-.3-.3-.4-.6-.5z"></path></svg>
     <p>Whatsapp</p>
@@ -271,7 +182,7 @@ cb6e558c91e946ab8f06cf085c9cf88b
         
         <li itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb"><a href="https://onthedock.github.io/post/" itemprop="url"><span itemprop="title">post</span></a></li>
         
-        <li>Jenkins en Docker: puesta en marcha</li>
+        <li>Programando en Go: Aplicación de Lista de la compra</li>
       </ol>
 
       
@@ -295,11 +206,9 @@ cb6e558c91e946ab8f06cf085c9cf88b
           <header><a href="https://onthedock.github.io/tags/">tags</a></header>
           <ul>
             
-            <li><a href="https://onthedock.github.io/tags/docker/">docker</a></li>
+            <li><a href="https://onthedock.github.io/tags/go/">go</a></li>
             
-            <li><a href="https://onthedock.github.io/tags/jenkins/">jenkins</a></li>
-            
-            <li><a href="https://onthedock.github.io/tags/integracion-continua/">integracion continua</a></li>
+            <li><a href="https://onthedock.github.io/tags/programming/">programming</a></li>
             
           </ul>
         </li>
@@ -337,22 +246,7 @@ cb6e558c91e946ab8f06cf085c9cf88b
   <section>
     <header><span>Latests</span></header>
     <ul class="p-articles thin">
-      <li><article class="li sm article-02a95cee1891bed9c0dbc604a8f5a303">
-  <div class="header-wrapper">
-    <a href="https://onthedock.github.io/post/220130-programando-una-aplicacion-de-lista-de-la-compra/" class="thumbnail" title="Programando en Go: Aplicación de Lista de la compra"></a>
-    <header class="article-header">
-      <div class="clearfix">
-        <h2 class="title"><a href="https://onthedock.github.io/post/220130-programando-una-aplicacion-de-lista-de-la-compra/">Programando en Go: Aplicación de Lista de la compra</a></h2>
-        <ul class="p-facts">
-          <li><time datetime="2022-01-30T20:51:49JST">30 Jan 2022</time></li>
-          <li><a href="https://onthedock.github.io/post/">post</a></li>
-          
-        </ul>
-      </div>
-    </header>
-  </div>
-</article>
-</li><li><article class="li sm article-ab3b8cba58882cb06c96ddd9e6407e80">
+      <li><article class="li sm article-ab3b8cba58882cb06c96ddd9e6407e80">
   <div class="header-wrapper">
     <a href="https://onthedock.github.io/post/220129-aprendiendo-a-programar-en-go-pasito-a-pasito/" class="thumbnail" title="Aprendiendo a programar en Go... pasito a pasito"></a>
     <header class="article-header">
@@ -390,6 +284,21 @@ cb6e558c91e946ab8f06cf085c9cf88b
         <h2 class="title"><a href="https://onthedock.github.io/post/211230-porque-los-deployments-usan-replicasets-pero-no-los-statefulsets-ni-los-daemonsets/">¿Por qué los Deployments usan Replicasets pero los Statefulsets y los Daemonsets no?</a></h2>
         <ul class="p-facts">
           <li><time datetime="2021-12-30T12:12:02JST">30 Dec 2021</time></li>
+          <li><a href="https://onthedock.github.io/post/">post</a></li>
+          
+        </ul>
+      </div>
+    </header>
+  </div>
+</article>
+</li><li><article class="li sm article-8664cf7a79475eafdd5fab6d49114ce4">
+  <div class="header-wrapper">
+    <a href="https://onthedock.github.io/post/211229-tema-personalizado-de-oh-my-zsh/" class="thumbnail" title="Tema personalizado de Oh My Zsh"></a>
+    <header class="article-header">
+      <div class="clearfix">
+        <h2 class="title"><a href="https://onthedock.github.io/post/211229-tema-personalizado-de-oh-my-zsh/">Tema personalizado de Oh My Zsh</a></h2>
+        <ul class="p-facts">
+          <li><time datetime="2021-12-29T23:22:36JST">29 Dec 2021</time></li>
           <li><a href="https://onthedock.github.io/post/">post</a></li>
           
         </ul>
