@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.87.0" />
+<meta name="generator" content="Hugo 0.82.1" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -132,12 +132,12 @@
 
   <div class="article-body"><p>La instalación de Kubernetes se realiza de forma casi automática gracias al <em>script</em> <code>kubeadm</code>. Sólo hay que seguir las instrucciones de <a href="https://kubernetes.io/docs/getting-started-guides/kubeadm/">Installing Kubernetes on Linux with kubeadm</a> y la salida por pantalla del propio <em>script</em>.</p>
 <p>Para no <em>deshacer</em> la instalación de Kubernetes sobre Raspberry Pi, he creado una máquina virtual con Debian 3 (<em>Jessie</em>):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh"><span style="color:#586e75"># uname -a</span>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh"><span style="color:#586e75"># uname -a</span>
 Linux k8s 3.16.0-4-amd64 <span style="color:#586e75">#1 SMP Debian 3.16.39-1+deb8u2 (2017-03-07) x86_64 GNU/Linux</span>
 </code></pre></div><p>En primer lugar, me he convertido en <code>root</code> mediante <code>su -</code>.</p>
 <p>Uno de los requisitos para instalar Kubernetes es tener Docker instalado. En mi caso, tengo instalado <code>docker-engine</code>, el paquete de Docker mantenido por Docker Inc. Este paquete y <code>docker.io</code> (el mantenido por Ubuntu) son equivalentes, aunque tienen numeración de versión diferente.</p>
 <p>Verifico que Docker está instalado:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh"><span style="color:#586e75"># docker version</span>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh"><span style="color:#586e75"># docker version</span>
 Client:
  Version:      17.04.0-ce
  API version:  1.28
@@ -156,26 +156,26 @@ Server:
  Experimental: <span style="color:#b58900">false</span>
 <span style="color:#586e75">#</span>
 </code></pre></div><p>Antes de empezar la instalación, he actualizado el sistema mediante:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh"><span style="color:#586e75"># apt-get update &amp;&amp; apt-get upgrade</span>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh"><span style="color:#586e75"># apt-get update &amp;&amp; apt-get upgrade</span>
 ...
 </code></pre></div><p>A partir de aquí, sigo las instrucciones de la guía oficial.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh"><span style="color:#586e75"># apt-get update &amp;&amp; apt-get install -y apt-transport-https</span>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh"><span style="color:#586e75"># apt-get update &amp;&amp; apt-get install -y apt-transport-https</span>
 ...
 Reading state information... Done
 apt-transport-https is already the newest version.
 <span style="color:#2aa198">0</span> upgraded, <span style="color:#2aa198">0</span> newly installed, <span style="color:#2aa198">0</span> to remove and <span style="color:#2aa198">0</span> not upgraded.
 <span style="color:#586e75">#</span>
 </code></pre></div><p>Obtenemos la clave GPG de los paquetes de Kubernetes:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh"><span style="color:#586e75"># curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -</span>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh"><span style="color:#586e75"># curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -</span>
 OK
 </code></pre></div><p>Añadimos el repositorio de Kubernetes:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">apt-get update <span style="color:#719e07">&amp;&amp;</span> apt-get install -y apt-transport-https
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">apt-get update <span style="color:#719e07">&amp;&amp;</span> apt-get install -y apt-transport-https
 curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
 cat <span style="color:#2aa198">&lt;&lt;EOF &gt;/etc/apt/sources.list.d/kubernetes.list
 </span><span style="color:#2aa198">deb http://apt.kubernetes.io/ kubernetes-xenial main
 </span><span style="color:#2aa198">EOF</span>
 </code></pre></div><p>Y ya sólo nos queda actualizar la información e instalar los componentes de Kubernetes:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh"><span style="color:#586e75"># apt-get update</span>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh"><span style="color:#586e75"># apt-get update</span>
 ...
 Fetched 22.1 kB in 3s <span style="color:#719e07">(</span>6,784 B/s<span style="color:#719e07">)</span>
 Reading package lists... Done
@@ -194,7 +194,7 @@ Processing triggers <span style="color:#719e07">for</span> systemd <span style="
 <span style="color:#586e75">#</span>
 </code></pre></div><p>Ya tenemos instalado Kubernetes en nuestro sistema.</p>
 <p>El siguiente paso es inicializar el clúster con <code>kubeadm init</code>.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh"><span style="color:#586e75"># kubeadm init</span>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh"><span style="color:#586e75"># kubeadm init</span>
 <span style="color:#719e07">[</span>kubeadm<span style="color:#719e07">]</span> WARNING: kubeadm is in beta, please <span style="color:#719e07">do</span> not use it <span style="color:#719e07">for</span> production clusters.
 <span style="color:#719e07">[</span>init<span style="color:#719e07">]</span> Using Kubernetes version: v1.6.0
 <span style="color:#719e07">[</span>init<span style="color:#719e07">]</span> Using Authorization mode: RBAC

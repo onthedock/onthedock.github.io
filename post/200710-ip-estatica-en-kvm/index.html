@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.87.0" />
+<meta name="generator" content="Hugo 0.82.1" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -141,13 +141,13 @@
 <p>En vez de fijar una IP en la máquina virtual, reservamos una IP en el DHCP a través de la dirección <em>mac</em>. De esta forma, siempre se asigna la misma IP a la máquina virtual.</p>
 <p>Para ello, necesitamos obtener la <em>mac address</em> de la máquina virtual.
 Por ejemplo, mediante: <code>virsh dumpxml ${nombr-vm} | grep -i 'mac address'</code></p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ virsh dumpxml docker | grep -i <span style="color:#2aa198">&#39;mac address&#39;</span>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ virsh dumpxml docker | grep -i <span style="color:#2aa198">&#39;mac address&#39;</span>
       &lt;mac <span style="color:#268bd2">address</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#39;52:54:00:91:84:c4&#39;</span>/&gt;
 </code></pre></div><p>Anota la <em>mac address</em> porque la necesitaremos en los siguientes pasos.</p>
 <h2 id="modificar-el-rango-de-ips-de-la-red">Modificar el rango de IPs de la red</h2>
 <p>Vamos a modificar el rango de IPs asignadas para la red <em>default</em>.</p>
 <p>Lanza el comando <code>virsh net-edit default</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-xml" data-lang="xml"><span style="color:#268bd2">&lt;network&gt;</span>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-xml" data-lang="xml"><span style="color:#268bd2">&lt;network&gt;</span>
   <span style="color:#268bd2">&lt;name&gt;</span>default<span style="color:#268bd2">&lt;/name&gt;</span>
   <span style="color:#268bd2">&lt;uuid&gt;</span>234020c3-b70a-457c-b9ac-16c9dd688920<span style="color:#268bd2">&lt;/uuid&gt;</span>
   <span style="color:#268bd2">&lt;forward</span> mode=<span style="color:#2aa198">&#39;nat&#39;</span><span style="color:#268bd2">/&gt;</span>
@@ -163,7 +163,7 @@ Por ejemplo, mediante: <code>virsh dumpxml ${nombr-vm} | grep -i 'mac address'</
 <p>Modificando el <code>range start</code> o el <code>end</code>, hacemos &ldquo;hueco&rdquo; para dejar fuera del rango del DHCP tantas IPs como necesitemos.
 En mi caso, he modificado el inicio del rango a <code>start='192.168.122.50'</code>.</p>
 <p>A continuación añade una nueva línea para <em>reservar</em> una IP -del rango excluido del DHCP- para la <em>mac address</em> de la máquina virtual; en mi caso, he asignado la IP <code>192.168.122.2</code> con <code>&lt;host mac='52:54:00:91:84:c4' name='docker' ip='192.168.122.2'/&gt;</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-xml" data-lang="xml"><span style="color:#268bd2">&lt;ip</span> address=<span style="color:#2aa198">&#39;192.168.122.1&#39;</span> netmask=<span style="color:#2aa198">&#39;255.255.255.0&#39;</span><span style="color:#268bd2">&gt;</span>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-xml" data-lang="xml"><span style="color:#268bd2">&lt;ip</span> address=<span style="color:#2aa198">&#39;192.168.122.1&#39;</span> netmask=<span style="color:#2aa198">&#39;255.255.255.0&#39;</span><span style="color:#268bd2">&gt;</span>
     <span style="color:#268bd2">&lt;dhcp&gt;</span>
       <span style="color:#268bd2">&lt;range</span> start=<span style="color:#2aa198">&#39;192.168.122.50&#39;</span> end=<span style="color:#2aa198">&#39;192.168.122.254&#39;</span><span style="color:#268bd2">/&gt;</span>
       <span style="color:#268bd2">&lt;host</span> mac=<span style="color:#2aa198">&#39;52:54:00:91:84:c4&#39;</span> name=<span style="color:#2aa198">&#39;docker&#39;</span> ip=<span style="color:#2aa198">&#39;192.168.122.2&#39;</span><span style="color:#268bd2">/&gt;</span>
@@ -171,7 +171,7 @@ En mi caso, he modificado el inicio del rango a <code>start='192.168.122.50'</co
   <span style="color:#268bd2">&lt;/ip&gt;</span>
 </code></pre></div><p>Si quieres realizar múltiples reservas, simmplemente añade más líneas <code>&lt;host mac='...</code> bajo la etiqueta <code>&lt;range start='...</code>.</p>
 <p>Una vez modificada la configuración de la red <code>default</code>, guarda los cambios y reinicia la red:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ virsh net-destroy default <span style="color:#719e07">&amp;&amp;</span> virsh net-start default
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ virsh net-destroy default <span style="color:#719e07">&amp;&amp;</span> virsh net-start default
 Network default destroyed
 
 Network default started
@@ -181,7 +181,7 @@ $
 <p>El comando <a href="https://wiki.libvirt.org/page/Networking#virsh_net-update"><code>virsh net-update</code></a> sólo permite añadir o eliminar rangos de IPs, no modificarlos.</p>
 </blockquote>
 <p>Arranca la máquina virtual (o reinicia la red) para que la máquina virtual obtenga la IP asignada:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ virsh start docker
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ virsh start docker
 Domain docker started
 
 $ virsh domifaddr docker

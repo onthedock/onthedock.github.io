@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.87.0" />
+<meta name="generator" content="Hugo 0.82.1" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -139,13 +139,13 @@
 <p>La forma <em>recomendada</em> de desplegar MinIO en Kubernetes es a través de un operador o de una <em>Helm Chart</em>, como se describe en la documentación oficial: <a href="https://docs.min.io/docs/deploy-minio-on-kubernetes.html">Deploy MinIO on Kubernetes</a>. En mi caso lo despliego manualmente <em>por aprender</em>.</p>
 </blockquote>
 <p>Siguiendo las buenas prácticas, creamos un <em>Namespace</em> para desplegar MinIO:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-YAML" data-lang="YAML">---
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-YAML" data-lang="YAML">---
 <span style="color:#268bd2">kind</span>: Namespace
 <span style="color:#268bd2">apiVersion</span>: v1
 <span style="color:#268bd2">metadata</span>:
   <span style="color:#268bd2">name</span>: minio
 </code></pre></div><p>Como la finalidad de MinIO es la de proporcionar almacenamiento, definimos un <em>Persistent Volume Claim</em> (en este caso, usando la <em>Storage Class</em> por defecto en el clúster):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
 <span style="color:#268bd2">kind</span>: PersistentVolumeClaim
 <span style="color:#268bd2">apiVersion</span>: v1
 <span style="color:#268bd2">metadata</span>:
@@ -159,7 +159,7 @@
       <span style="color:#268bd2">storage</span>: 2Gi
 </code></pre></div><p>En mi escenario, MinIO lo usaré para almacenar las copias de seguridad durante las pruebas con Velero, por eso defino un volumen de tamaño pequeño.</p>
 <p>Con estos pre-requisitos mínimos, ya podemos definir el <em>Deployment</em> de MinIO:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
 <span style="color:#268bd2">kind</span>: Deployment
 <span style="color:#268bd2">apiVersion</span>: apps/v1
 <span style="color:#268bd2">metadata</span>:
@@ -193,11 +193,11 @@
 </code></pre></div><p>Como no hemos especificado usuario y <em>password</em>, MinIO arranca con las credenciales por defecto: <code>minioadmin</code> (como usuario y <em>password</em>).</p>
 <p>Para especificar credenciales personalizadas, hay que definir las variables de entorno <code>MINIO_ROOT_USER</code> y <code>MINIO_ROOT_PASSWORD</code>. Los valores de estas variables de entorno las obtendremos de un <em>Secret</em>.</p>
 <p>Como los <em>secretos</em> en Kubernetes están ofuscados usando <strong>base64</strong>, uso <code>kubectl create secret</code> con la opción <code>dry-run</code> para generar el YAML de definición del <em>Secret</em>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">kubectl create secret generic minio-secret -n minio <span style="color:#cb4b16">\
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">kubectl create secret generic minio-secret -n minio <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>--from-literal<span style="color:#719e07">=</span>minio-root-user<span style="color:#719e07">=</span>ACCESSKEYEXAMPLE123 <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>--from-literal<span style="color:#719e07">=</span>minio-root-password<span style="color:#719e07">=</span>wdvb5rtghn76yujm -o yaml --dry-run<span style="color:#719e07">=</span>client | tee minio-secret.yaml
 </code></pre></div><p>Esto genera el YAML con los valores ya ofuscados (y evita errores):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
 <span style="color:#268bd2">apiVersion</span>: v1
 <span style="color:#268bd2">data</span>:
   <span style="color:#268bd2">minio-root-password</span>: d2R2YjVydGdobjc2eXVqbQ==
@@ -208,7 +208,7 @@
  <span style="color:#268bd2">namespace</span>: minio
 <span style="color:#268bd2">type</span>: Opaque
 </code></pre></div><p>Actualizamos la definición del <em>Deployment</em> para que MinIO use las variables de entorno con las credenciales personalizadas (en <code>spec.containers.env</code>):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">...
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">...
 <span style="color:#268bd2">env</span>:
   - <span style="color:#268bd2">name</span>: MINIO_ROOT_USER
     <span style="color:#268bd2">valueFrom</span>:
@@ -223,7 +223,7 @@
 ...
 </code></pre></div><p>Finalmente, exponemos MinIO a través de un servicio.</p>
 <p>En el escenario de usar MinIO como <em>backend</em> para las copias de seguridad de Velero, quizás tiene más sentido que el servicio sea de tipo <em>ClusterIP</em>, pero para validar que todo funciona como debe, uso <em>NodePort</em> para tener acceso sencillo a la interfaz web de MinIO.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">--- 
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">--- 
 <span style="color:#268bd2">kind</span>: Service
 <span style="color:#268bd2">apiVersion</span>: v1
 <span style="color:#268bd2">metadata</span>:
@@ -238,7 +238,7 @@
       <span style="color:#268bd2">protocol</span>: TCP
       <span style="color:#268bd2">port</span>: <span style="color:#2aa198">9000</span>
 </code></pre></div><p>Tras desplegar el servicio, revisa qué puerto ha asignado Kubernetes a MinIO con:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl get svc -n minio
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl get svc -n minio
 NAME    TYPE       CLUSTER-IP      EXTERNAL-IP   PORT<span style="color:#719e07">(</span>S<span style="color:#719e07">)</span>          AGE
 minio   NodePort   10.43.117.250   &lt;none&gt;        9000:30712/TCP   35h
 </code></pre></div><p>Accede a la interfaz web de MinIO a través del puerto asignado (en mi caso, <code>30712</code>) y accede con las credenciales especificadas en el <em>Secret</em>.</p>

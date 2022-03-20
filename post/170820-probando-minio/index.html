@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.87.0" />
+<meta name="generator" content="Hugo 0.82.1" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -136,15 +136,15 @@
 <h1 id="minio-server">Minio Server</h1>
 <p>Una de las ventajas de Minio es que puede desplegarse como un contenedor. Minio requiere dos carpetas del <em>host</em> donde almacenar, por un lado, los ficheros de configuración y por el otro, los datos propiamente dichos.</p>
 <p>En primer lugar, creo las carpetas:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">mkdir /tmp/minio/config /tmp/minio/data -p
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">mkdir /tmp/minio/config /tmp/minio/data -p
 </code></pre></div><p>El siguiente paso es crear el contenedor para Minio server, siguiendo las instrucciones de la <a href="https://docs.minio.io/docs/minio-docker-quickstart-guide">guía de Minio para Docker</a>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ docker run -d -p 9000:9000 --name minio-server <span style="color:#cb4b16">\
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ docker run -d -p 9000:9000 --name minio-server <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>  -v /tmp/minio/data:/data <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>  -v /tmp/minio/config:/root/.minio <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>  minio/minio server /data
 b1d73ba7f787d34df1fd931c3bc9af4af2dfb4eeb899f96104a20eb85a5aa616
 </code></pre></div><p>Minio Server crea una <code>AccessKey</code> y una <code>SecretKey</code> al arrancar. Puedes consultar estas claves a través de los logs del contenedor:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ docker logs minio-server
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ docker logs minio-server
 Endpoint:  http://172.17.0.2:9000  http://127.0.0.1:9000
 AccessKey: LKHN4QADGFDM411KYYB8
 SecretKey: o1fTtQhurjLnwrH9rF+hhSACWSX12Xpf4lxTu6Kq
@@ -167,7 +167,7 @@ $
 </code></pre></div><p>Verifica que el servidor de Minio funciona correctamente accediendo al cliente web, accesible a través de <code>http://&lt;IP_NODO&gt;:9000/minio</code>.</p>
 <h2 id="claves-de-acceso-personalizadas">Claves de acceso personalizadas</h2>
 <p>Puedes pasar las claves <code>AccessKey</code> y <code>SecretKey</code> como variables de entorno durante la creación del contenedor del servidor de Minio:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">docker run -d --name minio-server -p 9000:9000 <span style="color:#cb4b16">\
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">docker run -d --name minio-server -p 9000:9000 <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>  -e <span style="color:#2aa198">&#34;MINIO_ACCESS_KEY=MINIO.ACCESSKEY-WZtjrjMMxPM7Nwf&#34;</span> <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>  -e <span style="color:#2aa198">&#34;MINIO_SECRET_KEY=MINIO.SECRETKEY-4Mg8ZMwwPuhINf6&#34;</span> <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>  -v /tmp/minio/data:/data <span style="color:#cb4b16">\
@@ -178,14 +178,14 @@ $
 <p>En Ubuntu 16.04.3 LTS (Xenial Xerus)) la última versión disponible en estos momentos (20/08/2017) es 1.12.6.</p>
 </blockquote>
 <p>En primer lugar, crea los <em>secrets</em> mediante:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell"><span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;MINIOACCESSKEY-WZtjrjMMxPM7Nwf&#34;</span> | docker secret create minio_access_key -
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell"><span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;MINIOACCESSKEY-WZtjrjMMxPM7Nwf&#34;</span> | docker secret create minio_access_key -
 <span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;MINIOSECRETKEY-4Mg8ZMwwPuhINf6&#34;</span> | docker secret create minio_secret_key -
 </code></pre></div><p>En combinación con los <em>services</em> de Docker Swarm:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">docker service create --name<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;minio-service&#34;</span> --secret<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;minio_access_key&#34;</span> --secret<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;minio_secret_key&#34;</span> minio/minio server /data
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">docker service create --name<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;minio-service&#34;</span> --secret<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;minio_access_key&#34;</span> --secret<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;minio_secret_key&#34;</span> minio/minio server /data
 </code></pre></div><p>El objetivo final de las pruebas con Minio es poder lanzar clientes como contenedores. Para poder conectar con el servidor de Minio es necesario que el <code>AccessKey</code> y el <code>SecretKey</code> coincidan. El hecho de poder <em>inyectar</em> las claves al ejecutar el contenedor asegura que no tendremos problemas para conectar con el servidor.</p>
 <h2 id="ejecución-de-minio-server">Ejecución de Minio Server</h2>
 <p>Ejecutamos Minio Server y comprobamos que se ha lanzado con las claves especificadas:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ docker run -d --name minio-server -p 9000:9000 <span style="color:#cb4b16">\
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ docker run -d --name minio-server -p 9000:9000 <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>  -e <span style="color:#2aa198">&#34;MINIO_ACCESS_KEY=MINIO.ACCESSKEY-WZtjrjMMxPM7Nwf&#34;</span> <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>  -e <span style="color:#2aa198">&#34;MINIO_SECRET_KEY=MINIO.SECRETKEY-4Mg8ZMwwPuhINf6&#34;</span> <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>  -v /tmp/minio/data:/data <span style="color:#cb4b16">\
@@ -216,7 +216,7 @@ $
 <h2 id="creación-del-contenedor-con-minio-client">Creación del contenedor con Minio Client</h2>
 <p>El cliente de Minio puede desplegarse como un contenedor. El objetivo final de estas pruebas es usar un contenedor sidecar con el cliente de Minio y replicar el contenido del volumen local (en el <em>pod</em>) con un <em>bucket</em> &ldquo;remoto&rdquo; (en el servidor de Minio desplegado en el clúster).</p>
 <p>Descargamos la imagen del cliente de Minio:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ docker pull minio/mc
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ docker pull minio/mc
 Using default tag: latest
 latest: Pulling from minio/mc
 6f821164d5b7: Pull <span style="color:#b58900">complete</span>
@@ -225,13 +225,13 @@ Digest: sha256:7094c3cff3bb82d42bd4a5b212c467be1238db65a47a707038e562acf9f72a15
 Status: Downloaded newer image <span style="color:#719e07">for</span> minio/mc:latest
 </code></pre></div><h2 id="configuración-de-minio-client">Configuración de Minio Client</h2>
 <p>Por defecto <code>mc</code> viene configurado para apuntar contra <code>https://play.minio.io:9000</code> (usando el alias <code>play</code>). Para realizar la configuración del cliente para apuntar contra el servidor local, usamos:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">docker run -d --name minio-client -v /home/operador/minio-client-config/:/root/.mc/ minio/mc config host add minio http://192.168.1.10/minio:9000 MINIO.ACCESSKEY-WZtjrjMMxPM7Nwf MINIO.SECRETKEY-4Mg8ZMwwPuhINf6<span style="color:#2aa198">&#34;
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">docker run -d --name minio-client -v /home/operador/minio-client-config/:/root/.mc/ minio/mc config host add minio http://192.168.1.10/minio:9000 MINIO.ACCESSKEY-WZtjrjMMxPM7Nwf MINIO.SECRETKEY-4Mg8ZMwwPuhINf6<span style="color:#2aa198">&#34;
 </span></code></pre></div><p>He creado una carpeta en el <em>host</em> donde almacenar la configuración del cliente y así poder compartirla entre los diferentes contenedores con el cliente de Minio.</p>
 <p>El contenedor se crea, finaliza con éxito, pero no parece realizarse la configuración.</p>
 <p>Revisando el contenido de la carpeta <code>/home/operador/minio-client-config/</code> observo que sí se han creado los ficheros de configuración.</p>
 <p>Revisando el fichero de configuración <code>config.json</code> veo que no se ha creado la configuración del servidor con el alias &ldquo;minio&rdquo;.</p>
 <p>Después de varios intentos fallidos, opté abrir una sesión interactiva en un contenedor con el cliente <code>mc</code> y lanzar el comando de configuración desde ahí.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell"><span style="color:#586e75"># mc config host add minio http://192.168.1.10 MINIO.ACCESSKEY-WZtjrjMMxPM7Nwf MINIO.SECRETKEY-4Mg8</span>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell"><span style="color:#586e75"># mc config host add minio http://192.168.1.10 MINIO.ACCESSKEY-WZtjrjMMxPM7Nwf MINIO.SECRETKEY-4Mg8</span>
 ZMwwPuhINf6 S3v4
 mc: &lt;ERROR&gt; Invalid access key <span style="color:#586e75">`</span>MINIO.ACCESSKEY-WZtjrjMMxPM7Nwf<span style="color:#586e75">`</span>. Invalid arguments provided, cannot proceed
 <span style="color:#586e75">#</span>
@@ -239,14 +239,14 @@ mc: &lt;ERROR&gt; Invalid access key <span style="color:#586e75">`</span>MINIO.A
 <p>Para descartar que el &ldquo;.&rdquo; o el &ldquo;-&rdquo; tengan algún significado especial que esté interfiriendo, he probado a eliminarlos, pero he seguido obteniendo el mismo error de <em>Invalid arguments provided</em>.</p>
 <p>La solución ha sido modificar directamente el fichero <code>/root/.mc/config.json</code> desde una sesión interactiva en el contendor.</p>
 <p>Para probar que el cliente puede conectar con el servidor después de haber realizado la configuración del las claves, genero un fichero de prueba desde el contenedor mediante:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell"><span style="color:#586e75"># yes &gt;&gt; yes.txt</span>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell"><span style="color:#586e75"># yes &gt;&gt; yes.txt</span>
 <span style="color:#586e75"># # mc cp yes.txt local/test</span>
 yes.txt:           171.14 MB / 171.14 MB ┃▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓┃ 100.00% 44.24 MB/s 3s/
 <span style="color:#586e75">#</span>
 </code></pre></div><p>Desde el cliente en el navegador, compruebo que el fichero se ha copiado correctamente al <em>bucket</em> de prueba llamado <em>test</em>.</p>
 <p>Finalizamos la sesión interactiva.</p>
 <p>Probamos una nueva sesión interactiva a ver qué pasa con la configuración modificada en el otro contenedor temporal.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ docker run --rm -it -v /home/operador/config:/root/.mc/ --entrypoint<span style="color:#719e07">=</span>/bin/sh minio/mc
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ docker run --rm -it -v /home/operador/config:/root/.mc/ --entrypoint<span style="color:#719e07">=</span>/bin/sh minio/mc
 / <span style="color:#586e75"># mc config host ls</span>
 gcs  :  https://storage.googleapis.com  YOUR-ACCESS-KEY-HERE  YOUR-SECRET-KEY-HERE                      S3v2
 local:  http://192.168.1.10:9000        MINIO.ACCESSKEY-W...  MINIO.SECRETKEY-4Mg8ZMwwPuhINf6           S3v4
@@ -260,7 +260,7 @@ s3   :  https://s3.amazonaws.com        YOUR-ACCESS-KEY-HERE  YOUR-SECRET-KEY-HE
 <p>Después de configurar el servidor con alias <code>local</code>, creo un <em>bucket</em> llamado <code>test</code> a través del interfaz web.</p>
 <h2 id="copia-de-ficheros">Copia de ficheros</h2>
 <p>Creamos un nuevo fichero y lo copiamos al <em>bucket</em> <code>local/test</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell"><span style="color:#586e75"># for i in [0..10]; do  echo &#34;Hello world&#34; &gt;&gt;  hello.txt; done</span>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell"><span style="color:#586e75"># for i in [0..10]; do  echo &#34;Hello world&#34; &gt;&gt;  hello.txt; done</span>
 <span style="color:#586e75"># mc cp hello.txt local/test</span>
 hello.txt:         11.85 KB / 11.85 KB ┃▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓┃ 100.00% 771.76 KB/s 0s/
 <span style="color:#586e75">#</span>
@@ -268,36 +268,36 @@ hello.txt:         11.85 KB / 11.85 KB ┃▓▓▓▓▓▓▓▓▓▓▓▓�
 <p>La siguiente prueba es la de sincronizar una carpeta usando <code>mc mirror</code>.</p>
 <p>El primer paso es conseguir pasar los comandos a <code>mc</code> en el contenedor para que ejecute las acciones como si estuviera instalado.</p>
 <p>Un rápido repaso a cómo funciona el <a href="https://docs.docker.com/engine/reference/run/#entrypoint-default-command-to-execute-at-runtime"><code>ENTRYPOINT</code></a> me ha llevado a la solución. El <code>ENTRYPOINT</code> hace que el contenedor se ejecute como si fuera un el binario especificado. Si no se especifica nada en <code>CMD</code> en el <em>Dockerfile</em>, se ejecuta únicamente lo especificado en <code>ENTRYPOINT</code>. Al lanzar el contenedor lo que especifiquemos tras el nombre de la imagen se pasa como parámetros al binario especificado en el <code>ENTRYPOINT</code>. Así, por ejemplo:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ docker run --rm -v /home/operador/config:/root/.mc/ minio/mc rm  local/test/deploying-containers-kubernetes-concepts.png
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ docker run --rm -v /home/operador/config:/root/.mc/ minio/mc rm  local/test/deploying-containers-kubernetes-concepts.png
 Removing <span style="color:#586e75">`</span>local/test/deploying-containers-kubernetes-concepts.png<span style="color:#586e75">`</span>.
 </code></pre></div><p>Si queremos probar el comando <code>mc mirror</code>, creamos una carpeta local en el <em>host</em> que vamos a sincronizar con el <em>bucket</em>. Tendré que montar esta carpeta <em>local</em> para que <code>mc</code> tenga acceso a ella desde el contenedor.</p>
 <p>He creado una carpeta local en el nodo llamada <code>/home/operador/mirror</code>.</p>
 <p>He lanzado un contenedor con el comando <code>mirror</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">docker run -d --name minio-mirror  <span style="color:#cb4b16">\
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">docker run -d --name minio-mirror  <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>  -v /home/operador/config:/root/.mc/ <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>  -v /home/operador/mirror:/tmp/mirror <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>  minio/mc mirror --watch /tmp/mirror local/test
 </code></pre></div><p>En la carpeta <code>~/mirror/</code> he creado dos ficheros de texto:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell"><span style="color:#719e07">for</span> i in <span style="color:#586e75">`</span>seq <span style="color:#2aa198">1</span> 10000<span style="color:#586e75">`</span>; <span style="color:#719e07">do</span> <span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;Hello World!&#34;</span> &gt;&gt; /home/operador/mirror/10khello.txt; <span style="color:#719e07">done</span>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell"><span style="color:#719e07">for</span> i in <span style="color:#586e75">`</span>seq <span style="color:#2aa198">1</span> 10000<span style="color:#586e75">`</span>; <span style="color:#719e07">do</span> <span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;Hello World!&#34;</span> &gt;&gt; /home/operador/mirror/10khello.txt; <span style="color:#719e07">done</span>
 <span style="color:#719e07">for</span> i in <span style="color:#586e75">`</span>seq <span style="color:#2aa198">1</span> 100000<span style="color:#586e75">`</span>; <span style="color:#719e07">do</span> <span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;Hello World!&#34;</span> &gt;&gt; /home/operador/mirror/100khello.txt; <span style="color:#719e07">done</span>
 </code></pre></div><p>Inicialmente el <em>bucket</em> está vacío.</p>
 <p>Arranco el cliente de Minio <code>mc</code> en forma de contenedor:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">docker run -d --name minio-client  <span style="color:#cb4b16">\
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">docker run -d --name minio-client  <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>  -v /home/operador/config:/root/.mc/ <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>  -v /home/operador/mirror:/tmp/mirror <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>  minio/mc mirror --watch /tmp/mirror local/test
 </code></pre></div><p>Vigilo en dos ventanas adicionales de terminal:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">watch ls /home/operador/mirror/ <span style="color:#586e75"># Carpeta &#34;origen&#34;</span>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">watch ls /home/operador/mirror/ <span style="color:#586e75"># Carpeta &#34;origen&#34;</span>
 watch ls /tmp/minio/data/test/  <span style="color:#586e75"># Bucket</span>
 </code></pre></div><p>Al lanzar el contenedor <code>mc mirror</code>, instantáneamente aparecen en la ventana de <em>watch</em> del <em>bucket</em>. El cliente web no se actualiza automáticamente, pero cuando realizo la actualización manual, aparecen los dos ficheros (1.24MB y 127Kb).</p>
 <p>Añado un fichero de la carpeta <code>/home/operador/mirror/</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell"><span style="color:#719e07">for</span> i in <span style="color:#586e75">`</span>seq <span style="color:#2aa198">1</span> 15000<span style="color:#586e75">`</span>; <span style="color:#719e07">do</span> <span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;Barcelona t&#39;estimo!&#34;</span> &gt;&gt; /home/operador/mirror/bcn.txt; <span style="color:#719e07">done</span>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell"><span style="color:#719e07">for</span> i in <span style="color:#586e75">`</span>seq <span style="color:#2aa198">1</span> 15000<span style="color:#586e75">`</span>; <span style="color:#719e07">do</span> <span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;Barcelona t&#39;estimo!&#34;</span> &gt;&gt; /home/operador/mirror/bcn.txt; <span style="color:#719e07">done</span>
 </code></pre></div><p>Después de un segundo, aprox, se sincroniza el fichero automáticamente a la carpeta del <em>bucket</em>.</p>
 <p>Elimimino un fichero de la carpeta <code>mirror</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">rm 100khello.txt
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">rm 100khello.txt
 </code></pre></div><p>No se actualiza automáticamente el contenido del bucket (ni en el carpeta ni a través del interfaz web). Paro el contenedor <code>minio-client</code>. Vuelvo a arrancarlo pero no se borra el fichero <code>100khello.txt</code>. Al editar el fichero <code>bcn.txt</code> en Vim, el cliente de Minio detecta dos ficheros nuevos: <code>.bcn.txt.swp</code> y <code>bcn.txt~</code>.</p>
 <p>Revisando los logs del cliente:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ docker logs minio-client
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ docker logs minio-client
 <span style="color:#586e75">`</span>/tmp/mirror/100khello.txt<span style="color:#586e75">`</span> -&gt; <span style="color:#586e75">`</span>local/test/100khello.txt<span style="color:#586e75">`</span>
 <span style="color:#586e75">`</span>/tmp/mirror/10khello.txt<span style="color:#586e75">`</span> -&gt; <span style="color:#586e75">`</span>local/test/10khello.txt<span style="color:#586e75">`</span>
 <span style="color:#586e75">`</span>/tmp/mirror/bcn.txt<span style="color:#586e75">`</span> -&gt; <span style="color:#586e75">`</span>local/test/bcn.txt<span style="color:#586e75">`</span>
@@ -308,17 +308,17 @@ mc: &lt;ERROR&gt; Unable to prepare URL <span style="color:#719e07">for</span> c
 $
 </code></pre></div><p>Paro de nuevo el contenedor y vuelvo a arrancarlo, pero no se actualiza ningún fichero. Tampoco hay modificaciones en los logs.</p>
 <p>En la carpeta <code>/home/operador/mirror/</code> tengo:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">10khello.txt
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">10khello.txt
 bcn.txt
 </code></pre></div><p>En la carpeta <code>/tmp/minio/data/test/</code>, sin embargo:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">.bcn.txt.swp
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">.bcn.txt.swp
 100khello.txt
 10khello.txt
 bcn.txt
 bcn.txt~
 </code></pre></div><p>Al eliminar cualquier fichero desde el cliente web, desaparece automáticamente de la carpeta del <em>bucket</em>, pero el cliente no actualiza el cambio en <code>/mirror</code>.</p>
 <p>La creación de ficheros sí que funciona, pero no funciona en sentido contrario:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-txt" data-lang="txt">~/mirror --&gt; /tmp/minio/data/test OK
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-txt" data-lang="txt">~/mirror --&gt; /tmp/minio/data/test OK
 /tmp/minio/data/test --&gt; ~/mirror KO
 ​````
 

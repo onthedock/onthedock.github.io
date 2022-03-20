@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.87.0" />
+<meta name="generator" content="Hugo 0.82.1" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -140,13 +140,13 @@
 </blockquote>
 <p>En primer lugar necesitamos ejecutar un <em>script</em> durante el arranque del sistema operativo. En el caso concreto de Alpine Linux, he encontrado la solución en <a href="https://forum.alpinelinux.org/forum/general-discussion/run-script-boot">run script on boot</a>.</p>
 <p>Ya que no vamos a escribir nuestro propio servicio, usaremos el servicio <em>local</em>. Para ello, hay que añadir nuestro <em>script</em> en la carpeta <code>/etc/local.d/</code></p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">rc-update add <span style="color:#b58900">local</span> default
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">rc-update add <span style="color:#b58900">local</span> default
 </code></pre></div><p>El <code>README</code> ubicado en <code>/etc/local.d/README</code> indica que cualquier fichero ejecutable con extensión <code>.start</code> se lanza al arrancar el servicio, mientras que si la extensión es <code>.stop</code>, se ejecuta al parar el servicio.</p>
 <p>En mi caso, he usado el <em>script</em> para obtener la IP de la máquina como se indica en <a href="http://offbytwo.com/2008/05/09/show-ip-address-of-vm-as-console-pre-login-message.html">Show IP address of VM as console pre-login message</a> y la he escrito en el fichero <code>/etc/issue</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">/sbin/ifconfig | grep <span style="color:#2aa198">&#34;inet addr&#34;</span> | grep -v <span style="color:#2aa198">&#34;127.0.0.1&#34;</span> | awk <span style="color:#2aa198">&#39;{ print $2 }&#39;</span> | awk -F: <span style="color:#2aa198">&#39;{ print $2 }&#39;</span> &gt; /etc/issue
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">/sbin/ifconfig | grep <span style="color:#2aa198">&#34;inet addr&#34;</span> | grep -v <span style="color:#2aa198">&#34;127.0.0.1&#34;</span> | awk <span style="color:#2aa198">&#39;{ print $2 }&#39;</span> | awk -F: <span style="color:#2aa198">&#39;{ print $2 }&#39;</span> &gt; /etc/issue
 </code></pre></div><p>Después de convertir el <em>script</em> en ejecutable, he reinciado la máquina para probar que todo funcionaba como esperaba.</p>
 <p>Tras los mensajes de arranque, se muestra:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">192.168.1.208
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">192.168.1.208
 alpine login:
 </code></pre></div><p>Así no hace falta hacer <em>login</em> en la máquina para obtener la IP.</p></div>
 

@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.87.0" />
+<meta name="generator" content="Hugo 0.82.1" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -140,9 +140,9 @@
 <p>El método para configurar la red se cambió en Ubuntu 17.10, pasando a utilizar <a href="https://netplan.io">NetPlan</a>.</p>
 <p>NetPlan permite configurar la red a través de ficheros <em>yaml</em> en <code>/etc/netplan/*.yaml</code>.</p>
 <p>En primer lugar, hacemos una copia de srguridad:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">sudo cp /etc/netplan/01-netcfg.yaml /etc/netplan/01-netcfg.yaml.original
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">sudo cp /etc/netplan/01-netcfg.yaml /etc/netplan/01-netcfg.yaml.original
 </code></pre></div><p>Editamos el fichero y lo cambiamos por:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell"><span style="color:#586e75"># This file describes the network interfaces available on your system</span>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell"><span style="color:#586e75"># This file describes the network interfaces available on your system</span>
 <span style="color:#586e75"># For more information, see netplan(5).</span>
 network:
  version: <span style="color:#2aa198">2</span>
@@ -163,14 +163,14 @@ network:
 <p>Al tratarse de un disco <em>reutilizado</em>, uso <code>sudo fdisk /dev/sab</code> para eliminar las particiones existentes en el disco. He creado una nueva partición primaria de tipo Linux.</p>
 <p>A continuación, creamos el sistema de ficheros formateando el disco <code>sudo mkfs.ext4 /dev/sdb1</code>. Una vez ha finalizado el formateo, reiniciamos el equipo.</p>
 <p>Antes de modificar el fichero <code>/etc/fstab</code>, hacemos una copia de seguridad:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">sudo cp /etc/fstab /etc/fstab.original
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">sudo cp /etc/fstab /etc/fstab.original
 </code></pre></div><p>Obtenemos el UUID del segundo disco mediante el comando <em>blkid</em>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ sudo blkid
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ sudo blkid
 /dev/sda1: <span style="color:#268bd2">UUID</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;6ceae456-bfba-433c-94e0-b09ec8e29f00&#34;</span> <span style="color:#268bd2">TYPE</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;ext4&#34;</span> <span style="color:#268bd2">PARTUUID</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;f561a758-01&#34;</span>
 /dev/sdb1: <span style="color:#268bd2">UUID</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;22432f7a-a810-482f-9836-2179ebf47493&#34;</span> <span style="color:#268bd2">TYPE</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;ext4&#34;</span> <span style="color:#268bd2">PARTUUID</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;25f625f5-01&#34;</span>
 </code></pre></div><p>Creamos el punto de montaje: <code>sudo mkdir /samba</code>.</p>
 <p>Creamos la entrada en el fichero <code>/etc/fstab</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">...
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">...
 <span style="color:#586e75"># / was on /dev/sda1 during installation</span>
 <span style="color:#268bd2">UUID</span><span style="color:#719e07">=</span>6ceae456-bfba-433c-94e0-b09ec8e29f00 /       ext4   <span style="color:#268bd2">errors</span><span style="color:#719e07">=</span>remount-ro <span style="color:#2aa198">0</span>       <span style="color:#2aa198">1</span>
 /swapfile                                 none    swap   sw                <span style="color:#2aa198">0</span>       <span style="color:#2aa198">0</span>
@@ -178,17 +178,17 @@ network:
 </code></pre></div><p>Validamos que todo funciona mediante el comando <code>sudo mount -a</code>.</p>
 <h2 id="instalación-de-samba">Instalación de samba</h2>
 <p>Instalamos <a href="https://www.samba.org">Samba</a>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">sudo apt install samba
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">sudo apt install samba
 </code></pre></div><p>El comando instala tanto el servidor Samba como el servidor NetBIOS de Samba (que no necesitamos). Por seguridad, lo paramos y lo deshabilitamos.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ sudo systemctl stop nmbd.service
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ sudo systemctl stop nmbd.service
 $ sudo systemctl disable nmbd.service
 Synchronizing state of nmbd.service with SysV service script with /lib/systemd/systemd-sysv-install.
 ...
 </code></pre></div><p>Paramos el servicio de Samba mientras realizamos la configuración.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">sudo systemctl stop smbd
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">sudo systemctl stop smbd
 </code></pre></div><h3 id="obtener-interfaces-locales">Obtener interfaces locales</h3>
 <p>Antes de empezar la configuración de Samba, necesitamos conocer cuáles son las interfaces locales presentes en el sistema. Para ello, usamos el comando <code>ip  link</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ ip link
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ ip link
 1: lo: &lt;LOOPBACK,UP,LOWER_UP&gt; mtu <span style="color:#2aa198">65536</span> qdisc noqueue state UNKNOWN mode DEFAULT group default qlen <span style="color:#2aa198">1</span>
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
 2: eth0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu <span style="color:#2aa198">1500</span> qdisc mq state UP mode DEFAULT group default qlen <span style="color:#2aa198">1000</span>
@@ -196,9 +196,9 @@ Synchronizing state of nmbd.service with SysV service script with /lib/systemd/s
 </code></pre></div><h3 id="configuración-global-de-samba">Configuración global de Samba</h3>
 <p>La configuración de Samba la realizamos a través del fichero <code>/etc/samba/smb.conf</code>.</p>
 <p>Antes de realizar cualquier modificación en el fichero de configuración, creamos una copia de seguridad:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">sudo mv /etc/samba/smb.conf /etc/samba/smb.conf.original
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">sudo mv /etc/samba/smb.conf /etc/samba/smb.conf.original
 </code></pre></div><p>Creamos un fichero de configuración de Samba <code>sudo touch /etc/samba/smb.conf</code> y lo editamos con nuestro editor preferido con el siguiente contenido:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell"><span style="color:#719e07">[</span>global<span style="color:#719e07">]</span>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell"><span style="color:#719e07">[</span>global<span style="color:#719e07">]</span>
    server <span style="color:#268bd2">string</span> <span style="color:#719e07">=</span> sambashare
    server <span style="color:#268bd2">role</span> <span style="color:#719e07">=</span> standalone server
    <span style="color:#268bd2">interfaces</span> <span style="color:#719e07">=</span> lo eth0
@@ -211,7 +211,7 @@ Synchronizing state of nmbd.service with SysV service script with /lib/systemd/s
 <blockquote>
 <p>Siempre que se edita el fichero <code>smb.conf</code>, es conveniente ejecutar <code>testparm</code> para validar que la configuración es correcta.</p>
 </blockquote>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ testparm
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ testparm
 Load smb config files from /etc/samba/smb.conf
 rlimit_max: increasing rlimit_max <span style="color:#719e07">(</span>1024<span style="color:#719e07">)</span> to minimum Windows limit <span style="color:#719e07">(</span>16384<span style="color:#719e07">)</span>
 Loaded services file OK.
@@ -233,12 +233,12 @@ Press enter to see a dump of your service definitions
 </code></pre></div><h3 id="creando-la-carpeta-compartida">Creando la carpeta compartida</h3>
 <p>Como carpeta compartida, usaremos <code>/samba/public</code>.</p>
 <p>Para crear esta carpeta:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">sudo mkdir -p /samba/public
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">sudo mkdir -p /samba/public
 </code></pre></div><p>Para que los usuarios dentro del grupo <code>sambashare</code> tengan permisos sobre esta carpeta, cambiamos el propietario:</p>
 <blockquote>
 <p>El grupo <code>sambashare</code> se crea durante la instalación de Samba.</p>
 </blockquote>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">sudo chown -R :sambashare /samba
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">sudo chown -R :sambashare /samba
 sudo chmod <span style="color:#2aa198">2770</span> /samba/public
 </code></pre></div><blockquote>
 <ul>
@@ -253,7 +253,7 @@ sudo chmod <span style="color:#2aa198">2770</span> /samba/public
 <h3 id="creando-el-usuario-samba">Creando el usuario Samba</h3>
 <p>Este es el usuario <code>remote</code> con el que se validan los clientes remotos.</p>
 <p>Al crear el usuario, se solicita una contraseña para el usuario.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ sudo adduser --no-create-home --shell /usr/bin/nologin --ingroup sambashare remote
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ sudo adduser --no-create-home --shell /usr/bin/nologin --ingroup sambashare remote
 Adding user <span style="color:#586e75">`</span>remote<span style="color:#2aa198">&#39; ...
 </span><span style="color:#2aa198">Adding new user `remote&#39;</span> <span style="color:#719e07">(</span>1001<span style="color:#719e07">)</span> with group <span style="color:#586e75">`</span>sambashare<span style="color:#2aa198">&#39; ...
 </span><span style="color:#2aa198">Not creating home directory `/home/remote&#39;</span>.
@@ -272,7 +272,7 @@ Is the information correct? <span style="color:#719e07">[</span>Y/n<span style="
 <blockquote>
 <p>El password que se requiere para Samba puede ser diferente del creado en el paso anterior.</p>
 </blockquote>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ sudo smbpasswd -a remote
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ sudo smbpasswd -a remote
 New SMB password:
 Retype new SMB password:
 Added user remote.
@@ -281,7 +281,7 @@ Enabled user remote.
 </code></pre></div><h3 id="configuración-del-_share_">Configuración del <em>share</em></h3>
 <p>Ahora que tenemos el usuario creado y la carpeta para compartir, configuramos el <em>share</em> en Samba.
 Abrimos de nuevo el fichero de configuración <code>/etc/samba/smb.conf</code> con nuestro editor favorito y añadimos la información del <em>share</em> <code>public</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">...
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">...
 <span style="color:#719e07">[</span>public<span style="color:#719e07">]</span>
   <span style="color:#268bd2">path</span> <span style="color:#719e07">=</span> /samba/public
   <span style="color:#268bd2">browseable</span> <span style="color:#719e07">=</span> yes
@@ -292,15 +292,15 @@ Abrimos de nuevo el fichero de configuración <code>/etc/samba/smb.conf</code> c
 </code></pre></div><p>Como <em>valid users</em> especificamos los usuarios del grupo <code>sambashare</code>; de esta forma será más sencillo gestionar quién tiene acceso a la carpeta <code>/samba/public</code>.</p>
 <p>Los permisos de las carpetas creadas <code>2770</code> indican que las nuevas carpetas se crearán con los mismos permisos que la carpeta superior.</p>
 <h2 id="instalación-de-transmission-_headless_">Instalación de Transmission (<em>headless</em>)</h2>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">sudo apt install transmission-daemon
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">sudo apt install transmission-daemon
 </code></pre></div><blockquote>
 <p>El interfaz web se encuentra en el paquete <code>transmission-common</code> que se ha instalado con <code>transmission-daemon</code>.</p>
 </blockquote>
 <p>El servicio se arranca automáticamente. Lo detenemos para poder hacer cambios en la configuración de Transmission.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">sudo systemctl stop transmission-daemon
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">sudo systemctl stop transmission-daemon
 </code></pre></div><h3 id="obtener-el-usuario-con-el-que-se-ejecuta-transmission">Obtener el usuario con el que se ejecuta Transmission</h3>
 <p>Una de las cosas que necesitaremos más adelante, es conocer el usuario con el que se ejecuta el servicio <code>transmission-daemon</code>. Podemos obtener esta información del fichero de configuración del servicio:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ cat /etc/init/transmission-daemon.conf
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ cat /etc/init/transmission-daemon.conf
 start on <span style="color:#719e07">(</span>filesystem and net-device-up <span style="color:#268bd2">IFACE</span><span style="color:#719e07">=</span>lo<span style="color:#719e07">)</span>
 stop on runlevel <span style="color:#719e07">[</span>!2345<span style="color:#719e07">]</span>
 
@@ -314,7 +314,7 @@ respawn
 ...
 </code></pre></div><p>Como vemos, el usuario y el grupo con el que se ejecuta <code>transmission-daemon</code> es el usuario <code>debian-transmission</code>.</p>
 <p>También podemos obtener esta información del fichero <code>/etc/init.d/transmission-daemon</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ cat /etc/init.d/transmission-daemon
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ cat /etc/init.d/transmission-daemon
 ...
 <span style="color:#268bd2">NAME</span><span style="color:#719e07">=</span>transmission-daemon
 <span style="color:#268bd2">DAEMON</span><span style="color:#719e07">=</span>/usr/bin/<span style="color:#268bd2">$NAME</span>
@@ -322,13 +322,13 @@ respawn
 <span style="color:#268bd2">STOP_TIMEOUT</span><span style="color:#719e07">=</span><span style="color:#2aa198">30</span>
 ...
 </code></pre></div><p>Añadimos el usuario al grupo <code>sambashare</code> para que tenga acceso al <em>share</em> <code>public</code> (que será donde dejaremos los ficheros completados descargados).</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">sudo usermod -aG sambashare debian-transmission
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">sudo usermod -aG sambashare debian-transmission
 </code></pre></div><h3 id="configuración-de-transmission">Configuración de Transmission</h3>
 <p>La configuración de Transmission se realiza a través del fichero <code>/etc/transmission-daemon/settings.json</code></p>
 <p>Como siempre, es mejor hacer una copia antes de empezar a modificarlo:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">sudo cp /etc/transmission-daemon/settings.json /etc/transmission-daemon/settings.json.original
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">sudo cp /etc/transmission-daemon/settings.json /etc/transmission-daemon/settings.json.original
 </code></pre></div><p>El objetivo es que Transmission deje los ficheros descargados en la carpeta <code>public</code>, de manera que modificaremos el parámetro:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">...
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">...
   <span style="color:#2aa198">&#34;download-dir&#34;</span>: <span style="color:#2aa198">&#34;/samba/public&#34;</span>,
 ...
 </code></pre></div><h3 id="otros-parámetros-a-modificar">Otros parámetros a modificar</h3>
@@ -341,7 +341,7 @@ respawn
 </ul>
 <h2 id="arrancando-los-servicios">Arrancando los servicios</h2>
 <p>Arrancamos Samba y Transmission:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">sudo systemctl start smbd
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">sudo systemctl start smbd
 sudo systemctl start transmission-daemon
 </code></pre></div><p>Puedes verificar que Samba funciona accediendo al <em>share</em> compartido (usando el usuario <code>remote</code>).</p>
 <p>Para validar que Transmission funciona, accede a <a href="http://192.168.1.123:9091">http://192.168.1.123:9091</a> usando las credenciales <code>transmission</code> (como usuario y password usados por defecto).</p>

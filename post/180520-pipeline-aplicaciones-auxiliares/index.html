@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.87.0" />
+<meta name="generator" content="Hugo 0.82.1" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -135,7 +135,7 @@
 <h2 id="maildev">MailDev</h2>
 <p>Muchas aplicaciones requieren disponer de un servidor de correo para poder enviar notificaciones. Para disponer de la posibilidad de las notificaciones de correo en un entorno aislado, usamos <a href="http://danfarrelly.nyc/MailDev/">MailDev</a> de Dan Ferrelly.</p>
 <p>Descargamos la imagen de DockerHub:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ $ sudo docker pull djfarrelly/maildev
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ $ sudo docker pull djfarrelly/maildev
 Using default tag: latest
 latest: Pulling from djfarrelly/maildev
 ab7e51e37a18: Pull <span style="color:#b58900">complete</span>
@@ -153,8 +153,9 @@ $
 04a10ec5a231b4eb9ec3ed44a09b6c378ebd3374a5c2a624c9d64341aff3ac5b
 </code></pre><p>De esta forma, cualquier aplicación que requiera enviar correo puede hacerlo usando el servidor <code>maildev</code>a través del puerto 10025.</p>
 <p>Podemos consultar los emails enviados a través del interfaz web de MailDev a través del puerto 8000.</p>
-<figure><img src="/images/180520/maildev.png"
-         alt="Bandeja de entrada - MailDev"/><figcaption>
+<figure>
+    <img src="/images/180520/maildev.png"
+         alt="Bandeja de entrada - MailDev"/> <figcaption>
             <p>Bandeja de entrada - MailDev</p>
         </figcaption>
 </figure>
@@ -163,15 +164,15 @@ $
 <p>A medida que aumenta el número de contenedores, volúmenes, etc, una herramienta gráfica como <a href="https://portainer.io">Portainer</a>  puede simplificar la gestión de nuestro entorno.</p>
 <p>Portainer requiere un volumen para guardar configuración y, dado que permite gestionar Docker, también debe montar <code>/var/run/docker.sock</code>.</p>
 <p>En primer lugar, creamos el volumen donde almacenar los datos de Portainer:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">sudo docker volume create data-portainer
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">sudo docker volume create data-portainer
 </code></pre></div><p>A continuación, lanzamos el contenedor:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ sudo docker run -d --name portainer -p 19000:9000 <span style="color:#cb4b16">\
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ sudo docker run -d --name portainer -p 19000:9000 <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>--mount <span style="color:#268bd2">type</span><span style="color:#719e07">=</span>bind,source<span style="color:#719e07">=</span>/var/run/docker.sock,target<span style="color:#719e07">=</span>/var/run/docker.soc <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>--mount <span style="color:#268bd2">source</span><span style="color:#719e07">=</span>data-portainer,target<span style="color:#719e07">=</span>/data portainer/portainer
 98c6137e09ae9ca74d7a148e38c6f2980685b023a89119547d5f10aed51a46fb
 </code></pre></div><p>Por defecto, Portainer expone el puerto local 9000, pero en el <em>host</em> este puerto lo usaremos para SonarQube más adelante, de manera que usaremos el 19000.</p>
 <p>Podemos comprobar que funciona desde la línea de comando usando <em>curl</em>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ curl localhost:19000
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ curl localhost:19000
 &lt;!DOCTYPE html&gt;
 &lt;html <span style="color:#268bd2">lang</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;en&#34;</span> ng-app<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;portainer&#34;</span>&gt;
 &lt;head&gt;
@@ -182,8 +183,9 @@ $
   &lt;meta <span style="color:#268bd2">name</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;author&#34;</span> <span style="color:#268bd2">content</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;Portainer.io&#34;</span>&gt;
   ...
 </code></pre></div><p>Accediendo a través del navegador, en el primer acceso podemos definir el nombre de usuario y las credenciales del usuario administrador:</p>
-<figure><img src="/images/180520/portainer-admin-first-login.png"
-         alt="Portainer - Login"/><figcaption>
+<figure>
+    <img src="/images/180520/portainer-admin-first-login.png"
+         alt="Portainer - Login"/> <figcaption>
             <p>Portainer - Login</p>
         </figcaption>
 </figure>
@@ -191,15 +193,17 @@ $
 <p>He cambiado el nombre del usuario adminstrador por <code>operador</code> y le he asignado un password.</p>
 <p>A continuación, Portainer nos pregunta si vamos a gestionar un Docker local o un servidor Docker remoto. En nuestro caso, se trata del servidor Docker local (por eso hemos montado <code>/var/run/docker.sock</code>).</p>
 <p>Seleccionamos la opción <em>Local</em> y pulsamos el botón <em>Connect</em>:</p>
-<figure><img src="/images/180520/portainer-local.png"
-         alt="Portainer - Local Docker"/><figcaption>
+<figure>
+    <img src="/images/180520/portainer-local.png"
+         alt="Portainer - Local Docker"/> <figcaption>
             <p>Portainer - Local Docker</p>
         </figcaption>
 </figure>
 
 <p>Al conectar, vemos un <em>Dashboard</em> con el estado de nuestro entorno local.</p>
-<figure><img src="/images/180520/portainer-homepage.png"
-         alt="Portainer - Dashboard"/><figcaption>
+<figure>
+    <img src="/images/180520/portainer-homepage.png"
+         alt="Portainer - Dashboard"/> <figcaption>
             <p>Portainer - Dashboard</p>
         </figcaption>
 </figure>

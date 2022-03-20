@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.87.0" />
+<meta name="generator" content="Hugo 0.82.1" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -136,14 +136,14 @@
 <h1 id="instalación-de-docker-compose">Instalación de Docker Compose</h1>
 <p>Docker Compose es un producto separado, por lo que es necesario instalarlo en el sistema en primer lugar.</p>
 <p>En mi caso, que uso Debian, la instalación es simplemente:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">sudo docker apt install docker-compose
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">sudo docker apt install docker-compose
 </code></pre></div><p>En la <a href="https://docs.docker.com/compose/install/">página oficial de instalación de Docker Compose</a> puedes encontrar el método de instalación más apropiado para tu caso.</p>
 <h1 id="el-fichero-docker-composeyml">El fichero docker-compose.yml</h1>
 <p>La principal funcionalidad de Docker Compose es gestionar aplicaciones compuestas por diferentes &ldquo;piezas&rdquo;. En el caso de Gitea, se trata de dos contenedores, uno con la base de datos y otro con la aplicación Gitea. Como vimos en la entrada anterior, también necesitamos definir un volumen para cada aplicación y una red para que los contenedores se comuniquen entre sí. En la nomenclatura de Docker Compose (similar a la de Kubernetes), cada una de estas <em>subaplicaciones</em> se denomina <strong>service</strong>.</p>
 <p>El fichero <code>docker-compose.yml</code> contiene toda la configuración necesaria para poner en marcha una aplicación &ldquo;compleja&rdquo; formada por diferentes elementos. En el fichero <code>docker-compose.yml</code> se define todo lo necesario: imagen base para crear los diferentes contenedores, puertos, volúmenes, variables de entorno, etc&hellip;</p>
 <p>En DockerHub, <a href="https://hub.docker.com/r/gitea/gitea/">Gitea proporciona una versión de ejemplo</a> del fichero <code>docker-compose.yml</code>. Sin embargo, esta versión usa volumenes de tipo <em>bind</em> (montando una carpeta del <em>host</em>), cuando la <a href="https://docs.docker.com/storage/volumes/">recomendación de Docker</a> es usar volúmenes <em>named</em> (que son portables).</p>
 <p>El fichero <em>corregido</em> es el siguiente (también lo puedes consultar en <a href="https://github.com/onthedock/gitea-automation/blob/master/docker-compose.yml">onthedock/gitea-automation</a>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">version</span>: <span style="color:#2aa198">&#34;2&#34;</span>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">version</span>: <span style="color:#2aa198">&#34;2&#34;</span>
 <span style="color:#268bd2">services</span>:
   <span style="color:#268bd2">ui</span>:
     <span style="color:#268bd2">image</span>: gitea/gitea:1.3.2
@@ -183,13 +183,13 @@
 <p>Docker Compose precede el nombre de los contenedores creados con el nombre de la carpeta desde la que se lanza el comando <code>docker-compose up</code>. En mi caso, la carpeta se llama <code>gitea</code>, así que he adaptado los nombres para no tener <code>gitea_gitea-db</code>, por ejemplo. En el caso del contenedor de <code>gitea</code>, lo he llamado <code>ui</code>.</p>
 <h1 id="verificar-la-configuración">Verificar la configuración</h1>
 <p>Una vez creado el fichero <code>docker-compose.yml</code>, es conveniente comprobar si es correcto. Para ello, usamos:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">sudo docker-compose config
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">sudo docker-compose config
 </code></pre></div><p>Si al analizar el fichero no se detecta ningún fallo, se muestra el contenido de <code>docker-compose.yml</code>.</p>
 <h1 id="arrancar-la-aplicación">Arrancar la aplicación</h1>
 <p>Docker Compose analiza el contenido del fichero <code>docker-compose.yml</code> y realiza todas las acciones necesarias para ejecutar todos los servicios contenidos: crea los volúmnes y las redes definidos, descarga las imágenes base y ejecuta el contenedor publicando los puertos indicados. Y todo con un único comando:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">sudo docker-compose up -d
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">sudo docker-compose up -d
 </code></pre></div><p>El parámetro <code>-d</code> tiene el mismo significado que en Docker: ejecutar los contenedores en modo <em>detach</em>, en segundo plano.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ sudo docker-compose up -d
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ sudo docker-compose up -d
 Creating network <span style="color:#2aa198">&#34;gitea_net&#34;</span> with the default driver
 Creating volume <span style="color:#2aa198">&#34;gitea_db-data&#34;</span> with default driver
 Creating volume <span style="color:#2aa198">&#34;gitea_data&#34;</span> with default driver
@@ -197,7 +197,7 @@ Creating gitea_db_1
 Creating gitea_ui_1
 </code></pre></div><p>En la salida del comando observamos que primero se crea la red, después del volumen para la base de datos, el volumen para Gitea y finalmente el contenedor de base de datos y el contenedor para Gitea.</p>
 <p>Del mismo modo, usando <code>docker-compose stop</code> podemos parar todos los contenedores implicados de forma ordenada. Y en caso de querer deshacernos de todos los componentes, en vez de crear un <em>helper script</em> como <a href="https://github.com/onthedock/gitea-automation/blob/master/clean-all.sh">clean-all.sh</a>, podemos lanzar <code>docker-compose down -v</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ sudo docker-compose down -v
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ sudo docker-compose down -v
 Stopping gitea_ui_1 ... <span style="color:#719e07">done</span>
 Stopping gitea_db_1 ... <span style="color:#719e07">done</span>
 Removing gitea_ui_1 ... <span style="color:#719e07">done</span>
@@ -212,7 +212,7 @@ Removing volume gitea_data
 <h1 id="personalización">Personalización</h1>
 <p>Docker Compose automatiza la creación de los contenedores, pero para poder ofrecer un entorno completamente funcional (sin necesidad de realizar una configuración final), todavía necesitamos un script que realice la modificación del fichero <code>app.ini</code> de configuración de Gitea.</p>
 <p>El fichero <code>docker-compose.yml</code> permite usar sustitución de variables, por lo podríamos definir:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">...
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">...
     image: gitea/gitea:<span style="color:#268bd2">$GITEA_VERSION</span>
 ...
 </code></pre></div><p>Desgraciadamente, aunque en la versión actual de Docker Compose se pueden usar <a href="https://docs.docker.com/compose/compose-file/#secrets"><em>secrets</em></a>, <a href="https://serverfault.com/questions/871090/how-to-use-docker-secrets-without-a-swarm-cluster">no se pueden crear <em>secrets</em></a> si el nodo en el que se ejecutan los contenedores no forma parte de un <em>swarm</em> (el orquestador multi-nodo de Docker).</p>

@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.87.0" />
+<meta name="generator" content="Hugo 0.82.1" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -152,7 +152,7 @@ Voy refinando poco a poco tanto el fichero como los <em>scripts</em>; por favor,
 </blockquote>
 <p>Podemos generar clústers de Kubernetes con 1 nodo (clúster mono-nodo), 1+n (un <em>server</em> y <code>n</code> nodos <em>agent</em>), 3+n nodos, etc. Dado que el objetivo de Vagrant es únicamente el de provisionar máquinas virtuales, uso un bucle para generar tantas máquinas como nodos tendrá el clúster (independientemente del rol de cada nodo).</p>
 <p>Para ello, defino la variable <code>NodeCount</code> y aplico la misma configuración a todas las máquinas, usando un bucle en el <code>Vagrantfile</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-ruby" data-lang="ruby"><span style="color:#cb4b16">Vagrant</span><span style="color:#719e07">.</span>configure(<span style="color:#2aa198">&#34;2&#34;</span>) <span style="color:#719e07">do</span> <span style="color:#719e07">|</span>config<span style="color:#719e07">|</span>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-ruby" data-lang="ruby"><span style="color:#cb4b16">Vagrant</span><span style="color:#719e07">.</span>configure(<span style="color:#2aa198">&#34;2&#34;</span>) <span style="color:#719e07">do</span> <span style="color:#719e07">|</span>config<span style="color:#719e07">|</span>
   <span style="color:#cb4b16">NodeCount</span> <span style="color:#719e07">=</span> <span style="color:#2aa198">3</span>
   
   (<span style="color:#2aa198">1</span><span style="color:#719e07">..</span><span style="color:#cb4b16">NodeCount</span>)<span style="color:#719e07">.</span>each <span style="color:#719e07">do</span> <span style="color:#719e07">|</span>i<span style="color:#719e07">|</span>
@@ -163,7 +163,7 @@ Voy refinando poco a poco tanto el fichero como los <em>scripts</em>; por favor,
 <span style="color:#719e07">end</span>
 </code></pre></div><h3 id="configuración-básica-de-las-máquinas-virtuales">Configuración básica de las máquinas virtuales</h3>
 <p>Defino un bucle para cada nodo; aquí especifico especifico la <em>box</em> escogida (la imagen base para la máquina virtual) que uso; en mi caso, <code>ubuntu/focal64</code> así como la versión de la <em>box</em> seleccionada.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-ruby" data-lang="ruby"><span style="color:#cb4b16">Vagrant</span><span style="color:#719e07">.</span>configure(<span style="color:#2aa198">&#34;2&#34;</span>) <span style="color:#719e07">do</span> <span style="color:#719e07">|</span>config<span style="color:#719e07">|</span>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-ruby" data-lang="ruby"><span style="color:#cb4b16">Vagrant</span><span style="color:#719e07">.</span>configure(<span style="color:#2aa198">&#34;2&#34;</span>) <span style="color:#719e07">do</span> <span style="color:#719e07">|</span>config<span style="color:#719e07">|</span>
   <span style="color:#cb4b16">NodeCount</span> <span style="color:#719e07">=</span> <span style="color:#2aa198">3</span>
   
   (<span style="color:#2aa198">1</span><span style="color:#719e07">..</span><span style="color:#cb4b16">NodeCount</span>)<span style="color:#719e07">.</span>each <span style="color:#719e07">do</span> <span style="color:#719e07">|</span>i<span style="color:#719e07">|</span>
@@ -175,7 +175,7 @@ Voy refinando poco a poco tanto el fichero como los <em>scripts</em>; por favor,
 <p>También deshabilito la carpeta compartida entre el <em>host</em> y las máquinas virtuales: <code>node.vm.synced_folder &quot;.&quot;, &quot;/vagrant&quot;, disabled: true</code>.</p>
 <h3 id="recursos-de-las-máquinas">Recursos de las máquinas</h3>
 <p>Creo un bucle adicional para configurar algunas propiedades de las máquinas virtuales en VirtualBox, como los recursos asignados y el nombre con el que se muestra en la interfaz gráfica:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-ruby" data-lang="ruby">  (<span style="color:#2aa198">1</span><span style="color:#719e07">..</span><span style="color:#cb4b16">NodeCount</span>)<span style="color:#719e07">.</span>each <span style="color:#719e07">do</span> <span style="color:#719e07">|</span>i<span style="color:#719e07">|</span>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-ruby" data-lang="ruby">  (<span style="color:#2aa198">1</span><span style="color:#719e07">..</span><span style="color:#cb4b16">NodeCount</span>)<span style="color:#719e07">.</span>each <span style="color:#719e07">do</span> <span style="color:#719e07">|</span>i<span style="color:#719e07">|</span>
     config<span style="color:#719e07">.</span>vm<span style="color:#719e07">.</span>define <span style="color:#2aa198">&#34;k3s-</span><span style="color:#2aa198">#{</span>i<span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span> <span style="color:#719e07">do</span> <span style="color:#719e07">|</span>node<span style="color:#719e07">|</span>
     <span style="color:#719e07">...</span>
       node<span style="color:#719e07">.</span>vm<span style="color:#719e07">.</span>provider <span style="color:#2aa198">:virtualbox</span> <span style="color:#719e07">do</span> <span style="color:#719e07">|</span>v<span style="color:#719e07">|</span>
@@ -190,10 +190,10 @@ Voy refinando poco a poco tanto el fichero como los <em>scripts</em>; por favor,
 <p>La última configuración en la máquina virtual es conectar la máquina virtual a una red pública, en el sentido de <em>VirtualBox</em>, usando una tarjeta de red adicional en modo <em>bridge</em>.</p>
 <p>Por defecto, Vagrant configura la interfaz de red por defecto en la máquina virtual como NAT. Durante la configuración de <em>k3sup</em>, los <em>agents</em> necesitan contactar con la IP del nodo <em>server</em>.</p>
 <p>No es posible configurar la tarjeta de red por defecto en otro modo que no sea NAT, de manera que la solución es configurar un dispositivo adicional y conectarlo a una red de tipo público (en VirtualBox).</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-ruby" data-lang="ruby">node<span style="color:#719e07">.</span>vm<span style="color:#719e07">.</span>network <span style="color:#2aa198">&#34;public_network&#34;</span>, <span style="color:#2aa198">ip</span>: <span style="color:#2aa198">&#34;192.168.1.10</span><span style="color:#2aa198">#{</span>i<span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span>, <span style="color:#2aa198">bridge</span>: <span style="color:#2aa198">&#39;wlp3s0&#39;</span>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-ruby" data-lang="ruby">node<span style="color:#719e07">.</span>vm<span style="color:#719e07">.</span>network <span style="color:#2aa198">&#34;public_network&#34;</span>, <span style="color:#2aa198">ip</span>: <span style="color:#2aa198">&#34;192.168.1.10</span><span style="color:#2aa198">#{</span>i<span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span>, <span style="color:#2aa198">bridge</span>: <span style="color:#2aa198">&#39;wlp3s0&#39;</span>
 </code></pre></div><p>Como puede observarse en la línea anterior, la tarjeta de red que se usa como <em>bridge</em> está <em>hardcodeada</em> en la configuración de la máquina virtual. Para solucionarlo, está abierto el <a href="https://github.com/onthedock/vagrant/issues/1">issue #1</a>.</p>
 <p>Con las configuraciones realizadas, el <code>Vagrantfile</code> define la configuración para provisionar <code>NodeCount</code> máquinas virtuales.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-ruby" data-lang="ruby"><span style="color:#cb4b16">Vagrant</span><span style="color:#719e07">.</span>configure(<span style="color:#2aa198">&#34;2&#34;</span>) <span style="color:#719e07">do</span> <span style="color:#719e07">|</span>config<span style="color:#719e07">|</span>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-ruby" data-lang="ruby"><span style="color:#cb4b16">Vagrant</span><span style="color:#719e07">.</span>configure(<span style="color:#2aa198">&#34;2&#34;</span>) <span style="color:#719e07">do</span> <span style="color:#719e07">|</span>config<span style="color:#719e07">|</span>
   <span style="color:#cb4b16">NodeCount</span> <span style="color:#719e07">=</span> <span style="color:#2aa198">3</span>
   
   (<span style="color:#2aa198">1</span><span style="color:#719e07">..</span><span style="color:#cb4b16">NodeCount</span>)<span style="color:#719e07">.</span>each <span style="color:#719e07">do</span> <span style="color:#719e07">|</span>i<span style="color:#719e07">|</span>

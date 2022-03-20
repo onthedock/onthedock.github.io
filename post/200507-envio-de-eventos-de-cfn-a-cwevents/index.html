@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.87.0" />
+<meta name="generator" content="Hugo 0.82.1" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -140,7 +140,7 @@
 <p>Lanzo una plantilla de CloudFormation y se generan unos cuantos recursos.</p>
 <p>A medida que CloudFormation procesa la plantilla se lanzan una serie de eventos. Estos eventos está asociados al estado de creación de los diferentes recursos descritos en la plantilla. En esta página de la documentación de CloudFormation tienes un ejemplo de los eventos que se generan para una plantilla que crea un <em>bucket</em> S3: <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-cfn-listing-event-history.html">Viewing Stack Event History</a>.</p>
 <p>Parecería lógico que estos eventos se recogiesen en CloudWatch Events, con la información que ofrece el comando <code>aws cloudformation describe-stack-events --stack-name myteststack</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-json" data-lang="json">{
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-json" data-lang="json">{
     <span style="color:#268bd2">&#34;StackEvents&#34;</span>: [
         {
             <span style="color:#268bd2">&#34;StackId&#34;</span>: <span style="color:#2aa198">&#34;arn:aws:cloudformation:us-east-2:123456789012:stack/myteststack/466df9e0-0dff-08e3-8e2f-5088487c4896&#34;</span>,
@@ -176,7 +176,7 @@
 <h2 id="systems-manager-parameter-store">Systems Manager Parameter Store</h2>
 <p>La ventaja de Systems Manager Parameter Store es que podemos introducir el valor de una referencia a un recurso de CloudFormation <strong>directamente desde CloudFormation</strong>, ya que el parámetro en Parameter Store es, simplemente, un recurso más gestionado por el <em>stack</em>.</p>
 <p>Usando como base el ejemplo en la documentación sobre parámetros de Parameter Store en CloudFormation <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ssm-parameter.html#aws-resource-ssm-parameter--examples">AWS Systems Manager Parameter String Example</a>, podemos usar como valor del parámetro una referencia a otro recurso creado en el mismo <em>stack</em> (o como <em>output</em> de otros <em>stacks</em>):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">Resources</span>:
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">Resources</span>:
     <span style="color:#268bd2">BasicParameter</span>:
         <span style="color:#268bd2">Type</span>: AWS::SSM::Parameter
         <span style="color:#268bd2">Properties</span>:
@@ -188,7 +188,7 @@
 <p>Los anglosajones dicen <a href="https://en.wikipedia.org/wiki/The_devil_is_in_the_detail">The devil is in the detail</a> cuando una cosa parece sencilla al principio pero que, al entrar al detalle, es mucho más complicada de lo que parece inicialmente.</p>
 <p>Algo parecido pasa en este caso; aunque los eventos asociados a la modificación de un parámetro en Parameter Store sí que se envían a CloudWatch Events, no contienen toda la información en la que estoy interesado; en particular, <strong>no registran el valor del parámetro</strong>, sólo su nombre. Esto limita la información que podemos traspasar a otros servicios.</p>
 <p>En el <a href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/EventTypes.html#SSM-Parameter-Store-event-types">evento de ejemplo que ofrece AWS</a> para la actualización de un parámetro, vemos que en <code>$.detail</code> aparece el campo <code>&quot;name&quot;: &quot;foo&quot;</code>, pero no hay un campo para <code>&quot;value&quot;</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-json" data-lang="json">{
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-json" data-lang="json">{
   <span style="color:#268bd2">&#34;version&#34;</span>: <span style="color:#2aa198">&#34;0&#34;</span>,
   <span style="color:#268bd2">&#34;id&#34;</span>: <span style="color:#2aa198">&#34;9547ef2d-3b7e-4057-b6cb-5fdf09ee7c8f&#34;</span>,
   <span style="color:#268bd2">&#34;detail-type&#34;</span>: <span style="color:#2aa198">&#34;Parameter Store Change&#34;</span>,
@@ -209,7 +209,7 @@
 </code></pre></div><h2 id="volviendo--más-o-menos--a-la-recomendación-oficial">Volviendo -más o menos- a la recomendación oficial</h2>
 <p>Systems Manager Parameter Store envía información asociada al evento a CloudWatch Events; además, la llamada a la API de Parameter Store queda registrada en CloudTrail.</p>
 <p>Revisando la información contenida en CloudTrail para la acción <code>PutParameter</code> realizada en Parameter Store, observamos que incluye una sección llamada <code>requestParameters</code> que contiene tanto el <strong>nombre</strong> del parámetro como el <strong>valor</strong> del parámetro:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-json" data-lang="json">...
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-json" data-lang="json">...
 <span style="color:#2aa198">&#34;requestParameters&#34;</span>: {
     <span style="color:#268bd2">&#34;name&#34;</span>: <span style="color:#2aa198">&#34;myparameter&#34;</span>,
     <span style="color:#268bd2">&#34;description&#34;</span>: <span style="color:#2aa198">&#34;Test parameter&#34;</span>,
@@ -226,7 +226,7 @@
 <p>Como hemos visto hasta ahora, aunque Parameter Store envía el evento a CloudWatch Events, no contiene el valor del parámetro. La información sí que se encuentra en el registro en CloudTrail de la creación/actualización del recurso vía API desde CloudFormation.</p>
 <p>Siguiendo las instrucciones en <a href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/Create-CloudWatch-Events-CloudTrail-Rule.html">Creating a CloudWatch Events Rule That Triggers on an AWS API Call Using AWS CloudTrail</a>, podemos definir una regla que reaccione cuando se produce un determinado evento.</p>
 <p>En patrón del evento sería del tipo:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-json" data-lang="json">{
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-json" data-lang="json">{
   <span style="color:#268bd2">&#34;source&#34;</span>: [
     <span style="color:#2aa198">&#34;aws.ssm&#34;</span>
   ],
@@ -243,7 +243,7 @@
   }
 }
 </code></pre></div><p>Si organizas los parámetros en Parameter Store como las &ldquo;rutas&rdquo; en &ldquo;carpetas&rdquo; de los objetos en S3 (o de los <em>path</em> para entidades en IAM), puedes crear reglas específicas para la modificación de parámetros de un determinado proyecto, incluyendo en el patrón de eventos los <em>resources</em> que debe monitorizar una regla: <a href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/CloudWatchEventsandEventPatterns.html">Event Patterns in CloudWatch Events</a>.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-json" data-lang="json">...
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-json" data-lang="json">...
 <span style="color:#2aa198">&#34;resources&#34;</span>: [
     <span style="color:#2aa198">&#34;arn:aws:ssm:${region}:${accountID}:parameter/${idProyecto}&#34;</span>
 ],
@@ -255,7 +255,8 @@
 <p>Al configurar el <em>target</em>, podemos incluir la información del evento tal y como lo hemos recibido en CloudWatch, sólo una parte del evento e incluso transformar el contenido del evento recibido para adecuarlo a lo que espera el servicio configurado como destino.</p>
 <h2 id="diagrama-de-la-solución-aka-tldr">Diagrama de la solución (aka TL;DR)</h2>
 <p>En el siguiente diagrama se muestra el esquema de las acciones que hemos configurado para poder obtener una notificación con información de un evento creado vía CloudFormation.</p>
-<figure><img src="/images/200507/reacting-to-resource-creation-on-cfn-wout-lambdas.svg"/>
+<figure>
+    <img src="/images/200507/reacting-to-resource-creation-on-cfn-wout-lambdas.svg"/> 
 </figure>
 
 <p>La clave del mecanismo es poder enviar un evento con la información que necesitamos a CloudWatch desde CloudFormation. Usamos la capacidad de &ldquo;disparar&rdquo; acciones basándose en determinadas reglas como sustituto de la ejecución de una Lambda.</p>

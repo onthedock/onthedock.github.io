@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.87.0" />
+<meta name="generator" content="Hugo 0.82.1" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -135,16 +135,16 @@ Uno de esos datos es la IP del sistema.</p>
 <p>Sin embargo, para los sistemas Alpine Linux, el servicio no arranca automáticamente.
 Se puede habilitar de forma manual, pero lo ideal es que el <em>demonio</em> arranque automáticamente durante el arranque.</p>
 <p>Se puede configurar <code>qemu-guest-agent</code> para que arranque durante el inicio del sistema mediante <a href="https://old.calculate-linux.org/main/en/rc-update">rc-update</a>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">rc-update add qemu-guest-agent default
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">rc-update add qemu-guest-agent default
 </code></pre></div><p>Sin embargo, tras reiniciar el equipo, el servicio <em>crashea</em>; consultando los logs observamos:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># cat /var/log/messages | grep -i qemu-guest-agent</span>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># cat /var/log/messages | grep -i qemu-guest-agent</span>
 Apr <span style="color:#2aa198">28</span> 22:24:05 dns daemon.err /etc/init.d/qemu-guest-agent<span style="color:#719e07">[</span>2440<span style="color:#719e07">]</span>: status: crashed
 Apr <span style="color:#2aa198">28</span> 22:24:10 dns daemon.err /etc/init.d/qemu-guest-agent<span style="color:#719e07">[</span>2460<span style="color:#719e07">]</span>: start-stop-daemon: no matching processes found
 </code></pre></div><h2 id="bug-de-qemu-guest-agent-en-alpine-linux">Bug de qemu-guest-agent en Alpine Linux</h2>
 <p>Buscando información en Google sobre el problema de <code>qemu-guest-agent</code> en Alpine Linux, he encontrado el <a href="https://bugs.alpinelinux.org/issues/8894">Bug #8894 Qemu-Guest-Agent not working</a>.</p>
 <p>El problema parece estar en la configuración del script de arranque del servicio es incorrecta; se apunta la solución en los comentarios del bug: modificar el script especificando el dispositivo real (<code>/dev/vport2p1</code>) y no el &ldquo;configurado&rdquo; en el script del servicio (<code>-p ${GA_PATH:-/dev/virtio-ports/org.qemu.guest_agent.0}</code>).</p>
 <p>El script que permite arrancar el servicio automáticamente queda:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># cat /etc/init.d/qemu-guest-agent</span>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># cat /etc/init.d/qemu-guest-agent</span>
 <span style="color:#586e75">#!/sbin/openrc-run</span>
 
 <span style="color:#268bd2">name</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;QEMU Guest Agent&#34;</span>
@@ -152,9 +152,9 @@ Apr <span style="color:#2aa198">28</span> 22:24:10 dns daemon.err /etc/init.d/qe
 <span style="color:#268bd2">command</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;/usr/bin/qemu-ga&#34;</span>
 <span style="color:#268bd2">command_args</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;-m </span><span style="color:#2aa198">${</span><span style="color:#268bd2">GA_METHOD</span><span style="color:#719e07">:-</span><span style="color:#268bd2">virtio</span>-serial<span style="color:#2aa198">}</span><span style="color:#2aa198"> -p qemu-ga -p /dev/vport2p1 -l /var/log/qemu-ga.log -d&#34;</span>
 </code></pre></div><p>Tras corregirlo, configuramos <code>qemu-guest-agent</code> para que arranque durante el inicio del sistema:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">rc-update add qemu-guest-agent default
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">rc-update add qemu-guest-agent default
 </code></pre></div><p>Para validar que todo funciona como esperamos, reiniciamos el equipo y comprobamos el estado del servicio:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># service qemu-guest-agent status</span>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># service qemu-guest-agent status</span>
  * status: started
 </code></pre></div></div>
 

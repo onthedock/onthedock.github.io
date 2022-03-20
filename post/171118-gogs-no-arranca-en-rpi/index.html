@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.87.0" />
+<meta name="generator" content="Hugo 0.82.1" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -136,7 +136,8 @@
 <p>La configuración de Gogs no puede realizarse (Gogs 0.11.29) desde la interfaz gráfica. Para realizar cualquier modificación en la configuración es necesario modificar el fichero <code>conf/app.ini</code>.</p>
 <p>Para que los cambios sean efectivos, es necesario reiniciar Gogs, lo que em mi caso significa parar y arrancar de nuevo el contenedor.</p>
 <p>Pero al arrancar de nuevo, la interfaz web no se muestra:</p>
-<figure><img src="/images/171118/not-found.png" width="623" height="708"/>
+<figure>
+    <img src="/images/171118/not-found.png" width="623" height="708"/> 
 </figure>
 
 <p>He comprobado que el contenedor estaba arrancado y he consultado los logs, que no muestran nada anormal:</p>
@@ -186,7 +187,7 @@ Nov 18 16:29:51 sshd[26]: Server listening on 0.0.0.0 port 22.
 <p>La única forma en la que he conseguido devolver a la vida la interfaz web ha sido borrando el fichero <code>app.ini</code> y configurando Gogs de nuevo :(</p>
 <h1 id="actualización-19112017">Actualización (19/11/2017)</h1>
 <p>He descargado la imagen <code>gogs/gogs</code> (0.11.29) en el equipo de laboratorio (x64):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ docker images
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ docker images
 REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
 gogs/gogs           0.11.29             111330b56503        <span style="color:#2aa198">15</span> hours ago        139MB
 gogs/gogs           latest              111330b56503        <span style="color:#2aa198">15</span> hours ago        139MB
@@ -195,7 +196,7 @@ gogs/gogs           latest              111330b56503        <span style="color:#
 <p>He comprobado que la imagen está basada en Alpine Linux, por lo que finalmente sí que he podido acceder mediante <code>docker exec -it /bin/ash</code>, pero no he averiguado nada relevante.</p>
 <p>Finalmente se me ha ocurrido lanzar el contenedor sin pasarlo a segundo plano (omitiendo el parámetro <code>-d</code>), de manera que la salida se mostraba en la línea de comandos.</p>
 <p>De esta forma he observado mensajes de error en la salida por pantalla. Y aunque los errores se muestran al ejecutar <code>docker logs gogs</code>, cuando redirijo la salida del comando a un fichero  (<code>docker logs gogs &gt; docker-gogs.log</code> no se registran los mensajes de error (aunque parece que está en un bucle infinito, que se va repitiendo constantemente):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ cat test.log
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ cat test.log
 Nov <span style="color:#2aa198">19</span> 19:37:32 syslogd started: BusyBox v1.25.1
 Nov <span style="color:#2aa198">19</span> 19:37:32 sshd<span style="color:#719e07">[</span>31<span style="color:#719e07">]</span>: Server listening on :: port 22.
 Nov <span style="color:#2aa198">19</span> 19:37:32 sshd<span style="color:#719e07">[</span>31<span style="color:#719e07">]</span>: Server listening on 0.0.0.0 port 22.
@@ -228,7 +229,7 @@ Nov <span style="color:#2aa198">19</span> 19:37:32 sshd<span style="color:#719e0
 2017/11/19 19:37:51 <span style="color:#719e07">[</span>TRACE<span style="color:#719e07">]</span> Build Git Hash:
 </code></pre></div><p>En estas pruebas que estoy realizando, el fichero <code>app.ini</code> no se llega a crear (tampoco la base de datos SQLite, <code>gogs.db</code>). Esto me ha llevado a pensar en un problema de permisos, pero tampoco se ha creado cuando he asignado permisos a todo el mundo (777).</p>
 <p>Para comprobar esta hipótesis he lanzado el contenedor sin montar ningún volumen (es decir, haciendo que la base de datos se genere <em>dentro</em> del propio contenedor).</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">docker run -d -p 8022:22 -p 3000:3000 gogs/gogs
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">docker run -d -p 8022:22 -p 3000:3000 gogs/gogs
 </code></pre></div><p>Pero tampoco he tenido éxito.</p>
 <p>Pensaba que los errores que he visto desfilar por pantalla los causaba el intento de conectar a la URL de Gogs. Después de crear el contenedor y esperar un rato (unos 5 o 10 segundos), he visto que el error aparecía de forma espontánea.</p>
 <p>Dado que <code>docker logs gogs &gt; errores.log</code> no escribe los errores en el log, he optado por crear un contenedor mediante <code>docker run --name gogs -p 8022:22 p:3000:3000 gogs/gogs</code> y esperar&hellip;</p>
@@ -236,7 +237,7 @@ Nov <span style="color:#2aa198">19</span> 19:37:32 sshd<span style="color:#719e0
 <p>Revisando los <em>issues</em> en GitHub, parece que es un error conocido que se trata como <em>mejora</em> :<a href="https://github.com/gogits/gogs/issues/1022">Panics should get logged</a></p>
 </blockquote>
 <p>Al haber lanzado el contenedor sin <code>-d</code>, los mensajes se muestran por pantalla, de donde he hecho un <em>copy &amp; paste</em>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell"> docker run --name gogs -p 3000:3000 gogs/gogs
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell"> docker run --name gogs -p 3000:3000 gogs/gogs
 usermod: no changes
 Nov <span style="color:#2aa198">19</span> 19:37:32 syslogd started: BusyBox v1.25.1
 Nov <span style="color:#2aa198">19</span> 19:37:32 sshd<span style="color:#719e07">[</span>31<span style="color:#719e07">]</span>: Server listening on :: port 22.
@@ -322,19 +323,22 @@ Nov <span style="color:#2aa198">19</span> 19:37:55 syslogd exiting
 <p>Revisando los <em>issues</em> cerrados, el <a href="https://github.com/gogits/gogs/issues/4876">Docker won&rsquo;t create/init files #4876</a> que describe exactamente la situación descrita, se ha cerrado hace 3h!!</p>
 </blockquote>
 <p>He revisado en DockerHub y, efectivamente, la imagen para la versión 0.11.33 se ha construido automáticamente hace apenas dos horas&hellip;</p>
-<figure><img src="/images/171118/gogs-image-2h-ago.png"/>
+<figure>
+    <img src="/images/171118/gogs-image-2h-ago.png"/> 
 </figure>
 
 <p>Y a todo esto, tengo problemas para descargar la última versión:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ docker pull gogs/gogs
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ docker pull gogs/gogs
 Using default tag: latest
 Error response from daemon: Get https://registry-1.docker.io/v2/: dial tcp: lookup registry-1.docker.io on <span style="color:#719e07">[</span>::1<span style="color:#719e07">]</span>:53: <span style="color:#b58900">read</span> udp <span style="color:#719e07">[</span>::1<span style="color:#719e07">]</span>:52357-&gt;<span style="color:#719e07">[</span>::1<span style="color:#719e07">]</span>:53: read: connection refused
 </code></pre></div><p>La <a href="https://github.com/docker/for-mac/issues/1317">solución</a> pasa por desinstalar y volver a instalar Docker (¿¡!?) y cuando lo intento descubro que la máquina virtual tiene algún problema con la resolución de nombres (usando los DNSs de Google (¡¡¿¿??!!)), así que después de cambiar de nuevo a IP dinámica, reiniciar, recuperar la conectividad, reinstalar Docker, descargar la última versión de la imagen de Gogs (0.11.33) la página de configuración vuelve a mostrarse.</p>
-<figure><img src="/images/171118/gogs-back-to-live.png"/>
+<figure>
+    <img src="/images/171118/gogs-back-to-live.png"/> 
 </figure>
 
 <p>En cuanto a la imagen para Raspberry Pi, también se ha construido una nueva versión:</p>
-<figure><img src="/images/171118/gogs-rpi-image-4min-ago.png"/>
+<figure>
+    <img src="/images/171118/gogs-rpi-image-4min-ago.png"/> 
 </figure>
 
 <p>Después de comprobar que todo ha sido un problema puntual, he vuelto a establecer IP estática en el <em>host</em> y he verificado que Gogs sigue arrancando después de parar el contenedor (y de modificar la configuración).</p>

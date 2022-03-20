@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.87.0" />
+<meta name="generator" content="Hugo 0.82.1" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -134,7 +134,8 @@
 <p>Reducida a su mínima expresión, la prueba de concepto lo que tiene que mostrar es la <em>velocidad</em> a la que se puede ir actualizando la documentación si se sigue el mismo proceso -y herramientas- de desarrollo a las que está acostumbrado el equipo de proyecto.</p>
 <p>No se trata de crear un sistema listo para producción, sino de mostrar <em>algo</em> que <strong>funcione</strong> ™ más o menos, como funcionaría la solución final.</p>
 <p>La prueba de concepto se ha montado sobre un clúster <em>mono-nodo</em> de <strong>K3s</strong>:</p>
-<figure><img src="/images/210816/doc-as-code.svg" width="100%"/>
+<figure>
+    <img src="/images/210816/doc-as-code.svg" width="100%"/> 
 </figure>
 
 <h2 id="job-o-conjob-como-pipeline-de-construcción"><em>Job</em> (o <em>ConJob</em>) como &ldquo;pipeline&rdquo; de construcción</h2>
@@ -147,7 +148,7 @@
 <p>La clave de la prueba de concepto está en usar un volumen como &ldquo;elemento común&rdquo; para la construcción y para el <em>deployment</em>. Como comenté en la entrada anterior en el apartado de <em>Publicación de la documentación</em>, otras opciones más robustas complican la solución, así que opté por esta solución de espítiru <em>macgyvero</em> <strong>porque funciona</strong> y sobretodo, porque sirve para mostrar <strong>el concepto</strong> evitando la complejidad técnica.</p>
 <h3 id="namespace"><em>Namespace</em></h3>
 <p>Para aislar los recursos de la <em>prueba de concepto</em> del resto de aplicaciones en el clúster, si las hubiera, creo el <em>namespace</em> <code>doc-as-code</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
 <span style="color:#268bd2">kind</span>: Namespace
 <span style="color:#268bd2">apiVersion</span>: v1
 <span style="color:#268bd2">metadata</span>:
@@ -156,7 +157,7 @@
 <p>El <em>Persistent Volume Claim</em> <code>website-pvc</code> se monta en los <em>pods</em> basados en Nginx en modo <em>read only</em>.</p>
 <p>Al crear el <em>PVC</em>, como no especificamos una <em>storageClass</em>, usamos la <em>storageClass</em> por defecto en el clúster. En el caso de K3s se usa <a href="https://github.com/rancher/local-path-provisioner/blob/master/README.md"><code>local-path</code></a>, que permite la provisión dinámica de volúmenes de tipo <code>hostPath</code>.</p>
 <p>El fichero de definición del <em>PVC</em>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
 <span style="color:#268bd2">kind</span>: PersistentVolumeClaim
 <span style="color:#268bd2">apiVersion</span>: v1
 <span style="color:#268bd2">metadata</span>:
@@ -180,7 +181,7 @@
 <p>Los ficheros servidos se publican desde el volumen montado en la ruta por defecto para Nginx <code>/usr/share/nginx/html</code> (en modo <em>ReadOnly</em>).</p>
 <h3 id="deployment"><em>Deployment</em></h3>
 <p>El <em>Deployment</em> está basado en Nginx y monta el volumen que contiene la documentación en formato web.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
 <span style="color:#268bd2">apiVersion</span>: apps/v1
 <span style="color:#268bd2">kind</span>: Deployment
 <span style="color:#268bd2">metadata</span>:
@@ -221,7 +222,7 @@
             <span style="color:#268bd2">claimName</span>: website-pvc
 </code></pre></div><h3 id="service"><em>Service</em></h3>
 <p><em>Publicamos</em> el servicio de forma interna usando <code>ClusterIP</code>, porque la web será accesible desde <em>fuera</em> del clúster a través de un <em>Ingress</em>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
 <span style="color:#268bd2">kind</span>: Service
 <span style="color:#268bd2">apiVersion</span>: v1
 <span style="color:#268bd2">metadata</span>:
@@ -245,7 +246,7 @@
 <blockquote>
 <p>El nombre del <em>host</em> <code>docs.k3s.vm.lab</code> está definido en el fichero <code>/etc/hosts</code> del equipo cliente desde el que se realiza la demo.</p>
 </blockquote>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">apiVersion</span>: networking.k8s.io/v1
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">apiVersion</span>: networking.k8s.io/v1
 <span style="color:#268bd2">kind</span>: Ingress
 <span style="color:#268bd2">metadata</span>:
   <span style="color:#268bd2">name</span>: doc-as-code-traefik-ingress
@@ -274,14 +275,14 @@
 <h3 id="job---tarea-1-clonar-el-código-fuente"><em>Job</em> - tarea 1: clonar el código fuente</h3>
 <p>La imagen <a href="https://hub.docker.com/r/squidfunk/mkdocs-material/">squidfunk/mkdocs-material</a> contiene Git, lo que permite clonar el repositorio sin necesidad de tener que usar una imagen personalizada en la que se haya instalado Git.</p>
 <p>La imagen base declara la carpeta de trabajo como <code>WORKDIR /docs</code> en el <a href="https://github.com/squidfunk/mkdocs-material/blob/master/Dockerfile"><code>Dockerfile</code></a>; clonamos el repositorio en esa carpeta:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">git clone https://github.com/onthedock/k8s-devops.git /docs
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">git clone https://github.com/onthedock/k8s-devops.git /docs
 </code></pre></div><p>La URL del repositorio la pasaremos al contenedor a través de una variable de entorno cargada desde un <em>ConfigMap</em>.</p>
 <p>Generamos el <em>ConfigMap</em> usando la opción <code>--dry-run=client</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">kubectl create configmap doc-as-code-repo-url <span style="color:#cb4b16">\
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">kubectl create configmap doc-as-code-repo-url <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>  --from-literal <span style="color:#268bd2">repo_url</span><span style="color:#719e07">=</span>https://github.com/onthedock/k8s-devops.git <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>  --dry-run<span style="color:#719e07">=</span>client -o yaml | tee doc-as-code-repo-url-configmap.yaml
 </code></pre></div><p>Esto genera, después de añadir algunas etiquetas adicionales:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">apiVersion</span>: v1
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">apiVersion</span>: v1
 <span style="color:#268bd2">data</span>:
   <span style="color:#268bd2">repo_url</span>: https://github.com/onthedock/k8s-devops.git
 <span style="color:#268bd2">kind</span>: ConfigMap
@@ -300,7 +301,7 @@
 <p>Usamos la opción <code>--site-dir</code> del comando <code>mkdocs build</code> para generar la documentación web en la ruta <code>/usr/share/nginx/html</code> del volumen montado. El volumen también está montado en el <em>pod</em> de Nginx, por lo que el servidor web publicará automáticamente los ficheros HTML, CSS, etc ubicados en esa carpeta.</p>
 <p>Esto nos ahorra tener que copiar los ficheros web generados al servidor Nginx y simplifica la prueba de concepto.</p>
 <p>El fichero de definición del <em>Job</em> queda:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
 <span style="color:#268bd2">kind</span>: Job
 <span style="color:#268bd2">apiVersion</span>:  batch/v1
 <span style="color:#268bd2">metadata</span>:
@@ -342,9 +343,9 @@
             <span style="color:#268bd2">claimName</span>: website-pvc
 </code></pre></div><h2 id="ejecución">Ejecución</h2>
 <p>Como hemos comentado al principio, ejecutamos el <em>Job</em> manualmente cada vez que se actualice la documentación en el repositorio:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">kubectl create -f job.yaml
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">kubectl create -f job.yaml
 </code></pre></div><p>En los logs del <em>pod</em> generado por el <em>Job</em> observamos que se genera la documentación en <code>/usr/share/nginx/html</code> (desde el <em>pod</em> de MkDocs):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">Cloning into <span style="color:#2aa198">&#39;/docs&#39;</span>...
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">Cloning into <span style="color:#2aa198">&#39;/docs&#39;</span>...
 INFO - Cleaning site directory
 INFO - Building documentation to directory: /usr/share/nginx/html
 INFO - Documentation built in 2.68 seconds

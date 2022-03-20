@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.87.0" />
+<meta name="generator" content="Hugo 0.82.1" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -133,26 +133,31 @@
   <div class="article-body"><p>Al final de la <a href="/post/190820-instala-aws-cli/">entrada anterior</a> indicaba que para empezar a usar tu cuenta de AWS necesitas un usuario.</p>
 <p>A continuación comento cómo crear un usuario IAM.</p>
 <p>Al acceder a la consola de AWS, selecciona el servicio IAM; IAM es el acrónimo de <em>Identity and Access Management</em> (gestión de identidades y accesos), que como indica en el <em>subtítulo</em> es el servicio que gestiona los usuarios y las claves de encriptación:</p>
-<figure><img src="/images/190827/iam-service.png"/>
+<figure>
+    <img src="/images/190827/iam-service.png"/> 
 </figure>
 
 <p>En el panel lateral, selecciona <em>Usuarios</em> (Users):</p>
-<figure><img src="/images/190827/users.png"/>
+<figure>
+    <img src="/images/190827/users.png"/> 
 </figure>
 
 <p>En la parte superior, se muestra un gran botón azul con el texto <em>Add User</em>; púlsalo para lanzar el asistente para la creación de un usuario.</p>
-<figure><img src="/images/190827/add_user.png"/>
+<figure>
+    <img src="/images/190827/add_user.png"/> 
 </figure>
 
 <p>La primera decisión que debes tomar acerca del usuario es cómo se va a llamar ;)</p>
-<figure><img src="/images/190827/user-name.png"/>
+<figure>
+    <img src="/images/190827/user-name.png"/> 
 </figure>
 
 <p>En la parte inferior del asistente debes indicar cómo va a &ldquo;comunicarse&rdquo; el usuario con AWS. La primera opción, el acceso <em>programático</em> es el adecuado para la interacción de aplicaciones, desde línea de comandos, etc. El acceso a través de la consola -la web de AWS- es el acceso que estamos usando en estos momentos, a través de un navegador. Este es el tipo de acceso que usará una persona, moviendo el ratón y pulsando botones.</p>
 <p>Un usuario puede tener los dos tipos de accesos. Sin embargo, las acciones -y por tanto los permisos- que asocies a cada usuario debe ser siempre los mínimos requeridos. Como los <a href="https://aws.amazon.com/iam/faqs/#Pricing">usuarios no tienen coste</a>, lo más recomendable es crear un usuario programático (o varios) para tus aplicaciones o scripts con permisos ajustados a su funcionalidad, mientras que el usuario con el que interacciones a través de la consola tenga unos permisos diferentes.</p>
 <p>En función del tipo de acceso que selecciones, aparecen opciones diferentes en cuanto a la manera de validar la identidad del usuario.</p>
 <p>En el caso de un usuario de consola, puedes hacer que AWS genere una contraseña o puedes introducirla manualmente. Por defecto, la consola web ofrece la opción de que el usuario deba cambiar el password la primera vez que acceda a AWS. De esta forma se garantiza que sólo el usuario conoce su password.</p>
-<figure><img src="/images/190827/password.png"/>
+<figure>
+    <img src="/images/190827/password.png"/> 
 </figure>
 
 <p>Observa que si se deja marcada esta opción, AWS automáticamente asocia al usuario una <em>política</em> llamada <code>IAMUserChangePassword</code> que le permite cambiar el password asociado.</p>
@@ -163,14 +168,15 @@
 <li>copiar los permisos de otro usuario</li>
 <li>asignar una política</li>
 </ul>
-<figure><img src="/images/190827/attach-policy.png"/>
+<figure>
+    <img src="/images/190827/attach-policy.png"/> 
 </figure>
 
 <p>Como puedes ver en la imagen anterior, existen <strong>un montón</strong> de políticas gestionadas por Amazon (actualmente 472). Para empezar, lo habitual es que crees un usuario con permisos de administración total (<code>AdministratorAccess</code>).
 Además de las políticas gestionadas por Amazon, puedes crear tus propias políticas, ajustando con tanto detalle como quieres <strong>qué acciones</strong> de <strong>qué servicios</strong> y sobre <strong>qué recursos</strong> permites o deniegas.</p>
 <p>El tema de las políticas es un mundo en sí mismo y es quizás <strong>uno de los temas más importantes</strong> con el que debes familiarizarte. A <em>muy grandes rasgos</em>, en una política permite definir con muchísima granularidad qué puede hacerse dónde.</p>
 <p>La política <code>AdministratorAccess</code> permite (<code>&quot;Effect&quot;: &quot;Allow&quot;</code>), todas las acciones en cualquier servicio (<code>&quot;Action&quot;: &quot;*&quot;</code>) y sobre cualquier recurso (<code>&quot;Resource&quot;: &quot;*&quot;</code>):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">{
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">{
     <span style="color:#268bd2">&#34;Version&#34;: </span><span style="color:#2aa198">&#34;2012-10-17&#34;</span>,
     <span style="color:#268bd2">&#34;Statement&#34;: </span>[
         {
@@ -187,7 +193,7 @@ Además de las políticas gestionadas por Amazon, puedes crear tus propias polí
 <p>En este caso el ARN incluye una variable <code>${{aws:username}}</code>; lo habitual es que el ARN sea un identificador &ldquo;fijo&rdquo;.</p>
 </blockquote>
 <p>La política <em>IAMUserChangePassword</em> que se asocia al usuario al marcar la casilla de &ldquo;cambiar la contraseña en el primer inicio&rdquo; también permite &ldquo;leer&rdquo; la política de passwords (que especifica la longitud de la contraseña, cada cuanto tiene que cambiarse, etc).</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">{
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">{
     <span style="color:#268bd2">&#34;Version&#34;: </span><span style="color:#2aa198">&#34;2012-10-17&#34;</span>,
     <span style="color:#268bd2">&#34;Statement&#34;: </span>[
         {
@@ -212,28 +218,33 @@ Además de las políticas gestionadas por Amazon, puedes crear tus propias polí
 <p>No puedes modificar las políticas gestionadas por Amazon (que se identifican por un &ldquo;cubo&rdquo; naranja).</p>
 </blockquote>
 <p>Debajo de las políticas, tienes la sección para las <em>permission boundaries</em>:</p>
-<figure><img src="/images/190827/boundaries.png"/>
+<figure>
+    <img src="/images/190827/boundaries.png"/> 
 </figure>
 
 <p>Las <em>permission boundaries</em> permiten establecer un <strong>límite máximo</strong> de permisos que el usuario puede asumir. Se considera una <a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_boundaries.html">funcionalidad avanzada</a>, por lo que quizás debas dejarlo para más adelante.</p>
 <p>Intento explicarlo de forma <strong>muy simplificada</strong> en el siguiente diagrama:</p>
-<figure><img src="/images/190827/effective-permissions.png"/>
+<figure>
+    <img src="/images/190827/effective-permissions.png"/> 
 </figure>
 
 <p>Los permisos efectivos sobre el usuario son aquellos definidos por la <em>permission boundary</em> (el círculo rojo). Como son los permisos máximos que puede tener el usuario, aunque apliquemos las políticas <code>Policy1</code> y <code>Policy2</code> que otorgan más permisos (los círculos azul y naranja) de lo que permite la <em>boundary</em>, los <strong>permisos efectivos</strong> serán sólo los permisos de las políticas 1 y 2 que estén dentro de los límites de la <em>boundary</em> (la zona con rayas de color azul y naranja).</p>
 <p>Un ejemplo sencillo: si en la <em>permission boundary</em> establecemos <code>AmazonEC2FullAccess</code> (acceso a todas las acciones de EC2), aunque asignemos la politica <code>AdministratorAccess</code>(acceso a todas las acciones de <strong>todos</strong> los servicios), las políticas resultantes para este usuario se limitarán al servicio EC2 (que es lo máximo que permite la <em>permission boundary</em>), aunque la política <code>AdministratorAccess</code> permita usar otros servicios.</p>
 <p>Para no complicar las cosas, asigna la política que consideres oportuna y deja la sección de <em>permission boundaries</em> por defecto (sin ningún límite).</p>
 <p>El siguiente paso es aplicar etiquetas al usuario; es un paso opcional, de manera que no etiquetamos el usuario:</p>
-<figure><img src="/images/190827/tags.png"/>
+<figure>
+    <img src="/images/190827/tags.png"/> 
 </figure>
 
 <p>Una revisión final antes de crear el usuario; observa que tienes dos políticas aplicadas: <code>AdministratorAccess</code> y <code>IAMUserChangePassword</code></p>
-<figure><img src="/images/190827/review.png"/>
+<figure>
+    <img src="/images/190827/review.png"/> 
 </figure>
 
 <p>Los permisos otorgados por <code>IAMUserChangePassword</code>están incluidos en la política <code>AdministratorAccess</code>; la evaluación de las políticas se describe en <a href="https://docs.aws.amazon.com/es_es/IAM/latest/UserGuide/reference_policies_evaluation-logic.html">Lógica de evaluación de políticas</a></p>
 <p>Tras la creación del usuario, Amazon te ofrece la posibilidad de descargar las credenciales generadas para el usuario. También tienen un botón para &ldquo;mostrar&rdquo; la contraseña generada (y copiarla); en cuanto cierres esta pantalla, no es posible recuperar la contraseña (aunque podrás cambiarla por una nueva).</p>
-<figure><img src="/images/190827/credentials.png"/>
+<figure>
+    <img src="/images/190827/credentials.png"/> 
 </figure>
 
 <p>Este usuario tiene permiso para acceder a la consola web de Amazon; en una entrada posterior detallaré cómo crear la <em>Access y Secret key</em> para acceder usando AWS CLI.</p>

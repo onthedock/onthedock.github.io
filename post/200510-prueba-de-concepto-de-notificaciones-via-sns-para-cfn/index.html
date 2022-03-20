@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.87.0" />
+<meta name="generator" content="Hugo 0.82.1" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -141,7 +141,7 @@
 </ul>
 <p>Empezamos por la plantilla de CloudFormation que genere una <em>política</em> gestionada.</p>
 <h2 id="plantilla-para-crear-una-managed-policy">Plantilla para crear una <em>managed policy</em></h2>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">AWSTemplateFormatVersion</span>: 2010-09-09
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">AWSTemplateFormatVersion</span>: 2010-09-09
 <span style="color:#268bd2">Description</span>: |<span style="color:#2aa198">
 </span><span style="color:#2aa198">  </span>  Sample CloudFormation template
 <span style="color:#268bd2">Resources</span>:
@@ -174,7 +174,7 @@
 <blockquote>
 <p>La dirección de correo <strong>no se registra</strong> en la traza almacenada en CloudTrail de la llamada a la API para realizar la creación de la suscripción.</p>
 </blockquote>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">AWSTemplateFormatVersion</span>: 2010-09-09
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">AWSTemplateFormatVersion</span>: 2010-09-09
 <span style="color:#268bd2">Parameters</span>:
   <span style="color:#268bd2">TopicSubscriberEmail</span>:
     <span style="color:#268bd2">Description</span>: Email to send notifications to (requires confirming the subscription)
@@ -201,7 +201,7 @@
 <h2 id="creación-de-la-regla-en-cloudwatch-events">Creación de la regla en CloudWatch Events</h2>
 <p>Añadimos una sección en la plantilla de CloudFormation de los <em>servicios de soporte</em> para crear la <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-events-rule.html">regla en CloudWatch Events</a>.</p>
 <p>Para obtener el <code>EventPattern</code> de manera sencilla, puedes crearlo desde la consola web de AWS (y después convertirlo a YAML):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">source</span>:
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">source</span>:
 - aws.ssm
 <span style="color:#268bd2">detail-type</span>:
 - AWS API Call via CloudTrail
@@ -216,7 +216,7 @@
 <p>La segunda parte de la regla consiste en definir el <em>target</em> de la acción a realizar cuando se valide la regla definida.</p>
 <p>En nuestro caso, actuaremos sobre un <em>topic</em> SNS. La propiedad <code>Targets</code> de una regla en CloudWatch Events debe contener uno o más elementos de tipo <code>Target</code>.</p>
 <p>Un <em>target</em> requiere el ARN del recurso y un <code>Id</code> (que es el nombre que asignamos al <em>target</em>); el resto de parámetros son opcionales.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">Type</span>: AWS::Events::Rule
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">Type</span>: AWS::Events::Rule
 <span style="color:#268bd2">Properties</span>:
   <span style="color:#268bd2">EventPattern</span>:
 ...
@@ -226,7 +226,7 @@
       <span style="color:#268bd2">Id</span>: !Ref TopicForNotifications
 </code></pre></div><p>En la documentación se indica que debe facilitarse el ARN del rol que se asume cuando se ejecuta la regla. Este rol debe proporcionar permisos para que CloudWatch Events pueda enviar mensajes al <em>topic</em>.</p>
 <p>Revisando el <em>topic</em> en la consola, vemos que tiene asociada una <em>access policy</em> que convierte en <em>público</em> para todos los <em>principals</em> de AWS en la cuenta (si lo interpreto correctamente (SPOILER: no es correcto)):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-json" data-lang="json">{
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-json" data-lang="json">{
   <span style="color:#268bd2">&#34;Version&#34;</span>: <span style="color:#2aa198">&#34;2008-10-17&#34;</span>,
   <span style="color:#268bd2">&#34;Id&#34;</span>: <span style="color:#2aa198">&#34;__default_policy_ID&#34;</span>,
   <span style="color:#268bd2">&#34;Statement&#34;</span>: [
@@ -262,9 +262,9 @@
 <p>En CloudWatch Events se observa que al crear el parámetro vía CloudFormation, se disparan las reglas; sin embargo, vemos que además de las métricas <em>TriggeredRules</em> e <em>Invocation</em> también aumenta la cuenta de <em>FailedInvocations</em> para el <em>topic</em>.</p>
 <p>Revisando la página de <a href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/CWE_Troubleshooting.html">Troubleshooting CloudWatch Events</a>, parece que la entrada que mejor se ajusta a mi situación es <a href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/CWE_Troubleshooting.html#NoMessagesPublishedSNS">My rule is being triggered but I don&rsquo;t see any messages published into my Amazon SNS topic</a>.</p>
 <p>Siguiendo las instrucciones indicadas, lanzo desde la CLI:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">aws sns get-topic-attributes --region <span style="color:#268bd2">$REGION</span> --topic-arn <span style="color:#268bd2">$TOPICARN</span> --profile <span style="color:#b58900">local</span>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">aws sns get-topic-attributes --region <span style="color:#268bd2">$REGION</span> --topic-arn <span style="color:#268bd2">$TOPICARN</span> --profile <span style="color:#b58900">local</span>
 </code></pre></div><p>La salida del comando -anonimizada- es:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-json" data-lang="json">{
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-json" data-lang="json">{
     <span style="color:#268bd2">&#34;Attributes&#34;</span>: {
         <span style="color:#268bd2">&#34;SubscriptionsConfirmed&#34;</span>: <span style="color:#2aa198">&#34;1&#34;</span>,
         <span style="color:#268bd2">&#34;DisplayName&#34;</span>: <span style="color:#2aa198">&#34;&#34;</span>,
@@ -277,7 +277,7 @@
     }
 }
 </code></pre></div><p>Formateando mejor la salida se puede observar que en la respuesta sólo aparece la politica por defecto:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-json" data-lang="json">Policy<span style="color:#2aa198">&#34;: &#34;</span>{
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-json" data-lang="json">Policy<span style="color:#2aa198">&#34;: &#34;</span>{
   \<span style="color:#268bd2">&#34;Version\&#34;:\&#34;2008-10-17\&#34;,
 </span><span style="color:#268bd2">  \&#34;Id\&#34;:\&#34;__default_policy_ID\&#34;,
 </span><span style="color:#268bd2">  \&#34;Statement\&#34;:[{
@@ -305,7 +305,7 @@
 </span><span style="color:#268bd2">}&#34;</span>,
 </code></pre></div><p>La política por defecto no proporciona permisos de <code>Publish</code> a <code>events.amazonaws.com</code>, por lo que debemos establecerlo para que la regla de Events pueda publicar mensajes en el <em>topic</em> SNS.</p>
 <p>Actualizamos la plantilla de CloudFormation para incluir la política y dar permisos a CloudWatch Events:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">  <span style="color:#268bd2">EventsRuleForSSMPutParameter</span>:
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">  <span style="color:#268bd2">EventsRuleForSSMPutParameter</span>:
     <span style="color:#268bd2">Type</span>: <span style="color:#2aa198">&#34;AWS::Events::Rule&#34;</span>
 ...
   <span style="color:#268bd2">EventTopicPolicy</span>:
@@ -321,7 +321,7 @@
       <span style="color:#268bd2">Topics</span>:
         - !Ref TopicForNotifications
 </code></pre></div><p>Repitiendo la comprobación indicada en la página de <em>troubleshooting</em> (he formateado la salida para que sea más fácil identificar la parte resaltada):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ aws sns get-topic-attributes --region <span style="color:#268bd2">$REGION</span> --topic-arn <span style="color:#268bd2">$TOPICARN</span> --profile <span style="color:#b58900">local</span>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ aws sns get-topic-attributes --region <span style="color:#268bd2">$REGION</span> --topic-arn <span style="color:#268bd2">$TOPICARN</span> --profile <span style="color:#b58900">local</span>
 <span style="color:#719e07">{</span>
     <span style="color:#2aa198">&#34;Attributes&#34;</span>: <span style="color:#719e07">{</span>
         <span style="color:#2aa198">&#34;SubscriptionsConfirmed&#34;</span>: <span style="color:#2aa198">&#34;1&#34;</span>,

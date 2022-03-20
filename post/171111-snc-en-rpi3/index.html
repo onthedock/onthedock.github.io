@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.87.0" />
+<meta name="generator" content="Hugo 0.82.1" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -138,7 +138,7 @@
 <p>Para poder instalar Kubernetes usando <em>kubeadm</em>, el primer requerimiento es tener instalado <em>kubeadm</em>. Las instrucciones para instalarlo se encuentran en <a href="https://kubernetes.io/docs/setup/independent/install-kubeadm/">Installing kubeadm</a>.</p>
 <p>Los requerimientos para poder instalar <em>kubeadm</em> y Kubernetes ya se dan en Hypriot OS (por ejemplo, tener desactivada la <em>swap</em>).</p>
 <p>HypriotOS también viene equipado de serie con Docker:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ docker version
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ docker version
 Client:
  Version:      17.05.0-ce
  API version:  1.29
@@ -156,9 +156,9 @@ Server:
  OS/Arch:      linux/arm
  Experimental: <span style="color:#b58900">false</span>
 </code></pre></div><p>El  siguiente paso es instalar <em>kubeadm</em>, <em>kubelet</em> y <em>kubectl</em>. Para ello, primero nos convertimos en el usuario <code>root</code> mediante:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">sudo -i
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">sudo -i
 </code></pre></div><p>Actualizamos el índice de paquetes e instalamos <code>apt-transport-https</code> (aunque HypriotOS también los trae de fábrica):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ apt-get update <span style="color:#719e07">&amp;&amp;</span> apt-get install -y apt-transport-https
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ apt-get update <span style="color:#719e07">&amp;&amp;</span> apt-get install -y apt-transport-https
 Get:1 http://mirrordirector.raspbian.org jessie InRelease <span style="color:#719e07">[</span>14.9 kB<span style="color:#719e07">]</span>
 Get:2 http://archive.raspberrypi.org jessie InRelease <span style="color:#719e07">[</span>22.9 kB<span style="color:#719e07">]</span>
 ...
@@ -166,7 +166,7 @@ Reading state information... Done
 apt-transport-https is already the newest version.
 <span style="color:#2aa198">0</span> upgraded, <span style="color:#2aa198">0</span> newly installed, <span style="color:#2aa198">0</span> to remove and <span style="color:#2aa198">41</span> not upgraded.
 </code></pre></div><p>Instalamos la clave pública del repositorio de Google, añadimos el repositorio de Kubernetes, actualiazamos e instalamos.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
 OK
 $ cat <span style="color:#2aa198">&lt;&lt;EOF &gt;/etc/apt/sources.list.d/kubernetes.list
 </span><span style="color:#2aa198">&gt; deb http://apt.kubernetes.io/ kubernetes-xenial main
@@ -178,7 +178,7 @@ Hit https://apt.dockerproject.org raspbian-jessie InRelease
 Fetched 15.1 kB in 14s <span style="color:#719e07">(</span><span style="color:#2aa198">1056</span> B/s<span style="color:#719e07">)</span>
 Reading package lists... Done
 </code></pre></div><p>Lanzamos la instalación:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ apt-get install -y kubelet kubeadm kubectl
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ apt-get install -y kubelet kubeadm kubectl
 Reading package lists... Done
 Building dependency tree
 Reading state information... Done
@@ -225,7 +225,7 @@ Processing triggers <span style="color:#719e07">for</span> systemd <span style="
 </code></pre></div><h2 id="inicializando-el-clúster">Inicializando el clúster</h2>
 <p>Tras el paso previo de la instalación de <em>kubeadm</em>, lanzamos <code>kubeadm init</code>, que inicializa el clúster.</p>
 <p>En primer lugar, <em>kubeadm</em> realiza comprobaciones antes de lanzar la descargar de las diferentes imágenes de los elementos del <em>control plane</em> (lo que puede llevar más o menos tiempo, en función de la velocidad de tu conexión). Finalmente, <em>kubeadm</em> muestra instrucciones sobre los siguientes pasos a seguir tras la inicialización del clúster:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ kubeadm init
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ kubeadm init
 <span style="color:#719e07">[</span>kubeadm<span style="color:#719e07">]</span> WARNING: kubeadm is in beta, please <span style="color:#719e07">do</span> not use it <span style="color:#719e07">for</span> production clusters.
 <span style="color:#719e07">[</span>init<span style="color:#719e07">]</span> Using Kubernetes version: v1.8.2
 <span style="color:#719e07">[</span>init<span style="color:#719e07">]</span> Using Authorization modes: <span style="color:#719e07">[</span>Node RBAC<span style="color:#719e07">]</span>
@@ -291,18 +291,18 @@ as root:
 <blockquote>
 <p>El comando de instalación de Weave Net requiere Kubernetes 1.4 o superior</p>
 </blockquote>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ kubectl apply -f <span style="color:#2aa198">&#34;https://cloud.weave.works/k8s/net?k8s-version=</span><span style="color:#719e07">$(</span>kubectl version | base64 | tr -d <span style="color:#2aa198">&#39;\n&#39;</span><span style="color:#719e07">)</span><span style="color:#2aa198">&#34;</span>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ kubectl apply -f <span style="color:#2aa198">&#34;https://cloud.weave.works/k8s/net?k8s-version=</span><span style="color:#719e07">$(</span>kubectl version | base64 | tr -d <span style="color:#2aa198">&#39;\n&#39;</span><span style="color:#719e07">)</span><span style="color:#2aa198">&#34;</span>
 serviceaccount <span style="color:#2aa198">&#34;weave-net&#34;</span> created
 clusterrole <span style="color:#2aa198">&#34;weave-net&#34;</span> created
 clusterrolebinding <span style="color:#2aa198">&#34;weave-net&#34;</span> created
 daemonset <span style="color:#2aa198">&#34;weave-net&#34;</span> created
 </code></pre></div><h2 id="habilita-_kubectl_-para-usuarios-sin-privilegios">Habilita <em>kubectl</em> para usuarios sin privilegios</h2>
 <p>Una vez hemos finalizado la instalación e inicialización del nodo master, nos deshacemos de los privilegios de <code>root</code> y realizamos la copia del fichero de configuración de <em>kubectl</em> para poder usarlo como un usuario &ldquo;normal&rdquo;:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ mkdir -p <span style="color:#268bd2">$HOME</span>/.kube
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ mkdir -p <span style="color:#268bd2">$HOME</span>/.kube
 $ sudo cp -i /etc/kubernetes/admin.conf <span style="color:#268bd2">$HOME</span>/.kube/config
 $ sudo chown <span style="color:#719e07">$(</span>id -u<span style="color:#719e07">)</span>:<span style="color:#719e07">$(</span>id -g<span style="color:#719e07">)</span> <span style="color:#268bd2">$HOME</span>/.kube/config
 </code></pre></div><p>Verificamos que funciona lanzando, por ejemplo:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ kubectl get pods --all-namespaces
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ kubectl get pods --all-namespaces
 NAMESPACE     NAME                          READY     STATUS              RESTARTS   AGE
 kube-system   etcd-snc                      1/1       Running             <span style="color:#2aa198">0</span>          26m
 kube-system   kube-apiserver-snc            1/1       Running             <span style="color:#2aa198">0</span>          26m
@@ -317,7 +317,7 @@ kube-system   weave-net-mq5pz               0/2       ContainerCreating   <span 
 <h2 id="habilitar-el-despliegue-de-_pods_-en-el-nodo-master">Habilitar el despliegue de <em>pods</em> en el nodo master</h2>
 <p>Por defecto, el planificador (<em>scheduler</em>) de Kubernetes sólo asigna <em>pods</em> en los nodos <em>worker</em>.</p>
 <p>Para cambiar el comportamiento por defecto y poder usar la Raspberry Pi como un clúster de un solo nodo (con roles Master y Worker), usamos:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ kubectl taint nodes --all node-role.kubernetes.io/master-
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ kubectl taint nodes --all node-role.kubernetes.io/master-
 node <span style="color:#2aa198">&#34;snc&#34;</span> untainted
 </code></pre></div><h2 id="resumen">Resumen</h2>
 <p>En esta entrada hemos instalado y configurado el nodo master de una instalación de Kubernetes usando <em>kubeadm</em>. Una vez finalizada la inicialización del clúster, hemos eliminado el <em>taint</em> en el nodo para que puedan desplegarse <em>pods</em> en este nodo, convirtiendo la Raspberry Pi en un clúster de Kubernetes de un solo nodo.</p></div>

@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.87.0" />
+<meta name="generator" content="Hugo 0.82.1" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -137,7 +137,8 @@
 <p>Para mantenerme dentro de los términos de servicio de esta red wifi, puedo usar los modos NAT o &ldquo;NAT Network&rdquo; (necesito que las máquinas virtuales tengan acceso a internet).</p>
 <p>Usando NAT todas las máquinas virtuales reciben la misma dirección IP, 10.0.2.15 y están &ldquo;desconectadas&rdquo; entre sí. Así que la única opción viable para levantar varias máquinas conectadas entre ellas es usar el modo &ldquo;NAT Network&rdquo;.</p>
 <p>Aunque este modo no permite conexiones directas desde el equipo anfitrión a la red <em>nateada</em>, es posible acceder mediante <em>port-forwarding</em>.</p>
-<figure><img src="/images/200725/VirtualBox-network-settings-%e2%80%93-the-NAT-Network-mode.png"/>
+<figure>
+    <img src="/images/200725/VirtualBox-network-settings-%e2%80%93-the-NAT-Network-mode.png"/> 
 </figure>
 
 <p>Como puede observarse en la imagen (obtenida desde la página de Nakivo a la que enlazo más arriba), las máquinas virtuales obtienen una IP desde el DHCP en 10.0.2.3 del rango 10.0.2.0/24.</p>
@@ -145,7 +146,7 @@
 <p>Revisando la documentación de VirtualBox he encontrado en la sección <a href="https://www.virtualbox.org/manual/ch08.html#vboxmanage-dhcpserver">8.42. VBoxManage dhcpserver</a> el comando que me permite modificar el rango de IPs servidas desde el servidor DHCP.</p>
 <p>Aunque existe la posibilidad de asignar una dirección mediante <code>--fixed-address=address</code> para una máquina virtual <code>--vm</code> o a una <em>mac address</em> (<code>--mac-address</code>), en mi caso la opción más segura es la de modificar el rango de IPs del DHCP.</p>
 <p>Para ello, he <em>reservado</em> las direcciones por debajo de 50 para asignarlas estáticamente a través del sistema operativo de las VMs cuando lo necesite:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">VBoxManage dhcpserver modify --network<span style="color:#719e07">=</span><span style="color:#2aa198">${</span><span style="color:#268bd2">NombreNetwork</span><span style="color:#2aa198">}</span> --lower-ip<span style="color:#719e07">=</span>10.0.2.50
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">VBoxManage dhcpserver modify --network<span style="color:#719e07">=</span><span style="color:#2aa198">${</span><span style="color:#268bd2">NombreNetwork</span><span style="color:#2aa198">}</span> --lower-ip<span style="color:#719e07">=</span>10.0.2.50
 </code></pre></div><p>De esta forma, tengo flexibilidad para asignar direcciones estáticas a las máquinas que me interese (asignado una IP por debajo de 50) o para que obtengan una dirección automáticamente del DHCP sin ningún riesgo de colisión.</p>
 <p><em>Problem solved!</em></p></div>
 

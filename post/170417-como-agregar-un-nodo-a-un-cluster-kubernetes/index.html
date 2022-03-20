@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.87.0" />
+<meta name="generator" content="Hugo 0.82.1" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -134,7 +134,7 @@
 <h1 id="cómo-agregar-un-nodo-a-un-cluster-kubernetes">Cómo agregar un nodo a un cluster Kubernetes</h1>
 <p>En el nodo que vamos a añadir tenemos instalador HypriotOS (una distribución basada en Debian creada específicamente para ejecutar Docker en la Raspberry Pi).</p>
 <p>Hypriot OS tiene instalado Docker <em>de fábrica</em> así que comprobamos la versión instalada:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ docker version
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ docker version
 Client:
  Version:      17.04.0-ce
  API version:  1.28
@@ -155,7 +155,7 @@ $
 </code></pre></div><h2 id="tareas-previas">Tareas previas</h2>
 <p>La instalación de HypriotOS define como nombre del <em>host</em> <code>black-pearl</code>.</p>
 <p>Lo primero que haremos será cambiar el nombre del <em>host</em>. Para ello modificamos el fichero <code>/boot/device-init.yaml</code> especificando el nombre elegido para el nuevo nodo. En mi caso, <code>k2</code></p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ sudo nano /boot/device-init.yaml
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ sudo nano /boot/device-init.yaml
 
 <span style="color:#586e75"># hostname for your HypriotOS device</span>
 hostname: k2
@@ -168,34 +168,34 @@ wifi:
 <span style="color:#586e75">#       password: &#34;secret_password&#34;</span>
 </code></pre></div><p>Para que los cambios tenga efecto, es necesario reiniciar el equipo. Antes, sin embargo, vamos a establecer una IP fija.</p>
 <p>Creamos una copia del fichero <code>/etc/network/interfaces.d/eth0</code> antes de editarlo:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ sudo cp /etc/network/interfaces.d/eth0 /etc/network/interfaces.d/eth0.original
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ sudo cp /etc/network/interfaces.d/eth0 /etc/network/interfaces.d/eth0.original
 $ sudo nano /etc/network/interfaces.d/eth0
 allow-hotplug eth0
 iface eth0 inet static
   address 192.168.1.12
   gateway 192.168.1.1
 </code></pre></div><p>Una vez realizadas las modificaciones del <em>hostname</em> y de la dirección IP, reiniciamos el <em>host</em>.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">sudo reboot
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">sudo reboot
 </code></pre></div><h2 id="instalación-de-kubernetes-kubeadm--kubectl-y-kubelet">Instalación de Kubernetes (<code>kubeadm</code>,  <code>kubectl</code> y <code>kubelet</code>)</h2>
 <p>Seguimos las instrucciones de la página oficial de Kubernetes: <a href="https://kubernetes.io/docs/getting-started-guides/kubeadm/">Installing Kubernetes on Linux with kubeadm</a>.</p>
 <p>Nos conectamos a la máquina vía <em>SSH</em> y nos convertimos en <code>root</code> mediante <code>sudo su -</code>.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ apt-get update <span style="color:#719e07">&amp;&amp;</span> apt-get install -y apt-transport-https
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ apt-get update <span style="color:#719e07">&amp;&amp;</span> apt-get install -y apt-transport-https
 ...
 apt-transport-https is already the newest version.0 upgraded, <span style="color:#2aa198">0</span> newly installed, <span style="color:#2aa198">0</span> to remove and <span style="color:#2aa198">0</span> not upgraded.
 </code></pre></div><p>El siguiente paso es obtener la clave GPG:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
 OK
 </code></pre></div><p>Añadimos el repositorio de Kubernetes y actualizamos la lista de paquetes:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ cat <span style="color:#2aa198">&lt;&lt;EOF &gt;/etc/apt/sources.list.d/kubernetes.list
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ cat <span style="color:#2aa198">&lt;&lt;EOF &gt;/etc/apt/sources.list.d/kubernetes.list
 </span><span style="color:#2aa198">deb http://apt.kubernetes.io/ kubernetes-xenial main
 </span><span style="color:#2aa198">EOF</span>
 $ apt-get update
 </code></pre></div><p>Verificamos que tenemos Docker instalado (en nuestro caso, <code>docker-engine</code>):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ apt-get install -y docker-engine
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ apt-get install -y docker-engine
 ...
 docker-engine is already the newest version.0 upgraded, <span style="color:#2aa198">0</span> newly installed, <span style="color:#2aa198">0</span> to remove and <span style="color:#2aa198">0</span> not upgraded.
 </code></pre></div><p>Ahora es el momento de lanzar la instalación de los diferentes componentes de Kubernets:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ apt-get install -y kubelet kubeadm kubectl kubernetes-cni
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ apt-get install -y kubelet kubeadm kubectl kubernetes-cni
 ...
 The following extra packages will be installed:  ebtables socatThe following NEW packages will be installed:  ebtables kubeadm kubectl kubelet kubernetes-cni socat0 upgraded, <span style="color:#2aa198">6</span> newly installed, <span style="color:#2aa198">0</span> to remove and <span style="color:#2aa198">0</span> not upgraded.Need to get 37.1 MB of archives.After this operation, <span style="color:#2aa198">266</span> MB of additional disk space will be used.0% <span style="color:#719e07">[</span>Working<span style="color:#719e07">]</span>
 ...
@@ -209,16 +209,16 @@ $
 </code></pre></div><h2 id="agregar-nodo-al-clúster">Agregar nodo al clúster</h2>
 <p>Para añadir el <em>host</em> como un nodo adicional del clúster de Kubernetes, usaremos el comando <code>kubeadm join --token {token} {IP-nodo-master}:puerto</code></p>
 <p>El comando <code>kubeadm</code> genera el token al inicializar el clúster, pero si no lo tenemos apuntado, podemos obtenerlo conectando al nodo <em>master</em>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">ssh pirate@k1.local
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">ssh pirate@k1.local
 </code></pre></div><p>Para obtener el <em>token</em>, nos convertimos en el usuario <code>root</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">sudo su -
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">sudo su -
 </code></pre></div><p>A continuación, obtenemos la lista de <em>tokens</em> generados en el clúster:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ kubeadm token list
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ kubeadm token list
 TOKEN                     TTL         EXPIRES   USAGES                 DESCRIPTION
 5e6517.b9e07...293ff612   &lt;forever&gt;   &lt;never&gt;   authentication,signing   The default bootstrap token generated by <span style="color:#2aa198">&#39;kubeadm init&#39;</span>.
 </code></pre></div><p>Copiamos el <em>token</em> y cerramos la conexión con el nodo <em>master</em>.</p>
 <p>En el <em>host</em> que vamos a unir como nodo al clúster, ejecutamos (como <code>root</code>):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">kubeadm join --token<span style="color:#719e07">=</span>5e6517.b9e07...293ff612 192.168.1.11:6443
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">kubeadm join --token<span style="color:#719e07">=</span>5e6517.b9e07...293ff612 192.168.1.11:6443
 <span style="color:#719e07">[</span>kubeadm<span style="color:#719e07">]</span> WARNING: kubeadm is in beta, please <span style="color:#719e07">do</span> not use it <span style="color:#719e07">for</span> production clusters.
 <span style="color:#719e07">[</span>preflight<span style="color:#719e07">]</span> Running pre-flight checks
 <span style="color:#719e07">[</span>preflight<span style="color:#719e07">]</span> WARNING: docker version is greater than the most recently validated version. Docker version: 17.04.0-ce. Max validated version: 1.12
@@ -238,25 +238,25 @@ Node join complete:
    Run <span style="color:#2aa198">&#39;kubectl get nodes&#39;</span> on the master to see this machine join.
 </code></pre></div><h2 id="verificación">Verificación</h2>
 <p>Para comprobar que el nodo <code>k2</code> se ha añadido correctamente al clúster, nos conectamos al nodo <em>master</em> y obtenemos la lista de nodos:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ kubectl get nodes
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ kubectl get nodes
 NAME       STATUS     AGE       VERSION
 k1         Ready      4d        v1.6.1
 k2.local         NotReady   40s       v1.6.1
 </code></pre></div><p>El nodo <code>k2</code> del clúster aparece como <code>NotReady</code>. Esta situación debe ser temporal. Tras unos instantes, al ejecutar de nuevo el comando, el <em>status</em> del nuevo nodo debería haber cambiado y mostrarse como <code>Ready</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ kubectl get nodes
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ kubectl get nodes
 NAME       STATUS    AGE       VERSION
 k1         Ready     4d        v1.6.1
 k2.local   Ready     1m        v1.6.1
 </code></pre></div><h2 id="cambio-de-nombre-del-nodo">Cambio de nombre del nodo</h2>
 <p>Incialmente he añadido el nodo al cúster como <code>k2.local</code>, sin darme cuenta que el sufijo <code>.local</code> lo añade el <em>daemon</em> Avahi al publicar el nombre del <em>host</em> en la red local.</p>
 <p>He modificado el nombre del nodo en el fichero <code>/boot/device-init.yaml</code> y he reiniciado el nodo, pero a nivel del clúster, el nodo <code>k2.local</code> sigue formando parte del mismo. Por eso aparece como <code>NotReady</code> al ejecutar <code>get nodes</code>. El <em>nuevo</em>  nodo <code>k2</code> sí que aparece en al ejecutar el comando <code>get nodes</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ kubectl get nodes
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ kubectl get nodes
 NAME       STATUS     AGE       VERSION
 k1         Ready      4d        v1.6.1
 k2         Ready      37m       v1.6.1
 k2.local   NotReady   1h        v1.6.1
 </code></pre></div><p>Para evitar confusiones, lo más conveniente es eliminar el nodo del clúster mediante <code>kubectl delete node</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ kubectl delete node k2.local
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ kubectl delete node k2.local
 node <span style="color:#2aa198">&#34;k2.local&#34;</span> deleted
 
 $ kubectl get nodes

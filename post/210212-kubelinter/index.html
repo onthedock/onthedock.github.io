@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.87.0" />
+<meta name="generator" content="Hugo 0.82.1" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -139,17 +139,17 @@
 <p>Crearemos un fichero YAML que contenga el <em>namespace</em> donde desplegaremos un Pod basado en <code>busybox</code>.</p>
 <p>Los ficheros con la definición de los diferentes objetos se encuentran en la ruta <code>$YAML_FOLDER</code>.</p>
 <p>La definición del <em>namespace</em> es:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
 <span style="color:#268bd2">kind</span>: Namespace
 <span style="color:#268bd2">apiVersion</span>: v1
 <span style="color:#268bd2">metadata</span>:
   <span style="color:#268bd2">name</span>: jumpod
 </code></pre></div><p>Lanzamos el análisis con <code>kube-linter</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kube-linter lint <span style="color:#268bd2">$YAML_FOLDER</span>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kube-linter lint <span style="color:#268bd2">$YAML_FOLDER</span>
 No lint errors found!
 </code></pre></div><p>De momento, ¡todo ok!</p>
 <p>Ahora pasamos a definir un Pod:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
 <span style="color:#268bd2">kind</span>: Pod
 <span style="color:#268bd2">apiVersion</span>: v1
 <span style="color:#268bd2">metadata</span>:
@@ -164,7 +164,7 @@ No lint errors found!
       <span style="color:#268bd2">imagePullPolicy</span>: IfNotPresent
   <span style="color:#268bd2">restartPolicy</span>: Always
 </code></pre></div><p>Repetimos el análisis, pero ahora el resultado no es bueno.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">jumpod.yaml: <span style="color:#719e07">(</span>object: &lt;no namespace&gt;/jumpod /v1, <span style="color:#268bd2">Kind</span><span style="color:#719e07">=</span>Pod<span style="color:#719e07">)</span> container <span style="color:#2aa198">&#34;busybox&#34;</span> does not have a read-only root file system <span style="color:#719e07">(</span>check: no-read-only-root-fs, remediation: Set readOnlyRootFilesystem to <span style="color:#b58900">true</span> in your container<span style="color:#2aa198">&#39;s securityContext.)
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">jumpod.yaml: <span style="color:#719e07">(</span>object: &lt;no namespace&gt;/jumpod /v1, <span style="color:#268bd2">Kind</span><span style="color:#719e07">=</span>Pod<span style="color:#719e07">)</span> container <span style="color:#2aa198">&#34;busybox&#34;</span> does not have a read-only root file system <span style="color:#719e07">(</span>check: no-read-only-root-fs, remediation: Set readOnlyRootFilesystem to <span style="color:#b58900">true</span> in your container<span style="color:#2aa198">&#39;s securityContext.)
 </span><span style="color:#2aa198">
 </span><span style="color:#2aa198">jumpod.yaml: (object: &lt;no namespace&gt;/jumpod /v1, Kind=Pod) container &#34;busybox&#34; is not set to runAsNonRoot (check: run-as-non-root, remediation: Set runAsUser to a non-zero number, and runAsNonRoot to true, in your pod or container securityContext. See https://kubernetes.io/docs/tasks/configure-pod-container/security-context/ for more details.)
 </span><span style="color:#2aa198">
@@ -179,12 +179,12 @@ jumpod.yaml: <span style="color:#719e07">(</span>object: &lt;no namespace&gt;/ju
 Error: found <span style="color:#2aa198">6</span> lint errors
 </code></pre></div><h2 id="ausencia-de-requests-y-limits">Ausencia de <em>requests</em> y <em>limits</em></h2>
 <p>Tenemos cuatro errores similares:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash"><span style="color:#719e07">(</span>...<span style="color:#719e07">)</span> container <span style="color:#2aa198">&#34;busybox&#34;</span> has cpu request <span style="color:#2aa198">0</span>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash"><span style="color:#719e07">(</span>...<span style="color:#719e07">)</span> container <span style="color:#2aa198">&#34;busybox&#34;</span> has cpu request <span style="color:#2aa198">0</span>
 <span style="color:#719e07">(</span>...<span style="color:#719e07">)</span> container <span style="color:#2aa198">&#34;busybox&#34;</span> has cpu limit <span style="color:#2aa198">0</span>
 <span style="color:#719e07">(</span>...<span style="color:#719e07">)</span> container <span style="color:#2aa198">&#34;busybox&#34;</span> has memory request <span style="color:#2aa198">0</span>
 <span style="color:#719e07">(</span>...<span style="color:#719e07">)</span> container <span style="color:#2aa198">&#34;busybox&#34;</span> has memory limit <span style="color:#2aa198">0</span>
 </code></pre></div><p>Como podemos comprobar en el <a href="https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#requests-and-limits">enlace sugerido</a> para corregir esta situación, debemos especificar <em>requests</em> y <em>limits</em> para el consumo de CPU y memoria del <em>pod</em>.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
 <span style="color:#268bd2">kind</span>: Pod
 <span style="color:#268bd2">apiVersion</span>: v1
 <span style="color:#268bd2">metadata</span>:
@@ -206,15 +206,15 @@ Error: found <span style="color:#2aa198">6</span> lint errors
           <span style="color:#268bd2">cpu</span>: <span style="color:#2aa198">&#34;10m&#34;</span>
   <span style="color:#268bd2">restartPolicy</span>: Always
 </code></pre></div><p>Si analizamos de nuevo el fichero, estos cuatro errores deben haber desaparecido:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">jumpod.yaml: <span style="color:#719e07">(</span>object: &lt;no namespace&gt;/jumpod /v1, <span style="color:#268bd2">Kind</span><span style="color:#719e07">=</span>Pod<span style="color:#719e07">)</span> container <span style="color:#2aa198">&#34;busybox&#34;</span> does not have a read-only root file system <span style="color:#719e07">(</span>check: no-read-only-root-fs, remediation: Set readOnlyRootFilesystem to <span style="color:#b58900">true</span> in your container&#39;s securityContext.<span style="color:#719e07">)</span>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">jumpod.yaml: <span style="color:#719e07">(</span>object: &lt;no namespace&gt;/jumpod /v1, <span style="color:#268bd2">Kind</span><span style="color:#719e07">=</span>Pod<span style="color:#719e07">)</span> container <span style="color:#2aa198">&#34;busybox&#34;</span> does not have a read-only root file system <span style="color:#719e07">(</span>check: no-read-only-root-fs, remediation: Set readOnlyRootFilesystem to <span style="color:#b58900">true</span> in your container&#39;s securityContext.<span style="color:#719e07">)</span>
 
 jumpod.yaml: <span style="color:#719e07">(</span>object: &lt;no namespace&gt;/jumpod /v1, <span style="color:#268bd2">Kind</span><span style="color:#719e07">=</span>Pod<span style="color:#719e07">)</span> container <span style="color:#2aa198">&#34;busybox&#34;</span> is not <span style="color:#b58900">set</span> to runAsNonRoot <span style="color:#719e07">(</span>check: run-as-non-root, remediation: Set runAsUser to a non-zero number, and runAsNonRoot to true, in your pod or container securityContext. See https://kubernetes.io/docs/tasks/configure-pod-container/security-context/ <span style="color:#719e07">for</span> more details.<span style="color:#719e07">)</span>
 
 Error: found <span style="color:#2aa198">2</span> lint errors
 </code></pre></div><h2 id="el-contenedor-no-debe-ejecutarse-como-root">El contenedor no debe ejecutarse como <em>root</em></h2>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash"><span style="color:#719e07">(</span>...<span style="color:#719e07">)</span> container <span style="color:#2aa198">&#34;busybox&#34;</span> is not <span style="color:#b58900">set</span> to runAsNonRoot
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash"><span style="color:#719e07">(</span>...<span style="color:#719e07">)</span> container <span style="color:#2aa198">&#34;busybox&#34;</span> is not <span style="color:#b58900">set</span> to runAsNonRoot
 </code></pre></div><p>De nuevo en el mensaje de salida de KubeLinter se proporciona un enlace donde consultar la solución en la documentación oficial de Kubernetes: <a href="https://kubernetes.io/docs/tasks/configure-pod-container/security-context/">Set the security context for a Pod</a>.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
 <span style="color:#268bd2">kind</span>: Pod
 <span style="color:#268bd2">apiVersion</span>: v1
 <span style="color:#268bd2">metadata</span>:
@@ -240,7 +240,7 @@ Error: found <span style="color:#2aa198">2</span> lint errors
   <span style="color:#268bd2">restartPolicy</span>: Always
 </code></pre></div><p>Además de especificar el UID del usuario con el que se ejecuta el contenedor, también especificamos el GID (<code>runAsGroup</code>) ya que si se omite el <em>group ID</em> primario será <code>root</code> (0).</p>
 <p>Si analizamos la definición del Pod de nuevo:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kube-linter <span style="color:#268bd2">$YAML_FOLDER</span>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kube-linter <span style="color:#268bd2">$YAML_FOLDER</span>
 jumpod.yaml: <span style="color:#719e07">(</span>object: &lt;no namespace&gt;/jumpod /v1, <span style="color:#268bd2">Kind</span><span style="color:#719e07">=</span>Pod<span style="color:#719e07">)</span> container <span style="color:#2aa198">&#34;busybox&#34;</span> does not have a read-only root file system <span style="color:#719e07">(</span>check: no-read-only-root-fs, remediation: Set readOnlyRootFilesystem to <span style="color:#b58900">true</span> in your container&#39;s securityContext.<span style="color:#719e07">)</span>
 
 Error: found <span style="color:#2aa198">1</span> lint errors
@@ -248,11 +248,11 @@ Error: found <span style="color:#2aa198">1</span> lint errors
 <p>KubeLinter no devuelve errores relacionados con <code>runAsUser</code> incluso si se omite <code>runAsGroup</code>.</p>
 </blockquote>
 <h2 id="eliminando-el-aviso-sobre-readonlyrootfilesystem-true">Eliminando el aviso sobre <code>readOnlyRootFilesystem: true</code></h2>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash"><span style="color:#719e07">(</span>...<span style="color:#719e07">)</span> <span style="color:#719e07">)</span>container <span style="color:#2aa198">&#34;busybox&#34;</span> does not have a read-only root file system
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash"><span style="color:#719e07">(</span>...<span style="color:#719e07">)</span> <span style="color:#719e07">)</span>container <span style="color:#2aa198">&#34;busybox&#34;</span> does not have a read-only root file system
 <span style="color:#719e07">(</span>check: no-read-only-root-fs, remediation: Set readOnlyRootFilesystem
  to <span style="color:#b58900">true</span> in your container&#39;s securityContext.<span style="color:#719e07">)</span>
 </code></pre></div><p>Tal y como indica la salida de KubeLinter, modificamos el fichero de definición del Pod para incluir la  opción <code>readOnlyRootFilesystem: true</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
 <span style="color:#268bd2">kind</span>: Pod
 <span style="color:#268bd2">apiVersion</span>: v1
 <span style="color:#268bd2">metadata</span>:
@@ -278,7 +278,7 @@ Error: found <span style="color:#2aa198">1</span> lint errors
           <span style="color:#268bd2">cpu</span>: <span style="color:#2aa198">&#34;10m&#34;</span>
   <span style="color:#268bd2">restartPolicy</span>: Always
 </code></pre></div><p>Comprobamos de nuevo con KubeLinter y confirmamos que hemos eliminado el último aviso relativo al sistema de ficheros del volumen raíz del contenedor.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kube-linter lint <span style="color:#268bd2">$YAML_FOLDER</span> 
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kube-linter lint <span style="color:#268bd2">$YAML_FOLDER</span> 
 No lint errors found!
 </code></pre></div><p>En este caso, <strong>aunque el contenedor se ejecutara con el usuario <em>root</em>, no podría modificar los ficheros en el <em>root volume filesystem</em> porque lo hemos marcado como <em>readOnly</em></strong>.</p>
 <h2 id="conclusión">Conclusión</h2>

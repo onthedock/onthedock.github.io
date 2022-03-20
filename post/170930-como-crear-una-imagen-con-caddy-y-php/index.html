@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.87.0" />
+<meta name="generator" content="Hugo 0.82.1" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -137,7 +137,7 @@
 <p>Todos los ficheros están disponibles en el repositorio <a href="https://github.com/onthedock/alpine-caddy-php">onthedock/alpine-caddy-php</a></p>
 </blockquote>
 <h1 id="el-fichero-dockerfile">El fichero Dockerfile</h1>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-Dockerfile" data-lang="Dockerfile"><span style="color:#719e07">FROM</span><span style="color:#2aa198"> alpine:3.6</span>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-Dockerfile" data-lang="Dockerfile"><span style="color:#719e07">FROM</span><span style="color:#2aa198"> alpine:3.6</span>
 
 <span style="color:#719e07">RUN</span> apk add --no-cache caddy php7 php7-fpm php7-gd <span style="color:#cb4b16">\
 </span><span style="color:#cb4b16"></span>    php7-session php7-xml php7-openssl php7-zlib
@@ -174,7 +174,7 @@
 <li><code>CMD [&quot;--conf&quot;, &quot;/etc/Caddyfile&quot;]</code> Especificamos el fichero de configuración como un parámetro durante el lanzamiento, por lo que es posible pasar un fichero alternativo u otros parámetros desde <code>docker run</code>.</li>
 </ol>
 <h2 id="fichero-caddyfile">Fichero Caddyfile</h2>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-Dockerfile" data-lang="Dockerfile">0.0.0.0
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-Dockerfile" data-lang="Dockerfile">0.0.0.0
 root /var/www/
 gzip
 startup php-fpm7
@@ -196,8 +196,9 @@ errors stdout
 <h2 id="cómo-usar-la-imagen-para-servir-dokuwiki-en-un-contenedor">Cómo usar la imagen para servir Dokuwiki en un contenedor</h2>
 <p>Puedes lanzar un contenedor <em>vacío</em> para verificar que la configuración de Caddy y PHP es correcta. Si no montas ningún volumen, Caddy servirá el fichero <code>index.html</code> que hemos copiado en la imagen. En el fichero de bienvenida hay un enlace que llama a <code>phpinfo.php</code>, que muestra la salida del comando <a href="http://php.net/manual/es/function.phpinfo.php"><code>phpinfo()</code></a>.</p>
 <p>Por ejemplo:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">docker run --rm -d --name <span style="color:#b58900">test</span> -p 8911:2015 xaviaznar/alpine-caddy-php
-</code></pre></div><figure><img src="/images/170930/it_works.png"/>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">docker run --rm -d --name <span style="color:#b58900">test</span> -p 8911:2015 xaviaznar/alpine-caddy-php
+</code></pre></div><figure>
+    <img src="/images/170930/it_works.png"/> 
 </figure>
 
 <h3 id="caddyphp-para-dokuwiki">Caddy+PHP para Dokuwiki</h3>
@@ -212,20 +213,22 @@ errors stdout
 <p>Si al intentar acceder a la URL obtienes una página en blanco o un error 404, revisa los logs mediante <code>docker logs wiki</code>.</p>
 <p>Si observas errores del tipo <code>[ERROR 0 /index.php] Primary script unknow</code>, lo más probable es que se trate de un problema de permisos sobre la carpeta <code>/shared/wiki/www/</code>.</p>
 <p>Otro indicador de que puede haber problemas de acceso a alguna de las subcarpetas del Dokuwiki es:</p>
-<figure><img src="/images/170930/dokuwiki_setup_error.png"/>
+<figure>
+    <img src="/images/170930/dokuwiki_setup_error.png"/> 
 </figure>
 
 <p>Para solucionarlo, ejecuta:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">sudo chown -R <span style="color:#2aa198">777</span> /shared/wiki/www
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">sudo chown -R <span style="color:#2aa198">777</span> /shared/wiki/www
 </code></pre></div><p>Si todo está correctamente configurado, pulsando el enlace <em>run the installer</em> podrás configurar tu nuevo wiki:</p>
-<figure><img src="/images/170930/dokuwiki_installer.png"/>
+<figure>
+    <img src="/images/170930/dokuwiki_installer.png"/> 
 </figure>
 
 <h2 id="versión-para-raspberry-pi">Versión para Raspberry Pi</h2>
 <p>La única diferencia para contruir la imagen para Raspberry Pi consiste en modificar la imagen base. ARM32v6 y ARM32v7 ofrecen versiones <em>semioficiales</em> de algunas imágenes; en particular, para Alpine Linux.</p>
 <p>Si tu aplicación PHP va a ejecutarse en una Raspberry Pi &ldquo;1&rdquo;, debes usar la imagen <a href="https://hub.docker.com/r/arm32v6/alpine/">arm32v6/alpine</a> mientras que para Raspberry Pi 2 y 3 debes usar <a href="https://hub.docker.com/r/arm32v7/alpine/">arm32v7/alpine</a>.</p>
 <p>Modifica el fichero <code>Dockerfile</code> según convenga:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-Dockerfile" data-lang="Dockerfile"><span style="color:#719e07">FROM</span><span style="color:#2aa198"> arm32v6/alpine:3.6 # Para RPi 1</span>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-Dockerfile" data-lang="Dockerfile"><span style="color:#719e07">FROM</span><span style="color:#2aa198"> arm32v6/alpine:3.6 # Para RPi 1</span>
 <span style="color:#719e07">FROM</span><span style="color:#2aa198"> arm32v7/alpine:3.6 # Para RPi 2,3</span>
 </code></pre></div></div>
 

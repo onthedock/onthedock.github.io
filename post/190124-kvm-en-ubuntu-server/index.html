@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.87.0" />
+<meta name="generator" content="Hugo 0.82.1" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -136,7 +136,7 @@
 <p>Amazon empezó a migrar en 2017 toda su infraestructura a <a href="https://aws.amazon.com/es/ec2/faqs/#ec2-hypervisor">Nitro</a>, basado en KVM así que aprender cómo funciona KVM también me serviría en mi avance hacia obtener un conocimiento profundo del <em>cloud</em> a todos los niveles.</p>
 <h2 id="firmware-bug">Firmware Bug</h2>
 <p>Al intentar instalar Ubuntu Server 18.04.1, me topé con el siguiente mensaje:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">...
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">...
 <span style="color:#719e07">[</span>Firmware Bug<span style="color:#719e07">]</span>: AMD-Vi: IOAPIC<span style="color:#719e07">[</span>0<span style="color:#719e07">]</span> not in IVRS table
 <span style="color:#719e07">[</span>Firmware Bug<span style="color:#719e07">]</span>: AMD-Vi: No southbridge IOAPIC found
 AMD-Vi: Disabling interrupt remapping
@@ -155,7 +155,7 @@ AMD-Vi: Disabling interrupt remapping
 <p>Quiero que las máquinas virtuales gestionadas por KVM formen parte de la red local de casa (sin pasar por un NAT); para ello necesitamos configurar una red <em>bridge</em>.</p>
 <p>En Ubuntu Server 18.04 la configuración de red se realiza mediante NetPlan.</p>
 <p>Editamos el fichero: <code>/etc/netplan/50-cloud-init.yaml</code>, que inicialmente es:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">network</span>:
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">network</span>:
     <span style="color:#268bd2">ethernets</span>:
         <span style="color:#268bd2">enp1s0</span>:
             <span style="color:#268bd2">addresses</span>: []
@@ -165,7 +165,7 @@ AMD-Vi: Disabling interrupt remapping
 <blockquote>
 <p>Es recomendable realizar la configuración de forma local, ya que al aplicar los cambios, el equipo cambia de dirección de IP y se pierde la conexión vía SSH.</p>
 </blockquote>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">network</span>:
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">network</span>:
   <span style="color:#268bd2">ethernets</span>:
     <span style="color:#268bd2">enp1s0</span>:
       <span style="color:#268bd2">dhcp4</span>: <span style="color:#cb4b16">false</span>
@@ -182,9 +182,9 @@ AMD-Vi: Disabling interrupt remapping
       <span style="color:#268bd2">nameservers</span>:
         <span style="color:#268bd2">addresses</span>: [<span style="color:#2aa198">1.1.1.1</span>, <span style="color:#2aa198">8.8.8.8</span>]
 </code></pre></div><p>Guardamos el fichero y aplicamos los cambios mediante:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">sudo netplan apply
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">sudo netplan apply
 </code></pre></div><p>Tras aplicar los cambios, comprobamos que se ha creado un nuevo interfaz de red con la IP especificada:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ ip address show
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ ip address show
 <span style="color:#719e07">[</span>...<span style="color:#719e07">]</span>
 2: enp1s0:  mtu <span style="color:#2aa198">1500</span> qdisc fq_codel master br0 state UP group default qlen <span style="color:#2aa198">1000</span>
     link/ether d8:cb:8a:36:aa:43 brd ff:ff:ff:ff:ff:ff
@@ -197,16 +197,16 @@ AMD-Vi: Disabling interrupt remapping
 </code></pre></div><h2 id="instalar-kvm">Instalar KVM</h2>
 <h3 id="comprobar-soporte-de-virtualización">Comprobar soporte de virtualización</h3>
 <p>La manera más sencilla de comprobar si nuestro equipo soporta virtualización es:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ lscpu | grep -i virtualization
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ lscpu | grep -i virtualization
 Virtualization:      AMD-V
 </code></pre></div><h2 id="instalar-paquetes-kvm">Instalar paquetes KVM</h2>
 <blockquote>
 <p>No vamos a instalar <em>Virtual Machine Manager</em> (<em>virt-manager</em>) ya que la gestión de las máquinas virtuales la realizaremos desde un equipo de administración y no desde el host de virtualización.</p>
 </blockquote>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">sudo apt update
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">sudo apt update
 sudo apt install qemu qemu-kvm libvirt-bin  bridge-utils
 </code></pre></div><p>Habilitamos y arrancamos el servicio <code>libvirtd</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ sudo systemctl <span style="color:#b58900">enable</span> libvirtd
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ sudo systemctl <span style="color:#b58900">enable</span> libvirtd
 Synchronizing state of libvirtd.service with SysV service script with /lib/systemd/systemd-sysv-install.
 Executing: /lib/systemd/systemd-sysv-install <span style="color:#b58900">enable</span> libvirtd
 $ sudo systemctl start libvirtd
@@ -223,7 +223,7 @@ $
 </blockquote>
 <h3 id="virtinstall"><code>virtinstall</code></h3>
 <p>Usando <code>virt-install</code> puedes lanzar una nueva máquina desde línea de comando mediante:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">virt-install --name userver --vcpus <span style="color:#2aa198">1</span> --memory <span style="color:#2aa198">2048</span> --cdrom /var/lib/libvirt/images/ubuntu-server-18.04.1-amd64.iso --disk <span style="color:#268bd2">size</span><span style="color:#719e07">=</span><span style="color:#2aa198">10</span> --network bridge:br0
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">virt-install --name userver --vcpus <span style="color:#2aa198">1</span> --memory <span style="color:#2aa198">2048</span> --cdrom /var/lib/libvirt/images/ubuntu-server-18.04.1-amd64.iso --disk <span style="color:#268bd2">size</span><span style="color:#719e07">=</span><span style="color:#2aa198">10</span> --network bridge:br0
 </code></pre></div><p>Esta máquina tiene 1 vPUD, 2GB de RAM, un disco de 10GB y está conectada a la red <em>bridge</em> <code>bridge:br0</code>; la ISO de instalación de Ubuntu Server está conectada a la unidad virtual de CDROM de la VM.</p>
 <blockquote>
 <p>Para realizar la configuración del sistema operativo mediante el instalador, necesitas una máquina con entorno gráfico.</p>
@@ -232,7 +232,8 @@ $
 <p>Virtual Machine Manager es un gestor de máquinas virtuales para hipervisores compatbles; entre ellos, KVM.</p>
 <p>Además de gestionar máquinas de forma local, podemos conectarnos con hipervisores remotos. En este caso, si el usuario tiene los permisos adecuados, puede crear nuevas máquinas en el equipo remoto.</p>
 <p>Para que la máquina virtual tenga acceso a la red <em>bridge</em> debemos especificar en la configuración de red el nombre de la red <em>bridge</em> definida en pasos anteriores:</p>
-<figure><img src="/images/190124/VMM-NETWORK-Conf-2019-01-23%2020-07-07.png"/>
+<figure>
+    <img src="/images/190124/VMM-NETWORK-Conf-2019-01-23%2020-07-07.png"/> 
 </figure>
 
 <h1 id="siguientes-pasos">Siguientes pasos</h1>

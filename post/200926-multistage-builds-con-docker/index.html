@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.87.0" />
+<meta name="generator" content="Hugo 0.82.1" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -147,7 +147,7 @@
 <h3 id="compilación-del-código">Compilación del código</h3>
 <p>En este ejemplo voy a usar código en Go ya que permite generar ejecutables que no requieren una máquina virtual independiente (como Java).</p>
 <p>El código de la <em>aplicación</em> es el siguiente:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-golang" data-lang="golang"><span style="color:#719e07">package</span> main
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-golang" data-lang="golang"><span style="color:#719e07">package</span> main
 
 <span style="color:#719e07">import</span> <span style="color:#2aa198">&#34;fmt&#34;</span>
 
@@ -155,13 +155,13 @@
     fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;Hello world from Go!&#34;</span>)
 }
 </code></pre></div><p>Para compilar el código usaremos un contenedor con las herramientas de desarrollo para Go; el fichero <code>Dockerfile</code> sería algo como:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-dockerfile" data-lang="dockerfile"><span style="color:#719e07">FROM</span><span style="color:#2aa198"> golang:1.14.2-alpine</span>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-dockerfile" data-lang="dockerfile"><span style="color:#719e07">FROM</span><span style="color:#2aa198"> golang:1.14.2-alpine</span>
 <span style="color:#719e07">WORKDIR</span><span style="color:#2aa198"> /src</span>
 <span style="color:#719e07">COPY</span> src .
 <span style="color:#719e07">RUN</span> go build -o /out/helloworld .
 </code></pre></div><p>Usando <code>docker build ...</code> construiríamos una imagen, con el binario ya compilado que podríamos usar para ejecutar la aplicación.</p>
 <p>Si revisamos más de cerca la imagen generada y la comparamos con la imagen base usada:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ docker images
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ docker images
 REPOSITORY   TAG             IMAGE ID       CREATED        SIZE
 &lt;none&gt;       &lt;none&gt;          06ca475ca0bc   <span style="color:#2aa198">2</span> hours ago    372MB
 golang       1.14.2-alpine   dda4232b2bd5   <span style="color:#2aa198">5</span> months ago   370MB
@@ -171,7 +171,7 @@ golang       1.14.2-alpine   dda4232b2bd5   <span style="color:#2aa198">5</span>
 <p>Esto es mucho más eficiente, pero es sólo la &ldquo;mitad&rdquo; de la historia; tenemos el binario, pero todavía tenemos que <em>inyectarlo</em> en una imagen para poder desplegarlo en Kubernetes, por ejemplo.</p>
 <h2 id="multi-stage-build"><em>Multi-stage build</em></h2>
 <p>En vez de generar un segundo <code>Dockerfile</code> que simplemente <em>copie</em> el artefacto en una nueva imagen base, el proceso de <em>multi-stage build</em> permite realizar los dos pasos necesarios en este caso <strong>usando un único <code>Dockerfile</code></strong>.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-Dockerfile" data-lang="Dockerfile"><span style="color:#719e07">FROM</span><span style="color:#2aa198"> golang:1.14.2-alpine AS builder</span>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-Dockerfile" data-lang="Dockerfile"><span style="color:#719e07">FROM</span><span style="color:#2aa198"> golang:1.14.2-alpine AS builder</span>
 <span style="color:#719e07">WORKDIR</span><span style="color:#2aa198"> /src</span>
 <span style="color:#719e07">COPY</span> src .
 <span style="color:#719e07">RUN</span> go build -o /out/helloworld .
@@ -184,7 +184,7 @@ golang       1.14.2-alpine   dda4232b2bd5   <span style="color:#2aa198">5</span>
 <p>En la instrucción <code>COPY</code>, en vez de indicar un origen &ldquo;local&rdquo; en el <em>filesystem</em> del equipo donde ejecutamos Docker usamos <code>--from=builder</code>. Con este parámetro Docker monta la ruta <code>/out/helloworld</code> de la imagen que hemos llamado <code>builder</code> como origen de la instrucción <code>COPY</code>.</p>
 <h3 id="construcción-de-una-imagen-usando-un-multi-stage-build">Construcción de una imagen usando un <em>multi-stage build</em></h3>
 <p>La construcción de la imagen se realiza del mismo modo que en un proceso <em>single-stage</em>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ docker build -t helloworld:multi .
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ docker build -t helloworld:multi .
 Sending build context to Docker daemon  3.584kB
 Step 1/7 : FROM golang:1.14.2-alpine AS builder
  ---&gt; dda4232b2bd5
@@ -209,10 +209,10 @@ Removing intermediate container 7a9e8a42aeff
 Successfully built b23c0b2e9ca6
 Successfully tagged helloworld:multi
 </code></pre></div><p>Podemos validar que la imagen generada contiene la aplicación:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ docker run --rm helloworld:multi
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ docker run --rm helloworld:multi
 Hello World from Go!
 </code></pre></div><p>Si observamos la imagen generada <code>helloworld:multi</code> podemos comprobar que el tamaño es muy inferior a la imagen original:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ docker images
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ docker images
 REPOSITORY   TAG             IMAGE ID       CREATED          SIZE
 helloworld   multi           b23c0b2e9ca6   <span style="color:#2aa198">13</span> minutes ago   2.07MB
 golang       1.14.2-alpine   dda4232b2bd5   <span style="color:#2aa198">5</span> months ago     370MB
@@ -223,7 +223,7 @@ golang       1.14.2-alpine   dda4232b2bd5   <span style="color:#2aa198">5</span>
 <h3 id="adecuando-la-imagen-final-a-los-requerimientos-de-la-empresa">Adecuando la imagen final a los requerimientos de la empresa</h3>
 <p>En general, es posible que haya que aplicar medidas de seguridad en la imagen, eliminando paquetes innecesarios, etc.</p>
 <p>Para simplificar el ejemplo, imaginamos que el departamento de <em>compliance</em> de la empresa SUPERCORP, Inc indica que hay que incorporar un texto determinado de &ldquo;términos de uso&rdquo;.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-text" data-lang="text">This image is provided AS IS.
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-text" data-lang="text">This image is provided AS IS.
 
 You use the software at your own risk.
 
@@ -236,7 +236,7 @@ direct, indirect, special, incidental, or consequential
 damages resulting from the use, misuse, or inability to use
 this software.
 </code></pre></div><p>El uso de <em>multi-stage build</em> permite mantener inalterado el paso de compilación y adecuar la imagen final a los requerimientos de seguridad, compliance, etc que requiere SUPERCORP, Inc usando la imagen que nos indiquen; en el ejemplo, Alpine Linux:3.12:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-Dockerfile" data-lang="Dockerfile"><span style="color:#719e07">FROM</span><span style="color:#2aa198"> golang:1.14.2-alpine AS builder</span>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-Dockerfile" data-lang="Dockerfile"><span style="color:#719e07">FROM</span><span style="color:#2aa198"> golang:1.14.2-alpine AS builder</span>
 <span style="color:#719e07">WORKDIR</span><span style="color:#2aa198"> /src</span>
 <span style="color:#719e07">COPY</span> src .
 <span style="color:#719e07">RUN</span> go build -o /out/helloworld .
@@ -246,16 +246,16 @@ this software.
 <span style="color:#719e07">COPY</span> compliance /compliance
 <span style="color:#719e07">CMD</span> [<span style="color:#2aa198">&#34;/helloworld&#34;</span>]
 </code></pre></div><p>La imagen resultante <code>helloworld:multi-alpine-v1.1</code> sigue teniendo un tamaño comedido, gracias al uso de Alpine:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ docker images
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ docker images
 REPOSITORY   TAG                 IMAGE ID       CREATED          SIZE
 helloworld   multi-alpine-v1.1   44253a0a8e89   <span style="color:#2aa198">6</span> minutes ago    7.64MB
 helloworld   multi               b23c0b2e9ca6   <span style="color:#2aa198">56</span> minutes ago   2.07MB
 alpine       3.12                a24bb4013296   <span style="color:#2aa198">3</span> months ago     5.57MB
 </code></pre></div><p>Comprobamos que la aplicación sigue funcionando después de aplicar las medidas exigidas por la empresa:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ docker run --rm helloworld:multi-alpine-v1.1
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ docker run --rm helloworld:multi-alpine-v1.1
 Hello World from Go!
 </code></pre></div><p>Esta nueva imagen incluye los requerimientos no funcionales de la compañía:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-text" data-lang="text">$ docker run --rm helloworld:multi-alpine-v1.1 cat /compliance/legal_terms.txt
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-text" data-lang="text">$ docker run --rm helloworld:multi-alpine-v1.1 cat /compliance/legal_terms.txt
 This image is provided AS IS.
 
 You use the software at your own risk.
