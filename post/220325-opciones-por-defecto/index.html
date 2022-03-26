@@ -181,7 +181,25 @@ Mientras nos vamos <em>poniendo al día</em> estoy ayudando a uno de mis compañ
 <p>En este caso, los <em>valores por defecto</em> y las convenciones establecidas generan confusión que puede provocar errores o ineficiencias.</p>
 <p>La solución es tan sencilla y evidente como poco común: establecer claramente un <em>estándar interno</em> en el que se especifique en qué casos se puede usar el &ldquo;valor por defecto&rdquo; (y documentar qué valor toma), o bien <em>eliminar</em> los valores por defecto y <strong>homogeneizar</strong> la forma de referenciar imágenes de contenedores, independientemente del cliente usado o del registro en el que se aloje.</p>
 <p>Especificar una versión concreta de la imagen (no admitiendo <code>latest</code>) o exigir el uso del <em>hash</em> para identificar la imagen usada permite tener un mayor control sobre los cambios del software contenido en la imagen.</p>
-<p>El proceso de actualización se realiza entonces de manera voluntaria, de forma controlada y realizando las pruebas que aseguren el correcto funcionamiento de la aplicación tras la actualización. Permite además, actualizar la documentación, si es necesario.</p></div>
+<p>El proceso de actualización se realiza entonces de manera voluntaria, de forma controlada y realizando las pruebas que aseguren el correcto funcionamiento de la aplicación tras la actualización. Permite además, actualizar la documentación, si es necesario.</p>
+<h2 id="conclusión">Conclusión</h2>
+<p>Especifica <strong>siempre</strong> el nombre <em>completo</em> de las imágenes usadas en, por ejemplo, los ficheros de configuración de Cloud Build.</p>
+<p>Indicando el <em>registry</em> en el que se encuentra la image, se documenta específicamente a qué URL debe tener acceso la plataforma de CI/CD interna, si la salida a internet está restringida o limitada desde la zona corporativa en la que se encuentren estos equipos.</p>
+<p>Elige, de entre las imágenes necesarias para realizar las tareas, aquella con menor número de componentes. Esto no sólo reduce los tiempos de descarga y los recursos necesarios para la plataforma de CI/CD, sino que además reduce el riesgo de que la imagen contenga vulnerabilidades.</p>
+<p>Es habitual que los usuarios ofrezcan una versión basada en <em>alpine</em> o algún tipo de variante <em>slim</em>; por tanto, siempre que sea posible, lo ideal sería seleccionar la imagen más <em>compacta</em>.</p>
+<p>Respecto a las imágenes basadas en Alpine, es necesario validar que ninguna de las elecciones que hacen que Alpine sea tan ligera interfiere con el funcionamiento de la aplicación o con el <em>standard</em> adoptado.</p>
+<p>Por ejemplo, si se define Bash como intérprete de <em>shell scripts</em> (como hace Google, por ejemplo en <a href="https://google.github.io/styleguide/shellguide.html#s1.1-which-shell-to-use">Shell Style Guide</a>), debes tener en cuenta que en Alpine, el intérprete de comandos de la <em>shell</em> es <code>ash</code>, no <code>bash</code>; en general, no es relevante, pero puede introducir pequeñas diferencias en cómo se ejecutar tus <em>scripts</em> o aplicaciones que pueden generar errores difíciles de detectar.</p>
+<p>En el caso específico de Cloud Build, especifica siempre el <code>entrypoint</code> y sé consistente; si quieres usar <code>bash</code>, define en el <a href="https://en.wikipedia.org/wiki/Shebang_(Unix)"><em>shebang</em></a> de tus <em>scripts</em> <code>#!/bin/bash</code> y no cualquier otra forma. Esto es aplicable a los <em>shell scripts</em> en cualquier otro entorno.</p>
+<p>Fíjate que, en la Wikipedia, se indica (las negritas son mías):</p>
+<blockquote>
+<ul>
+<li><code>#!/bin/sh</code> – Execute the file using the Bourne shell, <strong>or a compatible shell</strong>, assumed to be in the /bin directory</li>
+<li><code>#!/bin/bash</code> – Execute the file using the Bash shell</li>
+</ul>
+</blockquote>
+<p>Es decir, que usando <code>#!/bin/sh</code>, puede usarse un intérpre <em>shell</em> <strong>diferente</strong> a <code>bash</code> y eso, de nuevo, puede introducir erres o comportamientos difíciles de diagnosticar.</p>
+<p>Recuerda finalmente que se considera una <strong>mala práctica</strong> usar la etiqueta <code>latest</code> para indicar la versión de la imagen de contenedor. Por ejemplo, el artículo (de 2015 pero completamente vigente) <a href="https://blog.container-solutions.com/docker-latest-confusion">Docker: The latest Confusion</a> de Adrian Mouat describe todos los problemas y <em>malentendidos</em> acerca de la etiqueta <code>latest</code>.</p>
+<p>Y tampoco cuesta tanto escribir <em>un poquito más</em> e indicar <code>index.docker.io/hashicorp/terraform:1.1.7</code> en vez de <code>hashicorp/terraform</code> teniendo en cuenta todos los problemas que te puedes ahorrar ;)</p></div>
 
   <aside class="p-share">
 
