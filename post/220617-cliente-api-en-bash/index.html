@@ -11,13 +11,13 @@
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
 
-<link rel="canonical" href="https://onthedock.github.io/post/190419-cambios-en-el-blog/">
+<link rel="canonical" href="https://onthedock.github.io/post/220617-cliente-api-en-bash/">
 
 
     
     <link href="https://fonts.googleapis.com/css?family=Special+Elite|Fira+Sans:400,700" rel="stylesheet">
     
-    <title>Cambios en el blog - On The Dock</title>
+    <title>Cliente API en Bash (con curl) - On The Dock</title>
     <style amp-boilerplate>body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}</style><noscript><style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style></noscript>
     <script async src="https://cdn.ampproject.org/v0.js"></script>
     
@@ -26,22 +26,22 @@
 <script async custom-element="amp-ad" src="https://cdn.ampproject.org/v0/amp-ad-0.1.js"></script>
 
     
-<meta name="description" content="&lt;p&gt;Hugo sigue evolucinando y eso significa que cada nueva versión introduce pequeñas modificaciones y mejoras que no siempre son &lt;em&gt;retrocompatibles&lt;/em&gt;.&lt;/p&gt;&lt;p&gt;En mi caso, al actualizar a la versión 0.54 encontré problemas a la hora de construir el blog. En la entrada &lt;a href=&#34;https://onthedock.github.io/post/190308-plantilla-actualizada/&#34;&gt;Hugo: plantilla del tema actualizada&lt;/a&gt; explico cómo solucioné los errores que impedían generar el blog.&lt;/p&gt;">
+<meta name="description" content="&lt;p&gt;En una entrada anterior, &lt;a href=&#34;https://onthedock.github.io/post/220518-obtener-respuesta-y-http-status-con-curl/&#34;&gt;Obtener respuesta y código de la petición HTTP con curl&lt;/a&gt;, explicaba cómo mejorar, en mi opinión, la &lt;em&gt;relación&lt;/em&gt; con la API desde los &lt;em&gt;scripts&lt;/em&gt; (en Bash) que se ejecutan desde una &lt;em&gt;pipeline&lt;/em&gt;.&lt;/p&gt;&lt;p&gt;La idea que explicaba en el artículo era cómo usar el código HTTP devuelto por la función que expone la API para controlar posibles errores.&lt;/p&gt;&lt;p&gt;Como prueba de concepto fue satisfactoria, pero no resulta práctica aplicarla; en un caso real se usan múltiples documentos y la repetición del mismo código una y otra vez hace que se alcance el límite de cuatro mil caracteres en un &lt;em&gt;paso&lt;/em&gt; de la &lt;em&gt;pipeline&lt;/em&gt;&amp;hellip;&lt;/p&gt;&lt;p&gt;Así que la solución es &lt;em&gt;encapsular&lt;/em&gt; esta idea en una función en vez de repetir el mismo código una y otra vez: &lt;a href=&#34;https://en.wikipedia.org/wiki/Don%27t_repeat_yourself&#34;&gt;Don&amp;rsquo;t repeat yourself&lt;/a&gt;&lt;/p&gt;">
 
-<meta property="og:title" content="Cambios en el blog - On The Dock">
+<meta property="og:title" content="Cliente API en Bash (con curl) - On The Dock">
 <meta property="og:type" content="article">
-<meta property="og:url" content="https://onthedock.github.io/post/190419-cambios-en-el-blog/">
-<meta property="og:image" content="https://onthedock.github.io/images/hugo.png">
+<meta property="og:url" content="https://onthedock.github.io/post/220617-cliente-api-en-bash/">
+<meta property="og:image" content="https://onthedock.github.io/images/bash.svg">
 <meta property="og:site_name" content="On The Dock">
-<meta property="og:description" content="&lt;p&gt;Hugo sigue evolucinando y eso significa que cada nueva versión introduce pequeñas modificaciones y mejoras que no siempre son &lt;em&gt;retrocompatibles&lt;/em&gt;.&lt;/p&gt;&lt;p&gt;En mi caso, al actualizar a la versión 0.54 encontré problemas a la hora de construir el blog. En la entrada &lt;a href=&#34;https://onthedock.github.io/post/190308-plantilla-actualizada/&#34;&gt;Hugo: plantilla del tema actualizada&lt;/a&gt; explico cómo solucioné los errores que impedían generar el blog.&lt;/p&gt;">
+<meta property="og:description" content="&lt;p&gt;En una entrada anterior, &lt;a href=&#34;https://onthedock.github.io/post/220518-obtener-respuesta-y-http-status-con-curl/&#34;&gt;Obtener respuesta y código de la petición HTTP con curl&lt;/a&gt;, explicaba cómo mejorar, en mi opinión, la &lt;em&gt;relación&lt;/em&gt; con la API desde los &lt;em&gt;scripts&lt;/em&gt; (en Bash) que se ejecutan desde una &lt;em&gt;pipeline&lt;/em&gt;.&lt;/p&gt;&lt;p&gt;La idea que explicaba en el artículo era cómo usar el código HTTP devuelto por la función que expone la API para controlar posibles errores.&lt;/p&gt;&lt;p&gt;Como prueba de concepto fue satisfactoria, pero no resulta práctica aplicarla; en un caso real se usan múltiples documentos y la repetición del mismo código una y otra vez hace que se alcance el límite de cuatro mil caracteres en un &lt;em&gt;paso&lt;/em&gt; de la &lt;em&gt;pipeline&lt;/em&gt;&amp;hellip;&lt;/p&gt;&lt;p&gt;Así que la solución es &lt;em&gt;encapsular&lt;/em&gt; esta idea en una función en vez de repetir el mismo código una y otra vez: &lt;a href=&#34;https://en.wikipedia.org/wiki/Don%27t_repeat_yourself&#34;&gt;Don&amp;rsquo;t repeat yourself&lt;/a&gt;&lt;/p&gt;">
 <meta property="og:locale" content="ja_JP">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="On The Dock">
-<meta name="twitter:url" content="https://onthedock.github.io/post/190419-cambios-en-el-blog/">
-<meta name="twitter:title" content="Cambios en el blog - On The Dock">
-<meta name="twitter:description" content="&lt;p&gt;Hugo sigue evolucinando y eso significa que cada nueva versión introduce pequeñas modificaciones y mejoras que no siempre son &lt;em&gt;retrocompatibles&lt;/em&gt;.&lt;/p&gt;&lt;p&gt;En mi caso, al actualizar a la versión 0.54 encontré problemas a la hora de construir el blog. En la entrada &lt;a href=&#34;https://onthedock.github.io/post/190308-plantilla-actualizada/&#34;&gt;Hugo: plantilla del tema actualizada&lt;/a&gt; explico cómo solucioné los errores que impedían generar el blog.&lt;/p&gt;">
-<meta name="twitter:image" content="https://onthedock.github.io/images/hugo.png">
+<meta name="twitter:url" content="https://onthedock.github.io/post/220617-cliente-api-en-bash/">
+<meta name="twitter:title" content="Cliente API en Bash (con curl) - On The Dock">
+<meta name="twitter:description" content="&lt;p&gt;En una entrada anterior, &lt;a href=&#34;https://onthedock.github.io/post/220518-obtener-respuesta-y-http-status-con-curl/&#34;&gt;Obtener respuesta y código de la petición HTTP con curl&lt;/a&gt;, explicaba cómo mejorar, en mi opinión, la &lt;em&gt;relación&lt;/em&gt; con la API desde los &lt;em&gt;scripts&lt;/em&gt; (en Bash) que se ejecutan desde una &lt;em&gt;pipeline&lt;/em&gt;.&lt;/p&gt;&lt;p&gt;La idea que explicaba en el artículo era cómo usar el código HTTP devuelto por la función que expone la API para controlar posibles errores.&lt;/p&gt;&lt;p&gt;Como prueba de concepto fue satisfactoria, pero no resulta práctica aplicarla; en un caso real se usan múltiples documentos y la repetición del mismo código una y otra vez hace que se alcance el límite de cuatro mil caracteres en un &lt;em&gt;paso&lt;/em&gt; de la &lt;em&gt;pipeline&lt;/em&gt;&amp;hellip;&lt;/p&gt;&lt;p&gt;Así que la solución es &lt;em&gt;encapsular&lt;/em&gt; esta idea en una función en vez de repetir el mismo código una y otra vez: &lt;a href=&#34;https://en.wikipedia.org/wiki/Don%27t_repeat_yourself&#34;&gt;Don&amp;rsquo;t repeat yourself&lt;/a&gt;&lt;/p&gt;">
+<meta name="twitter:image" content="https://onthedock.github.io/images/bash.svg">
 
 
 <script type="application/ld+json">
@@ -52,15 +52,15 @@
       "@type": "WebPage",
       "@id":"https:\/\/onthedock.github.io\/"
     },
-    "headline": "Cambios en el blog - On The Dock",
+    "headline": "Cliente API en Bash (con curl) - On The Dock",
     "image": {
       "@type": "ImageObject",
-      "url": "https:\/\/onthedock.github.io\/images\/hugo.png",
+      "url": "https:\/\/onthedock.github.io\/images\/bash.svg",
       "height": 800,
       "width": 800
     },
-    "datePublished": "2019-04-19T06:22:57JST",
-    "dateModified": "2019-04-19T06:22:57JST",
+    "datePublished": "2022-06-17T20:46:13JST",
+    "dateModified": "2022-06-17T20:46:13JST",
     "author": {
       "@type": "Person",
       "name": "On The Dock"
@@ -75,7 +75,7 @@
         "height": 60
       }
     },
-    "description": "\u003cp\u003eHugo sigue evolucinando y eso significa que cada nueva versión introduce pequeñas modificaciones y mejoras que no siempre son \u003cem\u003eretrocompatibles\u003c\/em\u003e.\u003c\/p\u003e\n\u003cp\u003eEn mi caso, al actualizar a la versión 0.54 encontré problemas a la hora de construir el blog. En la entrada \u003ca href=\u0022https:\/\/onthedock.github.io\/post\/190308-plantilla-actualizada\/\u0022\u003eHugo: plantilla del tema actualizada\u003c\/a\u003e explico cómo solucioné los errores que impedían generar el blog.\u003c\/p\u003e"
+    "description": "\u003cp\u003eEn una entrada anterior, \u003ca href=\u0022https:\/\/onthedock.github.io\/post\/220518-obtener-respuesta-y-http-status-con-curl\/\u0022\u003eObtener respuesta y código de la petición HTTP con curl\u003c\/a\u003e, explicaba cómo mejorar, en mi opinión, la \u003cem\u003erelación\u003c\/em\u003e con la API desde los \u003cem\u003escripts\u003c\/em\u003e (en Bash) que se ejecutan desde una \u003cem\u003epipeline\u003c\/em\u003e.\u003c\/p\u003e\n\u003cp\u003eLa idea que explicaba en el artículo era cómo usar el código HTTP devuelto por la función que expone la API para controlar posibles errores.\u003c\/p\u003e\n\u003cp\u003eComo prueba de concepto fue satisfactoria, pero no resulta práctica aplicarla; en un caso real se usan múltiples documentos y la repetición del mismo código una y otra vez hace que se alcance el límite de cuatro mil caracteres en un \u003cem\u003epaso\u003c\/em\u003e de la \u003cem\u003epipeline\u003c\/em\u003e\u0026hellip;\u003c\/p\u003e\n\u003cp\u003eAsí que la solución es \u003cem\u003eencapsular\u003c\/em\u003e esta idea en una función en vez de repetir el mismo código una y otra vez: \u003ca href=\u0022https:\/\/en.wikipedia.org\/wiki\/Don%27t_repeat_yourself\u0022\u003eDon\u0026rsquo;t repeat yourself\u003c\/a\u003e\u003c\/p\u003e"
   }
 </script>
 
@@ -114,14 +114,14 @@
     <main>
       
 <div class="l-container">
-  <article class="single article-1c63237c8383a2e30ee2e3fcc7150643">
+  <article class="single article-26024ed2b2223e7d0adbaf1e9db90eb2">
   <div class="header-wrapper">
-    <a href="https://onthedock.github.io/post/190419-cambios-en-el-blog/" class="thumbnail" title="Cambios en el blog"></a>
+    <a href="https://onthedock.github.io/post/220617-cliente-api-en-bash/" class="thumbnail" title="Cliente API en Bash (con curl)"></a>
     <header class="article-header">
       <div class="clearfix">
-        <h1 class="title">Cambios en el blog</h1>
+        <h1 class="title">Cliente API en Bash (con curl)</h1>
         <ul class="p-facts">
-          <li><time datetime="2019-04-19T06:22:57JST">19 Apr 2019</time></li>
+          <li><time datetime="2022-06-17T20:46:13JST">17 Jun 2022</time></li>
           <li><a href="https://onthedock.github.io/post/">post</a></li>
           
           <li>Xavi Aznar</li>
@@ -130,42 +130,142 @@
     </header>
   </div>
 
-  <div class="article-body"><p>Hugo sigue evolucinando y eso significa que cada nueva versión introduce pequeñas modificaciones y mejoras que no siempre son <em>retrocompatibles</em>.</p>
-<p>En mi caso, al actualizar a la versión 0.54 encontré problemas a la hora de construir el blog. En la entrada <a href="https://onthedock.github.io/post/190308-plantilla-actualizada/">Hugo: plantilla del tema actualizada</a> explico cómo solucioné los errores que impedían generar el blog.</p>
-<p>Hace unos días actualicé a la versión <code>v0.55.2-9D020348</code>. Al generar el blog con esta versión obtengo varios avisos de funciones usadas por el tema <em>Aglaus</em> que son <strong>desaconsejadas</strong> (<em>deprecated</em>) y que se eliminarán en futuras versiones de Hugo.</p>
-<p>He conseguido solucionar todos los <em>warnings</em> excepto:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">Building sites … WARN 2019/04/19 Page&#39;s .Hugo is deprecated and will be removed in a future release. Use the global hugo <span style="color:#719e07">function</span>.
-WARN 2019/04/19 .File.Path on zero object. Wrap it in <span style="color:#719e07">if</span> or with: <span style="color:#719e07">{{</span> with .File <span style="color:#719e07">}}{{</span> .Path <span style="color:#719e07">}}{{</span> end <span style="color:#719e07">}}</span>
-</code></pre></div><p>La causa raíz del problema se encuentra en el tema que uso para el blog: <em>Aglaus</em>; el tema no se actualiza desde hace unos diez meses, según su <a href="https://github.com/dim0627/hugo_theme_aglaus">repositorio en GitHub</a>. En Noviembre del 2018, el autor del tema comentaba que el tema ya no está siendo desarrollado activamente y que está de acuerdo con eliminarlo de los temas mostrados por Hugo en su galería: <a href="https://github.com/dim0627/hugo_theme_aglaus/issues/17#issuecomment-437571589">The Aglaus Theme Demo is broken on the Hugo Themes website</a>.</p>
-<p>He estado probando otros temas de forma local pero he descubierto que los temas, en general, no son fácilmente intercambiables: la mayoría no producen ninguna salida en HTML al <em>compilar</em> o directamente la creación del blog falla debido a problemas como que no se encuentra el <em>shortcode</em> para las imágenes&hellip;</p>
-<figure><img src="/images/190419/xkcd-927-standards.png"
-         alt="XKCD"/><figcaption>
-            <p>XKCD</p>
-        </figcaption>
-</figure>
+  <div class="article-body"><p>En una entrada anterior, <a href="https://onthedock.github.io/post/220518-obtener-respuesta-y-http-status-con-curl/">Obtener respuesta y código de la petición HTTP con curl</a>, explicaba cómo mejorar, en mi opinión, la <em>relación</em> con la API desde los <em>scripts</em> (en Bash) que se ejecutan desde una <em>pipeline</em>.</p>
+<p>La idea que explicaba en el artículo era cómo usar el código HTTP devuelto por la función que expone la API para controlar posibles errores.</p>
+<p>Como prueba de concepto fue satisfactoria, pero no resulta práctica aplicarla; en un caso real se usan múltiples documentos y la repetición del mismo código una y otra vez hace que se alcance el límite de cuatro mil caracteres en un <em>paso</em> de la <em>pipeline</em>&hellip;</p>
+<p>Así que la solución es <em>encapsular</em> esta idea en una función en vez de repetir el mismo código una y otra vez: <a href="https://en.wikipedia.org/wiki/Don%27t_repeat_yourself">Don&rsquo;t repeat yourself</a></p>
+<h2 id="creando-un-cliente-en-bash">Creando un cliente en Bash</h2>
+<p>El patrón habitual de interacción con la API es</p>
+<ul>
+<li>Generar el <em>payload</em> en JSON y guardarlo en una variable.</li>
+<li>Ejecutar la petición usando <code>curl</code> y guardar la respuesta en un fichero.</li>
+<li>Filtrar la respuesta usando <code>jq</code> leyendo el fichero.</li>
+</ul>
+<h3 id="parseo-de-parámetros-en-las-funciones"><em>Parseo</em> de parámetros en las funciones</h3>
+<p>Aunque no tiene nada que ver con la API, uno de los elementos clave para construir el cliente ha sido disponer una función con la que analizar los parámetros pasados a una función en Bash.</p>
+<p>Para ello me he basado en una función que desarrollé hace tiempo <a href="https://github.com/onthedock/reference_bash_scripts/blob/main/parse_cli_args/parse_cli_args.sh"><code>parse_cli_args.sh</code></a>.</p>
+<p>Con la intención de dividir la interacción con la API en funciones, quería poder nombrar los parámetros, de manera que fuera sencillo identificar qué es lo que se está pasando a la función:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell"><span style="color:#586e75"># Bad</span>
+build_query <span style="color:#2aa198">&#39;1234&#39;</span> <span style="color:#2aa198">&#39;/path/to/file.json&#39;</span>
+<span style="color:#586e75"># Good</span>
+build_query --id <span style="color:#2aa198">&#39;1234&#39;</span> --output <span style="color:#2aa198">&#39;/path/to/file.json&#39;</span>
+</code></pre></div><p>Además, en la función <em>receptora</em>, aunque se asignen los parámetros posicionales a variables &ldquo;con un nombre claro&rdquo;, el problema es que los parámetros son <strong>posicionales</strong>, lo que obliga a recordad qué hay que pasar y <strong>en qué orden</strong>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">build_query<span style="color:#719e07">()</span> <span style="color:#719e07">{</span>
+    <span style="color:#b58900">local</span> id, output
+    <span style="color:#268bd2">id</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$1</span><span style="color:#2aa198">&#34;</span>
+    <span style="color:#268bd2">output</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$2</span><span style="color:#2aa198">&#34;</span>
+    <span style="color:#586e75"># do something</span>
+<span style="color:#719e07">}</span>
+</code></pre></div><p>Lo que he hecho ha sido crear una función <code>parse_args</code> y llamarla desde cada función que necesite <em>parsear</em> parámetros. En vez crear una función <code>parse_args</code> para cada función (multiplicando el mismo código una y otra vez), he mantenido una única función <code>parse_args</code> con todos los parámetros que se usan en todas las funciones del <em>cliente</em>.</p>
+<p>Probablemente no es la mejor solución, pero funciona <code>¯\_(ツ)_/¯</code>.</p>
+<p>Así:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">build_query<span style="color:#719e07">()</span> <span style="color:#719e07">{</span>
+    parse_args <span style="color:#268bd2">$@</span>
+    <span style="color:#586e75"># do something with $id and $output</span>
+<span style="color:#719e07">}</span>
 
-<p><em>Me temo</em> que la solución será invertir tiempo en desarrollar un tema propio: un tema simple, sin toda la funcionalidad de los temas más sofisticados, pero que sea sencillo de mantener.</p>
-<p>Los únicos requerimientos que me impongo es que sea <em>responsible</em> y que se puedan dejar comentarios; otros <em>nice to have</em> serían la paginación (creo que está explicado con detalle en la documentación), los <em>artículos relacionados</em> y una caja de búsqueda&hellip;</p></div>
+build_query --id <span style="color:#2aa198">&#39;1234&#39;</span> --output <span style="color:#2aa198">&#39;/path/to/file.json&#39;</span>
+</code></pre></div><blockquote>
+<p>Probablemente se puedan definir las variables (<code>id</code> y <code>output</code> en el ejemplo) como <a href="https://tldp.org/LDP/abs/html/othertypesv.html"><code>local</code></a> dentro de la función y así se eviten efectos imprevistos si se declaran también a nivel global&hellip;</p>
+</blockquote>
+<h3 id="construcción-de-la-query">Construcción de la <em>query</em></h3>
+<p>En función de la acción a realizar, los campos a incluir en la <em>query</em> varían de una acción a otra.</p>
+<p>En una consulta para filtrar documentos con un determinado valor en un campo concreto, la <em>query</em> sería algo como:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-json" data-lang="json">{
+    <span style="color:#268bd2">&#34;action&#34;</span>: <span style="color:#2aa198">&#34;query&#34;</span>,
+    <span style="color:#268bd2">&#34;field&#34;</span>: <span style="color:#2aa198">&#34;name&#34;</span>,
+    <span style="color:#268bd2">&#34;operand&#34;</span>: <span style="color:#2aa198">&#34;==&#34;</span>,
+    <span style="color:#268bd2">&#34;value&#34;</span>: <span style="color:#2aa198">&#34;$name&#34;</span>
+}
+</code></pre></div><p>Mientras que para obtener un documento específico, tendríamos algo como:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-json" data-lang="json">{
+    <span style="color:#268bd2">&#34;action&#34;</span>: <span style="color:#2aa198">&#34;get&#34;</span>,
+    <span style="color:#268bd2">&#34;id&#34;</span>: <span style="color:#2aa198">&#34;$id&#34;</span>
+}
+</code></pre></div><p>De nuevo, la solución ha sido la más sencilla (IMHO); usar un bloque <code>case</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">build_query<span style="color:#719e07">()</span> <span style="color:#719e07">{</span>
+    parse_args <span style="color:#268bd2">$@</span>
+    <span style="color:#719e07">case</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$action</span><span style="color:#2aa198">&#34;</span> in
+    <span style="color:#2aa198">&#34;get&#34;</span><span style="color:#719e07">)</span>
+        cat <span style="color:#2aa198">&lt;&lt;-GET_QUERY
+</span><span style="color:#2aa198">        {
+</span><span style="color:#2aa198">            &#34;action&#34;: &#34;get&#34;,
+</span><span style="color:#2aa198">            &#34;id&#34;: &#34;$id&#34;
+</span><span style="color:#2aa198">        }
+</span><span style="color:#2aa198">GET_QUERY</span>
+        ;;
+    <span style="color:#2aa198">&#34;query&#34;</span><span style="color:#719e07">)</span>
+        cat <span style="color:#2aa198">&lt;&lt;-QUERY
+</span><span style="color:#2aa198">        {
+</span><span style="color:#2aa198">            &#34;action&#34;: &#34;query&#34;,
+</span><span style="color:#2aa198">            &#34;field&#34;: &#34;$field&#34;,
+</span><span style="color:#2aa198">            &#34;operand&#34;: &#34;==&#34;,
+</span><span style="color:#2aa198">            &#34;value&#34;: &#34;$value&#34; 
+</span><span style="color:#2aa198">        }
+</span><span style="color:#2aa198">QUERY</span>
+        ;;
+    *<span style="color:#719e07">)</span>
+        <span style="color:#b58900">printf</span> <span style="color:#2aa198">&#34;[ERROR] Unknown command to build the query %s\n&#34;</span> <span style="color:#2aa198">&#34;cmd&#34;</span>
+        <span style="color:#b58900">exit</span> <span style="color:#2aa198">1</span>
+        ;;
+    <span style="color:#719e07">esac</span>
+</code></pre></div><h2 id="llamar-a-la-api">Llamar a la API</h2>
+<p>Este bloque está inspirado directamente en el código de la entrada <a href="https://onthedock.github.io/post/220518-obtener-respuesta-y-http-status-con-curl/">Obtener respuesta y código de la petición HTTP con curl</a>.</p>
+<p>La única diferencia es que ahora se encuentra dentro de una función:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">call_api<span style="color:#719e07">()</span> <span style="color:#719e07">{</span>
+    parse_args <span style="color:#268bd2">$@</span>
+    <span style="color:#268bd2">api_response</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#719e07">$(</span>curl ...<span style="color:#719e07">)</span><span style="color:#2aa198">
+</span><span style="color:#2aa198">    if [[ &#34;</span><span style="color:#268bd2">$api_response</span><span style="color:#2aa198">&#34; != &#39;200&#39; ]]; then
+</span><span style="color:#2aa198">        printf &#34;</span><span style="color:#719e07">[</span>ERROR<span style="color:#719e07">]</span> API status code %s<span style="color:#cb4b16">\n</span><span style="color:#2aa198">&#34; &#34;</span><span style="color:#268bd2">$api_response</span><span style="color:#2aa198">&#34;
+</span><span style="color:#2aa198">        exit 1
+</span><span style="color:#2aa198">    else
+</span><span style="color:#2aa198">        # write retrieved document to file
+</span><span style="color:#2aa198">    fi
+</span><span style="color:#2aa198">}
+</span></code></pre></div><blockquote>
+<p>Hace unos días leí el artículo  <a href="https://medium.com/@matryer/line-of-sight-in-code-186dd7cdea88">Code: Align the happy path to the left edge</a> de Mat Ryer, por lo que quizás la reescriba para que el <em>happy path</em> esté a la izquierda y sea más fácil de &ldquo;leer&rdquo;.</p>
+</blockquote>
+<h2 id="funciones-sencillas-de-recordar">Funciones sencillas de recordar</h2>
+<p>La función <code>build_query</code> requiere diferentes parámetros en función del tipo de <em>query</em> que quieras hacer. Pero para mí resulta confuso tener que recordar todos los parámetros en función de cada tipo de consulta.</p>
+<p>Así que he creado unas funciones que <em>envuelven</em> (<em>wrap</em>) las funciones necesarias para hacer la llamada a la API pero que son -eso espero- más sencillas de usar.</p>
+<p>Por ejemplo, <code>get_document_by_id</code> deja claro que requiere un <code>id</code>, así que resulta <em>natural</em> <code>get_document_by_id --id '1234'</code>. (O incluso <code>get_document_with --id '1234'</code>, por ejemplo, aunque prefieron la forma &ldquo;explícita&rdquo;).</p>
+<p>Del mismo modo, <code>get_documents_by_type --type 'contacto' --field 'name' --value 'xavi'</code>; puede &ldquo;leerse&rdquo; como &ldquo;<em>obtén los documentos de tipo &lsquo;contacto&rsquo; que en el campo &lsquo;name&rsquo;  tienen el valor &lsquo;xavi&rsquo;</em>&rdquo;. Esto simplifica el uso de las funciones y evita errores.</p>
+<p>Estas funciones invocan a las funciones &ldquo;de bajo nivel&rdquo;:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">get_documents_by_type<span style="color:#719e07">()</span> <span style="color:#719e07">{</span>
+    parse_args <span style="color:#268bd2">$@</span>
+    <span style="color:#268bd2">query</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>build_query --action <span style="color:#2aa198">&#34;query&#34;</span> --type <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$type</span><span style="color:#2aa198">&#34;</span> --field <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$field</span><span style="color:#2aa198">&#34;</span> --value <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$value</span><span style="color:#2aa198">&#34;</span><span style="color:#719e07">)</span>
+    call_api --query <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$query</span><span style="color:#2aa198">&#34;</span>
+<span style="color:#719e07">}</span>
+</code></pre></div><p>Todas estas funciones se encuentran en un fichero <code>api_client.sh</code> que se puede <em>importar</em> (vía <code>source</code>) en otros <em>scripts</em> y reusar una y otra vez.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell"><span style="color:#719e07">#!/bin/bash
+</span><span style="color:#719e07"></span><span style="color:#b58900">source</span> ~/lib/api_client.sh
+
+<span style="color:#586e75"># Do something</span>
+</code></pre></div><h2 id="resumen">Resumen</h2>
+<p>En esta entrada le he dado una <em>nueva vuelta de tuerca</em> al uso de Bash para interaccionar con una API usando <code>curl</code>.</p>
+<p>En vez de repetir el código una y otra vez para validar la respuestas de la API, he creado una nueva versión de un <em>cliente</em> para la API.</p>
+<p>El objetivo es proporcionar una mayor funcionalidad (control de errores, parámetros con nombre, etc) para que sea más sencillo interaccionar con la API y evitar que se <em>cuelen</em> respuestas incorrectas que hagan fallar las <em>pipelines</em> inesperadamente o peor aún, que modifiquen la información de la base de datos de manera inconsistente.</p>
+<p>Como con la primera versión, habrá que ver si a la práctica la idea es suficientemente buena como para que sea integrada en el equipo y empiece a usarse. Entonces habrá que plantear extender las acciones soportadas por el cliente en Bash para incluir el resto de acciones disponibles en la API.</p></div>
 
   <aside class="p-share">
 
 
-  <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3a%2f%2fonthedock.github.io%2fpost%2f190419-cambios-en-el-blog%2f&amp;source=https%3a%2f%2fonthedock.github.io%2fpost%2f190419-cambios-en-el-blog%2f&amp;title=Cambios%20en%20el%20blog" target="_blank" rel="noopener" aria-label="Share on LinkedIn">
+  <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3a%2f%2fonthedock.github.io%2fpost%2f220617-cliente-api-en-bash%2f&amp;source=https%3a%2f%2fonthedock.github.io%2fpost%2f220617-cliente-api-en-bash%2f&amp;title=Cliente%20API%20en%20Bash%20%28con%20curl%29" target="_blank" rel="noopener" aria-label="Share on LinkedIn">
     <svg width="2rem" height="2rem" viewBox="0 0 352 352"><path d="M0 40v272c0 21.9 18.1 40 40 40h272c21.9.0 40-18.1 40-40V40c0-21.9-18.1-40-40-40H40C18.1.0.0 18.1.0 40zm312-8c4.6.0 8 3.4 8 8v272c0 4.6-3.4 8-8 8H40c-4.6.0-8-3.4-8-8V40c0-4.6 3.4-8 8-8H312zM59.5 87c0 15.2 12.3 27.5 27.5 27.5s27.5-12.3 27.5-27.5S102.2 59.5 87 59.5 59.5 71.8 59.5 87zM187 157h-1v-21h-45v152h47v-75c0-19.8 3.9-39 28.5-39 24.2.0 24.5 22.4 24.5 40v74h47v-83.5c0-40.9-8.7-72-56.5-72-23 0-38.2 12.6-44.5 24.5zM64 288h47.5V136H64V288z"></path></svg>
     <p>LinkedIn</p>
   </a>
 
-  <a href="https://twitter.com/intent/tweet?hashtags=onthedock&amp;url=https%3a%2f%2fonthedock.github.io%2fpost%2f190419-cambios-en-el-blog%2f&amp;text=Cambios%20en%20el%20blog" target="_blank" rel="noopener" aria-label="Share on Twitter" class="share-btn twitter">
+  <a href="https://twitter.com/intent/tweet?hashtags=onthedock&amp;url=https%3a%2f%2fonthedock.github.io%2fpost%2f220617-cliente-api-en-bash%2f&amp;text=Cliente%20API%20en%20Bash%20%28con%20curl%29" target="_blank" rel="noopener" aria-label="Share on Twitter" class="share-btn twitter">
     <svg width="2rem" height="2rem" viewBox="0 0 384 312"><path d="m384 36.9c-14.1 6.3-29.3 10.5-45.2 12.4 16.3-9.7 28.8-25.2 34.6-43.6-15.2 9-32.1 15.6-50 19.1-14.4-15.2-34.9-24.8-57.5-24.8-43.5.0-78.8 35.3-78.8 78.8.0 6.2.7 12.2 2 17.9-65.5-3.3-123.5-34.6-162.4-82.3C20 26 16.1 39.6 16.1 54c0 27.3 13.9 51.4 35 65.6-12.9-.4-25.1-4-35.7-9.9v1c0 38.2 27.2 70 63.2 77.2-6.6 1.8-13.6 2.8-20.8 2.8-5.1.0-10-.5-14.8-1.4 10 31.3 39.1 54.1 73.6 54.7-27 21.1-60.9 33.7-97.8 33.7-6.4.0-12.6-.4-18.8-1.1C34.9 299 76.3 312 120.8 312c144.9.0 224.1-120 224.1-224.1.0-3.4-.1-6.8-.2-10.2 15.4-11.1 28.7-25 39.3-40.8z"></path></svg>
     <p>Twitter</p>
   </a>
 
-  <a href="mailto:?subject=Cambios%20en%20el%20blog.&amp;body=Cambios%20en%20el%20blog%0a%0ahttps%3a%2f%2fonthedock.github.io%2fpost%2f190419-cambios-en-el-blog%2f%0a" target="_blank" class="share-btn email">
+  <a href="mailto:?subject=Cliente%20API%20en%20Bash%20%28con%20curl%29.&amp;body=Cliente%20API%20en%20Bash%20%28con%20curl%29%0a%0ahttps%3a%2f%2fonthedock.github.io%2fpost%2f220617-cliente-api-en-bash%2f%0a" target="_blank" class="share-btn email">
     <svg width="2rem" height="2rem" viewBox="0 0 416 288"><path d="m0 16v256 16h16 384 16v-16V16 0h-16H16 0zm347 16-139 92.5L69 32zM199 157.5l9 5.5 9-5.5L384 46v210H32V46z"></path></svg>
     <p>Email</p>
   </a>
 
-  <a href="whatsapp://send?text=Cambios%20en%20el%20blog%0a%0ahttps%3a%2f%2fonthedock.github.io%2fpost%2f190419-cambios-en-el-blog%2f%0a" target="_blank">
+  <a href="whatsapp://send?text=Cliente%20API%20en%20Bash%20%28con%20curl%29%0a%0ahttps%3a%2f%2fonthedock.github.io%2fpost%2f220617-cliente-api-en-bash%2f%0a" target="_blank">
     <svg  width="2rem" height="2rem" viewBox="0 0 24 24">
     <path d="M20.1 3.9C17.9 1.7 15 .5 12 .5 5.8.5.7 5.6.7 11.9c0 2 .5 3.9 1.5 5.6L.6 23.4l6-1.6c1.6.9 3.5 1.3 5.4 1.3 6.3.0 11.4-5.1 11.4-11.4-.1-2.8-1.2-5.7-3.3-7.8zM12 21.4c-1.7.0-3.3-.5-4.8-1.3l-.4-.2-3.5 1 1-3.4L4 17c-1-1.5-1.4-3.2-1.4-5.1.0-5.2 4.2-9.4 9.4-9.4 2.5.0 4.9 1 6.7 2.8s2.8 4.2 2.8 6.7c-.1 5.2-4.3 9.4-9.5 9.4zm5.1-7.1c-.3-.1-1.7-.9-1.9-1-.3-.1-.5-.1-.7.1-.2.3-.8 1-.9 1.1-.2.2-.3.2-.6.1s-1.2-.5-2.3-1.4c-.9-.8-1.4-1.7-1.6-2s0-.5.1-.6.3-.3.4-.5c.2-.1.3-.3.4-.5s0-.4.0-.5C10 9 9.3 7.6 9 7c-.1-.4-.4-.3-.5-.3h-.6s-.4.1-.7.3c-.3.3-1 1-1 2.4s1 2.8 1.1 3c.1.2 2 3.1 4.9 4.3.7.3 1.2.5 1.6.6.7.2 1.3.2 1.8.1.6-.1 1.7-.7 1.9-1.3.2-.7.2-1.2.2-1.3-.1-.3-.3-.4-.6-.5z"></path></svg>
     <p>Whatsapp</p>
@@ -186,7 +286,7 @@ WARN 2019/04/19 .File.Path on zero object. Wrap it in <span style="color:#719e07
         
         <li itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb"><a href="https://onthedock.github.io/post/" itemprop="url"><span itemprop="title">post</span></a></li>
         
-        <li>Cambios en el blog</li>
+        <li>Cliente API en Bash (con curl)</li>
       </ol>
 
       
@@ -210,11 +310,11 @@ WARN 2019/04/19 .File.Path on zero object. Wrap it in <span style="color:#719e07
           <header><a href="https://onthedock.github.io/tags/">tags</a></header>
           <ul>
             
-            <li><a href="https://onthedock.github.io/tags/hugo/">hugo</a></li>
+            <li><a href="https://onthedock.github.io/tags/linux/">linux</a></li>
             
-            <li><a href="https://onthedock.github.io/tags/blog/">blog</a></li>
+            <li><a href="https://onthedock.github.io/tags/bash/">bash</a></li>
             
-            <li><a href="https://onthedock.github.io/tags/theme/">theme</a></li>
+            <li><a href="https://onthedock.github.io/tags/curl/">curl</a></li>
             
           </ul>
         </li>
@@ -252,22 +352,7 @@ WARN 2019/04/19 .File.Path on zero object. Wrap it in <span style="color:#719e07
   <section>
     <header><span>Latests</span></header>
     <ul class="p-articles thin">
-      <li><article class="li sm article-26024ed2b2223e7d0adbaf1e9db90eb2">
-  <div class="header-wrapper">
-    <a href="https://onthedock.github.io/post/220617-cliente-api-en-bash/" class="thumbnail" title="Cliente API en Bash (con curl)"></a>
-    <header class="article-header">
-      <div class="clearfix">
-        <h2 class="title"><a href="https://onthedock.github.io/post/220617-cliente-api-en-bash/">Cliente API en Bash (con curl)</a></h2>
-        <ul class="p-facts">
-          <li><time datetime="2022-06-17T20:46:13JST">17 Jun 2022</time></li>
-          <li><a href="https://onthedock.github.io/post/">post</a></li>
-          
-        </ul>
-      </div>
-    </header>
-  </div>
-</article>
-</li><li><article class="li sm article-57cb07adc3f74f6eb69e2ec237c2b91f">
+      <li><article class="li sm article-57cb07adc3f74f6eb69e2ec237c2b91f">
   <div class="header-wrapper">
     <a href="https://onthedock.github.io/post/220519-jq/" class="thumbnail" title="Sacando partido de la funcionalidad de jq"></a>
     <header class="article-header">
@@ -305,6 +390,21 @@ WARN 2019/04/19 .File.Path on zero object. Wrap it in <span style="color:#719e07
         <h2 class="title"><a href="https://onthedock.github.io/post/220509-error-en-k3sup-unable-to-connect-to-server-ubuntu-22-04/">Error en k3sup: Unable to Connect to Server over SSH (Ubuntu 22.04)</a></h2>
         <ul class="p-facts">
           <li><time datetime="2022-05-09T21:43:30JST">9 May 2022</time></li>
+          <li><a href="https://onthedock.github.io/post/">post</a></li>
+          
+        </ul>
+      </div>
+    </header>
+  </div>
+</article>
+</li><li><article class="li sm article-37375eec196c6d8fcfcc10b916cc4b58">
+  <div class="header-wrapper">
+    <a href="https://onthedock.github.io/post/220508-evitar-que-un-paquete-se-actualice/" class="thumbnail" title="Ubuntu: Evita que un paquete se actualice con &#34;apt-mark hold&#34;"></a>
+    <header class="article-header">
+      <div class="clearfix">
+        <h2 class="title"><a href="https://onthedock.github.io/post/220508-evitar-que-un-paquete-se-actualice/">Ubuntu: Evita que un paquete se actualice con &#34;apt-mark hold&#34;</a></h2>
+        <ul class="p-facts">
+          <li><time datetime="2022-05-08T13:14:23JST">8 May 2022</time></li>
           <li><a href="https://onthedock.github.io/post/">post</a></li>
           
         </ul>
