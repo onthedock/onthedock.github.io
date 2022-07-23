@@ -11,13 +11,13 @@
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
 
-<link rel="canonical" href="https://onthedock.github.io/post/200221-nomodeset/">
+<link rel="canonical" href="https://onthedock.github.io/post/220723-uso-del-paquete-flag-en-go/">
 
 
     
     <link href="https://fonts.googleapis.com/css?family=Special+Elite|Fira+Sans:400,700" rel="stylesheet">
     
-    <title>Instalación de Linux en modo gráfico seguro - On The Dock</title>
+    <title>Uso del paquete &#39;flag&#39; en Go - On The Dock</title>
     <style amp-boilerplate>body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}</style><noscript><style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style></noscript>
     <script async src="https://cdn.ampproject.org/v0.js"></script>
     
@@ -26,22 +26,22 @@
 <script async custom-element="amp-ad" src="https://cdn.ampproject.org/v0/amp-ad-0.1.js"></script>
 
     
-<meta name="description" content="&lt;p&gt;Los &lt;em&gt;kernels&lt;/em&gt; de Linux modernos han movido la configuración de los modos de vídeo al &lt;em&gt;kernel&lt;/em&gt;. Algunas tarjetas gráficas no funcionan correctamente tras este cambio, por lo que el proceso de instalación de Linux falla de un modo u otro; en mi caso, el sistema se reinicia a los pocos segundos de empezar el proceso de arranque del sistema, aunque lo habitual es que la pantalla se quede &amp;ldquo;en blanco&amp;rdquo;.&lt;/p&gt;">
+<meta name="description" content="&lt;p&gt;Una de puntos que siempre se destacan al trabajar con Go es lo completa que es la biblioteca estándar de funciones que proporciona el propio lenguaje.&lt;/p&gt;&lt;p&gt;&lt;a href=&#34;https://pkg.go.dev/flag&#34;&gt;&lt;code&gt;flag&lt;/code&gt;&lt;/a&gt; proporciona funcionalidad para gestionar las opciones de las aplicaciones sin interfaz gráfica que se ejecutan desde la &lt;em&gt;línea de comandos&lt;/em&gt; (CLI).&lt;/p&gt;&lt;p&gt;En esta entrada reviso cómo usar el paquete para los casos de uso más habituales.&lt;/p&gt;">
 
-<meta property="og:title" content="Instalación de Linux en modo gráfico seguro - On The Dock">
+<meta property="og:title" content="Uso del paquete &#39;flag&#39; en Go - On The Dock">
 <meta property="og:type" content="article">
-<meta property="og:url" content="https://onthedock.github.io/post/200221-nomodeset/">
-<meta property="og:image" content="https://onthedock.github.io/images/linux.png">
+<meta property="og:url" content="https://onthedock.github.io/post/220723-uso-del-paquete-flag-en-go/">
+<meta property="og:image" content="https://onthedock.github.io/images/go.png">
 <meta property="og:site_name" content="On The Dock">
-<meta property="og:description" content="&lt;p&gt;Los &lt;em&gt;kernels&lt;/em&gt; de Linux modernos han movido la configuración de los modos de vídeo al &lt;em&gt;kernel&lt;/em&gt;. Algunas tarjetas gráficas no funcionan correctamente tras este cambio, por lo que el proceso de instalación de Linux falla de un modo u otro; en mi caso, el sistema se reinicia a los pocos segundos de empezar el proceso de arranque del sistema, aunque lo habitual es que la pantalla se quede &amp;ldquo;en blanco&amp;rdquo;.&lt;/p&gt;">
+<meta property="og:description" content="&lt;p&gt;Una de puntos que siempre se destacan al trabajar con Go es lo completa que es la biblioteca estándar de funciones que proporciona el propio lenguaje.&lt;/p&gt;&lt;p&gt;&lt;a href=&#34;https://pkg.go.dev/flag&#34;&gt;&lt;code&gt;flag&lt;/code&gt;&lt;/a&gt; proporciona funcionalidad para gestionar las opciones de las aplicaciones sin interfaz gráfica que se ejecutan desde la &lt;em&gt;línea de comandos&lt;/em&gt; (CLI).&lt;/p&gt;&lt;p&gt;En esta entrada reviso cómo usar el paquete para los casos de uso más habituales.&lt;/p&gt;">
 <meta property="og:locale" content="ja_JP">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="On The Dock">
-<meta name="twitter:url" content="https://onthedock.github.io/post/200221-nomodeset/">
-<meta name="twitter:title" content="Instalación de Linux en modo gráfico seguro - On The Dock">
-<meta name="twitter:description" content="&lt;p&gt;Los &lt;em&gt;kernels&lt;/em&gt; de Linux modernos han movido la configuración de los modos de vídeo al &lt;em&gt;kernel&lt;/em&gt;. Algunas tarjetas gráficas no funcionan correctamente tras este cambio, por lo que el proceso de instalación de Linux falla de un modo u otro; en mi caso, el sistema se reinicia a los pocos segundos de empezar el proceso de arranque del sistema, aunque lo habitual es que la pantalla se quede &amp;ldquo;en blanco&amp;rdquo;.&lt;/p&gt;">
-<meta name="twitter:image" content="https://onthedock.github.io/images/linux.png">
+<meta name="twitter:url" content="https://onthedock.github.io/post/220723-uso-del-paquete-flag-en-go/">
+<meta name="twitter:title" content="Uso del paquete &#39;flag&#39; en Go - On The Dock">
+<meta name="twitter:description" content="&lt;p&gt;Una de puntos que siempre se destacan al trabajar con Go es lo completa que es la biblioteca estándar de funciones que proporciona el propio lenguaje.&lt;/p&gt;&lt;p&gt;&lt;a href=&#34;https://pkg.go.dev/flag&#34;&gt;&lt;code&gt;flag&lt;/code&gt;&lt;/a&gt; proporciona funcionalidad para gestionar las opciones de las aplicaciones sin interfaz gráfica que se ejecutan desde la &lt;em&gt;línea de comandos&lt;/em&gt; (CLI).&lt;/p&gt;&lt;p&gt;En esta entrada reviso cómo usar el paquete para los casos de uso más habituales.&lt;/p&gt;">
+<meta name="twitter:image" content="https://onthedock.github.io/images/go.png">
 
 
 <script type="application/ld+json">
@@ -52,15 +52,15 @@
       "@type": "WebPage",
       "@id":"https:\/\/onthedock.github.io\/"
     },
-    "headline": "Instalación de Linux en modo gráfico seguro - On The Dock",
+    "headline": "Uso del paquete \u0027flag\u0027 en Go - On The Dock",
     "image": {
       "@type": "ImageObject",
-      "url": "https:\/\/onthedock.github.io\/images\/linux.png",
+      "url": "https:\/\/onthedock.github.io\/images\/go.png",
       "height": 800,
       "width": 800
     },
-    "datePublished": "2020-03-21T21:20:25JST",
-    "dateModified": "2020-03-21T21:20:25JST",
+    "datePublished": "2022-07-23T16:08:13JST",
+    "dateModified": "2022-07-23T16:08:13JST",
     "author": {
       "@type": "Person",
       "name": "On The Dock"
@@ -75,7 +75,7 @@
         "height": 60
       }
     },
-    "description": "\u003cp\u003eLos \u003cem\u003ekernels\u003c\/em\u003e de Linux modernos han movido la configuración de los modos de vídeo al \u003cem\u003ekernel\u003c\/em\u003e. Algunas tarjetas gráficas no funcionan correctamente tras este cambio, por lo que el proceso de instalación de Linux falla de un modo u otro; en mi caso, el sistema se reinicia a los pocos segundos de empezar el proceso de arranque del sistema, aunque lo habitual es que la pantalla se quede \u0026ldquo;en blanco\u0026rdquo;.\u003c\/p\u003e"
+    "description": "\u003cp\u003eUna de puntos que siempre se destacan al trabajar con Go es lo completa que es la biblioteca estándar de funciones que proporciona el propio lenguaje.\u003c\/p\u003e\n\u003cp\u003e\u003ca href=\u0022https:\/\/pkg.go.dev\/flag\u0022\u003e\u003ccode\u003eflag\u003c\/code\u003e\u003c\/a\u003e proporciona funcionalidad para gestionar las opciones de las aplicaciones sin interfaz gráfica que se ejecutan desde la \u003cem\u003elínea de comandos\u003c\/em\u003e (CLI).\u003c\/p\u003e\n\u003cp\u003eEn esta entrada reviso cómo usar el paquete para los casos de uso más habituales.\u003c\/p\u003e"
   }
 </script>
 
@@ -114,14 +114,14 @@
     <main>
       
 <div class="l-container">
-  <article class="single article-5b04a4598c80921d43637c7023ad4877">
+  <article class="single article-8a910c977ad420080576a17fe810b034">
   <div class="header-wrapper">
-    <a href="https://onthedock.github.io/post/200221-nomodeset/" class="thumbnail" title="Instalación de Linux en modo gráfico seguro"></a>
+    <a href="https://onthedock.github.io/post/220723-uso-del-paquete-flag-en-go/" class="thumbnail" title="Uso del paquete &#39;flag&#39; en Go"></a>
     <header class="article-header">
       <div class="clearfix">
-        <h1 class="title">Instalación de Linux en modo gráfico seguro</h1>
+        <h1 class="title">Uso del paquete &#39;flag&#39; en Go</h1>
         <ul class="p-facts">
-          <li><time datetime="2020-03-21T21:20:25JST">21 Mar 2020</time></li>
+          <li><time datetime="2022-07-23T16:08:13JST">23 Jul 2022</time></li>
           <li><a href="https://onthedock.github.io/post/">post</a></li>
           
           <li>Xavi Aznar</li>
@@ -130,37 +130,152 @@
     </header>
   </div>
 
-  <div class="article-body"><p>Los <em>kernels</em> de Linux modernos han movido la configuración de los modos de vídeo al <em>kernel</em>. Algunas tarjetas gráficas no funcionan correctamente tras este cambio, por lo que el proceso de instalación de Linux falla de un modo u otro; en mi caso, el sistema se reinicia a los pocos segundos de empezar el proceso de arranque del sistema, aunque lo habitual es que la pantalla se quede &ldquo;en blanco&rdquo;.</p>
-<p>La solución para estos problemas durante el arranque se puede conseguir mediante parámetros del <em>kernel</em>. El proceso varía en cada distribución, pero suponen detener el arranque automático y entrar en un modo interactivo para modificar los parámetros pasados al <em>kernel</em> por defecto.</p>
-<p>En algunos casos, como en <a href="https://zorinos.com/">Zorin OS</a>, el instalador ofrece una opción de arranque con &ldquo;con gráficos seguros&rdquo;, mientras que en Ubuntu se pueden pasar diferentes tipos de parámetros opcionales pulsando cualquier tecla cuando se muestra el menú inicial (<code>nomodeset</code> se encuentra dentro del menú mostrado al pulsar <code>F6 Other Options</code>):</p>
-<figure><img src="/images/200221/ubuntu-installer-options.png"/>
-</figure>
-
-<p>Una excelente explicación de algunas de las diferentes opciones que se pueden pasar al <em>kernel</em> durante el arranque es <a href="https://ubuntuforums.org/showthread.php?t=1613132">How to set NOMODESET and other kernel boot options in grub2</a>. Aunque se trata de una entrada del 2010, el primer párrafo de esta entrada está tomada, casi literalmente, de ese artículo:</p>
+  <div class="article-body"><p>Una de puntos que siempre se destacan al trabajar con Go es lo completa que es la biblioteca estándar de funciones que proporciona el propio lenguaje.</p>
+<p><a href="https://pkg.go.dev/flag"><code>flag</code></a> proporciona funcionalidad para gestionar las opciones de las aplicaciones sin interfaz gráfica que se ejecutan desde la <em>línea de comandos</em> (CLI).</p>
+<p>En esta entrada reviso cómo usar el paquete para los casos de uso más habituales.</p>
 <blockquote>
-<p><code>nomodeset</code>: The newest kernels have moved the video mode setting into the kernel. So all the programming of the hardware specific clock rates and registers on the video card happen in the kernel rather than in the X driver when the X server starts.. This makes it possible to have high resolution nice looking splash (boot) screens and flicker free transitions from boot splash to login screen. Unfortunately, on some cards this doesnt work properly and you end up with a black screen. Adding the nomodeset parameter instructs the kernel to not load video drivers and use BIOS modes instead until X is loaded.&quot;</p>
+<p>Este artículo está inspirado en el artículo <a href="https://www.digitalocean.com/community/tutorials/how-to-use-the-flag-package-in-go">How To Use the Flag Package in Go</a> de Digital Ocean publicado en Noviembre del 2019.</p>
 </blockquote>
-<p>Es importante tener en cuenta que, para que el parámetro se aplique en cada arranque de manera automática -y no sólo cuando lo especifiquemos manualmente- debemos editar el fichero de configuración de <code>grub2</code>.</p></div>
+<p>Cuando usamos aplicaciones desde la línea de comandos, como <code>git</code>, <code>kubectl</code>, <code>terraform</code>, <code>helm</code>, etc, usamos <em>flags</em> y <em>arguments</em> para proporcionar información o modificar el comportamiento de la aplicación.</p>
+<blockquote>
+<p>No he encontrado una traducción aceptable para <em>flag</em> ; para <em>argument</em>, lo más cercano sería <em>parámetro</em>, pero parece más enfocado a valores que se pasan a una función (consulta la definición en <a href="https://techterms.com/definition/parameter">The Tech Terms Dictionary</a>).</p>
+</blockquote>
+<p>En general, llamamos <em>flag</em> a las opciones que modificar el comportamiento simplemente por estar presentes (<code>-force</code>), mientras que los <em>arguments</em> o <em>parameters</em> proporcionan información adicional al comando que se ejecuta (como en <code>-source http://www.example.org</code>).</p>
+<p>El paquete <code>flag</code> nos permite gestionar estos dos tipos de forma sencilla.</p>
+<h2 id="opciones-parameters-o-arguments">Opciones (<em>parameters</em> o <em>arguments</em>)</h2>
+<p>Creamos una carpeta e inicializamos el módulo:</p>
+<blockquote>
+<p>LLamamos <code>doflag</code> al módulo en referencia al artículo de Digital Ocean ;)</p>
+</blockquote>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">mkdir doflag
+<span style="color:#b58900">cd</span> doflag
+go mod init doflag
+</code></pre></div><p>La primera versión de la aplicación es:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
+
+<span style="color:#719e07">import</span> (
+    <span style="color:#2aa198">&#34;flag&#34;</span>
+    <span style="color:#2aa198">&#34;fmt&#34;</span>
+)
+
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
+    <span style="color:#268bd2">var</span> message <span style="color:#dc322f">string</span>
+
+    flag.<span style="color:#268bd2">StringVar</span>(<span style="color:#719e07">&amp;</span>message, <span style="color:#2aa198">&#34;msg&#34;</span>, <span style="color:#2aa198">&#34;&#34;</span>, <span style="color:#2aa198">&#34;Message string&#34;</span>)
+    flag.<span style="color:#268bd2">Parse</span>()
+
+    fmt.<span style="color:#268bd2">Println</span>(message)
+}
+</code></pre></div><p>Para definir &ldquo;opciones&rdquo; usando el paquete <code>flag</code>, podemos usar <code>flag.String</code> o <code>flag.StringVar</code> para definir una <em>opción</em> de tipo <code>string</code>; en el primer caso, el <em>flag</em> es un puntero a una variable del tipo indicado (en este caso, <code>string</code>):</p>
+<blockquote>
+<p>Uso <em>opciones</em> como nombre genérico para no tener que distinguir entre <em>flags</em> y <em>arguments</em></p>
+</blockquote>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-go" data-lang="go"><span style="color:#268bd2">var</span> message <span style="color:#719e07">*</span><span style="color:#dc322f">string</span> = flag.<span style="color:#268bd2">String</span>(<span style="color:#2aa198">&#34;msg&#34;</span>, <span style="color:#2aa198">&#34;&#34;</span>, <span style="color:#2aa198">&#34;Message string&#34;</span>)
+</code></pre></div><p>En el segundo caso, declaramos una variable del tipo deseado y pasamos la referencia a <code>flag.StringVar()</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-go" data-lang="go"><span style="color:#268bd2">var</span> message <span style="color:#dc322f">string</span>
+flag.<span style="color:#268bd2">StringVar</span>(<span style="color:#719e07">&amp;</span>message, <span style="color:#2aa198">&#34;msg&#34;</span>, <span style="color:#2aa198">&#34;&#34;</span>, <span style="color:#2aa198">&#34;Message string&#34;</span>)
+</code></pre></div><p>Prefiero usar esta segunda forma porque así <code>message</code> contiene el valor (y no un puntero al valor), lo que como <em>n00b</em> me parece más sencillo ;)</p>
+<p>Tras definir todas las <em>opciones</em> para la aplicación, usamos <code>flag.Parse()</code>.</p>
+<p>Al ejecutar la aplicación, <code>flag.Parse</code> asigna los valores proporcionados desde la línea de comandos a las variables indicadas; a partir de ese momento podemos usarlas en la aplicación con normalidad.</p>
+<p>Ejecutamos la aplicación (tras compilarla):</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ ./doflag
+
+</code></pre></div><p>La aplicación <em>parece</em> que no hace nada pero en realidad está imprimiendo la cadena almacenada en <code>message</code>, que se debe proporcionar desde la CLI (y que por defecto está vacía).</p>
+<p>Lo vemos más claramente modificando el <strong>valor por defecto</strong> de la <em>opción</em> <code>msg</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-go" data-lang="go">    flag.<span style="color:#268bd2">StringVar</span>(<span style="color:#719e07">&amp;</span>message, <span style="color:#2aa198">&#34;msg&#34;</span>, <span style="color:#2aa198">&#34;Hello World!&#34;</span>, <span style="color:#2aa198">&#34;Message string&#34;</span>)
+</code></pre></div><p>Ejecutando de nuevo (tras compilar):</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ ./doflag 
+Hello World!
+</code></pre></div><p>Como ya habrás deducido, al definir una <em>opción</em> de CLI, pasamos el <em>identificador</em> de la opción (<code>msg</code>), el valor por defecto (<code>''</code> inicialmente y <code>'Hello World!</code> tras actualizar la aplicación) y la <em>descripción</em> de la opción&hellip;</p>
+<p>Al usar el paquete <code>flag</code> éste proporciona una <em>opción</em> por defecto, <code>-h</code> o <code>-help</code> que muestra información sobre las <em>opciones</em> definidas para la aplicación:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ ./doflag -help
+Usage of ./doflag:
+  -msg string
+        Message string <span style="color:#719e07">(</span>default <span style="color:#2aa198">&#34;Hello World!&#34;</span><span style="color:#719e07">)</span>
+</code></pre></div><p>Como ves, se muestra el uso de las opciones definidas y sus valores definidos por defecto.</p>
+<p>Si ejecutamos la aplicación especificando un mensaje para la aplicación mediante <code>-msg</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ ./doflag -msg <span style="color:#2aa198">&#34;Hola que tal&#34;</span>
+Hola que tal
+</code></pre></div><h2 id="flags">Flags</h2>
+<p>Otra de las opciones que tenemos para modificar el comportamiento de la aplicación es el uso de <em>flags</em>. Las <em>flags</em> corresponden a valores de tipo <em>bool</em> (<em>true</em> o <em>false</em>).</p>
+<p>Añadimos el <em>flag</em> <code>-up</code>, con valor por defecto <code>false</code>, asociado a la variable <code>uppercase</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-go" data-lang="go">flag.<span style="color:#268bd2">BoolVar</span>(<span style="color:#719e07">&amp;</span>uppercase, <span style="color:#2aa198">&#34;up&#34;</span>, <span style="color:#cb4b16">false</span>, <span style="color:#2aa198">&#34;Convert the message to uppercase&#34;</span>)
+</code></pre></div><p>El objetivo es que, si se proporciona el <em>flag</em> <code>-up</code>, la salida de la aplicación se muestre en mayúsculas:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
+
+<span style="color:#719e07">import</span> (
+    <span style="color:#2aa198">&#34;flag&#34;</span>
+    <span style="color:#2aa198">&#34;fmt&#34;</span>
+    <span style="color:#2aa198">&#34;strings&#34;</span>
+)
+
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
+    <span style="color:#268bd2">var</span> message <span style="color:#dc322f">string</span>
+    <span style="color:#268bd2">var</span> uppercase <span style="color:#dc322f">bool</span>
+
+    flag.<span style="color:#268bd2">StringVar</span>(<span style="color:#719e07">&amp;</span>message, <span style="color:#2aa198">&#34;msg&#34;</span>, <span style="color:#2aa198">&#34;Hello World!&#34;</span>, <span style="color:#2aa198">&#34;Message string&#34;</span>)
+    flag.<span style="color:#268bd2">BoolVar</span>(<span style="color:#719e07">&amp;</span>uppercase, <span style="color:#2aa198">&#34;up&#34;</span>, <span style="color:#cb4b16">false</span>, <span style="color:#2aa198">&#34;Convert the message to uppercase&#34;</span>)
+    flag.<span style="color:#268bd2">Parse</span>()
+
+    <span style="color:#719e07">if</span> uppercase {
+        message = strings.<span style="color:#268bd2">ToUpper</span>(message)
+    }
+    fmt.<span style="color:#268bd2">Println</span>(message)
+}
+</code></pre></div><p>Compilamos y ejecutamos la aplicación:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ ./doflag 
+Hello World!
+</code></pre></div><p>Por defecto, el mensaje (con la opción por defecto de <code>-msg</code>) se muestra en minúsculas.</p>
+<p>Al pasar <code>-up</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ ./doflag -up
+HELLO WORLD!
+</code></pre></div><p>Obviamente, la opción de usar <code>-msg</code> sigue disponible:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ ./doflag -up -msg <span style="color:#2aa198">&#34;Hola de nuevo&#34;</span>
+HOLA DE NUEVO
+</code></pre></div><p>Y el orden de las opciones no es relevante:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">./doflag  -msg <span style="color:#2aa198">&#34;Tanto monta, monta tanto...&#34;</span>  -up
+TANTO MONTA, MONTA TANTO...
+</code></pre></div><p>Automáticamente, el paquete <code>flag</code> ha actualizado la opción <code>-h</code> para incluir la nueva opción de la aplicación:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ ./doflag -help
+Usage of ./doflag:
+  -msg string
+        Message string <span style="color:#719e07">(</span>default <span style="color:#2aa198">&#34;Hello World!&#34;</span><span style="color:#719e07">)</span>
+  -up
+        Convert the message to uppercase
+</code></pre></div><p>Como las opciones de tipo <em>flag</em> (con valor <code>bool</code>) sólo provocan un efecto si están presentes, se considera que su valor por defecto es <code>false</code> (y por ello no se muestra el valor por defecto al usar <code>-help</code>).</p>
+<h2 id="formato-de-las-opciones">Formato de las opciones</h2>
+<p>En la documentación oficial del paquete <code>flag</code> se indica que las siguientes formas para las opciones son válidas:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-go" data-lang="go"><span style="color:#719e07">-</span>flag
+<span style="color:#719e07">-</span>flag=x
+<span style="color:#719e07">-</span>flag x  <span style="color:#586e75">// non-boolean flags only
+</span></code></pre></div><p>El <em>formato largo</em> <code>--option</code> (con dos guiones) no está oficialmente soportado (o no se menciona en la documentación), sin embargo parece que también funciona:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ ./doflag --up --msg<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;Las comillas son necesarias&#34;</span> 
+LAS COMILLAS SON NECESARIAS
+</code></pre></div><h2 id="resumen">Resumen</h2>
+<p>El paquete <code>flag</code> permite gestionar las opciones que se pasar a la aplicación desde la línea de comando de manera sencilla.</p>
+<p>También permite gestionar <em>subcomandos</em> (como en <code>git clone ...</code>), con opciones diferentes para cada subcomando.</p>
+<p>Existen paquetes de terceros que proporcionan todavía más funcionalidad, como <a href="https://pkg.go.dev/github.com/spf13/cobra"><code>cobra</code></a>.</p>
+<p>Sin embargo, en un gran número de casos, el paquete <code>flag</code> cubre todas las necesidades. Además, al formar parte de la biblioteca estándar, no es necesario importar ningún paquete adicional, lo que también puede ser un factor a tener en cuenta en determinadas situaciones.</p></div>
 
   <aside class="p-share">
 
 
-  <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3a%2f%2fonthedock.github.io%2fpost%2f200221-nomodeset%2f&amp;source=https%3a%2f%2fonthedock.github.io%2fpost%2f200221-nomodeset%2f&amp;title=Instalaci%c3%b3n%20de%20Linux%20en%20modo%20gr%c3%a1fico%20seguro" target="_blank" rel="noopener" aria-label="Share on LinkedIn">
+  <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3a%2f%2fonthedock.github.io%2fpost%2f220723-uso-del-paquete-flag-en-go%2f&amp;source=https%3a%2f%2fonthedock.github.io%2fpost%2f220723-uso-del-paquete-flag-en-go%2f&amp;title=Uso%20del%20paquete%20%27flag%27%20en%20Go" target="_blank" rel="noopener" aria-label="Share on LinkedIn">
     <svg width="2rem" height="2rem" viewBox="0 0 352 352"><path d="M0 40v272c0 21.9 18.1 40 40 40h272c21.9.0 40-18.1 40-40V40c0-21.9-18.1-40-40-40H40C18.1.0.0 18.1.0 40zm312-8c4.6.0 8 3.4 8 8v272c0 4.6-3.4 8-8 8H40c-4.6.0-8-3.4-8-8V40c0-4.6 3.4-8 8-8H312zM59.5 87c0 15.2 12.3 27.5 27.5 27.5s27.5-12.3 27.5-27.5S102.2 59.5 87 59.5 59.5 71.8 59.5 87zM187 157h-1v-21h-45v152h47v-75c0-19.8 3.9-39 28.5-39 24.2.0 24.5 22.4 24.5 40v74h47v-83.5c0-40.9-8.7-72-56.5-72-23 0-38.2 12.6-44.5 24.5zM64 288h47.5V136H64V288z"></path></svg>
     <p>LinkedIn</p>
   </a>
 
-  <a href="https://twitter.com/intent/tweet?hashtags=onthedock&amp;url=https%3a%2f%2fonthedock.github.io%2fpost%2f200221-nomodeset%2f&amp;text=Instalaci%c3%b3n%20de%20Linux%20en%20modo%20gr%c3%a1fico%20seguro" target="_blank" rel="noopener" aria-label="Share on Twitter" class="share-btn twitter">
+  <a href="https://twitter.com/intent/tweet?hashtags=onthedock&amp;url=https%3a%2f%2fonthedock.github.io%2fpost%2f220723-uso-del-paquete-flag-en-go%2f&amp;text=Uso%20del%20paquete%20%27flag%27%20en%20Go" target="_blank" rel="noopener" aria-label="Share on Twitter" class="share-btn twitter">
     <svg width="2rem" height="2rem" viewBox="0 0 384 312"><path d="m384 36.9c-14.1 6.3-29.3 10.5-45.2 12.4 16.3-9.7 28.8-25.2 34.6-43.6-15.2 9-32.1 15.6-50 19.1-14.4-15.2-34.9-24.8-57.5-24.8-43.5.0-78.8 35.3-78.8 78.8.0 6.2.7 12.2 2 17.9-65.5-3.3-123.5-34.6-162.4-82.3C20 26 16.1 39.6 16.1 54c0 27.3 13.9 51.4 35 65.6-12.9-.4-25.1-4-35.7-9.9v1c0 38.2 27.2 70 63.2 77.2-6.6 1.8-13.6 2.8-20.8 2.8-5.1.0-10-.5-14.8-1.4 10 31.3 39.1 54.1 73.6 54.7-27 21.1-60.9 33.7-97.8 33.7-6.4.0-12.6-.4-18.8-1.1C34.9 299 76.3 312 120.8 312c144.9.0 224.1-120 224.1-224.1.0-3.4-.1-6.8-.2-10.2 15.4-11.1 28.7-25 39.3-40.8z"></path></svg>
     <p>Twitter</p>
   </a>
 
-  <a href="mailto:?subject=Instalaci%c3%b3n%20de%20Linux%20en%20modo%20gr%c3%a1fico%20seguro.&amp;body=Instalaci%c3%b3n%20de%20Linux%20en%20modo%20gr%c3%a1fico%20seguro%0a%0ahttps%3a%2f%2fonthedock.github.io%2fpost%2f200221-nomodeset%2f%0a" target="_blank" class="share-btn email">
+  <a href="mailto:?subject=Uso%20del%20paquete%20%27flag%27%20en%20Go.&amp;body=Uso%20del%20paquete%20%27flag%27%20en%20Go%0a%0ahttps%3a%2f%2fonthedock.github.io%2fpost%2f220723-uso-del-paquete-flag-en-go%2f%0a" target="_blank" class="share-btn email">
     <svg width="2rem" height="2rem" viewBox="0 0 416 288"><path d="m0 16v256 16h16 384 16v-16V16 0h-16H16 0zm347 16-139 92.5L69 32zM199 157.5l9 5.5 9-5.5L384 46v210H32V46z"></path></svg>
     <p>Email</p>
   </a>
 
-  <a href="whatsapp://send?text=Instalaci%c3%b3n%20de%20Linux%20en%20modo%20gr%c3%a1fico%20seguro%0a%0ahttps%3a%2f%2fonthedock.github.io%2fpost%2f200221-nomodeset%2f%0a" target="_blank">
+  <a href="whatsapp://send?text=Uso%20del%20paquete%20%27flag%27%20en%20Go%0a%0ahttps%3a%2f%2fonthedock.github.io%2fpost%2f220723-uso-del-paquete-flag-en-go%2f%0a" target="_blank">
     <svg  width="2rem" height="2rem" viewBox="0 0 24 24">
     <path d="M20.1 3.9C17.9 1.7 15 .5 12 .5 5.8.5.7 5.6.7 11.9c0 2 .5 3.9 1.5 5.6L.6 23.4l6-1.6c1.6.9 3.5 1.3 5.4 1.3 6.3.0 11.4-5.1 11.4-11.4-.1-2.8-1.2-5.7-3.3-7.8zM12 21.4c-1.7.0-3.3-.5-4.8-1.3l-.4-.2-3.5 1 1-3.4L4 17c-1-1.5-1.4-3.2-1.4-5.1.0-5.2 4.2-9.4 9.4-9.4 2.5.0 4.9 1 6.7 2.8s2.8 4.2 2.8 6.7c-.1 5.2-4.3 9.4-9.5 9.4zm5.1-7.1c-.3-.1-1.7-.9-1.9-1-.3-.1-.5-.1-.7.1-.2.3-.8 1-.9 1.1-.2.2-.3.2-.6.1s-1.2-.5-2.3-1.4c-.9-.8-1.4-1.7-1.6-2s0-.5.1-.6.3-.3.4-.5c.2-.1.3-.3.4-.5s0-.4.0-.5C10 9 9.3 7.6 9 7c-.1-.4-.4-.3-.5-.3h-.6s-.4.1-.7.3c-.3.3-1 1-1 2.4s1 2.8 1.1 3c.1.2 2 3.1 4.9 4.3.7.3 1.2.5 1.6.6.7.2 1.3.2 1.8.1.6-.1 1.7-.7 1.9-1.3.2-.7.2-1.2.2-1.3-.1-.3-.3-.4-.6-.5z"></path></svg>
     <p>Whatsapp</p>
@@ -181,7 +296,7 @@
         
         <li itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb"><a href="https://onthedock.github.io/post/" itemprop="url"><span itemprop="title">post</span></a></li>
         
-        <li>Instalación de Linux en modo gráfico seguro</li>
+        <li>Uso del paquete &#39;flag&#39; en Go</li>
       </ol>
 
       
@@ -192,7 +307,7 @@
           <header><a href="https://onthedock.github.io/categories/">categories</a></header>
           <ul>
             
-            <li><a href="https://onthedock.github.io/categories/ops/">ops</a></li>
+            <li><a href="https://onthedock.github.io/categories/dev/">dev</a></li>
             
           </ul>
         </li>
@@ -205,9 +320,9 @@
           <header><a href="https://onthedock.github.io/tags/">tags</a></header>
           <ul>
             
-            <li><a href="https://onthedock.github.io/tags/linux/">linux</a></li>
+            <li><a href="https://onthedock.github.io/tags/go/">go</a></li>
             
-            <li><a href="https://onthedock.github.io/tags/amd/">amd</a></li>
+            <li><a href="https://onthedock.github.io/tags/programming/">programming</a></li>
             
           </ul>
         </li>
@@ -245,22 +360,7 @@
   <section>
     <header><span>Latests</span></header>
     <ul class="p-articles thin">
-      <li><article class="li sm article-8a910c977ad420080576a17fe810b034">
-  <div class="header-wrapper">
-    <a href="https://onthedock.github.io/post/220723-uso-del-paquete-flag-en-go/" class="thumbnail" title="Uso del paquete &#39;flag&#39; en Go"></a>
-    <header class="article-header">
-      <div class="clearfix">
-        <h2 class="title"><a href="https://onthedock.github.io/post/220723-uso-del-paquete-flag-en-go/">Uso del paquete &#39;flag&#39; en Go</a></h2>
-        <ul class="p-facts">
-          <li><time datetime="2022-07-23T16:08:13JST">23 Jul 2022</time></li>
-          <li><a href="https://onthedock.github.io/post/">post</a></li>
-          
-        </ul>
-      </div>
-    </header>
-  </div>
-</article>
-</li><li><article class="li sm article-687b09437c7a0be91b9d6e1b833109df">
+      <li><article class="li sm article-687b09437c7a0be91b9d6e1b833109df">
   <div class="header-wrapper">
     <a href="https://onthedock.github.io/post/220723-de-vuelta-al-blog/" class="thumbnail" title="De vuelta al Blog"></a>
     <header class="article-header">
@@ -298,6 +398,21 @@
         <h2 class="title"><a href="https://onthedock.github.io/post/220519-jq/">Sacando partido de la funcionalidad de jq</a></h2>
         <ul class="p-facts">
           <li><time datetime="2022-05-19T20:05:53JST">19 May 2022</time></li>
+          <li><a href="https://onthedock.github.io/post/">post</a></li>
+          
+        </ul>
+      </div>
+    </header>
+  </div>
+</article>
+</li><li><article class="li sm article-a04b4f0a507931380979d71da2faf24e">
+  <div class="header-wrapper">
+    <a href="https://onthedock.github.io/post/220518-obtener-respuesta-y-http-status-con-curl/" class="thumbnail" title="Obtener respuesta y código de la petición HTTP con curl"></a>
+    <header class="article-header">
+      <div class="clearfix">
+        <h2 class="title"><a href="https://onthedock.github.io/post/220518-obtener-respuesta-y-http-status-con-curl/">Obtener respuesta y código de la petición HTTP con curl</a></h2>
+        <ul class="p-facts">
+          <li><time datetime="2022-05-18T18:30:52JST">18 May 2022</time></li>
           <li><a href="https://onthedock.github.io/post/">post</a></li>
           
         </ul>
