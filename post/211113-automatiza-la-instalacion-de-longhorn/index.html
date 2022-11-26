@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.95.0" />
+<meta name="generator" content="Hugo 0.92.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -138,73 +138,73 @@
 </blockquote>
 <h2 id="tldr">TL;DR;</h2>
 <p>El <em>script</em> es:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#719e07">#!/usr/bin/env bash
-</span></span></span><span style="display:flex;"><span><span style="color:#719e07"></span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">function</span> getKubeconfig <span style="color:#719e07">{</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">scriptDir</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#719e07">$(</span> <span style="color:#b58900">cd</span> -- <span style="color:#2aa198">&#34;</span><span style="color:#719e07">$(</span> dirname -- <span style="color:#2aa198">&#34;</span><span style="color:#2aa198">${</span><span style="color:#268bd2">BASH_SOURCE</span>[0]<span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span> <span style="color:#719e07">)</span><span style="color:#2aa198">&#34;</span> &amp;&gt; /dev/null <span style="color:#719e07">&amp;&amp;</span> <span style="color:#b58900">pwd</span> <span style="color:#719e07">)</span><span style="color:#2aa198">&#34;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#719e07">if</span> <span style="color:#b58900">test</span> -f <span style="color:#2aa198">&#34;kubeconfig&#34;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#719e07">then</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;Using </span><span style="color:#268bd2">$scriptDir</span><span style="color:#2aa198">/kubeconfig&#34;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#b58900">export</span> <span style="color:#268bd2">KUBECONFIG</span><span style="color:#719e07">=</span><span style="color:#268bd2">$scriptDir</span>/kubeconfig
-</span></span><span style="display:flex;"><span>    <span style="color:#719e07">elif</span> <span style="color:#b58900">test</span> -f <span style="color:#268bd2">$HOME</span>/.kube/config
-</span></span><span style="display:flex;"><span>    <span style="color:#719e07">then</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;Using default kubeconfig at </span><span style="color:#268bd2">$HOME</span><span style="color:#2aa198">/.kube/config&#34;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#719e07">elif</span> <span style="color:#719e07">[[</span> -z <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$KUBECONFIG</span><span style="color:#2aa198">&#34;</span> <span style="color:#719e07">]]</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#719e07">then</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;ERROR - Unable to find a valid kubeconfig&#34;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#b58900">exit</span> <span style="color:#2aa198">1</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#719e07">else</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;Using \$KUBECONFIG=</span><span style="color:#268bd2">$KUBECONFIG</span><span style="color:#2aa198">&#34;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#719e07">fi</span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">}</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">function</span> installHelmChart <span style="color:#719e07">{</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">helmChart</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$1</span><span style="color:#2aa198">&#34;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">helmRepoChart</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$2</span><span style="color:#2aa198">&#34;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">chartNamespace</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$3</span><span style="color:#2aa198">&#34;</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">checkRelease</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>helm status <span style="color:#268bd2">$helmChart</span> --namespace <span style="color:#268bd2">$chartNamespace</span> 2&gt;/dev/null| grep -i status | awk <span style="color:#2aa198">&#39;{ print $2 }&#39;</span><span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#719e07">if</span> <span style="color:#719e07">[</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$checkRelease</span><span style="color:#2aa198">&#34;</span> !<span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;deployed&#34;</span> <span style="color:#719e07">]</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#719e07">then</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;...Installing longhorn&#34;</span>
-</span></span><span style="display:flex;"><span>        helm install <span style="color:#268bd2">$helmChart</span> <span style="color:#268bd2">$helmRepoChart</span> --namespace <span style="color:#268bd2">$chartNamespace</span> --create-namespace
-</span></span><span style="display:flex;"><span>    <span style="color:#719e07">else</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;... </span><span style="color:#268bd2">$helmChart</span><span style="color:#2aa198"> is already installed in the namespace </span><span style="color:#268bd2">$chartNamespace</span><span style="color:#2aa198">&#34;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#719e07">fi</span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">}</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">function</span> setDefaultStorageClass <span style="color:#719e07">{</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">defaultStorageClass</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$1</span><span style="color:#2aa198">&#34;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">storageClassList</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>kubectl get storageclass -o name | awk -F <span style="color:#2aa198">&#39;/&#39;</span> <span style="color:#2aa198">&#39;{print $2}&#39;</span><span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#719e07">for</span> storageclass in <span style="color:#268bd2">$storageClassList</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#719e07">do</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#719e07">if</span> <span style="color:#719e07">[</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$storageclass</span><span style="color:#2aa198">&#34;</span> <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$defaultStorageClass</span><span style="color:#2aa198">&#34;</span> <span style="color:#719e07">]</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#719e07">then</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;Set default storageClass for </span><span style="color:#268bd2">$storageclass</span><span style="color:#2aa198">&#34;</span>
-</span></span><span style="display:flex;"><span>            kubectl patch storageclass <span style="color:#268bd2">$storageclass</span> -p <span style="color:#2aa198">&#39;{&#34;metadata&#34;: {&#34;annotations&#34;:{&#34;storageclass.kubernetes.io/is-default-class&#34;:&#34;true&#34;}}}&#39;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#719e07">else</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;Removing default storageClass for </span><span style="color:#268bd2">$storageclass</span><span style="color:#2aa198">&#34;</span>
-</span></span><span style="display:flex;"><span>            kubectl patch storageclass <span style="color:#268bd2">$storageclass</span> -p <span style="color:#2aa198">&#39;{&#34;metadata&#34;: {&#34;annotations&#34;:{&#34;storageclass.kubernetes.io/is-default-class&#34;:&#34;false&#34;}}}&#39;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#719e07">fi</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#719e07">done</span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">}</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">function</span> main <span style="color:#719e07">{</span>
-</span></span><span style="display:flex;"><span>    getKubeconfig
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#586e75"># Those commands are idempotent</span>
-</span></span><span style="display:flex;"><span>    helm repo add longhorn https://charts.longhorn.io
-</span></span><span style="display:flex;"><span>    helm repo update
-</span></span><span style="display:flex;"><span>    
-</span></span><span style="display:flex;"><span>    installHelmChart <span style="color:#2aa198">&#34;longhorn&#34;</span> <span style="color:#2aa198">&#34;longhorn/longhorn&#34;</span> <span style="color:#2aa198">&#34;longhorn-system&#34;</span>
-</span></span><span style="display:flex;"><span>    setDefaultStorageClass <span style="color:#2aa198">&#34;longhorn&#34;</span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">}</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>main
-</span></span></code></pre></div><h2 id="algo-de-contexto">Algo de contexto</h2>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash"><span style="color:#719e07">#!/usr/bin/env bash
+</span><span style="color:#719e07"></span>
+<span style="color:#719e07">function</span> getKubeconfig <span style="color:#719e07">{</span>
+    <span style="color:#268bd2">scriptDir</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#719e07">$(</span> <span style="color:#b58900">cd</span> -- <span style="color:#2aa198">&#34;</span><span style="color:#719e07">$(</span> dirname -- <span style="color:#2aa198">&#34;</span><span style="color:#2aa198">${</span><span style="color:#268bd2">BASH_SOURCE</span>[0]<span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span> <span style="color:#719e07">)</span><span style="color:#2aa198">&#34;</span> &amp;&gt; /dev/null <span style="color:#719e07">&amp;&amp;</span> <span style="color:#b58900">pwd</span> <span style="color:#719e07">)</span><span style="color:#2aa198">&#34;</span>
+    <span style="color:#719e07">if</span> <span style="color:#b58900">test</span> -f <span style="color:#2aa198">&#34;kubeconfig&#34;</span>
+    <span style="color:#719e07">then</span>
+        <span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;Using </span><span style="color:#268bd2">$scriptDir</span><span style="color:#2aa198">/kubeconfig&#34;</span>
+        <span style="color:#b58900">export</span> <span style="color:#268bd2">KUBECONFIG</span><span style="color:#719e07">=</span><span style="color:#268bd2">$scriptDir</span>/kubeconfig
+    <span style="color:#719e07">elif</span> <span style="color:#b58900">test</span> -f <span style="color:#268bd2">$HOME</span>/.kube/config
+    <span style="color:#719e07">then</span>
+        <span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;Using default kubeconfig at </span><span style="color:#268bd2">$HOME</span><span style="color:#2aa198">/.kube/config&#34;</span>
+    <span style="color:#719e07">elif</span> <span style="color:#719e07">[[</span> -z <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$KUBECONFIG</span><span style="color:#2aa198">&#34;</span> <span style="color:#719e07">]]</span>
+    <span style="color:#719e07">then</span>
+        <span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;ERROR - Unable to find a valid kubeconfig&#34;</span>
+        <span style="color:#b58900">exit</span> <span style="color:#2aa198">1</span>
+    <span style="color:#719e07">else</span>
+        <span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;Using \$KUBECONFIG=</span><span style="color:#268bd2">$KUBECONFIG</span><span style="color:#2aa198">&#34;</span>
+    <span style="color:#719e07">fi</span>
+<span style="color:#719e07">}</span>
+
+
+<span style="color:#719e07">function</span> installHelmChart <span style="color:#719e07">{</span>
+    <span style="color:#268bd2">helmChart</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$1</span><span style="color:#2aa198">&#34;</span>
+    <span style="color:#268bd2">helmRepoChart</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$2</span><span style="color:#2aa198">&#34;</span>
+    <span style="color:#268bd2">chartNamespace</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$3</span><span style="color:#2aa198">&#34;</span>
+
+    <span style="color:#268bd2">checkRelease</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>helm status <span style="color:#268bd2">$helmChart</span> --namespace <span style="color:#268bd2">$chartNamespace</span> 2&gt;/dev/null| grep -i status | awk <span style="color:#2aa198">&#39;{ print $2 }&#39;</span><span style="color:#719e07">)</span>
+
+    <span style="color:#719e07">if</span> <span style="color:#719e07">[</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$checkRelease</span><span style="color:#2aa198">&#34;</span> !<span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;deployed&#34;</span> <span style="color:#719e07">]</span>
+    <span style="color:#719e07">then</span>
+        <span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;...Installing longhorn&#34;</span>
+        helm install <span style="color:#268bd2">$helmChart</span> <span style="color:#268bd2">$helmRepoChart</span> --namespace <span style="color:#268bd2">$chartNamespace</span> --create-namespace
+    <span style="color:#719e07">else</span>
+        <span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;... </span><span style="color:#268bd2">$helmChart</span><span style="color:#2aa198"> is already installed in the namespace </span><span style="color:#268bd2">$chartNamespace</span><span style="color:#2aa198">&#34;</span>
+    <span style="color:#719e07">fi</span>
+<span style="color:#719e07">}</span>
+
+<span style="color:#719e07">function</span> setDefaultStorageClass <span style="color:#719e07">{</span>
+    <span style="color:#268bd2">defaultStorageClass</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$1</span><span style="color:#2aa198">&#34;</span>
+    <span style="color:#268bd2">storageClassList</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>kubectl get storageclass -o name | awk -F <span style="color:#2aa198">&#39;/&#39;</span> <span style="color:#2aa198">&#39;{print $2}&#39;</span><span style="color:#719e07">)</span>
+
+    <span style="color:#719e07">for</span> storageclass in <span style="color:#268bd2">$storageClassList</span>
+    <span style="color:#719e07">do</span>
+        <span style="color:#719e07">if</span> <span style="color:#719e07">[</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$storageclass</span><span style="color:#2aa198">&#34;</span> <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$defaultStorageClass</span><span style="color:#2aa198">&#34;</span> <span style="color:#719e07">]</span>
+        <span style="color:#719e07">then</span>
+            <span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;Set default storageClass for </span><span style="color:#268bd2">$storageclass</span><span style="color:#2aa198">&#34;</span>
+            kubectl patch storageclass <span style="color:#268bd2">$storageclass</span> -p <span style="color:#2aa198">&#39;{&#34;metadata&#34;: {&#34;annotations&#34;:{&#34;storageclass.kubernetes.io/is-default-class&#34;:&#34;true&#34;}}}&#39;</span>
+        <span style="color:#719e07">else</span>
+            <span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;Removing default storageClass for </span><span style="color:#268bd2">$storageclass</span><span style="color:#2aa198">&#34;</span>
+            kubectl patch storageclass <span style="color:#268bd2">$storageclass</span> -p <span style="color:#2aa198">&#39;{&#34;metadata&#34;: {&#34;annotations&#34;:{&#34;storageclass.kubernetes.io/is-default-class&#34;:&#34;false&#34;}}}&#39;</span>
+        <span style="color:#719e07">fi</span>
+    <span style="color:#719e07">done</span>
+<span style="color:#719e07">}</span>
+
+<span style="color:#719e07">function</span> main <span style="color:#719e07">{</span>
+    getKubeconfig
+
+    <span style="color:#586e75"># Those commands are idempotent</span>
+    helm repo add longhorn https://charts.longhorn.io
+    helm repo update
+    
+    installHelmChart <span style="color:#2aa198">&#34;longhorn&#34;</span> <span style="color:#2aa198">&#34;longhorn/longhorn&#34;</span> <span style="color:#2aa198">&#34;longhorn-system&#34;</span>
+    setDefaultStorageClass <span style="color:#2aa198">&#34;longhorn&#34;</span>
+<span style="color:#719e07">}</span>
+
+main
+</code></pre></div><h2 id="algo-de-contexto">Algo de contexto</h2>
 <p>El <em>script</em> de instalación de Longhorn forma parte del proceso de automatización del despliegue y configuración de un clúster de Kubernetes usando Vagrant para demos/laboratorios/pruebas.</p>
 <p>El proceso empieza desplegando varias máquinas virtuales mediante Vagrant; a continuación se instala Kubernetes (k3s) usando k3sup.</p>
 <p>k3sup puede generar un fichero de configuración <code>kubeconfig</code> específico para el clúster desplegado o fusionar la configuración con un fichero <code>kubeconfig</code> existente.</p>
@@ -218,20 +218,20 @@
 <h2 id="ishelmappinstalled"><code>isHelmAppInstalled</code></h2>
 <p>Si se intenta instalar una <em>chart</em> que ya ha sido deplegada, Helm genera un error.</p>
 <p>Para evitarlo, primero comprobamos si Longhorn está desplegado en el clúster analizando la salida del comando <code>helm status</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>helm status -n longhorn-system longhorn
-</span></span><span style="display:flex;"><span>NAME: longhorn
-</span></span><span style="display:flex;"><span>LAST DEPLOYED: Sat Nov <span style="color:#2aa198">13</span> 19:33:28 <span style="color:#2aa198">2021</span>
-</span></span><span style="display:flex;"><span>NAMESPACE: longhorn-system
-</span></span><span style="display:flex;"><span>STATUS: deployed
-</span></span><span style="display:flex;"><span>REVISION: <span style="color:#2aa198">1</span>
-</span></span><span style="display:flex;"><span>TEST SUITE: None
-</span></span><span style="display:flex;"><span>NOTES:
-</span></span><span style="display:flex;"><span>Longhorn is now installed on the cluster!
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>Please <span style="color:#b58900">wait</span> a few minutes <span style="color:#719e07">for</span> other Longhorn components such as CSI deployments, Engine Images, and Instance Managers to be initialized.
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>Visit our documentation at https://longhorn.io/docs/
-</span></span></code></pre></div><p>Filtrando el resultado del comando, buscamos el valor del campo <code>STATUS</code> para verificar si la <em>chart</em> está instalada o no.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">helm status -n longhorn-system longhorn
+NAME: longhorn
+LAST DEPLOYED: Sat Nov <span style="color:#2aa198">13</span> 19:33:28 <span style="color:#2aa198">2021</span>
+NAMESPACE: longhorn-system
+STATUS: deployed
+REVISION: <span style="color:#2aa198">1</span>
+TEST SUITE: None
+NOTES:
+Longhorn is now installed on the cluster!
+
+Please <span style="color:#b58900">wait</span> a few minutes <span style="color:#719e07">for</span> other Longhorn components such as CSI deployments, Engine Images, and Instance Managers to be initialized.
+
+Visit our documentation at https://longhorn.io/docs/
+</code></pre></div><p>Filtrando el resultado del comando, buscamos el valor del campo <code>STATUS</code> para verificar si la <em>chart</em> está instalada o no.</p>
 <h2 id="setdefaultstorageclass"><code>setDefaultStorageClass</code></h2>
 <p>Aunque la instalación de Longhorn establece la <em>storageClass</em> <code>longhorn</code> como <em>storageClass</em> por defecto en el clúster, <strong>no se modifican las anotaciones de otras <em>storageClass</em></strong> presentes.</p>
 <p>Esto puede provocar problemas, como indica la <a href="https://kubernetes.io/docs/tasks/administer-cluster/change-default-storage-class/#changing-the-default-storageclass">documentación oficial de Kubernetes</a>:</p>
@@ -239,11 +239,11 @@
 <p>If two or more of them are marked as default, a <code>PersistentVolumeClaim</code> without <code>storageClassName</code> explicitly specified cannot be created.</p>
 </blockquote>
 <p>El resultado de la instalación de Longhorn es que varias <em>storageClass</em> pueden estar marcadas como <em>storageClass</em> por defecto del clúster. Abrí el <em>issue</em> <a href="https://github.com/onthedock/vagrant/issues/12">Múltiples storageClass por defecto al instalar Longhorn</a> (que ya está cerrado):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ kubectl get storageclass
-</span></span><span style="display:flex;"><span>NAME                   PROVISIONER             RECLAIMPOLICY   VOLUMEBINDINGMODE      ALLOWVOLUMEEXPANSION   AGE
-</span></span><span style="display:flex;"><span>local-path <span style="color:#719e07">(</span>default<span style="color:#719e07">)</span>   rancher.io/local-path   Delete          WaitForFirstConsumer   <span style="color:#b58900">false</span>                  48d
-</span></span><span style="display:flex;"><span>longhorn <span style="color:#719e07">(</span>default<span style="color:#719e07">)</span>     driver.longhorn.io      Delete          Immediate              <span style="color:#b58900">true</span>                   72m
-</span></span></code></pre></div><p>La solución es obtener la lista de <em>storageClass</em> definidas en el clúster, marcar sólo una como <em>storageClass</em> por defecto (en nuestro caso, <code>longhorn</code>) y para el resto, marcar como <code>false</code> la anotación <code>is-default-class</code>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl get storageclass
+NAME                   PROVISIONER             RECLAIMPOLICY   VOLUMEBINDINGMODE      ALLOWVOLUMEEXPANSION   AGE
+local-path <span style="color:#719e07">(</span>default<span style="color:#719e07">)</span>   rancher.io/local-path   Delete          WaitForFirstConsumer   <span style="color:#b58900">false</span>                  48d
+longhorn <span style="color:#719e07">(</span>default<span style="color:#719e07">)</span>     driver.longhorn.io      Delete          Immediate              <span style="color:#b58900">true</span>                   72m
+</code></pre></div><p>La solución es obtener la lista de <em>storageClass</em> definidas en el clúster, marcar sólo una como <em>storageClass</em> por defecto (en nuestro caso, <code>longhorn</code>) y para el resto, marcar como <code>false</code> la anotación <code>is-default-class</code>.</p>
 <h2 id="resumen">Resumen</h2>
 <p>El <em>script</em> obtiene la configuración del fichero <code>kubeconfig</code> (o de la variable de entorno <code>$KUBECONFIG</code>) para que Helm pueda conectar con el clúster y desplegar Longhorn.</p>
 <p>Añadimos el repositorio de la <em>chart</em> de Longhorn, actualizamos y finalmente nos aseguramos que sólo hay una <em>storageClass</em> por defecto en el clúster.</p>

@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.95.0" />
+<meta name="generator" content="Hugo 0.92.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -136,12 +136,12 @@
 <p>Amazon empezó a migrar en 2017 toda su infraestructura a <a href="https://aws.amazon.com/es/ec2/faqs/#ec2-hypervisor">Nitro</a>, basado en KVM así que aprender cómo funciona KVM también me serviría en mi avance hacia obtener un conocimiento profundo del <em>cloud</em> a todos los niveles.</p>
 <h2 id="firmware-bug">Firmware Bug</h2>
 <p>Al intentar instalar Ubuntu Server 18.04.1, me topé con el siguiente mensaje:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>...
-</span></span><span style="display:flex;"><span><span style="color:#719e07">[</span>Firmware Bug<span style="color:#719e07">]</span>: AMD-Vi: IOAPIC<span style="color:#719e07">[</span>0<span style="color:#719e07">]</span> not in IVRS table
-</span></span><span style="display:flex;"><span><span style="color:#719e07">[</span>Firmware Bug<span style="color:#719e07">]</span>: AMD-Vi: No southbridge IOAPIC found
-</span></span><span style="display:flex;"><span>AMD-Vi: Disabling interrupt remapping
-</span></span><span style="display:flex;"><span>...
-</span></span></code></pre></div><p>El error se produce al arrancar el instalador de Ubuntu; la pantalla se queda en negro y el equipo se reinicia. A continuación el equipo se queda congelado en la pantalla de POST.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">...
+<span style="color:#719e07">[</span>Firmware Bug<span style="color:#719e07">]</span>: AMD-Vi: IOAPIC<span style="color:#719e07">[</span>0<span style="color:#719e07">]</span> not in IVRS table
+<span style="color:#719e07">[</span>Firmware Bug<span style="color:#719e07">]</span>: AMD-Vi: No southbridge IOAPIC found
+AMD-Vi: Disabling interrupt remapping
+...
+</code></pre></div><p>El error se produce al arrancar el instalador de Ubuntu; la pantalla se queda en negro y el equipo se reinicia. A continuación el equipo se queda congelado en la pantalla de POST.</p>
 <p>Encontré información relativa al error en múltiples sitios de internet (como por ejemplo <a href="https://superuser.com/questions/1052023/ioapic0-not-in-ivrs-table">IOAPIC[0] not in IVRS table</a>), pero incluso tras haber actualizado la BIOS a la última versión disponible en la web del fabricante, seguía obteniendo el mismo error.</p>
 <p>A partir de aquí estuve probando varias distribuciones, como Xubuntu, que pude instalar sin problemas. Pero los tutoriales que seguía para instalar KVM hacían referencia a otras distribuciones &ldquo;de servidor&rdquo;, por lo que me sentía remando a contracorriente y dedicando mucho más tiempo del necesario para instalar el hipervisor y configurar la tarjeta de red en modo <em>bridge</em>.</p>
 <p>Antes de darme por vencido, decidí probar con otra distribución &ldquo;de servidor&rdquo;; descargué e instalé CentOS 6 sin problemas. Aunque al arrancar el proceso de instalación se mostraba el error, la instalación continuaba permitiendo instalar el sistema operativo con normalidad.</p>
@@ -155,63 +155,63 @@
 <p>Quiero que las máquinas virtuales gestionadas por KVM formen parte de la red local de casa (sin pasar por un NAT); para ello necesitamos configurar una red <em>bridge</em>.</p>
 <p>En Ubuntu Server 18.04 la configuración de red se realiza mediante NetPlan.</p>
 <p>Editamos el fichero: <code>/etc/netplan/50-cloud-init.yaml</code>, que inicialmente es:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#268bd2">network</span>:
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">ethernets</span>:
-</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">enp1s0</span>:
-</span></span><span style="display:flex;"><span>            <span style="color:#268bd2">addresses</span>: []
-</span></span><span style="display:flex;"><span>            <span style="color:#268bd2">dhcp4</span>: <span style="color:#cb4b16">true</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">version</span>: <span style="color:#2aa198">2</span>
-</span></span></code></pre></div><p>Eliminamos la configuración automática de la tarjeta de red mediante DHCP y añadimos un <em>bridge</em>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">network</span>:
+    <span style="color:#268bd2">ethernets</span>:
+        <span style="color:#268bd2">enp1s0</span>:
+            <span style="color:#268bd2">addresses</span>: []
+            <span style="color:#268bd2">dhcp4</span>: <span style="color:#cb4b16">true</span>
+    <span style="color:#268bd2">version</span>: <span style="color:#2aa198">2</span>
+</code></pre></div><p>Eliminamos la configuración automática de la tarjeta de red mediante DHCP y añadimos un <em>bridge</em>:</p>
 <blockquote>
 <p>Es recomendable realizar la configuración de forma local, ya que al aplicar los cambios, el equipo cambia de dirección de IP y se pierde la conexión vía SSH.</p>
 </blockquote>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#268bd2">network</span>:
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">ethernets</span>:
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">enp1s0</span>:
-</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">dhcp4</span>: <span style="color:#cb4b16">false</span>
-</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">dhcp6</span>: <span style="color:#cb4b16">false</span>
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">version</span>: <span style="color:#2aa198">2</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">bridges</span>:
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">br0</span>:
-</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">interfaces</span>: [enp1s0]
-</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">dhcp4</span>: <span style="color:#cb4b16">false</span>
-</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">dhcp6</span>: <span style="color:#cb4b16">false</span>
-</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">addresses</span>: [<span style="color:#2aa198">192.168.1.2</span>/24]
-</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">gateway4</span>: <span style="color:#2aa198">192.168.1.1</span>
-</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">nameservers</span>:
-</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">addresses</span>: [<span style="color:#2aa198">1.1.1.1</span>, <span style="color:#2aa198">8.8.8.8</span>]
-</span></span></code></pre></div><p>Guardamos el fichero y aplicamos los cambios mediante:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>sudo netplan apply
-</span></span></code></pre></div><p>Tras aplicar los cambios, comprobamos que se ha creado un nuevo interfaz de red con la IP especificada:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ ip address show
-</span></span><span style="display:flex;"><span><span style="color:#719e07">[</span>...<span style="color:#719e07">]</span>
-</span></span><span style="display:flex;"><span>2: enp1s0:  mtu <span style="color:#2aa198">1500</span> qdisc fq_codel master br0 state UP group default qlen <span style="color:#2aa198">1000</span>
-</span></span><span style="display:flex;"><span>    link/ether d8:cb:8a:36:aa:43 brd ff:ff:ff:ff:ff:ff
-</span></span><span style="display:flex;"><span>3: br0:  mtu <span style="color:#2aa198">1500</span> qdisc noqueue state UP group default qlen <span style="color:#2aa198">1000</span>
-</span></span><span style="display:flex;"><span>    link/ether 42:56:eb:da:b2:35 brd ff:ff:ff:ff:ff:ff
-</span></span><span style="display:flex;"><span>    inet 192.168.1.2/24 brd 192.168.1.255 scope global br0
-</span></span><span style="display:flex;"><span>       valid_lft forever preferred_lft forever
-</span></span><span style="display:flex;"><span>    inet6 fe80::4056:ebff:feda:b235/64 scope link
-</span></span><span style="display:flex;"><span>       valid_lft forever preferred_lft forever
-</span></span></code></pre></div><h2 id="instalar-kvm">Instalar KVM</h2>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">network</span>:
+  <span style="color:#268bd2">ethernets</span>:
+    <span style="color:#268bd2">enp1s0</span>:
+      <span style="color:#268bd2">dhcp4</span>: <span style="color:#cb4b16">false</span>
+      <span style="color:#268bd2">dhcp6</span>: <span style="color:#cb4b16">false</span>
+  <span style="color:#268bd2">version</span>: <span style="color:#2aa198">2</span>
+
+  <span style="color:#268bd2">bridges</span>:
+    <span style="color:#268bd2">br0</span>:
+      <span style="color:#268bd2">interfaces</span>: [enp1s0]
+      <span style="color:#268bd2">dhcp4</span>: <span style="color:#cb4b16">false</span>
+      <span style="color:#268bd2">dhcp6</span>: <span style="color:#cb4b16">false</span>
+      <span style="color:#268bd2">addresses</span>: [<span style="color:#2aa198">192.168.1.2</span>/24]
+      <span style="color:#268bd2">gateway4</span>: <span style="color:#2aa198">192.168.1.1</span>
+      <span style="color:#268bd2">nameservers</span>:
+        <span style="color:#268bd2">addresses</span>: [<span style="color:#2aa198">1.1.1.1</span>, <span style="color:#2aa198">8.8.8.8</span>]
+</code></pre></div><p>Guardamos el fichero y aplicamos los cambios mediante:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">sudo netplan apply
+</code></pre></div><p>Tras aplicar los cambios, comprobamos que se ha creado un nuevo interfaz de red con la IP especificada:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ ip address show
+<span style="color:#719e07">[</span>...<span style="color:#719e07">]</span>
+2: enp1s0:  mtu <span style="color:#2aa198">1500</span> qdisc fq_codel master br0 state UP group default qlen <span style="color:#2aa198">1000</span>
+    link/ether d8:cb:8a:36:aa:43 brd ff:ff:ff:ff:ff:ff
+3: br0:  mtu <span style="color:#2aa198">1500</span> qdisc noqueue state UP group default qlen <span style="color:#2aa198">1000</span>
+    link/ether 42:56:eb:da:b2:35 brd ff:ff:ff:ff:ff:ff
+    inet 192.168.1.2/24 brd 192.168.1.255 scope global br0
+       valid_lft forever preferred_lft forever
+    inet6 fe80::4056:ebff:feda:b235/64 scope link
+       valid_lft forever preferred_lft forever
+</code></pre></div><h2 id="instalar-kvm">Instalar KVM</h2>
 <h3 id="comprobar-soporte-de-virtualización">Comprobar soporte de virtualización</h3>
 <p>La manera más sencilla de comprobar si nuestro equipo soporta virtualización es:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ lscpu | grep -i virtualization
-</span></span><span style="display:flex;"><span>Virtualization:      AMD-V
-</span></span></code></pre></div><h2 id="instalar-paquetes-kvm">Instalar paquetes KVM</h2>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ lscpu | grep -i virtualization
+Virtualization:      AMD-V
+</code></pre></div><h2 id="instalar-paquetes-kvm">Instalar paquetes KVM</h2>
 <blockquote>
 <p>No vamos a instalar <em>Virtual Machine Manager</em> (<em>virt-manager</em>) ya que la gestión de las máquinas virtuales la realizaremos desde un equipo de administración y no desde el host de virtualización.</p>
 </blockquote>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>sudo apt update
-</span></span><span style="display:flex;"><span>sudo apt install qemu qemu-kvm libvirt-bin  bridge-utils
-</span></span></code></pre></div><p>Habilitamos y arrancamos el servicio <code>libvirtd</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ sudo systemctl <span style="color:#b58900">enable</span> libvirtd
-</span></span><span style="display:flex;"><span>Synchronizing state of libvirtd.service with SysV service script with /lib/systemd/systemd-sysv-install.
-</span></span><span style="display:flex;"><span>Executing: /lib/systemd/systemd-sysv-install <span style="color:#b58900">enable</span> libvirtd
-</span></span><span style="display:flex;"><span>$ sudo systemctl start libvirtd
-</span></span><span style="display:flex;"><span>$
-</span></span></code></pre></div><h2 id="ready-to-go">Ready to go!</h2>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">sudo apt update
+sudo apt install qemu qemu-kvm libvirt-bin  bridge-utils
+</code></pre></div><p>Habilitamos y arrancamos el servicio <code>libvirtd</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ sudo systemctl <span style="color:#b58900">enable</span> libvirtd
+Synchronizing state of libvirtd.service with SysV service script with /lib/systemd/systemd-sysv-install.
+Executing: /lib/systemd/systemd-sysv-install <span style="color:#b58900">enable</span> libvirtd
+$ sudo systemctl start libvirtd
+$
+</code></pre></div><h2 id="ready-to-go">Ready to go!</h2>
 <p>Aunque la aplicación base ya está instalada, todavía no hemos creado ninguna máquina virtual; a partir de aquí tenemos dos opciones:</p>
 <ul>
 <li>Instalación de <code>virtinstall</code> y realizar la creación de VMs desde la línea de comando (en el propio <em>host</em>)</li>
@@ -223,8 +223,8 @@
 </blockquote>
 <h3 id="virtinstall"><code>virtinstall</code></h3>
 <p>Usando <code>virt-install</code> puedes lanzar una nueva máquina desde línea de comando mediante:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>virt-install --name userver --vcpus <span style="color:#2aa198">1</span> --memory <span style="color:#2aa198">2048</span> --cdrom /var/lib/libvirt/images/ubuntu-server-18.04.1-amd64.iso --disk <span style="color:#268bd2">size</span><span style="color:#719e07">=</span><span style="color:#2aa198">10</span> --network bridge:br0
-</span></span></code></pre></div><p>Esta máquina tiene 1 vPUD, 2GB de RAM, un disco de 10GB y está conectada a la red <em>bridge</em> <code>bridge:br0</code>; la ISO de instalación de Ubuntu Server está conectada a la unidad virtual de CDROM de la VM.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">virt-install --name userver --vcpus <span style="color:#2aa198">1</span> --memory <span style="color:#2aa198">2048</span> --cdrom /var/lib/libvirt/images/ubuntu-server-18.04.1-amd64.iso --disk <span style="color:#268bd2">size</span><span style="color:#719e07">=</span><span style="color:#2aa198">10</span> --network bridge:br0
+</code></pre></div><p>Esta máquina tiene 1 vPUD, 2GB de RAM, un disco de 10GB y está conectada a la red <em>bridge</em> <code>bridge:br0</code>; la ISO de instalación de Ubuntu Server está conectada a la unidad virtual de CDROM de la VM.</p>
 <blockquote>
 <p>Para realizar la configuración del sistema operativo mediante el instalador, necesitas una máquina con entorno gráfico.</p>
 </blockquote>

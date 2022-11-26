@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.95.0" />
+<meta name="generator" content="Hugo 0.92.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -134,50 +134,50 @@
 <p>En esta entrada comento los pasos que hay que realizar paso a paso para crear una <em>box</em> personalizada. También indico el origen y cómo solucionar el error <code>File already exists</code> que he encontrado al ejecutar <code>vagrant package</code>.</p>
 <p>Partimos de una máquina creada con Vagrant mediante el comando <code>vagrant up</code>. En esta nueva máquina, nos conectamos mediante <code>vagrant ssh</code> y realizamos las modificaciones necesarias para personalizar y adecuar la VM a nuestras necesidades.</p>
 <p>En mi caso, la idea es incorporar a la imagen base la instalación de Docker CE, en vez de instalar vía script de <em>provisioning</em> después de crear la máquina (como vimos en la entrada anterior [Instalando Docker-CE usando Vagrant shell provisioning]({{ref &ldquo;180114-instalando-docker-ce-usando-vagrant-shell-provisioning.md&rdquo;}})). También he aprovechado para actualizar la imagen base. Para ello, he conectado a la máquina mediante <code>vagrant ssh</code> y a continuación:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ sudo apt-get update <span style="color:#719e07">&amp;&amp;</span> sudo apt-get upgrade -y
-</span></span><span style="display:flex;"><span>...
-</span></span><span style="display:flex;"><span>$ sudo apt-get autoremove
-</span></span><span style="display:flex;"><span>...
-</span></span><span style="display:flex;"><span>$ sudo apt-get dist-upgrade
-</span></span></code></pre></div><h2 id="pasos-previos">Pasos previos</h2>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ sudo apt-get update <span style="color:#719e07">&amp;&amp;</span> sudo apt-get upgrade -y
+...
+$ sudo apt-get autoremove
+...
+$ sudo apt-get dist-upgrade
+</code></pre></div><h2 id="pasos-previos">Pasos previos</h2>
 <p>Para preparar la VM para su <em>re-empaquetado</em>, Vagrant recomienda rellenar con ceros para mejorar la compresión del disco. En Ubuntu los comandos son:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>vagrant@debian9-docker:~$ sudo dd <span style="color:#719e07">if</span><span style="color:#719e07">=</span>/dev/zero <span style="color:#268bd2">of</span><span style="color:#719e07">=</span>/EMPTY <span style="color:#268bd2">bs</span><span style="color:#719e07">=</span>1M
-</span></span><span style="display:flex;"><span>dd: error writing <span style="color:#2aa198">&#39;/EMPTY&#39;</span>: No space left on device
-</span></span><span style="display:flex;"><span>25700+0 records in
-</span></span><span style="display:flex;"><span>25699+0 records out
-</span></span><span style="display:flex;"><span><span style="color:#2aa198">26947764224</span> bytes <span style="color:#719e07">(</span><span style="color:#2aa198">27</span> GB, <span style="color:#2aa198">25</span> GiB<span style="color:#719e07">)</span> copied, 37.9167 s, <span style="color:#2aa198">711</span> MB/s
-</span></span><span style="display:flex;"><span>vagrant@debian9-docker:~$ sudo rm -f /EMPTY
-</span></span></code></pre></div><p>En este caso, no parece que haya funcionado.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">vagrant@debian9-docker:~$ sudo dd <span style="color:#719e07">if</span><span style="color:#719e07">=</span>/dev/zero <span style="color:#268bd2">of</span><span style="color:#719e07">=</span>/EMPTY <span style="color:#268bd2">bs</span><span style="color:#719e07">=</span>1M
+dd: error writing <span style="color:#2aa198">&#39;/EMPTY&#39;</span>: No space left on device
+25700+0 records in
+25699+0 records out
+<span style="color:#2aa198">26947764224</span> bytes <span style="color:#719e07">(</span><span style="color:#2aa198">27</span> GB, <span style="color:#2aa198">25</span> GiB<span style="color:#719e07">)</span> copied, 37.9167 s, <span style="color:#2aa198">711</span> MB/s
+vagrant@debian9-docker:~$ sudo rm -f /EMPTY
+</code></pre></div><p>En este caso, no parece que haya funcionado.</p>
 <h2 id="limpiar-historial-de-comandos">Limpiar historial de comandos</h2>
 <p>A continuación, eliminamos los ficheros con el registro de comandos:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>vagrant@debian9-docker:~$ cat /dev/null &gt; ~/.bash_history <span style="color:#719e07">&amp;&amp;</span> <span style="color:#b58900">history</span> -c <span style="color:#719e07">&amp;&amp;</span> <span style="color:#b58900">exit</span>
-</span></span><span style="display:flex;"><span><span style="color:#b58900">logout</span>
-</span></span><span style="display:flex;"><span>Connection to 192.168.1.245 closed.
-</span></span></code></pre></div><h2 id="empaquetando-la-vm">Empaquetando la VM</h2>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">vagrant@debian9-docker:~$ cat /dev/null &gt; ~/.bash_history <span style="color:#719e07">&amp;&amp;</span> <span style="color:#b58900">history</span> -c <span style="color:#719e07">&amp;&amp;</span> <span style="color:#b58900">exit</span>
+<span style="color:#b58900">logout</span>
+Connection to 192.168.1.245 closed.
+</code></pre></div><h2 id="empaquetando-la-vm">Empaquetando la VM</h2>
 <p>Siguendo la documentación, la opción para preparar una nueva <em>box</em> debería ser tan sencilla como lanzar el comando <code>vagrant package --output $nombreBox.box</code>.</p>
 <p>Sin embargo, al lanzar el comando:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>&gt; vagrant package --output debian9docker.box
-</span></span><span style="display:flex;"><span><span style="color:#719e07">==</span>&gt; default: Verifying Hyper-V is enabled...
-</span></span><span style="display:flex;"><span><span style="color:#719e07">==</span>&gt; default: Attempting graceful shutdown of VM...
-</span></span><span style="display:flex;"><span><span style="color:#719e07">==</span>&gt; default: <span style="color:#268bd2">off</span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">==</span>&gt; default: Exporting VM...
-</span></span><span style="display:flex;"><span>An error occurred <span style="color:#719e07">while</span> executing a PowerShell script. This error
-</span></span><span style="display:flex;"><span>is shown below. Please <span style="color:#b58900">read</span> the error message and see <span style="color:#719e07">if</span> this is
-</span></span><span style="display:flex;"><span>a configuration error with your system. If it is not, <span style="color:#719e07">then</span> please
-</span></span><span style="display:flex;"><span>report a bug.
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>Script: export_vm.ps1
-</span></span><span style="display:flex;"><span>Error:
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>Export-VM : Failed to copy file during export.
-</span></span><span style="display:flex;"><span>Failed to copy file from <span style="color:#2aa198">&#39;M:\VMS\vagrant-vms\debian-docker\.vagrant\machines\default\hyperv\Virtual Hard Disks\generic-debian9-hyperv.vhdx&#39;</span> to
-</span></span><span style="display:flex;"><span><span style="color:#2aa198">&#39;C:\Users\Xavi\.vagrant.d\tmp\vagrant-package-20180120-7844-1j6hx2d\debian9-docker\Virtual Hard Disks\generic-debian9-hyperv.vhdx&#39;</span>: The file exists. <span style="color:#719e07">(</span>0x80070050<span style="color:#719e07">)</span>.
-</span></span><span style="display:flex;"><span>At C:<span style="color:#cb4b16">\H</span>ashiCorp<span style="color:#cb4b16">\V</span>agrant<span style="color:#cb4b16">\e</span>mbedded<span style="color:#cb4b16">\g</span>ems<span style="color:#cb4b16">\g</span>ems<span style="color:#cb4b16">\v</span>agrant-2.0.1<span style="color:#cb4b16">\p</span>lugins<span style="color:#cb4b16">\p</span>roviders<span style="color:#cb4b16">\h</span>yperv<span style="color:#cb4b16">\s</span>cripts<span style="color:#cb4b16">\e</span>xport_vm.ps1:9 char:7
-</span></span><span style="display:flex;"><span>+ <span style="color:#268bd2">$vm</span> | Export-VM -Path <span style="color:#268bd2">$Path</span>
-</span></span><span style="display:flex;"><span>+       ~~~~~~~~~~~~~~~~~~~~~
-</span></span><span style="display:flex;"><span>    + CategoryInfo          : NotSpecified: <span style="color:#719e07">(</span>:<span style="color:#719e07">)</span> <span style="color:#719e07">[</span>Export-VM<span style="color:#719e07">]</span>, VirtualizationException
-</span></span><span style="display:flex;"><span>    + FullyQualifiedErrorId : OperationFailed,Microsoft.HyperV.PowerShell.Commands.ExportVM
-</span></span></code></pre></div><h3 id="investigando-el-error">Investigando el error</h3>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">&gt; vagrant package --output debian9docker.box
+<span style="color:#719e07">==</span>&gt; default: Verifying Hyper-V is enabled...
+<span style="color:#719e07">==</span>&gt; default: Attempting graceful shutdown of VM...
+<span style="color:#719e07">==</span>&gt; default: <span style="color:#268bd2">off</span>
+<span style="color:#719e07">==</span>&gt; default: Exporting VM...
+An error occurred <span style="color:#719e07">while</span> executing a PowerShell script. This error
+is shown below. Please <span style="color:#b58900">read</span> the error message and see <span style="color:#719e07">if</span> this is
+a configuration error with your system. If it is not, <span style="color:#719e07">then</span> please
+report a bug.
+
+Script: export_vm.ps1
+Error:
+
+Export-VM : Failed to copy file during export.
+Failed to copy file from <span style="color:#2aa198">&#39;M:\VMS\vagrant-vms\debian-docker\.vagrant\machines\default\hyperv\Virtual Hard Disks\generic-debian9-hyperv.vhdx&#39;</span> to
+<span style="color:#2aa198">&#39;C:\Users\Xavi\.vagrant.d\tmp\vagrant-package-20180120-7844-1j6hx2d\debian9-docker\Virtual Hard Disks\generic-debian9-hyperv.vhdx&#39;</span>: The file exists. <span style="color:#719e07">(</span>0x80070050<span style="color:#719e07">)</span>.
+At C:<span style="color:#cb4b16">\H</span>ashiCorp<span style="color:#cb4b16">\V</span>agrant<span style="color:#cb4b16">\e</span>mbedded<span style="color:#cb4b16">\g</span>ems<span style="color:#cb4b16">\g</span>ems<span style="color:#cb4b16">\v</span>agrant-2.0.1<span style="color:#cb4b16">\p</span>lugins<span style="color:#cb4b16">\p</span>roviders<span style="color:#cb4b16">\h</span>yperv<span style="color:#cb4b16">\s</span>cripts<span style="color:#cb4b16">\e</span>xport_vm.ps1:9 char:7
++ <span style="color:#268bd2">$vm</span> | Export-VM -Path <span style="color:#268bd2">$Path</span>
++       ~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: <span style="color:#719e07">(</span>:<span style="color:#719e07">)</span> <span style="color:#719e07">[</span>Export-VM<span style="color:#719e07">]</span>, VirtualizationException
+    + FullyQualifiedErrorId : OperationFailed,Microsoft.HyperV.PowerShell.Commands.ExportVM
+</code></pre></div><h3 id="investigando-el-error">Investigando el error</h3>
 <p>El script de exportación falla con el mensaje de error de que el disco ya existe (¿?). Al lanzar el comando <code>vagrant package</code>, Vagrant crea una carpeta temporal con un nombre aleatorio en la carpeta <code>C:\Users\$USERNAME\.vagrant.d\tmp\</code> y se establece como destino de la exportación de la máquina virtual.</p>
 <p>El error parece indicar que el script intenta copiar la máquina exportada en la carpeta original de la máquina y que por ello se produce el error. Sin embargo, esta explicación no tiene demasiado sentido, ya que un error <em>de bulto</em> en el funcionamiento de <code>vagrant package</code> se habría descubierto -y solucionado- hace mucho. Buscando en internet no encontré nada al respecto, lo que confirmaba mi hipótesis de que la causa debía ser otra.</p>
 <p>Como las rutas -tanto de la ubicación inicial de la VM como la de exportación- contienen carpetas cuyo nombre empieza por un punto, pensé que ésta podría ser la causa. Para comprobarlo, copié el disco a la ruta <code>m:\vms\vagrant-vms\</code> y modifiqué la configuración de la VM en Hyper-V. Sin embargo, <code>vagrant package</code> falló de nuevo con el mismo mensaje de error.</p>
@@ -190,29 +190,29 @@
 </blockquote>
 <p>He modificado el parámetro a <code>config.vm.provider.differencing_disk = false</code> y he repetido los pasos para actualizar la máquina, rellenar de ceros el disco y borrar la historia.</p>
 <p>Al lanzar de nuevo el comando <code>vagrant package</code>, esta vez la exportación y la creación de la nueva <em>box</em> funciona sin problemas:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>M:<span style="color:#cb4b16">\V</span>MS<span style="color:#cb4b16">\v</span>agrant-vms<span style="color:#cb4b16">\d</span>ebian-docker&gt; vagrant package --output debian9docker17.12.box
-</span></span><span style="display:flex;"><span><span style="color:#719e07">==</span>&gt; default: Verifying Hyper-V is enabled...
-</span></span><span style="display:flex;"><span><span style="color:#719e07">==</span>&gt; default: Attempting graceful shutdown of VM...
-</span></span><span style="display:flex;"><span><span style="color:#719e07">==</span>&gt; default: <span style="color:#268bd2">off</span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">==</span>&gt; default: Exporting VM...
-</span></span><span style="display:flex;"><span><span style="color:#719e07">==</span>&gt; default: Compressing package to: M:/VMS/vagrant-vms/debian-docker/debian9docker17.12.box
-</span></span><span style="display:flex;"><span>M:<span style="color:#cb4b16">\V</span>MS<span style="color:#cb4b16">\v</span>agrant-vms<span style="color:#cb4b16">\d</span>ebian-docker&gt;
-</span></span></code></pre></div><h2 id="añadir-la-box-personalizada-a-nuestro-inventario">Añadir la box personalizada a nuestro inventario</h2>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">M:<span style="color:#cb4b16">\V</span>MS<span style="color:#cb4b16">\v</span>agrant-vms<span style="color:#cb4b16">\d</span>ebian-docker&gt; vagrant package --output debian9docker17.12.box
+<span style="color:#719e07">==</span>&gt; default: Verifying Hyper-V is enabled...
+<span style="color:#719e07">==</span>&gt; default: Attempting graceful shutdown of VM...
+<span style="color:#719e07">==</span>&gt; default: <span style="color:#268bd2">off</span>
+<span style="color:#719e07">==</span>&gt; default: Exporting VM...
+<span style="color:#719e07">==</span>&gt; default: Compressing package to: M:/VMS/vagrant-vms/debian-docker/debian9docker17.12.box
+M:<span style="color:#cb4b16">\V</span>MS<span style="color:#cb4b16">\v</span>agrant-vms<span style="color:#cb4b16">\d</span>ebian-docker&gt;
+</code></pre></div><h2 id="añadir-la-box-personalizada-a-nuestro-inventario">Añadir la box personalizada a nuestro inventario</h2>
 <p>Ya sólo queda el paso final, que es añadir la nueva <em>box</em> al repositorio local para ser reutilizada:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>M:<span style="color:#cb4b16">\V</span>MS<span style="color:#cb4b16">\v</span>agrant-vms<span style="color:#cb4b16">\d</span>ebian-docker&gt; vagrant box add debian9docker17.12 debian9docker17.12.box
-</span></span><span style="display:flex;"><span><span style="color:#719e07">==</span>&gt; box: Box file was not detected as metadata. Adding it directly...
-</span></span><span style="display:flex;"><span><span style="color:#719e07">==</span>&gt; box: Adding box <span style="color:#2aa198">&#39;debian9docker17.12&#39;</span> <span style="color:#719e07">(</span>v0<span style="color:#719e07">)</span> <span style="color:#719e07">for</span> provider:
-</span></span><span style="display:flex;"><span>    box: Unpacking necessary files from: file://M:/VMS/vagrant-vms/debian-docker/debian9docker17.12.box
-</span></span><span style="display:flex;"><span>    box: Progress: 100% <span style="color:#719e07">(</span>Rate: 551M/s, Estimated <span style="color:#b58900">time</span> remaining: --:--:--<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">==</span>&gt; box: Successfully added box <span style="color:#2aa198">&#39;debian9docker17.12&#39;</span> <span style="color:#719e07">(</span>v0<span style="color:#719e07">)</span> <span style="color:#719e07">for</span> <span style="color:#2aa198">&#39;hyperv&#39;</span>!
-</span></span><span style="display:flex;"><span>M:<span style="color:#cb4b16">\V</span>MS<span style="color:#cb4b16">\v</span>agrant-vms<span style="color:#cb4b16">\d</span>ebian-docker&gt;
-</span></span></code></pre></div><p>Comprobamos que se ha añadido correctamente mediante:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>M:<span style="color:#cb4b16">\V</span>MS<span style="color:#cb4b16">\v</span>agrant-vms<span style="color:#cb4b16">\d</span>ebian-docker&gt; vagrant box list
-</span></span><span style="display:flex;"><span>debian9docker17.12 <span style="color:#719e07">(</span>hyperv, 0<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>generic/alpine36   <span style="color:#719e07">(</span>hyperv, 1.3.30<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>generic/debian9    <span style="color:#719e07">(</span>hyperv, 1.3.30<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>M:<span style="color:#cb4b16">\V</span>MS<span style="color:#cb4b16">\v</span>agrant-vms<span style="color:#cb4b16">\d</span>ebian-docker&gt;
-</span></span></code></pre></div><h1 id="resumen">Resumen</h1>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">M:<span style="color:#cb4b16">\V</span>MS<span style="color:#cb4b16">\v</span>agrant-vms<span style="color:#cb4b16">\d</span>ebian-docker&gt; vagrant box add debian9docker17.12 debian9docker17.12.box
+<span style="color:#719e07">==</span>&gt; box: Box file was not detected as metadata. Adding it directly...
+<span style="color:#719e07">==</span>&gt; box: Adding box <span style="color:#2aa198">&#39;debian9docker17.12&#39;</span> <span style="color:#719e07">(</span>v0<span style="color:#719e07">)</span> <span style="color:#719e07">for</span> provider:
+    box: Unpacking necessary files from: file://M:/VMS/vagrant-vms/debian-docker/debian9docker17.12.box
+    box: Progress: 100% <span style="color:#719e07">(</span>Rate: 551M/s, Estimated <span style="color:#b58900">time</span> remaining: --:--:--<span style="color:#719e07">)</span>
+<span style="color:#719e07">==</span>&gt; box: Successfully added box <span style="color:#2aa198">&#39;debian9docker17.12&#39;</span> <span style="color:#719e07">(</span>v0<span style="color:#719e07">)</span> <span style="color:#719e07">for</span> <span style="color:#2aa198">&#39;hyperv&#39;</span>!
+M:<span style="color:#cb4b16">\V</span>MS<span style="color:#cb4b16">\v</span>agrant-vms<span style="color:#cb4b16">\d</span>ebian-docker&gt;
+</code></pre></div><p>Comprobamos que se ha añadido correctamente mediante:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">M:<span style="color:#cb4b16">\V</span>MS<span style="color:#cb4b16">\v</span>agrant-vms<span style="color:#cb4b16">\d</span>ebian-docker&gt; vagrant box list
+debian9docker17.12 <span style="color:#719e07">(</span>hyperv, 0<span style="color:#719e07">)</span>
+generic/alpine36   <span style="color:#719e07">(</span>hyperv, 1.3.30<span style="color:#719e07">)</span>
+generic/debian9    <span style="color:#719e07">(</span>hyperv, 1.3.30<span style="color:#719e07">)</span>
+M:<span style="color:#cb4b16">\V</span>MS<span style="color:#cb4b16">\v</span>agrant-vms<span style="color:#cb4b16">\d</span>ebian-docker&gt;
+</code></pre></div><h1 id="resumen">Resumen</h1>
 <p>En esta entrada hemos visto cómo reutilizar una <em>box</em> existente para crear una <em>box</em> personalizada.</p>
 <p>Hemos visto el error que se produce al usar discos diferenciales en la máquina virtual y cómo solucionarlo.</p>
 <p>Finalmente, hemos añadido la <em>box</em> personalizada a nuestro repositorio local.</p></div>

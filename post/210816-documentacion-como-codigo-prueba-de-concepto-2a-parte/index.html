@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.95.0" />
+<meta name="generator" content="Hugo 0.92.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -147,32 +147,32 @@
 <p>La clave de la prueba de concepto está en usar un volumen como &ldquo;elemento común&rdquo; para la construcción y para el <em>deployment</em>. Como comenté en la entrada anterior en el apartado de <em>Publicación de la documentación</em>, otras opciones más robustas complican la solución, así que opté por esta solución de espítiru <em>macgyvero</em> <strong>porque funciona</strong> y sobretodo, porque sirve para mostrar <strong>el concepto</strong> evitando la complejidad técnica.</p>
 <h3 id="namespace"><em>Namespace</em></h3>
 <p>Para aislar los recursos de la <em>prueba de concepto</em> del resto de aplicaciones en el clúster, si las hubiera, creo el <em>namespace</em> <code>doc-as-code</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>---
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">kind</span>: Namespace
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">apiVersion</span>: v1
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">metadata</span>:
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">name</span>: doc-as-code
-</span></span></code></pre></div><h3 id="volumen-compartido">Volumen compartido</h3>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
+<span style="color:#268bd2">kind</span>: Namespace
+<span style="color:#268bd2">apiVersion</span>: v1
+<span style="color:#268bd2">metadata</span>:
+  <span style="color:#268bd2">name</span>: doc-as-code
+</code></pre></div><h3 id="volumen-compartido">Volumen compartido</h3>
 <p>El <em>Persistent Volume Claim</em> <code>website-pvc</code> se monta en los <em>pods</em> basados en Nginx en modo <em>read only</em>.</p>
 <p>Al crear el <em>PVC</em>, como no especificamos una <em>storageClass</em>, usamos la <em>storageClass</em> por defecto en el clúster. En el caso de K3s se usa <a href="https://github.com/rancher/local-path-provisioner/blob/master/README.md"><code>local-path</code></a>, que permite la provisión dinámica de volúmenes de tipo <code>hostPath</code>.</p>
 <p>El fichero de definición del <em>PVC</em>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>---
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">kind</span>: PersistentVolumeClaim
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">apiVersion</span>: v1
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">metadata</span>:
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">name</span>: website-pvc
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">namespace</span>: doc-as-code
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">labels</span>:
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">app.kubernetes.io/name</span>: doc-as-code-pvc
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">app.kubernetes.io/component</span>: storage
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">app.kubernetes.io/part-of</span>: doc-as-code
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">spec</span>:
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">accessModes</span>:
-</span></span><span style="display:flex;"><span>    - ReadWriteOnce
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">resources</span>:
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">requests</span>:
-</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">storage</span>: 2Gi
-</span></span></code></pre></div><blockquote>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
+<span style="color:#268bd2">kind</span>: PersistentVolumeClaim
+<span style="color:#268bd2">apiVersion</span>: v1
+<span style="color:#268bd2">metadata</span>:
+  <span style="color:#268bd2">name</span>: website-pvc
+  <span style="color:#268bd2">namespace</span>: doc-as-code
+  <span style="color:#268bd2">labels</span>:
+    <span style="color:#268bd2">app.kubernetes.io/name</span>: doc-as-code-pvc
+    <span style="color:#268bd2">app.kubernetes.io/component</span>: storage
+    <span style="color:#268bd2">app.kubernetes.io/part-of</span>: doc-as-code
+<span style="color:#268bd2">spec</span>:
+  <span style="color:#268bd2">accessModes</span>:
+    - ReadWriteOnce
+  <span style="color:#268bd2">resources</span>:
+    <span style="color:#268bd2">requests</span>:
+      <span style="color:#268bd2">storage</span>: 2Gi
+</code></pre></div><blockquote>
 <p>Aplicamos algunas de las etiquetas recomandadas (<a href="https://kubernetes.io/docs/concepts/overview/working-with-objects/common-labels/">Recommended Labels</a>) de la documentación oficial de Kubernetes.</p>
 </blockquote>
 <h3 id="servidor-web">Servidor web</h3>
@@ -180,93 +180,93 @@
 <p>Los ficheros servidos se publican desde el volumen montado en la ruta por defecto para Nginx <code>/usr/share/nginx/html</code> (en modo <em>ReadOnly</em>).</p>
 <h3 id="deployment"><em>Deployment</em></h3>
 <p>El <em>Deployment</em> está basado en Nginx y monta el volumen que contiene la documentación en formato web.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>---
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">apiVersion</span>: apps/v1
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">kind</span>: Deployment
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">metadata</span>:
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">name</span>: doc-as-code-nginx
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">namespace</span>: doc-as-code
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">labels</span>:
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">app.kubernetes.io/name</span>: doc-as-code-nginx
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">app.kubernetes.io/component</span>: webserver
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">app.kubernetes.io/part-of</span>: doc-as-code
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">spec</span>:
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">selector</span>:
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">matchLabels</span>:
-</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">app.kubernetes.io/name</span>: doc-as-code-nginx
-</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">app.kubernetes.io/component</span>: webserver
-</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">app.kubernetes.io/part-of</span>: doc-as-code
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">replicas</span>: <span style="color:#2aa198">1</span>
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">template</span>:
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">metadata</span>:
-</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">labels</span>:
-</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">app.kubernetes.io/name</span>: doc-as-code-nginx
-</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">app.kubernetes.io/component</span>: webserver
-</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">app.kubernetes.io/part-of</span>: doc-as-code
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">spec</span>:
-</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">containers</span>:
-</span></span><span style="display:flex;"><span>        - <span style="color:#268bd2">name</span>: nginx
-</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">image</span>: nginx:stable-alpine
-</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">imagePullPolicy</span>: IfNotPresent
-</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">ports</span>:
-</span></span><span style="display:flex;"><span>          - <span style="color:#268bd2">name</span>: http-tcp
-</span></span><span style="display:flex;"><span>            <span style="color:#268bd2">containerPort</span>: <span style="color:#2aa198">80</span>
-</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">volumeMounts</span>:
-</span></span><span style="display:flex;"><span>            - <span style="color:#268bd2">name</span>: webdocs
-</span></span><span style="display:flex;"><span>              <span style="color:#268bd2">mountPath</span>: /usr/share/nginx/html
-</span></span><span style="display:flex;"><span>              <span style="color:#268bd2">readOnly</span>: <span style="color:#cb4b16">true</span> <span style="color:#586e75"># Montamos el volumen como ReadOnly en el webserver</span>
-</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">volumes</span>:
-</span></span><span style="display:flex;"><span>        - <span style="color:#268bd2">name</span>: webdocs
-</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">persistentVolumeClaim</span>:
-</span></span><span style="display:flex;"><span>            <span style="color:#268bd2">claimName</span>: website-pvc
-</span></span></code></pre></div><h3 id="service"><em>Service</em></h3>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
+<span style="color:#268bd2">apiVersion</span>: apps/v1
+<span style="color:#268bd2">kind</span>: Deployment
+<span style="color:#268bd2">metadata</span>:
+  <span style="color:#268bd2">name</span>: doc-as-code-nginx
+  <span style="color:#268bd2">namespace</span>: doc-as-code
+  <span style="color:#268bd2">labels</span>:
+    <span style="color:#268bd2">app.kubernetes.io/name</span>: doc-as-code-nginx
+    <span style="color:#268bd2">app.kubernetes.io/component</span>: webserver
+    <span style="color:#268bd2">app.kubernetes.io/part-of</span>: doc-as-code
+<span style="color:#268bd2">spec</span>:
+  <span style="color:#268bd2">selector</span>:
+    <span style="color:#268bd2">matchLabels</span>:
+      <span style="color:#268bd2">app.kubernetes.io/name</span>: doc-as-code-nginx
+      <span style="color:#268bd2">app.kubernetes.io/component</span>: webserver
+      <span style="color:#268bd2">app.kubernetes.io/part-of</span>: doc-as-code
+  <span style="color:#268bd2">replicas</span>: <span style="color:#2aa198">1</span>
+  <span style="color:#268bd2">template</span>:
+    <span style="color:#268bd2">metadata</span>:
+      <span style="color:#268bd2">labels</span>:
+        <span style="color:#268bd2">app.kubernetes.io/name</span>: doc-as-code-nginx
+        <span style="color:#268bd2">app.kubernetes.io/component</span>: webserver
+        <span style="color:#268bd2">app.kubernetes.io/part-of</span>: doc-as-code
+    <span style="color:#268bd2">spec</span>:
+      <span style="color:#268bd2">containers</span>:
+        - <span style="color:#268bd2">name</span>: nginx
+          <span style="color:#268bd2">image</span>: nginx:stable-alpine
+          <span style="color:#268bd2">imagePullPolicy</span>: IfNotPresent
+          <span style="color:#268bd2">ports</span>:
+          - <span style="color:#268bd2">name</span>: http-tcp
+            <span style="color:#268bd2">containerPort</span>: <span style="color:#2aa198">80</span>
+          <span style="color:#268bd2">volumeMounts</span>:
+            - <span style="color:#268bd2">name</span>: webdocs
+              <span style="color:#268bd2">mountPath</span>: /usr/share/nginx/html
+              <span style="color:#268bd2">readOnly</span>: <span style="color:#cb4b16">true</span> <span style="color:#586e75"># Montamos el volumen como ReadOnly en el webserver</span>
+      <span style="color:#268bd2">volumes</span>:
+        - <span style="color:#268bd2">name</span>: webdocs
+          <span style="color:#268bd2">persistentVolumeClaim</span>:
+            <span style="color:#268bd2">claimName</span>: website-pvc
+</code></pre></div><h3 id="service"><em>Service</em></h3>
 <p><em>Publicamos</em> el servicio de forma interna usando <code>ClusterIP</code>, porque la web será accesible desde <em>fuera</em> del clúster a través de un <em>Ingress</em>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>---
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">kind</span>: Service
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">apiVersion</span>: v1
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">metadata</span>:
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">name</span>: doc-as-code-web
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">namespace</span>: doc-as-code
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">labels</span>:
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">app.kubernetes.io/name</span>: doc-as-code-service
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">app.kubernetes.io/component</span>: webserver-service
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">app.kubernetes.io/part-of</span>: doc-as-code
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">spec</span>:
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">ports</span>:
-</span></span><span style="display:flex;"><span>    - <span style="color:#268bd2">port</span>: <span style="color:#2aa198">80</span>
-</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">name</span>: http-tcp
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">selector</span>:
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">app.kubernetes.io/name</span>: doc-as-code-nginx
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">app.kubernetes.io/component</span>: webserver
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">app.kubernetes.io/part-of</span>: doc-as-code
-</span></span></code></pre></div><h3 id="ingress"><em>Ingress</em></h3>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
+<span style="color:#268bd2">kind</span>: Service
+<span style="color:#268bd2">apiVersion</span>: v1
+<span style="color:#268bd2">metadata</span>:
+  <span style="color:#268bd2">name</span>: doc-as-code-web
+  <span style="color:#268bd2">namespace</span>: doc-as-code
+  <span style="color:#268bd2">labels</span>:
+    <span style="color:#268bd2">app.kubernetes.io/name</span>: doc-as-code-service
+    <span style="color:#268bd2">app.kubernetes.io/component</span>: webserver-service
+    <span style="color:#268bd2">app.kubernetes.io/part-of</span>: doc-as-code
+<span style="color:#268bd2">spec</span>:
+  <span style="color:#268bd2">ports</span>:
+    - <span style="color:#268bd2">port</span>: <span style="color:#2aa198">80</span>
+      <span style="color:#268bd2">name</span>: http-tcp
+  <span style="color:#268bd2">selector</span>:
+    <span style="color:#268bd2">app.kubernetes.io/name</span>: doc-as-code-nginx
+    <span style="color:#268bd2">app.kubernetes.io/component</span>: webserver
+    <span style="color:#268bd2">app.kubernetes.io/part-of</span>: doc-as-code
+</code></pre></div><h3 id="ingress"><em>Ingress</em></h3>
 <p>La configuración del <em>Ingress</em> puede depende del (o de los) <em>Ingress Controller</em> que haya desplegados en el clúster.</p>
 <p>En K3s el <em>Ingress Controller</em> por defecto es <a href="https://doc.traefik.io/traefik/">Traefik</a>.</p>
 <blockquote>
 <p>El nombre del <em>host</em> <code>docs.k3s.vm.lab</code> está definido en el fichero <code>/etc/hosts</code> del equipo cliente desde el que se realiza la demo.</p>
 </blockquote>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#268bd2">apiVersion</span>: networking.k8s.io/v1
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">kind</span>: Ingress
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">metadata</span>:
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">name</span>: doc-as-code-traefik-ingress
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">namespace</span>: doc-as-code 
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">labels</span>:
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">app.kubernetes.io/name</span>: doc-as-code-traeffik-ingress
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">app.kubernetes.io/component</span>: ingress
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">app.kubernetes.io/part-of</span>: doc-as-code 
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">spec</span>:
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">rules</span>:
-</span></span><span style="display:flex;"><span>  - <span style="color:#268bd2">host</span>: docs.k3s.vm.lab
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">http</span>:
-</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">paths</span>:
-</span></span><span style="display:flex;"><span>      - <span style="color:#268bd2">path</span>: /
-</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">pathType</span>: Prefix
-</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">backend</span>:
-</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">service</span>:
-</span></span><span style="display:flex;"><span>            <span style="color:#268bd2">name</span>: doc-as-code-web
-</span></span><span style="display:flex;"><span>            <span style="color:#268bd2">port</span>: 
-</span></span><span style="display:flex;"><span>              <span style="color:#268bd2">number</span>: <span style="color:#2aa198">80</span> 
-</span></span></code></pre></div><h2 id="build"><em>Build</em></h2>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">apiVersion</span>: networking.k8s.io/v1
+<span style="color:#268bd2">kind</span>: Ingress
+<span style="color:#268bd2">metadata</span>:
+  <span style="color:#268bd2">name</span>: doc-as-code-traefik-ingress
+  <span style="color:#268bd2">namespace</span>: doc-as-code 
+  <span style="color:#268bd2">labels</span>:
+    <span style="color:#268bd2">app.kubernetes.io/name</span>: doc-as-code-traeffik-ingress
+    <span style="color:#268bd2">app.kubernetes.io/component</span>: ingress
+    <span style="color:#268bd2">app.kubernetes.io/part-of</span>: doc-as-code 
+<span style="color:#268bd2">spec</span>:
+  <span style="color:#268bd2">rules</span>:
+  - <span style="color:#268bd2">host</span>: docs.k3s.vm.lab
+    <span style="color:#268bd2">http</span>:
+      <span style="color:#268bd2">paths</span>:
+      - <span style="color:#268bd2">path</span>: /
+        <span style="color:#268bd2">pathType</span>: Prefix
+        <span style="color:#268bd2">backend</span>:
+          <span style="color:#268bd2">service</span>:
+            <span style="color:#268bd2">name</span>: doc-as-code-web
+            <span style="color:#268bd2">port</span>: 
+              <span style="color:#268bd2">number</span>: <span style="color:#2aa198">80</span> 
+</code></pre></div><h2 id="build"><em>Build</em></h2>
 <h3 id="repositorio">Repositorio</h3>
 <p>Para simplificar, se usa un repositorio público en GitHub. De esta forma evitamos tener que desplegar infraestructura adicional.</p>
 <p>Al usar un repositorio público se evitan las complicaciones de la autenticación para acceder a un repositorio privado.</p>
@@ -274,81 +274,81 @@
 <h3 id="job---tarea-1-clonar-el-código-fuente"><em>Job</em> - tarea 1: clonar el código fuente</h3>
 <p>La imagen <a href="https://hub.docker.com/r/squidfunk/mkdocs-material/">squidfunk/mkdocs-material</a> contiene Git, lo que permite clonar el repositorio sin necesidad de tener que usar una imagen personalizada en la que se haya instalado Git.</p>
 <p>La imagen base declara la carpeta de trabajo como <code>WORKDIR /docs</code> en el <a href="https://github.com/squidfunk/mkdocs-material/blob/master/Dockerfile"><code>Dockerfile</code></a>; clonamos el repositorio en esa carpeta:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>git clone https://github.com/onthedock/k8s-devops.git /docs
-</span></span></code></pre></div><p>La URL del repositorio la pasaremos al contenedor a través de una variable de entorno cargada desde un <em>ConfigMap</em>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">git clone https://github.com/onthedock/k8s-devops.git /docs
+</code></pre></div><p>La URL del repositorio la pasaremos al contenedor a través de una variable de entorno cargada desde un <em>ConfigMap</em>.</p>
 <p>Generamos el <em>ConfigMap</em> usando la opción <code>--dry-run=client</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>kubectl create configmap doc-as-code-repo-url <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>  --from-literal <span style="color:#268bd2">repo_url</span><span style="color:#719e07">=</span>https://github.com/onthedock/k8s-devops.git <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>  --dry-run<span style="color:#719e07">=</span>client -o yaml | tee doc-as-code-repo-url-configmap.yaml
-</span></span></code></pre></div><p>Esto genera, después de añadir algunas etiquetas adicionales:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#268bd2">apiVersion</span>: v1
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">data</span>:
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">repo_url</span>: https://github.com/onthedock/k8s-devops.git
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">kind</span>: ConfigMap
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">metadata</span>:
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">namespace</span>: doc-as-code
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">creationTimestamp</span>: <span style="color:#cb4b16">null</span>
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">name</span>: doc-as-code-repo-url
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">labels</span>:
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">app.kubernetes.io/name</span>: doc-as-code-configmap
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">app.kubernetes.io/component</span>: configuration
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">app.kubernetes.io/part-of</span>: doc-as-code
-</span></span></code></pre></div><h3 id="job---tarea-2-construir-la-documentación-en-formato-web"><em>Job</em> - tarea 2: construir la documentación en formato web</h3>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">kubectl create configmap doc-as-code-repo-url <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>  --from-literal <span style="color:#268bd2">repo_url</span><span style="color:#719e07">=</span>https://github.com/onthedock/k8s-devops.git <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>  --dry-run<span style="color:#719e07">=</span>client -o yaml | tee doc-as-code-repo-url-configmap.yaml
+</code></pre></div><p>Esto genera, después de añadir algunas etiquetas adicionales:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">apiVersion</span>: v1
+<span style="color:#268bd2">data</span>:
+  <span style="color:#268bd2">repo_url</span>: https://github.com/onthedock/k8s-devops.git
+<span style="color:#268bd2">kind</span>: ConfigMap
+<span style="color:#268bd2">metadata</span>:
+  <span style="color:#268bd2">namespace</span>: doc-as-code
+  <span style="color:#268bd2">creationTimestamp</span>: <span style="color:#cb4b16">null</span>
+  <span style="color:#268bd2">name</span>: doc-as-code-repo-url
+  <span style="color:#268bd2">labels</span>:
+    <span style="color:#268bd2">app.kubernetes.io/name</span>: doc-as-code-configmap
+    <span style="color:#268bd2">app.kubernetes.io/component</span>: configuration
+    <span style="color:#268bd2">app.kubernetes.io/part-of</span>: doc-as-code
+</code></pre></div><h3 id="job---tarea-2-construir-la-documentación-en-formato-web"><em>Job</em> - tarea 2: construir la documentación en formato web</h3>
 <p>La segunda tarea de la <em>pipeline</em> es la contrucción de la documentación en formato web usando MkDocs.</p>
 <p>Hemos clonado el <em>código fuente</em> en la carpeta <code>docs/</code>, que es donde MkDocs espera encontrar el fichero <code>mkdocs.yaml</code> con la configuración del sitio web a construir : <code>mkdocs build ...</code></p>
 <h3 id="job---tarea-3-bueno-2-continuada-publicar-la-documentación-en-el-servidor-web"><em>Job</em> - tarea 3 (bueno, 2, continuada): publicar la documentación en el servidor web</h3>
 <p>Usamos la opción <code>--site-dir</code> del comando <code>mkdocs build</code> para generar la documentación web en la ruta <code>/usr/share/nginx/html</code> del volumen montado. El volumen también está montado en el <em>pod</em> de Nginx, por lo que el servidor web publicará automáticamente los ficheros HTML, CSS, etc ubicados en esa carpeta.</p>
 <p>Esto nos ahorra tener que copiar los ficheros web generados al servidor Nginx y simplifica la prueba de concepto.</p>
 <p>El fichero de definición del <em>Job</em> queda:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>---
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">kind</span>: Job
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">apiVersion</span>:  batch/v1
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">metadata</span>:
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">namespace</span>: doc-as-code
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">labels</span>:
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">app.kubernetes.io/name</span>: doc-as-code-build
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">app.kubernetes.io/component</span>: builder
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">app.kubernetes.io/part-of</span>: doc-as-code
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">generateName</span>: doc-as-code-builder-
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">spec</span>:
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">template</span>:
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">metadata</span>:
-</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">labels</span>:
-</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">app.kubernetes.io/name</span>: doc-as-code-build
-</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">app.kubernetes.io/component</span>: builder
-</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">app.kubernetes.io/part-of</span>: doc-as-code
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">spec</span>:
-</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">restartPolicy</span>: Never
-</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">containers</span>:
-</span></span><span style="display:flex;"><span>        - <span style="color:#268bd2">name</span>: doc-as-code-builder
-</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">image</span>: squidfunk/mkdocs-material
-</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">imagePullPolicy</span>: IfNotPresent
-</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">env</span>:
-</span></span><span style="display:flex;"><span>            - <span style="color:#268bd2">name</span>: DOCS_REPO_URL
-</span></span><span style="display:flex;"><span>              <span style="color:#268bd2">valueFrom</span>:
-</span></span><span style="display:flex;"><span>                <span style="color:#268bd2">configMapKeyRef</span>:
-</span></span><span style="display:flex;"><span>                  <span style="color:#268bd2">name</span>: doc-as-code-repo-url
-</span></span><span style="display:flex;"><span>                  <span style="color:#268bd2">key</span>: repo_url
-</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">volumeMounts</span>:
-</span></span><span style="display:flex;"><span>            - <span style="color:#268bd2">name</span>: website-docs
-</span></span><span style="display:flex;"><span>              <span style="color:#268bd2">mountPath</span>: /usr/share/nginx/html
-</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">command</span>: [<span style="color:#2aa198">&#34;/bin/sh&#34;</span>]
-</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">args</span>:
-</span></span><span style="display:flex;"><span>            - <span style="color:#2aa198">&#34;-c&#34;</span>
-</span></span><span style="display:flex;"><span>            - <span style="color:#2aa198">&#34;git clone $DOCS_REPO_URL /docs &amp;&amp; mkdocs build --site-dir /usr/share/nginx/html&#34;</span>
-</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">volumes</span>:
-</span></span><span style="display:flex;"><span>        - <span style="color:#268bd2">name</span>: website-docs
-</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">persistentVolumeClaim</span>:
-</span></span><span style="display:flex;"><span>            <span style="color:#268bd2">claimName</span>: website-pvc
-</span></span></code></pre></div><h2 id="ejecución">Ejecución</h2>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
+<span style="color:#268bd2">kind</span>: Job
+<span style="color:#268bd2">apiVersion</span>:  batch/v1
+<span style="color:#268bd2">metadata</span>:
+  <span style="color:#268bd2">namespace</span>: doc-as-code
+  <span style="color:#268bd2">labels</span>:
+    <span style="color:#268bd2">app.kubernetes.io/name</span>: doc-as-code-build
+    <span style="color:#268bd2">app.kubernetes.io/component</span>: builder
+    <span style="color:#268bd2">app.kubernetes.io/part-of</span>: doc-as-code
+  <span style="color:#268bd2">generateName</span>: doc-as-code-builder-
+<span style="color:#268bd2">spec</span>:
+  <span style="color:#268bd2">template</span>:
+    <span style="color:#268bd2">metadata</span>:
+      <span style="color:#268bd2">labels</span>:
+        <span style="color:#268bd2">app.kubernetes.io/name</span>: doc-as-code-build
+        <span style="color:#268bd2">app.kubernetes.io/component</span>: builder
+        <span style="color:#268bd2">app.kubernetes.io/part-of</span>: doc-as-code
+    <span style="color:#268bd2">spec</span>:
+      <span style="color:#268bd2">restartPolicy</span>: Never
+      <span style="color:#268bd2">containers</span>:
+        - <span style="color:#268bd2">name</span>: doc-as-code-builder
+          <span style="color:#268bd2">image</span>: squidfunk/mkdocs-material
+          <span style="color:#268bd2">imagePullPolicy</span>: IfNotPresent
+          <span style="color:#268bd2">env</span>:
+            - <span style="color:#268bd2">name</span>: DOCS_REPO_URL
+              <span style="color:#268bd2">valueFrom</span>:
+                <span style="color:#268bd2">configMapKeyRef</span>:
+                  <span style="color:#268bd2">name</span>: doc-as-code-repo-url
+                  <span style="color:#268bd2">key</span>: repo_url
+          <span style="color:#268bd2">volumeMounts</span>:
+            - <span style="color:#268bd2">name</span>: website-docs
+              <span style="color:#268bd2">mountPath</span>: /usr/share/nginx/html
+          <span style="color:#268bd2">command</span>: [<span style="color:#2aa198">&#34;/bin/sh&#34;</span>]
+          <span style="color:#268bd2">args</span>:
+            - <span style="color:#2aa198">&#34;-c&#34;</span>
+            - <span style="color:#2aa198">&#34;git clone $DOCS_REPO_URL /docs &amp;&amp; mkdocs build --site-dir /usr/share/nginx/html&#34;</span>
+      <span style="color:#268bd2">volumes</span>:
+        - <span style="color:#268bd2">name</span>: website-docs
+          <span style="color:#268bd2">persistentVolumeClaim</span>:
+            <span style="color:#268bd2">claimName</span>: website-pvc
+</code></pre></div><h2 id="ejecución">Ejecución</h2>
 <p>Como hemos comentado al principio, ejecutamos el <em>Job</em> manualmente cada vez que se actualice la documentación en el repositorio:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>kubectl create -f job.yaml
-</span></span></code></pre></div><p>En los logs del <em>pod</em> generado por el <em>Job</em> observamos que se genera la documentación en <code>/usr/share/nginx/html</code> (desde el <em>pod</em> de MkDocs):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>Cloning into <span style="color:#2aa198">&#39;/docs&#39;</span>...
-</span></span><span style="display:flex;"><span>INFO - Cleaning site directory
-</span></span><span style="display:flex;"><span>INFO - Building documentation to directory: /usr/share/nginx/html
-</span></span><span style="display:flex;"><span>INFO - Documentation built in 2.68 seconds
-</span></span></code></pre></div><h2 id="resumen">Resumen</h2>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">kubectl create -f job.yaml
+</code></pre></div><p>En los logs del <em>pod</em> generado por el <em>Job</em> observamos que se genera la documentación en <code>/usr/share/nginx/html</code> (desde el <em>pod</em> de MkDocs):</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">Cloning into <span style="color:#2aa198">&#39;/docs&#39;</span>...
+INFO - Cleaning site directory
+INFO - Building documentation to directory: /usr/share/nginx/html
+INFO - Documentation built in 2.68 seconds
+</code></pre></div><h2 id="resumen">Resumen</h2>
 <p>La solución propuesta en este artículo permite hacer una <em>demo</em> rápida del <strong>concepto</strong> de <strong>documentación como codigo</strong> sin demasiadas complicaciones técnicas ni uso excesivo de recursos.</p>
 <p>En las siguientes entradas <em>escalaremos</em> esta <em>prueba de concepto</em> en un escenario algo más realista; aunque seguimos usando un clúster <em>mono-nodo</em>, desplegamos <em>Gitea</em> y usamos <em>Tekton Pipelines</em> para actualizar automáticamente la construcción de la documentación cada vez que se guarda un cambio en el repositorio.</p></div>
 

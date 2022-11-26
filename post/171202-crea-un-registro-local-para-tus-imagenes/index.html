@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.95.0" />
+<meta name="generator" content="Hugo 0.92.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -135,75 +135,75 @@
 <p>El <a href="https://docs.docker.com/registry/">registro oficial de Docker</a> es <em>open source</em> bajo <a href="http://en.wikipedia.org/wiki/Apache_License">licencia Apache</a> y se distribuye como una imagen que puedes obtener desde Docker Hub.</p>
 <h2 id="arranca-tu-registro-local">Arranca tu registro local</h2>
 <p>Para arrancar una copia local del registro, descarga la imagen <a href="https://hub.docker.com/r/library/registry/">registry</a> desde Docker Hub y lanza un contenedor mediante:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>docker run -d --name registry -p 5000:5000 registry:2.6
-</span></span></code></pre></div><p>En la <a href="https://docs.docker.com/registry/">página del registro oficial de Docker</a> se usa la imagen con la etiqueta <code>registry:2</code>, aunque en mi caso he preferido <em>afinar</em> un poco más y elegir la versión 2.6.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">docker run -d --name registry -p 5000:5000 registry:2.6
+</code></pre></div><p>En la <a href="https://docs.docker.com/registry/">página del registro oficial de Docker</a> se usa la imagen con la etiqueta <code>registry:2</code>, aunque en mi caso he preferido <em>afinar</em> un poco más y elegir la versión 2.6.</p>
 <h2 id="usa-tu-registro-local">Usa tu registro local</h2>
 <p>Para <em>almacenar</em> una imagen en tu registro local, únicamente tienes que etiquetar la imagen de forma habitual, pero con el nombre de la imagen precedido por la url y puerto de acceso al registro.</p>
 <p>Obtengo una lista de las imágenes descargadas; observa que tenemos la imagen oficial de <code>alpine</code> descargada.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ docker images
-</span></span><span style="display:flex;"><span>REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
-</span></span><span style="display:flex;"><span>registry            2.6                 177391bcf802        <span style="color:#2aa198">19</span> hours ago        33.3MB
-</span></span><span style="display:flex;"><span>gogs/gogs           0.11.33             279915be8b49        <span style="color:#2aa198">12</span> days ago         139MB
-</span></span><span style="display:flex;"><span>gogs/gogs           latest              279915be8b49        <span style="color:#2aa198">12</span> days ago         139MB
-</span></span><span style="display:flex;"><span>openjdk             7-jdk-alpine        b6bec13008bd        <span style="color:#2aa198">4</span> weeks ago         142MB
-</span></span><span style="display:flex;"><span>alpine              3.6                 053cde6e8953        <span style="color:#2aa198">4</span> weeks ago         3.97MB
-</span></span></code></pre></div><p>Vamos a almacenarla en la copia local del registro; para ello, primero la etiquetamos indicando la url del registro:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ docker tag alpine:3.6 localhost:5000/alpine:3.6
-</span></span><span style="display:flex;"><span>$ docker images
-</span></span><span style="display:flex;"><span>REPOSITORY              TAG                 IMAGE ID            CREATED             SIZE
-</span></span><span style="display:flex;"><span>...
-</span></span><span style="display:flex;"><span>alpine                  3.6                 053cde6e8953        <span style="color:#2aa198">4</span> weeks ago         3.97MB
-</span></span><span style="display:flex;"><span>localhost:5000/alpine   3.6                 053cde6e8953        <span style="color:#2aa198">4</span> weeks ago         3.97MB
-</span></span></code></pre></div><p>Una vez etiquetada, la <em>subimos</em> al registro:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ docker push localhost:5000/alpine:3.6
-</span></span><span style="display:flex;"><span>The push refers to a repository <span style="color:#719e07">[</span>localhost:5000/alpine<span style="color:#719e07">]</span>
-</span></span><span style="display:flex;"><span>2aebd096e0e2: Pushed
-</span></span><span style="display:flex;"><span>3.6: digest: sha256:4b8ffaaa896d40622ac10dc6662204f429f1c8c5714be62a6493a7895f664098 size: <span style="color:#2aa198">528</span>
-</span></span></code></pre></div><p>De esta forma tenemos un registro local, aunque únicamente es accesible desde <code>localhost</code>. Para poder acceder al registro desde otros equipos corriendo Docker, debemos configurar TLS o deshabilitar la seguridad (cosa que <strong>siempre</strong> es una <strong>mala idea</strong>).</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ docker images
+REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+registry            2.6                 177391bcf802        <span style="color:#2aa198">19</span> hours ago        33.3MB
+gogs/gogs           0.11.33             279915be8b49        <span style="color:#2aa198">12</span> days ago         139MB
+gogs/gogs           latest              279915be8b49        <span style="color:#2aa198">12</span> days ago         139MB
+openjdk             7-jdk-alpine        b6bec13008bd        <span style="color:#2aa198">4</span> weeks ago         142MB
+alpine              3.6                 053cde6e8953        <span style="color:#2aa198">4</span> weeks ago         3.97MB
+</code></pre></div><p>Vamos a almacenarla en la copia local del registro; para ello, primero la etiquetamos indicando la url del registro:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ docker tag alpine:3.6 localhost:5000/alpine:3.6
+$ docker images
+REPOSITORY              TAG                 IMAGE ID            CREATED             SIZE
+...
+alpine                  3.6                 053cde6e8953        <span style="color:#2aa198">4</span> weeks ago         3.97MB
+localhost:5000/alpine   3.6                 053cde6e8953        <span style="color:#2aa198">4</span> weeks ago         3.97MB
+</code></pre></div><p>Una vez etiquetada, la <em>subimos</em> al registro:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ docker push localhost:5000/alpine:3.6
+The push refers to a repository <span style="color:#719e07">[</span>localhost:5000/alpine<span style="color:#719e07">]</span>
+2aebd096e0e2: Pushed
+3.6: digest: sha256:4b8ffaaa896d40622ac10dc6662204f429f1c8c5714be62a6493a7895f664098 size: <span style="color:#2aa198">528</span>
+</code></pre></div><p>De esta forma tenemos un registro local, aunque únicamente es accesible desde <code>localhost</code>. Para poder acceder al registro desde otros equipos corriendo Docker, debemos configurar TLS o deshabilitar la seguridad (cosa que <strong>siempre</strong> es una <strong>mala idea</strong>).</p>
 <p>Al intentar subir una imagen desde otro equipo (por ejemplo, desde la RPi), obtenemos un mensaje indicando que debemos usar HTTPS:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ docker tag arm32v6/alpine:3.6 192.168.1.10:5000/arm32v6/alpine:3.6
-</span></span><span style="display:flex;"><span>$ docker push 192.168.1.10:5000/arm32v6/alpine:3.6
-</span></span><span style="display:flex;"><span>The push refers to a repository <span style="color:#719e07">[</span>192.168.1.10:5000/arm32v6/alpine<span style="color:#719e07">]</span>
-</span></span><span style="display:flex;"><span>Get https://192.168.1.10:5000/v1/_ping: http: server gave HTTP response to HTTPS client
-</span></span></code></pre></div><p>En función de las políticas en la empresa el acceso <em>directo</em> al registro local puede estar limitado a un determinado grupo de usuarios. En un entorno de este estilo lo más habitual es usar LDAP para la autenticación (acceso) y autorización (permisos). Si estás interesado en un escenario de este tipo, revisa las &ldquo;recetas&rdquo; <a href="https://docs.docker.com/registry/recipes/apache/">Authenticate proxy with apache</a> o <a href="https://docs.docker.com/registry/recipes/nginx/">Authenticate proxy with nginx</a>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ docker tag arm32v6/alpine:3.6 192.168.1.10:5000/arm32v6/alpine:3.6
+$ docker push 192.168.1.10:5000/arm32v6/alpine:3.6
+The push refers to a repository <span style="color:#719e07">[</span>192.168.1.10:5000/arm32v6/alpine<span style="color:#719e07">]</span>
+Get https://192.168.1.10:5000/v1/_ping: http: server gave HTTP response to HTTPS client
+</code></pre></div><p>En función de las políticas en la empresa el acceso <em>directo</em> al registro local puede estar limitado a un determinado grupo de usuarios. En un entorno de este estilo lo más habitual es usar LDAP para la autenticación (acceso) y autorización (permisos). Si estás interesado en un escenario de este tipo, revisa las &ldquo;recetas&rdquo; <a href="https://docs.docker.com/registry/recipes/apache/">Authenticate proxy with apache</a> o <a href="https://docs.docker.com/registry/recipes/nginx/">Authenticate proxy with nginx</a>.</p>
 <p>Para entornos de desarrollo o en escenarios en los que el registro es accesible únicamente a personas de confianza, revisa <a href="https://docs.docker.com/registry/insecure/">Test an insecure registry</a>.</p>
 <h2 id="usando-el-registro-local-de-forma-insegura">Usando el registro local de forma insegura</h2>
 <p>Modificamos la configuración del <em>daemon</em> de Docker en la Raspberry Pi para poder acceder al registro local en la máquina 192.168.1.10.</p>
 <ol>
 <li>Comprobamos que el fichero <code>/etc/docker/daemon.json</code> no existe:</li>
 </ol>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ sudo ls /etc/docker
-</span></span><span style="display:flex;"><span>key.json
-</span></span></code></pre></div><ol>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ sudo ls /etc/docker
+key.json
+</code></pre></div><ol>
 <li>Creamos el fichero como se indica en <a href="https://docs.docker.com/registry/insecure/">Test an insecure registry</a>:</li>
 </ol>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>sudo nano /etc/docker/daemon.json
-</span></span></code></pre></div><ol>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">sudo nano /etc/docker/daemon.json
+</code></pre></div><ol>
 <li>Añadimos la URL y puerto del registro (inseguro):</li>
 </ol>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">&#34;insecure-registries&#34;</span> : [<span style="color:#2aa198">&#34;192.168.1.10.com:5000&#34;</span>]
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><ol>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-json" data-lang="json">{
+    <span style="color:#268bd2">&#34;insecure-registries&#34;</span> : [<span style="color:#2aa198">&#34;192.168.1.10.com:5000&#34;</span>]
+}
+</code></pre></div><ol>
 <li>Reiniciamos el <em>daemon</em> de Docker para que los cambios surtan efecto:</li>
 </ol>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>sudo systemctl restart docker
-</span></span></code></pre></div><ol>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">sudo systemctl restart docker
+</code></pre></div><ol>
 <li>Reintentamos la <em>subida</em> de la imagen al registro:</li>
 </ol>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ docker push 192.168.1.10:5000/arm32v6/alpine:3.6
-</span></span><span style="display:flex;"><span>The push refers to a repository <span style="color:#719e07">[</span>192.168.1.10:5000/arm32v6/alpine<span style="color:#719e07">]</span>
-</span></span><span style="display:flex;"><span>e3dc37acd2b3: Pushed
-</span></span><span style="display:flex;"><span>35ba648445df: Pushed
-</span></span><span style="display:flex;"><span>3.6: digest: sha256:a3345a99c99c28312732ae697dbe8b27884f88f0f982e2fab53c99992b411c4a size: <span style="color:#2aa198">736</span>
-</span></span></code></pre></div><p>Y en el equipo 192.168.1.10, si revisamos las imágenes almacenadas en el registro usando la API:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ wget -qO - localhost:5000/v2/_catalog
-</span></span><span style="display:flex;"><span><span style="color:#719e07">{</span><span style="color:#2aa198">&#34;repositories&#34;</span>:<span style="color:#719e07">[</span><span style="color:#2aa198">&#34;alpine&#34;</span>,<span style="color:#2aa198">&#34;arm32v6/alpine&#34;</span><span style="color:#719e07">]}</span>
-</span></span></code></pre></div><p>Como vemos, tenemos la imagen <code>alpine</code> subida desde el equipo local y la que hemos subido desde la RPi (llamada <code>arm32v6/alpine</code>).</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ docker push 192.168.1.10:5000/arm32v6/alpine:3.6
+The push refers to a repository <span style="color:#719e07">[</span>192.168.1.10:5000/arm32v6/alpine<span style="color:#719e07">]</span>
+e3dc37acd2b3: Pushed
+35ba648445df: Pushed
+3.6: digest: sha256:a3345a99c99c28312732ae697dbe8b27884f88f0f982e2fab53c99992b411c4a size: <span style="color:#2aa198">736</span>
+</code></pre></div><p>Y en el equipo 192.168.1.10, si revisamos las imágenes almacenadas en el registro usando la API:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ wget -qO - localhost:5000/v2/_catalog
+<span style="color:#719e07">{</span><span style="color:#2aa198">&#34;repositories&#34;</span>:<span style="color:#719e07">[</span><span style="color:#2aa198">&#34;alpine&#34;</span>,<span style="color:#2aa198">&#34;arm32v6/alpine&#34;</span><span style="color:#719e07">]}</span>
+</code></pre></div><p>Como vemos, tenemos la imagen <code>alpine</code> subida desde el equipo local y la que hemos subido desde la RPi (llamada <code>arm32v6/alpine</code>).</p>
 <p>De la misma forma podemos obtener la lista de tags existente para cualquier imagen; por ejemplo, para <code>arm32v6/alpine</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ wget -qO - http://192.168.1.10:5000/v2/arm32v6/alpine/tags/list
-</span></span><span style="display:flex;"><span><span style="color:#719e07">{</span><span style="color:#2aa198">&#34;name&#34;</span>:<span style="color:#2aa198">&#34;arm32v6/alpine&#34;</span>,<span style="color:#2aa198">&#34;tags&#34;</span>:<span style="color:#719e07">[</span><span style="color:#2aa198">&#34;3.6&#34;</span><span style="color:#719e07">]}</span>
-</span></span></code></pre></div><p>La lista completa de operaciones soportadas por la API de Docker las puedes encontrar en <a href="https://docs.docker.com/registry/spec/api/">Docker Registry HTTP API V2</a>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ wget -qO - http://192.168.1.10:5000/v2/arm32v6/alpine/tags/list
+<span style="color:#719e07">{</span><span style="color:#2aa198">&#34;name&#34;</span>:<span style="color:#2aa198">&#34;arm32v6/alpine&#34;</span>,<span style="color:#2aa198">&#34;tags&#34;</span>:<span style="color:#719e07">[</span><span style="color:#2aa198">&#34;3.6&#34;</span><span style="color:#719e07">]}</span>
+</code></pre></div><p>La lista completa de operaciones soportadas por la API de Docker las puedes encontrar en <a href="https://docs.docker.com/registry/spec/api/">Docker Registry HTTP API V2</a>.</p>
 <p>Gestionar tu registro privado desde la línea de comando usando la API no es un escenario común. Afortunadamente, la buena gente de SUSE ha desarrollado <a href="http://port.us.org">Portus</a>, un interfaz web <em>open source</em> para registros privados al que quizás quieras echarle un vistazo.</p>
 <h1 id="resumen">Resumen</h1>
 <p>En esta entrada he creado un registro local y he mencionado algunas de las opciones para <em>securizar</em> el acceso (vía TLS o usando Apache o Nginx como <em>proxy</em>). He lanzado un contenedor a partir de la imagen oficial para el <strong>Regystry</strong> de Docker y he &ldquo;subido&rdquo; y &ldquo;descargado&rdquo; imágenes desde el equipo al registro local.</p>

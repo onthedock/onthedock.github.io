@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.95.0" />
+<meta name="generator" content="Hugo 0.92.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -135,20 +135,20 @@
 <p><strong>Actualización</strong>: El nodo <strong>k2</strong> sobre RPi3 sigue colgándose :(</p>
 <p><strong>Actualización II</strong>: <a href="https://onthedock.github.io/post/170506-troubleshooting-kubernetes-ii/">Parece solucionado</a></p>
 <p>A modo de recordatorio, los cambios realizados en los dos nodos sobre Raspberry Pi 3 han sido (incluyo el nodo <strong>k1</strong> con RPi2):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-txt" data-lang="txt"><span style="display:flex;"><span>                                |  k1  |  k2  |  k3  |
-</span></span><span style="display:flex;"><span>                                | RPi2 | RPi3 | RPi3 |
-</span></span><span style="display:flex;"><span> -------------------------------|------|------|------|
-</span></span><span style="display:flex;"><span>| Modificada conf. de rsyslog   |  No  |  Sí  |  No  |
-</span></span><span style="display:flex;"><span>| Actualización a versión 1.6.2 |  Sí  |  Sí  |  Sí  |
-</span></span><span style="display:flex;"><span> ----------------------------------------------------
-</span></span></code></pre></div><p>Hasta ahora, los únicos nodos que se <em>colgaban</em> eran el <strong>k2</strong> y el <strong>k3</strong> (sobre RPi3).</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-txt" data-lang="txt">                                |  k1  |  k2  |  k3  |
+                                | RPi2 | RPi3 | RPi3 |
+ -------------------------------|------|------|------|
+| Modificada conf. de rsyslog   |  No  |  Sí  |  No  |
+| Actualización a versión 1.6.2 |  Sí  |  Sí  |  Sí  |
+ ----------------------------------------------------
+</code></pre></div><p>Hasta ahora, los únicos nodos que se <em>colgaban</em> eran el <strong>k2</strong> y el <strong>k3</strong> (sobre RPi3).</p>
 <p>Al modificar la configuración en de <em>rsyslog</em> en <strong>k2</strong> y pasadas unas horas, el único nodo que se sigue colgando es el <strong>k3</strong>.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>$ kubectl get nodes
-</span></span><span style="display:flex;"><span>NAME      STATUS     AGE       VERSION
-</span></span><span style="display:flex;"><span>k1        Ready      19d       v1.6.2
-</span></span><span style="display:flex;"><span>k2        Ready      14d       v1.6.2
-</span></span><span style="display:flex;"><span>k3        NotReady   14d       v1.6.2
-</span></span></code></pre></div><p>Es decir, el fallo a la hora de redirigir los mensajes a <code>/dev/xconsole</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ kubectl get nodes
+NAME      STATUS     AGE       VERSION
+k1        Ready      19d       v1.6.2
+k2        Ready      14d       v1.6.2
+k3        NotReady   14d       v1.6.2
+</code></pre></div><p>Es decir, el fallo a la hora de redirigir los mensajes a <code>/dev/xconsole</code>:</p>
 <ul>
 <li>sólo afectan a las RPi3</li>
 <li>provoca que el sistema se acabe colgando</li>
@@ -160,26 +160,26 @@
 </li>
 <li>
 <p>Modifica las últimas líneas (al final del fichero) y coméntalas:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-txt" data-lang="txt"><span style="display:flex;"><span># The named pipe /dev/xconsole is for the `xconsole&#39; utility.  To use it,
-</span></span><span style="display:flex;"><span># you must invoke `xconsole&#39; with the `-file&#39; option:
-</span></span><span style="display:flex;"><span>#
-</span></span><span style="display:flex;"><span>#    $ xconsole -file /dev/xconsole [...]
-</span></span><span style="display:flex;"><span>#
-</span></span><span style="display:flex;"><span># NOTE: adjust the list below, or you&#39;ll go crazy if you have a reasonably
-</span></span><span style="display:flex;"><span>#      busy site..
-</span></span><span style="display:flex;"><span>#
-</span></span><span style="display:flex;"><span>daemon.*;mail.*;\
-</span></span><span style="display:flex;"><span>        news.err;\
-</span></span><span style="display:flex;"><span>        *.=debug;*.=info;\
-</span></span><span style="display:flex;"><span>        *.=notice;*.=warn       |/dev/xconsole
-</span></span><span style="display:flex;"><span>    ```
-</span></span><span style="display:flex;"><span>deben quedar como:
-</span></span><span style="display:flex;"><span>```txt
-</span></span><span style="display:flex;"><span>#daemon.*;mail.*;\
-</span></span><span style="display:flex;"><span>#        news.err;\
-</span></span><span style="display:flex;"><span>#        *.=debug;*.=info;\
-</span></span><span style="display:flex;"><span>#        *.=notice;*.=warn       |/dev/xconsole
-</span></span></code></pre></div><p>Podrías comentar la redirección <code>|/dev/xconsole</code>, pero en este caso el bloque no tendría ninguna funcionalidad, por lo que creo que es <em>más limpio</em> comentar todo el bloque.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-txt" data-lang="txt"># The named pipe /dev/xconsole is for the `xconsole&#39; utility.  To use it,
+# you must invoke `xconsole&#39; with the `-file&#39; option:
+#
+#    $ xconsole -file /dev/xconsole [...]
+#
+# NOTE: adjust the list below, or you&#39;ll go crazy if you have a reasonably
+#      busy site..
+#
+daemon.*;mail.*;\
+        news.err;\
+        *.=debug;*.=info;\
+        *.=notice;*.=warn       |/dev/xconsole
+    ```
+deben quedar como:
+```txt
+#daemon.*;mail.*;\
+#        news.err;\
+#        *.=debug;*.=info;\
+#        *.=notice;*.=warn       |/dev/xconsole
+</code></pre></div><p>Podrías comentar la redirección <code>|/dev/xconsole</code>, pero en este caso el bloque no tendría ninguna funcionalidad, por lo que creo que es <em>más limpio</em> comentar todo el bloque.</p>
 </li>
 <li>
 <p>Reinicia el equipo mediante <code>reboot</code>.</p>

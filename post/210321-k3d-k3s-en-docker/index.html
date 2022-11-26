@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.95.0" />
+<meta name="generator" content="Hugo 0.92.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -140,143 +140,143 @@
 <p>Antes de ejecutar cualquier cosa desde internet, revisa si el <em>script</em> hace únicamente lo que se supone que debe hacer.</p>
 </blockquote>
 <p>El cuerpo del <em>script</em> revisa el entorno local, descarga <em>k3d</em> y lo instala:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>...
-</span></span><span style="display:flex;"><span>initArch
-</span></span><span style="display:flex;"><span>initOS
-</span></span><span style="display:flex;"><span>verifySupported
-</span></span><span style="display:flex;"><span>checkTagProvided <span style="color:#719e07">||</span> checkLatestVersion
-</span></span><span style="display:flex;"><span><span style="color:#719e07">if</span> ! checkK3dInstalledVersion; <span style="color:#719e07">then</span>
-</span></span><span style="display:flex;"><span>  downloadFile
-</span></span><span style="display:flex;"><span>  installFile
-</span></span><span style="display:flex;"><span><span style="color:#719e07">fi</span>
-</span></span><span style="display:flex;"><span>testVersion
-</span></span><span style="display:flex;"><span>cleanup
-</span></span></code></pre></div><p>El detalle de la instalación:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>...
-</span></span><span style="display:flex;"><span><span style="color:#586e75"># installFile verifies the SHA256 for the file, then unpacks and</span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75"># installs it.</span>
-</span></span><span style="display:flex;"><span>installFile<span style="color:#719e07">()</span> <span style="color:#719e07">{</span>
-</span></span><span style="display:flex;"><span>  <span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;Preparing to install </span><span style="color:#268bd2">$APP_NAME</span><span style="color:#2aa198"> into </span><span style="color:#2aa198">${</span><span style="color:#268bd2">K3D_INSTALL_DIR</span><span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span>
-</span></span><span style="display:flex;"><span>  runAsRoot chmod +x <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$K3D_TMP_FILE</span><span style="color:#2aa198">&#34;</span>
-</span></span><span style="display:flex;"><span>  runAsRoot cp <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$K3D_TMP_FILE</span><span style="color:#2aa198">&#34;</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$K3D_INSTALL_DIR</span><span style="color:#2aa198">/</span><span style="color:#268bd2">$APP_NAME</span><span style="color:#2aa198">&#34;</span>
-</span></span><span style="display:flex;"><span>  <span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$APP_NAME</span><span style="color:#2aa198"> installed into </span><span style="color:#268bd2">$K3D_INSTALL_DIR</span><span style="color:#2aa198">/</span><span style="color:#268bd2">$APP_NAME</span><span style="color:#2aa198">&#34;</span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">}</span>
-</span></span><span style="display:flex;"><span>...
-</span></span></code></pre></div><p>Una vez revisado el <em>script</em>, lanzamos la instalación:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>curl -s https://raw.githubusercontent.com/rancher/k3d/main/install.sh | bash
-</span></span></code></pre></div><p>Al finalizar, valida que <em>k3d</em> se ha instalado correctamente:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ k3d version
-</span></span><span style="display:flex;"><span>k3d version v4.2.0
-</span></span><span style="display:flex;"><span>k3s version v1.20.2-k3s1 <span style="color:#719e07">(</span>default<span style="color:#719e07">)</span>
-</span></span></code></pre></div><h2 id="crear-un-clúster-manualmente">Crear un clúster (manualmente)</h2>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">...
+initArch
+initOS
+verifySupported
+checkTagProvided <span style="color:#719e07">||</span> checkLatestVersion
+<span style="color:#719e07">if</span> ! checkK3dInstalledVersion; <span style="color:#719e07">then</span>
+  downloadFile
+  installFile
+<span style="color:#719e07">fi</span>
+testVersion
+cleanup
+</code></pre></div><p>El detalle de la instalación:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">...
+<span style="color:#586e75"># installFile verifies the SHA256 for the file, then unpacks and</span>
+<span style="color:#586e75"># installs it.</span>
+installFile<span style="color:#719e07">()</span> <span style="color:#719e07">{</span>
+  <span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;Preparing to install </span><span style="color:#268bd2">$APP_NAME</span><span style="color:#2aa198"> into </span><span style="color:#2aa198">${</span><span style="color:#268bd2">K3D_INSTALL_DIR</span><span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span>
+  runAsRoot chmod +x <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$K3D_TMP_FILE</span><span style="color:#2aa198">&#34;</span>
+  runAsRoot cp <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$K3D_TMP_FILE</span><span style="color:#2aa198">&#34;</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$K3D_INSTALL_DIR</span><span style="color:#2aa198">/</span><span style="color:#268bd2">$APP_NAME</span><span style="color:#2aa198">&#34;</span>
+  <span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$APP_NAME</span><span style="color:#2aa198"> installed into </span><span style="color:#268bd2">$K3D_INSTALL_DIR</span><span style="color:#2aa198">/</span><span style="color:#268bd2">$APP_NAME</span><span style="color:#2aa198">&#34;</span>
+<span style="color:#719e07">}</span>
+...
+</code></pre></div><p>Una vez revisado el <em>script</em>, lanzamos la instalación:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">curl -s https://raw.githubusercontent.com/rancher/k3d/main/install.sh | bash
+</code></pre></div><p>Al finalizar, valida que <em>k3d</em> se ha instalado correctamente:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ k3d version
+k3d version v4.2.0
+k3s version v1.20.2-k3s1 <span style="color:#719e07">(</span>default<span style="color:#719e07">)</span>
+</code></pre></div><h2 id="crear-un-clúster-manualmente">Crear un clúster (manualmente)</h2>
 <p>Como ejemplo, vamos a crear un clúster llamado <code>dev-cluster</code> con un nodo servidor (<code>-s 1</code>) y un nodo agente (<code>-a 1</code>):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ k3d cluster create dev-cluster -s <span style="color:#2aa198">1</span> -a <span style="color:#2aa198">1</span>
-</span></span><span style="display:flex;"><span>INFO<span style="color:#719e07">[</span>0000<span style="color:#719e07">]</span> Prep: Network                                
-</span></span><span style="display:flex;"><span>INFO<span style="color:#719e07">[</span>0000<span style="color:#719e07">]</span> Created network <span style="color:#2aa198">&#39;k3d-dev-cluster&#39;</span>            
-</span></span><span style="display:flex;"><span>INFO<span style="color:#719e07">[</span>0000<span style="color:#719e07">]</span> Created volume <span style="color:#2aa198">&#39;k3d-dev-cluster-images&#39;</span>      
-</span></span><span style="display:flex;"><span>INFO<span style="color:#719e07">[</span>0001<span style="color:#719e07">]</span> Creating node <span style="color:#2aa198">&#39;k3d-dev-cluster-server-0&#39;</span>     
-</span></span><span style="display:flex;"><span>INFO<span style="color:#719e07">[</span>0001<span style="color:#719e07">]</span> Creating node <span style="color:#2aa198">&#39;k3d-dev-cluster-agent-0&#39;</span>      
-</span></span><span style="display:flex;"><span>INFO<span style="color:#719e07">[</span>0001<span style="color:#719e07">]</span> Creating LoadBalancer <span style="color:#2aa198">&#39;k3d-dev-cluster-serverlb&#39;</span> 
-</span></span><span style="display:flex;"><span>INFO<span style="color:#719e07">[</span>0001<span style="color:#719e07">]</span> Starting cluster <span style="color:#2aa198">&#39;dev-cluster&#39;</span>               
-</span></span><span style="display:flex;"><span>INFO<span style="color:#719e07">[</span>0001<span style="color:#719e07">]</span> Starting servers...                          
-</span></span><span style="display:flex;"><span>INFO<span style="color:#719e07">[</span>0001<span style="color:#719e07">]</span> Starting Node <span style="color:#2aa198">&#39;k3d-dev-cluster-server-0&#39;</span>     
-</span></span><span style="display:flex;"><span>INFO<span style="color:#719e07">[</span>0010<span style="color:#719e07">]</span> Starting agents...                           
-</span></span><span style="display:flex;"><span>INFO<span style="color:#719e07">[</span>0010<span style="color:#719e07">]</span> Starting Node <span style="color:#2aa198">&#39;k3d-dev-cluster-agent-0&#39;</span>      
-</span></span><span style="display:flex;"><span>INFO<span style="color:#719e07">[</span>0023<span style="color:#719e07">]</span> Starting helpers...                          
-</span></span><span style="display:flex;"><span>INFO<span style="color:#719e07">[</span>0023<span style="color:#719e07">]</span> Starting Node <span style="color:#2aa198">&#39;k3d-dev-cluster-serverlb&#39;</span>     
-</span></span><span style="display:flex;"><span>INFO<span style="color:#719e07">[</span>0024<span style="color:#719e07">]</span> <span style="color:#719e07">(</span>Optional<span style="color:#719e07">)</span> Trying to get IP of the docker host and inject it into the cluster as <span style="color:#2aa198">&#39;host.k3d.internal&#39;</span> <span style="color:#719e07">for</span> easy access 
-</span></span><span style="display:flex;"><span>INFO<span style="color:#719e07">[</span>0030<span style="color:#719e07">]</span> Successfully added host record to /etc/hosts in 3/3 nodes and to the CoreDNS ConfigMap 
-</span></span><span style="display:flex;"><span>INFO<span style="color:#719e07">[</span>0030<span style="color:#719e07">]</span> Cluster <span style="color:#2aa198">&#39;dev-cluster&#39;</span> created successfully!  
-</span></span><span style="display:flex;"><span>INFO<span style="color:#719e07">[</span>0030<span style="color:#719e07">]</span> --kubeconfig-update-default<span style="color:#719e07">=</span><span style="color:#b58900">false</span> --&gt; sets --kubeconfig-switch-context<span style="color:#719e07">=</span><span style="color:#b58900">false</span> 
-</span></span><span style="display:flex;"><span>INFO<span style="color:#719e07">[</span>0030<span style="color:#719e07">]</span> You can now use it like this:                
-</span></span><span style="display:flex;"><span>kubectl config use-context k3d-dev-cluster
-</span></span><span style="display:flex;"><span>kubectl cluster-info
-</span></span></code></pre></div><p><em>k3d</em> se ejecuta como contenedores, por lo que podemos ver las imágenes usadas para construir los &ldquo;nodos&rdquo; mediante:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ docker images
-</span></span><span style="display:flex;"><span>REPOSITORY          TAG            IMAGE ID       CREATED        SIZE
-</span></span><span style="display:flex;"><span>rancher/k3d-proxy   v4.2.0         70ec1f255a8a   <span style="color:#2aa198">5</span> weeks ago    44.4MB
-</span></span><span style="display:flex;"><span>rancher/k3s         v1.20.2-k3s1   1b02adf07426   <span style="color:#2aa198">2</span> months ago   154MB
-</span></span></code></pre></div><p>Del mismo modo, revisamos los &ldquo;nodos&rdquo; del clúster:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ docker ps
-</span></span><span style="display:flex;"><span>CONTAINER ID   IMAGE                      COMMAND                  CREATED       STATUS     PORTS                             NAMES
-</span></span><span style="display:flex;"><span>311f7f0cf5dc   rancher/k3d-proxy:v4.2.0   <span style="color:#2aa198">&#34;/bin/sh -c nginx-pr…&#34;</span>   <span style="color:#2aa198">20</span> hours ago  Up <span style="color:#2aa198">2</span> hours 80/tcp, 0.0.0.0:32945-&gt;6443/tcp   k3d-dev-cluster-serverlb
-</span></span><span style="display:flex;"><span>81521d5ea62f   rancher/k3s:v1.20.2-k3s1   <span style="color:#2aa198">&#34;/bin/k3s agent&#34;</span>         <span style="color:#2aa198">20</span> hours ago  Up <span style="color:#2aa198">2</span> hours                                   k3d-dev-cluster-agent-0
-</span></span><span style="display:flex;"><span>d995147a0d08   rancher/k3s:v1.20.2-k3s1   <span style="color:#2aa198">&#34;/bin/k3s server --t…&#34;</span>   <span style="color:#2aa198">20</span> hours ago  Up <span style="color:#2aa198">2</span> hours                                   k3d-dev-cluster-server-0
-</span></span></code></pre></div><p>Vemos que además de los nodos servidor y agente, <em>k3d</em> también ha desplegado un balanceador que expone la API de Kubernetes en un puerto aleatorio (en este caso, 32945). Si queremos especificar un puerto determinado, podemos usar la opción <code>--api-port</code> al crear el clúster.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ k3d cluster create dev-cluster -s <span style="color:#2aa198">1</span> -a <span style="color:#2aa198">1</span>
+INFO<span style="color:#719e07">[</span>0000<span style="color:#719e07">]</span> Prep: Network                                
+INFO<span style="color:#719e07">[</span>0000<span style="color:#719e07">]</span> Created network <span style="color:#2aa198">&#39;k3d-dev-cluster&#39;</span>            
+INFO<span style="color:#719e07">[</span>0000<span style="color:#719e07">]</span> Created volume <span style="color:#2aa198">&#39;k3d-dev-cluster-images&#39;</span>      
+INFO<span style="color:#719e07">[</span>0001<span style="color:#719e07">]</span> Creating node <span style="color:#2aa198">&#39;k3d-dev-cluster-server-0&#39;</span>     
+INFO<span style="color:#719e07">[</span>0001<span style="color:#719e07">]</span> Creating node <span style="color:#2aa198">&#39;k3d-dev-cluster-agent-0&#39;</span>      
+INFO<span style="color:#719e07">[</span>0001<span style="color:#719e07">]</span> Creating LoadBalancer <span style="color:#2aa198">&#39;k3d-dev-cluster-serverlb&#39;</span> 
+INFO<span style="color:#719e07">[</span>0001<span style="color:#719e07">]</span> Starting cluster <span style="color:#2aa198">&#39;dev-cluster&#39;</span>               
+INFO<span style="color:#719e07">[</span>0001<span style="color:#719e07">]</span> Starting servers...                          
+INFO<span style="color:#719e07">[</span>0001<span style="color:#719e07">]</span> Starting Node <span style="color:#2aa198">&#39;k3d-dev-cluster-server-0&#39;</span>     
+INFO<span style="color:#719e07">[</span>0010<span style="color:#719e07">]</span> Starting agents...                           
+INFO<span style="color:#719e07">[</span>0010<span style="color:#719e07">]</span> Starting Node <span style="color:#2aa198">&#39;k3d-dev-cluster-agent-0&#39;</span>      
+INFO<span style="color:#719e07">[</span>0023<span style="color:#719e07">]</span> Starting helpers...                          
+INFO<span style="color:#719e07">[</span>0023<span style="color:#719e07">]</span> Starting Node <span style="color:#2aa198">&#39;k3d-dev-cluster-serverlb&#39;</span>     
+INFO<span style="color:#719e07">[</span>0024<span style="color:#719e07">]</span> <span style="color:#719e07">(</span>Optional<span style="color:#719e07">)</span> Trying to get IP of the docker host and inject it into the cluster as <span style="color:#2aa198">&#39;host.k3d.internal&#39;</span> <span style="color:#719e07">for</span> easy access 
+INFO<span style="color:#719e07">[</span>0030<span style="color:#719e07">]</span> Successfully added host record to /etc/hosts in 3/3 nodes and to the CoreDNS ConfigMap 
+INFO<span style="color:#719e07">[</span>0030<span style="color:#719e07">]</span> Cluster <span style="color:#2aa198">&#39;dev-cluster&#39;</span> created successfully!  
+INFO<span style="color:#719e07">[</span>0030<span style="color:#719e07">]</span> --kubeconfig-update-default<span style="color:#719e07">=</span><span style="color:#b58900">false</span> --&gt; sets --kubeconfig-switch-context<span style="color:#719e07">=</span><span style="color:#b58900">false</span> 
+INFO<span style="color:#719e07">[</span>0030<span style="color:#719e07">]</span> You can now use it like this:                
+kubectl config use-context k3d-dev-cluster
+kubectl cluster-info
+</code></pre></div><p><em>k3d</em> se ejecuta como contenedores, por lo que podemos ver las imágenes usadas para construir los &ldquo;nodos&rdquo; mediante:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ docker images
+REPOSITORY          TAG            IMAGE ID       CREATED        SIZE
+rancher/k3d-proxy   v4.2.0         70ec1f255a8a   <span style="color:#2aa198">5</span> weeks ago    44.4MB
+rancher/k3s         v1.20.2-k3s1   1b02adf07426   <span style="color:#2aa198">2</span> months ago   154MB
+</code></pre></div><p>Del mismo modo, revisamos los &ldquo;nodos&rdquo; del clúster:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ docker ps
+CONTAINER ID   IMAGE                      COMMAND                  CREATED       STATUS     PORTS                             NAMES
+311f7f0cf5dc   rancher/k3d-proxy:v4.2.0   <span style="color:#2aa198">&#34;/bin/sh -c nginx-pr…&#34;</span>   <span style="color:#2aa198">20</span> hours ago  Up <span style="color:#2aa198">2</span> hours 80/tcp, 0.0.0.0:32945-&gt;6443/tcp   k3d-dev-cluster-serverlb
+81521d5ea62f   rancher/k3s:v1.20.2-k3s1   <span style="color:#2aa198">&#34;/bin/k3s agent&#34;</span>         <span style="color:#2aa198">20</span> hours ago  Up <span style="color:#2aa198">2</span> hours                                   k3d-dev-cluster-agent-0
+d995147a0d08   rancher/k3s:v1.20.2-k3s1   <span style="color:#2aa198">&#34;/bin/k3s server --t…&#34;</span>   <span style="color:#2aa198">20</span> hours ago  Up <span style="color:#2aa198">2</span> hours                                   k3d-dev-cluster-server-0
+</code></pre></div><p>Vemos que además de los nodos servidor y agente, <em>k3d</em> también ha desplegado un balanceador que expone la API de Kubernetes en un puerto aleatorio (en este caso, 32945). Si queremos especificar un puerto determinado, podemos usar la opción <code>--api-port</code> al crear el clúster.</p>
 <h2 id="crear-un-clúster-a-partir-de-un-fichero-de-configuración">Crear un clúster (a partir de un fichero de configuración)</h2>
 <p>Desde la versión v4.0.0 <em>k3d</em> permite especificar en un fichero de configuración cualquiera de las opciones que se pueden especificar desde línea de comando. Esto facilita todavía más integrar <em>k3d</em> en un <em>workflow</em> de integración contínua, por ejemplo, creando un clúster donde desplegar la nueva versión de la aplicación, realizar pruebas y destruirlo al finalizar.</p>
 <p>La documentación oficial (en <a href="https://k3d.io/usage/configfile/">Config File</a>) proporciona un fichero de configuración de ejemplo como referencia; sin embargo, para crear un clúster como el que hemos creado manualmente en la sección anterior, el fichero es sencillamente:</p>
 <blockquote>
 <p>El fichero de configuración, en este caso, lo llamo <code>config-1s1a.yaml</code>.</p>
 </blockquote>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#268bd2">apiVersion</span>: k3d.io/v1alpha2 <span style="color:#586e75"># this will change in the future as we make everything more stable</span>
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">kind</span>: Simple <span style="color:#586e75"># internally, we also have a Cluster config, which is not yet available externally</span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75"># name: mycluster # name that you want to give to your cluster (will still be prefixed with `k3d-`)</span>
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">servers</span>: <span style="color:#2aa198">1</span> <span style="color:#586e75"># same as `--servers 1`</span>
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">agents</span>:  <span style="color:#2aa198">1</span> <span style="color:#586e75"># same as `--agents 1`</span>
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">options</span>:
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">kubeconfig</span>:
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">updateDefaultKubeconfig: true # add new cluster to your default Kubeconfig; same as `--kubeconfig-update-default` (default</span>: <span style="color:#cb4b16">true</span>)
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">switchCurrentContext: true # also set current-context to the new cluster&#39;s context; same as `--kubeconfig-switch-context` (default</span>: <span style="color:#cb4b16">true</span>)
-</span></span></code></pre></div><p>Aunque el fichero de configuración permite especificar el nombre del clúster, podemos especificarlo desde la línea de comando al ejecutar el comando <code>k3d cluster create</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ k3d cluster create stable-cluster --config config-1s1a.yaml
-</span></span><span style="display:flex;"><span>INFO<span style="color:#719e07">[</span>0000<span style="color:#719e07">]</span> Using config file config-1a1s.yaml           
-</span></span><span style="display:flex;"><span>INFO<span style="color:#719e07">[</span>0000<span style="color:#719e07">]</span> Prep: Network                                
-</span></span><span style="display:flex;"><span>INFO<span style="color:#719e07">[</span>0000<span style="color:#719e07">]</span> Created network <span style="color:#2aa198">&#39;k3d-stable-cluster&#39;</span>         
-</span></span><span style="display:flex;"><span>INFO<span style="color:#719e07">[</span>0000<span style="color:#719e07">]</span> Created volume <span style="color:#2aa198">&#39;k3d-stable-cluster-images&#39;</span>   
-</span></span><span style="display:flex;"><span>INFO<span style="color:#719e07">[</span>0001<span style="color:#719e07">]</span> Creating node <span style="color:#2aa198">&#39;k3d-stable-cluster-server-0&#39;</span>  
-</span></span><span style="display:flex;"><span>INFO<span style="color:#719e07">[</span>0001<span style="color:#719e07">]</span> Creating node <span style="color:#2aa198">&#39;k3d-stable-cluster-agent-0&#39;</span>   
-</span></span><span style="display:flex;"><span>INFO<span style="color:#719e07">[</span>0001<span style="color:#719e07">]</span> Creating LoadBalancer <span style="color:#2aa198">&#39;k3d-stable-cluster-serverlb&#39;</span> 
-</span></span><span style="display:flex;"><span>INFO<span style="color:#719e07">[</span>0001<span style="color:#719e07">]</span> Starting cluster <span style="color:#2aa198">&#39;stable-cluster&#39;</span>            
-</span></span><span style="display:flex;"><span>INFO<span style="color:#719e07">[</span>0001<span style="color:#719e07">]</span> Starting servers...                          
-</span></span><span style="display:flex;"><span>INFO<span style="color:#719e07">[</span>0001<span style="color:#719e07">]</span> Starting Node <span style="color:#2aa198">&#39;k3d-stable-cluster-server-0&#39;</span>  
-</span></span><span style="display:flex;"><span>INFO<span style="color:#719e07">[</span>0010<span style="color:#719e07">]</span> Starting agents...                           
-</span></span><span style="display:flex;"><span>INFO<span style="color:#719e07">[</span>0010<span style="color:#719e07">]</span> Starting Node <span style="color:#2aa198">&#39;k3d-stable-cluster-agent-0&#39;</span>   
-</span></span><span style="display:flex;"><span>INFO<span style="color:#719e07">[</span>0020<span style="color:#719e07">]</span> Starting helpers...                          
-</span></span><span style="display:flex;"><span>INFO<span style="color:#719e07">[</span>0020<span style="color:#719e07">]</span> Starting Node <span style="color:#2aa198">&#39;k3d-stable-cluster-serverlb&#39;</span>  
-</span></span><span style="display:flex;"><span>INFO<span style="color:#719e07">[</span>0021<span style="color:#719e07">]</span> <span style="color:#719e07">(</span>Optional<span style="color:#719e07">)</span> Trying to get IP of the docker host and inject it into the cluster as <span style="color:#2aa198">&#39;host.k3d.internal&#39;</span> <span style="color:#719e07">for</span> easy access 
-</span></span><span style="display:flex;"><span>INFO<span style="color:#719e07">[</span>0027<span style="color:#719e07">]</span> Successfully added host record to /etc/hosts in 3/3 nodes and to the CoreDNS ConfigMap 
-</span></span><span style="display:flex;"><span>INFO<span style="color:#719e07">[</span>0027<span style="color:#719e07">]</span> Cluster <span style="color:#2aa198">&#39;stable-cluster&#39;</span> created successfully! 
-</span></span><span style="display:flex;"><span>INFO<span style="color:#719e07">[</span>0027<span style="color:#719e07">]</span> --kubeconfig-update-default<span style="color:#719e07">=</span><span style="color:#b58900">false</span> --&gt; sets --kubeconfig-switch-context<span style="color:#719e07">=</span><span style="color:#b58900">false</span> 
-</span></span><span style="display:flex;"><span>INFO<span style="color:#719e07">[</span>0027<span style="color:#719e07">]</span> You can now use it like this:                
-</span></span><span style="display:flex;"><span>kubectl config use-context k3d-stable-cluster
-</span></span><span style="display:flex;"><span>kubectl cluster-info
-</span></span></code></pre></div><p>Validamos que el clúster se ha creado:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ k3d cluster list
-</span></span><span style="display:flex;"><span>NAME             SERVERS   AGENTS   LOADBALANCER
-</span></span><span style="display:flex;"><span>dev-cluster      1/1       2/2      <span style="color:#b58900">true</span>
-</span></span><span style="display:flex;"><span>stable-cluster   1/1       1/1      <span style="color:#b58900">true</span>
-</span></span></code></pre></div><h2 id="conexión-a-los-clústers-creados-con-k3d">Conexión a los clústers creados con <strong>k3d</strong></h2>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">apiVersion</span>: k3d.io/v1alpha2 <span style="color:#586e75"># this will change in the future as we make everything more stable</span>
+<span style="color:#268bd2">kind</span>: Simple <span style="color:#586e75"># internally, we also have a Cluster config, which is not yet available externally</span>
+<span style="color:#586e75"># name: mycluster # name that you want to give to your cluster (will still be prefixed with `k3d-`)</span>
+<span style="color:#268bd2">servers</span>: <span style="color:#2aa198">1</span> <span style="color:#586e75"># same as `--servers 1`</span>
+<span style="color:#268bd2">agents</span>:  <span style="color:#2aa198">1</span> <span style="color:#586e75"># same as `--agents 1`</span>
+<span style="color:#268bd2">options</span>:
+  <span style="color:#268bd2">kubeconfig</span>:
+    <span style="color:#268bd2">updateDefaultKubeconfig: true # add new cluster to your default Kubeconfig; same as `--kubeconfig-update-default` (default</span>: <span style="color:#cb4b16">true</span>)
+    <span style="color:#268bd2">switchCurrentContext: true # also set current-context to the new cluster&#39;s context; same as `--kubeconfig-switch-context` (default</span>: <span style="color:#cb4b16">true</span>)
+</code></pre></div><p>Aunque el fichero de configuración permite especificar el nombre del clúster, podemos especificarlo desde la línea de comando al ejecutar el comando <code>k3d cluster create</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ k3d cluster create stable-cluster --config config-1s1a.yaml
+INFO<span style="color:#719e07">[</span>0000<span style="color:#719e07">]</span> Using config file config-1a1s.yaml           
+INFO<span style="color:#719e07">[</span>0000<span style="color:#719e07">]</span> Prep: Network                                
+INFO<span style="color:#719e07">[</span>0000<span style="color:#719e07">]</span> Created network <span style="color:#2aa198">&#39;k3d-stable-cluster&#39;</span>         
+INFO<span style="color:#719e07">[</span>0000<span style="color:#719e07">]</span> Created volume <span style="color:#2aa198">&#39;k3d-stable-cluster-images&#39;</span>   
+INFO<span style="color:#719e07">[</span>0001<span style="color:#719e07">]</span> Creating node <span style="color:#2aa198">&#39;k3d-stable-cluster-server-0&#39;</span>  
+INFO<span style="color:#719e07">[</span>0001<span style="color:#719e07">]</span> Creating node <span style="color:#2aa198">&#39;k3d-stable-cluster-agent-0&#39;</span>   
+INFO<span style="color:#719e07">[</span>0001<span style="color:#719e07">]</span> Creating LoadBalancer <span style="color:#2aa198">&#39;k3d-stable-cluster-serverlb&#39;</span> 
+INFO<span style="color:#719e07">[</span>0001<span style="color:#719e07">]</span> Starting cluster <span style="color:#2aa198">&#39;stable-cluster&#39;</span>            
+INFO<span style="color:#719e07">[</span>0001<span style="color:#719e07">]</span> Starting servers...                          
+INFO<span style="color:#719e07">[</span>0001<span style="color:#719e07">]</span> Starting Node <span style="color:#2aa198">&#39;k3d-stable-cluster-server-0&#39;</span>  
+INFO<span style="color:#719e07">[</span>0010<span style="color:#719e07">]</span> Starting agents...                           
+INFO<span style="color:#719e07">[</span>0010<span style="color:#719e07">]</span> Starting Node <span style="color:#2aa198">&#39;k3d-stable-cluster-agent-0&#39;</span>   
+INFO<span style="color:#719e07">[</span>0020<span style="color:#719e07">]</span> Starting helpers...                          
+INFO<span style="color:#719e07">[</span>0020<span style="color:#719e07">]</span> Starting Node <span style="color:#2aa198">&#39;k3d-stable-cluster-serverlb&#39;</span>  
+INFO<span style="color:#719e07">[</span>0021<span style="color:#719e07">]</span> <span style="color:#719e07">(</span>Optional<span style="color:#719e07">)</span> Trying to get IP of the docker host and inject it into the cluster as <span style="color:#2aa198">&#39;host.k3d.internal&#39;</span> <span style="color:#719e07">for</span> easy access 
+INFO<span style="color:#719e07">[</span>0027<span style="color:#719e07">]</span> Successfully added host record to /etc/hosts in 3/3 nodes and to the CoreDNS ConfigMap 
+INFO<span style="color:#719e07">[</span>0027<span style="color:#719e07">]</span> Cluster <span style="color:#2aa198">&#39;stable-cluster&#39;</span> created successfully! 
+INFO<span style="color:#719e07">[</span>0027<span style="color:#719e07">]</span> --kubeconfig-update-default<span style="color:#719e07">=</span><span style="color:#b58900">false</span> --&gt; sets --kubeconfig-switch-context<span style="color:#719e07">=</span><span style="color:#b58900">false</span> 
+INFO<span style="color:#719e07">[</span>0027<span style="color:#719e07">]</span> You can now use it like this:                
+kubectl config use-context k3d-stable-cluster
+kubectl cluster-info
+</code></pre></div><p>Validamos que el clúster se ha creado:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ k3d cluster list
+NAME             SERVERS   AGENTS   LOADBALANCER
+dev-cluster      1/1       2/2      <span style="color:#b58900">true</span>
+stable-cluster   1/1       1/1      <span style="color:#b58900">true</span>
+</code></pre></div><h2 id="conexión-a-los-clústers-creados-con-k3d">Conexión a los clústers creados con <strong>k3d</strong></h2>
 <p>Por defecto <em>k3d</em> fusiona en el fichero <code>KUBECONFIG</code> (por defecto, en <code>$HOME/.kube/config</code>) la configuración de acceso al nuevo clúster. (<code>options.kubeconfig.updateDefaultKubeconfig: true</code>).</p>
 <p>Puedes revisar la lista de todos los <em>contextos</em> definidos en el fichero de configuración:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ kubectl config get-contexts
-</span></span><span style="display:flex;"><span>CURRENT   NAME                 CLUSTER              AUTHINFO                   NAMESPACE
-</span></span><span style="display:flex;"><span>          k3d-dev-cluster      k3d-dev-cluster      admin@k3d-dev-cluster      
-</span></span><span style="display:flex;"><span>*         k3d-stable-cluster   k3d-stable-cluster   admin@k3d-stable-cluster
-</span></span></code></pre></div><p>Como vemos, por defecto se cambia el contexto actual (<em>current-context</em>) a la configuración correspondiente al último clúster creado (el <em>contexto</em> activo es el indicado con un <code>*</code>).</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl config get-contexts
+CURRENT   NAME                 CLUSTER              AUTHINFO                   NAMESPACE
+          k3d-dev-cluster      k3d-dev-cluster      admin@k3d-dev-cluster      
+*         k3d-stable-cluster   k3d-stable-cluster   admin@k3d-stable-cluster
+</code></pre></div><p>Como vemos, por defecto se cambia el contexto actual (<em>current-context</em>) a la configuración correspondiente al último clúster creado (el <em>contexto</em> activo es el indicado con un <code>*</code>).</p>
 <p>Para usar otro contexto (e interactuar con otro clúster) usa:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ kubectl config use-context k3d-dev-cluster
-</span></span><span style="display:flex;"><span>Switched to context <span style="color:#2aa198">&#34;k3d-dev-cluster&#34;</span>.
-</span></span></code></pre></div><h2 id="añadir-o-eliminar-nodos-al-clúster">Añadir (o eliminar) nodos al clúster</h2>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl config use-context k3d-dev-cluster
+Switched to context <span style="color:#2aa198">&#34;k3d-dev-cluster&#34;</span>.
+</code></pre></div><h2 id="añadir-o-eliminar-nodos-al-clúster">Añadir (o eliminar) nodos al clúster</h2>
 <p><strong>k3d</strong> proporciona el comando <code>k3d node create</code> con el que añadimos nuevos nodos al clúster.</p>
 <p>Para añadir un nodo agente al clúster <code>dev-cluster</code>:</p>
 <blockquote>
 <p>k3d añade el prefijo k3d- y un sufijo numérico indicando el número de réplicas.</p>
 </blockquote>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ k3d cluster list
-</span></span><span style="display:flex;"><span>NAME          SERVERS   AGENTS   LOADBALANCER
-</span></span><span style="display:flex;"><span>dev-cluster   1/1       1/1      <span style="color:#b58900">true</span>
-</span></span><span style="display:flex;"><span>$ <span style="color:#b58900">export</span> <span style="color:#268bd2">CLUSTER_NAME</span><span style="color:#719e07">=</span>dev-cluster
-</span></span><span style="display:flex;"><span>$ k3d node create dev-cluster-agent-1 --cluster <span style="color:#268bd2">$CLUSTER_NAME</span> --role agent
-</span></span><span style="display:flex;"><span>INFO<span style="color:#719e07">[</span>0000<span style="color:#719e07">]</span> Starting Node <span style="color:#2aa198">&#39;k3d-dev-cluster-agent-1-0&#39;</span>
-</span></span></code></pre></div><p>Validamos que se ha creado el nuevo nodo con el rol de agente:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ k3d node list
-</span></span><span style="display:flex;"><span>NAME                        ROLE           CLUSTER       STATUS
-</span></span><span style="display:flex;"><span>k3d-dev-cluster-agent-0     agent          dev-cluster   running
-</span></span><span style="display:flex;"><span>k3d-dev-cluster-agent-1-0   agent          dev-cluster   running
-</span></span><span style="display:flex;"><span>k3d-dev-cluster-server-0    server         dev-cluster   running
-</span></span><span style="display:flex;"><span>k3d-dev-cluster-serverlb    loadbalancer   dev-cluster   running
-</span></span></code></pre></div><h2 id="resumen">Resumen</h2>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ k3d cluster list
+NAME          SERVERS   AGENTS   LOADBALANCER
+dev-cluster   1/1       1/1      <span style="color:#b58900">true</span>
+$ <span style="color:#b58900">export</span> <span style="color:#268bd2">CLUSTER_NAME</span><span style="color:#719e07">=</span>dev-cluster
+$ k3d node create dev-cluster-agent-1 --cluster <span style="color:#268bd2">$CLUSTER_NAME</span> --role agent
+INFO<span style="color:#719e07">[</span>0000<span style="color:#719e07">]</span> Starting Node <span style="color:#2aa198">&#39;k3d-dev-cluster-agent-1-0&#39;</span>
+</code></pre></div><p>Validamos que se ha creado el nuevo nodo con el rol de agente:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ k3d node list
+NAME                        ROLE           CLUSTER       STATUS
+k3d-dev-cluster-agent-0     agent          dev-cluster   running
+k3d-dev-cluster-agent-1-0   agent          dev-cluster   running
+k3d-dev-cluster-server-0    server         dev-cluster   running
+k3d-dev-cluster-serverlb    loadbalancer   dev-cluster   running
+</code></pre></div><h2 id="resumen">Resumen</h2>
 <p>Como ves, la creación de clústers usando <strong>k3d</strong> reduce al mínimo la fricción a la hora de generar clústers de Kubernetes para realizar pruebas sin consumir demasiados recursos. Por ello, es una solución conveniente para realizar pruebas prácticamente en cualquier sitio, desde localmente en el portátil del desarrollador, una Raspberry Pi o una instancia en algún servicio cloud.</p></div>
 
   <aside class="p-share">

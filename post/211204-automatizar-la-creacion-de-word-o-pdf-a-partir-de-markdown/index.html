@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.95.0" />
+<meta name="generator" content="Hugo 0.92.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -142,13 +142,13 @@
 <p>El equipo de proyecto no quiere renunciar a la posibilidad de trabajar de forma ágil en la generación de la documentación, incluyendo una tarea de validación de la documentación en el <em>definition of done</em> de cada una de las historias de usuario en las que trabaja.</p>
 <p>El equipo decide usar un formato ligero como markdown para la documentación del proyecto. Esta documentación se compondrá de uno o múltiples ficheros en formato markdown.</p>
 <p>Toda la documentación se encuentra en una carpeta llamada <code>documentation/</code> (por ejemplo) dentro del repositorio; para simplificar, suponemos que la documentación se encuentra en la misma carpeta (no hay subcarpetas). Los documentos se nombran de acuerdo con las diferentes secciones del documento de referencia entregado por el cliente final; un ejemplo sería:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>documentation/
-</span></span><span style="display:flex;"><span>    |
-</span></span><span style="display:flex;"><span>    ├── 000-cover.md
-</span></span><span style="display:flex;"><span>    ├── 010-section-1.md
-</span></span><span style="display:flex;"><span>    ├── 011-subsection-1.1.md
-</span></span><span style="display:flex;"><span>    └── 020-section-2.md
-</span></span></code></pre></div><p>Cómo se organice la documentación no es relevante siempre que los ficheros se ordenen del mismo modo en como deben ser <em>ensamblados</em> en el documento final.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">documentation/
+    |
+    ├── 000-cover.md
+    ├── 010-section-1.md
+    ├── 011-subsection-1.1.md
+    └── 020-section-2.md
+</code></pre></div><p>Cómo se organice la documentación no es relevante siempre que los ficheros se ordenen del mismo modo en como deben ser <em>ensamblados</em> en el documento final.</p>
 <p>El objetivo es disponer de un sistema que permita trabajar en modo <em>documentación como código</em>, de forma ágil, sin necesidad de tener que disponer de una <em>pipeline</em> dedicada de construcción de la documentación final.</p>
 <p>Esta sistema puede ser la solución para un proyecto medio, que deba entregar unos pocos documentos entregables.</p>
 <h2 id="implementación">Implementación</h2>
@@ -157,17 +157,17 @@
 </blockquote>
 <p>La base del <em>script</em> es la capacidad de <em>pandoc</em> para concatenar diversos ficheros markdown y convertir el resultado al formato deseado.</p>
 <p>El <em>script</em> lista todos los ficheros con extensión <code>*.md</code> en una carpeta dada, los pasa a <em>pandoc</em> y genera el fichero final.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>get_source_files<span style="color:#719e07">(){</span>
-</span></span><span style="display:flex;"><span>       <span style="color:#268bd2">sourceDir</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#2aa198">${</span><span style="color:#268bd2">1</span><span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span>
-</span></span><span style="display:flex;"><span>       <span style="color:#b58900">declare</span> -a arrMarkdownFiles
-</span></span><span style="display:flex;"><span>       <span style="color:#719e07">for</span> mdFile in <span style="color:#2aa198">${</span><span style="color:#268bd2">sourceDir</span><span style="color:#2aa198">}</span>*.md
-</span></span><span style="display:flex;"><span>       <span style="color:#719e07">do</span>
-</span></span><span style="display:flex;"><span>              <span style="color:#268bd2">arrMarkdownFiles</span><span style="color:#719e07">=(</span><span style="color:#2aa198">&#34;</span><span style="color:#2aa198">${</span><span style="color:#268bd2">arrMarkdownFiles</span>[@]<span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$mdFile</span><span style="color:#2aa198">&#34;</span><span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>       <span style="color:#719e07">done</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>       <span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;</span><span style="color:#2aa198">${</span><span style="color:#268bd2">arrMarkdownFiles</span>[*]<span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">}</span>
-</span></span></code></pre></div><p>En el <em>script</em> de ejemplo, se puede elegir entre generar un fichero en formato MS Word o en formato PDF.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">get_source_files<span style="color:#719e07">(){</span>
+       <span style="color:#268bd2">sourceDir</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#2aa198">${</span><span style="color:#268bd2">1</span><span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span>
+       <span style="color:#b58900">declare</span> -a arrMarkdownFiles
+       <span style="color:#719e07">for</span> mdFile in <span style="color:#2aa198">${</span><span style="color:#268bd2">sourceDir</span><span style="color:#2aa198">}</span>*.md
+       <span style="color:#719e07">do</span>
+              <span style="color:#268bd2">arrMarkdownFiles</span><span style="color:#719e07">=(</span><span style="color:#2aa198">&#34;</span><span style="color:#2aa198">${</span><span style="color:#268bd2">arrMarkdownFiles</span>[@]<span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$mdFile</span><span style="color:#2aa198">&#34;</span><span style="color:#719e07">)</span>
+       <span style="color:#719e07">done</span>
+
+       <span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;</span><span style="color:#2aa198">${</span><span style="color:#268bd2">arrMarkdownFiles</span>[*]<span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span>
+<span style="color:#719e07">}</span>
+</code></pre></div><p>En el <em>script</em> de ejemplo, se puede elegir entre generar un fichero en formato MS Word o en formato PDF.</p>
 <h3 id="documento-generado-en-formato-ms-word">Documento generado en formato MS Word</h3>
 <p>En el primer caso (<code>.docx</code>), se puede pasar al <em>script</em> un fichero de referencia mediante el parámetro <code>--template-file</code>. <em>pandoc</em> extrae los estilos definidos en el documento de referencia para cada estilo (<em>Título 1</em>, <em>Párrafo</em>, etc&hellip;) y los aplica en el fichero en formato MS Word generado a partir de los ficheros en formato markdown.</p>
 <p>Esta capacidad permite generar un documento entregable que se ajuste a la identidad corporativa del cliente final.</p>
@@ -180,33 +180,33 @@
 <p>Las opciones para configurar el PDF resultante se pueden consultar en el manual de pandoc <a href="https://pandoc.org/MANUAL.html#variables-for-latex">Variables for LaTeX</a>.</p>
 <p>En el <em>script</em>, como prueba de concepto, se ha configurado la tabla de contenidos para generar enlaces a las secciones del PDF resultante (coloreando <a href="https://blog.mozilla.org/en/internet-culture/deep-dives/why-are-hyperlinks-blue/">los enlaces de azul</a> ;) ).</p>
 <p>También se incluye una opción que evita que el <em>LaTeX engine</em> interprete las <em>contrabarras</em> <code>\</code> <a href="https://en.wikibooks.org/wiki/LaTeX/Special_Characters">como caracteres de escape</a>, lo que puede generar errores al procesar los ficheros en formato markdown (en los que las <code>\</code> no tienen ningún sinificado especial):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#268bd2">pdfOptions</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;... -f markdown-raw_tex&#34;</span>
-</span></span></code></pre></div><h2 id="inclusión-del-script-en-un-proyecto-existente">Inclusión del <em>script</em> en un proyecto existente</h2>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash"><span style="color:#268bd2">pdfOptions</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;... -f markdown-raw_tex&#34;</span>
+</code></pre></div><h2 id="inclusión-del-script-en-un-proyecto-existente">Inclusión del <em>script</em> en un proyecto existente</h2>
 <p>Si la documentación de proyecto (los ficheros en formato markdown) están en un repositorio git, se puede incluir el repositorio <a href="https://github.com/onthedock/build_doc_output">onthedock/build_doc_output</a> como un <a href="https://git-scm.com/book/en/v2/Git-Tools-Submodules">submódulo</a> de Git:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>git submodule add https://github.com/onthedock/build_doc_output build
-</span></span></code></pre></div><p>Con lo que el proyecto quedaría:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>documentation/
-</span></span><span style="display:flex;"><span>    .
-</span></span><span style="display:flex;"><span>    ├── build
-</span></span><span style="display:flex;"><span>    │   ├── build_ouput.sh
-</span></span><span style="display:flex;"><span>    │   └── readme.md
-</span></span><span style="display:flex;"><span>    ├── 000-cover.md
-</span></span><span style="display:flex;"><span>    ├── 010-section-1.md
-</span></span><span style="display:flex;"><span>    ├── 011-subsection-1.1.md
-</span></span><span style="display:flex;"><span>    └── 020-section-2.md
-</span></span></code></pre></div><p>Se puede crear un <a href="https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks"><em>githook</em></a> de manera que tras cada <em>push</em> al repositorio, se genere una nueva versión del documento final, por ejemplo.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">git submodule add https://github.com/onthedock/build_doc_output build
+</code></pre></div><p>Con lo que el proyecto quedaría:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">documentation/
+    .
+    ├── build
+    │   ├── build_ouput.sh
+    │   └── readme.md
+    ├── 000-cover.md
+    ├── 010-section-1.md
+    ├── 011-subsection-1.1.md
+    └── 020-section-2.md
+</code></pre></div><p>Se puede crear un <a href="https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks"><em>githook</em></a> de manera que tras cada <em>push</em> al repositorio, se genere una nueva versión del documento final, por ejemplo.</p>
 <h3 id="usar-git-log-para-generar-una-tabla-de-control-de-cambios">Usar <em>git log</em> para generar una <em>tabla de control de cambios</em></h3>
 <p>Al disponer de un sistema de control de cambios usando por todo el equipo de proyecto, podemos usar la información contenida en la historia del repositorio como base de la sección de <em>Control de cambios</em> de la documentación generada.</p>
 <p>En el <em>script</em>, como prueba de concepto, se genera una tabla que contiene los últimos diez cambios en el repositorio en forma de tabla, junto con el <em>commitID</em> y el autor del <em>commit</em>.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>create_changelog<span style="color:#719e07">(){</span>
-</span></span><span style="display:flex;"><span>       <span style="color:#268bd2">changeLogFileName</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#2aa198">${</span><span style="color:#268bd2">1</span><span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span>
-</span></span><span style="display:flex;"><span>       <span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;## Changelog (last 10 changes)&#34;</span> &gt; <span style="color:#2aa198">${</span><span style="color:#268bd2">changeLogFileName</span><span style="color:#2aa198">}</span>
-</span></span><span style="display:flex;"><span>       <span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;&#34;</span> &gt;&gt; <span style="color:#2aa198">${</span><span style="color:#268bd2">changeLogFileName</span><span style="color:#2aa198">}</span>
-</span></span><span style="display:flex;"><span>       <span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;| CommitID | Author | Commit Msg |&#34;</span> &gt;&gt; <span style="color:#2aa198">${</span><span style="color:#268bd2">changeLogFileName</span><span style="color:#2aa198">}</span>
-</span></span><span style="display:flex;"><span>       <span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;| --- | --- | --- |&#34;</span> &gt;&gt; <span style="color:#2aa198">${</span><span style="color:#268bd2">changeLogFileName</span><span style="color:#2aa198">}</span>
-</span></span><span style="display:flex;"><span>       git log -10 --pretty<span style="color:#719e07">=</span>format:<span style="color:#2aa198">&#39;| %h | %an | %s |&#39;</span> &gt;&gt; <span style="color:#2aa198">${</span><span style="color:#268bd2">changeLogFileName</span><span style="color:#2aa198">}</span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">}</span>
-</span></span></code></pre></div><p>Las opciones de configuración de la salida de <em>git log</em> pueden consultarse en <a href="https://git-scm.com/docs/pretty-formats">Pretty formats</a> o en <a href="https://git-scm.com/docs/git-log">git log</a> en la documentación oficial de Git.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">create_changelog<span style="color:#719e07">(){</span>
+       <span style="color:#268bd2">changeLogFileName</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#2aa198">${</span><span style="color:#268bd2">1</span><span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span>
+       <span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;## Changelog (last 10 changes)&#34;</span> &gt; <span style="color:#2aa198">${</span><span style="color:#268bd2">changeLogFileName</span><span style="color:#2aa198">}</span>
+       <span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;&#34;</span> &gt;&gt; <span style="color:#2aa198">${</span><span style="color:#268bd2">changeLogFileName</span><span style="color:#2aa198">}</span>
+       <span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;| CommitID | Author | Commit Msg |&#34;</span> &gt;&gt; <span style="color:#2aa198">${</span><span style="color:#268bd2">changeLogFileName</span><span style="color:#2aa198">}</span>
+       <span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;| --- | --- | --- |&#34;</span> &gt;&gt; <span style="color:#2aa198">${</span><span style="color:#268bd2">changeLogFileName</span><span style="color:#2aa198">}</span>
+       git log -10 --pretty<span style="color:#719e07">=</span>format:<span style="color:#2aa198">&#39;| %h | %an | %s |&#39;</span> &gt;&gt; <span style="color:#2aa198">${</span><span style="color:#268bd2">changeLogFileName</span><span style="color:#2aa198">}</span>
+<span style="color:#719e07">}</span>
+</code></pre></div><p>Las opciones de configuración de la salida de <em>git log</em> pueden consultarse en <a href="https://git-scm.com/docs/pretty-formats">Pretty formats</a> o en <a href="https://git-scm.com/docs/git-log">git log</a> en la documentación oficial de Git.</p>
 <h2 id="conclusión">Conclusión</h2>
 <p>Para usar <em>documentación como código</em> no es necesario disponer de una <em>pipeline</em> compleja con la que automatizar el proceso de generación de la documentación con cada <em>commit</em>.</p>
 <p>Incluso en los escenarios más sencillos, con un número de personas y herramientas reducido, es posible beneficiarse del concepto de <em>documentación cómo código</em>, generando documentación de manera ágil, de acuerdo con los requerimientos de prácticamente cualquier cliente, sin necesidad de alterar el flujo de trabajo habitual del equipo de desarrollo.</p></div>

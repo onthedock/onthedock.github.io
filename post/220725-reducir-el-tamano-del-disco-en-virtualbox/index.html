@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.95.0" />
+<meta name="generator" content="Hugo 0.92.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -151,23 +151,23 @@
 <p>En las guías que he consultado, el sistema de ficheros <em>debería</em> estar montado en modo de sólo lectura, pero en mi caso no ha sido así. Por ello, incluyo los pasos adicionales que he tenido que seguir para conseguir montar <code>/</code> en modo <code>ro</code>.</p>
 </blockquote>
 <p>Para conseguir montar el sistema de ficheros en modo de lectura, he tenido que detener los servicios <code>systemd-journal*</code> y deshabilitar la <em>swap</em> mediante:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>systemctl stop systemd-journal*
-</span></span><span style="display:flex;"><span>swapoff -a
-</span></span></code></pre></div><p>Identifica qué <em>desmontar</em> ejecutando <code>df</code> y mirándo en qué dispositivo se encuentra la raíz del sistema de ficheros <code>/</code>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">systemctl stop systemd-journal*
+swapoff -a
+</code></pre></div><p>Identifica qué <em>desmontar</em> ejecutando <code>df</code> y mirándo en qué dispositivo se encuentra la raíz del sistema de ficheros <code>/</code>.</p>
 <p>Ahora sí, ya puedo volver a montar el sistema de ficheros en modo de sólo lectura con:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>mount -o remount,ro /dev/sda1
-</span></span></code></pre></div><h3 id="ejecutar-zerofree">Ejecutar <code>zerofree</code></h3>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">mount -o remount,ro /dev/sda1
+</code></pre></div><h3 id="ejecutar-zerofree">Ejecutar <code>zerofree</code></h3>
 <p>Ejecutamos <code>zerofree</code> sobre el dispositivo:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>zerofree -v /dev/sda1
-</span></span></code></pre></div><p>Tras unos minutos, <code>zerofree</code> habrá sobrescrito todos los ficheros borrados que todavía hubiera en el disco con <code>0</code>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">zerofree -v /dev/sda1
+</code></pre></div><p>Tras unos minutos, <code>zerofree</code> habrá sobrescrito todos los ficheros borrados que todavía hubiera en el disco con <code>0</code>.</p>
 <p>Al finalizar, apaga la máquina virtual.</p>
 <h3 id="reducir-el-tamaño-del-fichero-del-disco">Reducir el tamaño del fichero del disco</h3>
 <p>La herramienta <code>VBoxManage.exe</code> se  encuentra en la carpeta de instalación de VirtualBox. Navega hasta la carpeta y ejecuta:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>c:<span style="color:#cb4b16">\P</span>rogram Files<span style="color:#cb4b16">\O</span>racle<span style="color:#cb4b16">\V</span>irtualBox<span style="color:#cb4b16">\V</span>BoxManage.exe list hdds
-</span></span></code></pre></div><p>Este paso no es necesario, pero ayuda a indentificar cuál es el disco que quieres <em>encoger</em>; la salida del comando indica la ubicación de los discos de las diferentes máquinas virtuales en tu equipo.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">c:<span style="color:#cb4b16">\P</span>rogram Files<span style="color:#cb4b16">\O</span>racle<span style="color:#cb4b16">\V</span>irtualBox<span style="color:#cb4b16">\V</span>BoxManage.exe list hdds
+</code></pre></div><p>Este paso no es necesario, pero ayuda a indentificar cuál es el disco que quieres <em>encoger</em>; la salida del comando indica la ubicación de los discos de las diferentes máquinas virtuales en tu equipo.</p>
 <p>Una vez identificada la ruta al fichero del disco, ejecuta el siguiente comando (por supuesto, el nombre y la ubicación de tu disco será diferente):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>c:<span style="color:#cb4b16">\P</span>rogram Files<span style="color:#cb4b16">\O</span>racle<span style="color:#cb4b16">\V</span>irtualBox<span style="color:#cb4b16">\V</span>BoxManage.exe modifymedium disk d:<span style="color:#cb4b16">\V</span>Ms<span style="color:#cb4b16">\v</span>m-02<span style="color:#cb4b16">\v</span>m-02-hdd-1.vdi --compact
-</span></span></code></pre></div><p>Y en unos cuantos minutos, ¡el tamaño del fichero que representa el disco se habrá reducido!</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">c:<span style="color:#cb4b16">\P</span>rogram Files<span style="color:#cb4b16">\O</span>racle<span style="color:#cb4b16">\V</span>irtualBox<span style="color:#cb4b16">\V</span>BoxManage.exe modifymedium disk d:<span style="color:#cb4b16">\V</span>Ms<span style="color:#cb4b16">\v</span>m-02<span style="color:#cb4b16">\v</span>m-02-hdd-1.vdi --compact
+</code></pre></div><p>Y en unos cuantos minutos, ¡el tamaño del fichero que representa el disco se habrá reducido!</p>
 <p>En mi caso, en un par de máquinas similares, la reducción de tamaño ha sido aproximadamente de un 50%, aunque la reducción conseguida depende de los ficheros existentes en cada disco, así que <em>your mileage may vary</em>, como dicen los anglosajones&hellip;</p>
 <h2 id="resumen">Resumen</h2>
 <p>Las actualizaciones de paquetes, las descargas de ficheros o simplemente la <em>cache</em> del navegador escriben en el disco de la VM haciendo que aumente su tamaño constantemente. Al cabo del tiempo -y en función del tamaño del disco o partición en el que se encuentra la VM- este incremento de tamaño puede resultar problemático.</p>

@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.95.0" />
+<meta name="generator" content="Hugo 0.92.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -131,24 +131,25 @@
   </div>
 
   <div class="article-body"><p>Al hacer limpieza de uno de los clústers de desarrollo, he borrado dos <em>namespaces</em> y los dos se han quedado en estado <em>Terminating</em></p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>k3os <span style="color:#719e07">[</span>~<span style="color:#719e07">]</span>$ k get ns
-</span></span><span style="display:flex;"><span>NAME                       STATUS        AGE
-</span></span><span style="display:flex;"><span><span style="color:#719e07">[</span>...<span style="color:#719e07">]</span>
-</span></span><span style="display:flex;"><span>toolbox-argocd             Terminating   147d
-</span></span><span style="display:flex;"><span>toolbox-tekton-pipelines   Terminating   147d
-</span></span></code></pre></div><p>He intentado varias cosas (incluso reiniciando la VM), pero los <em>namespaces</em> seguían sin eliminarse&hellip;</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">k3os <span style="color:#719e07">[</span>~<span style="color:#719e07">]</span>$ k get ns
+NAME                       STATUS        AGE
+<span style="color:#719e07">[</span>...<span style="color:#719e07">]</span>
+toolbox-argocd             Terminating   147d
+toolbox-tekton-pipelines   Terminating   147d
+
+</code></pre></div><p>He intentado varias cosas (incluso reiniciando la VM), pero los <em>namespaces</em> seguían sin eliminarse&hellip;</p>
 <p>El problema es que hay &ldquo;<em>algo</em>&rdquo; que impide que el <em>namespace</em> se borre; puedes identificar ese <em>algo</em> lanzando un <code>kubectl get ns ${nombre_namespace} -o yaml</code> del <em>namespace</em> y buscando en la sección de <code>metadata.finalizers</code>.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#719e07">[</span>...<span style="color:#719e07">]</span>
-</span></span><span style="display:flex;"><span>metadata:
-</span></span><span style="display:flex;"><span>  finalizers:
-</span></span><span style="display:flex;"><span>  - controller.cattle.io/namespace-auth
-</span></span><span style="display:flex;"><span><span style="color:#719e07">[</span>...<span style="color:#719e07">]</span>
-</span></span></code></pre></div><p>Aunque no puedo borrar este elemento que bloquea el borrado del <em>Namespace</em>, sí que puedo <strong>editar</strong> el <em>Namespace</em> para <strong>eliminar</strong> el <em>finalizer</em>. Así Kubernetes cree que no hay nada que impida la eliminación del objeto.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash"><span style="color:#719e07">[</span>...<span style="color:#719e07">]</span>
+metadata:
+  finalizers:
+  - controller.cattle.io/namespace-auth
+<span style="color:#719e07">[</span>...<span style="color:#719e07">]</span>
+</code></pre></div><p>Aunque no puedo borrar este elemento que bloquea el borrado del <em>Namespace</em>, sí que puedo <strong>editar</strong> el <em>Namespace</em> para <strong>eliminar</strong> el <em>finalizer</em>. Así Kubernetes cree que no hay nada que impida la eliminación del objeto.</p>
 <p>Edito el objeto mediante <code>kubectl edit ns toolbox-argocd</code> y elimino la línea correspondiente a <code>- controller.cattle.io/namespace-auth</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#719e07">[</span>...<span style="color:#719e07">]</span>
-</span></span><span style="display:flex;"><span>  finalizers:
-</span></span><span style="display:flex;"><span><span style="color:#719e07">[</span>...<span style="color:#719e07">]</span>
-</span></span></code></pre></div><p>Al guardar los cambios, compruebo de nuevo la lista de <em>Namespaces</em> para validar que el <em>Namespace</em> se ha borrado correctamente.</p></div>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash"><span style="color:#719e07">[</span>...<span style="color:#719e07">]</span>
+  finalizers:
+<span style="color:#719e07">[</span>...<span style="color:#719e07">]</span>
+</code></pre></div><p>Al guardar los cambios, compruebo de nuevo la lista de <em>Namespaces</em> para validar que el <em>Namespace</em> se ha borrado correctamente.</p></div>
 
   <aside class="p-share">
 

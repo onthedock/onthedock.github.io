@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.95.0" />
+<meta name="generator" content="Hugo 0.92.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -135,77 +135,77 @@
 <p>Los espacios de nombres también facilitan la creación de cuotas para limitar los recursos disponibles para cada <em>namespace</em>. Puedes considerar los espacios de nombres como clústers <em>virtuales</em> sobre el clúster físico de Kubernetes. De esta forma, proporcionan separación lógica entre los entornos de diferentes equipos.</p>
 <p>Kubernetes proporciona dos <em>namespaces</em> por defecto: <code>kube-system</code> y <code>default</code>. A <em>grosso modo</em>, los objetos &ldquo;de usuario&rdquo; se crean en el espacio de nombres <code>default</code>, mientras que los de &ldquo;sistema&rdquo; se encuentran en <code>kube-system</code>.</p>
 <p>Para ver los espacios de nombres en el clúster, ejecuta:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>$ kubectl get namespaces
-</span></span><span style="display:flex;"><span>NAME          STATUS    AGE
-</span></span><span style="display:flex;"><span>default       Active    21d
-</span></span><span style="display:flex;"><span>kube-system   Active    21d
-</span></span></code></pre></div><blockquote>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ kubectl get namespaces
+NAME          STATUS    AGE
+default       Active    21d
+kube-system   Active    21d
+</code></pre></div><blockquote>
 <p>Puedes obtener el mismo resultado usando <code>ns</code> en vez de <code>namespaces</code></p>
 </blockquote>
 <p>Para comprobar la separación lógica entre los objetos de diferentes <em>namespaces</em>, lista los pods mediante <code>kubectl get pods</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>$ kubectl get pods
-</span></span><span style="display:flex;"><span>NAME                     READY     STATUS    RESTARTS   AGE
-</span></span><span style="display:flex;"><span>nginx-3225377387-xdth3   1/1       Running   <span style="color:#2aa198">0</span>          7d
-</span></span></code></pre></div><p>Analizando al detalle el <em>pod</em> mediante <code>kubectl describe pod nginx-3225377387-xdth3</code>, observa como se encuentra en el espacio de nombres <code>default</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>$ kubectl describe pod nginx-3225377387-xdth3
-</span></span><span style="display:flex;"><span>Name:    nginx-3225377387-xdth3
-</span></span><span style="display:flex;"><span>Namespace:  default
-</span></span><span style="display:flex;"><span>Node:    k8s-snc/192.168.1.10
-</span></span><span style="display:flex;"><span>...
-</span></span></code></pre></div><p>Compara los resultados obtenidos con los comandos anteriores con el de <code>kubectl get pods --all-namespaces</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>$ kubectl get pods --all-namespaces
-</span></span><span style="display:flex;"><span>NAMESPACE     NAME                              READY     STATUS    RESTARTS   AGE
-</span></span><span style="display:flex;"><span>default       nginx-3225377387-xdth3            1/1       Running   <span style="color:#2aa198">0</span>          7d
-</span></span><span style="display:flex;"><span>kube-system   etcd-k8s-snc                      1/1       Running   <span style="color:#2aa198">3</span>          21d
-</span></span><span style="display:flex;"><span>kube-system   kube-apiserver-k8s-snc            1/1       Running   <span style="color:#2aa198">3</span>          21d
-</span></span><span style="display:flex;"><span>kube-system   kube-controller-manager-k8s-snc   1/1       Running   <span style="color:#2aa198">3</span>          21d
-</span></span><span style="display:flex;"><span>kube-system   kube-dns-2425271678-xbzt8         3/3       Running   <span style="color:#2aa198">12</span>         21d
-</span></span><span style="display:flex;"><span>kube-system   kube-proxy-tbstt                  1/1       Running   <span style="color:#2aa198">3</span>          21d
-</span></span><span style="display:flex;"><span>kube-system   kube-scheduler-k8s-snc            1/1       Running   <span style="color:#2aa198">3</span>          21d
-</span></span><span style="display:flex;"><span>kube-system   weave-net-snspp                   2/2       Running   <span style="color:#2aa198">9</span>          20d
-</span></span></code></pre></div><p>La primera columna de la salida del comando anterior indica el espacio de nombres en el que se encuentra cada <em>pod</em>, en este caso.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ kubectl get pods
+NAME                     READY     STATUS    RESTARTS   AGE
+nginx-3225377387-xdth3   1/1       Running   <span style="color:#2aa198">0</span>          7d
+</code></pre></div><p>Analizando al detalle el <em>pod</em> mediante <code>kubectl describe pod nginx-3225377387-xdth3</code>, observa como se encuentra en el espacio de nombres <code>default</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ kubectl describe pod nginx-3225377387-xdth3
+Name:    nginx-3225377387-xdth3
+Namespace:  default
+Node:    k8s-snc/192.168.1.10
+...
+</code></pre></div><p>Compara los resultados obtenidos con los comandos anteriores con el de <code>kubectl get pods --all-namespaces</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ kubectl get pods --all-namespaces
+NAMESPACE     NAME                              READY     STATUS    RESTARTS   AGE
+default       nginx-3225377387-xdth3            1/1       Running   <span style="color:#2aa198">0</span>          7d
+kube-system   etcd-k8s-snc                      1/1       Running   <span style="color:#2aa198">3</span>          21d
+kube-system   kube-apiserver-k8s-snc            1/1       Running   <span style="color:#2aa198">3</span>          21d
+kube-system   kube-controller-manager-k8s-snc   1/1       Running   <span style="color:#2aa198">3</span>          21d
+kube-system   kube-dns-2425271678-xbzt8         3/3       Running   <span style="color:#2aa198">12</span>         21d
+kube-system   kube-proxy-tbstt                  1/1       Running   <span style="color:#2aa198">3</span>          21d
+kube-system   kube-scheduler-k8s-snc            1/1       Running   <span style="color:#2aa198">3</span>          21d
+kube-system   weave-net-snspp                   2/2       Running   <span style="color:#2aa198">9</span>          20d
+</code></pre></div><p>La primera columna de la salida del comando anterior indica el espacio de nombres en el que se encuentra cada <em>pod</em>, en este caso.</p>
 <h1 id="crea-un-nuevo-espacio-de-nombres">Crea un nuevo espacio de nombres</h1>
 <p>Para crear un <em>namespace</em>, crea un fichero <code>YAML</code> como el siguiente:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#268bd2">apiVersion</span>: v1
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">kind</span>: Namespace
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">metadata</span>:
-</span></span><span style="display:flex;"><span>   <span style="color:#268bd2">name</span>: developers
-</span></span></code></pre></div><blockquote>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">apiVersion</span>: v1
+<span style="color:#268bd2">kind</span>: Namespace
+<span style="color:#268bd2">metadata</span>:
+   <span style="color:#268bd2">name</span>: developers
+</code></pre></div><blockquote>
 <p>El nombre del <em>namespace</em> debe ser compatible con una entrada válida de DNS.</p>
 </blockquote>
 <p>Para crear el <em>namespace</em>, ejecuta:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>$ kubectl create -f ns-developers.yaml
-</span></span><span style="display:flex;"><span>namespace <span style="color:#2aa198">&#34;developers&#34;</span> created
-</span></span></code></pre></div><p>Al obtener la lista de espacios de nombres disponibles, observa que ahora el nuevo <em>namespace</em> aparece:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>$ kubectl get ns
-</span></span><span style="display:flex;"><span>NAME          STATUS    AGE
-</span></span><span style="display:flex;"><span>default       Active    21d
-</span></span><span style="display:flex;"><span>developers    Active    55s
-</span></span><span style="display:flex;"><span>kube-system   Active    21d
-</span></span></code></pre></div><p>Observa con detalle el <em>namespace</em> creado:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>$ kubectl describe ns developers
-</span></span><span style="display:flex;"><span>Name:    developers
-</span></span><span style="display:flex;"><span>Labels:     &lt;none&gt;
-</span></span><span style="display:flex;"><span>Annotations:   &lt;none&gt;
-</span></span><span style="display:flex;"><span>Status:     Active
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>No resource quota.
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>No resource limits.
-</span></span></code></pre></div><p>Idealmente, el particionamiento del clúster en espacios de nombres permite repartir los recursos del clúster imponiendo cuotas, de manera que los objetos de un determinado <em>namespace</em> no acaparen todos los recursos disponibles.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ kubectl create -f ns-developers.yaml
+namespace <span style="color:#2aa198">&#34;developers&#34;</span> created
+</code></pre></div><p>Al obtener la lista de espacios de nombres disponibles, observa que ahora el nuevo <em>namespace</em> aparece:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ kubectl get ns
+NAME          STATUS    AGE
+default       Active    21d
+developers    Active    55s
+kube-system   Active    21d
+</code></pre></div><p>Observa con detalle el <em>namespace</em> creado:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ kubectl describe ns developers
+Name:    developers
+Labels:     &lt;none&gt;
+Annotations:   &lt;none&gt;
+Status:     Active
+
+No resource quota.
+
+No resource limits.
+</code></pre></div><p>Idealmente, el particionamiento del clúster en espacios de nombres permite repartir los recursos del clúster imponiendo cuotas, de manera que los objetos de un determinado <em>namespace</em> no acaparen todos los recursos disponibles.</p>
 <p>A continuación indico cómo establecer algunos límites para el <em>namespace</em> (basado en <a href="https://kubernetes.io/docs/tasks/administer-cluster/apply-resource-quota-limit/">Apply Resource Quotas and Limits</a>).</p>
 <h2 id="aplicando-quotas-al-número-de-objetos-en-el-_namespace_">Aplicando quotas al número de objetos en el <em>namespace</em></h2>
 <p>Para aplicar una cuota, creamos un fichero <code>YAML</code> del tipo <code>ResourceQuota</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#268bd2">apiVersion</span>: v1
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">kind</span>: ResourceQuota
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">metadata</span>:
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">name</span>: object-counts
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">spec</span>:
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">hard</span>:
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">persistentvolumeclaims</span>: <span style="color:#2aa198">&#34;2&#34;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">services.loadbalancers</span>: <span style="color:#2aa198">&#34;2&#34;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">services.nodeports</span>: <span style="color:#2aa198">&#34;0&#34;</span>
-</span></span></code></pre></div><p>Esta cuota limita el número de:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">apiVersion</span>: v1
+<span style="color:#268bd2">kind</span>: ResourceQuota
+<span style="color:#268bd2">metadata</span>:
+  <span style="color:#268bd2">name</span>: object-counts
+<span style="color:#268bd2">spec</span>:
+  <span style="color:#268bd2">hard</span>:
+    <span style="color:#268bd2">persistentvolumeclaims</span>: <span style="color:#2aa198">&#34;2&#34;</span>
+    <span style="color:#268bd2">services.loadbalancers</span>: <span style="color:#2aa198">&#34;2&#34;</span>
+    <span style="color:#268bd2">services.nodeports</span>: <span style="color:#2aa198">&#34;0&#34;</span>
+</code></pre></div><p>Esta cuota limita el número de:</p>
 <ul>
 <li>volúmenes persistentes (2)</li>
 <li>balanceadores de carga (2)</li>
@@ -215,187 +215,187 @@
 <blockquote>
 <p>Debes especificar el <em>namespace</em> donde aplicar la cuota.</p>
 </blockquote>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>$ kubectl create -f quota-object-counts.yaml --namespace developers
-</span></span><span style="display:flex;"><span>resourcequota <span style="color:#2aa198">&#34;object-counts&#34;</span> created
-</span></span></code></pre></div><p>Comprobamos que se ha aplicado la cuota al <em>namespace</em> <code>developers</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>$ kubectl describe ns developers
-</span></span><span style="display:flex;"><span>Name:    developers
-</span></span><span style="display:flex;"><span>Labels:     &lt;none&gt;
-</span></span><span style="display:flex;"><span>Annotations:   &lt;none&gt;
-</span></span><span style="display:flex;"><span>Status:     Active
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>Resource Quotas
-</span></span><span style="display:flex;"><span> Name:         object-counts
-</span></span><span style="display:flex;"><span> Resource      Used  Hard
-</span></span><span style="display:flex;"><span> --------      ---   ---
-</span></span><span style="display:flex;"><span> persistentvolumeclaims <span style="color:#2aa198">0</span>  <span style="color:#2aa198">2</span>
-</span></span><span style="display:flex;"><span> services.loadbalancers <span style="color:#2aa198">0</span>  <span style="color:#2aa198">2</span>
-</span></span><span style="display:flex;"><span> services.nodeports  <span style="color:#2aa198">0</span>  <span style="color:#2aa198">0</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>No resource limits.
-</span></span></code></pre></div><p>Esta cuota impide la creación de más objetos de cada tipo de los especificados en la cuota (es decir, como máximo, puede haber dos <em>load balancers</em> en el espacio de nombres <code>developers</code>).</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ kubectl create -f quota-object-counts.yaml --namespace developers
+resourcequota <span style="color:#2aa198">&#34;object-counts&#34;</span> created
+</code></pre></div><p>Comprobamos que se ha aplicado la cuota al <em>namespace</em> <code>developers</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ kubectl describe ns developers
+Name:    developers
+Labels:     &lt;none&gt;
+Annotations:   &lt;none&gt;
+Status:     Active
+
+Resource Quotas
+ Name:         object-counts
+ Resource      Used  Hard
+ --------      ---   ---
+ persistentvolumeclaims <span style="color:#2aa198">0</span>  <span style="color:#2aa198">2</span>
+ services.loadbalancers <span style="color:#2aa198">0</span>  <span style="color:#2aa198">2</span>
+ services.nodeports  <span style="color:#2aa198">0</span>  <span style="color:#2aa198">0</span>
+
+No resource limits.
+</code></pre></div><p>Esta cuota impide la creación de más objetos de cada tipo de los especificados en la cuota (es decir, como máximo, puede haber dos <em>load balancers</em> en el espacio de nombres <code>developers</code>).</p>
 <h2 id="aplicando-cuotas-a-los-recursos-del-_namespace_">Aplicando cuotas a los recursos del <em>namespace</em></h2>
 <p>Habitualmente los límites que se suelen establecer para cada espacio de nombres están enfocados a limitar los recursos de CPU y memoria del <em>namespace</em>.</p>
 <p>El siguiente fichero <code>YAML</code> especifica un límite de 2 CPUs y 2GB de memoria. Además, especifica una limitación en cuanto a las peticiones que debe realizar un <em>pod</em> en este espacio de nombres. Finalmente, también se establece una limitación de como máximo, 4 <em>pods</em>.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#268bd2">apiVersion</span>: v1
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">kind</span>: ResourceQuota
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">metadata</span>:
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">name</span>: compute-resources
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">spec</span>:
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">hard</span>:
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">limits.cpu</span>: <span style="color:#2aa198">&#34;2&#34;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">limits.memory</span>: 2Gi
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">requests.cpu</span>: <span style="color:#2aa198">&#34;1&#34;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">requests.memory</span>: 1Gi
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">pods</span>: <span style="color:#2aa198">&#34;4&#34;</span>
-</span></span></code></pre></div><p>Aplicamos la nueva cuota mediante:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">apiVersion</span>: v1
+<span style="color:#268bd2">kind</span>: ResourceQuota
+<span style="color:#268bd2">metadata</span>:
+  <span style="color:#268bd2">name</span>: compute-resources
+<span style="color:#268bd2">spec</span>:
+  <span style="color:#268bd2">hard</span>:
+    <span style="color:#268bd2">limits.cpu</span>: <span style="color:#2aa198">&#34;2&#34;</span>
+    <span style="color:#268bd2">limits.memory</span>: 2Gi
+    <span style="color:#268bd2">requests.cpu</span>: <span style="color:#2aa198">&#34;1&#34;</span>
+    <span style="color:#268bd2">requests.memory</span>: 1Gi
+    <span style="color:#268bd2">pods</span>: <span style="color:#2aa198">&#34;4&#34;</span>
+</code></pre></div><p>Aplicamos la nueva cuota mediante:</p>
 <blockquote>
 <p>De nuevo, recuerda que debes especificar el <em>namespace</em> al que aplicar la cuota.</p>
 </blockquote>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>$ kubectl create -f quota-compute-resources.yaml --namespace developers
-</span></span><span style="display:flex;"><span>resourcequota <span style="color:#2aa198">&#34;compute-resources&#34;</span> created
-</span></span></code></pre></div><p>El espacio de nombres está limitado ahora de la siguiente manera:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>$ kubectl describe ns developers
-</span></span><span style="display:flex;"><span>Name:          developers
-</span></span><span style="display:flex;"><span>Labels:        &lt;none&gt;
-</span></span><span style="display:flex;"><span>Annotations:   &lt;none&gt;
-</span></span><span style="display:flex;"><span>Status:     Active
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>Resource Quotas
-</span></span><span style="display:flex;"><span> Name:            compute-resources
-</span></span><span style="display:flex;"><span> Resource         Used  Hard
-</span></span><span style="display:flex;"><span> --------         ---   ---
-</span></span><span style="display:flex;"><span> limits.cpu       <span style="color:#2aa198">0</span>     <span style="color:#2aa198">2</span>
-</span></span><span style="display:flex;"><span> limits.memory    <span style="color:#2aa198">0</span>     2Gi
-</span></span><span style="display:flex;"><span> pods             <span style="color:#2aa198">0</span>     <span style="color:#2aa198">4</span>
-</span></span><span style="display:flex;"><span> requests.cpu     <span style="color:#2aa198">0</span>     <span style="color:#2aa198">1</span>
-</span></span><span style="display:flex;"><span> requests.memory  <span style="color:#2aa198">0</span>     1Gi
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span> Name:                  object-counts
-</span></span><span style="display:flex;"><span> Resource               Used  Hard
-</span></span><span style="display:flex;"><span> --------               ---   ---
-</span></span><span style="display:flex;"><span> persistentvolumeclaims  <span style="color:#2aa198">0</span>     <span style="color:#2aa198">2</span>
-</span></span><span style="display:flex;"><span> services.loadbalancers  <span style="color:#2aa198">0</span>     <span style="color:#2aa198">2</span>
-</span></span><span style="display:flex;"><span> services.nodeports      <span style="color:#2aa198">0</span>     <span style="color:#2aa198">0</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>No resource limits.
-</span></span></code></pre></div><p>La limitación impuesta en las peticiones (<code>requests</code>) de memoria y CPU <strong>obligan a que se especifiquen límites en la definición de los recursos asignados a cada <em>pod</em></strong>. En general, al crear la definición de un <em>deployment</em> no se especifican estos límites, lo que puede provocar algo de desconcierto.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ kubectl create -f quota-compute-resources.yaml --namespace developers
+resourcequota <span style="color:#2aa198">&#34;compute-resources&#34;</span> created
+</code></pre></div><p>El espacio de nombres está limitado ahora de la siguiente manera:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ kubectl describe ns developers
+Name:          developers
+Labels:        &lt;none&gt;
+Annotations:   &lt;none&gt;
+Status:     Active
+
+Resource Quotas
+ Name:            compute-resources
+ Resource         Used  Hard
+ --------         ---   ---
+ limits.cpu       <span style="color:#2aa198">0</span>     <span style="color:#2aa198">2</span>
+ limits.memory    <span style="color:#2aa198">0</span>     2Gi
+ pods             <span style="color:#2aa198">0</span>     <span style="color:#2aa198">4</span>
+ requests.cpu     <span style="color:#2aa198">0</span>     <span style="color:#2aa198">1</span>
+ requests.memory  <span style="color:#2aa198">0</span>     1Gi
+
+ Name:                  object-counts
+ Resource               Used  Hard
+ --------               ---   ---
+ persistentvolumeclaims  <span style="color:#2aa198">0</span>     <span style="color:#2aa198">2</span>
+ services.loadbalancers  <span style="color:#2aa198">0</span>     <span style="color:#2aa198">2</span>
+ services.nodeports      <span style="color:#2aa198">0</span>     <span style="color:#2aa198">0</span>
+
+No resource limits.
+</code></pre></div><p>La limitación impuesta en las peticiones (<code>requests</code>) de memoria y CPU <strong>obligan a que se especifiquen límites en la definición de los recursos asignados a cada <em>pod</em></strong>. En general, al crear la definición de un <em>deployment</em> no se especifican estos límites, lo que puede provocar algo de desconcierto.</p>
 <p>Vamos a crear un <em>Deployment</em> en el <em>namespace</em> <code>Developers</code>. Aunque asignamos el <em>deployment</em> al <em>namespace</em> desde la línea de comando, en un fichero <code>YAML</code> usaríamos:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#268bd2">apiVersion</span>: v1
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">kind</span>: Service
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">metadata</span>:
-</span></span><span style="display:flex;"><span>   <span style="color:#268bd2">name</span>: ejemplo
-</span></span><span style="display:flex;"><span>   <span style="color:#268bd2">namespace</span>: developers
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">spec</span>:
-</span></span><span style="display:flex;"><span>   ...
-</span></span></code></pre></div><p>Creamos un <em>deployment</em>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>$ kubectl run nginx --image<span style="color:#719e07">=</span>nginx --replicas<span style="color:#719e07">=</span><span style="color:#2aa198">1</span> --namespace<span style="color:#719e07">=</span>developers
-</span></span><span style="display:flex;"><span>deployment <span style="color:#2aa198">&#34;nginx&#34;</span> created
-</span></span></code></pre></div><p>Todo parece ok hasta que buscamos el <em>pod</em> que debería crearse:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>$ kubectl get pods --namespace developers
-</span></span><span style="display:flex;"><span>No resources found.
-</span></span></code></pre></div><p>Analizamos el detalle del <em>deployment</em></p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>$ kubectl describe deployment nginx --namespace developers
-</span></span><span style="display:flex;"><span>Name:       nginx
-</span></span><span style="display:flex;"><span>Namespace:     developers
-</span></span><span style="display:flex;"><span>CreationTimestamp:   Sun, <span style="color:#2aa198">23</span> Jul <span style="color:#2aa198">2017</span> 21:19:57 +0200
-</span></span><span style="display:flex;"><span>Labels:        <span style="color:#268bd2">run</span><span style="color:#719e07">=</span>nginx
-</span></span><span style="display:flex;"><span>Annotations:      deployment.kubernetes.io/revision<span style="color:#719e07">=</span><span style="color:#2aa198">1</span>
-</span></span><span style="display:flex;"><span>Selector:      <span style="color:#268bd2">run</span><span style="color:#719e07">=</span>nginx
-</span></span><span style="display:flex;"><span>Replicas:      <span style="color:#2aa198">1</span> desired | <span style="color:#2aa198">0</span> updated | <span style="color:#2aa198">0</span> total | <span style="color:#2aa198">0</span> available | <span style="color:#2aa198">1</span> unavailable
-</span></span><span style="display:flex;"><span>StrategyType:     RollingUpdate
-</span></span><span style="display:flex;"><span>MinReadySeconds:  <span style="color:#2aa198">0</span>
-</span></span><span style="display:flex;"><span>RollingUpdateStrategy:  <span style="color:#2aa198">1</span> max unavailable, <span style="color:#2aa198">1</span> max surge
-</span></span><span style="display:flex;"><span>Pod Template:
-</span></span><span style="display:flex;"><span>  Labels:   <span style="color:#268bd2">run</span><span style="color:#719e07">=</span>nginx
-</span></span><span style="display:flex;"><span>  Containers:
-</span></span><span style="display:flex;"><span>   nginx:
-</span></span><span style="display:flex;"><span>    Image:     nginx
-</span></span><span style="display:flex;"><span>    Port:      &lt;none&gt;
-</span></span><span style="display:flex;"><span>    Environment:  &lt;none&gt;
-</span></span><span style="display:flex;"><span>    Mounts:    &lt;none&gt;
-</span></span><span style="display:flex;"><span>  Volumes:     &lt;none&gt;
-</span></span><span style="display:flex;"><span>Conditions:
-</span></span><span style="display:flex;"><span>  Type         Status   Reason
-</span></span><span style="display:flex;"><span>  ----         ------   ------
-</span></span><span style="display:flex;"><span>  Available       True  MinimumReplicasAvailable
-</span></span><span style="display:flex;"><span>  ReplicaFailure  True  FailedCreate
-</span></span><span style="display:flex;"><span>OldReplicaSets:      &lt;none&gt;
-</span></span><span style="display:flex;"><span>NewReplicaSet:    nginx-4217019353 <span style="color:#719e07">(</span>0/1 replicas created<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>Events:
-</span></span><span style="display:flex;"><span>  FirstSeen LastSeen Count From        SubObjectPath  Type     Reason         Message
-</span></span><span style="display:flex;"><span>  --------- -------- ----- ----        -------------  -------- ------         -------
-</span></span><span style="display:flex;"><span>  2m     2m    <span style="color:#2aa198">1</span>  deployment-controller         Normal      ScalingReplicaSet Scaled up replica <span style="color:#b58900">set</span> nginx-4217019353 to <span style="color:#2aa198">1</span>
-</span></span></code></pre></div><p>No se ha creado el <em>ReplicaSet</em>. Vamos a ver porqué:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>$ kubectl describe rs nginx-4217019353 --namespace developers
-</span></span><span style="display:flex;"><span>Name:    nginx-4217019353
-</span></span><span style="display:flex;"><span>Namespace:  developers
-</span></span><span style="display:flex;"><span>Selector:   pod-template-hash<span style="color:#719e07">=</span>4217019353,run<span style="color:#719e07">=</span>nginx
-</span></span><span style="display:flex;"><span>Labels:     pod-template-hash<span style="color:#719e07">=</span><span style="color:#2aa198">4217019353</span>
-</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">run</span><span style="color:#719e07">=</span>nginx
-</span></span><span style="display:flex;"><span>Annotations:   deployment.kubernetes.io/desired-replicas<span style="color:#719e07">=</span><span style="color:#2aa198">1</span>
-</span></span><span style="display:flex;"><span>      deployment.kubernetes.io/max-replicas<span style="color:#719e07">=</span><span style="color:#2aa198">2</span>
-</span></span><span style="display:flex;"><span>      deployment.kubernetes.io/revision<span style="color:#719e07">=</span><span style="color:#2aa198">1</span>
-</span></span><span style="display:flex;"><span>Controlled By: Deployment/nginx
-</span></span><span style="display:flex;"><span>Replicas:   <span style="color:#2aa198">0</span> current / <span style="color:#2aa198">1</span> desired
-</span></span><span style="display:flex;"><span>Pods Status:   <span style="color:#2aa198">0</span> Running / <span style="color:#2aa198">0</span> Waiting / <span style="color:#2aa198">0</span> Succeeded / <span style="color:#2aa198">0</span> Failed
-</span></span><span style="display:flex;"><span>Pod Template:
-</span></span><span style="display:flex;"><span>  Labels:   pod-template-hash<span style="color:#719e07">=</span><span style="color:#2aa198">4217019353</span>
-</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">run</span><span style="color:#719e07">=</span>nginx
-</span></span><span style="display:flex;"><span>  Containers:
-</span></span><span style="display:flex;"><span>   nginx:
-</span></span><span style="display:flex;"><span>    Image:     nginx
-</span></span><span style="display:flex;"><span>    Port:      &lt;none&gt;
-</span></span><span style="display:flex;"><span>    Environment:  &lt;none&gt;
-</span></span><span style="display:flex;"><span>    Mounts:    &lt;none&gt;
-</span></span><span style="display:flex;"><span>  Volumes:     &lt;none&gt;
-</span></span><span style="display:flex;"><span>Conditions:
-</span></span><span style="display:flex;"><span>  Type         Status   Reason
-</span></span><span style="display:flex;"><span>  ----         ------   ------
-</span></span><span style="display:flex;"><span>  ReplicaFailure  True  FailedCreate
-</span></span><span style="display:flex;"><span>Events:
-</span></span><span style="display:flex;"><span>  FirstSeen LastSeen Count From        SubObjectPath  Type     Reason      Message
-</span></span><span style="display:flex;"><span>  --------- -------- ----- ----        -------------  -------- ------      -------
-</span></span><span style="display:flex;"><span>  4m     1m    <span style="color:#2aa198">16</span> replicaset-controller         Warning     FailedCreate   Error creating: pods <span style="color:#2aa198">&#34;nginx-4217019353-&#34;</span> is forbidden: failed quota: compute-resources: must specify limits.cpu,limits.memory,requests.cpu,requests.memory
-</span></span></code></pre></div><p>El <em>deployment</em> crea un <em>ReplicaSet</em>, que a su vez intenta crear uno o más <em>pods</em>. Como en el <em>Deployment</em> no se ha especificado un límite para la CPU y memoria del <em>pod</em> y lo hemos exigido en las cuotas impuestas al <em>namespace</em>, la creación del <em>pod</em> falla. El mensaje de error es claro:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>Error creating: pods <span style="color:#2aa198">&#34;nginx-4217019353-&#34;</span> is forbidden: failed quota: compute-resources: must specify limits.cpu,limits.memory,requests.cpu,requests.memory
-</span></span></code></pre></div><p>Si creamos el <em>pod</em> especificando los límites:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>$ kubectl run nginx <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>  --image<span style="color:#719e07">=</span>nginx <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>  --replicas<span style="color:#719e07">=</span><span style="color:#2aa198">1</span> <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>  --requests<span style="color:#719e07">=</span><span style="color:#268bd2">cpu</span><span style="color:#719e07">=</span>100m,memory<span style="color:#719e07">=</span>256Mi <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>  --limits<span style="color:#719e07">=</span><span style="color:#268bd2">cpu</span><span style="color:#719e07">=</span>200m,memory<span style="color:#719e07">=</span>512Mi <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>  --namespace<span style="color:#719e07">=</span>developers
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>$ kubectl get pods --namespace developers
-</span></span><span style="display:flex;"><span>NAME                     READY     STATUS    RESTARTS   AGE
-</span></span><span style="display:flex;"><span>nginx-2432944439-1zqs7   1/1       Running   <span style="color:#2aa198">0</span>          19s
-</span></span></code></pre></div><p>Ahora, al revisar el <em>namespace</em>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>$ kubectl describe ns developers
-</span></span><span style="display:flex;"><span>Name:    developers
-</span></span><span style="display:flex;"><span>Labels:     &lt;none&gt;
-</span></span><span style="display:flex;"><span>Annotations:   &lt;none&gt;
-</span></span><span style="display:flex;"><span>Status:     Active
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>Resource Quotas
-</span></span><span style="display:flex;"><span> Name:            compute-resources
-</span></span><span style="display:flex;"><span> Resource         Used  Hard
-</span></span><span style="display:flex;"><span> --------         ---   ---
-</span></span><span style="display:flex;"><span> limits.cpu       200m  <span style="color:#2aa198">2</span>
-</span></span><span style="display:flex;"><span> limits.memory    512Mi 2Gi
-</span></span><span style="display:flex;"><span> pods             <span style="color:#2aa198">1</span>     <span style="color:#2aa198">4</span>
-</span></span><span style="display:flex;"><span> requests.cpu     100m  <span style="color:#2aa198">1</span>
-</span></span><span style="display:flex;"><span> requests.memory  256Mi 1Gi
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span> Name:                  object-counts
-</span></span><span style="display:flex;"><span> Resource               Used  Hard
-</span></span><span style="display:flex;"><span> --------               ---   ---
-</span></span><span style="display:flex;"><span> persistentvolumeclaims <span style="color:#2aa198">0</span>     <span style="color:#2aa198">2</span>
-</span></span><span style="display:flex;"><span> services.loadbalancers <span style="color:#2aa198">0</span>     <span style="color:#2aa198">2</span>
-</span></span><span style="display:flex;"><span> services.nodeports     <span style="color:#2aa198">0</span>     <span style="color:#2aa198">0</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>No resource limits.
-</span></span></code></pre></div><h1 id="_namespace_-y-dns"><em>Namespace</em> y DNS</h1>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">apiVersion</span>: v1
+<span style="color:#268bd2">kind</span>: Service
+<span style="color:#268bd2">metadata</span>:
+   <span style="color:#268bd2">name</span>: ejemplo
+   <span style="color:#268bd2">namespace</span>: developers
+<span style="color:#268bd2">spec</span>:
+   ...
+</code></pre></div><p>Creamos un <em>deployment</em>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ kubectl run nginx --image<span style="color:#719e07">=</span>nginx --replicas<span style="color:#719e07">=</span><span style="color:#2aa198">1</span> --namespace<span style="color:#719e07">=</span>developers
+deployment <span style="color:#2aa198">&#34;nginx&#34;</span> created
+</code></pre></div><p>Todo parece ok hasta que buscamos el <em>pod</em> que debería crearse:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ kubectl get pods --namespace developers
+No resources found.
+</code></pre></div><p>Analizamos el detalle del <em>deployment</em></p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ kubectl describe deployment nginx --namespace developers
+Name:       nginx
+Namespace:     developers
+CreationTimestamp:   Sun, <span style="color:#2aa198">23</span> Jul <span style="color:#2aa198">2017</span> 21:19:57 +0200
+Labels:        <span style="color:#268bd2">run</span><span style="color:#719e07">=</span>nginx
+Annotations:      deployment.kubernetes.io/revision<span style="color:#719e07">=</span><span style="color:#2aa198">1</span>
+Selector:      <span style="color:#268bd2">run</span><span style="color:#719e07">=</span>nginx
+Replicas:      <span style="color:#2aa198">1</span> desired | <span style="color:#2aa198">0</span> updated | <span style="color:#2aa198">0</span> total | <span style="color:#2aa198">0</span> available | <span style="color:#2aa198">1</span> unavailable
+StrategyType:     RollingUpdate
+MinReadySeconds:  <span style="color:#2aa198">0</span>
+RollingUpdateStrategy:  <span style="color:#2aa198">1</span> max unavailable, <span style="color:#2aa198">1</span> max surge
+Pod Template:
+  Labels:   <span style="color:#268bd2">run</span><span style="color:#719e07">=</span>nginx
+  Containers:
+   nginx:
+    Image:     nginx
+    Port:      &lt;none&gt;
+    Environment:  &lt;none&gt;
+    Mounts:    &lt;none&gt;
+  Volumes:     &lt;none&gt;
+Conditions:
+  Type         Status   Reason
+  ----         ------   ------
+  Available       True  MinimumReplicasAvailable
+  ReplicaFailure  True  FailedCreate
+OldReplicaSets:      &lt;none&gt;
+NewReplicaSet:    nginx-4217019353 <span style="color:#719e07">(</span>0/1 replicas created<span style="color:#719e07">)</span>
+Events:
+  FirstSeen LastSeen Count From        SubObjectPath  Type     Reason         Message
+  --------- -------- ----- ----        -------------  -------- ------         -------
+  2m     2m    <span style="color:#2aa198">1</span>  deployment-controller         Normal      ScalingReplicaSet Scaled up replica <span style="color:#b58900">set</span> nginx-4217019353 to <span style="color:#2aa198">1</span>
+</code></pre></div><p>No se ha creado el <em>ReplicaSet</em>. Vamos a ver porqué:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ kubectl describe rs nginx-4217019353 --namespace developers
+Name:    nginx-4217019353
+Namespace:  developers
+Selector:   pod-template-hash<span style="color:#719e07">=</span>4217019353,run<span style="color:#719e07">=</span>nginx
+Labels:     pod-template-hash<span style="color:#719e07">=</span><span style="color:#2aa198">4217019353</span>
+      <span style="color:#268bd2">run</span><span style="color:#719e07">=</span>nginx
+Annotations:   deployment.kubernetes.io/desired-replicas<span style="color:#719e07">=</span><span style="color:#2aa198">1</span>
+      deployment.kubernetes.io/max-replicas<span style="color:#719e07">=</span><span style="color:#2aa198">2</span>
+      deployment.kubernetes.io/revision<span style="color:#719e07">=</span><span style="color:#2aa198">1</span>
+Controlled By: Deployment/nginx
+Replicas:   <span style="color:#2aa198">0</span> current / <span style="color:#2aa198">1</span> desired
+Pods Status:   <span style="color:#2aa198">0</span> Running / <span style="color:#2aa198">0</span> Waiting / <span style="color:#2aa198">0</span> Succeeded / <span style="color:#2aa198">0</span> Failed
+Pod Template:
+  Labels:   pod-template-hash<span style="color:#719e07">=</span><span style="color:#2aa198">4217019353</span>
+      <span style="color:#268bd2">run</span><span style="color:#719e07">=</span>nginx
+  Containers:
+   nginx:
+    Image:     nginx
+    Port:      &lt;none&gt;
+    Environment:  &lt;none&gt;
+    Mounts:    &lt;none&gt;
+  Volumes:     &lt;none&gt;
+Conditions:
+  Type         Status   Reason
+  ----         ------   ------
+  ReplicaFailure  True  FailedCreate
+Events:
+  FirstSeen LastSeen Count From        SubObjectPath  Type     Reason      Message
+  --------- -------- ----- ----        -------------  -------- ------      -------
+  4m     1m    <span style="color:#2aa198">16</span> replicaset-controller         Warning     FailedCreate   Error creating: pods <span style="color:#2aa198">&#34;nginx-4217019353-&#34;</span> is forbidden: failed quota: compute-resources: must specify limits.cpu,limits.memory,requests.cpu,requests.memory
+</code></pre></div><p>El <em>deployment</em> crea un <em>ReplicaSet</em>, que a su vez intenta crear uno o más <em>pods</em>. Como en el <em>Deployment</em> no se ha especificado un límite para la CPU y memoria del <em>pod</em> y lo hemos exigido en las cuotas impuestas al <em>namespace</em>, la creación del <em>pod</em> falla. El mensaje de error es claro:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">Error creating: pods <span style="color:#2aa198">&#34;nginx-4217019353-&#34;</span> is forbidden: failed quota: compute-resources: must specify limits.cpu,limits.memory,requests.cpu,requests.memory
+</code></pre></div><p>Si creamos el <em>pod</em> especificando los límites:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ kubectl run nginx <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>  --image<span style="color:#719e07">=</span>nginx <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>  --replicas<span style="color:#719e07">=</span><span style="color:#2aa198">1</span> <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>  --requests<span style="color:#719e07">=</span><span style="color:#268bd2">cpu</span><span style="color:#719e07">=</span>100m,memory<span style="color:#719e07">=</span>256Mi <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>  --limits<span style="color:#719e07">=</span><span style="color:#268bd2">cpu</span><span style="color:#719e07">=</span>200m,memory<span style="color:#719e07">=</span>512Mi <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>  --namespace<span style="color:#719e07">=</span>developers
+
+$ kubectl get pods --namespace developers
+NAME                     READY     STATUS    RESTARTS   AGE
+nginx-2432944439-1zqs7   1/1       Running   <span style="color:#2aa198">0</span>          19s
+</code></pre></div><p>Ahora, al revisar el <em>namespace</em>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ kubectl describe ns developers
+Name:    developers
+Labels:     &lt;none&gt;
+Annotations:   &lt;none&gt;
+Status:     Active
+
+Resource Quotas
+ Name:            compute-resources
+ Resource         Used  Hard
+ --------         ---   ---
+ limits.cpu       200m  <span style="color:#2aa198">2</span>
+ limits.memory    512Mi 2Gi
+ pods             <span style="color:#2aa198">1</span>     <span style="color:#2aa198">4</span>
+ requests.cpu     100m  <span style="color:#2aa198">1</span>
+ requests.memory  256Mi 1Gi
+
+ Name:                  object-counts
+ Resource               Used  Hard
+ --------               ---   ---
+ persistentvolumeclaims <span style="color:#2aa198">0</span>     <span style="color:#2aa198">2</span>
+ services.loadbalancers <span style="color:#2aa198">0</span>     <span style="color:#2aa198">2</span>
+ services.nodeports     <span style="color:#2aa198">0</span>     <span style="color:#2aa198">0</span>
+
+No resource limits.
+</code></pre></div><h1 id="_namespace_-y-dns"><em>Namespace</em> y DNS</h1>
 <p>Cuando se crear un <em>service</em>, se crea la correspondiente entrada en el DNS. Esta entrada es de la forma <code>&lt;nombre-servicio&gt;.&lt;espacio-de-nombres&gt;.svc.cluster.local</code>, lo que significa que si un contenedor usa únicamente <code>&lt;nombre-de-servicio&gt;</code>, la resolución del nombre se realizará de forma local en el espacio de nombres en el que se encuentre.</p>
 <p>Esta configuración permite usar la misma configuración entre diferentes espacios de nombres (por ejemplo <em>Desarrollo</em>, <em>Integración</em> y <em>Producción</em>).</p>
 <p>Para que un contenedor pueda resolver el nombre de otro contenedor en otro <em>namespace</em>, debes usar el FQDN.</p>
@@ -404,15 +404,15 @@
 <p>AVISO: Al borrar un <em>namespace</em> se borran <strong>todos los objetos</strong> del espacio de nombres.</p>
 </blockquote>
 <p>Para borrar un <em>namespace</em>, usa el comando <code>delete</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>$ kubectl delete ns developers
-</span></span><span style="display:flex;"><span>namespace <span style="color:#2aa198">&#34;developers&#34;</span> deleted
-</span></span></code></pre></div><p>El borrado del <em>namespace</em> es asíncrono, por lo que puedes verlo como <code>Terminating</code> hasta que se realiza el borrado definitivo del mismo:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>$ kubectl get ns
-</span></span><span style="display:flex;"><span>NAME          STATUS        AGE
-</span></span><span style="display:flex;"><span>default       Active        21d
-</span></span><span style="display:flex;"><span>developers    Terminating   2h
-</span></span><span style="display:flex;"><span>kube-system   Active        21d
-</span></span></code></pre></div><h1 id="resumen">Resumen</h1>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ kubectl delete ns developers
+namespace <span style="color:#2aa198">&#34;developers&#34;</span> deleted
+</code></pre></div><p>El borrado del <em>namespace</em> es asíncrono, por lo que puedes verlo como <code>Terminating</code> hasta que se realiza el borrado definitivo del mismo:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">$ kubectl get ns
+NAME          STATUS        AGE
+default       Active        21d
+developers    Terminating   2h
+kube-system   Active        21d
+</code></pre></div><h1 id="resumen">Resumen</h1>
 <p>En este artículo hemos visto qué es un <em>Namespace</em> y para qué sirve.</p>
 <p>También hemos visto cómo crear un espacio de nombres, obtener información sobre él y crear objetos en el <em>namespace</em>.</p>
 <p>Hemos aplicado cuotas para limitar los recursos disponibles y hemos visto cómo afecta a la creación de <em>deployments</em> en el espacio de nombres.</p>

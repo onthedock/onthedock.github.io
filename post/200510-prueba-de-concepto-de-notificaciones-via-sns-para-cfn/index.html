@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.95.0" />
+<meta name="generator" content="Hugo 0.92.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -141,29 +141,29 @@
 </ul>
 <p>Empezamos por la plantilla de CloudFormation que genere una <em>política</em> gestionada.</p>
 <h2 id="plantilla-para-crear-una-managed-policy">Plantilla para crear una <em>managed policy</em></h2>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#268bd2">AWSTemplateFormatVersion</span>: 2010-09-09
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">Description</span>: |<span style="color:#2aa198">
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">  </span>  Sample CloudFormation template
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">Resources</span>:
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">S3GetObjSamplePolicy</span>:
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">Type</span>: <span style="color:#2aa198">&#34;AWS::IAM::ManagedPolicy&#34;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">Properties</span>:
-</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">Description</span>: Simple S3 GetObject policy
-</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">Path</span>: /LAB/
-</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">PolicyDocument</span>:
-</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">Version</span>: 2012-10-17
-</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">Statement</span>:
-</span></span><span style="display:flex;"><span>        -
-</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">Action</span>: <span style="color:#2aa198">&#39;s3:GetObject&#39;</span>
-</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">Effect</span>: <span style="color:#2aa198">&#39;Allow&#39;</span>
-</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">Resource</span>: <span style="color:#2aa198">&#39;*&#39;</span>
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">S3GetObjSamplePolicyARN</span>:
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">Type</span>: <span style="color:#2aa198">&#34;AWS::SSM::Parameter&#34;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">Properties</span>:
-</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">Type</span>: String
-</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">Description</span>: Simple S3 GetObject policy ARN
-</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">Value</span>: !Ref S3GetObjSamplePolicy
-</span></span></code></pre></div><p>Validamos que la plantilla funciona correctamente y crea dos recursos:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">AWSTemplateFormatVersion</span>: 2010-09-09
+<span style="color:#268bd2">Description</span>: |<span style="color:#2aa198">
+</span><span style="color:#2aa198">  </span>  Sample CloudFormation template
+<span style="color:#268bd2">Resources</span>:
+  <span style="color:#268bd2">S3GetObjSamplePolicy</span>:
+    <span style="color:#268bd2">Type</span>: <span style="color:#2aa198">&#34;AWS::IAM::ManagedPolicy&#34;</span>
+    <span style="color:#268bd2">Properties</span>:
+      <span style="color:#268bd2">Description</span>: Simple S3 GetObject policy
+      <span style="color:#268bd2">Path</span>: /LAB/
+      <span style="color:#268bd2">PolicyDocument</span>:
+        <span style="color:#268bd2">Version</span>: 2012-10-17
+        <span style="color:#268bd2">Statement</span>:
+        -
+          <span style="color:#268bd2">Action</span>: <span style="color:#2aa198">&#39;s3:GetObject&#39;</span>
+          <span style="color:#268bd2">Effect</span>: <span style="color:#2aa198">&#39;Allow&#39;</span>
+          <span style="color:#268bd2">Resource</span>: <span style="color:#2aa198">&#39;*&#39;</span>
+  <span style="color:#268bd2">S3GetObjSamplePolicyARN</span>:
+    <span style="color:#268bd2">Type</span>: <span style="color:#2aa198">&#34;AWS::SSM::Parameter&#34;</span>
+    <span style="color:#268bd2">Properties</span>:
+      <span style="color:#268bd2">Type</span>: String
+      <span style="color:#268bd2">Description</span>: Simple S3 GetObject policy ARN
+      <span style="color:#268bd2">Value</span>: !Ref S3GetObjSamplePolicy
+</code></pre></div><p>Validamos que la plantilla funciona correctamente y crea dos recursos:</p>
 <ul>
 <li>política gestionada <code>S3GetObjSamplePolicy</code> con <em>Physical ID</em> <code>arn:aws:iam::123456789012:policy/LAB/lab-managedpolicy-S3GetObjSamplePolicy-${random}</code></li>
 <li>parámetro en SSM <code>S3GetObjSamplePolicyARN</code> con <em>Physical ID</em> <code>CFN-S3GetObjSamplePolicyARN-${random}</code>. El valor del parámetro es el ARN de la política creada.</li>
@@ -174,175 +174,175 @@
 <blockquote>
 <p>La dirección de correo <strong>no se registra</strong> en la traza almacenada en CloudTrail de la llamada a la API para realizar la creación de la suscripción.</p>
 </blockquote>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#268bd2">AWSTemplateFormatVersion</span>: 2010-09-09
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">Parameters</span>:
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">TopicSubscriberEmail</span>:
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">Description</span>: Email to send notifications to (requires confirming the subscription)
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">Type</span>: String
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">Default</span>: xavi.aznar@example.lab  
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">Resources</span>:
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">TopicForNotifications</span>:
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">Type</span>: AWS::SNS::Topic
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">Properties</span>:
-</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">Subscription</span>:
-</span></span><span style="display:flex;"><span>        - <span style="color:#268bd2">Endpoint</span>: !Ref TopicSubscriberEmail
-</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">Protocol</span>: email
-</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">Tags</span>:
-</span></span><span style="display:flex;"><span>        -
-</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">Key</span>:    <span style="color:#2aa198">&#39;owner&#39;</span>
-</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">Value</span>:  <span style="color:#2aa198">&#39;xavi&#39;</span>
-</span></span><span style="display:flex;"><span>        -
-</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">Key</span>:    <span style="color:#2aa198">&#39;environment&#39;</span>
-</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">Value</span>:  <span style="color:#2aa198">&#39;lab&#39;</span>
-</span></span></code></pre></div><p>La suscripción envía un correo al buzón indicado y la creación de la suscripción queda en estado <em>Pending Validation</em>. Cuando se acepta la subscripción -mediante el enlace enviado- el estado cambia a <em>Confirmed</em>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">AWSTemplateFormatVersion</span>: 2010-09-09
+<span style="color:#268bd2">Parameters</span>:
+  <span style="color:#268bd2">TopicSubscriberEmail</span>:
+    <span style="color:#268bd2">Description</span>: Email to send notifications to (requires confirming the subscription)
+    <span style="color:#268bd2">Type</span>: String
+    <span style="color:#268bd2">Default</span>: xavi.aznar@example.lab  
+<span style="color:#268bd2">Resources</span>:
+  <span style="color:#268bd2">TopicForNotifications</span>:
+    <span style="color:#268bd2">Type</span>: AWS::SNS::Topic
+    <span style="color:#268bd2">Properties</span>:
+      <span style="color:#268bd2">Subscription</span>:
+        - <span style="color:#268bd2">Endpoint</span>: !Ref TopicSubscriberEmail
+          <span style="color:#268bd2">Protocol</span>: email
+      <span style="color:#268bd2">Tags</span>:
+        -
+          <span style="color:#268bd2">Key</span>:    <span style="color:#2aa198">&#39;owner&#39;</span>
+          <span style="color:#268bd2">Value</span>:  <span style="color:#2aa198">&#39;xavi&#39;</span>
+        -
+          <span style="color:#268bd2">Key</span>:    <span style="color:#2aa198">&#39;environment&#39;</span>
+          <span style="color:#268bd2">Value</span>:  <span style="color:#2aa198">&#39;lab&#39;</span>
+</code></pre></div><p>La suscripción envía un correo al buzón indicado y la creación de la suscripción queda en estado <em>Pending Validation</em>. Cuando se acepta la subscripción -mediante el enlace enviado- el estado cambia a <em>Confirmed</em>.</p>
 <blockquote>
 <p>Podemos validar el correcto funcionamiento del <em>topic</em> y la suscripción desde la consola, pulsando sobre el botón <em>Publish message</em>.</p>
 </blockquote>
 <h2 id="creación-de-la-regla-en-cloudwatch-events">Creación de la regla en CloudWatch Events</h2>
 <p>Añadimos una sección en la plantilla de CloudFormation de los <em>servicios de soporte</em> para crear la <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-events-rule.html">regla en CloudWatch Events</a>.</p>
 <p>Para obtener el <code>EventPattern</code> de manera sencilla, puedes crearlo desde la consola web de AWS (y después convertirlo a YAML):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#268bd2">source</span>:
-</span></span><span style="display:flex;"><span>- aws.ssm
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">detail-type</span>:
-</span></span><span style="display:flex;"><span>- AWS API Call via CloudTrail
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">detail</span>:
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">eventSource</span>:
-</span></span><span style="display:flex;"><span>  - ssm.amazonaws.com
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">eventName</span>:
-</span></span><span style="display:flex;"><span>  - PutParameter
-</span></span></code></pre></div><blockquote>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">source</span>:
+- aws.ssm
+<span style="color:#268bd2">detail-type</span>:
+- AWS API Call via CloudTrail
+<span style="color:#268bd2">detail</span>:
+  <span style="color:#268bd2">eventSource</span>:
+  - ssm.amazonaws.com
+  <span style="color:#268bd2">eventName</span>:
+  - PutParameter
+</code></pre></div><blockquote>
 <p>Una mejora -para la siguiente iteración- sería restringir el patrón para que sólo se <em>dispare</em> con los parámetros en un determinado <em>path</em>.  Primero creamos esta regla que <em>matchea</em> con la actualización de cualquier parámetro; cuando funcione, actualizamos la regla para <em>matchear</em> únicamente los parámetros en <code>/LAB/*</code>.</p>
 </blockquote>
 <p>La segunda parte de la regla consiste en definir el <em>target</em> de la acción a realizar cuando se valide la regla definida.</p>
 <p>En nuestro caso, actuaremos sobre un <em>topic</em> SNS. La propiedad <code>Targets</code> de una regla en CloudWatch Events debe contener uno o más elementos de tipo <code>Target</code>.</p>
 <p>Un <em>target</em> requiere el ARN del recurso y un <code>Id</code> (que es el nombre que asignamos al <em>target</em>); el resto de parámetros son opcionales.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#268bd2">Type</span>: AWS::Events::Rule
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">Properties</span>:
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">EventPattern</span>:
-</span></span><span style="display:flex;"><span>...
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">Targets</span>:
-</span></span><span style="display:flex;"><span>    -
-</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">Arn</span>: !Ref TopicForNotifications
-</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">Id</span>: !Ref TopicForNotifications
-</span></span></code></pre></div><p>En la documentación se indica que debe facilitarse el ARN del rol que se asume cuando se ejecuta la regla. Este rol debe proporcionar permisos para que CloudWatch Events pueda enviar mensajes al <em>topic</em>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">Type</span>: AWS::Events::Rule
+<span style="color:#268bd2">Properties</span>:
+  <span style="color:#268bd2">EventPattern</span>:
+...
+  <span style="color:#268bd2">Targets</span>:
+    -
+      <span style="color:#268bd2">Arn</span>: !Ref TopicForNotifications
+      <span style="color:#268bd2">Id</span>: !Ref TopicForNotifications
+</code></pre></div><p>En la documentación se indica que debe facilitarse el ARN del rol que se asume cuando se ejecuta la regla. Este rol debe proporcionar permisos para que CloudWatch Events pueda enviar mensajes al <em>topic</em>.</p>
 <p>Revisando el <em>topic</em> en la consola, vemos que tiene asociada una <em>access policy</em> que convierte en <em>público</em> para todos los <em>principals</em> de AWS en la cuenta (si lo interpreto correctamente (SPOILER: no es correcto)):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">&#34;Version&#34;</span>: <span style="color:#2aa198">&#34;2008-10-17&#34;</span>,
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">&#34;Id&#34;</span>: <span style="color:#2aa198">&#34;__default_policy_ID&#34;</span>,
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">&#34;Statement&#34;</span>: [
-</span></span><span style="display:flex;"><span>    {
-</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">&#34;Sid&#34;</span>: <span style="color:#2aa198">&#34;__default_statement_ID&#34;</span>,
-</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">&#34;Effect&#34;</span>: <span style="color:#2aa198">&#34;Allow&#34;</span>,
-</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">&#34;Principal&#34;</span>: {
-</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">&#34;AWS&#34;</span>: <span style="color:#2aa198">&#34;*&#34;</span>
-</span></span><span style="display:flex;"><span>      },
-</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">&#34;Action&#34;</span>: [
-</span></span><span style="display:flex;"><span>        <span style="color:#2aa198">&#34;SNS:GetTopicAttributes&#34;</span>,
-</span></span><span style="display:flex;"><span>        <span style="color:#2aa198">&#34;SNS:SetTopicAttributes&#34;</span>,
-</span></span><span style="display:flex;"><span>        <span style="color:#2aa198">&#34;SNS:AddPermission&#34;</span>,
-</span></span><span style="display:flex;"><span>        <span style="color:#2aa198">&#34;SNS:RemovePermission&#34;</span>,
-</span></span><span style="display:flex;"><span>        <span style="color:#2aa198">&#34;SNS:DeleteTopic&#34;</span>,
-</span></span><span style="display:flex;"><span>        <span style="color:#2aa198">&#34;SNS:Subscribe&#34;</span>,
-</span></span><span style="display:flex;"><span>        <span style="color:#2aa198">&#34;SNS:ListSubscriptionsByTopic&#34;</span>,
-</span></span><span style="display:flex;"><span>        <span style="color:#2aa198">&#34;SNS:Publish&#34;</span>,
-</span></span><span style="display:flex;"><span>        <span style="color:#2aa198">&#34;SNS:Receive&#34;</span>
-</span></span><span style="display:flex;"><span>      ],
-</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">&#34;Resource&#34;</span>: <span style="color:#2aa198">&#34;arn:aws:sns:${region}:123456789012:lab-topic-TopicForNotifications-${random}&#34;</span>,
-</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">&#34;Condition&#34;</span>: {
-</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">&#34;StringEquals&#34;</span>: {
-</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">&#34;AWS:SourceOwner&#34;</span>: <span style="color:#2aa198">&#34;123456789012&#34;</span>
-</span></span><span style="display:flex;"><span>        }
-</span></span><span style="display:flex;"><span>      }
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>  ]
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><p>Una vez creados los <em>servicios de soporte</em>, lanzamos la plantilla original para crear los recursos (y el parámetro asociado), que debería disparar la regla de Events y enviarnos una notificación por correo vía SNS.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-json" data-lang="json">{
+  <span style="color:#268bd2">&#34;Version&#34;</span>: <span style="color:#2aa198">&#34;2008-10-17&#34;</span>,
+  <span style="color:#268bd2">&#34;Id&#34;</span>: <span style="color:#2aa198">&#34;__default_policy_ID&#34;</span>,
+  <span style="color:#268bd2">&#34;Statement&#34;</span>: [
+    {
+      <span style="color:#268bd2">&#34;Sid&#34;</span>: <span style="color:#2aa198">&#34;__default_statement_ID&#34;</span>,
+      <span style="color:#268bd2">&#34;Effect&#34;</span>: <span style="color:#2aa198">&#34;Allow&#34;</span>,
+      <span style="color:#268bd2">&#34;Principal&#34;</span>: {
+        <span style="color:#268bd2">&#34;AWS&#34;</span>: <span style="color:#2aa198">&#34;*&#34;</span>
+      },
+      <span style="color:#268bd2">&#34;Action&#34;</span>: [
+        <span style="color:#2aa198">&#34;SNS:GetTopicAttributes&#34;</span>,
+        <span style="color:#2aa198">&#34;SNS:SetTopicAttributes&#34;</span>,
+        <span style="color:#2aa198">&#34;SNS:AddPermission&#34;</span>,
+        <span style="color:#2aa198">&#34;SNS:RemovePermission&#34;</span>,
+        <span style="color:#2aa198">&#34;SNS:DeleteTopic&#34;</span>,
+        <span style="color:#2aa198">&#34;SNS:Subscribe&#34;</span>,
+        <span style="color:#2aa198">&#34;SNS:ListSubscriptionsByTopic&#34;</span>,
+        <span style="color:#2aa198">&#34;SNS:Publish&#34;</span>,
+        <span style="color:#2aa198">&#34;SNS:Receive&#34;</span>
+      ],
+      <span style="color:#268bd2">&#34;Resource&#34;</span>: <span style="color:#2aa198">&#34;arn:aws:sns:${region}:123456789012:lab-topic-TopicForNotifications-${random}&#34;</span>,
+      <span style="color:#268bd2">&#34;Condition&#34;</span>: {
+        <span style="color:#268bd2">&#34;StringEquals&#34;</span>: {
+          <span style="color:#268bd2">&#34;AWS:SourceOwner&#34;</span>: <span style="color:#2aa198">&#34;123456789012&#34;</span>
+        }
+      }
+    }
+  ]
+}
+</code></pre></div><p>Una vez creados los <em>servicios de soporte</em>, lanzamos la plantilla original para crear los recursos (y el parámetro asociado), que debería disparar la regla de Events y enviarnos una notificación por correo vía SNS.</p>
 <p>Aunque estoy realizando las acciones desde la consola con un rol de administrador, no recibo la notificación con el valor del ARN de la política creada.</p>
 <h3 id="troubleshooting">Troubleshooting</h3>
 <p>En CloudWatch Events se observa que al crear el parámetro vía CloudFormation, se disparan las reglas; sin embargo, vemos que además de las métricas <em>TriggeredRules</em> e <em>Invocation</em> también aumenta la cuenta de <em>FailedInvocations</em> para el <em>topic</em>.</p>
 <p>Revisando la página de <a href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/CWE_Troubleshooting.html">Troubleshooting CloudWatch Events</a>, parece que la entrada que mejor se ajusta a mi situación es <a href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/CWE_Troubleshooting.html#NoMessagesPublishedSNS">My rule is being triggered but I don&rsquo;t see any messages published into my Amazon SNS topic</a>.</p>
 <p>Siguiendo las instrucciones indicadas, lanzo desde la CLI:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>aws sns get-topic-attributes --region <span style="color:#268bd2">$REGION</span> --topic-arn <span style="color:#268bd2">$TOPICARN</span> --profile <span style="color:#b58900">local</span>
-</span></span></code></pre></div><p>La salida del comando -anonimizada- es:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">&#34;Attributes&#34;</span>: {
-</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">&#34;SubscriptionsConfirmed&#34;</span>: <span style="color:#2aa198">&#34;1&#34;</span>,
-</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">&#34;DisplayName&#34;</span>: <span style="color:#2aa198">&#34;&#34;</span>,
-</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">&#34;SubscriptionsDeleted&#34;</span>: <span style="color:#2aa198">&#34;0&#34;</span>,
-</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">&#34;EffectiveDeliveryPolicy&#34;</span>: <span style="color:#2aa198">&#34;{\&#34;http\&#34;:{\&#34;defaultHealthyRetryPolicy\&#34;:{\&#34;minDelayTarget\&#34;:20,\&#34;maxDelayTarget\&#34;:20,\&#34;numRetries\&#34;:3,\&#34;numMaxDelayRetries\&#34;:0,\&#34;numNoDelayRetries\&#34;:0,\&#34;numMinDelayRetries\&#34;:0,\&#34;backoffFunction\&#34;:\&#34;linear\&#34;},\&#34;disableSubscriptionOverrides\&#34;:false}}&#34;</span>,
-</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">&#34;Owner&#34;</span>: <span style="color:#2aa198">&#34;123456789012&#34;</span>,
-</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">&#34;Policy&#34;</span>: <span style="color:#2aa198">&#34;{\&#34;Version\&#34;:\&#34;2008-10-17\&#34;,\&#34;Id\&#34;:\&#34;__default_policy_ID\&#34;,\&#34;Statement\&#34;:[{\&#34;Sid\&#34;:\&#34;__default_statement_ID\&#34;,\&#34;Effect\&#34;:\&#34;Allow\&#34;,\&#34;Principal\&#34;:{\&#34;AWS\&#34;:\&#34;*\&#34;},\&#34;Action\&#34;:[\&#34;SNS:GetTopicAttributes\&#34;,\&#34;SNS:SetTopicAttributes\&#34;,\&#34;SNS:AddPermission\&#34;,\&#34;SNS:RemovePermission\&#34;,\&#34;SNS:DeleteTopic\&#34;,\&#34;SNS:Subscribe\&#34;,\&#34;SNS:ListSubscriptionsByTopic\&#34;,\&#34;SNS:Publish\&#34;,\&#34;SNS:Receive\&#34;],\&#34;Resource\&#34;:\&#34;arn:aws:sns:${region}:123456789012:lab-topic-TopicForNotifications-${random}\&#34;,\&#34;Condition\&#34;:{\&#34;StringEquals\&#34;:{\&#34;AWS:SourceOwner\&#34;:\&#34;123456789012\&#34;}}}]}&#34;</span>,
-</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">&#34;TopicArn&#34;</span>: <span style="color:#2aa198">&#34;arn:aws:sns:${region}:123456789012:lab-topic-TopicForNotifications-${random}&#34;</span>,
-</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">&#34;SubscriptionsPending&#34;</span>: <span style="color:#2aa198">&#34;0&#34;</span>
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><p>Formateando mejor la salida se puede observar que en la respuesta sólo aparece la politica por defecto:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>Policy<span style="color:#2aa198">&#34;: &#34;</span>{
-</span></span><span style="display:flex;"><span>  \<span style="color:#268bd2">&#34;Version\&#34;:\&#34;2008-10-17\&#34;,
-</span></span></span><span style="display:flex;"><span><span style="color:#268bd2">  \&#34;Id\&#34;:\&#34;__default_policy_ID\&#34;,
-</span></span></span><span style="display:flex;"><span><span style="color:#268bd2">  \&#34;Statement\&#34;:[{
-</span></span></span><span style="display:flex;"><span><span style="color:#268bd2">    \&#34;Sid\&#34;:\&#34;__default_statement_ID\&#34;,
-</span></span></span><span style="display:flex;"><span><span style="color:#268bd2">    \&#34;Effect\&#34;:\&#34;Allow\&#34;,
-</span></span></span><span style="display:flex;"><span><span style="color:#268bd2">    \&#34;Principal\&#34;:{\&#34;AWS\&#34;:\&#34;*\&#34;},
-</span></span></span><span style="display:flex;"><span><span style="color:#268bd2">    \&#34;Action\&#34;:[
-</span></span></span><span style="display:flex;"><span><span style="color:#268bd2">        \&#34;SNS:GetTopicAttributes\&#34;,
-</span></span></span><span style="display:flex;"><span><span style="color:#268bd2">        \&#34;SNS:SetTopicAttributes\&#34;,
-</span></span></span><span style="display:flex;"><span><span style="color:#268bd2">        \&#34;SNS:AddPermission\&#34;,
-</span></span></span><span style="display:flex;"><span><span style="color:#268bd2">        \&#34;SNS:RemovePermission\&#34;,
-</span></span></span><span style="display:flex;"><span><span style="color:#268bd2">        \&#34;SNS:DeleteTopic\&#34;,
-</span></span></span><span style="display:flex;"><span><span style="color:#268bd2">        \&#34;SNS:Subscribe\&#34;,
-</span></span></span><span style="display:flex;"><span><span style="color:#268bd2">        \&#34;SNS:ListSubscriptionsByTopic\&#34;,
-</span></span></span><span style="display:flex;"><span><span style="color:#268bd2">        \&#34;SNS:Publish\&#34;,
-</span></span></span><span style="display:flex;"><span><span style="color:#268bd2">        \&#34;SNS:Receive\&#34;
-</span></span></span><span style="display:flex;"><span><span style="color:#268bd2">    ],
-</span></span></span><span style="display:flex;"><span><span style="color:#268bd2">    \&#34;Resource\&#34;:\&#34;arn:aws:sns:${region}:123456789012:lab-topic-TopicForNotifications-${random}\&#34;,
-</span></span></span><span style="display:flex;"><span><span style="color:#268bd2">    \&#34;Condition\&#34;:{
-</span></span></span><span style="display:flex;"><span><span style="color:#268bd2">      \&#34;StringEquals\&#34;:{
-</span></span></span><span style="display:flex;"><span><span style="color:#268bd2">        \&#34;AWS:SourceOwner\&#34;:\&#34;123456789012\&#34;
-</span></span></span><span style="display:flex;"><span><span style="color:#268bd2">      }
-</span></span></span><span style="display:flex;"><span><span style="color:#268bd2">    }
-</span></span></span><span style="display:flex;"><span><span style="color:#268bd2">  }]
-</span></span></span><span style="display:flex;"><span><span style="color:#268bd2">}&#34;</span>,
-</span></span></code></pre></div><p>La política por defecto no proporciona permisos de <code>Publish</code> a <code>events.amazonaws.com</code>, por lo que debemos establecerlo para que la regla de Events pueda publicar mensajes en el <em>topic</em> SNS.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">aws sns get-topic-attributes --region <span style="color:#268bd2">$REGION</span> --topic-arn <span style="color:#268bd2">$TOPICARN</span> --profile <span style="color:#b58900">local</span>
+</code></pre></div><p>La salida del comando -anonimizada- es:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-json" data-lang="json">{
+    <span style="color:#268bd2">&#34;Attributes&#34;</span>: {
+        <span style="color:#268bd2">&#34;SubscriptionsConfirmed&#34;</span>: <span style="color:#2aa198">&#34;1&#34;</span>,
+        <span style="color:#268bd2">&#34;DisplayName&#34;</span>: <span style="color:#2aa198">&#34;&#34;</span>,
+        <span style="color:#268bd2">&#34;SubscriptionsDeleted&#34;</span>: <span style="color:#2aa198">&#34;0&#34;</span>,
+        <span style="color:#268bd2">&#34;EffectiveDeliveryPolicy&#34;</span>: <span style="color:#2aa198">&#34;{\&#34;http\&#34;:{\&#34;defaultHealthyRetryPolicy\&#34;:{\&#34;minDelayTarget\&#34;:20,\&#34;maxDelayTarget\&#34;:20,\&#34;numRetries\&#34;:3,\&#34;numMaxDelayRetries\&#34;:0,\&#34;numNoDelayRetries\&#34;:0,\&#34;numMinDelayRetries\&#34;:0,\&#34;backoffFunction\&#34;:\&#34;linear\&#34;},\&#34;disableSubscriptionOverrides\&#34;:false}}&#34;</span>,
+        <span style="color:#268bd2">&#34;Owner&#34;</span>: <span style="color:#2aa198">&#34;123456789012&#34;</span>,
+        <span style="color:#268bd2">&#34;Policy&#34;</span>: <span style="color:#2aa198">&#34;{\&#34;Version\&#34;:\&#34;2008-10-17\&#34;,\&#34;Id\&#34;:\&#34;__default_policy_ID\&#34;,\&#34;Statement\&#34;:[{\&#34;Sid\&#34;:\&#34;__default_statement_ID\&#34;,\&#34;Effect\&#34;:\&#34;Allow\&#34;,\&#34;Principal\&#34;:{\&#34;AWS\&#34;:\&#34;*\&#34;},\&#34;Action\&#34;:[\&#34;SNS:GetTopicAttributes\&#34;,\&#34;SNS:SetTopicAttributes\&#34;,\&#34;SNS:AddPermission\&#34;,\&#34;SNS:RemovePermission\&#34;,\&#34;SNS:DeleteTopic\&#34;,\&#34;SNS:Subscribe\&#34;,\&#34;SNS:ListSubscriptionsByTopic\&#34;,\&#34;SNS:Publish\&#34;,\&#34;SNS:Receive\&#34;],\&#34;Resource\&#34;:\&#34;arn:aws:sns:${region}:123456789012:lab-topic-TopicForNotifications-${random}\&#34;,\&#34;Condition\&#34;:{\&#34;StringEquals\&#34;:{\&#34;AWS:SourceOwner\&#34;:\&#34;123456789012\&#34;}}}]}&#34;</span>,
+        <span style="color:#268bd2">&#34;TopicArn&#34;</span>: <span style="color:#2aa198">&#34;arn:aws:sns:${region}:123456789012:lab-topic-TopicForNotifications-${random}&#34;</span>,
+        <span style="color:#268bd2">&#34;SubscriptionsPending&#34;</span>: <span style="color:#2aa198">&#34;0&#34;</span>
+    }
+}
+</code></pre></div><p>Formateando mejor la salida se puede observar que en la respuesta sólo aparece la politica por defecto:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-json" data-lang="json">Policy<span style="color:#2aa198">&#34;: &#34;</span>{
+  \<span style="color:#268bd2">&#34;Version\&#34;:\&#34;2008-10-17\&#34;,
+</span><span style="color:#268bd2">  \&#34;Id\&#34;:\&#34;__default_policy_ID\&#34;,
+</span><span style="color:#268bd2">  \&#34;Statement\&#34;:[{
+</span><span style="color:#268bd2">    \&#34;Sid\&#34;:\&#34;__default_statement_ID\&#34;,
+</span><span style="color:#268bd2">    \&#34;Effect\&#34;:\&#34;Allow\&#34;,
+</span><span style="color:#268bd2">    \&#34;Principal\&#34;:{\&#34;AWS\&#34;:\&#34;*\&#34;},
+</span><span style="color:#268bd2">    \&#34;Action\&#34;:[
+</span><span style="color:#268bd2">        \&#34;SNS:GetTopicAttributes\&#34;,
+</span><span style="color:#268bd2">        \&#34;SNS:SetTopicAttributes\&#34;,
+</span><span style="color:#268bd2">        \&#34;SNS:AddPermission\&#34;,
+</span><span style="color:#268bd2">        \&#34;SNS:RemovePermission\&#34;,
+</span><span style="color:#268bd2">        \&#34;SNS:DeleteTopic\&#34;,
+</span><span style="color:#268bd2">        \&#34;SNS:Subscribe\&#34;,
+</span><span style="color:#268bd2">        \&#34;SNS:ListSubscriptionsByTopic\&#34;,
+</span><span style="color:#268bd2">        \&#34;SNS:Publish\&#34;,
+</span><span style="color:#268bd2">        \&#34;SNS:Receive\&#34;
+</span><span style="color:#268bd2">    ],
+</span><span style="color:#268bd2">    \&#34;Resource\&#34;:\&#34;arn:aws:sns:${region}:123456789012:lab-topic-TopicForNotifications-${random}\&#34;,
+</span><span style="color:#268bd2">    \&#34;Condition\&#34;:{
+</span><span style="color:#268bd2">      \&#34;StringEquals\&#34;:{
+</span><span style="color:#268bd2">        \&#34;AWS:SourceOwner\&#34;:\&#34;123456789012\&#34;
+</span><span style="color:#268bd2">      }
+</span><span style="color:#268bd2">    }
+</span><span style="color:#268bd2">  }]
+</span><span style="color:#268bd2">}&#34;</span>,
+</code></pre></div><p>La política por defecto no proporciona permisos de <code>Publish</code> a <code>events.amazonaws.com</code>, por lo que debemos establecerlo para que la regla de Events pueda publicar mensajes en el <em>topic</em> SNS.</p>
 <p>Actualizamos la plantilla de CloudFormation para incluir la política y dar permisos a CloudWatch Events:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>  <span style="color:#268bd2">EventsRuleForSSMPutParameter</span>:
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">Type</span>: <span style="color:#2aa198">&#34;AWS::Events::Rule&#34;</span>
-</span></span><span style="display:flex;"><span>...
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">EventTopicPolicy</span>:
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">Type</span>: <span style="color:#2aa198">&#39;AWS::SNS::TopicPolicy&#39;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">Properties</span>:
-</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">PolicyDocument</span>:
-</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">Statement</span>:
-</span></span><span style="display:flex;"><span>          - <span style="color:#268bd2">Effect</span>: Allow
-</span></span><span style="display:flex;"><span>            <span style="color:#268bd2">Principal</span>:
-</span></span><span style="display:flex;"><span>              <span style="color:#268bd2">Service</span>: events.amazonaws.com
-</span></span><span style="display:flex;"><span>            <span style="color:#268bd2">Action</span>: <span style="color:#2aa198">&#39;sns:Publish&#39;</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#268bd2">Resource</span>: <span style="color:#2aa198">&#39;*&#39;</span>
-</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">Topics</span>:
-</span></span><span style="display:flex;"><span>        - !Ref TopicForNotifications
-</span></span></code></pre></div><p>Repitiendo la comprobación indicada en la página de <em>troubleshooting</em> (he formateado la salida para que sea más fácil identificar la parte resaltada):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ aws sns get-topic-attributes --region <span style="color:#268bd2">$REGION</span> --topic-arn <span style="color:#268bd2">$TOPICARN</span> --profile <span style="color:#b58900">local</span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">{</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#2aa198">&#34;Attributes&#34;</span>: <span style="color:#719e07">{</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#2aa198">&#34;SubscriptionsConfirmed&#34;</span>: <span style="color:#2aa198">&#34;1&#34;</span>,
-</span></span><span style="display:flex;"><span>        <span style="color:#2aa198">&#34;DisplayName&#34;</span>: <span style="color:#2aa198">&#34;&#34;</span>,
-</span></span><span style="display:flex;"><span>        <span style="color:#2aa198">&#34;SubscriptionsDeleted&#34;</span>: <span style="color:#2aa198">&#34;0&#34;</span>,
-</span></span><span style="display:flex;"><span>        <span style="color:#2aa198">&#34;EffectiveDeliveryPolicy&#34;</span>: <span style="color:#2aa198">&#34;{\&#34;http\&#34;:{\&#34;defaultHealthyRetryPolicy\&#34;:{\&#34;minDelayTarget\&#34;:20,\&#34;maxDelayTarget\&#34;:20,\&#34;numRetries\&#34;:3,\&#34;numMaxDelayRetries\&#34;:0,\&#34;numNoDelayRetries\&#34;:0,\&#34;numMinDelayRetries\&#34;:0,\&#34;backoffFunction\&#34;:\&#34;linear\&#34;},\&#34;disableSubscriptionOverrides\&#34;:false}}&#34;</span>,
-</span></span><span style="display:flex;"><span>        <span style="color:#2aa198">&#34;Owner&#34;</span>: <span style="color:#2aa198">&#34;123456789012&#34;</span>,
-</span></span><span style="display:flex;"><span>        <span style="color:#2aa198">&#34;Policy&#34;</span>: <span style="color:#2aa198">&#34;{\&#34;Version\&#34;:\&#34;2008-10-17\&#34;,
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">          \&#34;Statement\&#34;:[{
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">            \&#34;Effect\&#34;:\&#34;Allow\&#34;,
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">            \&#34;Principal\&#34;:{
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">              \&#34;Service\&#34;:\&#34;events.amazonaws.com\&#34;
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">            },
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">            \&#34;Action\&#34;:\&#34;sns:Publish\&#34;,
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">            \&#34;Resource\&#34;:\&#34;*\&#34;}
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">          ]}&#34;</span>,
-</span></span><span style="display:flex;"><span>        <span style="color:#2aa198">&#34;TopicArn&#34;</span>: <span style="color:#2aa198">&#34;arn:aws:sns:</span><span style="color:#2aa198">${</span><span style="color:#268bd2">region</span><span style="color:#2aa198">}</span><span style="color:#2aa198">:123456789012:lab-topic-TopicForNotifications-</span><span style="color:#2aa198">${</span><span style="color:#268bd2">random</span><span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span>,
-</span></span><span style="display:flex;"><span>        <span style="color:#2aa198">&#34;SubscriptionsPending&#34;</span>: <span style="color:#2aa198">&#34;0&#34;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#719e07">}</span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">}</span>
-</span></span></code></pre></div><p>Una vez actualizada la política, debería funcionar correctamente.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">  <span style="color:#268bd2">EventsRuleForSSMPutParameter</span>:
+    <span style="color:#268bd2">Type</span>: <span style="color:#2aa198">&#34;AWS::Events::Rule&#34;</span>
+...
+  <span style="color:#268bd2">EventTopicPolicy</span>:
+    <span style="color:#268bd2">Type</span>: <span style="color:#2aa198">&#39;AWS::SNS::TopicPolicy&#39;</span>
+    <span style="color:#268bd2">Properties</span>:
+      <span style="color:#268bd2">PolicyDocument</span>:
+        <span style="color:#268bd2">Statement</span>:
+          - <span style="color:#268bd2">Effect</span>: Allow
+            <span style="color:#268bd2">Principal</span>:
+              <span style="color:#268bd2">Service</span>: events.amazonaws.com
+            <span style="color:#268bd2">Action</span>: <span style="color:#2aa198">&#39;sns:Publish&#39;</span>
+            <span style="color:#268bd2">Resource</span>: <span style="color:#2aa198">&#39;*&#39;</span>
+      <span style="color:#268bd2">Topics</span>:
+        - !Ref TopicForNotifications
+</code></pre></div><p>Repitiendo la comprobación indicada en la página de <em>troubleshooting</em> (he formateado la salida para que sea más fácil identificar la parte resaltada):</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ aws sns get-topic-attributes --region <span style="color:#268bd2">$REGION</span> --topic-arn <span style="color:#268bd2">$TOPICARN</span> --profile <span style="color:#b58900">local</span>
+<span style="color:#719e07">{</span>
+    <span style="color:#2aa198">&#34;Attributes&#34;</span>: <span style="color:#719e07">{</span>
+        <span style="color:#2aa198">&#34;SubscriptionsConfirmed&#34;</span>: <span style="color:#2aa198">&#34;1&#34;</span>,
+        <span style="color:#2aa198">&#34;DisplayName&#34;</span>: <span style="color:#2aa198">&#34;&#34;</span>,
+        <span style="color:#2aa198">&#34;SubscriptionsDeleted&#34;</span>: <span style="color:#2aa198">&#34;0&#34;</span>,
+        <span style="color:#2aa198">&#34;EffectiveDeliveryPolicy&#34;</span>: <span style="color:#2aa198">&#34;{\&#34;http\&#34;:{\&#34;defaultHealthyRetryPolicy\&#34;:{\&#34;minDelayTarget\&#34;:20,\&#34;maxDelayTarget\&#34;:20,\&#34;numRetries\&#34;:3,\&#34;numMaxDelayRetries\&#34;:0,\&#34;numNoDelayRetries\&#34;:0,\&#34;numMinDelayRetries\&#34;:0,\&#34;backoffFunction\&#34;:\&#34;linear\&#34;},\&#34;disableSubscriptionOverrides\&#34;:false}}&#34;</span>,
+        <span style="color:#2aa198">&#34;Owner&#34;</span>: <span style="color:#2aa198">&#34;123456789012&#34;</span>,
+        <span style="color:#2aa198">&#34;Policy&#34;</span>: <span style="color:#2aa198">&#34;{\&#34;Version\&#34;:\&#34;2008-10-17\&#34;,
+</span><span style="color:#2aa198">          \&#34;Statement\&#34;:[{
+</span><span style="color:#2aa198">            \&#34;Effect\&#34;:\&#34;Allow\&#34;,
+</span><span style="color:#2aa198">            \&#34;Principal\&#34;:{
+</span><span style="color:#2aa198">              \&#34;Service\&#34;:\&#34;events.amazonaws.com\&#34;
+</span><span style="color:#2aa198">            },
+</span><span style="color:#2aa198">            \&#34;Action\&#34;:\&#34;sns:Publish\&#34;,
+</span><span style="color:#2aa198">            \&#34;Resource\&#34;:\&#34;*\&#34;}
+</span><span style="color:#2aa198">          ]}&#34;</span>,
+        <span style="color:#2aa198">&#34;TopicArn&#34;</span>: <span style="color:#2aa198">&#34;arn:aws:sns:</span><span style="color:#2aa198">${</span><span style="color:#268bd2">region</span><span style="color:#2aa198">}</span><span style="color:#2aa198">:123456789012:lab-topic-TopicForNotifications-</span><span style="color:#2aa198">${</span><span style="color:#268bd2">random</span><span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span>,
+        <span style="color:#2aa198">&#34;SubscriptionsPending&#34;</span>: <span style="color:#2aa198">&#34;0&#34;</span>
+    <span style="color:#719e07">}</span>
+<span style="color:#719e07">}</span>
+</code></pre></div><p>Una vez actualizada la política, debería funcionar correctamente.</p>
 <p>Borramos el <em>stack</em> anterior -correspondient a la creación del recurso y el parámetro y validamos que tras asignar los permisos, se dispara la regla y se envía la notificación vía  SNS.</p></div>
 
   <aside class="p-share">

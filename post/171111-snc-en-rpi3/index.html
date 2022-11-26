@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.95.0" />
+<meta name="generator" content="Hugo 0.92.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -138,147 +138,147 @@
 <p>Para poder instalar Kubernetes usando <em>kubeadm</em>, el primer requerimiento es tener instalado <em>kubeadm</em>. Las instrucciones para instalarlo se encuentran en <a href="https://kubernetes.io/docs/setup/independent/install-kubeadm/">Installing kubeadm</a>.</p>
 <p>Los requerimientos para poder instalar <em>kubeadm</em> y Kubernetes ya se dan en Hypriot OS (por ejemplo, tener desactivada la <em>swap</em>).</p>
 <p>HypriotOS también viene equipado de serie con Docker:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ docker version
-</span></span><span style="display:flex;"><span>Client:
-</span></span><span style="display:flex;"><span> Version:      17.05.0-ce
-</span></span><span style="display:flex;"><span> API version:  1.29
-</span></span><span style="display:flex;"><span> Go version:   go1.7.5
-</span></span><span style="display:flex;"><span> Git commit:   89658be
-</span></span><span style="display:flex;"><span> Built:        Thu May  <span style="color:#2aa198">4</span> 22:30:54 <span style="color:#2aa198">2017</span>
-</span></span><span style="display:flex;"><span> OS/Arch:      linux/arm
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>Server:
-</span></span><span style="display:flex;"><span> Version:      17.05.0-ce
-</span></span><span style="display:flex;"><span> API version:  1.29 <span style="color:#719e07">(</span>minimum version 1.12<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span> Go version:   go1.7.5
-</span></span><span style="display:flex;"><span> Git commit:   89658be
-</span></span><span style="display:flex;"><span> Built:        Thu May  <span style="color:#2aa198">4</span> 22:30:54 <span style="color:#2aa198">2017</span>
-</span></span><span style="display:flex;"><span> OS/Arch:      linux/arm
-</span></span><span style="display:flex;"><span> Experimental: <span style="color:#b58900">false</span>
-</span></span></code></pre></div><p>El  siguiente paso es instalar <em>kubeadm</em>, <em>kubelet</em> y <em>kubectl</em>. Para ello, primero nos convertimos en el usuario <code>root</code> mediante:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>sudo -i
-</span></span></code></pre></div><p>Actualizamos el índice de paquetes e instalamos <code>apt-transport-https</code> (aunque HypriotOS también los trae de fábrica):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ apt-get update <span style="color:#719e07">&amp;&amp;</span> apt-get install -y apt-transport-https
-</span></span><span style="display:flex;"><span>Get:1 http://mirrordirector.raspbian.org jessie InRelease <span style="color:#719e07">[</span>14.9 kB<span style="color:#719e07">]</span>
-</span></span><span style="display:flex;"><span>Get:2 http://archive.raspberrypi.org jessie InRelease <span style="color:#719e07">[</span>22.9 kB<span style="color:#719e07">]</span>
-</span></span><span style="display:flex;"><span>...
-</span></span><span style="display:flex;"><span>Reading state information... Done
-</span></span><span style="display:flex;"><span>apt-transport-https is already the newest version.
-</span></span><span style="display:flex;"><span><span style="color:#2aa198">0</span> upgraded, <span style="color:#2aa198">0</span> newly installed, <span style="color:#2aa198">0</span> to remove and <span style="color:#2aa198">41</span> not upgraded.
-</span></span></code></pre></div><p>Instalamos la clave pública del repositorio de Google, añadimos el repositorio de Kubernetes, actualiazamos e instalamos.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
-</span></span><span style="display:flex;"><span>OK
-</span></span><span style="display:flex;"><span>$ cat <span style="color:#2aa198">&lt;&lt;EOF &gt;/etc/apt/sources.list.d/kubernetes.list
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">&gt; deb http://apt.kubernetes.io/ kubernetes-xenial main
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">&gt; EOF</span>
-</span></span><span style="display:flex;"><span>$ apt-get update
-</span></span><span style="display:flex;"><span>Hit http://mirrordirector.raspbian.org jessie InRelease
-</span></span><span style="display:flex;"><span>Hit https://apt.dockerproject.org raspbian-jessie InRelease
-</span></span><span style="display:flex;"><span>...
-</span></span><span style="display:flex;"><span>Fetched 15.1 kB in 14s <span style="color:#719e07">(</span><span style="color:#2aa198">1056</span> B/s<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>Reading package lists... Done
-</span></span></code></pre></div><p>Lanzamos la instalación:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ apt-get install -y kubelet kubeadm kubectl
-</span></span><span style="display:flex;"><span>Reading package lists... Done
-</span></span><span style="display:flex;"><span>Building dependency tree
-</span></span><span style="display:flex;"><span>Reading state information... Done
-</span></span><span style="display:flex;"><span>The following extra packages will be installed:
-</span></span><span style="display:flex;"><span>  ebtables kubernetes-cni socat
-</span></span><span style="display:flex;"><span>The following NEW packages will be installed:
-</span></span><span style="display:flex;"><span>  ebtables kubeadm kubectl kubelet kubernetes-cni socat
-</span></span><span style="display:flex;"><span><span style="color:#2aa198">0</span> upgraded, <span style="color:#2aa198">6</span> newly installed, <span style="color:#2aa198">0</span> to remove and <span style="color:#2aa198">41</span> not upgraded.
-</span></span><span style="display:flex;"><span>Need to get 46.7 MB of archives.
-</span></span><span style="display:flex;"><span>After this operation, <span style="color:#2aa198">321</span> MB of additional disk space will be used.
-</span></span><span style="display:flex;"><span>Get:1 http://mirrordirector.raspbian.org/raspbian/ jessie/main ebtables armhf 2.0.10.4-3 <span style="color:#719e07">[</span>97.1 kB<span style="color:#719e07">]</span>
-</span></span><span style="display:flex;"><span>...
-</span></span><span style="display:flex;"><span>Fetched 46.7 MB in 22s <span style="color:#719e07">(</span><span style="color:#2aa198">2077</span> kB/s<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>...
-</span></span><span style="display:flex;"><span>Selecting previously unselected package ebtables.
-</span></span><span style="display:flex;"><span><span style="color:#719e07">(</span>Reading database ... <span style="color:#2aa198">20831</span> files and directories currently installed.<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>Preparing to unpack .../ebtables_2.0.10.4-3_armhf.deb ...
-</span></span><span style="display:flex;"><span>Unpacking ebtables <span style="color:#719e07">(</span>2.0.10.4-3<span style="color:#719e07">)</span> ...
-</span></span><span style="display:flex;"><span>Selecting previously unselected package kubernetes-cni.
-</span></span><span style="display:flex;"><span>Preparing to unpack .../kubernetes-cni_0.5.1-00_armhf.deb ...
-</span></span><span style="display:flex;"><span>Unpacking kubernetes-cni <span style="color:#719e07">(</span>0.5.1-00<span style="color:#719e07">)</span> ...
-</span></span><span style="display:flex;"><span>Selecting previously unselected package socat.
-</span></span><span style="display:flex;"><span>Preparing to unpack .../socat_1.7.2.4-2_armhf.deb ...
-</span></span><span style="display:flex;"><span>Unpacking socat <span style="color:#719e07">(</span>1.7.2.4-2<span style="color:#719e07">)</span> ...
-</span></span><span style="display:flex;"><span>Selecting previously unselected package kubelet.
-</span></span><span style="display:flex;"><span>Preparing to unpack .../kubelet_1.8.2-00_armhf.deb ...
-</span></span><span style="display:flex;"><span>Unpacking kubelet <span style="color:#719e07">(</span>1.8.2-00<span style="color:#719e07">)</span> ...
-</span></span><span style="display:flex;"><span>Selecting previously unselected package kubectl.
-</span></span><span style="display:flex;"><span>Preparing to unpack .../kubectl_1.8.2-00_armhf.deb ...
-</span></span><span style="display:flex;"><span>Unpacking kubectl <span style="color:#719e07">(</span>1.8.2-00<span style="color:#719e07">)</span> ...
-</span></span><span style="display:flex;"><span>Selecting previously unselected package kubeadm.
-</span></span><span style="display:flex;"><span>Preparing to unpack .../kubeadm_1.8.2-00_armhf.deb ...
-</span></span><span style="display:flex;"><span>Unpacking kubeadm <span style="color:#719e07">(</span>1.8.2-00<span style="color:#719e07">)</span> ...
-</span></span><span style="display:flex;"><span>Processing triggers <span style="color:#719e07">for</span> systemd <span style="color:#719e07">(</span>215-17+deb8u7<span style="color:#719e07">)</span> ...
-</span></span><span style="display:flex;"><span>Processing triggers <span style="color:#719e07">for</span> man-db <span style="color:#719e07">(</span>2.7.0.2-5<span style="color:#719e07">)</span> ...
-</span></span><span style="display:flex;"><span>Setting up ebtables <span style="color:#719e07">(</span>2.0.10.4-3<span style="color:#719e07">)</span> ...
-</span></span><span style="display:flex;"><span>update-rc.d: warning: start and stop actions are no longer supported; falling back to defaults
-</span></span><span style="display:flex;"><span>Setting up kubernetes-cni <span style="color:#719e07">(</span>0.5.1-00<span style="color:#719e07">)</span> ...
-</span></span><span style="display:flex;"><span>Setting up socat <span style="color:#719e07">(</span>1.7.2.4-2<span style="color:#719e07">)</span> ...
-</span></span><span style="display:flex;"><span>Setting up kubelet <span style="color:#719e07">(</span>1.8.2-00<span style="color:#719e07">)</span> ...
-</span></span><span style="display:flex;"><span>Setting up kubectl <span style="color:#719e07">(</span>1.8.2-00<span style="color:#719e07">)</span> ...
-</span></span><span style="display:flex;"><span>Setting up kubeadm <span style="color:#719e07">(</span>1.8.2-00<span style="color:#719e07">)</span> ...
-</span></span><span style="display:flex;"><span>Processing triggers <span style="color:#719e07">for</span> systemd <span style="color:#719e07">(</span>215-17+deb8u7<span style="color:#719e07">)</span> ...
-</span></span></code></pre></div><h2 id="inicializando-el-clúster">Inicializando el clúster</h2>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ docker version
+Client:
+ Version:      17.05.0-ce
+ API version:  1.29
+ Go version:   go1.7.5
+ Git commit:   89658be
+ Built:        Thu May  <span style="color:#2aa198">4</span> 22:30:54 <span style="color:#2aa198">2017</span>
+ OS/Arch:      linux/arm
+
+Server:
+ Version:      17.05.0-ce
+ API version:  1.29 <span style="color:#719e07">(</span>minimum version 1.12<span style="color:#719e07">)</span>
+ Go version:   go1.7.5
+ Git commit:   89658be
+ Built:        Thu May  <span style="color:#2aa198">4</span> 22:30:54 <span style="color:#2aa198">2017</span>
+ OS/Arch:      linux/arm
+ Experimental: <span style="color:#b58900">false</span>
+</code></pre></div><p>El  siguiente paso es instalar <em>kubeadm</em>, <em>kubelet</em> y <em>kubectl</em>. Para ello, primero nos convertimos en el usuario <code>root</code> mediante:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">sudo -i
+</code></pre></div><p>Actualizamos el índice de paquetes e instalamos <code>apt-transport-https</code> (aunque HypriotOS también los trae de fábrica):</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ apt-get update <span style="color:#719e07">&amp;&amp;</span> apt-get install -y apt-transport-https
+Get:1 http://mirrordirector.raspbian.org jessie InRelease <span style="color:#719e07">[</span>14.9 kB<span style="color:#719e07">]</span>
+Get:2 http://archive.raspberrypi.org jessie InRelease <span style="color:#719e07">[</span>22.9 kB<span style="color:#719e07">]</span>
+...
+Reading state information... Done
+apt-transport-https is already the newest version.
+<span style="color:#2aa198">0</span> upgraded, <span style="color:#2aa198">0</span> newly installed, <span style="color:#2aa198">0</span> to remove and <span style="color:#2aa198">41</span> not upgraded.
+</code></pre></div><p>Instalamos la clave pública del repositorio de Google, añadimos el repositorio de Kubernetes, actualiazamos e instalamos.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
+OK
+$ cat <span style="color:#2aa198">&lt;&lt;EOF &gt;/etc/apt/sources.list.d/kubernetes.list
+</span><span style="color:#2aa198">&gt; deb http://apt.kubernetes.io/ kubernetes-xenial main
+</span><span style="color:#2aa198">&gt; EOF</span>
+$ apt-get update
+Hit http://mirrordirector.raspbian.org jessie InRelease
+Hit https://apt.dockerproject.org raspbian-jessie InRelease
+...
+Fetched 15.1 kB in 14s <span style="color:#719e07">(</span><span style="color:#2aa198">1056</span> B/s<span style="color:#719e07">)</span>
+Reading package lists... Done
+</code></pre></div><p>Lanzamos la instalación:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ apt-get install -y kubelet kubeadm kubectl
+Reading package lists... Done
+Building dependency tree
+Reading state information... Done
+The following extra packages will be installed:
+  ebtables kubernetes-cni socat
+The following NEW packages will be installed:
+  ebtables kubeadm kubectl kubelet kubernetes-cni socat
+<span style="color:#2aa198">0</span> upgraded, <span style="color:#2aa198">6</span> newly installed, <span style="color:#2aa198">0</span> to remove and <span style="color:#2aa198">41</span> not upgraded.
+Need to get 46.7 MB of archives.
+After this operation, <span style="color:#2aa198">321</span> MB of additional disk space will be used.
+Get:1 http://mirrordirector.raspbian.org/raspbian/ jessie/main ebtables armhf 2.0.10.4-3 <span style="color:#719e07">[</span>97.1 kB<span style="color:#719e07">]</span>
+...
+Fetched 46.7 MB in 22s <span style="color:#719e07">(</span><span style="color:#2aa198">2077</span> kB/s<span style="color:#719e07">)</span>
+...
+Selecting previously unselected package ebtables.
+<span style="color:#719e07">(</span>Reading database ... <span style="color:#2aa198">20831</span> files and directories currently installed.<span style="color:#719e07">)</span>
+Preparing to unpack .../ebtables_2.0.10.4-3_armhf.deb ...
+Unpacking ebtables <span style="color:#719e07">(</span>2.0.10.4-3<span style="color:#719e07">)</span> ...
+Selecting previously unselected package kubernetes-cni.
+Preparing to unpack .../kubernetes-cni_0.5.1-00_armhf.deb ...
+Unpacking kubernetes-cni <span style="color:#719e07">(</span>0.5.1-00<span style="color:#719e07">)</span> ...
+Selecting previously unselected package socat.
+Preparing to unpack .../socat_1.7.2.4-2_armhf.deb ...
+Unpacking socat <span style="color:#719e07">(</span>1.7.2.4-2<span style="color:#719e07">)</span> ...
+Selecting previously unselected package kubelet.
+Preparing to unpack .../kubelet_1.8.2-00_armhf.deb ...
+Unpacking kubelet <span style="color:#719e07">(</span>1.8.2-00<span style="color:#719e07">)</span> ...
+Selecting previously unselected package kubectl.
+Preparing to unpack .../kubectl_1.8.2-00_armhf.deb ...
+Unpacking kubectl <span style="color:#719e07">(</span>1.8.2-00<span style="color:#719e07">)</span> ...
+Selecting previously unselected package kubeadm.
+Preparing to unpack .../kubeadm_1.8.2-00_armhf.deb ...
+Unpacking kubeadm <span style="color:#719e07">(</span>1.8.2-00<span style="color:#719e07">)</span> ...
+Processing triggers <span style="color:#719e07">for</span> systemd <span style="color:#719e07">(</span>215-17+deb8u7<span style="color:#719e07">)</span> ...
+Processing triggers <span style="color:#719e07">for</span> man-db <span style="color:#719e07">(</span>2.7.0.2-5<span style="color:#719e07">)</span> ...
+Setting up ebtables <span style="color:#719e07">(</span>2.0.10.4-3<span style="color:#719e07">)</span> ...
+update-rc.d: warning: start and stop actions are no longer supported; falling back to defaults
+Setting up kubernetes-cni <span style="color:#719e07">(</span>0.5.1-00<span style="color:#719e07">)</span> ...
+Setting up socat <span style="color:#719e07">(</span>1.7.2.4-2<span style="color:#719e07">)</span> ...
+Setting up kubelet <span style="color:#719e07">(</span>1.8.2-00<span style="color:#719e07">)</span> ...
+Setting up kubectl <span style="color:#719e07">(</span>1.8.2-00<span style="color:#719e07">)</span> ...
+Setting up kubeadm <span style="color:#719e07">(</span>1.8.2-00<span style="color:#719e07">)</span> ...
+Processing triggers <span style="color:#719e07">for</span> systemd <span style="color:#719e07">(</span>215-17+deb8u7<span style="color:#719e07">)</span> ...
+</code></pre></div><h2 id="inicializando-el-clúster">Inicializando el clúster</h2>
 <p>Tras el paso previo de la instalación de <em>kubeadm</em>, lanzamos <code>kubeadm init</code>, que inicializa el clúster.</p>
 <p>En primer lugar, <em>kubeadm</em> realiza comprobaciones antes de lanzar la descargar de las diferentes imágenes de los elementos del <em>control plane</em> (lo que puede llevar más o menos tiempo, en función de la velocidad de tu conexión). Finalmente, <em>kubeadm</em> muestra instrucciones sobre los siguientes pasos a seguir tras la inicialización del clúster:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ kubeadm init
-</span></span><span style="display:flex;"><span><span style="color:#719e07">[</span>kubeadm<span style="color:#719e07">]</span> WARNING: kubeadm is in beta, please <span style="color:#719e07">do</span> not use it <span style="color:#719e07">for</span> production clusters.
-</span></span><span style="display:flex;"><span><span style="color:#719e07">[</span>init<span style="color:#719e07">]</span> Using Kubernetes version: v1.8.2
-</span></span><span style="display:flex;"><span><span style="color:#719e07">[</span>init<span style="color:#719e07">]</span> Using Authorization modes: <span style="color:#719e07">[</span>Node RBAC<span style="color:#719e07">]</span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">[</span>preflight<span style="color:#719e07">]</span> Running pre-flight checks
-</span></span><span style="display:flex;"><span><span style="color:#719e07">[</span>preflight<span style="color:#719e07">]</span> WARNING: docker version is greater than the most recently validated version. Docker version: 17.05.0-ce. Max validated version: 17.03
-</span></span><span style="display:flex;"><span><span style="color:#719e07">[</span>kubeadm<span style="color:#719e07">]</span> WARNING: starting in 1.8, tokens expire after <span style="color:#2aa198">24</span> hours by default <span style="color:#719e07">(</span><span style="color:#719e07">if</span> you require a non-expiring token use --token-ttl 0<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">[</span>certificates<span style="color:#719e07">]</span> Generated ca certificate and key.
-</span></span><span style="display:flex;"><span><span style="color:#719e07">[</span>certificates<span style="color:#719e07">]</span> Generated apiserver certificate and key.
-</span></span><span style="display:flex;"><span><span style="color:#719e07">[</span>certificates<span style="color:#719e07">]</span> apiserver serving cert is signed <span style="color:#719e07">for</span> DNS names <span style="color:#719e07">[</span>snc kubernetes kubernetes.default kubernetes.default.svc kubernetes.default.svc.cluster.local<span style="color:#719e07">]</span> and IPs <span style="color:#719e07">[</span>10.96.0.1 192.168.1.12<span style="color:#719e07">]</span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">[</span>certificates<span style="color:#719e07">]</span> Generated apiserver-kubelet-client certificate and key.
-</span></span><span style="display:flex;"><span><span style="color:#719e07">[</span>certificates<span style="color:#719e07">]</span> Generated sa key and public key.
-</span></span><span style="display:flex;"><span><span style="color:#719e07">[</span>certificates<span style="color:#719e07">]</span> Generated front-proxy-ca certificate and key.
-</span></span><span style="display:flex;"><span><span style="color:#719e07">[</span>certificates<span style="color:#719e07">]</span> Generated front-proxy-client certificate and key.
-</span></span><span style="display:flex;"><span><span style="color:#719e07">[</span>certificates<span style="color:#719e07">]</span> Valid certificates and keys now exist in <span style="color:#2aa198">&#34;/etc/kubernetes/pki&#34;</span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">[</span>kubeconfig<span style="color:#719e07">]</span> Wrote KubeConfig file to disk: <span style="color:#2aa198">&#34;admin.conf&#34;</span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">[</span>kubeconfig<span style="color:#719e07">]</span> Wrote KubeConfig file to disk: <span style="color:#2aa198">&#34;kubelet.conf&#34;</span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">[</span>kubeconfig<span style="color:#719e07">]</span> Wrote KubeConfig file to disk: <span style="color:#2aa198">&#34;controller-manager.conf&#34;</span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">[</span>kubeconfig<span style="color:#719e07">]</span> Wrote KubeConfig file to disk: <span style="color:#2aa198">&#34;scheduler.conf&#34;</span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">[</span>controlplane<span style="color:#719e07">]</span> Wrote Static Pod manifest <span style="color:#719e07">for</span> component kube-apiserver to <span style="color:#2aa198">&#34;/etc/kubernetes/manifests/kube-apiserver.yaml&#34;</span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">[</span>controlplane<span style="color:#719e07">]</span> Wrote Static Pod manifest <span style="color:#719e07">for</span> component kube-controller-manager to <span style="color:#2aa198">&#34;/etc/kubernetes/manifests/kube-controller-manager.yaml&#34;</span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">[</span>controlplane<span style="color:#719e07">]</span> Wrote Static Pod manifest <span style="color:#719e07">for</span> component kube-scheduler to <span style="color:#2aa198">&#34;/etc/kubernetes/manifests/kube-scheduler.yaml&#34;</span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">[</span>etcd<span style="color:#719e07">]</span> Wrote Static Pod manifest <span style="color:#719e07">for</span> a <span style="color:#b58900">local</span> etcd instance to <span style="color:#2aa198">&#34;/etc/kubernetes/manifests/etcd.yaml&#34;</span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">[</span>init<span style="color:#719e07">]</span> Waiting <span style="color:#719e07">for</span> the kubelet to boot up the control plane as Static Pods from directory <span style="color:#2aa198">&#34;/etc/kubernetes/manifests&#34;</span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">[</span>init<span style="color:#719e07">]</span> This often takes around a minute; or longer <span style="color:#719e07">if</span> the control plane images have to be pulled.
-</span></span><span style="display:flex;"><span><span style="color:#719e07">[</span>apiclient<span style="color:#719e07">]</span> All control plane components are healthy after 1075.017001 seconds
-</span></span><span style="display:flex;"><span><span style="color:#719e07">[</span>uploadconfig<span style="color:#719e07">]</span> Storing the configuration used in ConfigMap <span style="color:#2aa198">&#34;kubeadm-config&#34;</span> in the <span style="color:#2aa198">&#34;kube-system&#34;</span> Namespace
-</span></span><span style="display:flex;"><span><span style="color:#719e07">[</span>markmaster<span style="color:#719e07">]</span> Will mark node snc as master by adding a label and a taint
-</span></span><span style="display:flex;"><span><span style="color:#719e07">[</span>markmaster<span style="color:#719e07">]</span> Master snc tainted and labelled with key/value: node-role.kubernetes.io/master<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;&#34;</span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">[</span>bootstraptoken<span style="color:#719e07">]</span> Using token: fac7e9.cb99bb58fed9ad44
-</span></span><span style="display:flex;"><span><span style="color:#719e07">[</span>bootstraptoken<span style="color:#719e07">]</span> Configured RBAC rules to allow Node Bootstrap tokens to post CSRs in order <span style="color:#719e07">for</span> nodes to get long term certificate credentials
-</span></span><span style="display:flex;"><span><span style="color:#719e07">[</span>bootstraptoken<span style="color:#719e07">]</span> Configured RBAC rules to allow the csrapprover controller automatically approve CSRs from a Node Bootstrap Token
-</span></span><span style="display:flex;"><span><span style="color:#719e07">[</span>bootstraptoken<span style="color:#719e07">]</span> Configured RBAC rules to allow certificate rotation <span style="color:#719e07">for</span> all node client certificates in the cluster
-</span></span><span style="display:flex;"><span><span style="color:#719e07">[</span>bootstraptoken<span style="color:#719e07">]</span> Creating the <span style="color:#2aa198">&#34;cluster-info&#34;</span> ConfigMap in the <span style="color:#2aa198">&#34;kube-public&#34;</span> namespace
-</span></span><span style="display:flex;"><span><span style="color:#719e07">[</span>addons<span style="color:#719e07">]</span> Applied essential addon: kube-dns
-</span></span><span style="display:flex;"><span><span style="color:#719e07">[</span>addons<span style="color:#719e07">]</span> Applied essential addon: kube-proxy
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>Your Kubernetes master has initialized successfully!
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>To start using your cluster, you need to run <span style="color:#719e07">(</span>as a regular user<span style="color:#719e07">)</span>:
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>  mkdir -p <span style="color:#268bd2">$HOME</span>/.kube
-</span></span><span style="display:flex;"><span>  sudo cp -i /etc/kubernetes/admin.conf <span style="color:#268bd2">$HOME</span>/.kube/config
-</span></span><span style="display:flex;"><span>  sudo chown <span style="color:#719e07">$(</span>id -u<span style="color:#719e07">)</span>:<span style="color:#719e07">$(</span>id -g<span style="color:#719e07">)</span> <span style="color:#268bd2">$HOME</span>/.kube/config
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>You should now deploy a pod network to the cluster.
-</span></span><span style="display:flex;"><span>Run <span style="color:#2aa198">&#34;kubectl apply -f [podnetwork].yaml&#34;</span> with one of the options listed at:
-</span></span><span style="display:flex;"><span>  http://kubernetes.io/docs/admin/addons/
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>You can now join any number of machines by running the following on each node
-</span></span><span style="display:flex;"><span>as root:
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>  kubeadm join --token fac7e9.cb99bb58fed9ad44 192.168.1.12:6443 --discovery-token-ca-cert-hash sha256:03052b3455bba2e4d9713f55831807c5d6ad69525398620d889586ba2ab663b1
-</span></span></code></pre></div><p>Como puedes ver en la salida del comando <code>kubeadm init</code>, para poder utilizar <em>kubectl</em> como un usuario sin privilegios, debes copiar (como usuario, no como <code>root</code>) la configuración de Kubernetes a tu carpeta <code>$HOME</code>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ kubeadm init
+<span style="color:#719e07">[</span>kubeadm<span style="color:#719e07">]</span> WARNING: kubeadm is in beta, please <span style="color:#719e07">do</span> not use it <span style="color:#719e07">for</span> production clusters.
+<span style="color:#719e07">[</span>init<span style="color:#719e07">]</span> Using Kubernetes version: v1.8.2
+<span style="color:#719e07">[</span>init<span style="color:#719e07">]</span> Using Authorization modes: <span style="color:#719e07">[</span>Node RBAC<span style="color:#719e07">]</span>
+<span style="color:#719e07">[</span>preflight<span style="color:#719e07">]</span> Running pre-flight checks
+<span style="color:#719e07">[</span>preflight<span style="color:#719e07">]</span> WARNING: docker version is greater than the most recently validated version. Docker version: 17.05.0-ce. Max validated version: 17.03
+<span style="color:#719e07">[</span>kubeadm<span style="color:#719e07">]</span> WARNING: starting in 1.8, tokens expire after <span style="color:#2aa198">24</span> hours by default <span style="color:#719e07">(</span><span style="color:#719e07">if</span> you require a non-expiring token use --token-ttl 0<span style="color:#719e07">)</span>
+<span style="color:#719e07">[</span>certificates<span style="color:#719e07">]</span> Generated ca certificate and key.
+<span style="color:#719e07">[</span>certificates<span style="color:#719e07">]</span> Generated apiserver certificate and key.
+<span style="color:#719e07">[</span>certificates<span style="color:#719e07">]</span> apiserver serving cert is signed <span style="color:#719e07">for</span> DNS names <span style="color:#719e07">[</span>snc kubernetes kubernetes.default kubernetes.default.svc kubernetes.default.svc.cluster.local<span style="color:#719e07">]</span> and IPs <span style="color:#719e07">[</span>10.96.0.1 192.168.1.12<span style="color:#719e07">]</span>
+<span style="color:#719e07">[</span>certificates<span style="color:#719e07">]</span> Generated apiserver-kubelet-client certificate and key.
+<span style="color:#719e07">[</span>certificates<span style="color:#719e07">]</span> Generated sa key and public key.
+<span style="color:#719e07">[</span>certificates<span style="color:#719e07">]</span> Generated front-proxy-ca certificate and key.
+<span style="color:#719e07">[</span>certificates<span style="color:#719e07">]</span> Generated front-proxy-client certificate and key.
+<span style="color:#719e07">[</span>certificates<span style="color:#719e07">]</span> Valid certificates and keys now exist in <span style="color:#2aa198">&#34;/etc/kubernetes/pki&#34;</span>
+<span style="color:#719e07">[</span>kubeconfig<span style="color:#719e07">]</span> Wrote KubeConfig file to disk: <span style="color:#2aa198">&#34;admin.conf&#34;</span>
+<span style="color:#719e07">[</span>kubeconfig<span style="color:#719e07">]</span> Wrote KubeConfig file to disk: <span style="color:#2aa198">&#34;kubelet.conf&#34;</span>
+<span style="color:#719e07">[</span>kubeconfig<span style="color:#719e07">]</span> Wrote KubeConfig file to disk: <span style="color:#2aa198">&#34;controller-manager.conf&#34;</span>
+<span style="color:#719e07">[</span>kubeconfig<span style="color:#719e07">]</span> Wrote KubeConfig file to disk: <span style="color:#2aa198">&#34;scheduler.conf&#34;</span>
+<span style="color:#719e07">[</span>controlplane<span style="color:#719e07">]</span> Wrote Static Pod manifest <span style="color:#719e07">for</span> component kube-apiserver to <span style="color:#2aa198">&#34;/etc/kubernetes/manifests/kube-apiserver.yaml&#34;</span>
+<span style="color:#719e07">[</span>controlplane<span style="color:#719e07">]</span> Wrote Static Pod manifest <span style="color:#719e07">for</span> component kube-controller-manager to <span style="color:#2aa198">&#34;/etc/kubernetes/manifests/kube-controller-manager.yaml&#34;</span>
+<span style="color:#719e07">[</span>controlplane<span style="color:#719e07">]</span> Wrote Static Pod manifest <span style="color:#719e07">for</span> component kube-scheduler to <span style="color:#2aa198">&#34;/etc/kubernetes/manifests/kube-scheduler.yaml&#34;</span>
+<span style="color:#719e07">[</span>etcd<span style="color:#719e07">]</span> Wrote Static Pod manifest <span style="color:#719e07">for</span> a <span style="color:#b58900">local</span> etcd instance to <span style="color:#2aa198">&#34;/etc/kubernetes/manifests/etcd.yaml&#34;</span>
+<span style="color:#719e07">[</span>init<span style="color:#719e07">]</span> Waiting <span style="color:#719e07">for</span> the kubelet to boot up the control plane as Static Pods from directory <span style="color:#2aa198">&#34;/etc/kubernetes/manifests&#34;</span>
+<span style="color:#719e07">[</span>init<span style="color:#719e07">]</span> This often takes around a minute; or longer <span style="color:#719e07">if</span> the control plane images have to be pulled.
+<span style="color:#719e07">[</span>apiclient<span style="color:#719e07">]</span> All control plane components are healthy after 1075.017001 seconds
+<span style="color:#719e07">[</span>uploadconfig<span style="color:#719e07">]</span> Storing the configuration used in ConfigMap <span style="color:#2aa198">&#34;kubeadm-config&#34;</span> in the <span style="color:#2aa198">&#34;kube-system&#34;</span> Namespace
+<span style="color:#719e07">[</span>markmaster<span style="color:#719e07">]</span> Will mark node snc as master by adding a label and a taint
+<span style="color:#719e07">[</span>markmaster<span style="color:#719e07">]</span> Master snc tainted and labelled with key/value: node-role.kubernetes.io/master<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;&#34;</span>
+<span style="color:#719e07">[</span>bootstraptoken<span style="color:#719e07">]</span> Using token: fac7e9.cb99bb58fed9ad44
+<span style="color:#719e07">[</span>bootstraptoken<span style="color:#719e07">]</span> Configured RBAC rules to allow Node Bootstrap tokens to post CSRs in order <span style="color:#719e07">for</span> nodes to get long term certificate credentials
+<span style="color:#719e07">[</span>bootstraptoken<span style="color:#719e07">]</span> Configured RBAC rules to allow the csrapprover controller automatically approve CSRs from a Node Bootstrap Token
+<span style="color:#719e07">[</span>bootstraptoken<span style="color:#719e07">]</span> Configured RBAC rules to allow certificate rotation <span style="color:#719e07">for</span> all node client certificates in the cluster
+<span style="color:#719e07">[</span>bootstraptoken<span style="color:#719e07">]</span> Creating the <span style="color:#2aa198">&#34;cluster-info&#34;</span> ConfigMap in the <span style="color:#2aa198">&#34;kube-public&#34;</span> namespace
+<span style="color:#719e07">[</span>addons<span style="color:#719e07">]</span> Applied essential addon: kube-dns
+<span style="color:#719e07">[</span>addons<span style="color:#719e07">]</span> Applied essential addon: kube-proxy
+
+Your Kubernetes master has initialized successfully!
+
+To start using your cluster, you need to run <span style="color:#719e07">(</span>as a regular user<span style="color:#719e07">)</span>:
+
+  mkdir -p <span style="color:#268bd2">$HOME</span>/.kube
+  sudo cp -i /etc/kubernetes/admin.conf <span style="color:#268bd2">$HOME</span>/.kube/config
+  sudo chown <span style="color:#719e07">$(</span>id -u<span style="color:#719e07">)</span>:<span style="color:#719e07">$(</span>id -g<span style="color:#719e07">)</span> <span style="color:#268bd2">$HOME</span>/.kube/config
+
+You should now deploy a pod network to the cluster.
+Run <span style="color:#2aa198">&#34;kubectl apply -f [podnetwork].yaml&#34;</span> with one of the options listed at:
+  http://kubernetes.io/docs/admin/addons/
+
+You can now join any number of machines by running the following on each node
+as root:
+
+  kubeadm join --token fac7e9.cb99bb58fed9ad44 192.168.1.12:6443 --discovery-token-ca-cert-hash sha256:03052b3455bba2e4d9713f55831807c5d6ad69525398620d889586ba2ab663b1
+</code></pre></div><p>Como puedes ver en la salida del comando <code>kubeadm init</code>, para poder utilizar <em>kubectl</em> como un usuario sin privilegios, debes copiar (como usuario, no como <code>root</code>) la configuración de Kubernetes a tu carpeta <code>$HOME</code>.</p>
 <p>Realizaremos estas acciones una vez hayamos finalizado la instalación de la red para los <em>pods</em>. La red <strong>debe desplegarse antes que cualquier aplicación en el nodo</strong>.</p>
 <p>Si queremos unir nodos adicionales al clúster, podemos apuntar el <em>token</em> generado para ello. En este caso nuestro clúster sólo va a tener un nodo, por lo que no será necesario usar el token.</p>
 <p>En cualquier caso, puedes recuperar el <em>token</em> para usarlo en cualquier otro momento como explicaba en la entrada <a href="https://onthedock.github.io/post/170417-como-agregar-un-nodo-a-un-cluster-kubernetes/">Cómo agregar un nodo a un cluster Kubernetes</a></p>
@@ -291,35 +291,35 @@
 <blockquote>
 <p>El comando de instalación de Weave Net requiere Kubernetes 1.4 o superior</p>
 </blockquote>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ kubectl apply -f <span style="color:#2aa198">&#34;https://cloud.weave.works/k8s/net?k8s-version=</span><span style="color:#719e07">$(</span>kubectl version | base64 | tr -d <span style="color:#2aa198">&#39;\n&#39;</span><span style="color:#719e07">)</span><span style="color:#2aa198">&#34;</span>
-</span></span><span style="display:flex;"><span>serviceaccount <span style="color:#2aa198">&#34;weave-net&#34;</span> created
-</span></span><span style="display:flex;"><span>clusterrole <span style="color:#2aa198">&#34;weave-net&#34;</span> created
-</span></span><span style="display:flex;"><span>clusterrolebinding <span style="color:#2aa198">&#34;weave-net&#34;</span> created
-</span></span><span style="display:flex;"><span>daemonset <span style="color:#2aa198">&#34;weave-net&#34;</span> created
-</span></span></code></pre></div><h2 id="habilita-_kubectl_-para-usuarios-sin-privilegios">Habilita <em>kubectl</em> para usuarios sin privilegios</h2>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ kubectl apply -f <span style="color:#2aa198">&#34;https://cloud.weave.works/k8s/net?k8s-version=</span><span style="color:#719e07">$(</span>kubectl version | base64 | tr -d <span style="color:#2aa198">&#39;\n&#39;</span><span style="color:#719e07">)</span><span style="color:#2aa198">&#34;</span>
+serviceaccount <span style="color:#2aa198">&#34;weave-net&#34;</span> created
+clusterrole <span style="color:#2aa198">&#34;weave-net&#34;</span> created
+clusterrolebinding <span style="color:#2aa198">&#34;weave-net&#34;</span> created
+daemonset <span style="color:#2aa198">&#34;weave-net&#34;</span> created
+</code></pre></div><h2 id="habilita-_kubectl_-para-usuarios-sin-privilegios">Habilita <em>kubectl</em> para usuarios sin privilegios</h2>
 <p>Una vez hemos finalizado la instalación e inicialización del nodo master, nos deshacemos de los privilegios de <code>root</code> y realizamos la copia del fichero de configuración de <em>kubectl</em> para poder usarlo como un usuario &ldquo;normal&rdquo;:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ mkdir -p <span style="color:#268bd2">$HOME</span>/.kube
-</span></span><span style="display:flex;"><span>$ sudo cp -i /etc/kubernetes/admin.conf <span style="color:#268bd2">$HOME</span>/.kube/config
-</span></span><span style="display:flex;"><span>$ sudo chown <span style="color:#719e07">$(</span>id -u<span style="color:#719e07">)</span>:<span style="color:#719e07">$(</span>id -g<span style="color:#719e07">)</span> <span style="color:#268bd2">$HOME</span>/.kube/config
-</span></span></code></pre></div><p>Verificamos que funciona lanzando, por ejemplo:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ kubectl get pods --all-namespaces
-</span></span><span style="display:flex;"><span>NAMESPACE     NAME                          READY     STATUS              RESTARTS   AGE
-</span></span><span style="display:flex;"><span>kube-system   etcd-snc                      1/1       Running             <span style="color:#2aa198">0</span>          26m
-</span></span><span style="display:flex;"><span>kube-system   kube-apiserver-snc            1/1       Running             <span style="color:#2aa198">0</span>          26m
-</span></span><span style="display:flex;"><span>kube-system   kube-controller-manager-snc   1/1       Running             <span style="color:#2aa198">0</span>          18m
-</span></span><span style="display:flex;"><span>kube-system   kube-dns-66ffd5c588-xrb6m     0/3       Pending             <span style="color:#2aa198">0</span>          18m
-</span></span><span style="display:flex;"><span>kube-system   kube-proxy-ppwxd              1/1       Running             <span style="color:#2aa198">0</span>          18m
-</span></span><span style="display:flex;"><span>kube-system   kube-scheduler-snc            1/1       Running             <span style="color:#2aa198">0</span>          26m
-</span></span><span style="display:flex;"><span>kube-system   weave-net-mq5pz               0/2       ContainerCreating   <span style="color:#2aa198">0</span>          46s
-</span></span></code></pre></div><blockquote>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ mkdir -p <span style="color:#268bd2">$HOME</span>/.kube
+$ sudo cp -i /etc/kubernetes/admin.conf <span style="color:#268bd2">$HOME</span>/.kube/config
+$ sudo chown <span style="color:#719e07">$(</span>id -u<span style="color:#719e07">)</span>:<span style="color:#719e07">$(</span>id -g<span style="color:#719e07">)</span> <span style="color:#268bd2">$HOME</span>/.kube/config
+</code></pre></div><p>Verificamos que funciona lanzando, por ejemplo:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ kubectl get pods --all-namespaces
+NAMESPACE     NAME                          READY     STATUS              RESTARTS   AGE
+kube-system   etcd-snc                      1/1       Running             <span style="color:#2aa198">0</span>          26m
+kube-system   kube-apiserver-snc            1/1       Running             <span style="color:#2aa198">0</span>          26m
+kube-system   kube-controller-manager-snc   1/1       Running             <span style="color:#2aa198">0</span>          18m
+kube-system   kube-dns-66ffd5c588-xrb6m     0/3       Pending             <span style="color:#2aa198">0</span>          18m
+kube-system   kube-proxy-ppwxd              1/1       Running             <span style="color:#2aa198">0</span>          18m
+kube-system   kube-scheduler-snc            1/1       Running             <span style="color:#2aa198">0</span>          26m
+kube-system   weave-net-mq5pz               0/2       ContainerCreating   <span style="color:#2aa198">0</span>          46s
+</code></pre></div><blockquote>
 <p>En la salida del comando vemos que el DNS interno todavía está pendiente de la creación de los contenedores de la red de <em>pods</em> de Weave Net.</p>
 </blockquote>
 <h2 id="habilitar-el-despliegue-de-_pods_-en-el-nodo-master">Habilitar el despliegue de <em>pods</em> en el nodo master</h2>
 <p>Por defecto, el planificador (<em>scheduler</em>) de Kubernetes sólo asigna <em>pods</em> en los nodos <em>worker</em>.</p>
 <p>Para cambiar el comportamiento por defecto y poder usar la Raspberry Pi como un clúster de un solo nodo (con roles Master y Worker), usamos:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ kubectl taint nodes --all node-role.kubernetes.io/master-
-</span></span><span style="display:flex;"><span>node <span style="color:#2aa198">&#34;snc&#34;</span> untainted
-</span></span></code></pre></div><h2 id="resumen">Resumen</h2>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ kubectl taint nodes --all node-role.kubernetes.io/master-
+node <span style="color:#2aa198">&#34;snc&#34;</span> untainted
+</code></pre></div><h2 id="resumen">Resumen</h2>
 <p>En esta entrada hemos instalado y configurado el nodo master de una instalación de Kubernetes usando <em>kubeadm</em>. Una vez finalizada la inicialización del clúster, hemos eliminado el <em>taint</em> en el nodo para que puedan desplegarse <em>pods</em> en este nodo, convirtiendo la Raspberry Pi en un clúster de Kubernetes de un solo nodo.</p></div>
 
   <aside class="p-share">

@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.95.0" />
+<meta name="generator" content="Hugo 0.92.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -141,40 +141,40 @@
 </blockquote>
 <p>Existe un <em>issue</em> abierto al respecto: <a href="https://github.com/microsoft/vscode-remote-release/issues/1671">remote-ssh: Add possibility to invoke a login shell #1671</a> en el que se están valorando diferentes opciones para permitir diferentes <em>shells</em>.</p>
 <p>En mi caso, esto implica que &ldquo;Remote - SSH&rdquo; no funciona <em>out of the box</em> con Alpine como sistema remoto, ya que el <em>shell</em> es ASH y no BASH, como se puede ver en el error que muestra Code:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>...
-</span></span><span style="display:flex;"><span>Got stderr from ssh: OpenSSH_7.6p1 Ubuntu-4ubuntu0.3, OpenSSL 1.0.2n  <span style="color:#2aa198">7</span> Dec <span style="color:#2aa198">2017</span>
-</span></span><span style="display:flex;"><span>Running script with connection command: ssh -T -D <span style="color:#2aa198">38627</span> -o <span style="color:#268bd2">ConnectTimeout</span><span style="color:#719e07">=</span><span style="color:#2aa198">15</span> 192.168.1.141 bash
-</span></span><span style="display:flex;"><span>Install and start server <span style="color:#719e07">if</span> needed
-</span></span><span style="display:flex;"><span>&gt; ash: bash: not found
-</span></span><span style="display:flex;"><span>Got some output, clearing connection timeout
-</span></span><span style="display:flex;"><span><span style="color:#2aa198">&#34;install&#34;</span> terminal <span style="color:#b58900">command</span> <span style="color:#719e07">done</span>
-</span></span><span style="display:flex;"><span>Install terminal quit with output: ash: bash: not found
-</span></span><span style="display:flex;"><span>Received install output: ash: bash: not found
-</span></span><span style="display:flex;"><span>Stopped parsing output early. Remaining text: ash: bash: not found
-</span></span><span style="display:flex;"><span>Failed to parse remote port from server output
-</span></span><span style="display:flex;"><span>...
-</span></span></code></pre></div><h3 id="instalación-de-bash-en-alpine-linux">Instalación de <code>bash</code> en Alpine Linux</h3>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">...
+Got stderr from ssh: OpenSSH_7.6p1 Ubuntu-4ubuntu0.3, OpenSSL 1.0.2n  <span style="color:#2aa198">7</span> Dec <span style="color:#2aa198">2017</span>
+Running script with connection command: ssh -T -D <span style="color:#2aa198">38627</span> -o <span style="color:#268bd2">ConnectTimeout</span><span style="color:#719e07">=</span><span style="color:#2aa198">15</span> 192.168.1.141 bash
+Install and start server <span style="color:#719e07">if</span> needed
+&gt; ash: bash: not found
+Got some output, clearing connection timeout
+<span style="color:#2aa198">&#34;install&#34;</span> terminal <span style="color:#b58900">command</span> <span style="color:#719e07">done</span>
+Install terminal quit with output: ash: bash: not found
+Received install output: ash: bash: not found
+Stopped parsing output early. Remaining text: ash: bash: not found
+Failed to parse remote port from server output
+...
+</code></pre></div><h3 id="instalación-de-bash-en-alpine-linux">Instalación de <code>bash</code> en Alpine Linux</h3>
 <p>Se puede instalar <code>bash</code> en Alpine, lo que permitiría sortear este problema mientras no se soluciona el <em>issue</em> abierto en GitHub para poder elegir -o detectar- el <em>shell</em> del equipo remoto.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>sudo apk update
-</span></span><span style="display:flex;"><span>sudo apk add bash bash-completion
-</span></span></code></pre></div><p>El paso final es modificar la <em>shell</em> que se lanza en el login de los usuarios. Para modificarla, hay que editar el fichero <code>/etc/passwd</code> (como <code>root</code>) y sustituir <code>/bin/ash</code> por <code>/bin/bash</code>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">sudo apk update
+sudo apk add bash bash-completion
+</code></pre></div><p>El paso final es modificar la <em>shell</em> que se lanza en el login de los usuarios. Para modificarla, hay que editar el fichero <code>/etc/passwd</code> (como <code>root</code>) y sustituir <code>/bin/ash</code> por <code>/bin/bash</code>.</p>
 <h3 id="problemas--irresolubles--con-bibliotecas-del-sistema-en-alpine-linux">Problemas -irresolubles- con bibliotecas del sistema en Alpine Linux</h3>
 <p>Después de instalar BASH, Remote - SSH no conecta porque <a href="https://code.visualstudio.com/docs/remote/linux#_remote-host-container-wsl-linux-prerequisites">Alpine no cumple con los requerimientos</a> de las &ldquo;librerías&rdquo; <code>glibc</code> y <code>libstdc++</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>...
-</span></span><span style="display:flex;"><span>&gt; a30126f6ffac: running
-</span></span><span style="display:flex;"><span>&gt; Illegal option -p
-</span></span><span style="display:flex;"><span>&gt; musl libc <span style="color:#719e07">(</span>x86_64<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>&gt; Version 1.1.20
-</span></span><span style="display:flex;"><span>&gt; Dynamic Program Loader
-</span></span><span style="display:flex;"><span>&gt; Usage: ldd <span style="color:#719e07">[</span>options<span style="color:#719e07">]</span> <span style="color:#719e07">[</span>--<span style="color:#719e07">]</span> pathname
-</span></span><span style="display:flex;"><span>&gt; Missing GLIBC &gt;<span style="color:#719e07">=</span> 2.17!
-</span></span><span style="display:flex;"><span>&gt; Found version 
-</span></span><span style="display:flex;"><span>&gt; a30126f6ffac<span style="color:#268bd2">$$</span>1<span style="color:#268bd2">$$</span>
-</span></span><span style="display:flex;"><span>&gt; Acquiring lock on /home/operador/.vscode-server/bin/26076a4de974ead31f97692a0d32f90d735645c0/vscode-remote-lock.26076a4de974ead31f97692a0d32f90d735645c0
-</span></span><span style="display:flex;"><span>&gt; ls: unrecognized option: <span style="color:#268bd2">sort</span><span style="color:#719e07">=</span><span style="color:#b58900">time</span>
-</span></span><span style="display:flex;"><span>&gt; BusyBox v1.29.3 <span style="color:#719e07">(</span>2019-01-24 07:45:07 UTC<span style="color:#719e07">)</span> multi-call binary.
-</span></span><span style="display:flex;"><span>...
-</span></span></code></pre></div><p>Uno de los motivos por los que Alpine Linux es tan ligero es porque usa <a href="https://uclibc.org/about.html">uClibc</a> en vez de <a href="https://www.gnu.org/software/libc/libc.html">glibc, the GNU C Library</a>. <em>uClibc</em> es mucho más pequeño que <em>glibc</em>, orientado a sistemas incrustados (<em>embedded systems</em>) y aunque casi todas las aplicaciones funcionan perfectamente con <em>uClibc</em>, algunas <em>no lo hacen</em>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">...
+&gt; a30126f6ffac: running
+&gt; Illegal option -p
+&gt; musl libc <span style="color:#719e07">(</span>x86_64<span style="color:#719e07">)</span>
+&gt; Version 1.1.20
+&gt; Dynamic Program Loader
+&gt; Usage: ldd <span style="color:#719e07">[</span>options<span style="color:#719e07">]</span> <span style="color:#719e07">[</span>--<span style="color:#719e07">]</span> pathname
+&gt; Missing GLIBC &gt;<span style="color:#719e07">=</span> 2.17!
+&gt; Found version 
+&gt; a30126f6ffac<span style="color:#268bd2">$$</span>1<span style="color:#268bd2">$$</span>
+&gt; Acquiring lock on /home/operador/.vscode-server/bin/26076a4de974ead31f97692a0d32f90d735645c0/vscode-remote-lock.26076a4de974ead31f97692a0d32f90d735645c0
+&gt; ls: unrecognized option: <span style="color:#268bd2">sort</span><span style="color:#719e07">=</span><span style="color:#b58900">time</span>
+&gt; BusyBox v1.29.3 <span style="color:#719e07">(</span>2019-01-24 07:45:07 UTC<span style="color:#719e07">)</span> multi-call binary.
+...
+</code></pre></div><p>Uno de los motivos por los que Alpine Linux es tan ligero es porque usa <a href="https://uclibc.org/about.html">uClibc</a> en vez de <a href="https://www.gnu.org/software/libc/libc.html">glibc, the GNU C Library</a>. <em>uClibc</em> es mucho más pequeño que <em>glibc</em>, orientado a sistemas incrustados (<em>embedded systems</em>) y aunque casi todas las aplicaciones funcionan perfectamente con <em>uClibc</em>, algunas <em>no lo hacen</em>.</p>
 <p>En la página dedicada a <a href="https://wiki.alpinelinux.org/wiki/Running_glibc_programs">ejecutar aplicaciones <em>glibc</em></a> en Alpine Linux se indica -aunque es un <em>work in progress</em>- cómo ejecutar aplicaciones que usan <em>glibc</em> en diferentes escenarios.</p>
 <p>Sin embargo, en mi caso, lo más sencillo es usar Debian u otra distribución como sistema operativo de la máquina remota en la que desarrollar aplicaciones con Python.</p></div>
 

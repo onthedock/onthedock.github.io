@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.95.0" />
+<meta name="generator" content="Hugo 0.92.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -170,152 +170,152 @@
 </tbody>
 </table>
 <p>Hay diversas formas de instalar <em>Sealed Secrets</em>; usaré la <em>Helm Chart</em> oficial proporcionada por el equipo de <em>Sealed Secrets</em>.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ helm repo add sealed-secrets https://bitnami-labs.github.io/sealed-secrets
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#2aa198">&#34;sealed-secrets&#34;</span> has been added to your repositories
-</span></span></code></pre></div><p>Compruebo que el repositorio se ha añadido correctamente:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ helm repo list | grep -i sealed-secrets
-</span></span><span style="display:flex;"><span>sealed-secrets          https://bitnami-labs.github.io/sealed-secrets
-</span></span></code></pre></div><p>Actualizo el repositorio e instalo desde la <em>chart</em>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>helm repo update
-</span></span></code></pre></div><blockquote>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ helm repo add sealed-secrets https://bitnami-labs.github.io/sealed-secrets
+
+<span style="color:#2aa198">&#34;sealed-secrets&#34;</span> has been added to your repositories
+</code></pre></div><p>Compruebo que el repositorio se ha añadido correctamente:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ helm repo list | grep -i sealed-secrets
+sealed-secrets          https://bitnami-labs.github.io/sealed-secrets
+</code></pre></div><p>Actualizo el repositorio e instalo desde la <em>chart</em>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">helm repo update
+</code></pre></div><blockquote>
 <p><code>kubeseal</code> usa como nombre por defecto <code>sealed-secrets-controller</code>, por lo que uso este nombre para desplegar <em>Sealed Secrets</em>. De esta forma no hace falta especificar <code>--controller-name</code> en cada acción que se realice con <code>kubeseal</code>. Por el mismo motivo, instalo <em>Sealed Secrets</em> en el <em>namespace</em> <code>kube-system</code>.</p>
 </blockquote>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ helm install sealed-secrets-controller sealed-secrets/sealed-secrets -n kube-system
-</span></span><span style="display:flex;"><span>NAME: sealed-secrets-controller
-</span></span><span style="display:flex;"><span>LAST DEPLOYED: Wed Aug <span style="color:#2aa198">18</span> 21:23:36 <span style="color:#2aa198">2021</span>
-</span></span><span style="display:flex;"><span>NAMESPACE: kube-system
-</span></span><span style="display:flex;"><span>STATUS: deployed
-</span></span><span style="display:flex;"><span>REVISION: <span style="color:#2aa198">1</span>
-</span></span><span style="display:flex;"><span>TEST SUITE: None
-</span></span><span style="display:flex;"><span>NOTES:
-</span></span><span style="display:flex;"><span>You should now be able to create sealed secrets.
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>1. Install client-side tool into /usr/local/bin/
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">GOOS</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>go env GOOS<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">GOARCH</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>go env GOARCH<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>wget https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.16.0/kubeseal-<span style="color:#268bd2">$GOOS</span>-<span style="color:#268bd2">$GOARCH</span>
-</span></span><span style="display:flex;"><span>sudo install -m <span style="color:#2aa198">755</span> kubeseal-<span style="color:#268bd2">$GOOS</span>-<span style="color:#268bd2">$GOARCH</span> /usr/local/bin/kubeseal
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>2. Create a sealed secret file
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75"># note the use of `--dry-run` - this does not create a secret in your cluster</span>
-</span></span><span style="display:flex;"><span>kubectl create secret generic secret-name --dry-run --from-literal<span style="color:#719e07">=</span><span style="color:#268bd2">foo</span><span style="color:#719e07">=</span>bar -o <span style="color:#719e07">[</span>json|yaml<span style="color:#719e07">]</span> | <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span> kubeseal <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span> --controller-name<span style="color:#719e07">=</span>sealed-secrets-controller <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span> --controller-namespace<span style="color:#719e07">=</span>kube-system <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span> --format <span style="color:#719e07">[</span>json|yaml<span style="color:#719e07">]</span> &gt; mysealedsecret.<span style="color:#719e07">[</span>json|yaml<span style="color:#719e07">]</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>The file mysealedsecret.<span style="color:#719e07">[</span>json|yaml<span style="color:#719e07">]</span> is a commitable file.
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>If you would rather not need access to the cluster to generate the sealed secret you can run
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>kubeseal <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span> --controller-name<span style="color:#719e07">=</span>sealed-secrets-controller <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span> --controller-namespace<span style="color:#719e07">=</span>kube-system <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span> --fetch-cert &gt; mycert.pem
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>to retrieve the public cert used <span style="color:#719e07">for</span> encryption and store it locally. You can <span style="color:#719e07">then</span> run <span style="color:#2aa198">&#39;kubeseal --cert mycert.pem&#39;</span> instead to use the <span style="color:#b58900">local</span> cert e.g.
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>kubectl create secret generic secret-name --dry-run --from-literal<span style="color:#719e07">=</span><span style="color:#268bd2">foo</span><span style="color:#719e07">=</span>bar -o <span style="color:#719e07">[</span>json|yaml<span style="color:#719e07">]</span> | <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>kubeseal <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span> --controller-name<span style="color:#719e07">=</span>sealed-secrets-controller <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span> --controller-namespace<span style="color:#719e07">=</span>kube-system <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span> --format <span style="color:#719e07">[</span>json|yaml<span style="color:#719e07">]</span> --cert mycert.pem &gt; mysealedsecret.<span style="color:#719e07">[</span>json|yaml<span style="color:#719e07">]</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>3. Apply the sealed secret
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>kubectl create -f mysealedsecret.<span style="color:#719e07">[</span>json|yaml<span style="color:#719e07">]</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>Running <span style="color:#2aa198">&#39;kubectl get secret secret-name -o [json|yaml]&#39;</span> will show the decrypted secret that was generated from the sealed secret.
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>Both the SealedSecret and generated Secret must have the same name and namespace.
-</span></span></code></pre></div><h2 id="validación-de-la-instalación">Validación de la instalación</h2>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ helm install sealed-secrets-controller sealed-secrets/sealed-secrets -n kube-system
+NAME: sealed-secrets-controller
+LAST DEPLOYED: Wed Aug <span style="color:#2aa198">18</span> 21:23:36 <span style="color:#2aa198">2021</span>
+NAMESPACE: kube-system
+STATUS: deployed
+REVISION: <span style="color:#2aa198">1</span>
+TEST SUITE: None
+NOTES:
+You should now be able to create sealed secrets.
+
+1. Install client-side tool into /usr/local/bin/
+
+<span style="color:#268bd2">GOOS</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>go env GOOS<span style="color:#719e07">)</span>
+<span style="color:#268bd2">GOARCH</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>go env GOARCH<span style="color:#719e07">)</span>
+wget https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.16.0/kubeseal-<span style="color:#268bd2">$GOOS</span>-<span style="color:#268bd2">$GOARCH</span>
+sudo install -m <span style="color:#2aa198">755</span> kubeseal-<span style="color:#268bd2">$GOOS</span>-<span style="color:#268bd2">$GOARCH</span> /usr/local/bin/kubeseal
+
+2. Create a sealed secret file
+
+<span style="color:#586e75"># note the use of `--dry-run` - this does not create a secret in your cluster</span>
+kubectl create secret generic secret-name --dry-run --from-literal<span style="color:#719e07">=</span><span style="color:#268bd2">foo</span><span style="color:#719e07">=</span>bar -o <span style="color:#719e07">[</span>json|yaml<span style="color:#719e07">]</span> | <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span> kubeseal <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span> --controller-name<span style="color:#719e07">=</span>sealed-secrets-controller <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span> --controller-namespace<span style="color:#719e07">=</span>kube-system <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span> --format <span style="color:#719e07">[</span>json|yaml<span style="color:#719e07">]</span> &gt; mysealedsecret.<span style="color:#719e07">[</span>json|yaml<span style="color:#719e07">]</span>
+
+The file mysealedsecret.<span style="color:#719e07">[</span>json|yaml<span style="color:#719e07">]</span> is a commitable file.
+
+If you would rather not need access to the cluster to generate the sealed secret you can run
+
+kubeseal <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span> --controller-name<span style="color:#719e07">=</span>sealed-secrets-controller <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span> --controller-namespace<span style="color:#719e07">=</span>kube-system <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span> --fetch-cert &gt; mycert.pem
+
+to retrieve the public cert used <span style="color:#719e07">for</span> encryption and store it locally. You can <span style="color:#719e07">then</span> run <span style="color:#2aa198">&#39;kubeseal --cert mycert.pem&#39;</span> instead to use the <span style="color:#b58900">local</span> cert e.g.
+
+kubectl create secret generic secret-name --dry-run --from-literal<span style="color:#719e07">=</span><span style="color:#268bd2">foo</span><span style="color:#719e07">=</span>bar -o <span style="color:#719e07">[</span>json|yaml<span style="color:#719e07">]</span> | <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>kubeseal <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span> --controller-name<span style="color:#719e07">=</span>sealed-secrets-controller <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span> --controller-namespace<span style="color:#719e07">=</span>kube-system <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span> --format <span style="color:#719e07">[</span>json|yaml<span style="color:#719e07">]</span> --cert mycert.pem &gt; mysealedsecret.<span style="color:#719e07">[</span>json|yaml<span style="color:#719e07">]</span>
+
+3. Apply the sealed secret
+
+kubectl create -f mysealedsecret.<span style="color:#719e07">[</span>json|yaml<span style="color:#719e07">]</span>
+
+Running <span style="color:#2aa198">&#39;kubectl get secret secret-name -o [json|yaml]&#39;</span> will show the decrypted secret that was generated from the sealed secret.
+
+Both the SealedSecret and generated Secret must have the same name and namespace.
+</code></pre></div><h2 id="validación-de-la-instalación">Validación de la instalación</h2>
 <p>Reviso los logs del <em>pod</em> de <em>Sealed Secrets</em> en el <em>namespace</em> <code>kube-system</code> para verificar que ha arrancado correctamente y que se ejecuta con normalidad:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ kubectl get pods -n kube-system <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>  -l app.kubernetes.io/name<span style="color:#719e07">=</span>sealed-secrets
-</span></span><span style="display:flex;"><span>NAME                                         READY   STATUS    RESTARTS   AGE
-</span></span><span style="display:flex;"><span>sealed-secrets-controller-7b649d967c-7zczz   1/1     Running   <span style="color:#2aa198">0</span>          2m47s
-</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ kubectl logs <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>  <span style="color:#719e07">$(</span>kubectl get pods -n kube-system -l app.kubernetes.io/name<span style="color:#719e07">=</span>sealed-secrets -o <span style="color:#268bd2">jsonpath</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#39;{ .items[0].metadata.name }&#39;</span><span style="color:#719e07">)</span><span style="color:#719e07">)</span> <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>  -n kube-system
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>controller version: v0.16.0
-</span></span><span style="display:flex;"><span>2021/08/18 19:23:50 Starting sealed-secrets controller version: v0.16.0
-</span></span><span style="display:flex;"><span>2021/08/18 19:23:50 Searching <span style="color:#719e07">for</span> existing private keys
-</span></span><span style="display:flex;"><span>2021/08/18 19:23:54 New key written to kube-system/sealed-secrets-keylr2w9
-</span></span><span style="display:flex;"><span>2021/08/18 19:23:54 Certificate is 
-</span></span><span style="display:flex;"><span>-----BEGIN CERTIFICATE-----
-</span></span><span style="display:flex;"><span>MIIErTCCApWgAwIBAgIQBiQc7Z+Z8n8xtYME0Bs40jANBgkqhkiG9w0BAQsFADAA
-</span></span><span style="display:flex;"><span>MB4XDTIxMDgxODE5MjM1NFoXDTMxMDgxNjE5MjM1NFowADCCAiIwDQYJKoZIhvcN
-</span></span><span style="display:flex;"><span>AQEBBQADggIPADCCAgoCggIBANh5a5otzFHEPfMrDJPFhZIR0fQ+7HLSmZb6EOxQ
-</span></span><span style="display:flex;"><span>NbI4uV/L06Icq+K28deCCPQgp2GTnVO2oMJql/fMbkYCSWZMmRSIXKdBZca8dJOJ
-</span></span><span style="display:flex;"><span>WUxOYQ66qS1p2iLJl9NmClXZp2GMxzQbrBRRwss4TdW+Y+zj0YY5VzxbYxz3NRt6
-</span></span><span style="display:flex;"><span>/3fUfOEl9J5zsfJp/uY/HnfWrtHu1lZjmwj/zabd/D+Guw3cdQ07UdQ1B9FhZBzu
-</span></span><span style="display:flex;"><span>+/sf0DGLA/FRo0uOE8q/uTiY+l0GqyJeM3WxjrFSEF+WBgdbE26OaIeE+w9yOENq
-</span></span><span style="display:flex;"><span>8dsyCxqkI+Oa5xtFkBaN8T6dLJTlubdzq2ioohnlPOUQymK5Tct5/EhvFtAAczij
-</span></span><span style="display:flex;"><span>/Ko2nDBFIw9HFMtXOBkeDsRDyIllO+e+BOxYsmxQV8b6CzmwrfAOQ2MbaT7v/78H
-</span></span><span style="display:flex;"><span>E8cWu6viRwbKdrCuR8Y30JgG6LlXKTKSRyXmirAhRpTkRcbu0E8kQOA9uwkDDrmP
-</span></span><span style="display:flex;"><span>b6ScO7CJcnDlA4eWxvL4D6Oik7f94TpbKbpG07bSLh4HNIJ+V8gxnT3FWE8BAEtH
-</span></span><span style="display:flex;"><span>sR0lFBvewVeZhD6okvbN40vJFhV36Imx4suJ7DjdudGqrCVc2XyMt8ezQDRWADy+
-</span></span><span style="display:flex;"><span>MlNOFxpTe8xp6HUpHWohZ2yPk3biBQhTBdx5nacmwzmoI8zsxP/vk/8KV6bnsT1a
-</span></span><span style="display:flex;"><span>Bv5HAgMBAAGjIzAhMA4GA1UdDwEB/wQEAwIAATAPBgNVHRMBAf8EBTADAQH/MA0G
-</span></span><span style="display:flex;"><span>CSqGSIb3DQEBCwUAA4ICAQAou/AreNf51u9HwGoxctCdxVx6hvCjwh/7SCMQ0dJ5
-</span></span><span style="display:flex;"><span>zq52y6EOR0ZXOZ+ZllUkZb0PMv3jMjpVfYo4AlzpoMS9jEfsPN/AvHf2z71VzJvM
-</span></span><span style="display:flex;"><span>S7Qbldia6/4+MqpKjRISffW1BsAZTthAlKilDBo9+o8gioqqhMYgcvnaRduLMlYB
-</span></span><span style="display:flex;"><span>1dgv4X6pwTWzuASkQ6V5VrixQMa76GtRY/we/p3HfE7+af2McgpmAv8xSawUF4sV
-</span></span><span style="display:flex;"><span>g86ll4Hxy4U3tFjNo7iDs8upBuwc3AdvqYyBuh4l7RbxFtk1/LkZLnMhAUNI1gKr
-</span></span><span style="display:flex;"><span>nLS1uWiyoe+sgjip2JG9aAQoRiRXPwAN5aQgx1alQ1pLqacn78I6WC1nJENMYpYU
-</span></span><span style="display:flex;"><span>otSyOtxvN4oyw1ZDp3M1dEcGfiU4MT7G3ocG43QWj8lpY8UyMbZYTAU98kcmlmw5
-</span></span><span style="display:flex;"><span>W/xcCMuQm5YN+S3ooZcIxxO2jKJ2qNCRjfiHyMWyPRRl7aLgepozn8UmWsY7OOps
-</span></span><span style="display:flex;"><span>wSJXt8RFoOdXTSRQJLkXI5jtFMkkEYk9p0mYJTiRt1fpavtQ/gnSr+H7CW+II4Q6
-</span></span><span style="display:flex;"><span>zv3i7m2URtlkO8E348vaakjuVziJ18dJtDkyOcWKuo+fI47v57N49opvkVcoSFmP
-</span></span><span style="display:flex;"><span>GEQNRr+qeaJqUYguD2F5a6Mm1lIquZPI/UdmeHnfIs+CHWmcG5itvvNGhbxb8ALu
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">aA</span><span style="color:#719e07">==</span>
-</span></span><span style="display:flex;"><span>-----END CERTIFICATE-----
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>2021/08/18 19:23:54 HTTP server serving on :8080
-</span></span></code></pre></div><p>En los logs del <em>pod</em> del controlador de <em>Sealed Secrets</em> se puede ver la clave pública del par de claves generados durante el primer arranque.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl get pods -n kube-system <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>  -l app.kubernetes.io/name<span style="color:#719e07">=</span>sealed-secrets
+NAME                                         READY   STATUS    RESTARTS   AGE
+sealed-secrets-controller-7b649d967c-7zczz   1/1     Running   <span style="color:#2aa198">0</span>          2m47s
+</code></pre></div><div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl logs <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>  <span style="color:#719e07">$(</span>kubectl get pods -n kube-system -l app.kubernetes.io/name<span style="color:#719e07">=</span>sealed-secrets -o <span style="color:#268bd2">jsonpath</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#39;{ .items[0].metadata.name }&#39;</span><span style="color:#719e07">)</span><span style="color:#719e07">)</span> <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>  -n kube-system
+
+controller version: v0.16.0
+2021/08/18 19:23:50 Starting sealed-secrets controller version: v0.16.0
+2021/08/18 19:23:50 Searching <span style="color:#719e07">for</span> existing private keys
+2021/08/18 19:23:54 New key written to kube-system/sealed-secrets-keylr2w9
+2021/08/18 19:23:54 Certificate is 
+-----BEGIN CERTIFICATE-----
+MIIErTCCApWgAwIBAgIQBiQc7Z+Z8n8xtYME0Bs40jANBgkqhkiG9w0BAQsFADAA
+MB4XDTIxMDgxODE5MjM1NFoXDTMxMDgxNjE5MjM1NFowADCCAiIwDQYJKoZIhvcN
+AQEBBQADggIPADCCAgoCggIBANh5a5otzFHEPfMrDJPFhZIR0fQ+7HLSmZb6EOxQ
+NbI4uV/L06Icq+K28deCCPQgp2GTnVO2oMJql/fMbkYCSWZMmRSIXKdBZca8dJOJ
+WUxOYQ66qS1p2iLJl9NmClXZp2GMxzQbrBRRwss4TdW+Y+zj0YY5VzxbYxz3NRt6
+/3fUfOEl9J5zsfJp/uY/HnfWrtHu1lZjmwj/zabd/D+Guw3cdQ07UdQ1B9FhZBzu
++/sf0DGLA/FRo0uOE8q/uTiY+l0GqyJeM3WxjrFSEF+WBgdbE26OaIeE+w9yOENq
+8dsyCxqkI+Oa5xtFkBaN8T6dLJTlubdzq2ioohnlPOUQymK5Tct5/EhvFtAAczij
+/Ko2nDBFIw9HFMtXOBkeDsRDyIllO+e+BOxYsmxQV8b6CzmwrfAOQ2MbaT7v/78H
+E8cWu6viRwbKdrCuR8Y30JgG6LlXKTKSRyXmirAhRpTkRcbu0E8kQOA9uwkDDrmP
+b6ScO7CJcnDlA4eWxvL4D6Oik7f94TpbKbpG07bSLh4HNIJ+V8gxnT3FWE8BAEtH
+sR0lFBvewVeZhD6okvbN40vJFhV36Imx4suJ7DjdudGqrCVc2XyMt8ezQDRWADy+
+MlNOFxpTe8xp6HUpHWohZ2yPk3biBQhTBdx5nacmwzmoI8zsxP/vk/8KV6bnsT1a
+Bv5HAgMBAAGjIzAhMA4GA1UdDwEB/wQEAwIAATAPBgNVHRMBAf8EBTADAQH/MA0G
+CSqGSIb3DQEBCwUAA4ICAQAou/AreNf51u9HwGoxctCdxVx6hvCjwh/7SCMQ0dJ5
+zq52y6EOR0ZXOZ+ZllUkZb0PMv3jMjpVfYo4AlzpoMS9jEfsPN/AvHf2z71VzJvM
+S7Qbldia6/4+MqpKjRISffW1BsAZTthAlKilDBo9+o8gioqqhMYgcvnaRduLMlYB
+1dgv4X6pwTWzuASkQ6V5VrixQMa76GtRY/we/p3HfE7+af2McgpmAv8xSawUF4sV
+g86ll4Hxy4U3tFjNo7iDs8upBuwc3AdvqYyBuh4l7RbxFtk1/LkZLnMhAUNI1gKr
+nLS1uWiyoe+sgjip2JG9aAQoRiRXPwAN5aQgx1alQ1pLqacn78I6WC1nJENMYpYU
+otSyOtxvN4oyw1ZDp3M1dEcGfiU4MT7G3ocG43QWj8lpY8UyMbZYTAU98kcmlmw5
+W/xcCMuQm5YN+S3ooZcIxxO2jKJ2qNCRjfiHyMWyPRRl7aLgepozn8UmWsY7OOps
+wSJXt8RFoOdXTSRQJLkXI5jtFMkkEYk9p0mYJTiRt1fpavtQ/gnSr+H7CW+II4Q6
+zv3i7m2URtlkO8E348vaakjuVziJ18dJtDkyOcWKuo+fI47v57N49opvkVcoSFmP
+GEQNRr+qeaJqUYguD2F5a6Mm1lIquZPI/UdmeHnfIs+CHWmcG5itvvNGhbxb8ALu
+<span style="color:#268bd2">aA</span><span style="color:#719e07">==</span>
+-----END CERTIFICATE-----
+
+2021/08/18 19:23:54 HTTP server serving on :8080
+</code></pre></div><p>En los logs del <em>pod</em> del controlador de <em>Sealed Secrets</em> se puede ver la clave pública del par de claves generados durante el primer arranque.</p>
 <p>Esta es la clave pública que se usará para sellar los <code>SealedSecrets</code>.</p>
 <p>El par de claves generados por el controlador se almacena en un <em>Secret</em> (de tipo TLS):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ kubectl get secrets -n kube-system <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>  -l sealedsecrets.bitnami.com/sealed-secrets-key<span style="color:#719e07">=</span>active
-</span></span><span style="display:flex;"><span>NAME                      TYPE                DATA   AGE
-</span></span><span style="display:flex;"><span>sealed-secrets-keylr2w9   kubernetes.io/tls   <span style="color:#2aa198">2</span>      12m
-</span></span></code></pre></div><p>Se puede obtener la clave pública de este <em>Secret</em>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ kubectl  get secret <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>  <span style="color:#719e07">$(</span>kubectl get secret -n kube-system -l sealedsecrets.bitnami.com/sealed-secrets-key<span style="color:#719e07">=</span>active -o <span style="color:#268bd2">jsonpath</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#39;{ .items[0].metadata.name }&#39;</span><span style="color:#719e07">)</span> <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>  -n kube-system -o <span style="color:#268bd2">jsonpath</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#39;{ .data.tls\.crt }&#39;</span> | base64 -d
-</span></span><span style="display:flex;"><span>-----BEGIN CERTIFICATE-----
-</span></span><span style="display:flex;"><span>MIIErTCCApWgAwIBAgIQBiQc7Z+Z8n8xtYME0Bs40jANBgkqhkiG9w0BAQsFADAA
-</span></span><span style="display:flex;"><span>MB4XDTIxMDgxODE5MjM1NFoXDTMxMDgxNjE5MjM1NFowADCCAiIwDQYJKoZIhvcN
-</span></span><span style="display:flex;"><span>AQEBBQADggIPADCCAgoCggIBANh5a5otzFHEPfMrDJPFhZIR0fQ+7HLSmZb6EOxQ
-</span></span><span style="display:flex;"><span>NbI4uV/L06Icq+K28deCCPQgp2GTnVO2oMJql/fMbkYCSWZMmRSIXKdBZca8dJOJ
-</span></span><span style="display:flex;"><span>WUxOYQ66qS1p2iLJl9NmClXZp2GMxzQbrBRRwss4TdW+Y+zj0YY5VzxbYxz3NRt6
-</span></span><span style="display:flex;"><span>/3fUfOEl9J5zsfJp/uY/HnfWrtHu1lZjmwj/zabd/D+Guw3cdQ07UdQ1B9FhZBzu
-</span></span><span style="display:flex;"><span>+/sf0DGLA/FRo0uOE8q/uTiY+l0GqyJeM3WxjrFSEF+WBgdbE26OaIeE+w9yOENq
-</span></span><span style="display:flex;"><span>8dsyCxqkI+Oa5xtFkBaN8T6dLJTlubdzq2ioohnlPOUQymK5Tct5/EhvFtAAczij
-</span></span><span style="display:flex;"><span>/Ko2nDBFIw9HFMtXOBkeDsRDyIllO+e+BOxYsmxQV8b6CzmwrfAOQ2MbaT7v/78H
-</span></span><span style="display:flex;"><span>E8cWu6viRwbKdrCuR8Y30JgG6LlXKTKSRyXmirAhRpTkRcbu0E8kQOA9uwkDDrmP
-</span></span><span style="display:flex;"><span>b6ScO7CJcnDlA4eWxvL4D6Oik7f94TpbKbpG07bSLh4HNIJ+V8gxnT3FWE8BAEtH
-</span></span><span style="display:flex;"><span>sR0lFBvewVeZhD6okvbN40vJFhV36Imx4suJ7DjdudGqrCVc2XyMt8ezQDRWADy+
-</span></span><span style="display:flex;"><span>MlNOFxpTe8xp6HUpHWohZ2yPk3biBQhTBdx5nacmwzmoI8zsxP/vk/8KV6bnsT1a
-</span></span><span style="display:flex;"><span>Bv5HAgMBAAGjIzAhMA4GA1UdDwEB/wQEAwIAATAPBgNVHRMBAf8EBTADAQH/MA0G
-</span></span><span style="display:flex;"><span>CSqGSIb3DQEBCwUAA4ICAQAou/AreNf51u9HwGoxctCdxVx6hvCjwh/7SCMQ0dJ5
-</span></span><span style="display:flex;"><span>zq52y6EOR0ZXOZ+ZllUkZb0PMv3jMjpVfYo4AlzpoMS9jEfsPN/AvHf2z71VzJvM
-</span></span><span style="display:flex;"><span>S7Qbldia6/4+MqpKjRISffW1BsAZTthAlKilDBo9+o8gioqqhMYgcvnaRduLMlYB
-</span></span><span style="display:flex;"><span>1dgv4X6pwTWzuASkQ6V5VrixQMa76GtRY/we/p3HfE7+af2McgpmAv8xSawUF4sV
-</span></span><span style="display:flex;"><span>g86ll4Hxy4U3tFjNo7iDs8upBuwc3AdvqYyBuh4l7RbxFtk1/LkZLnMhAUNI1gKr
-</span></span><span style="display:flex;"><span>nLS1uWiyoe+sgjip2JG9aAQoRiRXPwAN5aQgx1alQ1pLqacn78I6WC1nJENMYpYU
-</span></span><span style="display:flex;"><span>otSyOtxvN4oyw1ZDp3M1dEcGfiU4MT7G3ocG43QWj8lpY8UyMbZYTAU98kcmlmw5
-</span></span><span style="display:flex;"><span>W/xcCMuQm5YN+S3ooZcIxxO2jKJ2qNCRjfiHyMWyPRRl7aLgepozn8UmWsY7OOps
-</span></span><span style="display:flex;"><span>wSJXt8RFoOdXTSRQJLkXI5jtFMkkEYk9p0mYJTiRt1fpavtQ/gnSr+H7CW+II4Q6
-</span></span><span style="display:flex;"><span>zv3i7m2URtlkO8E348vaakjuVziJ18dJtDkyOcWKuo+fI47v57N49opvkVcoSFmP
-</span></span><span style="display:flex;"><span>GEQNRr+qeaJqUYguD2F5a6Mm1lIquZPI/UdmeHnfIs+CHWmcG5itvvNGhbxb8ALu
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">aA</span><span style="color:#719e07">==</span>
-</span></span><span style="display:flex;"><span>-----END CERTIFICATE-----
-</span></span></code></pre></div><p>Redirigiendo la salida del comando anterior a un fichero, se puede crear <em>SealedSecrets</em> en entornos sin conectividad con el clúster.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl get secrets -n kube-system <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>  -l sealedsecrets.bitnami.com/sealed-secrets-key<span style="color:#719e07">=</span>active
+NAME                      TYPE                DATA   AGE
+sealed-secrets-keylr2w9   kubernetes.io/tls   <span style="color:#2aa198">2</span>      12m
+</code></pre></div><p>Se puede obtener la clave pública de este <em>Secret</em>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl  get secret <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>  <span style="color:#719e07">$(</span>kubectl get secret -n kube-system -l sealedsecrets.bitnami.com/sealed-secrets-key<span style="color:#719e07">=</span>active -o <span style="color:#268bd2">jsonpath</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#39;{ .items[0].metadata.name }&#39;</span><span style="color:#719e07">)</span> <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>  -n kube-system -o <span style="color:#268bd2">jsonpath</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#39;{ .data.tls\.crt }&#39;</span> | base64 -d
+-----BEGIN CERTIFICATE-----
+MIIErTCCApWgAwIBAgIQBiQc7Z+Z8n8xtYME0Bs40jANBgkqhkiG9w0BAQsFADAA
+MB4XDTIxMDgxODE5MjM1NFoXDTMxMDgxNjE5MjM1NFowADCCAiIwDQYJKoZIhvcN
+AQEBBQADggIPADCCAgoCggIBANh5a5otzFHEPfMrDJPFhZIR0fQ+7HLSmZb6EOxQ
+NbI4uV/L06Icq+K28deCCPQgp2GTnVO2oMJql/fMbkYCSWZMmRSIXKdBZca8dJOJ
+WUxOYQ66qS1p2iLJl9NmClXZp2GMxzQbrBRRwss4TdW+Y+zj0YY5VzxbYxz3NRt6
+/3fUfOEl9J5zsfJp/uY/HnfWrtHu1lZjmwj/zabd/D+Guw3cdQ07UdQ1B9FhZBzu
++/sf0DGLA/FRo0uOE8q/uTiY+l0GqyJeM3WxjrFSEF+WBgdbE26OaIeE+w9yOENq
+8dsyCxqkI+Oa5xtFkBaN8T6dLJTlubdzq2ioohnlPOUQymK5Tct5/EhvFtAAczij
+/Ko2nDBFIw9HFMtXOBkeDsRDyIllO+e+BOxYsmxQV8b6CzmwrfAOQ2MbaT7v/78H
+E8cWu6viRwbKdrCuR8Y30JgG6LlXKTKSRyXmirAhRpTkRcbu0E8kQOA9uwkDDrmP
+b6ScO7CJcnDlA4eWxvL4D6Oik7f94TpbKbpG07bSLh4HNIJ+V8gxnT3FWE8BAEtH
+sR0lFBvewVeZhD6okvbN40vJFhV36Imx4suJ7DjdudGqrCVc2XyMt8ezQDRWADy+
+MlNOFxpTe8xp6HUpHWohZ2yPk3biBQhTBdx5nacmwzmoI8zsxP/vk/8KV6bnsT1a
+Bv5HAgMBAAGjIzAhMA4GA1UdDwEB/wQEAwIAATAPBgNVHRMBAf8EBTADAQH/MA0G
+CSqGSIb3DQEBCwUAA4ICAQAou/AreNf51u9HwGoxctCdxVx6hvCjwh/7SCMQ0dJ5
+zq52y6EOR0ZXOZ+ZllUkZb0PMv3jMjpVfYo4AlzpoMS9jEfsPN/AvHf2z71VzJvM
+S7Qbldia6/4+MqpKjRISffW1BsAZTthAlKilDBo9+o8gioqqhMYgcvnaRduLMlYB
+1dgv4X6pwTWzuASkQ6V5VrixQMa76GtRY/we/p3HfE7+af2McgpmAv8xSawUF4sV
+g86ll4Hxy4U3tFjNo7iDs8upBuwc3AdvqYyBuh4l7RbxFtk1/LkZLnMhAUNI1gKr
+nLS1uWiyoe+sgjip2JG9aAQoRiRXPwAN5aQgx1alQ1pLqacn78I6WC1nJENMYpYU
+otSyOtxvN4oyw1ZDp3M1dEcGfiU4MT7G3ocG43QWj8lpY8UyMbZYTAU98kcmlmw5
+W/xcCMuQm5YN+S3ooZcIxxO2jKJ2qNCRjfiHyMWyPRRl7aLgepozn8UmWsY7OOps
+wSJXt8RFoOdXTSRQJLkXI5jtFMkkEYk9p0mYJTiRt1fpavtQ/gnSr+H7CW+II4Q6
+zv3i7m2URtlkO8E348vaakjuVziJ18dJtDkyOcWKuo+fI47v57N49opvkVcoSFmP
+GEQNRr+qeaJqUYguD2F5a6Mm1lIquZPI/UdmeHnfIs+CHWmcG5itvvNGhbxb8ALu
+<span style="color:#268bd2">aA</span><span style="color:#719e07">==</span>
+-----END CERTIFICATE-----
+</code></pre></div><p>Redirigiendo la salida del comando anterior a un fichero, se puede crear <em>SealedSecrets</em> en entornos sin conectividad con el clúster.</p>
 <h2 id="reflexiones">Reflexiones</h2>
 <p>A nivel conceptual los <em>SealedSecrets</em> son sencillos, basados en una tecnología probada (criptografía asimétrica). El despliegue no puede ser más fácil (usando, por ejemplo, la <em>Helm Chart</em>)&hellip;</p>
 <p>Me gustaría que se integrara en <code>kubectl</code> la capacidad de obtener el certificado y firmar los <em>Secrets</em> directamente, lo que constituiría una solución al problema de la <strong>inseguridad</strong> de los <em>Secrets</em>.</p>

@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.95.0" />
+<meta name="generator" content="Hugo 0.92.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -132,111 +132,111 @@
 
   <div class="article-body"><p>La instalación de Kubernetes se realiza de forma casi automática gracias al <em>script</em> <code>kubeadm</code>. Sólo hay que seguir las instrucciones de <a href="https://kubernetes.io/docs/getting-started-guides/kubeadm/">Installing Kubernetes on Linux with kubeadm</a> y la salida por pantalla del propio <em>script</em>.</p>
 <p>Para no <em>deshacer</em> la instalación de Kubernetes sobre Raspberry Pi, he creado una máquina virtual con Debian 3 (<em>Jessie</em>):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span><span style="color:#586e75"># uname -a</span>
-</span></span><span style="display:flex;"><span>Linux k8s 3.16.0-4-amd64 <span style="color:#586e75">#1 SMP Debian 3.16.39-1+deb8u2 (2017-03-07) x86_64 GNU/Linux</span>
-</span></span></code></pre></div><p>En primer lugar, me he convertido en <code>root</code> mediante <code>su -</code>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh"><span style="color:#586e75"># uname -a</span>
+Linux k8s 3.16.0-4-amd64 <span style="color:#586e75">#1 SMP Debian 3.16.39-1+deb8u2 (2017-03-07) x86_64 GNU/Linux</span>
+</code></pre></div><p>En primer lugar, me he convertido en <code>root</code> mediante <code>su -</code>.</p>
 <p>Uno de los requisitos para instalar Kubernetes es tener Docker instalado. En mi caso, tengo instalado <code>docker-engine</code>, el paquete de Docker mantenido por Docker Inc. Este paquete y <code>docker.io</code> (el mantenido por Ubuntu) son equivalentes, aunque tienen numeración de versión diferente.</p>
 <p>Verifico que Docker está instalado:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span><span style="color:#586e75"># docker version</span>
-</span></span><span style="display:flex;"><span>Client:
-</span></span><span style="display:flex;"><span> Version:      17.04.0-ce
-</span></span><span style="display:flex;"><span> API version:  1.28
-</span></span><span style="display:flex;"><span> Go version:   go1.7.5
-</span></span><span style="display:flex;"><span> Git commit:   4845c56
-</span></span><span style="display:flex;"><span> Built:        Mon Apr  <span style="color:#2aa198">3</span> 17:45:49 <span style="color:#2aa198">2017</span>
-</span></span><span style="display:flex;"><span> OS/Arch:      linux/amd64
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>Server:
-</span></span><span style="display:flex;"><span> Version:      17.04.0-ce
-</span></span><span style="display:flex;"><span> API version:  1.28 <span style="color:#719e07">(</span>minimum version 1.12<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span> Go version:   go1.7.5
-</span></span><span style="display:flex;"><span> Git commit:   4845c56
-</span></span><span style="display:flex;"><span> Built:        Mon Apr  <span style="color:#2aa198">3</span> 17:45:49 <span style="color:#2aa198">2017</span>
-</span></span><span style="display:flex;"><span> OS/Arch:      linux/amd64
-</span></span><span style="display:flex;"><span> Experimental: <span style="color:#b58900">false</span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75">#</span>
-</span></span></code></pre></div><p>Antes de empezar la instalación, he actualizado el sistema mediante:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span><span style="color:#586e75"># apt-get update &amp;&amp; apt-get upgrade</span>
-</span></span><span style="display:flex;"><span>...
-</span></span></code></pre></div><p>A partir de aquí, sigo las instrucciones de la guía oficial.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span><span style="color:#586e75"># apt-get update &amp;&amp; apt-get install -y apt-transport-https</span>
-</span></span><span style="display:flex;"><span>...
-</span></span><span style="display:flex;"><span>Reading state information... Done
-</span></span><span style="display:flex;"><span>apt-transport-https is already the newest version.
-</span></span><span style="display:flex;"><span><span style="color:#2aa198">0</span> upgraded, <span style="color:#2aa198">0</span> newly installed, <span style="color:#2aa198">0</span> to remove and <span style="color:#2aa198">0</span> not upgraded.
-</span></span><span style="display:flex;"><span><span style="color:#586e75">#</span>
-</span></span></code></pre></div><p>Obtenemos la clave GPG de los paquetes de Kubernetes:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span><span style="color:#586e75"># curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -</span>
-</span></span><span style="display:flex;"><span>OK
-</span></span></code></pre></div><p>Añadimos el repositorio de Kubernetes:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>apt-get update <span style="color:#719e07">&amp;&amp;</span> apt-get install -y apt-transport-https
-</span></span><span style="display:flex;"><span>curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
-</span></span><span style="display:flex;"><span>cat <span style="color:#2aa198">&lt;&lt;EOF &gt;/etc/apt/sources.list.d/kubernetes.list
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">deb http://apt.kubernetes.io/ kubernetes-xenial main
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">EOF</span>
-</span></span></code></pre></div><p>Y ya sólo nos queda actualizar la información e instalar los componentes de Kubernetes:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span><span style="color:#586e75"># apt-get update</span>
-</span></span><span style="display:flex;"><span>...
-</span></span><span style="display:flex;"><span>Fetched 22.1 kB in 3s <span style="color:#719e07">(</span>6,784 B/s<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>Reading package lists... Done
-</span></span><span style="display:flex;"><span><span style="color:#586e75">#</span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75"># apt-get install -y kubelet kubeadm kubectl kubernetes-cni</span>
-</span></span><span style="display:flex;"><span>...
-</span></span><span style="display:flex;"><span>Setting up ebtables <span style="color:#719e07">(</span>2.0.10.4-3<span style="color:#719e07">)</span> ...
-</span></span><span style="display:flex;"><span>update-rc.d: warning: start and stop actions are no longer supported; falling back to defaults
-</span></span><span style="display:flex;"><span>Setting up ethtool <span style="color:#719e07">(</span>1:3.16-1<span style="color:#719e07">)</span> ...
-</span></span><span style="display:flex;"><span>Setting up kubernetes-cni <span style="color:#719e07">(</span>0.5.1-00<span style="color:#719e07">)</span> ...
-</span></span><span style="display:flex;"><span>Setting up socat <span style="color:#719e07">(</span>1.7.2.4-2<span style="color:#719e07">)</span> ...
-</span></span><span style="display:flex;"><span>Setting up kubelet <span style="color:#719e07">(</span>1.6.1-00<span style="color:#719e07">)</span> ...
-</span></span><span style="display:flex;"><span>Setting up kubectl <span style="color:#719e07">(</span>1.6.1-00<span style="color:#719e07">)</span> ...
-</span></span><span style="display:flex;"><span>Setting up kubeadm <span style="color:#719e07">(</span>1.6.1-00<span style="color:#719e07">)</span> ...
-</span></span><span style="display:flex;"><span>Processing triggers <span style="color:#719e07">for</span> systemd <span style="color:#719e07">(</span>215-17+deb8u6<span style="color:#719e07">)</span> ...
-</span></span><span style="display:flex;"><span><span style="color:#586e75">#</span>
-</span></span></code></pre></div><p>Ya tenemos instalado Kubernetes en nuestro sistema.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh"><span style="color:#586e75"># docker version</span>
+Client:
+ Version:      17.04.0-ce
+ API version:  1.28
+ Go version:   go1.7.5
+ Git commit:   4845c56
+ Built:        Mon Apr  <span style="color:#2aa198">3</span> 17:45:49 <span style="color:#2aa198">2017</span>
+ OS/Arch:      linux/amd64
+
+Server:
+ Version:      17.04.0-ce
+ API version:  1.28 <span style="color:#719e07">(</span>minimum version 1.12<span style="color:#719e07">)</span>
+ Go version:   go1.7.5
+ Git commit:   4845c56
+ Built:        Mon Apr  <span style="color:#2aa198">3</span> 17:45:49 <span style="color:#2aa198">2017</span>
+ OS/Arch:      linux/amd64
+ Experimental: <span style="color:#b58900">false</span>
+<span style="color:#586e75">#</span>
+</code></pre></div><p>Antes de empezar la instalación, he actualizado el sistema mediante:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh"><span style="color:#586e75"># apt-get update &amp;&amp; apt-get upgrade</span>
+...
+</code></pre></div><p>A partir de aquí, sigo las instrucciones de la guía oficial.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh"><span style="color:#586e75"># apt-get update &amp;&amp; apt-get install -y apt-transport-https</span>
+...
+Reading state information... Done
+apt-transport-https is already the newest version.
+<span style="color:#2aa198">0</span> upgraded, <span style="color:#2aa198">0</span> newly installed, <span style="color:#2aa198">0</span> to remove and <span style="color:#2aa198">0</span> not upgraded.
+<span style="color:#586e75">#</span>
+</code></pre></div><p>Obtenemos la clave GPG de los paquetes de Kubernetes:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh"><span style="color:#586e75"># curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -</span>
+OK
+</code></pre></div><p>Añadimos el repositorio de Kubernetes:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh">apt-get update <span style="color:#719e07">&amp;&amp;</span> apt-get install -y apt-transport-https
+curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
+cat <span style="color:#2aa198">&lt;&lt;EOF &gt;/etc/apt/sources.list.d/kubernetes.list
+</span><span style="color:#2aa198">deb http://apt.kubernetes.io/ kubernetes-xenial main
+</span><span style="color:#2aa198">EOF</span>
+</code></pre></div><p>Y ya sólo nos queda actualizar la información e instalar los componentes de Kubernetes:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh"><span style="color:#586e75"># apt-get update</span>
+...
+Fetched 22.1 kB in 3s <span style="color:#719e07">(</span>6,784 B/s<span style="color:#719e07">)</span>
+Reading package lists... Done
+<span style="color:#586e75">#</span>
+<span style="color:#586e75"># apt-get install -y kubelet kubeadm kubectl kubernetes-cni</span>
+...
+Setting up ebtables <span style="color:#719e07">(</span>2.0.10.4-3<span style="color:#719e07">)</span> ...
+update-rc.d: warning: start and stop actions are no longer supported; falling back to defaults
+Setting up ethtool <span style="color:#719e07">(</span>1:3.16-1<span style="color:#719e07">)</span> ...
+Setting up kubernetes-cni <span style="color:#719e07">(</span>0.5.1-00<span style="color:#719e07">)</span> ...
+Setting up socat <span style="color:#719e07">(</span>1.7.2.4-2<span style="color:#719e07">)</span> ...
+Setting up kubelet <span style="color:#719e07">(</span>1.6.1-00<span style="color:#719e07">)</span> ...
+Setting up kubectl <span style="color:#719e07">(</span>1.6.1-00<span style="color:#719e07">)</span> ...
+Setting up kubeadm <span style="color:#719e07">(</span>1.6.1-00<span style="color:#719e07">)</span> ...
+Processing triggers <span style="color:#719e07">for</span> systemd <span style="color:#719e07">(</span>215-17+deb8u6<span style="color:#719e07">)</span> ...
+<span style="color:#586e75">#</span>
+</code></pre></div><p>Ya tenemos instalado Kubernetes en nuestro sistema.</p>
 <p>El siguiente paso es inicializar el clúster con <code>kubeadm init</code>.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span><span style="color:#586e75"># kubeadm init</span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">[</span>kubeadm<span style="color:#719e07">]</span> WARNING: kubeadm is in beta, please <span style="color:#719e07">do</span> not use it <span style="color:#719e07">for</span> production clusters.
-</span></span><span style="display:flex;"><span><span style="color:#719e07">[</span>init<span style="color:#719e07">]</span> Using Kubernetes version: v1.6.0
-</span></span><span style="display:flex;"><span><span style="color:#719e07">[</span>init<span style="color:#719e07">]</span> Using Authorization mode: RBAC
-</span></span><span style="display:flex;"><span><span style="color:#719e07">[</span>preflight<span style="color:#719e07">]</span> Running pre-flight checks
-</span></span><span style="display:flex;"><span><span style="color:#719e07">[</span>preflight<span style="color:#719e07">]</span> The system verification failed. Printing the output from the verification:
-</span></span><span style="display:flex;"><span>OS: Linux
-</span></span><span style="display:flex;"><span>KERNEL_VERSION: 3.16.0-4-amd64
-</span></span><span style="display:flex;"><span>CONFIG_NAMESPACES: enabled
-</span></span><span style="display:flex;"><span>CONFIG_NET_NS: enabled
-</span></span><span style="display:flex;"><span>CONFIG_PID_NS: enabled
-</span></span><span style="display:flex;"><span>CONFIG_IPC_NS: enabled
-</span></span><span style="display:flex;"><span>CONFIG_UTS_NS: enabled
-</span></span><span style="display:flex;"><span>CONFIG_CGROUPS: enabled
-</span></span><span style="display:flex;"><span>CONFIG_CGROUP_CPUACCT: enabled
-</span></span><span style="display:flex;"><span>CONFIG_CGROUP_DEVICE: enabled
-</span></span><span style="display:flex;"><span>CONFIG_CGROUP_FREEZER: enabled
-</span></span><span style="display:flex;"><span>CONFIG_CGROUP_SCHED: enabled
-</span></span><span style="display:flex;"><span>CONFIG_CPUSETS: enabled
-</span></span><span style="display:flex;"><span>CONFIG_MEMCG: enabled
-</span></span><span style="display:flex;"><span>CONFIG_INET: enabled
-</span></span><span style="display:flex;"><span>CONFIG_EXT4_FS: enabled <span style="color:#719e07">(</span>as module<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>CONFIG_PROC_FS: enabled
-</span></span><span style="display:flex;"><span>CONFIG_NETFILTER_XT_TARGET_REDIRECT: enabled <span style="color:#719e07">(</span>as module<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>CONFIG_NETFILTER_XT_MATCH_COMMENT: enabled <span style="color:#719e07">(</span>as module<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>CONFIG_OVERLAYFS_FS: not <span style="color:#b58900">set</span> - Required <span style="color:#719e07">for</span> overlayfs.
-</span></span><span style="display:flex;"><span>CONFIG_AUFS_FS: enabled <span style="color:#719e07">(</span>as module<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>CONFIG_BLK_DEV_DM: enabled <span style="color:#719e07">(</span>as module<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>CGROUPS_CPU: enabled
-</span></span><span style="display:flex;"><span>CGROUPS_CPUACCT: enabled
-</span></span><span style="display:flex;"><span>CGROUPS_CPUSET: enabled
-</span></span><span style="display:flex;"><span>CGROUPS_DEVICES: enabled
-</span></span><span style="display:flex;"><span>CGROUPS_FREEZER: enabled
-</span></span><span style="display:flex;"><span>CGROUPS_MEMORY: missing
-</span></span><span style="display:flex;"><span>DOCKER_VERSION: 17.04.0-ce
-</span></span><span style="display:flex;"><span><span style="color:#719e07">[</span>preflight<span style="color:#719e07">]</span> WARNING: docker version is greater than the most recently validated version. Docker version: 17.04.0-ce. Max validated version: 1.12
-</span></span><span style="display:flex;"><span><span style="color:#719e07">[</span>preflight<span style="color:#719e07">]</span> WARNING: hostname <span style="color:#2aa198">&#34;k8s&#34;</span> could not be reached
-</span></span><span style="display:flex;"><span><span style="color:#719e07">[</span>preflight<span style="color:#719e07">]</span> WARNING: hostname <span style="color:#2aa198">&#34;k8s&#34;</span> lookup k8s on 80.58.61.254:53: no such host
-</span></span><span style="display:flex;"><span><span style="color:#719e07">[</span>preflight<span style="color:#719e07">]</span> Some fatal errors occurred:
-</span></span><span style="display:flex;"><span>   missing cgroups: memory
-</span></span><span style="display:flex;"><span><span style="color:#719e07">[</span>preflight<span style="color:#719e07">]</span> If you know what you are doing, you can skip pre-flight checks with <span style="color:#586e75">`</span>--skip-preflight-checks<span style="color:#586e75">`</span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75">#</span>
-</span></span></code></pre></div><p>La instalación de Kubernetes falla porque no están habilitados los <em>cgroups</em> para la memoria. :(</p></div>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-sh" data-lang="sh"><span style="color:#586e75"># kubeadm init</span>
+<span style="color:#719e07">[</span>kubeadm<span style="color:#719e07">]</span> WARNING: kubeadm is in beta, please <span style="color:#719e07">do</span> not use it <span style="color:#719e07">for</span> production clusters.
+<span style="color:#719e07">[</span>init<span style="color:#719e07">]</span> Using Kubernetes version: v1.6.0
+<span style="color:#719e07">[</span>init<span style="color:#719e07">]</span> Using Authorization mode: RBAC
+<span style="color:#719e07">[</span>preflight<span style="color:#719e07">]</span> Running pre-flight checks
+<span style="color:#719e07">[</span>preflight<span style="color:#719e07">]</span> The system verification failed. Printing the output from the verification:
+OS: Linux
+KERNEL_VERSION: 3.16.0-4-amd64
+CONFIG_NAMESPACES: enabled
+CONFIG_NET_NS: enabled
+CONFIG_PID_NS: enabled
+CONFIG_IPC_NS: enabled
+CONFIG_UTS_NS: enabled
+CONFIG_CGROUPS: enabled
+CONFIG_CGROUP_CPUACCT: enabled
+CONFIG_CGROUP_DEVICE: enabled
+CONFIG_CGROUP_FREEZER: enabled
+CONFIG_CGROUP_SCHED: enabled
+CONFIG_CPUSETS: enabled
+CONFIG_MEMCG: enabled
+CONFIG_INET: enabled
+CONFIG_EXT4_FS: enabled <span style="color:#719e07">(</span>as module<span style="color:#719e07">)</span>
+CONFIG_PROC_FS: enabled
+CONFIG_NETFILTER_XT_TARGET_REDIRECT: enabled <span style="color:#719e07">(</span>as module<span style="color:#719e07">)</span>
+CONFIG_NETFILTER_XT_MATCH_COMMENT: enabled <span style="color:#719e07">(</span>as module<span style="color:#719e07">)</span>
+CONFIG_OVERLAYFS_FS: not <span style="color:#b58900">set</span> - Required <span style="color:#719e07">for</span> overlayfs.
+CONFIG_AUFS_FS: enabled <span style="color:#719e07">(</span>as module<span style="color:#719e07">)</span>
+CONFIG_BLK_DEV_DM: enabled <span style="color:#719e07">(</span>as module<span style="color:#719e07">)</span>
+CGROUPS_CPU: enabled
+CGROUPS_CPUACCT: enabled
+CGROUPS_CPUSET: enabled
+CGROUPS_DEVICES: enabled
+CGROUPS_FREEZER: enabled
+CGROUPS_MEMORY: missing
+DOCKER_VERSION: 17.04.0-ce
+<span style="color:#719e07">[</span>preflight<span style="color:#719e07">]</span> WARNING: docker version is greater than the most recently validated version. Docker version: 17.04.0-ce. Max validated version: 1.12
+<span style="color:#719e07">[</span>preflight<span style="color:#719e07">]</span> WARNING: hostname <span style="color:#2aa198">&#34;k8s&#34;</span> could not be reached
+<span style="color:#719e07">[</span>preflight<span style="color:#719e07">]</span> WARNING: hostname <span style="color:#2aa198">&#34;k8s&#34;</span> lookup k8s on 80.58.61.254:53: no such host
+<span style="color:#719e07">[</span>preflight<span style="color:#719e07">]</span> Some fatal errors occurred:
+   missing cgroups: memory
+<span style="color:#719e07">[</span>preflight<span style="color:#719e07">]</span> If you know what you are doing, you can skip pre-flight checks with <span style="color:#586e75">`</span>--skip-preflight-checks<span style="color:#586e75">`</span>
+<span style="color:#586e75">#</span>
+</code></pre></div><p>La instalación de Kubernetes falla porque no están habilitados los <em>cgroups</em> para la memoria. :(</p></div>
 
   <aside class="p-share">
 

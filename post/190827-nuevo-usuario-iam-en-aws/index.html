@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.95.0" />
+<meta name="generator" content="Hugo 0.92.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -170,45 +170,45 @@
 Además de las políticas gestionadas por Amazon, puedes crear tus propias políticas, ajustando con tanto detalle como quieres <strong>qué acciones</strong> de <strong>qué servicios</strong> y sobre <strong>qué recursos</strong> permites o deniegas.</p>
 <p>El tema de las políticas es un mundo en sí mismo y es quizás <strong>uno de los temas más importantes</strong> con el que debes familiarizarte. A <em>muy grandes rasgos</em>, en una política permite definir con muchísima granularidad qué puede hacerse dónde.</p>
 <p>La política <code>AdministratorAccess</code> permite (<code>&quot;Effect&quot;: &quot;Allow&quot;</code>), todas las acciones en cualquier servicio (<code>&quot;Action&quot;: &quot;*&quot;</code>) y sobre cualquier recurso (<code>&quot;Resource&quot;: &quot;*&quot;</code>):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>{
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">&#34;Version&#34;: </span><span style="color:#2aa198">&#34;2012-10-17&#34;</span>,
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">&#34;Statement&#34;: </span>[
-</span></span><span style="display:flex;"><span>        {
-</span></span><span style="display:flex;"><span>            <span style="color:#268bd2">&#34;Effect&#34;: </span><span style="color:#2aa198">&#34;Allow&#34;</span>,
-</span></span><span style="display:flex;"><span>            <span style="color:#268bd2">&#34;Action&#34;: </span><span style="color:#2aa198">&#34;*&#34;</span>,
-</span></span><span style="display:flex;"><span>            <span style="color:#268bd2">&#34;Resource&#34;: </span><span style="color:#2aa198">&#34;*&#34;</span>
-</span></span><span style="display:flex;"><span>        }
-</span></span><span style="display:flex;"><span>    ]
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><p>&hellip; Dicho de otro modo <strong>un gran poder implica una gran responsabilidad</strong>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">{
+    <span style="color:#268bd2">&#34;Version&#34;: </span><span style="color:#2aa198">&#34;2012-10-17&#34;</span>,
+    <span style="color:#268bd2">&#34;Statement&#34;: </span>[
+        {
+            <span style="color:#268bd2">&#34;Effect&#34;: </span><span style="color:#2aa198">&#34;Allow&#34;</span>,
+            <span style="color:#268bd2">&#34;Action&#34;: </span><span style="color:#2aa198">&#34;*&#34;</span>,
+            <span style="color:#268bd2">&#34;Resource&#34;: </span><span style="color:#2aa198">&#34;*&#34;</span>
+        }
+    ]
+}
+</code></pre></div><p>&hellip; Dicho de otro modo <strong>un gran poder implica una gran responsabilidad</strong>.</p>
 <p>La política define &ldquo;permisos&rdquo; en bloques llamados <em>Statements</em>; cada <em>statement</em> indica el efecto que tiene la política -<code>Allow</code> o <code>Deny</code>- sobre una o varias acciones en la forma <code>servicio:acción</code> y sobre uno o más recursos de AWS.</p>
 <p>Un ejemplo que ha salido antes; para que que un usuario pueda cambiar su contraseña, debe tener permisos sobre el servicio IAM (que gestiona los usuarios) y la acción que indica los permisos necesarios se llama <code>ChangePassword</code>. Como un usuario sólo debe poder cambiar su contraseña, debes especificar que la acción de cambiar password se restringe únicamente al usuario al que se ha asignado la política; la forma de hacerlo es mediante un ARN (<em>Amazon Resource Name</em>), que en este caso es: <code>arn:aws:iam::*:user/${aws:username}</code>.</p>
 <blockquote>
 <p>En este caso el ARN incluye una variable <code>${{aws:username}}</code>; lo habitual es que el ARN sea un identificador &ldquo;fijo&rdquo;.</p>
 </blockquote>
 <p>La política <em>IAMUserChangePassword</em> que se asocia al usuario al marcar la casilla de &ldquo;cambiar la contraseña en el primer inicio&rdquo; también permite &ldquo;leer&rdquo; la política de passwords (que especifica la longitud de la contraseña, cada cuanto tiene que cambiarse, etc).</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>{
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">&#34;Version&#34;: </span><span style="color:#2aa198">&#34;2012-10-17&#34;</span>,
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">&#34;Statement&#34;: </span>[
-</span></span><span style="display:flex;"><span>        {
-</span></span><span style="display:flex;"><span>            <span style="color:#268bd2">&#34;Effect&#34;: </span><span style="color:#2aa198">&#34;Allow&#34;</span>,
-</span></span><span style="display:flex;"><span>            <span style="color:#268bd2">&#34;Action&#34;: </span>[
-</span></span><span style="display:flex;"><span>                <span style="color:#2aa198">&#34;iam:ChangePassword&#34;</span>
-</span></span><span style="display:flex;"><span>            ],
-</span></span><span style="display:flex;"><span>            <span style="color:#268bd2">&#34;Resource&#34;: </span>[
-</span></span><span style="display:flex;"><span>                <span style="color:#2aa198">&#34;arn:aws:iam::*:user/${aws:username}&#34;</span>
-</span></span><span style="display:flex;"><span>            ]
-</span></span><span style="display:flex;"><span>        },
-</span></span><span style="display:flex;"><span>        {
-</span></span><span style="display:flex;"><span>            <span style="color:#268bd2">&#34;Effect&#34;: </span><span style="color:#2aa198">&#34;Allow&#34;</span>,
-</span></span><span style="display:flex;"><span>            <span style="color:#268bd2">&#34;Action&#34;: </span>[
-</span></span><span style="display:flex;"><span>                <span style="color:#2aa198">&#34;iam:GetAccountPasswordPolicy&#34;</span>
-</span></span><span style="display:flex;"><span>            ],
-</span></span><span style="display:flex;"><span>            <span style="color:#268bd2">&#34;Resource&#34;: </span><span style="color:#2aa198">&#34;*&#34;</span>
-</span></span><span style="display:flex;"><span>        }
-</span></span><span style="display:flex;"><span>    ]
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><blockquote>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">{
+    <span style="color:#268bd2">&#34;Version&#34;: </span><span style="color:#2aa198">&#34;2012-10-17&#34;</span>,
+    <span style="color:#268bd2">&#34;Statement&#34;: </span>[
+        {
+            <span style="color:#268bd2">&#34;Effect&#34;: </span><span style="color:#2aa198">&#34;Allow&#34;</span>,
+            <span style="color:#268bd2">&#34;Action&#34;: </span>[
+                <span style="color:#2aa198">&#34;iam:ChangePassword&#34;</span>
+            ],
+            <span style="color:#268bd2">&#34;Resource&#34;: </span>[
+                <span style="color:#2aa198">&#34;arn:aws:iam::*:user/${aws:username}&#34;</span>
+            ]
+        },
+        {
+            <span style="color:#268bd2">&#34;Effect&#34;: </span><span style="color:#2aa198">&#34;Allow&#34;</span>,
+            <span style="color:#268bd2">&#34;Action&#34;: </span>[
+                <span style="color:#2aa198">&#34;iam:GetAccountPasswordPolicy&#34;</span>
+            ],
+            <span style="color:#268bd2">&#34;Resource&#34;: </span><span style="color:#2aa198">&#34;*&#34;</span>
+        }
+    ]
+}
+</code></pre></div><blockquote>
 <p>No puedes modificar las políticas gestionadas por Amazon (que se identifican por un &ldquo;cubo&rdquo; naranja).</p>
 </blockquote>
 <p>Debajo de las políticas, tienes la sección para las <em>permission boundaries</em>:</p>

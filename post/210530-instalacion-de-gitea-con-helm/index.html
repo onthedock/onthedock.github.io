@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.95.0" />
+<meta name="generator" content="Hugo 0.92.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -132,12 +132,12 @@
 
   <div class="article-body"><p>En la entrada anterior, <a href="https://onthedock.github.io/post/210529-revision-de-la-chart-de-gitea/">Revisión de la Helm chart oficial de Gitea</a>, analicé la <em>chart</em> oficial de Gitea. Después de revisarla, en esta entrada explico cómo instalar Gitea a partir de la <em>chart</em> oficial usando Helm.</p>
 <p>Antes de instalar Gitea, creamos el <em>namespace</em> <code>code</code>, en el que desplegaremos Gitea:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>---
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">kind</span>: Namespace
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">apiVersion</span>: v1
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">metadata</span>:
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">name</span>: code
-</span></span></code></pre></div><p>La instalación de Gitea usando la <em>chart</em> oficial se describe en la documentación <a href="https://docs.gitea.io/en-us/install-on-kubernetes/">Installation with Helm (on Kubernetes)</a>; consiste en dos pasos:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
+<span style="color:#268bd2">kind</span>: Namespace
+<span style="color:#268bd2">apiVersion</span>: v1
+<span style="color:#268bd2">metadata</span>:
+    <span style="color:#268bd2">name</span>: code
+</code></pre></div><p>La instalación de Gitea usando la <em>chart</em> oficial se describe en la documentación <a href="https://docs.gitea.io/en-us/install-on-kubernetes/">Installation with Helm (on Kubernetes)</a>; consiste en dos pasos:</p>
 <ol>
 <li>Añadir el repo oficial Helm para Gitea <code>helm repo add gitea-charts https://dl.gitea.io/charts/</code></li>
 <li>Instalar la <em>chart</em> de Gitea</li>
@@ -145,22 +145,22 @@
 <p>La cuestión es que, en general, no queremos instalar la <em>chart</em> con los valores por defecto; algunos valores serán específicos para cada instalación y por tanto debemos configurarlos.</p>
 <p>Helm permite sobreescribir los valores por defecto en el comando de ejecución de <code>helm install</code> de varios modos: usando <code>--values/-f</code> o <code>--set</code> o <code>--set-file</code>.</p>
 <p>Descargamos el fichero <a href="https://gitea.com/gitea/helm-chart/raw/branch/master/values.yaml"><code>values.yaml</code></a> del repositorio oficial de la <em>chart</em> para Gitea:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>wget -O values.original.yaml <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>&gt; https://gitea.com/gitea/helm-chart/raw/branch/master/values.yaml
-</span></span></code></pre></div><p>Copiamos el fichero original para tener una copia de seguridad:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>cp values.original.yaml values.custom.yaml
-</span></span></code></pre></div><p>Editamos el fichero para adaptarlo a nuestro entorno e instalamos con (usando casi todos los valores por defecto, excepto que he deshabilitado <em>memcache</em> y que la base de datos es MariaDB (y no PostgreSQL)):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ helm install gitea -n code -f values.custom.yaml gitea-charts/gitea
-</span></span><span style="display:flex;"><span>NAME: gitea
-</span></span><span style="display:flex;"><span>LAST DEPLOYED: Sat May <span style="color:#2aa198">29</span> 11:49:17 <span style="color:#2aa198">2021</span>
-</span></span><span style="display:flex;"><span>NAMESPACE: code
-</span></span><span style="display:flex;"><span>STATUS: deployed
-</span></span><span style="display:flex;"><span>REVISION: <span style="color:#2aa198">1</span>
-</span></span><span style="display:flex;"><span>NOTES:
-</span></span><span style="display:flex;"><span>1. Get the application URL by running these commands:
-</span></span><span style="display:flex;"><span>  <span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;Visit http://127.0.0.1:3000 to use your application&#34;</span>
-</span></span><span style="display:flex;"><span>  kubectl --namespace code port-forward svc/gitea-http 3000:3000
-</span></span></code></pre></div><blockquote>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">wget -O values.original.yaml <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>&gt; https://gitea.com/gitea/helm-chart/raw/branch/master/values.yaml
+</code></pre></div><p>Copiamos el fichero original para tener una copia de seguridad:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">cp values.original.yaml values.custom.yaml
+</code></pre></div><p>Editamos el fichero para adaptarlo a nuestro entorno e instalamos con (usando casi todos los valores por defecto, excepto que he deshabilitado <em>memcache</em> y que la base de datos es MariaDB (y no PostgreSQL)):</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ helm install gitea -n code -f values.custom.yaml gitea-charts/gitea
+NAME: gitea
+LAST DEPLOYED: Sat May <span style="color:#2aa198">29</span> 11:49:17 <span style="color:#2aa198">2021</span>
+NAMESPACE: code
+STATUS: deployed
+REVISION: <span style="color:#2aa198">1</span>
+NOTES:
+1. Get the application URL by running these commands:
+  <span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;Visit http://127.0.0.1:3000 to use your application&#34;</span>
+  kubectl --namespace code port-forward svc/gitea-http 3000:3000
+</code></pre></div><blockquote>
 <p>En las pruebas que he realizado, si se deshabilitan las tres bases de datos indicadas, la instalación de la Helm Chart falla, aunque Gitea también soporta SQLite3.</p>
 </blockquote>
 <p>Como vemos, al no usar un <em>Ingress</em> (y el <em>Service</em> es de tipo <em>ClusterIP</em>), sólo podemos acceder a Gitea usando <code>kubectl port-forward</code>, lo que no resulta muy útil.</p>
@@ -168,37 +168,37 @@
 <p>Una vez validada la instalación de Gitea, actualizamos la configuración para incluir un <em>Ingress</em>.</p>
 <p>La configuración del <em>Ingress</em> depende del <em>Ingress Controller</em> instalado; en el caso de <strong>k3d</strong> (1.19.4), el <em>Ingress Controller</em> es Traefik.</p>
 <p>En el fichero <code>values.custom.yaml</code> añadimos las anotaciones necesarias para Traefik y el nombre del <em>host</em> a través del cual accedemos a Gitea (resoluble a través de una entrada en mi fichero <code>/etc/hosts</code>):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>...
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">ingress</span>:
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">enabled</span>: <span style="color:#cb4b16">true</span>
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">annotations</span>:
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">kubernetes.io/ingress.class</span>: traefik
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">ingress.kubernetes.io/ssl-redirect</span>: <span style="color:#2aa198">&#34;false&#34;</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">hosts</span>:
-</span></span><span style="display:flex;"><span>    - code.k3d.lab
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">tls</span>: []
-</span></span><span style="display:flex;"><span>...
-</span></span></code></pre></div><p>Con estas modificaciones, actualizamos la <em>release</em> de Gitea en el clúster:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ helm upgrade -n code gitea gitea-charts/gitea -f values.custom.yaml
-</span></span><span style="display:flex;"><span>Release <span style="color:#2aa198">&#34;gitea&#34;</span> has been upgraded. Happy Helming!
-</span></span><span style="display:flex;"><span>NAME: gitea
-</span></span><span style="display:flex;"><span>LAST DEPLOYED: Sat May <span style="color:#2aa198">29</span> 18:44:16 <span style="color:#2aa198">2021</span>
-</span></span><span style="display:flex;"><span>NAMESPACE: code
-</span></span><span style="display:flex;"><span>STATUS: deployed
-</span></span><span style="display:flex;"><span>REVISION: <span style="color:#2aa198">2</span>
-</span></span><span style="display:flex;"><span>NOTES:
-</span></span><span style="display:flex;"><span>1. Get the application URL by running these commands:
-</span></span><span style="display:flex;"><span>  http://code.k3d.lab/
-</span></span></code></pre></div><h2 id="configuración-de-gitea-giteaconfig">Configuración de Gitea: <code>gitea.config</code></h2>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">...
+<span style="color:#268bd2">ingress</span>:
+  <span style="color:#268bd2">enabled</span>: <span style="color:#cb4b16">true</span>
+  <span style="color:#268bd2">annotations</span>:
+    <span style="color:#268bd2">kubernetes.io/ingress.class</span>: traefik
+    <span style="color:#268bd2">ingress.kubernetes.io/ssl-redirect</span>: <span style="color:#2aa198">&#34;false&#34;</span>
+
+  <span style="color:#268bd2">hosts</span>:
+    - code.k3d.lab
+  <span style="color:#268bd2">tls</span>: []
+...
+</code></pre></div><p>Con estas modificaciones, actualizamos la <em>release</em> de Gitea en el clúster:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ helm upgrade -n code gitea gitea-charts/gitea -f values.custom.yaml
+Release <span style="color:#2aa198">&#34;gitea&#34;</span> has been upgraded. Happy Helming!
+NAME: gitea
+LAST DEPLOYED: Sat May <span style="color:#2aa198">29</span> 18:44:16 <span style="color:#2aa198">2021</span>
+NAMESPACE: code
+STATUS: deployed
+REVISION: <span style="color:#2aa198">2</span>
+NOTES:
+1. Get the application URL by running these commands:
+  http://code.k3d.lab/
+</code></pre></div><h2 id="configuración-de-gitea-giteaconfig">Configuración de Gitea: <code>gitea.config</code></h2>
 <p>Con Gitea desplegado, el siguiente paso es configurar la aplicación a través del bloque <code>gitea.config</code>. En esta sección podemos modificar el valor de cualquiera de las variables que aparecen en el fichero <code>app.ini</code> <sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>.</p>
 <p>Por mostrar cómo realizar la configuración, en el fichero <code>values.custom.yaml</code> he modificado la <em>landing page</em> a &ldquo;login&rdquo; y eliminado la posibilidad de que los usuarios creen sus propias cuentas (debe generarlas el administrador de Gitea):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>  <span style="color:#268bd2">config</span>: 
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">server</span>:
-</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">LANDING_PAGE</span>: login
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">service</span>:
-</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">DISABLE_REGISTRATION</span>: <span style="color:#cb4b16">true</span>
-</span></span></code></pre></div><h2 id="siguientes-passos">Siguientes passos</h2>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">  <span style="color:#268bd2">config</span>: 
+    <span style="color:#268bd2">server</span>:
+      <span style="color:#268bd2">LANDING_PAGE</span>: login
+    <span style="color:#268bd2">service</span>:
+      <span style="color:#268bd2">DISABLE_REGISTRATION</span>: <span style="color:#cb4b16">true</span>
+</code></pre></div><h2 id="siguientes-passos">Siguientes passos</h2>
 <p>En un escenario real, sería necesario configurar el acceso a la aplicación usando HTTPS. Para ello, es necesario generar un certificado y configurarlo en el <em>Ingress</em>.</p>
 <p>La <em>chart</em> ya incluye el campo TLS en la sección sobre <em>Ingress</em>, así que es posible configurarlo directamente desde la configuración de la <em>chart</em>.</p>
 <p>En resumen, excepto el problema para desplegar usando SQLite -que probablemente no deberías hacer nunca en un entorno productivo-, la <em>chart</em> oficial permite realizar el despliegue de Gitea sin complicaciones y con toda la flexibilidad posible: empezamos con un despliegue básico, con los componentes mínimos y a medida que lo necesitemos, podemos habilitar y configurar componentes adicionales, como la <em>cache</em> o los proveedores de autenticación externos; y ¡todo con un sencillo comando <code>helm upgrade</code>!</p>

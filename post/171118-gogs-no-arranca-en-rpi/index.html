@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.95.0" />
+<meta name="generator" content="Hugo 0.92.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -186,138 +186,138 @@ Nov 18 16:29:51 sshd[26]: Server listening on 0.0.0.0 port 22.
 <p>La única forma en la que he conseguido devolver a la vida la interfaz web ha sido borrando el fichero <code>app.ini</code> y configurando Gogs de nuevo :(</p>
 <h1 id="actualización-19112017">Actualización (19/11/2017)</h1>
 <p>He descargado la imagen <code>gogs/gogs</code> (0.11.29) en el equipo de laboratorio (x64):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ docker images
-</span></span><span style="display:flex;"><span>REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
-</span></span><span style="display:flex;"><span>gogs/gogs           0.11.29             111330b56503        <span style="color:#2aa198">15</span> hours ago        139MB
-</span></span><span style="display:flex;"><span>gogs/gogs           latest              111330b56503        <span style="color:#2aa198">15</span> hours ago        139MB
-</span></span></code></pre></div><p>He lanzado un contenedor pero para mi sorpresa, tampoco he conseguido hacerlo funcionar, siendo imposible conectar al interfaz web (lo mismo que me ocurría en la RPi). He seguido las mismas instrucciones que en la entrada <a href="https://onthedock.github.io/post/171106-gogs-como-crear-tu-propio-servicio-de-hospedaje-de-repos-git/">Gogs - Cómo crear tu propio servicio de hospedaje de repositorios Git</a>), pero no ha habido manera.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ docker images
+REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+gogs/gogs           0.11.29             111330b56503        <span style="color:#2aa198">15</span> hours ago        139MB
+gogs/gogs           latest              111330b56503        <span style="color:#2aa198">15</span> hours ago        139MB
+</code></pre></div><p>He lanzado un contenedor pero para mi sorpresa, tampoco he conseguido hacerlo funcionar, siendo imposible conectar al interfaz web (lo mismo que me ocurría en la RPi). He seguido las mismas instrucciones que en la entrada <a href="https://onthedock.github.io/post/171106-gogs-como-crear-tu-propio-servicio-de-hospedaje-de-repos-git/">Gogs - Cómo crear tu propio servicio de hospedaje de repositorios Git</a>), pero no ha habido manera.</p>
 <p>He modificado los puertos, he dado permisos <em>full</em> a todo el mundo (chmod -R 777 sobre <code>/shared/gogs/</code>) sin éxito, he creado una carpeta dentro la home del usuario <code>operador</code>&hellip; Nada ha funcionado.</p>
 <p>He comprobado que la imagen está basada en Alpine Linux, por lo que finalmente sí que he podido acceder mediante <code>docker exec -it /bin/ash</code>, pero no he averiguado nada relevante.</p>
 <p>Finalmente se me ha ocurrido lanzar el contenedor sin pasarlo a segundo plano (omitiendo el parámetro <code>-d</code>), de manera que la salida se mostraba en la línea de comandos.</p>
 <p>De esta forma he observado mensajes de error en la salida por pantalla. Y aunque los errores se muestran al ejecutar <code>docker logs gogs</code>, cuando redirijo la salida del comando a un fichero  (<code>docker logs gogs &gt; docker-gogs.log</code> no se registran los mensajes de error (aunque parece que está en un bucle infinito, que se va repitiendo constantemente):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ cat test.log
-</span></span><span style="display:flex;"><span>Nov <span style="color:#2aa198">19</span> 19:37:32 syslogd started: BusyBox v1.25.1
-</span></span><span style="display:flex;"><span>Nov <span style="color:#2aa198">19</span> 19:37:32 sshd<span style="color:#719e07">[</span>31<span style="color:#719e07">]</span>: Server listening on :: port 22.
-</span></span><span style="display:flex;"><span>Nov <span style="color:#2aa198">19</span> 19:37:32 sshd<span style="color:#719e07">[</span>31<span style="color:#719e07">]</span>: Server listening on 0.0.0.0 port 22.
-</span></span><span style="display:flex;"><span>2017/11/19 19:37:50 <span style="color:#719e07">[</span> WARN<span style="color:#719e07">]</span> Custom config <span style="color:#2aa198">&#39;/data/gogs/conf/app.ini&#39;</span> not found, ignore this <span style="color:#719e07">if</span> you<span style="color:#2aa198">&#39;re running first time
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">2017/11/19 19:37:50 [TRACE] Custom path: /data/gogs
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">2017/11/19 19:37:50 [TRACE] Log path: /app/gogs/log
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">2017/11/19 19:37:50 [TRACE] Build Time: 2017-11-19 04:16:46 UTC
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">2017/11/19 19:37:50 [TRACE] Build Git Hash:
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">2017/11/19 19:37:50 [TRACE] Log Mode: Console (Trace)
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">2017/11/19 19:37:50 [ INFO] Gogs 0.11.33.1116
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">2017/11/19 19:37:50 [ INFO] Cache Service Enabled
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">2017/11/19 19:37:50 [ INFO] Session Service Enabled
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">2017/11/19 19:37:50 [ INFO] SQLite3 Supported
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">2017/11/19 19:37:50 [ INFO] Run Mode: Development
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">2017/11/19 19:37:50 [ WARN] Custom config &#39;</span>/data/gogs/conf/app.ini<span style="color:#2aa198">&#39; not found, ignore this if you&#39;</span>re running first <span style="color:#b58900">time</span>
-</span></span><span style="display:flex;"><span>2017/11/19 19:37:50 <span style="color:#719e07">[</span>TRACE<span style="color:#719e07">]</span> Custom path: /data/gogs
-</span></span><span style="display:flex;"><span>2017/11/19 19:37:50 <span style="color:#719e07">[</span>TRACE<span style="color:#719e07">]</span> Log path: /app/gogs/log
-</span></span><span style="display:flex;"><span>2017/11/19 19:37:50 <span style="color:#719e07">[</span>TRACE<span style="color:#719e07">]</span> Build Time: 2017-11-19 04:16:46 UTC
-</span></span><span style="display:flex;"><span>2017/11/19 19:37:50 <span style="color:#719e07">[</span>TRACE<span style="color:#719e07">]</span> Build Git Hash:
-</span></span><span style="display:flex;"><span>2017/11/19 19:37:50 <span style="color:#719e07">[</span>TRACE<span style="color:#719e07">]</span> Log Mode: Console <span style="color:#719e07">(</span>Trace<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>2017/11/19 19:37:50 <span style="color:#719e07">[</span> INFO<span style="color:#719e07">]</span> Gogs 0.11.33.1116
-</span></span><span style="display:flex;"><span>2017/11/19 19:37:50 <span style="color:#719e07">[</span> INFO<span style="color:#719e07">]</span> Cache Service Enabled
-</span></span><span style="display:flex;"><span>2017/11/19 19:37:50 <span style="color:#719e07">[</span> INFO<span style="color:#719e07">]</span> Session Service Enabled
-</span></span><span style="display:flex;"><span>2017/11/19 19:37:50 <span style="color:#719e07">[</span> INFO<span style="color:#719e07">]</span> SQLite3 Supported
-</span></span><span style="display:flex;"><span>2017/11/19 19:37:50 <span style="color:#719e07">[</span> INFO<span style="color:#719e07">]</span> Run Mode: Development
-</span></span><span style="display:flex;"><span>2017/11/19 19:37:51 <span style="color:#719e07">[</span> WARN<span style="color:#719e07">]</span> Custom config <span style="color:#2aa198">&#39;/data/gogs/conf/app.ini&#39;</span> not found, ignore this <span style="color:#719e07">if</span> you&#39;re running first <span style="color:#b58900">time</span>
-</span></span><span style="display:flex;"><span>2017/11/19 19:37:51 <span style="color:#719e07">[</span>TRACE<span style="color:#719e07">]</span> Custom path: /data/gogs
-</span></span><span style="display:flex;"><span>2017/11/19 19:37:51 <span style="color:#719e07">[</span>TRACE<span style="color:#719e07">]</span> Log path: /app/gogs/log
-</span></span><span style="display:flex;"><span>2017/11/19 19:37:51 <span style="color:#719e07">[</span>TRACE<span style="color:#719e07">]</span> Build Time: 2017-11-19 04:16:46 UTC
-</span></span><span style="display:flex;"><span>2017/11/19 19:37:51 <span style="color:#719e07">[</span>TRACE<span style="color:#719e07">]</span> Build Git Hash:
-</span></span></code></pre></div><p>En estas pruebas que estoy realizando, el fichero <code>app.ini</code> no se llega a crear (tampoco la base de datos SQLite, <code>gogs.db</code>). Esto me ha llevado a pensar en un problema de permisos, pero tampoco se ha creado cuando he asignado permisos a todo el mundo (777).</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ cat test.log
+Nov <span style="color:#2aa198">19</span> 19:37:32 syslogd started: BusyBox v1.25.1
+Nov <span style="color:#2aa198">19</span> 19:37:32 sshd<span style="color:#719e07">[</span>31<span style="color:#719e07">]</span>: Server listening on :: port 22.
+Nov <span style="color:#2aa198">19</span> 19:37:32 sshd<span style="color:#719e07">[</span>31<span style="color:#719e07">]</span>: Server listening on 0.0.0.0 port 22.
+2017/11/19 19:37:50 <span style="color:#719e07">[</span> WARN<span style="color:#719e07">]</span> Custom config <span style="color:#2aa198">&#39;/data/gogs/conf/app.ini&#39;</span> not found, ignore this <span style="color:#719e07">if</span> you<span style="color:#2aa198">&#39;re running first time
+</span><span style="color:#2aa198">2017/11/19 19:37:50 [TRACE] Custom path: /data/gogs
+</span><span style="color:#2aa198">2017/11/19 19:37:50 [TRACE] Log path: /app/gogs/log
+</span><span style="color:#2aa198">2017/11/19 19:37:50 [TRACE] Build Time: 2017-11-19 04:16:46 UTC
+</span><span style="color:#2aa198">2017/11/19 19:37:50 [TRACE] Build Git Hash:
+</span><span style="color:#2aa198">2017/11/19 19:37:50 [TRACE] Log Mode: Console (Trace)
+</span><span style="color:#2aa198">2017/11/19 19:37:50 [ INFO] Gogs 0.11.33.1116
+</span><span style="color:#2aa198">2017/11/19 19:37:50 [ INFO] Cache Service Enabled
+</span><span style="color:#2aa198">2017/11/19 19:37:50 [ INFO] Session Service Enabled
+</span><span style="color:#2aa198">2017/11/19 19:37:50 [ INFO] SQLite3 Supported
+</span><span style="color:#2aa198">2017/11/19 19:37:50 [ INFO] Run Mode: Development
+</span><span style="color:#2aa198">2017/11/19 19:37:50 [ WARN] Custom config &#39;</span>/data/gogs/conf/app.ini<span style="color:#2aa198">&#39; not found, ignore this if you&#39;</span>re running first <span style="color:#b58900">time</span>
+2017/11/19 19:37:50 <span style="color:#719e07">[</span>TRACE<span style="color:#719e07">]</span> Custom path: /data/gogs
+2017/11/19 19:37:50 <span style="color:#719e07">[</span>TRACE<span style="color:#719e07">]</span> Log path: /app/gogs/log
+2017/11/19 19:37:50 <span style="color:#719e07">[</span>TRACE<span style="color:#719e07">]</span> Build Time: 2017-11-19 04:16:46 UTC
+2017/11/19 19:37:50 <span style="color:#719e07">[</span>TRACE<span style="color:#719e07">]</span> Build Git Hash:
+2017/11/19 19:37:50 <span style="color:#719e07">[</span>TRACE<span style="color:#719e07">]</span> Log Mode: Console <span style="color:#719e07">(</span>Trace<span style="color:#719e07">)</span>
+2017/11/19 19:37:50 <span style="color:#719e07">[</span> INFO<span style="color:#719e07">]</span> Gogs 0.11.33.1116
+2017/11/19 19:37:50 <span style="color:#719e07">[</span> INFO<span style="color:#719e07">]</span> Cache Service Enabled
+2017/11/19 19:37:50 <span style="color:#719e07">[</span> INFO<span style="color:#719e07">]</span> Session Service Enabled
+2017/11/19 19:37:50 <span style="color:#719e07">[</span> INFO<span style="color:#719e07">]</span> SQLite3 Supported
+2017/11/19 19:37:50 <span style="color:#719e07">[</span> INFO<span style="color:#719e07">]</span> Run Mode: Development
+2017/11/19 19:37:51 <span style="color:#719e07">[</span> WARN<span style="color:#719e07">]</span> Custom config <span style="color:#2aa198">&#39;/data/gogs/conf/app.ini&#39;</span> not found, ignore this <span style="color:#719e07">if</span> you&#39;re running first <span style="color:#b58900">time</span>
+2017/11/19 19:37:51 <span style="color:#719e07">[</span>TRACE<span style="color:#719e07">]</span> Custom path: /data/gogs
+2017/11/19 19:37:51 <span style="color:#719e07">[</span>TRACE<span style="color:#719e07">]</span> Log path: /app/gogs/log
+2017/11/19 19:37:51 <span style="color:#719e07">[</span>TRACE<span style="color:#719e07">]</span> Build Time: 2017-11-19 04:16:46 UTC
+2017/11/19 19:37:51 <span style="color:#719e07">[</span>TRACE<span style="color:#719e07">]</span> Build Git Hash:
+</code></pre></div><p>En estas pruebas que estoy realizando, el fichero <code>app.ini</code> no se llega a crear (tampoco la base de datos SQLite, <code>gogs.db</code>). Esto me ha llevado a pensar en un problema de permisos, pero tampoco se ha creado cuando he asignado permisos a todo el mundo (777).</p>
 <p>Para comprobar esta hipótesis he lanzado el contenedor sin montar ningún volumen (es decir, haciendo que la base de datos se genere <em>dentro</em> del propio contenedor).</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>docker run -d -p 8022:22 -p 3000:3000 gogs/gogs
-</span></span></code></pre></div><p>Pero tampoco he tenido éxito.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">docker run -d -p 8022:22 -p 3000:3000 gogs/gogs
+</code></pre></div><p>Pero tampoco he tenido éxito.</p>
 <p>Pensaba que los errores que he visto desfilar por pantalla los causaba el intento de conectar a la URL de Gogs. Después de crear el contenedor y esperar un rato (unos 5 o 10 segundos), he visto que el error aparecía de forma espontánea.</p>
 <p>Dado que <code>docker logs gogs &gt; errores.log</code> no escribe los errores en el log, he optado por crear un contenedor mediante <code>docker run --name gogs -p 8022:22 p:3000:3000 gogs/gogs</code> y esperar&hellip;</p>
 <blockquote>
 <p>Revisando los <em>issues</em> en GitHub, parece que es un error conocido que se trata como <em>mejora</em> :<a href="https://github.com/gogits/gogs/issues/1022">Panics should get logged</a></p>
 </blockquote>
 <p>Al haber lanzado el contenedor sin <code>-d</code>, los mensajes se muestran por pantalla, de donde he hecho un <em>copy &amp; paste</em>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span> docker run --name gogs -p 3000:3000 gogs/gogs
-</span></span><span style="display:flex;"><span>usermod: no changes
-</span></span><span style="display:flex;"><span>Nov <span style="color:#2aa198">19</span> 19:37:32 syslogd started: BusyBox v1.25.1
-</span></span><span style="display:flex;"><span>Nov <span style="color:#2aa198">19</span> 19:37:32 sshd<span style="color:#719e07">[</span>31<span style="color:#719e07">]</span>: Server listening on :: port 22.
-</span></span><span style="display:flex;"><span>Nov <span style="color:#2aa198">19</span> 19:37:32 sshd<span style="color:#719e07">[</span>31<span style="color:#719e07">]</span>: Server listening on 0.0.0.0 port 22.
-</span></span><span style="display:flex;"><span>2017/11/19 19:37:50 <span style="color:#719e07">[</span> WARN<span style="color:#719e07">]</span> Custom config <span style="color:#2aa198">&#39;/data/gogs/conf/app.ini&#39;</span> not found, ignore this <span style="color:#719e07">if</span> you<span style="color:#2aa198">&#39;re running first time
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">2017/11/19 19:37:50 [TRACE] Custom path: /data/gogs
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">2017/11/19 19:37:50 [TRACE] Log path: /app/gogs/log
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">2017/11/19 19:37:50 [TRACE] Build Time: 2017-11-19 04:16:46 UTC
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">2017/11/19 19:37:50 [TRACE] Build Git Hash:
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">2017/11/19 19:37:50 [TRACE] Log Mode: Console (Trace)
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">2017/11/19 19:37:50 [ INFO] Gogs 0.11.33.1116
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">2017/11/19 19:37:50 [ INFO] Cache Service Enabled
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">2017/11/19 19:37:50 [ INFO] Session Service Enabled
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">2017/11/19 19:37:50 [ INFO] SQLite3 Supported
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">2017/11/19 19:37:50 [ INFO] Run Mode: Development
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">panic: fail to set message file(sk-SK): open conf/locale/locale_sk-SK.ini: no such file or directory
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">goroutine 1 [running]:
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">github.com/gogits/gogs/vendor/github.com/go-macaron/i18n.initLocales(0xc4200b8f15, 0x0, 0xf8b4a5, 0xb, 0xc420814270, 0xc42080c060, 0x16, 0xc4204224e0, 0x1a, 0x1a, ...)
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">	/tmp/go/src/github.com/gogits/gogs/vendor/github.com/go-macaron/i18n/i18n.go:57 +0x5ff
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">github.com/gogits/gogs/vendor/github.com/go-macaron/i18n.I18n(0xc420072540, 0x1, 0x1, 0xc42080c060, 0x16)
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">	/tmp/go/src/github.com/gogits/gogs/vendor/github.com/go-macaron/i18n/i18n.go:158 +0xee
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">github.com/gogits/gogs/cmd.newMacaron(0xc42043a140)
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">	/tmp/go/src/github.com/gogits/gogs/cmd/web.go:130 +0xab5
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">github.com/gogits/gogs/cmd.runWeb(0xc42043a140, 0x0, 0xc42043a140)
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">	/tmp/go/src/github.com/gogits/gogs/cmd/web.go:166 +0x74
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">github.com/gogits/gogs/vendor/github.com/urfave/cli.HandleAction(0xe631e0, 0xfc7d78, 0xc42043a140, 0xc420428400, 0x0)
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">	/tmp/go/src/github.com/gogits/gogs/vendor/github.com/urfave/cli/app.go:483 +0xb9
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">github.com/gogits/gogs/vendor/github.com/urfave/cli.Command.Run(0xf7ee8d, 0x3, 0x0, 0x0, 0x0, 0x0, 0x0, 0xf92aef, 0x10, 0x0, ...)
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">	/tmp/go/src/github.com/gogits/gogs/vendor/github.com/urfave/cli/command.go:193 +0xb72
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">github.com/gogits/gogs/vendor/github.com/urfave/cli.(*App).Run(0xc42010ba00, 0xc42000c140, 0x2, 0x2, 0x0, 0x0)
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">	/tmp/go/src/github.com/gogits/gogs/vendor/github.com/urfave/cli/app.go:250 +0x7d0
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">main.main()
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">	/tmp/go/src/github.com/gogits/gogs/gogs.go:41 +0x3ea
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">2017/11/19 19:37:50 [ WARN] Custom config &#39;</span>/data/gogs/conf/app.ini<span style="color:#2aa198">&#39; not found, ignore this if you&#39;</span>re running first <span style="color:#b58900">time</span>
-</span></span><span style="display:flex;"><span>2017/11/19 19:37:50 <span style="color:#719e07">[</span>TRACE<span style="color:#719e07">]</span> Custom path: /data/gogs
-</span></span><span style="display:flex;"><span>2017/11/19 19:37:50 <span style="color:#719e07">[</span>TRACE<span style="color:#719e07">]</span> Log path: /app/gogs/log
-</span></span><span style="display:flex;"><span>2017/11/19 19:37:50 <span style="color:#719e07">[</span>TRACE<span style="color:#719e07">]</span> Build Time: 2017-11-19 04:16:46 UTC
-</span></span><span style="display:flex;"><span>2017/11/19 19:37:50 <span style="color:#719e07">[</span>TRACE<span style="color:#719e07">]</span> Build Git Hash:
-</span></span><span style="display:flex;"><span>2017/11/19 19:37:50 <span style="color:#719e07">[</span>TRACE<span style="color:#719e07">]</span> Log Mode: Console <span style="color:#719e07">(</span>Trace<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>2017/11/19 19:37:50 <span style="color:#719e07">[</span> INFO<span style="color:#719e07">]</span> Gogs 0.11.33.1116
-</span></span><span style="display:flex;"><span>2017/11/19 19:37:50 <span style="color:#719e07">[</span> INFO<span style="color:#719e07">]</span> Cache Service Enabled
-</span></span><span style="display:flex;"><span>2017/11/19 19:37:50 <span style="color:#719e07">[</span> INFO<span style="color:#719e07">]</span> Session Service Enabled
-</span></span><span style="display:flex;"><span>2017/11/19 19:37:50 <span style="color:#719e07">[</span> INFO<span style="color:#719e07">]</span> SQLite3 Supported
-</span></span><span style="display:flex;"><span>2017/11/19 19:37:50 <span style="color:#719e07">[</span> INFO<span style="color:#719e07">]</span> Run Mode: Development
-</span></span><span style="display:flex;"><span>panic: fail to <span style="color:#b58900">set</span> message file<span style="color:#719e07">(</span>sk-SK<span style="color:#719e07">)</span>: open conf/locale/locale_sk-SK.ini: no such file or directory
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>goroutine <span style="color:#2aa198">1</span> <span style="color:#719e07">[</span>running<span style="color:#719e07">]</span>:
-</span></span><span style="display:flex;"><span>github.com/gogits/gogs/vendor/github.com/go-macaron/i18n.initLocales<span style="color:#719e07">(</span>0xc4200b8ef5, 0x0, 0xf8b4a5, 0xb, 0xc42081e510, 0xc4206ff4e0, 0x16, 0xc4204224e0, 0x1a, 0x1a, ...<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>	/tmp/go/src/github.com/gogits/gogs/vendor/github.com/go-macaron/i18n/i18n.go:57 +0x5ff
-</span></span><span style="display:flex;"><span>github.com/gogits/gogs/vendor/github.com/go-macaron/i18n.I18n<span style="color:#719e07">(</span>0xc420072540, 0x1, 0x1, 0xc4206ff4e0, 0x16<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>	/tmp/go/src/github.com/gogits/gogs/vendor/github.com/go-macaron/i18n/i18n.go:158 +0xee
-</span></span><span style="display:flex;"><span>github.com/gogits/gogs/cmd.newMacaron<span style="color:#719e07">(</span>0xc42043a140<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>	/tmp/go/src/github.com/gogits/gogs/cmd/web.go:130 +0xab5
-</span></span><span style="display:flex;"><span>github.com/gogits/gogs/cmd.runWeb<span style="color:#719e07">(</span>0xc42043a140, 0x0, 0xc42043a140<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>	/tmp/go/src/github.com/gogits/gogs/cmd/web.go:166 +0x74
-</span></span><span style="display:flex;"><span>github.com/gogits/gogs/vendor/github.com/urfave/cli.HandleAction<span style="color:#719e07">(</span>0xe631e0, 0xfc7d78, 0xc42043a140, 0xc420428400, 0x0<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>	/tmp/go/src/github.com/gogits/gogs/vendor/github.com/urfave/cli/app.go:483 +0xb9
-</span></span><span style="display:flex;"><span>github.com/gogits/gogs/vendor/github.com/urfave/cli.Command.Run<span style="color:#719e07">(</span>0xf7ee8d, 0x3, 0x0, 0x0, 0x0, 0x0, 0x0, 0xf92aef, 0x10, 0x0, ...<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>	/tmp/go/src/github.com/gogits/gogs/vendor/github.com/urfave/cli/command.go:193 +0xb72
-</span></span><span style="display:flex;"><span>github.com/gogits/gogs/vendor/github.com/urfave/cli.<span style="color:#719e07">(</span>*App<span style="color:#719e07">)</span>.Run<span style="color:#719e07">(</span>0xc420109a00, 0xc42000c140, 0x2, 0x2, 0x0, 0x0<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>	/tmp/go/src/github.com/gogits/gogs/vendor/github.com/urfave/cli/app.go:250 +0x7d0
-</span></span><span style="display:flex;"><span>main.main<span style="color:#719e07">()</span>
-</span></span><span style="display:flex;"><span>	/tmp/go/src/github.com/gogits/gogs/gogs.go:41 +0x3ea
-</span></span><span style="display:flex;"><span>2017/11/19 19:37:51 <span style="color:#719e07">[</span> WARN<span style="color:#719e07">]</span> Custom config <span style="color:#2aa198">&#39;/data/gogs/conf/app.ini&#39;</span> not found, ignore this <span style="color:#719e07">if</span> you&#39;re running first <span style="color:#b58900">time</span>
-</span></span><span style="display:flex;"><span>2017/11/19 19:37:51 <span style="color:#719e07">[</span>TRACE<span style="color:#719e07">]</span> Custom path: /data/gogs
-</span></span><span style="display:flex;"><span>2017/11/19 19:37:51 <span style="color:#719e07">[</span>TRACE<span style="color:#719e07">]</span> Log path: /app/gogs/log
-</span></span><span style="display:flex;"><span>2017/11/19 19:37:51 <span style="color:#719e07">[</span>TRACE<span style="color:#719e07">]</span> Build Time: 2017-11-19 04:16:46 UTC
-</span></span><span style="display:flex;"><span>2017/11/19 19:37:51 <span style="color:#719e07">[</span>TRACE<span style="color:#719e07">]</span> Build Git Hash:
-</span></span><span style="display:flex;"><span>2017/11/19 19:37:51 <span style="color:#719e07">[</span>TRACE<span style="color:#719e07">]</span> Log Mode: Console <span style="color:#719e07">(</span>Trace<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>2017/11/19 19:37:51 <span style="color:#719e07">[</span> INFO<span style="color:#719e07">]</span> Gogs 0.11.33.1116
-</span></span><span style="display:flex;"><span>2017/11/19 19:37:51 <span style="color:#719e07">[</span> INFO<span style="color:#719e07">]</span> Cache Service Enabled
-</span></span><span style="display:flex;"><span>2017/11/19 19:37:51 <span style="color:#719e07">[</span> INFO<span style="color:#719e07">]</span> Session Service Enabled
-</span></span><span style="display:flex;"><span>2017/11/19 19:37:51 <span style="color:#719e07">[</span> INFO<span style="color:#719e07">]</span> SQLite3 Supported
-</span></span><span style="display:flex;"><span>2017/11/19 19:37:51 <span style="color:#719e07">[</span> INFO<span style="color:#719e07">]</span> Run Mode: Development
-</span></span><span style="display:flex;"><span>panic: fail to <span style="color:#b58900">set</span> message file<span style="color:#719e07">(</span>sk-SK<span style="color:#719e07">)</span>: open conf/locale/locale_sk-SK.ini: no such file or directory
-</span></span><span style="display:flex;"><span>...
-</span></span><span style="display:flex;"><span>^C
-</span></span><span style="display:flex;"><span>Nov <span style="color:#2aa198">19</span> 19:37:55 sshd<span style="color:#719e07">[</span>31<span style="color:#719e07">]</span>: Received signal 15; terminating.
-</span></span><span style="display:flex;"><span>Nov <span style="color:#2aa198">19</span> 19:37:55 syslogd exiting
-</span></span></code></pre></div><p>En los logs -que he truncado- se repite una y otra vez el mismo patrón: el contenedor arranca con normalidad, pero pasados unos veinte segundos, aparece un mensaje de pánico al no encontrar un fichero de localización para el idioma sk-SK (¿¡!?) <code>panic: fail to set message file(sk-SK): open conf/locale/locale_sk-SK.ini: no such file or directory</code>. Este mensaje de error desencadena una serie de mensajes de error de Go&hellip; Hasta que, de nuevo, se vuelve a alertar de la ausencia del fichero de configuración <code>app.ini</code> y vuelta a empezar.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell"> docker run --name gogs -p 3000:3000 gogs/gogs
+usermod: no changes
+Nov <span style="color:#2aa198">19</span> 19:37:32 syslogd started: BusyBox v1.25.1
+Nov <span style="color:#2aa198">19</span> 19:37:32 sshd<span style="color:#719e07">[</span>31<span style="color:#719e07">]</span>: Server listening on :: port 22.
+Nov <span style="color:#2aa198">19</span> 19:37:32 sshd<span style="color:#719e07">[</span>31<span style="color:#719e07">]</span>: Server listening on 0.0.0.0 port 22.
+2017/11/19 19:37:50 <span style="color:#719e07">[</span> WARN<span style="color:#719e07">]</span> Custom config <span style="color:#2aa198">&#39;/data/gogs/conf/app.ini&#39;</span> not found, ignore this <span style="color:#719e07">if</span> you<span style="color:#2aa198">&#39;re running first time
+</span><span style="color:#2aa198">2017/11/19 19:37:50 [TRACE] Custom path: /data/gogs
+</span><span style="color:#2aa198">2017/11/19 19:37:50 [TRACE] Log path: /app/gogs/log
+</span><span style="color:#2aa198">2017/11/19 19:37:50 [TRACE] Build Time: 2017-11-19 04:16:46 UTC
+</span><span style="color:#2aa198">2017/11/19 19:37:50 [TRACE] Build Git Hash:
+</span><span style="color:#2aa198">2017/11/19 19:37:50 [TRACE] Log Mode: Console (Trace)
+</span><span style="color:#2aa198">2017/11/19 19:37:50 [ INFO] Gogs 0.11.33.1116
+</span><span style="color:#2aa198">2017/11/19 19:37:50 [ INFO] Cache Service Enabled
+</span><span style="color:#2aa198">2017/11/19 19:37:50 [ INFO] Session Service Enabled
+</span><span style="color:#2aa198">2017/11/19 19:37:50 [ INFO] SQLite3 Supported
+</span><span style="color:#2aa198">2017/11/19 19:37:50 [ INFO] Run Mode: Development
+</span><span style="color:#2aa198">panic: fail to set message file(sk-SK): open conf/locale/locale_sk-SK.ini: no such file or directory
+</span><span style="color:#2aa198">
+</span><span style="color:#2aa198">goroutine 1 [running]:
+</span><span style="color:#2aa198">github.com/gogits/gogs/vendor/github.com/go-macaron/i18n.initLocales(0xc4200b8f15, 0x0, 0xf8b4a5, 0xb, 0xc420814270, 0xc42080c060, 0x16, 0xc4204224e0, 0x1a, 0x1a, ...)
+</span><span style="color:#2aa198">	/tmp/go/src/github.com/gogits/gogs/vendor/github.com/go-macaron/i18n/i18n.go:57 +0x5ff
+</span><span style="color:#2aa198">github.com/gogits/gogs/vendor/github.com/go-macaron/i18n.I18n(0xc420072540, 0x1, 0x1, 0xc42080c060, 0x16)
+</span><span style="color:#2aa198">	/tmp/go/src/github.com/gogits/gogs/vendor/github.com/go-macaron/i18n/i18n.go:158 +0xee
+</span><span style="color:#2aa198">github.com/gogits/gogs/cmd.newMacaron(0xc42043a140)
+</span><span style="color:#2aa198">	/tmp/go/src/github.com/gogits/gogs/cmd/web.go:130 +0xab5
+</span><span style="color:#2aa198">github.com/gogits/gogs/cmd.runWeb(0xc42043a140, 0x0, 0xc42043a140)
+</span><span style="color:#2aa198">	/tmp/go/src/github.com/gogits/gogs/cmd/web.go:166 +0x74
+</span><span style="color:#2aa198">github.com/gogits/gogs/vendor/github.com/urfave/cli.HandleAction(0xe631e0, 0xfc7d78, 0xc42043a140, 0xc420428400, 0x0)
+</span><span style="color:#2aa198">	/tmp/go/src/github.com/gogits/gogs/vendor/github.com/urfave/cli/app.go:483 +0xb9
+</span><span style="color:#2aa198">github.com/gogits/gogs/vendor/github.com/urfave/cli.Command.Run(0xf7ee8d, 0x3, 0x0, 0x0, 0x0, 0x0, 0x0, 0xf92aef, 0x10, 0x0, ...)
+</span><span style="color:#2aa198">	/tmp/go/src/github.com/gogits/gogs/vendor/github.com/urfave/cli/command.go:193 +0xb72
+</span><span style="color:#2aa198">github.com/gogits/gogs/vendor/github.com/urfave/cli.(*App).Run(0xc42010ba00, 0xc42000c140, 0x2, 0x2, 0x0, 0x0)
+</span><span style="color:#2aa198">	/tmp/go/src/github.com/gogits/gogs/vendor/github.com/urfave/cli/app.go:250 +0x7d0
+</span><span style="color:#2aa198">main.main()
+</span><span style="color:#2aa198">	/tmp/go/src/github.com/gogits/gogs/gogs.go:41 +0x3ea
+</span><span style="color:#2aa198">2017/11/19 19:37:50 [ WARN] Custom config &#39;</span>/data/gogs/conf/app.ini<span style="color:#2aa198">&#39; not found, ignore this if you&#39;</span>re running first <span style="color:#b58900">time</span>
+2017/11/19 19:37:50 <span style="color:#719e07">[</span>TRACE<span style="color:#719e07">]</span> Custom path: /data/gogs
+2017/11/19 19:37:50 <span style="color:#719e07">[</span>TRACE<span style="color:#719e07">]</span> Log path: /app/gogs/log
+2017/11/19 19:37:50 <span style="color:#719e07">[</span>TRACE<span style="color:#719e07">]</span> Build Time: 2017-11-19 04:16:46 UTC
+2017/11/19 19:37:50 <span style="color:#719e07">[</span>TRACE<span style="color:#719e07">]</span> Build Git Hash:
+2017/11/19 19:37:50 <span style="color:#719e07">[</span>TRACE<span style="color:#719e07">]</span> Log Mode: Console <span style="color:#719e07">(</span>Trace<span style="color:#719e07">)</span>
+2017/11/19 19:37:50 <span style="color:#719e07">[</span> INFO<span style="color:#719e07">]</span> Gogs 0.11.33.1116
+2017/11/19 19:37:50 <span style="color:#719e07">[</span> INFO<span style="color:#719e07">]</span> Cache Service Enabled
+2017/11/19 19:37:50 <span style="color:#719e07">[</span> INFO<span style="color:#719e07">]</span> Session Service Enabled
+2017/11/19 19:37:50 <span style="color:#719e07">[</span> INFO<span style="color:#719e07">]</span> SQLite3 Supported
+2017/11/19 19:37:50 <span style="color:#719e07">[</span> INFO<span style="color:#719e07">]</span> Run Mode: Development
+panic: fail to <span style="color:#b58900">set</span> message file<span style="color:#719e07">(</span>sk-SK<span style="color:#719e07">)</span>: open conf/locale/locale_sk-SK.ini: no such file or directory
+
+goroutine <span style="color:#2aa198">1</span> <span style="color:#719e07">[</span>running<span style="color:#719e07">]</span>:
+github.com/gogits/gogs/vendor/github.com/go-macaron/i18n.initLocales<span style="color:#719e07">(</span>0xc4200b8ef5, 0x0, 0xf8b4a5, 0xb, 0xc42081e510, 0xc4206ff4e0, 0x16, 0xc4204224e0, 0x1a, 0x1a, ...<span style="color:#719e07">)</span>
+	/tmp/go/src/github.com/gogits/gogs/vendor/github.com/go-macaron/i18n/i18n.go:57 +0x5ff
+github.com/gogits/gogs/vendor/github.com/go-macaron/i18n.I18n<span style="color:#719e07">(</span>0xc420072540, 0x1, 0x1, 0xc4206ff4e0, 0x16<span style="color:#719e07">)</span>
+	/tmp/go/src/github.com/gogits/gogs/vendor/github.com/go-macaron/i18n/i18n.go:158 +0xee
+github.com/gogits/gogs/cmd.newMacaron<span style="color:#719e07">(</span>0xc42043a140<span style="color:#719e07">)</span>
+	/tmp/go/src/github.com/gogits/gogs/cmd/web.go:130 +0xab5
+github.com/gogits/gogs/cmd.runWeb<span style="color:#719e07">(</span>0xc42043a140, 0x0, 0xc42043a140<span style="color:#719e07">)</span>
+	/tmp/go/src/github.com/gogits/gogs/cmd/web.go:166 +0x74
+github.com/gogits/gogs/vendor/github.com/urfave/cli.HandleAction<span style="color:#719e07">(</span>0xe631e0, 0xfc7d78, 0xc42043a140, 0xc420428400, 0x0<span style="color:#719e07">)</span>
+	/tmp/go/src/github.com/gogits/gogs/vendor/github.com/urfave/cli/app.go:483 +0xb9
+github.com/gogits/gogs/vendor/github.com/urfave/cli.Command.Run<span style="color:#719e07">(</span>0xf7ee8d, 0x3, 0x0, 0x0, 0x0, 0x0, 0x0, 0xf92aef, 0x10, 0x0, ...<span style="color:#719e07">)</span>
+	/tmp/go/src/github.com/gogits/gogs/vendor/github.com/urfave/cli/command.go:193 +0xb72
+github.com/gogits/gogs/vendor/github.com/urfave/cli.<span style="color:#719e07">(</span>*App<span style="color:#719e07">)</span>.Run<span style="color:#719e07">(</span>0xc420109a00, 0xc42000c140, 0x2, 0x2, 0x0, 0x0<span style="color:#719e07">)</span>
+	/tmp/go/src/github.com/gogits/gogs/vendor/github.com/urfave/cli/app.go:250 +0x7d0
+main.main<span style="color:#719e07">()</span>
+	/tmp/go/src/github.com/gogits/gogs/gogs.go:41 +0x3ea
+2017/11/19 19:37:51 <span style="color:#719e07">[</span> WARN<span style="color:#719e07">]</span> Custom config <span style="color:#2aa198">&#39;/data/gogs/conf/app.ini&#39;</span> not found, ignore this <span style="color:#719e07">if</span> you&#39;re running first <span style="color:#b58900">time</span>
+2017/11/19 19:37:51 <span style="color:#719e07">[</span>TRACE<span style="color:#719e07">]</span> Custom path: /data/gogs
+2017/11/19 19:37:51 <span style="color:#719e07">[</span>TRACE<span style="color:#719e07">]</span> Log path: /app/gogs/log
+2017/11/19 19:37:51 <span style="color:#719e07">[</span>TRACE<span style="color:#719e07">]</span> Build Time: 2017-11-19 04:16:46 UTC
+2017/11/19 19:37:51 <span style="color:#719e07">[</span>TRACE<span style="color:#719e07">]</span> Build Git Hash:
+2017/11/19 19:37:51 <span style="color:#719e07">[</span>TRACE<span style="color:#719e07">]</span> Log Mode: Console <span style="color:#719e07">(</span>Trace<span style="color:#719e07">)</span>
+2017/11/19 19:37:51 <span style="color:#719e07">[</span> INFO<span style="color:#719e07">]</span> Gogs 0.11.33.1116
+2017/11/19 19:37:51 <span style="color:#719e07">[</span> INFO<span style="color:#719e07">]</span> Cache Service Enabled
+2017/11/19 19:37:51 <span style="color:#719e07">[</span> INFO<span style="color:#719e07">]</span> Session Service Enabled
+2017/11/19 19:37:51 <span style="color:#719e07">[</span> INFO<span style="color:#719e07">]</span> SQLite3 Supported
+2017/11/19 19:37:51 <span style="color:#719e07">[</span> INFO<span style="color:#719e07">]</span> Run Mode: Development
+panic: fail to <span style="color:#b58900">set</span> message file<span style="color:#719e07">(</span>sk-SK<span style="color:#719e07">)</span>: open conf/locale/locale_sk-SK.ini: no such file or directory
+...
+^C
+Nov <span style="color:#2aa198">19</span> 19:37:55 sshd<span style="color:#719e07">[</span>31<span style="color:#719e07">]</span>: Received signal 15; terminating.
+Nov <span style="color:#2aa198">19</span> 19:37:55 syslogd exiting
+</code></pre></div><p>En los logs -que he truncado- se repite una y otra vez el mismo patrón: el contenedor arranca con normalidad, pero pasados unos veinte segundos, aparece un mensaje de pánico al no encontrar un fichero de localización para el idioma sk-SK (¿¡!?) <code>panic: fail to set message file(sk-SK): open conf/locale/locale_sk-SK.ini: no such file or directory</code>. Este mensaje de error desencadena una serie de mensajes de error de Go&hellip; Hasta que, de nuevo, se vuelve a alertar de la ausencia del fichero de configuración <code>app.ini</code> y vuelta a empezar.</p>
 <blockquote>
 <p>Revisando los <em>issues</em> cerrados, el <a href="https://github.com/gogits/gogs/issues/4876">Docker won&rsquo;t create/init files #4876</a> que describe exactamente la situación descrita, se ha cerrado hace 3h!!</p>
 </blockquote>
@@ -326,10 +326,10 @@ Nov 18 16:29:51 sshd[26]: Server listening on 0.0.0.0 port 22.
 </figure>
 
 <p>Y a todo esto, tengo problemas para descargar la última versión:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ docker pull gogs/gogs
-</span></span><span style="display:flex;"><span>Using default tag: latest
-</span></span><span style="display:flex;"><span>Error response from daemon: Get https://registry-1.docker.io/v2/: dial tcp: lookup registry-1.docker.io on <span style="color:#719e07">[</span>::1<span style="color:#719e07">]</span>:53: <span style="color:#b58900">read</span> udp <span style="color:#719e07">[</span>::1<span style="color:#719e07">]</span>:52357-&gt;<span style="color:#719e07">[</span>::1<span style="color:#719e07">]</span>:53: read: connection refused
-</span></span></code></pre></div><p>La <a href="https://github.com/docker/for-mac/issues/1317">solución</a> pasa por desinstalar y volver a instalar Docker (¿¡!?) y cuando lo intento descubro que la máquina virtual tiene algún problema con la resolución de nombres (usando los DNSs de Google (¡¡¿¿??!!)), así que después de cambiar de nuevo a IP dinámica, reiniciar, recuperar la conectividad, reinstalar Docker, descargar la última versión de la imagen de Gogs (0.11.33) la página de configuración vuelve a mostrarse.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ docker pull gogs/gogs
+Using default tag: latest
+Error response from daemon: Get https://registry-1.docker.io/v2/: dial tcp: lookup registry-1.docker.io on <span style="color:#719e07">[</span>::1<span style="color:#719e07">]</span>:53: <span style="color:#b58900">read</span> udp <span style="color:#719e07">[</span>::1<span style="color:#719e07">]</span>:52357-&gt;<span style="color:#719e07">[</span>::1<span style="color:#719e07">]</span>:53: read: connection refused
+</code></pre></div><p>La <a href="https://github.com/docker/for-mac/issues/1317">solución</a> pasa por desinstalar y volver a instalar Docker (¿¡!?) y cuando lo intento descubro que la máquina virtual tiene algún problema con la resolución de nombres (usando los DNSs de Google (¡¡¿¿??!!)), así que después de cambiar de nuevo a IP dinámica, reiniciar, recuperar la conectividad, reinstalar Docker, descargar la última versión de la imagen de Gogs (0.11.33) la página de configuración vuelve a mostrarse.</p>
 <figure><img src="/images/171118/gogs-back-to-live.png"/>
 </figure>
 

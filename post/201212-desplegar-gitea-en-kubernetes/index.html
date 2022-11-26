@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.95.0" />
+<meta name="generator" content="Hugo 0.92.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -143,12 +143,12 @@
 </blockquote>
 <h2 id="creación-del-namespace">Creación del <em>namespace</em></h2>
 <p>Todos los componentes los despliego en un <em>namespace</em> personalizado llamado <em>toolbox-${nombre-aplicación}</em>, así que el primer paso es crear el fichero de definición del <em>namespace</em>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>---
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">apiVersion</span>: v1
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">kind</span>: Namespace
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">metadata</span>:
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">name</span>: toolbox-gitea
-</span></span></code></pre></div><h2 id="creación-del-volumen">Creación del volumen</h2>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
+<span style="color:#268bd2">apiVersion</span>: v1
+<span style="color:#268bd2">kind</span>: Namespace
+<span style="color:#268bd2">metadata</span>:
+    <span style="color:#268bd2">name</span>: toolbox-gitea
+</code></pre></div><h2 id="creación-del-volumen">Creación del volumen</h2>
 <p>La creación del <em>persistent volume</em> generalmente se realiza automáticamente usando alguno de los <em>storage class</em> disponibles en el clúster al crear el <em>persistent volume claim</em>.</p>
 <blockquote>
 <p>Como estoy usando un clúster de un solo nodo basado en K3s, crearé un volumen de tipo <em>hostPath</em>. Este tipo de volumen sólo es recomendable para desarrollo, por ejemplo.</p>
@@ -158,174 +158,174 @@
 <blockquote>
 <p>La carpeta local elegida (en mi caso, <code>/mnt/data</code>) debe existir en los nodos del clúster: <code>mkdir -p /mnt/data</code>.</p>
 </blockquote>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>---
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">apiVersion</span>: v1
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">kind</span>: PersistentVolume
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">metadata</span>:
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">name</span>: gitea-volume
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">namespace</span>: toolbox-gitea
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">labels</span>:
-</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">type</span>: local
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">spec</span>:
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">storageClassName</span>: manual
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">capacity</span>:
-</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">storage</span>: 10Gi
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">accessModes</span>:
-</span></span><span style="display:flex;"><span>        - ReadWriteOnce
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">hostPath</span>:
-</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">path</span>: <span style="color:#2aa198">&#34;/mnt/data/gitea&#34;</span>
-</span></span></code></pre></div><h3 id="creación-del-persistent-volume-claim">Creación del <em>persistent volume claim</em></h3>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
+<span style="color:#268bd2">apiVersion</span>: v1
+<span style="color:#268bd2">kind</span>: PersistentVolume
+<span style="color:#268bd2">metadata</span>:
+    <span style="color:#268bd2">name</span>: gitea-volume
+    <span style="color:#268bd2">namespace</span>: toolbox-gitea
+    <span style="color:#268bd2">labels</span>:
+        <span style="color:#268bd2">type</span>: local
+<span style="color:#268bd2">spec</span>:
+    <span style="color:#268bd2">storageClassName</span>: manual
+    <span style="color:#268bd2">capacity</span>:
+        <span style="color:#268bd2">storage</span>: 10Gi
+    <span style="color:#268bd2">accessModes</span>:
+        - ReadWriteOnce
+    <span style="color:#268bd2">hostPath</span>:
+        <span style="color:#268bd2">path</span>: <span style="color:#2aa198">&#34;/mnt/data/gitea&#34;</span>
+</code></pre></div><h3 id="creación-del-persistent-volume-claim">Creación del <em>persistent volume claim</em></h3>
 <p>Al crear el <em>persistent volume claim</em> solictamos al clúster una determinada cantidad de almacenamiento de un tipo concreto. Como en nuestro caso la <em>storageClass</em> es <code>manual</code>, un administrador debe haber creado anteriormente un <em>persistent volume</em> que permita satisfacer el requerimiento de almacenamiento expresado en el <em>claim</em>.</p>
 <p>Cuando desplegamos el <em>persistent volume claim</em>, el sistema asocia un <em>persistent volume</em> disponible para su uso en los pods creados por el <em>deployment</em>.</p>
 <p>Si no hay ningún volumen disponible que satisfaga el <em>claim</em>, el pod no arranca.</p>
 <p>Para otros tipos de <em>storage class</em> diferente a <code>manual</code>, la creación del <em>persistent volume</em> se realiza de forma dinámica cuando se crea el <em>persistent volume claim</em>.</p>
 <p>La definición del <em>persistent volume claim</em>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>---
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">apiVersion</span>: v1
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">kind</span>: PersistentVolumeClaim
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">metadata</span>:
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">name</span>: gitea-volume-claim
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">namespace</span>: toolbox-gitea
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">spec</span>:
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">storageClass</span>: manual
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">accessModes</span>:
-</span></span><span style="display:flex;"><span>        - ReadWriteOnce
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">resources</span>:
-</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">requests</span>:
-</span></span><span style="display:flex;"><span>            <span style="color:#268bd2">storage</span>: 10Gi
-</span></span></code></pre></div><h2 id="configuración-de-gitea">Configuración de Gitea</h2>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
+<span style="color:#268bd2">apiVersion</span>: v1
+<span style="color:#268bd2">kind</span>: PersistentVolumeClaim
+<span style="color:#268bd2">metadata</span>:
+    <span style="color:#268bd2">name</span>: gitea-volume-claim
+    <span style="color:#268bd2">namespace</span>: toolbox-gitea
+<span style="color:#268bd2">spec</span>:
+    <span style="color:#268bd2">storageClass</span>: manual
+    <span style="color:#268bd2">accessModes</span>:
+        - ReadWriteOnce
+    <span style="color:#268bd2">resources</span>:
+        <span style="color:#268bd2">requests</span>:
+            <span style="color:#268bd2">storage</span>: 10Gi
+</code></pre></div><h2 id="configuración-de-gitea">Configuración de Gitea</h2>
 <p>La configuración de Gitea se realiza a través de una combinación de variables de entorno (en el <em>deployment</em>) y el fichero de configuración <code>app.ini</code></p>
 <blockquote>
 <p>Quizás es posible usar únicamente el fichero <code>app.ini</code> para realizar la configuración de Gitea, pero creo que algunos valores -como en nombre a mostrar- son más <em>visibles</em> en el fichero de definición del <em>deployment</em>.</p>
 </blockquote>
 <p>El fichero <code>app.ini</code> podemos crearlo desde cero, usar un fichero de configuración de referencia (como <a href="https://github.com/go-gitea/gitea/blob/master/custom/conf/app.example.ini">app.example.ini</a> en el repositorio oficial de Gitea en Github) o <em>exportalo</em> de una instancia en marcha (<code>kubectl exec &lt;gitea-pod-name&gt; -- cat /data/gitea/conf/app.ini &gt; app.ini</code>)</p>
 <p>Una vez configurado el fichero <code>app.ini</code> (en <a href="https://docs.gitea.io/en-us/config-cheat-sheet/">Configuration Cheat Sheet</a> tienes el detalle de las opciones de configuración), crea el fichero de definición del <em>configMap</em> mediante:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>kubectl create configmap gitea-config -n toolbox-gitea --from-file<span style="color:#719e07">=</span>app.ini -o yaml --dry-run
-</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>---
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">apiVersion</span>: v1
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">kind</span>: configMap
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">metadata</span>:
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">name</span>: gitea-config
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">namespace</span>: toolbox-gitea
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">data</span>:
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">app.ini</span>: <span style="color:#2aa198">&#34;APP_NAME = GiteaToolbox\nRUN_MODE = prod\nRUN_USER = git\n\n[repository]\nROOT
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">    = /data/git/repositories\n\n[repository.local]\nLOCAL_COPY_PATH = /data/gitea/tmp/local-repo\n\n[repository.upload]\nTEMP_PATH
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">    = /data/gitea/uploads\n\n[server]\nAPP_DATA_PATH    = /data/gitea\nDOMAIN           =
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">    gitea.dev.lab\nSSH_DOMAIN       = gitea.dev.lab\nHTTP_PORT        = 3000\nROOT_URL
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">    \        = https://gitea.dev.lab/\nDISABLE_SSH      = true\nSSH_PORT         =
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">    22\nSSH_LISTEN_PORT  = 22\nLFS_START_SERVER = true\nLFS_CONTENT_PATH = /data/git/lfs\nLFS_JWT_SECRET
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">    \  = O6jMwi1miKPfeNtwFy6YQ_Xw73KIFfDumbhiyvFW000\nOFFLINE_MODE     = false\nLANDING_PAGE
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">    \    = login\n\n[database]\nPATH     = /data/gitea/gitea.db\nDB_TYPE  = sqlite3\nHOST
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">    \    = localhost:3306\nNAME     = gitea\nUSER     = root\nPASSWD   = \nLOG_SQL
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">    \ = false\nSCHEMA   = \nSSL_MODE = disable\nCHARSET  = utf8\n\n[indexer]\nISSUE_INDEXER_PATH
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">    = /data/gitea/indexers/issues.bleve\n\n[session]\nPROVIDER_CONFIG = /data/gitea/sessions\nPROVIDER
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">    \       = file\n\n[picture]\nAVATAR_UPLOAD_PATH            = /data/gitea/avatars\nREPOSITORY_AVATAR_UPLOAD_PATH
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">    = /data/gitea/repo-avatars\nDISABLE_GRAVATAR              = false\nENABLE_FEDERATED_AVATAR
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">    \      = true\n\n[attachment]\nPATH = /data/gitea/attachments\n\n[log]\nMODE                 =
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">    console\nLEVEL                = info\nREDIRECT_MACARON_LOG = true\nMACARON              =
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">    console\nROUTER               = console\nROOT_PATH            = /data/gitea/log\n\n[security]\nINSTALL_LOCK
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">    \  = true\nSECRET_KEY     = 4EmLHC2wGvIblUzjkz3bui41Otq2od3ZvK6B4mTtrc1G4S1bJlDwytmkIjLBMx0X\nINTERNAL_TOKEN
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">    = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYmYiOjE2MDUwNDQ1NTd9.L4EcHeKNY46zwK9GdXAVXEdTAl1E7dEKQuYIXFvXgBc\n\n[service]\nDISABLE_REGISTRATION
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">    \             = true \nREQUIRE_SIGNIN_VIEW               = false\nREGISTER_EMAIL_CONFIRM
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">    \           = false\nENABLE_NOTIFY_MAIL                = false\nALLOW_ONLY_EXTERNAL_REGISTRATION
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">    \ = false\nENABLE_CAPTCHA                    = false\nDEFAULT_KEEP_EMAIL_PRIVATE
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">    \       = false\nDEFAULT_ALLOW_CREATE_ORGANIZATION = false\nDEFAULT_ENABLE_TIMETRACKING
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">    \      = false\nNO_REPLY_ADDRESS                  = \n\n[oauth2]\nJWT_SECRET =
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">    PCG9Yl-fjaUi54pBTCoaJPH7C-v2r_bBIh4SYSfKysk\n\n[mailer]\nENABLED = false\n\n[openid]\nENABLE_OPENID_SIGNIN
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">    = false\nENABLE_OPENID_SIGNUP = false\n\n&#34;</span>
-</span></span></code></pre></div><h2 id="fichero-de-despliegue">Fichero de despliegue</h2>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">kubectl create configmap gitea-config -n toolbox-gitea --from-file<span style="color:#719e07">=</span>app.ini -o yaml --dry-run
+</code></pre></div><div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
+<span style="color:#268bd2">apiVersion</span>: v1
+<span style="color:#268bd2">kind</span>: configMap
+<span style="color:#268bd2">metadata</span>:
+    <span style="color:#268bd2">name</span>: gitea-config
+    <span style="color:#268bd2">namespace</span>: toolbox-gitea
+<span style="color:#268bd2">data</span>:
+    <span style="color:#268bd2">app.ini</span>: <span style="color:#2aa198">&#34;APP_NAME = GiteaToolbox\nRUN_MODE = prod\nRUN_USER = git\n\n[repository]\nROOT
+</span><span style="color:#2aa198">    = /data/git/repositories\n\n[repository.local]\nLOCAL_COPY_PATH = /data/gitea/tmp/local-repo\n\n[repository.upload]\nTEMP_PATH
+</span><span style="color:#2aa198">    = /data/gitea/uploads\n\n[server]\nAPP_DATA_PATH    = /data/gitea\nDOMAIN           =
+</span><span style="color:#2aa198">    gitea.dev.lab\nSSH_DOMAIN       = gitea.dev.lab\nHTTP_PORT        = 3000\nROOT_URL
+</span><span style="color:#2aa198">    \        = https://gitea.dev.lab/\nDISABLE_SSH      = true\nSSH_PORT         =
+</span><span style="color:#2aa198">    22\nSSH_LISTEN_PORT  = 22\nLFS_START_SERVER = true\nLFS_CONTENT_PATH = /data/git/lfs\nLFS_JWT_SECRET
+</span><span style="color:#2aa198">    \  = O6jMwi1miKPfeNtwFy6YQ_Xw73KIFfDumbhiyvFW000\nOFFLINE_MODE     = false\nLANDING_PAGE
+</span><span style="color:#2aa198">    \    = login\n\n[database]\nPATH     = /data/gitea/gitea.db\nDB_TYPE  = sqlite3\nHOST
+</span><span style="color:#2aa198">    \    = localhost:3306\nNAME     = gitea\nUSER     = root\nPASSWD   = \nLOG_SQL
+</span><span style="color:#2aa198">    \ = false\nSCHEMA   = \nSSL_MODE = disable\nCHARSET  = utf8\n\n[indexer]\nISSUE_INDEXER_PATH
+</span><span style="color:#2aa198">    = /data/gitea/indexers/issues.bleve\n\n[session]\nPROVIDER_CONFIG = /data/gitea/sessions\nPROVIDER
+</span><span style="color:#2aa198">    \       = file\n\n[picture]\nAVATAR_UPLOAD_PATH            = /data/gitea/avatars\nREPOSITORY_AVATAR_UPLOAD_PATH
+</span><span style="color:#2aa198">    = /data/gitea/repo-avatars\nDISABLE_GRAVATAR              = false\nENABLE_FEDERATED_AVATAR
+</span><span style="color:#2aa198">    \      = true\n\n[attachment]\nPATH = /data/gitea/attachments\n\n[log]\nMODE                 =
+</span><span style="color:#2aa198">    console\nLEVEL                = info\nREDIRECT_MACARON_LOG = true\nMACARON              =
+</span><span style="color:#2aa198">    console\nROUTER               = console\nROOT_PATH            = /data/gitea/log\n\n[security]\nINSTALL_LOCK
+</span><span style="color:#2aa198">    \  = true\nSECRET_KEY     = 4EmLHC2wGvIblUzjkz3bui41Otq2od3ZvK6B4mTtrc1G4S1bJlDwytmkIjLBMx0X\nINTERNAL_TOKEN
+</span><span style="color:#2aa198">    = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYmYiOjE2MDUwNDQ1NTd9.L4EcHeKNY46zwK9GdXAVXEdTAl1E7dEKQuYIXFvXgBc\n\n[service]\nDISABLE_REGISTRATION
+</span><span style="color:#2aa198">    \             = true \nREQUIRE_SIGNIN_VIEW               = false\nREGISTER_EMAIL_CONFIRM
+</span><span style="color:#2aa198">    \           = false\nENABLE_NOTIFY_MAIL                = false\nALLOW_ONLY_EXTERNAL_REGISTRATION
+</span><span style="color:#2aa198">    \ = false\nENABLE_CAPTCHA                    = false\nDEFAULT_KEEP_EMAIL_PRIVATE
+</span><span style="color:#2aa198">    \       = false\nDEFAULT_ALLOW_CREATE_ORGANIZATION = false\nDEFAULT_ENABLE_TIMETRACKING
+</span><span style="color:#2aa198">    \      = false\nNO_REPLY_ADDRESS                  = \n\n[oauth2]\nJWT_SECRET =
+</span><span style="color:#2aa198">    PCG9Yl-fjaUi54pBTCoaJPH7C-v2r_bBIh4SYSfKysk\n\n[mailer]\nENABLED = false\n\n[openid]\nENABLE_OPENID_SIGNIN
+</span><span style="color:#2aa198">    = false\nENABLE_OPENID_SIGNUP = false\n\n&#34;</span>
+</code></pre></div><h2 id="fichero-de-despliegue">Fichero de despliegue</h2>
 <p>Una vez tenemos todos los elementos necesarios, creamos el fichero de definición del <em>deployment</em> de Gitea:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>---
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">apiVersion</span>: apps/v1
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">kind</span>: Deployment
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">metadata</span>:
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">name</span>: gitea
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">namespace</span>: toolbox-gitea
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">labels</span>:
-</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">app</span>: gitea
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">spec</span>:
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">replicas</span>: <span style="color:#2aa198">1</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">selector</span>:
-</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">matchLabels</span>:
-</span></span><span style="display:flex;"><span>            <span style="color:#268bd2">app</span>: gitea
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">template</span>:
-</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">metadata</span>:
-</span></span><span style="display:flex;"><span>            <span style="color:#268bd2">labels</span>:
-</span></span><span style="display:flex;"><span>                <span style="color:#268bd2">app</span>: gitea
-</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">spec</span>:
-</span></span><span style="display:flex;"><span>            <span style="color:#268bd2">containers</span>:
-</span></span><span style="display:flex;"><span>                - <span style="color:#268bd2">name</span>: gitea
-</span></span><span style="display:flex;"><span>                  <span style="color:#268bd2">image</span>: gitea/gitea
-</span></span><span style="display:flex;"><span>                  <span style="color:#268bd2">ports</span>:
-</span></span><span style="display:flex;"><span>                    - <span style="color:#268bd2">name</span>: gitea-ui
-</span></span><span style="display:flex;"><span>                      <span style="color:#268bd2">containerPort</span>: <span style="color:#2aa198">3000</span>
-</span></span><span style="display:flex;"><span>                  <span style="color:#268bd2">env</span>:
-</span></span><span style="display:flex;"><span>                    - <span style="color:#268bd2">name</span>: APP_NAME
-</span></span><span style="display:flex;"><span>                      <span style="color:#268bd2">value</span>: GiteaToolbox
-</span></span><span style="display:flex;"><span>                    - <span style="color:#268bd2">name</span>: DOMAIN
-</span></span><span style="display:flex;"><span>                      <span style="color:#268bd2">value</span>: gitea.dev.lab
-</span></span><span style="display:flex;"><span>                    - <span style="color:#268bd2">name</span>: ROOT_URL
-</span></span><span style="display:flex;"><span>                      <span style="color:#268bd2">value</span>: https://gitea.dev.lab
-</span></span><span style="display:flex;"><span>                  <span style="color:#268bd2">volumeMounts</span>:
-</span></span><span style="display:flex;"><span>                    - <span style="color:#268bd2">name</span>: gitea-data
-</span></span><span style="display:flex;"><span>                      <span style="color:#268bd2">mountPath</span>: /data
-</span></span><span style="display:flex;"><span>                    - <span style="color:#268bd2">name</span>: gitea-config
-</span></span><span style="display:flex;"><span>                      <span style="color:#268bd2">mountPath</span>: /data/gitea/conf
-</span></span><span style="display:flex;"><span>            <span style="color:#268bd2">volumes</span>:
-</span></span><span style="display:flex;"><span>                - <span style="color:#268bd2">name</span>: gitea-data
-</span></span><span style="display:flex;"><span>                  <span style="color:#268bd2">persistentVolumeClaim</span>:
-</span></span><span style="display:flex;"><span>                    <span style="color:#268bd2">claimName</span>: gitea-volume-claim
-</span></span><span style="display:flex;"><span>                - <span style="color:#268bd2">name</span>: gitea-config
-</span></span><span style="display:flex;"><span>                  <span style="color:#268bd2">configMap</span>:
-</span></span><span style="display:flex;"><span>                    <span style="color:#268bd2">name</span>: gitea-config
-</span></span></code></pre></div><p>Especificamos una única réplica ya que al usar SQLite (dentro del contenedor), no tendría sentido escalar. En la sección <code>spec.template.metadata.labels</code> indicamos que los <em>pods</em> creados por el <em>deployment</em> incluyan la etiqueta <code>app=gitea</code>, lo que nos permite seleccionarlos en el siguiente paso, donde crearemos el <em>service</em>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
+<span style="color:#268bd2">apiVersion</span>: apps/v1
+<span style="color:#268bd2">kind</span>: Deployment
+<span style="color:#268bd2">metadata</span>:
+    <span style="color:#268bd2">name</span>: gitea
+    <span style="color:#268bd2">namespace</span>: toolbox-gitea
+    <span style="color:#268bd2">labels</span>:
+        <span style="color:#268bd2">app</span>: gitea
+<span style="color:#268bd2">spec</span>:
+    <span style="color:#268bd2">replicas</span>: <span style="color:#2aa198">1</span>
+    <span style="color:#268bd2">selector</span>:
+        <span style="color:#268bd2">matchLabels</span>:
+            <span style="color:#268bd2">app</span>: gitea
+    <span style="color:#268bd2">template</span>:
+        <span style="color:#268bd2">metadata</span>:
+            <span style="color:#268bd2">labels</span>:
+                <span style="color:#268bd2">app</span>: gitea
+        <span style="color:#268bd2">spec</span>:
+            <span style="color:#268bd2">containers</span>:
+                - <span style="color:#268bd2">name</span>: gitea
+                  <span style="color:#268bd2">image</span>: gitea/gitea
+                  <span style="color:#268bd2">ports</span>:
+                    - <span style="color:#268bd2">name</span>: gitea-ui
+                      <span style="color:#268bd2">containerPort</span>: <span style="color:#2aa198">3000</span>
+                  <span style="color:#268bd2">env</span>:
+                    - <span style="color:#268bd2">name</span>: APP_NAME
+                      <span style="color:#268bd2">value</span>: GiteaToolbox
+                    - <span style="color:#268bd2">name</span>: DOMAIN
+                      <span style="color:#268bd2">value</span>: gitea.dev.lab
+                    - <span style="color:#268bd2">name</span>: ROOT_URL
+                      <span style="color:#268bd2">value</span>: https://gitea.dev.lab
+                  <span style="color:#268bd2">volumeMounts</span>:
+                    - <span style="color:#268bd2">name</span>: gitea-data
+                      <span style="color:#268bd2">mountPath</span>: /data
+                    - <span style="color:#268bd2">name</span>: gitea-config
+                      <span style="color:#268bd2">mountPath</span>: /data/gitea/conf
+            <span style="color:#268bd2">volumes</span>:
+                - <span style="color:#268bd2">name</span>: gitea-data
+                  <span style="color:#268bd2">persistentVolumeClaim</span>:
+                    <span style="color:#268bd2">claimName</span>: gitea-volume-claim
+                - <span style="color:#268bd2">name</span>: gitea-config
+                  <span style="color:#268bd2">configMap</span>:
+                    <span style="color:#268bd2">name</span>: gitea-config
+</code></pre></div><p>Especificamos una única réplica ya que al usar SQLite (dentro del contenedor), no tendría sentido escalar. En la sección <code>spec.template.metadata.labels</code> indicamos que los <em>pods</em> creados por el <em>deployment</em> incluyan la etiqueta <code>app=gitea</code>, lo que nos permite seleccionarlos en el siguiente paso, donde crearemos el <em>service</em>.</p>
 <p>El fichero de configuración <code>app.ini</code> lo montamos en <code>/data/gitea/conf</code> (la ubicación por defecto) usando un volumen. El otro volumen montado en el <em>pod</em> contiene los datos de los repositorios gestionados por Gitea.</p>
 <h2 id="creación-del-servicio">Creación del servicio</h2>
 <p>Gitea expone dos puertos: 22 (SSH) y 3000 (gitea-ui). El uso de Git a través de SSH requiere configuración adicional, ya que los <em>ingress</em> sólo permiten tráfico HTTP y HTTPS. Por este motivo sólo exponemos el puerto 3000 para conectar con Gitea usando HTTPS.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>---
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">apiVersion</span>: v1
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">kind</span>: Service
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">metadata</span>:
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">name</span>: gitea
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">namespace</span>: toolbox-gitea
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">spec</span>:
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">ports</span>:
-</span></span><span style="display:flex;"><span>        - <span style="color:#268bd2">name</span>: gitea-ui
-</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">port</span>: <span style="color:#2aa198">3000</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">selector</span>:
-</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">app</span>: gitea
-</span></span></code></pre></div><h2 id="creación-del-ingress-para-proporcionar-acceso-a-gitea-desde-fuera-del-clúster">Creación del <em>ingress</em> para proporcionar acceso a Gitea desde fuera del clúster</h2>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
+<span style="color:#268bd2">apiVersion</span>: v1
+<span style="color:#268bd2">kind</span>: Service
+<span style="color:#268bd2">metadata</span>:
+    <span style="color:#268bd2">name</span>: gitea
+    <span style="color:#268bd2">namespace</span>: toolbox-gitea
+<span style="color:#268bd2">spec</span>:
+    <span style="color:#268bd2">ports</span>:
+        - <span style="color:#268bd2">name</span>: gitea-ui
+          <span style="color:#268bd2">port</span>: <span style="color:#2aa198">3000</span>
+    <span style="color:#268bd2">selector</span>:
+        <span style="color:#268bd2">app</span>: gitea
+</code></pre></div><h2 id="creación-del-ingress-para-proporcionar-acceso-a-gitea-desde-fuera-del-clúster">Creación del <em>ingress</em> para proporcionar acceso a Gitea desde fuera del clúster</h2>
 <p>Al crear el servicio anterior, por defecto, se asigna una IP de tipo <code>ClusterIP</code> al servicio. Esto impide que se pueda acceder a la aplicación desde <em>fuera</em> del clúster.</p>
 <p>Usamos un <em>ingress</em> para exponer el servicio al exterior:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>---
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">apiVersion</span>: extensions/v1beta1
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">kind</span>: Ingress
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">metadata</span>:
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">name</span>: gitea
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">namespace</span>: toolbox-gitea
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">annotations</span>:
-</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">kubernets.io/ingress.class</span>: traefik
-</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">ingress.kubernetes.io/ssl-redirect</span>: <span style="color:#2aa198">&#34;false&#34;</span> <span style="color:#586e75"># from https://github.com/rancher/k3d/blob/main/docs/usage/guides/exposing_services.md</span>
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">spec</span>:
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">rules</span>:
-</span></span><span style="display:flex;"><span>        - <span style="color:#268bd2">host</span>: gitea.dev.lab <span style="color:#586e75"># configured in DNS or hosts file</span>
-</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">http</span>:
-</span></span><span style="display:flex;"><span>            <span style="color:#268bd2">paths</span>:
-</span></span><span style="display:flex;"><span>                - <span style="color:#268bd2">path</span>: /
-</span></span><span style="display:flex;"><span>                  <span style="color:#268bd2">backend</span>:
-</span></span><span style="display:flex;"><span>                      <span style="color:#268bd2">serviceName</span>: gitea
-</span></span><span style="display:flex;"><span>                      <span style="color:#268bd2">servicePort</span>: gitea-ui
-</span></span></code></pre></div><p>En K3s el <em>ingress</em> desplegado por defecto es <a href="https://doc.traefik.io/traefik/">Traefik</a>, por lo que las anotaciones quizás no tengan sentido para otras <em>ingress controllers</em>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
+<span style="color:#268bd2">apiVersion</span>: extensions/v1beta1
+<span style="color:#268bd2">kind</span>: Ingress
+<span style="color:#268bd2">metadata</span>:
+    <span style="color:#268bd2">name</span>: gitea
+    <span style="color:#268bd2">namespace</span>: toolbox-gitea
+    <span style="color:#268bd2">annotations</span>:
+        <span style="color:#268bd2">kubernets.io/ingress.class</span>: traefik
+        <span style="color:#268bd2">ingress.kubernetes.io/ssl-redirect</span>: <span style="color:#2aa198">&#34;false&#34;</span> <span style="color:#586e75"># from https://github.com/rancher/k3d/blob/main/docs/usage/guides/exposing_services.md</span>
+<span style="color:#268bd2">spec</span>:
+    <span style="color:#268bd2">rules</span>:
+        - <span style="color:#268bd2">host</span>: gitea.dev.lab <span style="color:#586e75"># configured in DNS or hosts file</span>
+          <span style="color:#268bd2">http</span>:
+            <span style="color:#268bd2">paths</span>:
+                - <span style="color:#268bd2">path</span>: /
+                  <span style="color:#268bd2">backend</span>:
+                      <span style="color:#268bd2">serviceName</span>: gitea
+                      <span style="color:#268bd2">servicePort</span>: gitea-ui
+</code></pre></div><p>En K3s el <em>ingress</em> desplegado por defecto es <a href="https://doc.traefik.io/traefik/">Traefik</a>, por lo que las anotaciones quizás no tengan sentido para otras <em>ingress controllers</em>.</p>
 <h2 id="despliegue">Despliegue</h2>
 <p>Hemos creado el fichero <code>gitea-sqlite.yaml</code> con los diferentes fragmentos de código del artículo. De esta forma, podemos desplegar todos los recursos necesarios para el funcionamiento de Gitea mediante un único comando:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ kubectl apply -f gitea-sqlite.yaml
-</span></span><span style="display:flex;"><span>namespace/toolbox-gitea created
-</span></span><span style="display:flex;"><span>persistentvolume/gitea-volume created
-</span></span><span style="display:flex;"><span>persistentvolumeclaim/gitea-volume-claim created
-</span></span><span style="display:flex;"><span>deployment.apps/gitea created
-</span></span><span style="display:flex;"><span>service/gitea created
-</span></span><span style="display:flex;"><span>ingress.extensions/gitea created
-</span></span></code></pre></div><blockquote>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl apply -f gitea-sqlite.yaml
+namespace/toolbox-gitea created
+persistentvolume/gitea-volume created
+persistentvolumeclaim/gitea-volume-claim created
+deployment.apps/gitea created
+service/gitea created
+ingress.extensions/gitea created
+</code></pre></div><blockquote>
 <p>Hemos especificado <code>metadata.namespace: toolbox-gitea</code> en la definición de todos los recursos; si no lo has hecho, recuerda que debes especificar <code>-n &lt;namespace&gt;</code> indicando el <em>namespace</em> de destino (si quieres desplegar en un <em>namespace</em> diferente al <code>default</code>).</p>
 </blockquote>
 <p>Tras algo menos de un minuto, Gitea está en marcha y ya podrás acceder a través de <code>https://gitea.dev.lab</code></p></div>

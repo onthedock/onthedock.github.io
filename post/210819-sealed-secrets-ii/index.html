@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.95.0" />
+<meta name="generator" content="Hugo 0.92.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -168,27 +168,27 @@
 </table>
 <p>La <em>Helm Chart</em> oficial despliega el <strong>controlador</strong> de <em>Sealed Secrets</em> en el clúster.</p>
 <p>Para generar los <em>SealedSecrets</em> usamos la herramienta <strong>kubeseal</strong>; se trata de un ejecutable en Go, sin dependencias externas.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ wget -O kubeseal https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.16.0/kubeseal-linux-amd64
-</span></span><span style="display:flex;"><span>--2021-08-18 22:00:38--  https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.16.0/kubeseal-linux-amd64
-</span></span><span style="display:flex;"><span>Resolving github.com <span style="color:#719e07">(</span>github.com<span style="color:#719e07">)</span>... 140.82.121.4
-</span></span><span style="display:flex;"><span>Connecting to github.com <span style="color:#719e07">(</span>github.com<span style="color:#719e07">)</span>|140.82.121.4|:443... connected.
-</span></span><span style="display:flex;"><span>HTTP request sent, awaiting response... <span style="color:#2aa198">302</span> Found
-</span></span><span style="display:flex;"><span>Location: https://github-releases.githubusercontent.com/92702519/38955200-b1e1-11eb-9a84-0e13336d831e?X-Amz-Algorithm<span style="color:#719e07">=</span>AWS4-HMAC-SHA256&amp;X-Amz-Credential<span style="color:#719e07">=</span>AKIAIWNJYAX4CSVEH53A%2F20210818%2Fus-east-1%2Fs3%2Faws4_request&amp;X-Amz-Date<span style="color:#719e07">=</span>20210818T200039Z&amp;X-Amz-Expires<span style="color:#719e07">=</span>300&amp;X-Amz-Signature<span style="color:#719e07">=</span>987f4688e22b716d3d61c64452fe02c80567a2be90132096d16666015f415db8&amp;X-Amz-SignedHeaders<span style="color:#719e07">=</span>host&amp;<span style="color:#268bd2">actor_id</span><span style="color:#719e07">=</span>0&amp;<span style="color:#268bd2">key_id</span><span style="color:#719e07">=</span>0&amp;<span style="color:#268bd2">repo_id</span><span style="color:#719e07">=</span>92702519&amp;response-content-disposition<span style="color:#719e07">=</span>attachment%3B%20filename%3Dkubeseal-linux-amd64&amp;response-content-type<span style="color:#719e07">=</span>application%2Foctet-stream <span style="color:#719e07">[</span>following<span style="color:#719e07">]</span>
-</span></span><span style="display:flex;"><span>--2021-08-18 22:00:39--  https://github-releases.githubusercontent.com/92702519/38955200-b1e1-11eb-9a84-0e13336d831e?X-Amz-Algorithm<span style="color:#719e07">=</span>AWS4-HMAC-SHA256&amp;X-Amz-Credential<span style="color:#719e07">=</span>AKIAIWNJYAX4CSVEH53A%2F20210818%2Fus-east-1%2Fs3%2Faws4_request&amp;X-Amz-Date<span style="color:#719e07">=</span>20210818T200039Z&amp;X-Amz-Expires<span style="color:#719e07">=</span>300&amp;X-Amz-Signature<span style="color:#719e07">=</span>987f4688e22b716d3d61c64452fe02c80567a2be90132096d16666015f415db8&amp;X-Amz-SignedHeaders<span style="color:#719e07">=</span>host&amp;<span style="color:#268bd2">actor_id</span><span style="color:#719e07">=</span>0&amp;<span style="color:#268bd2">key_id</span><span style="color:#719e07">=</span>0&amp;<span style="color:#268bd2">repo_id</span><span style="color:#719e07">=</span>92702519&amp;response-content-disposition<span style="color:#719e07">=</span>attachment%3B%20filename%3Dkubeseal-linux-amd64&amp;response-content-type<span style="color:#719e07">=</span>application%2Foctet-stream
-</span></span><span style="display:flex;"><span>Resolving github-releases.githubusercontent.com <span style="color:#719e07">(</span>github-releases.githubusercontent.com<span style="color:#719e07">)</span>... 185.199.110.154, 185.199.108.154, 185.199.111.154, ...
-</span></span><span style="display:flex;"><span>Connecting to github-releases.githubusercontent.com <span style="color:#719e07">(</span>github-releases.githubusercontent.com<span style="color:#719e07">)</span>|185.199.110.154|:443... connected.
-</span></span><span style="display:flex;"><span>HTTP request sent, awaiting response... <span style="color:#2aa198">200</span> OK
-</span></span><span style="display:flex;"><span>Length: <span style="color:#2aa198">35626806</span> <span style="color:#719e07">(</span>34M<span style="color:#719e07">)</span> <span style="color:#719e07">[</span>application/octet-stream<span style="color:#719e07">]</span>
-</span></span><span style="display:flex;"><span>Saving to: ‘kubeseal’
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>kubeseal                         100%<span style="color:#719e07">[========================================================</span>&gt;<span style="color:#719e07">]</span>  33,98M  4,15MB/s    in 8,7s    
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>2021-08-18 22:00:48 <span style="color:#719e07">(</span>3,91 MB/s<span style="color:#719e07">)</span> - ‘kubeseal’ saved <span style="color:#719e07">[</span>35626806/35626806<span style="color:#719e07">]</span>
-</span></span></code></pre></div><p>Lo <em>instalamos</em> (moviéndolo a una ruta dentro del <em>path</em>) usando:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ sudo install kubeseal /usr/local/bin
-</span></span><span style="display:flex;"><span>$ kubeseal --version
-</span></span><span style="display:flex;"><span>kubeseal version: v0.16.0
-</span></span></code></pre></div><h2 id="crear-un-secret-temporal-usando---dry-runclient">Crear un <em>Secret</em> temporal (usando <code>--dry-run=client</code>)</h2>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ wget -O kubeseal https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.16.0/kubeseal-linux-amd64
+--2021-08-18 22:00:38--  https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.16.0/kubeseal-linux-amd64
+Resolving github.com <span style="color:#719e07">(</span>github.com<span style="color:#719e07">)</span>... 140.82.121.4
+Connecting to github.com <span style="color:#719e07">(</span>github.com<span style="color:#719e07">)</span>|140.82.121.4|:443... connected.
+HTTP request sent, awaiting response... <span style="color:#2aa198">302</span> Found
+Location: https://github-releases.githubusercontent.com/92702519/38955200-b1e1-11eb-9a84-0e13336d831e?X-Amz-Algorithm<span style="color:#719e07">=</span>AWS4-HMAC-SHA256&amp;X-Amz-Credential<span style="color:#719e07">=</span>AKIAIWNJYAX4CSVEH53A%2F20210818%2Fus-east-1%2Fs3%2Faws4_request&amp;X-Amz-Date<span style="color:#719e07">=</span>20210818T200039Z&amp;X-Amz-Expires<span style="color:#719e07">=</span>300&amp;X-Amz-Signature<span style="color:#719e07">=</span>987f4688e22b716d3d61c64452fe02c80567a2be90132096d16666015f415db8&amp;X-Amz-SignedHeaders<span style="color:#719e07">=</span>host&amp;<span style="color:#268bd2">actor_id</span><span style="color:#719e07">=</span>0&amp;<span style="color:#268bd2">key_id</span><span style="color:#719e07">=</span>0&amp;<span style="color:#268bd2">repo_id</span><span style="color:#719e07">=</span>92702519&amp;response-content-disposition<span style="color:#719e07">=</span>attachment%3B%20filename%3Dkubeseal-linux-amd64&amp;response-content-type<span style="color:#719e07">=</span>application%2Foctet-stream <span style="color:#719e07">[</span>following<span style="color:#719e07">]</span>
+--2021-08-18 22:00:39--  https://github-releases.githubusercontent.com/92702519/38955200-b1e1-11eb-9a84-0e13336d831e?X-Amz-Algorithm<span style="color:#719e07">=</span>AWS4-HMAC-SHA256&amp;X-Amz-Credential<span style="color:#719e07">=</span>AKIAIWNJYAX4CSVEH53A%2F20210818%2Fus-east-1%2Fs3%2Faws4_request&amp;X-Amz-Date<span style="color:#719e07">=</span>20210818T200039Z&amp;X-Amz-Expires<span style="color:#719e07">=</span>300&amp;X-Amz-Signature<span style="color:#719e07">=</span>987f4688e22b716d3d61c64452fe02c80567a2be90132096d16666015f415db8&amp;X-Amz-SignedHeaders<span style="color:#719e07">=</span>host&amp;<span style="color:#268bd2">actor_id</span><span style="color:#719e07">=</span>0&amp;<span style="color:#268bd2">key_id</span><span style="color:#719e07">=</span>0&amp;<span style="color:#268bd2">repo_id</span><span style="color:#719e07">=</span>92702519&amp;response-content-disposition<span style="color:#719e07">=</span>attachment%3B%20filename%3Dkubeseal-linux-amd64&amp;response-content-type<span style="color:#719e07">=</span>application%2Foctet-stream
+Resolving github-releases.githubusercontent.com <span style="color:#719e07">(</span>github-releases.githubusercontent.com<span style="color:#719e07">)</span>... 185.199.110.154, 185.199.108.154, 185.199.111.154, ...
+Connecting to github-releases.githubusercontent.com <span style="color:#719e07">(</span>github-releases.githubusercontent.com<span style="color:#719e07">)</span>|185.199.110.154|:443... connected.
+HTTP request sent, awaiting response... <span style="color:#2aa198">200</span> OK
+Length: <span style="color:#2aa198">35626806</span> <span style="color:#719e07">(</span>34M<span style="color:#719e07">)</span> <span style="color:#719e07">[</span>application/octet-stream<span style="color:#719e07">]</span>
+Saving to: ‘kubeseal’
+
+kubeseal                         100%<span style="color:#719e07">[========================================================</span>&gt;<span style="color:#719e07">]</span>  33,98M  4,15MB/s    in 8,7s    
+
+2021-08-18 22:00:48 <span style="color:#719e07">(</span>3,91 MB/s<span style="color:#719e07">)</span> - ‘kubeseal’ saved <span style="color:#719e07">[</span>35626806/35626806<span style="color:#719e07">]</span>
+</code></pre></div><p>Lo <em>instalamos</em> (moviéndolo a una ruta dentro del <em>path</em>) usando:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ sudo install kubeseal /usr/local/bin
+$ kubeseal --version
+kubeseal version: v0.16.0
+</code></pre></div><h2 id="crear-un-secret-temporal-usando---dry-runclient">Crear un <em>Secret</em> temporal (usando <code>--dry-run=client</code>)</h2>
 <p>El objetivo de <em>SealedSecrets</em> es evitar que datos <em>sensibles</em> contenidos en <code>Secrets</code> se publiquen en el repositorio de código.</p>
 <p>La manera más segura de que no se pueda guardar <strong>nunca</strong> esa información <em>en claro</em> en el repositorio es no crear el fichero del <code>Secret</code>. Usaremos la opción <code>--dry-run</code> del comando <code>kubectl create</code> redirigiendo la salida hacia <strong>kubeseal</strong>.</p>
 <blockquote>
@@ -213,78 +213,78 @@
 </tbody>
 </table>
 <p>El siguiente comando generaría el fichero de definición de un <em>Secret</em> (sin llegar a crearlo):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ kubectl create secret generic aws_credentials <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>  -n demo <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>  --from-literal<span style="color:#719e07">=</span><span style="color:#2aa198">&#39;AWS_ACCESS_KEY_ID=AKIAEXAMPLEIOSFODNN7&#39;</span> <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>  --from-literal<span style="color:#719e07">=</span><span style="color:#2aa198">&#39;AWS_SECRET_KEY=EXAMPLEKEYwJalrXUtnFEMI/K7MDENG/bPxRfiCY&#39;</span> <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>  -o yaml --dry-run<span style="color:#719e07">=</span>client
-</span></span></code></pre></div><p>Para crear un <code>SealedSecret</code> enviamos la salida del comando anterior hacia <strong>kubeseal</strong>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ kubectl create secret generic aws_credentials <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>  -n demo <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>  --from-literal<span style="color:#719e07">=</span><span style="color:#2aa198">&#39;AWS_ACCESS_KEY_ID=AKIAEXAMPLEIOSFODNN7&#39;</span> <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>  --from-literal<span style="color:#719e07">=</span><span style="color:#2aa198">&#39;AWS_SECRET_KEY=EXAMPLEKEYwJalrXUtnFEMI/K7MDENG/bPxRfiCY&#39;</span> <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>  -o yaml --dry-run<span style="color:#719e07">=</span>client <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>  | kubeseal -o yaml | tee aws-credentials-sealed-secret.yaml
-</span></span><span style="display:flex;"><span>apiVersion: bitnami.com/v1alpha1
-</span></span><span style="display:flex;"><span>kind: SealedSecret
-</span></span><span style="display:flex;"><span>metadata:
-</span></span><span style="display:flex;"><span>  creationTimestamp: null
-</span></span><span style="display:flex;"><span>  name: aws_credentials
-</span></span><span style="display:flex;"><span>  namespace: demo
-</span></span><span style="display:flex;"><span>spec:
-</span></span><span style="display:flex;"><span>  encryptedData:
-</span></span><span style="display:flex;"><span>    AWS_ACCESS_KEY_ID: AgCb/RuzbHqc172M9y7ZbzcIPSiUcc1jn2nLEPpb7t93fTSBVTcMES6fwCfsP8p9K4EiOgndgHWuYREk1FhEeM3BHlBi6e9+MZu8xKuQ5AbClltRuZRBJZVFfdZsijU2HEt1qbCDTTSuk8jIqYHCmVnnjcDsiVJ/m/haA1jwFZr/XQtMuZR12+JL+vWgIslbEzD0KWzXZHO12w8NYKOCSu4IjbAfHML/4tYr5k34djYIqzohGbQdCbEirAN17ovyPOQZcmro5yaedmU3pzKm6oHmh2an6i/Q6eKtSC5yq9AK66SwB16MwR8Nw1YSEZBGzzDNLir00ErQoxuG8Pu1sTgIWIWD89dTlKyhlmCq2V3am4rXmFIIbmht5neZgly7n6kipZjLo0wn1RlUOtaZu3dE/t1jRxWTBdpPRXs2D8nytV7W/uEeaK3m+OwpuP+7CBO6NT5/QTAcIGbkje8DJGT7baO7hgsVxGL8mAK5Fsw33j2vYsVF9AeiiBiDQLjlbxx8YeIEJzshDlJ9pvfBbEer4a+MkPDFiYu3sy9KmpE8UY3VsFhYKd4bTb3mB2kGPcFDOPid5aEOGVbOepLdjcJq6SUnScq0m5X92FirH9oKxu+Vry36j1w2GaGk+/FSX1vWfiBZDUYVrWY60X0mdwoB9WeHHOrpVXE/nWl61d9xGErn0JB2ydRvZ0Vs0NzmMv3DWMc+5EuEkDBJiwfJdGDVrhRB6Q<span style="color:#719e07">==</span>
-</span></span><span style="display:flex;"><span>    AWS_SECRET_KEY: AgA6p7yH+lCICTYC10ZxTGUQvyNQaCSOd4StZPkaPFSUgKGye8LIQ8JxhclcoHXi+haIXCKunP+wOduUy5Ef3mYVxsivsvjcPlb0Rj6hh33YKWLJh8dXW2dY7IBAh9tXf6TCDAgQz+Pr7hqeh/HOsaiZBDlgETo27HC2cp8ovXfIesqreq0ZOlSyF9YU/U+e1F25gkxO2KuuqThMyAA45n0M2fnW1hXDdjIcRUz99/YQVcBLMkVhYg83wE/YeAZEpf7Xr4b4JeWBJPjW2HrhjWmY6VT1jfm6+d2xe5SO39VnzIOGoX3zkTkNIuC1Qq+ggth4aOSjFUSebuSfWadv1fDU5/zdKKZI2X9yx6SBsw50Df2T+BXV2sDPC2t67TyUXoyesjGd5qSgi7ZzktCBtKWjih2QS3P9ktAXaoNcCKAHQj8PRxZJh4T3EyZF3O5f5vFeqSu7YFuGDHSo0ahCcjFCHHJ6UgBIP9hrRlQTQeOtSSBK7ld5SPV+sytS+6CYCADRTlBwiIHdQG9FPPzqVDscIDZ2ccfm9jmdLvuuO4fzg1gVCw2cAm8urnLLdkuVkraiBdjXqPGFLIj6VM86/4S1JR8t+4hInnOerM47YUiX5p4wRoT9qcMBBLgU5YdStxBfc2IfkzpJEc9X6/cY2FITBMXmGElCBKgNSZjnk4DQV/K5btJwTTlu0n7DTkcOL9IV5fCF1V7z36YizzK2nVi8V5cYpGxClJRKw9u7/n6PS2JUJUZpBm4T
-</span></span><span style="display:flex;"><span>  template:
-</span></span><span style="display:flex;"><span>    data: null
-</span></span><span style="display:flex;"><span>    metadata:
-</span></span><span style="display:flex;"><span>      creationTimestamp: null
-</span></span><span style="display:flex;"><span>      name: aws_credentials
-</span></span><span style="display:flex;"><span>      namespace: demo
-</span></span></code></pre></div><p>La información sensible contenida en el <code>SealedSecret</code> está cifrada, no simplemente <em>codificada en base64</em>, como un <code>Secret</code> ordinario, por lo que es seguro publicarla en un repositorio de código; sin la clave privada (a la que sólo tiene acceso el <em>controller</em> de <em>SealedSecrets</em> en el clúster), no es posible leer el contenido de los campos en <code>.spec.encryptedData.*</code>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl create secret generic aws_credentials <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>  -n demo <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>  --from-literal<span style="color:#719e07">=</span><span style="color:#2aa198">&#39;AWS_ACCESS_KEY_ID=AKIAEXAMPLEIOSFODNN7&#39;</span> <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>  --from-literal<span style="color:#719e07">=</span><span style="color:#2aa198">&#39;AWS_SECRET_KEY=EXAMPLEKEYwJalrXUtnFEMI/K7MDENG/bPxRfiCY&#39;</span> <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>  -o yaml --dry-run<span style="color:#719e07">=</span>client
+</code></pre></div><p>Para crear un <code>SealedSecret</code> enviamos la salida del comando anterior hacia <strong>kubeseal</strong>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl create secret generic aws_credentials <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>  -n demo <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>  --from-literal<span style="color:#719e07">=</span><span style="color:#2aa198">&#39;AWS_ACCESS_KEY_ID=AKIAEXAMPLEIOSFODNN7&#39;</span> <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>  --from-literal<span style="color:#719e07">=</span><span style="color:#2aa198">&#39;AWS_SECRET_KEY=EXAMPLEKEYwJalrXUtnFEMI/K7MDENG/bPxRfiCY&#39;</span> <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>  -o yaml --dry-run<span style="color:#719e07">=</span>client <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>  | kubeseal -o yaml | tee aws-credentials-sealed-secret.yaml
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  creationTimestamp: null
+  name: aws_credentials
+  namespace: demo
+spec:
+  encryptedData:
+    AWS_ACCESS_KEY_ID: AgCb/RuzbHqc172M9y7ZbzcIPSiUcc1jn2nLEPpb7t93fTSBVTcMES6fwCfsP8p9K4EiOgndgHWuYREk1FhEeM3BHlBi6e9+MZu8xKuQ5AbClltRuZRBJZVFfdZsijU2HEt1qbCDTTSuk8jIqYHCmVnnjcDsiVJ/m/haA1jwFZr/XQtMuZR12+JL+vWgIslbEzD0KWzXZHO12w8NYKOCSu4IjbAfHML/4tYr5k34djYIqzohGbQdCbEirAN17ovyPOQZcmro5yaedmU3pzKm6oHmh2an6i/Q6eKtSC5yq9AK66SwB16MwR8Nw1YSEZBGzzDNLir00ErQoxuG8Pu1sTgIWIWD89dTlKyhlmCq2V3am4rXmFIIbmht5neZgly7n6kipZjLo0wn1RlUOtaZu3dE/t1jRxWTBdpPRXs2D8nytV7W/uEeaK3m+OwpuP+7CBO6NT5/QTAcIGbkje8DJGT7baO7hgsVxGL8mAK5Fsw33j2vYsVF9AeiiBiDQLjlbxx8YeIEJzshDlJ9pvfBbEer4a+MkPDFiYu3sy9KmpE8UY3VsFhYKd4bTb3mB2kGPcFDOPid5aEOGVbOepLdjcJq6SUnScq0m5X92FirH9oKxu+Vry36j1w2GaGk+/FSX1vWfiBZDUYVrWY60X0mdwoB9WeHHOrpVXE/nWl61d9xGErn0JB2ydRvZ0Vs0NzmMv3DWMc+5EuEkDBJiwfJdGDVrhRB6Q<span style="color:#719e07">==</span>
+    AWS_SECRET_KEY: AgA6p7yH+lCICTYC10ZxTGUQvyNQaCSOd4StZPkaPFSUgKGye8LIQ8JxhclcoHXi+haIXCKunP+wOduUy5Ef3mYVxsivsvjcPlb0Rj6hh33YKWLJh8dXW2dY7IBAh9tXf6TCDAgQz+Pr7hqeh/HOsaiZBDlgETo27HC2cp8ovXfIesqreq0ZOlSyF9YU/U+e1F25gkxO2KuuqThMyAA45n0M2fnW1hXDdjIcRUz99/YQVcBLMkVhYg83wE/YeAZEpf7Xr4b4JeWBJPjW2HrhjWmY6VT1jfm6+d2xe5SO39VnzIOGoX3zkTkNIuC1Qq+ggth4aOSjFUSebuSfWadv1fDU5/zdKKZI2X9yx6SBsw50Df2T+BXV2sDPC2t67TyUXoyesjGd5qSgi7ZzktCBtKWjih2QS3P9ktAXaoNcCKAHQj8PRxZJh4T3EyZF3O5f5vFeqSu7YFuGDHSo0ahCcjFCHHJ6UgBIP9hrRlQTQeOtSSBK7ld5SPV+sytS+6CYCADRTlBwiIHdQG9FPPzqVDscIDZ2ccfm9jmdLvuuO4fzg1gVCw2cAm8urnLLdkuVkraiBdjXqPGFLIj6VM86/4S1JR8t+4hInnOerM47YUiX5p4wRoT9qcMBBLgU5YdStxBfc2IfkzpJEc9X6/cY2FITBMXmGElCBKgNSZjnk4DQV/K5btJwTTlu0n7DTkcOL9IV5fCF1V7z36YizzK2nVi8V5cYpGxClJRKw9u7/n6PS2JUJUZpBm4T
+  template:
+    data: null
+    metadata:
+      creationTimestamp: null
+      name: aws_credentials
+      namespace: demo
+</code></pre></div><p>La información sensible contenida en el <code>SealedSecret</code> está cifrada, no simplemente <em>codificada en base64</em>, como un <code>Secret</code> ordinario, por lo que es seguro publicarla en un repositorio de código; sin la clave privada (a la que sólo tiene acceso el <em>controller</em> de <em>SealedSecrets</em> en el clúster), no es posible leer el contenido de los campos en <code>.spec.encryptedData.*</code>.</p>
 <h3 id="importante---conectividad-y-acceso-a-la-api-del-clúster">Importante - Conectividad y acceso a la API del clúster</h3>
 <p><code>kubeseal</code> ha obtenido la parte pública del certificado generado por el controlador <em>SealedSecrets</em> contectando con el clúster vía API usando la información y las credenciales contenidas en el fichero <code>~/.kube/config</code> (en mi caso).</p>
 <p>Si <strong>kubeseal</strong> no puede acceder al clúster, se pueden <em>sellar</em> los secretos especificando la ruta al certificado público del controler con la opción <code>--cert</code>.</p>
 <p><strong>kubeseal</strong> permite obtener el certificado público del controlador mediante el comando <code>kubeseal --fetch-cert</code> (require conectividad y acceso a la API del clúster).</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ kubeseal --fetch-cert | tee controller-public-cert.crt
-</span></span><span style="display:flex;"><span>-----BEGIN CERTIFICATE-----
-</span></span><span style="display:flex;"><span>MIIErTCCApWgAwIBAgIQBiQc7Z+Z8n8xtYME0Bs40jANBgkqhkiG9w0BAQsFADAA
-</span></span><span style="display:flex;"><span>MB4XDTIxMDgxODE5MjM1NFoXDTMxMDgxNjE5MjM1NFowADCCAiIwDQYJKoZIhvcN
-</span></span><span style="display:flex;"><span>AQEBBQADggIPADCCAgoCggIBANh5a5otzFHEPfMrDJPFhZIR0fQ+7HLSmZb6EOxQ
-</span></span><span style="display:flex;"><span>NbI4uV/L06Icq+K28deCCPQgp2GTnVO2oMJql/fMbkYCSWZMmRSIXKdBZca8dJOJ
-</span></span><span style="display:flex;"><span>WUxOYQ66qS1p2iLJl9NmClXZp2GMxzQbrBRRwss4TdW+Y+zj0YY5VzxbYxz3NRt6
-</span></span><span style="display:flex;"><span>/3fUfOEl9J5zsfJp/uY/HnfWrtHu1lZjmwj/zabd/D+Guw3cdQ07UdQ1B9FhZBzu
-</span></span><span style="display:flex;"><span>+/sf0DGLA/FRo0uOE8q/uTiY+l0GqyJeM3WxjrFSEF+WBgdbE26OaIeE+w9yOENq
-</span></span><span style="display:flex;"><span>8dsyCxqkI+Oa5xtFkBaN8T6dLJTlubdzq2ioohnlPOUQymK5Tct5/EhvFtAAczij
-</span></span><span style="display:flex;"><span>/Ko2nDBFIw9HFMtXOBkeDsRDyIllO+e+BOxYsmxQV8b6CzmwrfAOQ2MbaT7v/78H
-</span></span><span style="display:flex;"><span>E8cWu6viRwbKdrCuR8Y30JgG6LlXKTKSRyXmirAhRpTkRcbu0E8kQOA9uwkDDrmP
-</span></span><span style="display:flex;"><span>b6ScO7CJcnDlA4eWxvL4D6Oik7f94TpbKbpG07bSLh4HNIJ+V8gxnT3FWE8BAEtH
-</span></span><span style="display:flex;"><span>sR0lFBvewVeZhD6okvbN40vJFhV36Imx4suJ7DjdudGqrCVc2XyMt8ezQDRWADy+
-</span></span><span style="display:flex;"><span>MlNOFxpTe8xp6HUpHWohZ2yPk3biBQhTBdx5nacmwzmoI8zsxP/vk/8KV6bnsT1a
-</span></span><span style="display:flex;"><span>Bv5HAgMBAAGjIzAhMA4GA1UdDwEB/wQEAwIAATAPBgNVHRMBAf8EBTADAQH/MA0G
-</span></span><span style="display:flex;"><span>CSqGSIb3DQEBCwUAA4ICAQAou/AreNf51u9HwGoxctCdxVx6hvCjwh/7SCMQ0dJ5
-</span></span><span style="display:flex;"><span>zq52y6EOR0ZXOZ+ZllUkZb0PMv3jMjpVfYo4AlzpoMS9jEfsPN/AvHf2z71VzJvM
-</span></span><span style="display:flex;"><span>S7Qbldia6/4+MqpKjRISffW1BsAZTthAlKilDBo9+o8gioqqhMYgcvnaRduLMlYB
-</span></span><span style="display:flex;"><span>1dgv4X6pwTWzuASkQ6V5VrixQMa76GtRY/we/p3HfE7+af2McgpmAv8xSawUF4sV
-</span></span><span style="display:flex;"><span>g86ll4Hxy4U3tFjNo7iDs8upBuwc3AdvqYyBuh4l7RbxFtk1/LkZLnMhAUNI1gKr
-</span></span><span style="display:flex;"><span>nLS1uWiyoe+sgjip2JG9aAQoRiRXPwAN5aQgx1alQ1pLqacn78I6WC1nJENMYpYU
-</span></span><span style="display:flex;"><span>otSyOtxvN4oyw1ZDp3M1dEcGfiU4MT7G3ocG43QWj8lpY8UyMbZYTAU98kcmlmw5
-</span></span><span style="display:flex;"><span>W/xcCMuQm5YN+S3ooZcIxxO2jKJ2qNCRjfiHyMWyPRRl7aLgepozn8UmWsY7OOps
-</span></span><span style="display:flex;"><span>wSJXt8RFoOdXTSRQJLkXI5jtFMkkEYk9p0mYJTiRt1fpavtQ/gnSr+H7CW+II4Q6
-</span></span><span style="display:flex;"><span>zv3i7m2URtlkO8E348vaakjuVziJ18dJtDkyOcWKuo+fI47v57N49opvkVcoSFmP
-</span></span><span style="display:flex;"><span>GEQNRr+qeaJqUYguD2F5a6Mm1lIquZPI/UdmeHnfIs+CHWmcG5itvvNGhbxb8ALu
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">aA</span><span style="color:#719e07">==</span>
-</span></span><span style="display:flex;"><span>-----END CERTIFICATE-----
-</span></span></code></pre></div><blockquote>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubeseal --fetch-cert | tee controller-public-cert.crt
+-----BEGIN CERTIFICATE-----
+MIIErTCCApWgAwIBAgIQBiQc7Z+Z8n8xtYME0Bs40jANBgkqhkiG9w0BAQsFADAA
+MB4XDTIxMDgxODE5MjM1NFoXDTMxMDgxNjE5MjM1NFowADCCAiIwDQYJKoZIhvcN
+AQEBBQADggIPADCCAgoCggIBANh5a5otzFHEPfMrDJPFhZIR0fQ+7HLSmZb6EOxQ
+NbI4uV/L06Icq+K28deCCPQgp2GTnVO2oMJql/fMbkYCSWZMmRSIXKdBZca8dJOJ
+WUxOYQ66qS1p2iLJl9NmClXZp2GMxzQbrBRRwss4TdW+Y+zj0YY5VzxbYxz3NRt6
+/3fUfOEl9J5zsfJp/uY/HnfWrtHu1lZjmwj/zabd/D+Guw3cdQ07UdQ1B9FhZBzu
++/sf0DGLA/FRo0uOE8q/uTiY+l0GqyJeM3WxjrFSEF+WBgdbE26OaIeE+w9yOENq
+8dsyCxqkI+Oa5xtFkBaN8T6dLJTlubdzq2ioohnlPOUQymK5Tct5/EhvFtAAczij
+/Ko2nDBFIw9HFMtXOBkeDsRDyIllO+e+BOxYsmxQV8b6CzmwrfAOQ2MbaT7v/78H
+E8cWu6viRwbKdrCuR8Y30JgG6LlXKTKSRyXmirAhRpTkRcbu0E8kQOA9uwkDDrmP
+b6ScO7CJcnDlA4eWxvL4D6Oik7f94TpbKbpG07bSLh4HNIJ+V8gxnT3FWE8BAEtH
+sR0lFBvewVeZhD6okvbN40vJFhV36Imx4suJ7DjdudGqrCVc2XyMt8ezQDRWADy+
+MlNOFxpTe8xp6HUpHWohZ2yPk3biBQhTBdx5nacmwzmoI8zsxP/vk/8KV6bnsT1a
+Bv5HAgMBAAGjIzAhMA4GA1UdDwEB/wQEAwIAATAPBgNVHRMBAf8EBTADAQH/MA0G
+CSqGSIb3DQEBCwUAA4ICAQAou/AreNf51u9HwGoxctCdxVx6hvCjwh/7SCMQ0dJ5
+zq52y6EOR0ZXOZ+ZllUkZb0PMv3jMjpVfYo4AlzpoMS9jEfsPN/AvHf2z71VzJvM
+S7Qbldia6/4+MqpKjRISffW1BsAZTthAlKilDBo9+o8gioqqhMYgcvnaRduLMlYB
+1dgv4X6pwTWzuASkQ6V5VrixQMa76GtRY/we/p3HfE7+af2McgpmAv8xSawUF4sV
+g86ll4Hxy4U3tFjNo7iDs8upBuwc3AdvqYyBuh4l7RbxFtk1/LkZLnMhAUNI1gKr
+nLS1uWiyoe+sgjip2JG9aAQoRiRXPwAN5aQgx1alQ1pLqacn78I6WC1nJENMYpYU
+otSyOtxvN4oyw1ZDp3M1dEcGfiU4MT7G3ocG43QWj8lpY8UyMbZYTAU98kcmlmw5
+W/xcCMuQm5YN+S3ooZcIxxO2jKJ2qNCRjfiHyMWyPRRl7aLgepozn8UmWsY7OOps
+wSJXt8RFoOdXTSRQJLkXI5jtFMkkEYk9p0mYJTiRt1fpavtQ/gnSr+H7CW+II4Q6
+zv3i7m2URtlkO8E348vaakjuVziJ18dJtDkyOcWKuo+fI47v57N49opvkVcoSFmP
+GEQNRr+qeaJqUYguD2F5a6Mm1lIquZPI/UdmeHnfIs+CHWmcG5itvvNGhbxb8ALu
+<span style="color:#268bd2">aA</span><span style="color:#719e07">==</span>
+-----END CERTIFICATE-----
+</code></pre></div><blockquote>
 <p>El certificado rota cada 30 días (por defecto).</p>
 </blockquote>
 <h3 id="importante---namespace-destino-del-secret">Importante - <em>Namespace</em> destino del <em>Secret</em></h3>
 <p>La política por defecto para <em>SealedSecrets</em> es <code>strict</code>; este comportamiento hace que el <em>SealedSecret</em> sellado por <strong>kubeseal</strong> sólo puede desplegarse con el mismo nombre y en el mismo <em>namespace</em> con el que ha sido <em>sellado</em>.</p>
 <p>En el ejemplo, el <em>SealedSecret</em> sólo puede ser desplegado en el <em>namespace</em> <code>demo</code>.</p>
 <p>Si se intenta desplegar en otro <em>namespace</em> (o con otro nombre), la acción falla con el mensaje:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ kubectl apply -f aws-credentials-sealed-secret.yaml -n not-demo
-</span></span><span style="display:flex;"><span>error: the namespace from the provided object <span style="color:#2aa198">&#34;demo&#34;</span> does not match the namespace <span style="color:#2aa198">&#34;not-demo&#34;</span>. You must pass <span style="color:#2aa198">&#39;--namespace=demo&#39;</span> to perform this operation.
-</span></span></code></pre></div><h3 id="importante---nombre-del-controller">Importante - Nombre del <em>controller</em></h3>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl apply -f aws-credentials-sealed-secret.yaml -n not-demo
+error: the namespace from the provided object <span style="color:#2aa198">&#34;demo&#34;</span> does not match the namespace <span style="color:#2aa198">&#34;not-demo&#34;</span>. You must pass <span style="color:#2aa198">&#39;--namespace=demo&#39;</span> to perform this operation.
+</code></pre></div><h3 id="importante---nombre-del-controller">Importante - Nombre del <em>controller</em></h3>
 <p><strong>kubeseal</strong> usa como nombre por defecto del controlador de <em>SealedSecrets</em> <code>sealed-secrets-controller</code>. Si se ha desplegado con otro nombre, es necesario indicarlo a <strong>kubeseal</strong> mediante la opción <code>--controller-name</code>.</p>
 <p>Si el <em>controller</em> se ha instalado en un <em>namespace</em> difeente a <code>kube-system</code>, debe indicarse a <strong>kubeseal</strong> mediante la opción <code>--controller-namespace</code>.</p>
 <blockquote>

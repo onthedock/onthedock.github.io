@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.95.0" />
+<meta name="generator" content="Hugo 0.92.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -145,31 +145,31 @@
 <h2 id="parámetros-de-tipo-string">Parámetros de tipo <em>String</em></h2>
 <p>Los valores de tipo <em>String</em> son cadenas que se suelen usar y que no contienen información sensible (aunque el límite de <em>sensible</em> en cada caso probablemente lo determine el equipo de seguridad).</p>
 <p>La respuesta de <code>get_parameter()</code> es de la forma:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>    &#39;Parameter&#39;: {
-</span></span><span style="display:flex;"><span>        &#39;Name&#39;: &#39;string&#39;,
-</span></span><span style="display:flex;"><span>        &#39;Type&#39;: &#39;String&#39;|&#39;StringList&#39;|&#39;SecureString&#39;,
-</span></span><span style="display:flex;"><span>        &#39;Value&#39;: &#39;string&#39;,
-</span></span><span style="display:flex;"><span>        &#39;Version&#39;: 123,
-</span></span><span style="display:flex;"><span>        &#39;Selector&#39;: &#39;string&#39;,
-</span></span><span style="display:flex;"><span>        &#39;SourceResult&#39;: &#39;string&#39;,
-</span></span><span style="display:flex;"><span>        &#39;LastModifiedDate&#39;: datetime(2015, 1, 1),
-</span></span><span style="display:flex;"><span>        &#39;ARN&#39;: &#39;string&#39;
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><p>En general, sólo nos interesa obtener el valor del parámetro, por lo que nos concentramos en obtener el valor contenido en <code>Value</code>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-json" data-lang="json">    &#39;Parameter&#39;: {
+        &#39;Name&#39;: &#39;string&#39;,
+        &#39;Type&#39;: &#39;String&#39;|&#39;StringList&#39;|&#39;SecureString&#39;,
+        &#39;Value&#39;: &#39;string&#39;,
+        &#39;Version&#39;: 123,
+        &#39;Selector&#39;: &#39;string&#39;,
+        &#39;SourceResult&#39;: &#39;string&#39;,
+        &#39;LastModifiedDate&#39;: datetime(2015, 1, 1),
+        &#39;ARN&#39;: &#39;string&#39;
+    }
+}
+</code></pre></div><p>En general, sólo nos interesa obtener el valor del parámetro, por lo que nos concentramos en obtener el valor contenido en <code>Value</code>.</p>
 <blockquote>
 <p>Como el valor del parámetro puede cambiar, <code>get_parameter()</code> devuelve <strong>siempre</strong> la última versión del parámetro. En la respuesta puedes consultar la <em>versión</em> del valor del parametro, pero no puedes obtener un valor anterior. Si estás interesado en obtener la lista de todos los valores que ha tenido un parámetro -y quién los ha modificado-, usa el método <code>get_parameter_history()</code>.</p>
 </blockquote>
 <p>En el ejemplo, tenemos un parámetro llamado <code>parameter1</code> en Parameter Store que vamos a consultar para obtener su valor.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#719e07">import</span> boto3
-</span></span><span style="display:flex;"><span>ssm_client <span style="color:#719e07">=</span> boto3<span style="color:#719e07">.</span>client(<span style="color:#2aa198">&#39;ssm&#39;</span>)
-</span></span><span style="display:flex;"><span>miparametro <span style="color:#719e07">=</span> ssm_client<span style="color:#719e07">.</span>get_parameter(Name<span style="color:#719e07">=</span><span style="color:#2aa198">&#39;parameter1&#39;</span>)
-</span></span><span style="display:flex;"><span>valor_de_miparametro <span style="color:#719e07">=</span> miparametro[<span style="color:#2aa198">&#39;Parameter&#39;</span>][<span style="color:#2aa198">&#39;Value&#39;</span>]
-</span></span><span style="display:flex;"><span><span style="color:#b58900">print</span>(valor_de_miparametro)
-</span></span></code></pre></div><p>Si ejecutamos este fragmento de código, el resultado es:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ python parameter_store_string.py
-</span></span><span style="display:flex;"><span>test-parameter-value
-</span></span></code></pre></div><blockquote>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-python" data-lang="python"><span style="color:#719e07">import</span> boto3
+ssm_client <span style="color:#719e07">=</span> boto3<span style="color:#719e07">.</span>client(<span style="color:#2aa198">&#39;ssm&#39;</span>)
+miparametro <span style="color:#719e07">=</span> ssm_client<span style="color:#719e07">.</span>get_parameter(Name<span style="color:#719e07">=</span><span style="color:#2aa198">&#39;parameter1&#39;</span>)
+valor_de_miparametro <span style="color:#719e07">=</span> miparametro[<span style="color:#2aa198">&#39;Parameter&#39;</span>][<span style="color:#2aa198">&#39;Value&#39;</span>]
+<span style="color:#b58900">print</span>(valor_de_miparametro)
+</code></pre></div><p>Si ejecutamos este fragmento de código, el resultado es:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ python parameter_store_string.py
+test-parameter-value
+</code></pre></div><blockquote>
 <p>Debes tener permisos para poder leer el parámetro en Parameter Store</p>
 </blockquote>
 <h2 id="parámetros-de-tipo-securestring">Parámetros de tipo <em>SecureString</em></h2>
@@ -179,18 +179,18 @@
 </blockquote>
 <p>Aunque los pasos para leer el parámetro son los mismos que en el caso anterior, debes tener en cuenta que el valor del parámetro está encriptado.</p>
 <p>Si ejecutas el mismo código sobre un parámetro <em>SecureString</em>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ python parameter_store_securestring.py
-</span></span><span style="display:flex;"><span>AQICAHhIerV5N6Z6vXFmNd+nLmcALZwYyWLGXw7bxLkAshH6HQH8z8MfIx3LfILqfqlc5FDSAAAAaDBmBgkqhkiG9w0BBwagWTBXAgEAMFIGCSqGSIb3DQEHATAeBglghkgBZQMEAS4wEQQMWnlSalVYxWZ0hRClAgEQgCUdjEnBYX2THX6kWC+8hrWxPkUM4vAx+ErKMt/47gyDHwHkjFuL
-</span></span></code></pre></div><p>Probablemente te interesa obtener el valor <em>desencriptado</em>; para ello debes añadir el parámetro <code>WithDecryption=True</code> en la llamada de <code>get_parameter()</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#719e07">import</span> boto3
-</span></span><span style="display:flex;"><span>ssm_client <span style="color:#719e07">=</span> boto3<span style="color:#719e07">.</span>client(<span style="color:#2aa198">&#39;ssm&#39;</span>)
-</span></span><span style="display:flex;"><span>securestringpassword <span style="color:#719e07">=</span> ssm_client<span style="color:#719e07">.</span>get_parameter(
-</span></span><span style="display:flex;"><span>    Name<span style="color:#719e07">=</span><span style="color:#2aa198">&#39;supersecret&#39;</span>, WithDecryption<span style="color:#719e07">=</span><span style="color:#cb4b16">True</span>)
-</span></span><span style="display:flex;"><span>secretvalue <span style="color:#719e07">=</span> securestringpassword[<span style="color:#2aa198">&#39;Parameter&#39;</span>][<span style="color:#2aa198">&#39;Value&#39;</span>]
-</span></span></code></pre></div><p>Tras modificar el código, el resultado es el esperado:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ python parameter_store_securestring.py
-</span></span><span style="display:flex;"><span>D3m0<span style="color:#268bd2">$3</span>cr3t
-</span></span></code></pre></div></div>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ python parameter_store_securestring.py
+AQICAHhIerV5N6Z6vXFmNd+nLmcALZwYyWLGXw7bxLkAshH6HQH8z8MfIx3LfILqfqlc5FDSAAAAaDBmBgkqhkiG9w0BBwagWTBXAgEAMFIGCSqGSIb3DQEHATAeBglghkgBZQMEAS4wEQQMWnlSalVYxWZ0hRClAgEQgCUdjEnBYX2THX6kWC+8hrWxPkUM4vAx+ErKMt/47gyDHwHkjFuL
+</code></pre></div><p>Probablemente te interesa obtener el valor <em>desencriptado</em>; para ello debes añadir el parámetro <code>WithDecryption=True</code> en la llamada de <code>get_parameter()</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-python" data-lang="python"><span style="color:#719e07">import</span> boto3
+ssm_client <span style="color:#719e07">=</span> boto3<span style="color:#719e07">.</span>client(<span style="color:#2aa198">&#39;ssm&#39;</span>)
+securestringpassword <span style="color:#719e07">=</span> ssm_client<span style="color:#719e07">.</span>get_parameter(
+    Name<span style="color:#719e07">=</span><span style="color:#2aa198">&#39;supersecret&#39;</span>, WithDecryption<span style="color:#719e07">=</span><span style="color:#cb4b16">True</span>)
+secretvalue <span style="color:#719e07">=</span> securestringpassword[<span style="color:#2aa198">&#39;Parameter&#39;</span>][<span style="color:#2aa198">&#39;Value&#39;</span>]
+</code></pre></div><p>Tras modificar el código, el resultado es el esperado:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ python parameter_store_securestring.py
+D3m0<span style="color:#268bd2">$3</span>cr3t
+</code></pre></div></div>
 
   <aside class="p-share">
 

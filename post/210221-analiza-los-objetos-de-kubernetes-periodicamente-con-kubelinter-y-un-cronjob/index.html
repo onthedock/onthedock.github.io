@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.95.0" />
+<meta name="generator" content="Hugo 0.92.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -135,73 +135,73 @@
 <p>En este artículo vemos cómo configurar un Cronjob que ejecute KubeLinter para obtener los ficheros de un repositorio remoto y analizarlos.</p>
 <h2 id="crear-una-imagen-base-con-kubelinter-y-git">Crear una imagen base con KubeLinter y Git</h2>
 <p>Usamos como referencia el <code>Dockerfile</code> del usuario <code>cwadley</code> en DockerHub para crear una imagen con Git y KubeLinter basada en Alpine:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-Dockerfile" data-lang="Dockerfile"><span style="display:flex;"><span><span style="color:#586e75"># Thanks to https://hub.docker.com/r/cwadley/kube-linter/dockerfile</span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">FROM</span><span style="color:#2aa198"> alpine:3.13</span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">RUN</span> apk add git
-</span></span><span style="display:flex;"><span><span style="color:#719e07">RUN</span> wget https://github.com/stackrox/kube-linter/releases/download/0.1.6/kube-linter-linux.tar.gz <span style="color:#719e07">&amp;&amp;</span> <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>    tar -xzf kube-linter-linux.tar.gz <span style="color:#719e07">&amp;&amp;</span> <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>    mv kube-linter /usr/local/bin <span style="color:#719e07">&amp;&amp;</span> <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>    rm kube-linter-linux.tar.gz
-</span></span><span style="display:flex;"><span><span style="color:#719e07">ENTRYPOINT</span> [<span style="color:#2aa198">&#34;kube-linter&#34;</span>]
-</span></span></code></pre></div><p>Subimos la imagen al repositorio en DockerHub: <a href="https://hub.docker.com/r/xaviaznar/kubelinter/tags?page=1&amp;ordering=last_updated">xaviaznar/kubelinter:v0.1.6-git</a> (la imagen con etiqueta <code>v0.1.6</code> no incorpora Git).</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-Dockerfile" data-lang="Dockerfile"><span style="color:#586e75"># Thanks to https://hub.docker.com/r/cwadley/kube-linter/dockerfile</span>
+<span style="color:#719e07">FROM</span><span style="color:#2aa198"> alpine:3.13</span>
+<span style="color:#719e07">RUN</span> apk add git
+<span style="color:#719e07">RUN</span> wget https://github.com/stackrox/kube-linter/releases/download/0.1.6/kube-linter-linux.tar.gz <span style="color:#719e07">&amp;&amp;</span> <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>    tar -xzf kube-linter-linux.tar.gz <span style="color:#719e07">&amp;&amp;</span> <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>    mv kube-linter /usr/local/bin <span style="color:#719e07">&amp;&amp;</span> <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>    rm kube-linter-linux.tar.gz
+<span style="color:#719e07">ENTRYPOINT</span> [<span style="color:#2aa198">&#34;kube-linter&#34;</span>]
+</code></pre></div><p>Subimos la imagen al repositorio en DockerHub: <a href="https://hub.docker.com/r/xaviaznar/kubelinter/tags?page=1&amp;ordering=last_updated">xaviaznar/kubelinter:v0.1.6-git</a> (la imagen con etiqueta <code>v0.1.6</code> no incorpora Git).</p>
 <p>Como sempre, creamos un <em>namespace</em> para aislar las pruebas que realizamos; en este caso, llamo al <em>namespace</em> <code>cronjobs</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>---
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">kind</span>: Namespace
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">apiVersion</span>: v1
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">metadata</span>:
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">name</span>: cronjobs
-</span></span></code></pre></div><p>Creamos un <em>PersistentVolumeClaim</em> en el que clonar el repositorio remoto para que KubeLinter lo analice.
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
+<span style="color:#268bd2">kind</span>: Namespace
+<span style="color:#268bd2">apiVersion</span>: v1
+<span style="color:#268bd2">metadata</span>:
+  <span style="color:#268bd2">name</span>: cronjobs
+</code></pre></div><p>Creamos un <em>PersistentVolumeClaim</em> en el que clonar el repositorio remoto para que KubeLinter lo analice.
 Esto es necesario porque el volumen raíz del contenedor se configura como <em>read only</em>.</p>
 <blockquote>
 <p>Debes ajustar el tamaño del volumen en función del tamaño en disco del repositorio a analizar, aunque puedes usar opciones como <code>--depth=1</code> para clonar únicamente el último <em>commit</em> y no toda la historia del repositorio.</p>
 </blockquote>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#268bd2">kind</span>: PersistentVolumeClaim
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">apiVersion</span>: v1
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">metadata</span>:
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">name</span>: volume-repo
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">namespace</span>: cronjobs
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">spec</span>:
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">resources</span>:
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">requests</span>:
-</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">storage</span>: 50Mi
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">accessModes</span>:
-</span></span><span style="display:flex;"><span>    - ReadWriteOnce
-</span></span></code></pre></div><p>El siguiente paso es crear un <em>ConfigMap</em> para el <em>script</em> que se encarga de clonar el repositorio remoto y lanzar <code>kube-linter</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>---
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">kind</span>: ConfigMap
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">apiVersion</span>: v1
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">metadata</span>:
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">name</span>: script
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">namespace</span>: cronjobs
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">data</span>:
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">linter.sh</span>: |<span style="color:#2aa198">
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">    #!/bin/sh
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">    localPath=&#34;/repo&#34;
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">    if [ -d $localpPath ] &amp;&amp; [ ! &#34;$(ls -A $localPath)&#34; ]
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">    then
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">      git clone --depth=1 --verbose $1 $localPath
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">    else
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">        cd $localPath
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">        echo &#34;[INFO] Fetching $1&#34;
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">        git fetch --verbose origin $2
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">        
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">        localHEAD=$(git rev-parse --short HEAD)
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">        remoteHEAD=$(git rev-parse --short origin/$2)
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">        echo &#34;[INFO] localHEAD=$localHEAD remoteHEAD=$remoteHEAD&#34;
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">        if [ &#34;$localHEAD&#34; != &#34;$remoteHEAD&#34; ]
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">        then
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">            echo &#34;Merging FETCH_HEAD&#34;
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">            git merge --verbose FETCH_HEAD
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">        else
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">            echo &#34;[INFO] Local copy in sync with remote. Not updated&#34;
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">        fi
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">    fi
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">    kube-linter lint $localPath</span>    
-</span></span></code></pre></div><p>El <em>script</em> clona el repositorio remoto en el volumen reclamado anteriormente con el <em>PersistentVolumeClaim</em> si no existe o lo actualiza si existe (y si es necesario).</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">kind</span>: PersistentVolumeClaim
+<span style="color:#268bd2">apiVersion</span>: v1
+<span style="color:#268bd2">metadata</span>:
+  <span style="color:#268bd2">name</span>: volume-repo
+  <span style="color:#268bd2">namespace</span>: cronjobs
+<span style="color:#268bd2">spec</span>:
+  <span style="color:#268bd2">resources</span>:
+    <span style="color:#268bd2">requests</span>:
+      <span style="color:#268bd2">storage</span>: 50Mi
+  <span style="color:#268bd2">accessModes</span>:
+    - ReadWriteOnce
+</code></pre></div><p>El siguiente paso es crear un <em>ConfigMap</em> para el <em>script</em> que se encarga de clonar el repositorio remoto y lanzar <code>kube-linter</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
+<span style="color:#268bd2">kind</span>: ConfigMap
+<span style="color:#268bd2">apiVersion</span>: v1
+<span style="color:#268bd2">metadata</span>:
+  <span style="color:#268bd2">name</span>: script
+  <span style="color:#268bd2">namespace</span>: cronjobs
+<span style="color:#268bd2">data</span>:
+  <span style="color:#268bd2">linter.sh</span>: |<span style="color:#2aa198">
+</span><span style="color:#2aa198">    #!/bin/sh
+</span><span style="color:#2aa198">    localPath=&#34;/repo&#34;
+</span><span style="color:#2aa198">
+</span><span style="color:#2aa198">    if [ -d $localpPath ] &amp;&amp; [ ! &#34;$(ls -A $localPath)&#34; ]
+</span><span style="color:#2aa198">    then
+</span><span style="color:#2aa198">      git clone --depth=1 --verbose $1 $localPath
+</span><span style="color:#2aa198">    else
+</span><span style="color:#2aa198">        cd $localPath
+</span><span style="color:#2aa198">        echo &#34;[INFO] Fetching $1&#34;
+</span><span style="color:#2aa198">        git fetch --verbose origin $2
+</span><span style="color:#2aa198">        
+</span><span style="color:#2aa198">        localHEAD=$(git rev-parse --short HEAD)
+</span><span style="color:#2aa198">        remoteHEAD=$(git rev-parse --short origin/$2)
+</span><span style="color:#2aa198">
+</span><span style="color:#2aa198">        echo &#34;[INFO] localHEAD=$localHEAD remoteHEAD=$remoteHEAD&#34;
+</span><span style="color:#2aa198">
+</span><span style="color:#2aa198">        if [ &#34;$localHEAD&#34; != &#34;$remoteHEAD&#34; ]
+</span><span style="color:#2aa198">        then
+</span><span style="color:#2aa198">            echo &#34;Merging FETCH_HEAD&#34;
+</span><span style="color:#2aa198">            git merge --verbose FETCH_HEAD
+</span><span style="color:#2aa198">        else
+</span><span style="color:#2aa198">            echo &#34;[INFO] Local copy in sync with remote. Not updated&#34;
+</span><span style="color:#2aa198">        fi
+</span><span style="color:#2aa198">    fi
+</span><span style="color:#2aa198">
+</span><span style="color:#2aa198">    kube-linter lint $localPath</span>    
+</code></pre></div><p>El <em>script</em> clona el repositorio remoto en el volumen reclamado anteriormente con el <em>PersistentVolumeClaim</em> si no existe o lo actualiza si existe (y si es necesario).</p>
 <blockquote>
 <p>Una mejora para el <em>script</em> sería clonar una rama específica (diferente a <code>master/main</code>), por ejemplo, mediante <code>git clone --branch ${nombre-rama} ${repo-url}</code>.</p>
 </blockquote>
@@ -211,57 +211,57 @@ Esto es necesario porque el volumen raíz del contenedor se configura como <em>r
 </blockquote>
 <h2 id="cronjob">Cronjob</h2>
 <p>Ya tenemos todas las piezas necesarias para crear el <em>Cronjob</em>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>---
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">kind</span>: CronJob
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">apiVersion</span>: batch/v1beta1
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">metadata</span>:
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">name</span>: kubelinter-repo-testkubelinter
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">namespace</span>: cronjobs
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">spec</span>:
-</span></span><span style="display:flex;"><span>  <span style="color:#586e75">#suspend: true</span>
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">schedule</span>: <span style="color:#2aa198">&#39;*/1 * * * *&#39;</span>
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">jobTemplate</span>:
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">spec</span>:
-</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">backoffLimit</span>: <span style="color:#2aa198">0</span> <span style="color:#586e75"># Do not retry when it fails</span>
-</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">template</span>:
-</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">metadata</span>:
-</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">creationTimestamp</span>: <span style="color:#cb4b16">null</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">spec</span>:
-</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">containers</span>:
-</span></span><span style="display:flex;"><span>          - <span style="color:#268bd2">name</span>: kubelinter
-</span></span><span style="display:flex;"><span>            <span style="color:#268bd2">image</span>: xaviaznar/kubelinter:v0.1.6-git
-</span></span><span style="display:flex;"><span>            <span style="color:#268bd2">imagePullPolicy</span>: IfNotPresent
-</span></span><span style="display:flex;"><span>            <span style="color:#268bd2">command</span>:
-</span></span><span style="display:flex;"><span>              - /script/linter.sh
-</span></span><span style="display:flex;"><span>            <span style="color:#268bd2">args</span>:
-</span></span><span style="display:flex;"><span>              - <span style="color:#2aa198">&#34;https://github.com/onthedock/testkubelinter.git&#34;</span>
-</span></span><span style="display:flex;"><span>              - <span style="color:#2aa198">&#34;main&#34;</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#268bd2">securityContext</span>:
-</span></span><span style="display:flex;"><span>              <span style="color:#268bd2">runAsUser</span>: <span style="color:#2aa198">1001</span>
-</span></span><span style="display:flex;"><span>              <span style="color:#268bd2">runAsGroup</span>: <span style="color:#2aa198">1001</span>
-</span></span><span style="display:flex;"><span>              <span style="color:#268bd2">readOnlyRootFilesystem</span>: <span style="color:#cb4b16">true</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#268bd2">resources</span>:
-</span></span><span style="display:flex;"><span>              <span style="color:#268bd2">requests</span>:
-</span></span><span style="display:flex;"><span>                <span style="color:#268bd2">memory</span>: <span style="color:#2aa198">&#34;128Mi&#34;</span>
-</span></span><span style="display:flex;"><span>                <span style="color:#268bd2">cpu</span>: <span style="color:#2aa198">&#34;0.1&#34;</span>
-</span></span><span style="display:flex;"><span>              <span style="color:#268bd2">limits</span>:
-</span></span><span style="display:flex;"><span>                <span style="color:#268bd2">memory</span>: <span style="color:#2aa198">&#34;512Mi&#34;</span>
-</span></span><span style="display:flex;"><span>                <span style="color:#268bd2">cpu</span>: <span style="color:#2aa198">&#34;0.5&#34;</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#268bd2">volumeMounts</span>:
-</span></span><span style="display:flex;"><span>              - <span style="color:#268bd2">name</span>: repo
-</span></span><span style="display:flex;"><span>                <span style="color:#268bd2">mountPath</span>: /repo
-</span></span><span style="display:flex;"><span>              - <span style="color:#268bd2">name</span>: linter
-</span></span><span style="display:flex;"><span>                <span style="color:#268bd2">mountPath</span>: /script
-</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">restartPolicy</span>: Never
-</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">volumes</span>:
-</span></span><span style="display:flex;"><span>            - <span style="color:#268bd2">name</span>: repo
-</span></span><span style="display:flex;"><span>              <span style="color:#268bd2">persistentVolumeClaim</span>:
-</span></span><span style="display:flex;"><span>                <span style="color:#268bd2">claimName</span>: volume-repo
-</span></span><span style="display:flex;"><span>            - <span style="color:#268bd2">name</span>: linter
-</span></span><span style="display:flex;"><span>              <span style="color:#268bd2">configMap</span>:
-</span></span><span style="display:flex;"><span>                <span style="color:#268bd2">name</span>: script
-</span></span><span style="display:flex;"><span>                <span style="color:#268bd2">defaultMode</span>: <span style="color:#2aa198">0777</span>
-</span></span></code></pre></div><p>Especificamos una periodicidad mediante <code>schedule: '*/1 * * * *'</code> (en este caso, cada minuto, para hacer pruebas) y en la plantilla del <em>job</em>, usamos la imagen con KubeLinter.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
+<span style="color:#268bd2">kind</span>: CronJob
+<span style="color:#268bd2">apiVersion</span>: batch/v1beta1
+<span style="color:#268bd2">metadata</span>:
+  <span style="color:#268bd2">name</span>: kubelinter-repo-testkubelinter
+  <span style="color:#268bd2">namespace</span>: cronjobs
+<span style="color:#268bd2">spec</span>:
+  <span style="color:#586e75">#suspend: true</span>
+  <span style="color:#268bd2">schedule</span>: <span style="color:#2aa198">&#39;*/1 * * * *&#39;</span>
+  <span style="color:#268bd2">jobTemplate</span>:
+    <span style="color:#268bd2">spec</span>:
+      <span style="color:#268bd2">backoffLimit</span>: <span style="color:#2aa198">0</span> <span style="color:#586e75"># Do not retry when it fails</span>
+      <span style="color:#268bd2">template</span>:
+        <span style="color:#268bd2">metadata</span>:
+          <span style="color:#268bd2">creationTimestamp</span>: <span style="color:#cb4b16">null</span>
+        <span style="color:#268bd2">spec</span>:
+          <span style="color:#268bd2">containers</span>:
+          - <span style="color:#268bd2">name</span>: kubelinter
+            <span style="color:#268bd2">image</span>: xaviaznar/kubelinter:v0.1.6-git
+            <span style="color:#268bd2">imagePullPolicy</span>: IfNotPresent
+            <span style="color:#268bd2">command</span>:
+              - /script/linter.sh
+            <span style="color:#268bd2">args</span>:
+              - <span style="color:#2aa198">&#34;https://github.com/onthedock/testkubelinter.git&#34;</span>
+              - <span style="color:#2aa198">&#34;main&#34;</span>
+            <span style="color:#268bd2">securityContext</span>:
+              <span style="color:#268bd2">runAsUser</span>: <span style="color:#2aa198">1001</span>
+              <span style="color:#268bd2">runAsGroup</span>: <span style="color:#2aa198">1001</span>
+              <span style="color:#268bd2">readOnlyRootFilesystem</span>: <span style="color:#cb4b16">true</span>
+            <span style="color:#268bd2">resources</span>:
+              <span style="color:#268bd2">requests</span>:
+                <span style="color:#268bd2">memory</span>: <span style="color:#2aa198">&#34;128Mi&#34;</span>
+                <span style="color:#268bd2">cpu</span>: <span style="color:#2aa198">&#34;0.1&#34;</span>
+              <span style="color:#268bd2">limits</span>:
+                <span style="color:#268bd2">memory</span>: <span style="color:#2aa198">&#34;512Mi&#34;</span>
+                <span style="color:#268bd2">cpu</span>: <span style="color:#2aa198">&#34;0.5&#34;</span>
+            <span style="color:#268bd2">volumeMounts</span>:
+              - <span style="color:#268bd2">name</span>: repo
+                <span style="color:#268bd2">mountPath</span>: /repo
+              - <span style="color:#268bd2">name</span>: linter
+                <span style="color:#268bd2">mountPath</span>: /script
+          <span style="color:#268bd2">restartPolicy</span>: Never
+          <span style="color:#268bd2">volumes</span>:
+            - <span style="color:#268bd2">name</span>: repo
+              <span style="color:#268bd2">persistentVolumeClaim</span>:
+                <span style="color:#268bd2">claimName</span>: volume-repo
+            - <span style="color:#268bd2">name</span>: linter
+              <span style="color:#268bd2">configMap</span>:
+                <span style="color:#268bd2">name</span>: script
+                <span style="color:#268bd2">defaultMode</span>: <span style="color:#2aa198">0777</span>
+</code></pre></div><p>Especificamos una periodicidad mediante <code>schedule: '*/1 * * * *'</code> (en este caso, cada minuto, para hacer pruebas) y en la plantilla del <em>job</em>, usamos la imagen con KubeLinter.</p>
 <p>Especificamos el comando a ejecutar, pasando como argumentos la URL del repositorio (público) y el nombre de la rama principal. Montamos el <em>script</em> como un volumen de tipo <em>ConfigMap</em> y el <em>PersistentVolumeClaim</em> como almacenamiento de los pods creados en las diferentes ejecuciones del CronJob.</p>
 <h3 id="problemas-de-permisos-para-ejecutar-el-script">Problemas de permisos para ejecutar el <em>script</em></h3>
 <p>Durante las pruebas obtenía errores de acceso denegado al ejecutar el <em>script</em> <code>/script/linter.sh</code>. Por ello fue necesario especificar <code>defaultMode: 0777</code> para poder proporcionar acceso al usuario con el que se ejecuta el Pod sobre el <em>script</em> montado a partir del <em>ConfigMap</em>.</p>
@@ -271,57 +271,57 @@ Esto es necesario porque el volumen raíz del contenedor se configura como <em>r
 <p>Para evitar que Kubernetes reintente la ejecución del Job, especificamos <code>spec.jobTemplate.spec.backoffLimit: 0</code> (para la definición del CronJob) y <code>spec.jobTemplate.spec.template.spec.restartPolicy: Never</code>.</p>
 <p>En los logs del Pod creado durante la ejecución del CronJob podemos observar las acciones que realiza el <em>script</em>.</p>
 <p>En caso de error, por ejemplo:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ kubectl get pods -n cronjobs
-</span></span><span style="display:flex;"><span>NAME                                              READY   STATUS      RESTARTS   AGE
-</span></span><span style="display:flex;"><span>kubelinter-repo-testkubelinter-1613909820-r9jrq   0/1     Error       <span style="color:#2aa198">0</span>          47m
-</span></span></code></pre></div><h2 id="resultado-del-análisis-con-kubelinter">Resultado del análisis con KubeLinter</h2>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl get pods -n cronjobs
+NAME                                              READY   STATUS      RESTARTS   AGE
+kubelinter-repo-testkubelinter-1613909820-r9jrq   0/1     Error       <span style="color:#2aa198">0</span>          47m
+</code></pre></div><h2 id="resultado-del-análisis-con-kubelinter">Resultado del análisis con KubeLinter</h2>
 <p>Revisando logs logs del contenedor creado por la ejecución del CronJob:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ kubectl -n cronjobs logs pod kubelinter-repo-testkubelinter-1613909820-r9jrq
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">[</span>INFO<span style="color:#719e07">]</span> Fetching https://github.com/onthedock/testkubelinter.git
-</span></span><span style="display:flex;"><span>POST git-upload-pack <span style="color:#719e07">(</span><span style="color:#2aa198">294</span> bytes<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>POST git-upload-pack <span style="color:#719e07">(</span><span style="color:#2aa198">260</span> bytes<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>From https://github.com/onthedock/testkubelinter
-</span></span><span style="display:flex;"><span>* branch main -&gt; FETCH_HEAD
-</span></span><span style="display:flex;"><span>ce96888..6382485 main -&gt; origin/main
-</span></span><span style="display:flex;"><span><span style="color:#719e07">[</span>INFO<span style="color:#719e07">]</span> <span style="color:#268bd2">localHEAD</span><span style="color:#719e07">=</span>ce96888 <span style="color:#268bd2">remoteHEAD</span><span style="color:#719e07">=</span><span style="color:#2aa198">6382485</span>
-</span></span><span style="display:flex;"><span>Merging FETCH_HEAD
-</span></span><span style="display:flex;"><span>Updating ce96888..6382485
-</span></span><span style="display:flex;"><span>Fast-forward
-</span></span><span style="display:flex;"><span>cronojb-kubnelinter.yaml | <span style="color:#2aa198">7</span> +++++++
-</span></span><span style="display:flex;"><span><span style="color:#2aa198">1</span> file changed, <span style="color:#2aa198">7</span> insertions<span style="color:#719e07">(</span>+<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>/repo/cronojb-kubnelinter.yaml: <span style="color:#719e07">(</span>object: cronjobs/kubelinter-repo-testkubelinter batch/v1beta1, <span style="color:#268bd2">Kind</span><span style="color:#719e07">=</span>CronJob<span style="color:#719e07">)</span> container <span style="color:#2aa198">&#34;kubelinter&#34;</span> does not have a read-only root file system <span style="color:#719e07">(</span>check: no-read-only-root-fs, remediation: Set readOnlyRootFilesystem to <span style="color:#b58900">true</span> in your container&#39;s securityContext.<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>/repo/cronojb-kubnelinter.yaml: <span style="color:#719e07">(</span>object: cronjobs/kubelinter-repo-testkubelinter batch/v1beta1, <span style="color:#268bd2">Kind</span><span style="color:#719e07">=</span>CronJob<span style="color:#719e07">)</span> container <span style="color:#2aa198">&#34;kubelinter&#34;</span> is not <span style="color:#b58900">set</span> to runAsNonRoot <span style="color:#719e07">(</span>check: run-as-non-root, remediation: Set runAsUser to a non-zero number, and runAsNonRoot to true, in your pod or container securityContext. See https://kubernetes.io/docs/tasks/configure-pod-container/security-context/ <span style="color:#719e07">for</span> more details.<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>Error: found <span style="color:#2aa198">2</span> lint errors
-</span></span></code></pre></div><p>Y en caso de que los ficheros de definición de los objetos no contengan errores, el Job acaba como &ldquo;Completed&rdquo;:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ kubectl get pods -n cronjobs
-</span></span><span style="display:flex;"><span>NAME                                              READY   STATUS      RESTARTS   AGE
-</span></span><span style="display:flex;"><span>kubelinter-repo-testkubelinter-1613909820-r9jrq   0/1     Error       <span style="color:#2aa198">0</span>          47m
-</span></span><span style="display:flex;"><span>kubelinter-repo-testkubelinter-1613909880-2fkbg   0/1     Completed   <span style="color:#2aa198">0</span>          46m
-</span></span></code></pre></div><p>Y en los logs observamos cómo KubeLinter indica que no se han encontrado problemas en los ficheros analizados:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ kubectl -n cronjobs logs pod/kubelinter-repo-testkubelinter-1613909880-2fkbg
-</span></span><span style="display:flex;"><span><span style="color:#719e07">[</span>INFO<span style="color:#719e07">]</span> Fetching https://github.com/onthedock/testkubelinter.git
-</span></span><span style="display:flex;"><span>POST git-upload-pack <span style="color:#719e07">(</span><span style="color:#2aa198">294</span> bytes<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>POST git-upload-pack <span style="color:#719e07">(</span><span style="color:#2aa198">310</span> bytes<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>From https://github.com/onthedock/testkubelinter
-</span></span><span style="display:flex;"><span> * branch            main       -&gt; FETCH_HEAD
-</span></span><span style="display:flex;"><span>   6382485..e23b2bf  main       -&gt; origin/main
-</span></span><span style="display:flex;"><span><span style="color:#719e07">[</span>INFO<span style="color:#719e07">]</span> <span style="color:#268bd2">localHEAD</span><span style="color:#719e07">=</span><span style="color:#2aa198">6382485</span> <span style="color:#268bd2">remoteHEAD</span><span style="color:#719e07">=</span>e23b2bf
-</span></span><span style="display:flex;"><span>Merging FETCH_HEAD
-</span></span><span style="display:flex;"><span>Updating 6382485..e23b2bf
-</span></span><span style="display:flex;"><span>Fast-forward
-</span></span><span style="display:flex;"><span> cronojb-kubnelinter.yaml | <span style="color:#2aa198">4</span> ++++
-</span></span><span style="display:flex;"><span> <span style="color:#2aa198">1</span> file changed, <span style="color:#2aa198">4</span> insertions<span style="color:#719e07">(</span>+<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>No lint errors found!
-</span></span></code></pre></div><h3 id="suspender-temporalmente-el-cronjob">Suspender temporalmente el CronJob</h3>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl -n cronjobs logs pod kubelinter-repo-testkubelinter-1613909820-r9jrq
+
+<span style="color:#719e07">[</span>INFO<span style="color:#719e07">]</span> Fetching https://github.com/onthedock/testkubelinter.git
+POST git-upload-pack <span style="color:#719e07">(</span><span style="color:#2aa198">294</span> bytes<span style="color:#719e07">)</span>
+POST git-upload-pack <span style="color:#719e07">(</span><span style="color:#2aa198">260</span> bytes<span style="color:#719e07">)</span>
+From https://github.com/onthedock/testkubelinter
+* branch main -&gt; FETCH_HEAD
+ce96888..6382485 main -&gt; origin/main
+<span style="color:#719e07">[</span>INFO<span style="color:#719e07">]</span> <span style="color:#268bd2">localHEAD</span><span style="color:#719e07">=</span>ce96888 <span style="color:#268bd2">remoteHEAD</span><span style="color:#719e07">=</span><span style="color:#2aa198">6382485</span>
+Merging FETCH_HEAD
+Updating ce96888..6382485
+Fast-forward
+cronojb-kubnelinter.yaml | <span style="color:#2aa198">7</span> +++++++
+<span style="color:#2aa198">1</span> file changed, <span style="color:#2aa198">7</span> insertions<span style="color:#719e07">(</span>+<span style="color:#719e07">)</span>
+/repo/cronojb-kubnelinter.yaml: <span style="color:#719e07">(</span>object: cronjobs/kubelinter-repo-testkubelinter batch/v1beta1, <span style="color:#268bd2">Kind</span><span style="color:#719e07">=</span>CronJob<span style="color:#719e07">)</span> container <span style="color:#2aa198">&#34;kubelinter&#34;</span> does not have a read-only root file system <span style="color:#719e07">(</span>check: no-read-only-root-fs, remediation: Set readOnlyRootFilesystem to <span style="color:#b58900">true</span> in your container&#39;s securityContext.<span style="color:#719e07">)</span>
+
+/repo/cronojb-kubnelinter.yaml: <span style="color:#719e07">(</span>object: cronjobs/kubelinter-repo-testkubelinter batch/v1beta1, <span style="color:#268bd2">Kind</span><span style="color:#719e07">=</span>CronJob<span style="color:#719e07">)</span> container <span style="color:#2aa198">&#34;kubelinter&#34;</span> is not <span style="color:#b58900">set</span> to runAsNonRoot <span style="color:#719e07">(</span>check: run-as-non-root, remediation: Set runAsUser to a non-zero number, and runAsNonRoot to true, in your pod or container securityContext. See https://kubernetes.io/docs/tasks/configure-pod-container/security-context/ <span style="color:#719e07">for</span> more details.<span style="color:#719e07">)</span>
+
+Error: found <span style="color:#2aa198">2</span> lint errors
+</code></pre></div><p>Y en caso de que los ficheros de definición de los objetos no contengan errores, el Job acaba como &ldquo;Completed&rdquo;:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl get pods -n cronjobs
+NAME                                              READY   STATUS      RESTARTS   AGE
+kubelinter-repo-testkubelinter-1613909820-r9jrq   0/1     Error       <span style="color:#2aa198">0</span>          47m
+kubelinter-repo-testkubelinter-1613909880-2fkbg   0/1     Completed   <span style="color:#2aa198">0</span>          46m
+</code></pre></div><p>Y en los logs observamos cómo KubeLinter indica que no se han encontrado problemas en los ficheros analizados:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl -n cronjobs logs pod/kubelinter-repo-testkubelinter-1613909880-2fkbg
+<span style="color:#719e07">[</span>INFO<span style="color:#719e07">]</span> Fetching https://github.com/onthedock/testkubelinter.git
+POST git-upload-pack <span style="color:#719e07">(</span><span style="color:#2aa198">294</span> bytes<span style="color:#719e07">)</span>
+POST git-upload-pack <span style="color:#719e07">(</span><span style="color:#2aa198">310</span> bytes<span style="color:#719e07">)</span>
+From https://github.com/onthedock/testkubelinter
+ * branch            main       -&gt; FETCH_HEAD
+   6382485..e23b2bf  main       -&gt; origin/main
+<span style="color:#719e07">[</span>INFO<span style="color:#719e07">]</span> <span style="color:#268bd2">localHEAD</span><span style="color:#719e07">=</span><span style="color:#2aa198">6382485</span> <span style="color:#268bd2">remoteHEAD</span><span style="color:#719e07">=</span>e23b2bf
+Merging FETCH_HEAD
+Updating 6382485..e23b2bf
+Fast-forward
+ cronojb-kubnelinter.yaml | <span style="color:#2aa198">4</span> ++++
+ <span style="color:#2aa198">1</span> file changed, <span style="color:#2aa198">4</span> insertions<span style="color:#719e07">(</span>+<span style="color:#719e07">)</span>
+No lint errors found!
+</code></pre></div><h3 id="suspender-temporalmente-el-cronjob">Suspender temporalmente el CronJob</h3>
 <p>Si queremos pausar temporalmente la ejecución del CronJob, actualizaremos el fichero de definición incluyendo la opción <code>.spec.suspend: true</code>.</p>
 <p>Tras actualizar el CronJob, el campo <code>SUSPEND</code> se marca como <em>True</em> y no se lanzan nuevas ejecuciones del Job (aunque aquellos en ejecución finalizarán con normalidad):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ kubectl get cj -n cronjobs
-</span></span><span style="display:flex;"><span>NAME                             SCHEDULE      SUSPEND   ACTIVE   LAST SCHEDULE   AGE
-</span></span><span style="display:flex;"><span>kubelinter-repo-testkubelinter   * */1 * * *   True      <span style="color:#2aa198">0</span>        34s             33m
-</span></span></code></pre></div><h2 id="conclusiones-y-mejoras">Conclusiones y mejoras</h2>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl get cj -n cronjobs
+NAME                             SCHEDULE      SUSPEND   ACTIVE   LAST SCHEDULE   AGE
+kubelinter-repo-testkubelinter   * */1 * * *   True      <span style="color:#2aa198">0</span>        34s             33m
+</code></pre></div><h2 id="conclusiones-y-mejoras">Conclusiones y mejoras</h2>
 <p>Hemos visto cómo podemos automatizar el análisis de los ficheros de definición de objetos de Kubernetes usando KubeLinter y CronJobs.</p>
 <p>En la entrada anterior <a href="https://onthedock.github.io/post/210212-kubelinter/">KubeLinter: identifica malas configuraciones en los objetos de Kubernetes</a> usaba KubeLinter como herramienta para mejorar la seguridad de los objetos desplegados en el clúster. Aunque se realizaba el análisis manualmente, lo ideal sería integrar KubeLinter como parte de un proceso de CI/CD.</p>
 <p>Quizás las primeras aplicaciones se desplegaran en Kubernetes sin haber incorporado las buenas prácticas en materia de seguridad y ahora sea necesario examinar una gran número de ficheros YAML.</p>

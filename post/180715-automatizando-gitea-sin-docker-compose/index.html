@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.95.0" />
+<meta name="generator" content="Hugo 0.92.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -156,19 +156,19 @@
 <h1 id="creando-los-volúmenes-de-datos">Creando los volúmenes de datos</h1>
 <p>Tanto la base de datos como Gitea requieren un volumen para persistir datos.</p>
 <p>El script los crea usando el valor definido en las variable <code>GITEA_DB_VOLUME</code> y <code>GITEA_DATA_VOLUME</code>.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>sudo docker volume create <span style="color:#268bd2">$GITEA_DB_VOLUME</span>
-</span></span></code></pre></div><h1 id="creando-la-red-interna-entre-gitea-y-la-base-de-datos">Creando la red interna entre Gitea y la base de datos</h1>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">sudo docker volume create <span style="color:#268bd2">$GITEA_DB_VOLUME</span>
+</code></pre></div><h1 id="creando-la-red-interna-entre-gitea-y-la-base-de-datos">Creando la red interna entre Gitea y la base de datos</h1>
 <p>Las recomendación de Docker es usar una <em>user defined bridge network</em> para comunicar dos contenedores relacionados.</p>
 <p>Siguiendo este recomendación, el script crea la red <code>gitea-net</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>sudo docker network create gitea-net
-</span></span></code></pre></div><h1 id="copiando-la-configuración-de-gitea-al-volumen-gitea_data_volume">Copiando la configuración de Gitea al volumen $GITEA_DATA_VOLUME</h1>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">sudo docker network create gitea-net
+</code></pre></div><h1 id="copiando-la-configuración-de-gitea-al-volumen-gitea_data_volume">Copiando la configuración de Gitea al volumen $GITEA_DATA_VOLUME</h1>
 <p>En las primeras pruebas, arrancaba el contenedor de Gitea, copiaba el fichero <code>app.ini</code> y reiniciaba el contenedor para que los cambios fuera efectivos.</p>
 <p>Esto significa tener Gitea se tiene que arrancar dos veces, lo que aumenta el tiempo de espera.</p>
 <p>Para optimizar el tiempo de creación de una nueva instancia de Gitea, la versión actual del script usa un contenedor temporal para copiar el fichero de configuración al volumen de datos de Gitea:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>sudo docker run --rm -d --name gitea --mount <span style="color:#268bd2">source</span><span style="color:#719e07">=</span><span style="color:#268bd2">$GITEA_DATA_VOLUME</span>,target<span style="color:#719e07">=</span>/data gitea/gitea:<span style="color:#268bd2">$GITEA_VERSION</span> sleep <span style="color:#2aa198">60</span>
-</span></span><span style="display:flex;"><span>sudo docker cp <span style="color:#268bd2">$PWD</span>/app.ini gitea:/data/gitea/conf
-</span></span><span style="display:flex;"><span>sudo docker stop gitea
-</span></span></code></pre></div><p>En vez de arrancar Gitea, uso el comando <code>sleep</code> para crear un contenedor que monte el volumen de datos de Gitea y a continuación, copio el fichero de configuración &ldquo;pre-cocinado&rdquo; usando <code>docker cp</code>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">sudo docker run --rm -d --name gitea --mount <span style="color:#268bd2">source</span><span style="color:#719e07">=</span><span style="color:#268bd2">$GITEA_DATA_VOLUME</span>,target<span style="color:#719e07">=</span>/data gitea/gitea:<span style="color:#268bd2">$GITEA_VERSION</span> sleep <span style="color:#2aa198">60</span>
+sudo docker cp <span style="color:#268bd2">$PWD</span>/app.ini gitea:/data/gitea/conf
+sudo docker stop gitea
+</code></pre></div><p>En vez de arrancar Gitea, uso el comando <code>sleep</code> para crear un contenedor que monte el volumen de datos de Gitea y a continuación, copio el fichero de configuración &ldquo;pre-cocinado&rdquo; usando <code>docker cp</code>.</p>
 <p>Tras la copia del fichero, detengo el contenedor, que se elimina (gracias a la opción <code>--rm</code> en <code>docker run</code>).</p>
 <h1 id="arrancando-los-contenedores">Arrancando los contenedores</h1>
 <p>Una vez tenemos todo preparado, arrancamos el contenedor de la base de datos y el de Gitea.</p>

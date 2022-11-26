@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.95.0" />
+<meta name="generator" content="Hugo 0.92.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -145,103 +145,103 @@
 <p>Aunque no tiene nada que ver con la API, uno de los elementos clave para construir el cliente ha sido disponer una función con la que analizar los parámetros pasados a una función en Bash.</p>
 <p>Para ello me he basado en una función que desarrollé hace tiempo <a href="https://github.com/onthedock/reference_bash_scripts/blob/main/parse_cli_args/parse_cli_args.sh"><code>parse_cli_args.sh</code></a>.</p>
 <p>Con la intención de dividir la interacción con la API en funciones, quería poder nombrar los parámetros, de manera que fuera sencillo identificar qué es lo que se está pasando a la función:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#586e75"># Bad</span>
-</span></span><span style="display:flex;"><span>build_query <span style="color:#2aa198">&#39;1234&#39;</span> <span style="color:#2aa198">&#39;/path/to/file.json&#39;</span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75"># Good</span>
-</span></span><span style="display:flex;"><span>build_query --id <span style="color:#2aa198">&#39;1234&#39;</span> --output <span style="color:#2aa198">&#39;/path/to/file.json&#39;</span>
-</span></span></code></pre></div><p>Además, en la función <em>receptora</em>, aunque se asignen los parámetros posicionales a variables &ldquo;con un nombre claro&rdquo;, el problema es que los parámetros son <strong>posicionales</strong>, lo que obliga a recordad qué hay que pasar y <strong>en qué orden</strong>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>build_query<span style="color:#719e07">()</span> <span style="color:#719e07">{</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#b58900">local</span> id, output
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">id</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$1</span><span style="color:#2aa198">&#34;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">output</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$2</span><span style="color:#2aa198">&#34;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#586e75"># do something</span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">}</span>
-</span></span></code></pre></div><p>Lo que he hecho ha sido crear una función <code>parse_args</code> y llamarla desde cada función que necesite <em>parsear</em> parámetros. En vez crear una función <code>parse_args</code> para cada función (multiplicando el mismo código una y otra vez), he mantenido una única función <code>parse_args</code> con todos los parámetros que se usan en todas las funciones del <em>cliente</em>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell"><span style="color:#586e75"># Bad</span>
+build_query <span style="color:#2aa198">&#39;1234&#39;</span> <span style="color:#2aa198">&#39;/path/to/file.json&#39;</span>
+<span style="color:#586e75"># Good</span>
+build_query --id <span style="color:#2aa198">&#39;1234&#39;</span> --output <span style="color:#2aa198">&#39;/path/to/file.json&#39;</span>
+</code></pre></div><p>Además, en la función <em>receptora</em>, aunque se asignen los parámetros posicionales a variables &ldquo;con un nombre claro&rdquo;, el problema es que los parámetros son <strong>posicionales</strong>, lo que obliga a recordad qué hay que pasar y <strong>en qué orden</strong>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">build_query<span style="color:#719e07">()</span> <span style="color:#719e07">{</span>
+    <span style="color:#b58900">local</span> id, output
+    <span style="color:#268bd2">id</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$1</span><span style="color:#2aa198">&#34;</span>
+    <span style="color:#268bd2">output</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$2</span><span style="color:#2aa198">&#34;</span>
+    <span style="color:#586e75"># do something</span>
+<span style="color:#719e07">}</span>
+</code></pre></div><p>Lo que he hecho ha sido crear una función <code>parse_args</code> y llamarla desde cada función que necesite <em>parsear</em> parámetros. En vez crear una función <code>parse_args</code> para cada función (multiplicando el mismo código una y otra vez), he mantenido una única función <code>parse_args</code> con todos los parámetros que se usan en todas las funciones del <em>cliente</em>.</p>
 <p>Probablemente no es la mejor solución, pero funciona <code>¯\_(ツ)_/¯</code>.</p>
 <p>Así:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>build_query<span style="color:#719e07">()</span> <span style="color:#719e07">{</span>
-</span></span><span style="display:flex;"><span>    parse_args <span style="color:#268bd2">$@</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#586e75"># do something with $id and $output</span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">}</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>build_query --id <span style="color:#2aa198">&#39;1234&#39;</span> --output <span style="color:#2aa198">&#39;/path/to/file.json&#39;</span>
-</span></span></code></pre></div><blockquote>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">build_query<span style="color:#719e07">()</span> <span style="color:#719e07">{</span>
+    parse_args <span style="color:#268bd2">$@</span>
+    <span style="color:#586e75"># do something with $id and $output</span>
+<span style="color:#719e07">}</span>
+
+build_query --id <span style="color:#2aa198">&#39;1234&#39;</span> --output <span style="color:#2aa198">&#39;/path/to/file.json&#39;</span>
+</code></pre></div><blockquote>
 <p>Probablemente se puedan definir las variables (<code>id</code> y <code>output</code> en el ejemplo) como <a href="https://tldp.org/LDP/abs/html/othertypesv.html"><code>local</code></a> dentro de la función y así se eviten efectos imprevistos si se declaran también a nivel global&hellip;</p>
 </blockquote>
 <h3 id="construcción-de-la-query">Construcción de la <em>query</em></h3>
 <p>En función de la acción a realizar, los campos a incluir en la <em>query</em> varían de una acción a otra.</p>
 <p>En una consulta para filtrar documentos con un determinado valor en un campo concreto, la <em>query</em> sería algo como:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">&#34;action&#34;</span>: <span style="color:#2aa198">&#34;query&#34;</span>,
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">&#34;field&#34;</span>: <span style="color:#2aa198">&#34;name&#34;</span>,
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">&#34;operand&#34;</span>: <span style="color:#2aa198">&#34;==&#34;</span>,
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">&#34;value&#34;</span>: <span style="color:#2aa198">&#34;$name&#34;</span>
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><p>Mientras que para obtener un documento específico, tendríamos algo como:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">&#34;action&#34;</span>: <span style="color:#2aa198">&#34;get&#34;</span>,
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">&#34;id&#34;</span>: <span style="color:#2aa198">&#34;$id&#34;</span>
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><p>De nuevo, la solución ha sido la más sencilla (IMHO); usar un bloque <code>case</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>build_query<span style="color:#719e07">()</span> <span style="color:#719e07">{</span>
-</span></span><span style="display:flex;"><span>    parse_args <span style="color:#268bd2">$@</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#719e07">case</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$action</span><span style="color:#2aa198">&#34;</span> in
-</span></span><span style="display:flex;"><span>    <span style="color:#2aa198">&#34;get&#34;</span><span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>        cat <span style="color:#2aa198">&lt;&lt;-GET_QUERY
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">        {
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">            &#34;action&#34;: &#34;get&#34;,
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">            &#34;id&#34;: &#34;$id&#34;
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">        }
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">GET_QUERY</span>
-</span></span><span style="display:flex;"><span>        ;;
-</span></span><span style="display:flex;"><span>    <span style="color:#2aa198">&#34;query&#34;</span><span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>        cat <span style="color:#2aa198">&lt;&lt;-QUERY
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">        {
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">            &#34;action&#34;: &#34;query&#34;,
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">            &#34;field&#34;: &#34;$field&#34;,
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">            &#34;operand&#34;: &#34;==&#34;,
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">            &#34;value&#34;: &#34;$value&#34; 
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">        }
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">QUERY</span>
-</span></span><span style="display:flex;"><span>        ;;
-</span></span><span style="display:flex;"><span>    *<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#b58900">printf</span> <span style="color:#2aa198">&#34;[ERROR] Unknown command to build the query %s\n&#34;</span> <span style="color:#2aa198">&#34;cmd&#34;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#b58900">exit</span> <span style="color:#2aa198">1</span>
-</span></span><span style="display:flex;"><span>        ;;
-</span></span><span style="display:flex;"><span>    <span style="color:#719e07">esac</span>
-</span></span></code></pre></div><h2 id="llamar-a-la-api">Llamar a la API</h2>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-json" data-lang="json">{
+    <span style="color:#268bd2">&#34;action&#34;</span>: <span style="color:#2aa198">&#34;query&#34;</span>,
+    <span style="color:#268bd2">&#34;field&#34;</span>: <span style="color:#2aa198">&#34;name&#34;</span>,
+    <span style="color:#268bd2">&#34;operand&#34;</span>: <span style="color:#2aa198">&#34;==&#34;</span>,
+    <span style="color:#268bd2">&#34;value&#34;</span>: <span style="color:#2aa198">&#34;$name&#34;</span>
+}
+</code></pre></div><p>Mientras que para obtener un documento específico, tendríamos algo como:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-json" data-lang="json">{
+    <span style="color:#268bd2">&#34;action&#34;</span>: <span style="color:#2aa198">&#34;get&#34;</span>,
+    <span style="color:#268bd2">&#34;id&#34;</span>: <span style="color:#2aa198">&#34;$id&#34;</span>
+}
+</code></pre></div><p>De nuevo, la solución ha sido la más sencilla (IMHO); usar un bloque <code>case</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">build_query<span style="color:#719e07">()</span> <span style="color:#719e07">{</span>
+    parse_args <span style="color:#268bd2">$@</span>
+    <span style="color:#719e07">case</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$action</span><span style="color:#2aa198">&#34;</span> in
+    <span style="color:#2aa198">&#34;get&#34;</span><span style="color:#719e07">)</span>
+        cat <span style="color:#2aa198">&lt;&lt;-GET_QUERY
+</span><span style="color:#2aa198">        {
+</span><span style="color:#2aa198">            &#34;action&#34;: &#34;get&#34;,
+</span><span style="color:#2aa198">            &#34;id&#34;: &#34;$id&#34;
+</span><span style="color:#2aa198">        }
+</span><span style="color:#2aa198">GET_QUERY</span>
+        ;;
+    <span style="color:#2aa198">&#34;query&#34;</span><span style="color:#719e07">)</span>
+        cat <span style="color:#2aa198">&lt;&lt;-QUERY
+</span><span style="color:#2aa198">        {
+</span><span style="color:#2aa198">            &#34;action&#34;: &#34;query&#34;,
+</span><span style="color:#2aa198">            &#34;field&#34;: &#34;$field&#34;,
+</span><span style="color:#2aa198">            &#34;operand&#34;: &#34;==&#34;,
+</span><span style="color:#2aa198">            &#34;value&#34;: &#34;$value&#34; 
+</span><span style="color:#2aa198">        }
+</span><span style="color:#2aa198">QUERY</span>
+        ;;
+    *<span style="color:#719e07">)</span>
+        <span style="color:#b58900">printf</span> <span style="color:#2aa198">&#34;[ERROR] Unknown command to build the query %s\n&#34;</span> <span style="color:#2aa198">&#34;cmd&#34;</span>
+        <span style="color:#b58900">exit</span> <span style="color:#2aa198">1</span>
+        ;;
+    <span style="color:#719e07">esac</span>
+</code></pre></div><h2 id="llamar-a-la-api">Llamar a la API</h2>
 <p>Este bloque está inspirado directamente en el código de la entrada <a href="https://onthedock.github.io/post/220518-obtener-respuesta-y-http-status-con-curl/">Obtener respuesta y código de la petición HTTP con curl</a>.</p>
 <p>La única diferencia es que ahora se encuentra dentro de una función:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>call_api<span style="color:#719e07">()</span> <span style="color:#719e07">{</span>
-</span></span><span style="display:flex;"><span>    parse_args <span style="color:#268bd2">$@</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">api_response</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#719e07">$(</span>curl ...<span style="color:#719e07">)</span><span style="color:#2aa198">
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">    if [[ &#34;</span><span style="color:#268bd2">$api_response</span><span style="color:#2aa198">&#34; != &#39;200&#39; ]]; then
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">        printf &#34;</span><span style="color:#719e07">[</span>ERROR<span style="color:#719e07">]</span> API status code %s<span style="color:#cb4b16">\n</span><span style="color:#2aa198">&#34; &#34;</span><span style="color:#268bd2">$api_response</span><span style="color:#2aa198">&#34;
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">        exit 1
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">    else
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">        # write retrieved document to file
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">    fi
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">}
-</span></span></span></code></pre></div><blockquote>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">call_api<span style="color:#719e07">()</span> <span style="color:#719e07">{</span>
+    parse_args <span style="color:#268bd2">$@</span>
+    <span style="color:#268bd2">api_response</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#719e07">$(</span>curl ...<span style="color:#719e07">)</span><span style="color:#2aa198">
+</span><span style="color:#2aa198">    if [[ &#34;</span><span style="color:#268bd2">$api_response</span><span style="color:#2aa198">&#34; != &#39;200&#39; ]]; then
+</span><span style="color:#2aa198">        printf &#34;</span><span style="color:#719e07">[</span>ERROR<span style="color:#719e07">]</span> API status code %s<span style="color:#cb4b16">\n</span><span style="color:#2aa198">&#34; &#34;</span><span style="color:#268bd2">$api_response</span><span style="color:#2aa198">&#34;
+</span><span style="color:#2aa198">        exit 1
+</span><span style="color:#2aa198">    else
+</span><span style="color:#2aa198">        # write retrieved document to file
+</span><span style="color:#2aa198">    fi
+</span><span style="color:#2aa198">}
+</span></code></pre></div><blockquote>
 <p>Hace unos días leí el artículo  <a href="https://medium.com/@matryer/line-of-sight-in-code-186dd7cdea88">Code: Align the happy path to the left edge</a> de Mat Ryer, por lo que quizás la reescriba para que el <em>happy path</em> esté a la izquierda y sea más fácil de &ldquo;leer&rdquo;.</p>
 </blockquote>
 <h2 id="funciones-sencillas-de-recordar">Funciones sencillas de recordar</h2>
 <p>La función <code>build_query</code> requiere diferentes parámetros en función del tipo de <em>query</em> que quieras hacer. Pero para mí resulta confuso tener que recordar todos los parámetros en función de cada tipo de consulta.</p>
 <p>Así que he creado unas funciones que <em>envuelven</em> (<em>wrap</em>) las funciones necesarias para hacer la llamada a la API pero que son -eso espero- más sencillas de usar.</p>
 <p>Por ejemplo, <code>get_document_by_id</code> deja claro que requiere un <code>id</code>, así que resulta <em>natural</em> <code>get_document_by_id --id '1234'</code>. (O incluso <code>get_document_with --id '1234'</code>, por ejemplo, aunque prefieron la forma &ldquo;explícita&rdquo;).</p>
-<p>Del mismo modo, <code>get_documents_by_type --type 'contacto' --field 'name' --value 'xavi'</code>; puede &ldquo;leerse&rdquo; como &ldquo;<em>obtén los documentos de tipo &lsquo;contacto&rsquo; que en el campo &rsquo;name&rsquo;  tienen el valor &lsquo;xavi&rsquo;</em>&rdquo;. Esto simplifica el uso de las funciones y evita errores.</p>
+<p>Del mismo modo, <code>get_documents_by_type --type 'contacto' --field 'name' --value 'xavi'</code>; puede &ldquo;leerse&rdquo; como &ldquo;<em>obtén los documentos de tipo &lsquo;contacto&rsquo; que en el campo &lsquo;name&rsquo;  tienen el valor &lsquo;xavi&rsquo;</em>&rdquo;. Esto simplifica el uso de las funciones y evita errores.</p>
 <p>Estas funciones invocan a las funciones &ldquo;de bajo nivel&rdquo;:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>get_documents_by_type<span style="color:#719e07">()</span> <span style="color:#719e07">{</span>
-</span></span><span style="display:flex;"><span>    parse_args <span style="color:#268bd2">$@</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">query</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>build_query --action <span style="color:#2aa198">&#34;query&#34;</span> --type <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$type</span><span style="color:#2aa198">&#34;</span> --field <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$field</span><span style="color:#2aa198">&#34;</span> --value <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$value</span><span style="color:#2aa198">&#34;</span><span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>    call_api --query <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$query</span><span style="color:#2aa198">&#34;</span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">}</span>
-</span></span></code></pre></div><p>Todas estas funciones se encuentran en un fichero <code>api_client.sh</code> que se puede <em>importar</em> (vía <code>source</code>) en otros <em>scripts</em> y reusar una y otra vez.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#719e07">#!/bin/bash
-</span></span></span><span style="display:flex;"><span><span style="color:#719e07"></span><span style="color:#b58900">source</span> ~/lib/api_client.sh
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75"># Do something</span>
-</span></span></code></pre></div><h2 id="resumen">Resumen</h2>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">get_documents_by_type<span style="color:#719e07">()</span> <span style="color:#719e07">{</span>
+    parse_args <span style="color:#268bd2">$@</span>
+    <span style="color:#268bd2">query</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>build_query --action <span style="color:#2aa198">&#34;query&#34;</span> --type <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$type</span><span style="color:#2aa198">&#34;</span> --field <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$field</span><span style="color:#2aa198">&#34;</span> --value <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$value</span><span style="color:#2aa198">&#34;</span><span style="color:#719e07">)</span>
+    call_api --query <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$query</span><span style="color:#2aa198">&#34;</span>
+<span style="color:#719e07">}</span>
+</code></pre></div><p>Todas estas funciones se encuentran en un fichero <code>api_client.sh</code> que se puede <em>importar</em> (vía <code>source</code>) en otros <em>scripts</em> y reusar una y otra vez.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell"><span style="color:#719e07">#!/bin/bash
+</span><span style="color:#719e07"></span><span style="color:#b58900">source</span> ~/lib/api_client.sh
+
+<span style="color:#586e75"># Do something</span>
+</code></pre></div><h2 id="resumen">Resumen</h2>
 <p>En esta entrada le he dado una <em>nueva vuelta de tuerca</em> al uso de Bash para interaccionar con una API usando <code>curl</code>.</p>
 <p>En vez de repetir el código una y otra vez para validar la respuestas de la API, he creado una nueva versión de un <em>cliente</em> para la API.</p>
 <p>El objetivo es proporcionar una mayor funcionalidad (control de errores, parámetros con nombre, etc) para que sea más sencillo interaccionar con la API y evitar que se <em>cuelen</em> respuestas incorrectas que hagan fallar las <em>pipelines</em> inesperadamente o peor aún, que modifiquen la información de la base de datos de manera inconsistente.</p>

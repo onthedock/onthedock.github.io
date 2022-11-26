@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.95.0" />
+<meta name="generator" content="Hugo 0.92.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -147,110 +147,111 @@
 <blockquote>
 <p>LLamamos <code>doflag</code> al módulo en referencia al artículo de Digital Ocean ;)</p>
 </blockquote>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>mkdir doflag
-</span></span><span style="display:flex;"><span><span style="color:#b58900">cd</span> doflag
-</span></span><span style="display:flex;"><span>go mod init doflag
-</span></span></code></pre></div><p>La primera versión de la aplicación es:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#719e07">package</span> main
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">import</span> (
-</span></span><span style="display:flex;"><span>    <span style="color:#2aa198">&#34;flag&#34;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#2aa198">&#34;fmt&#34;</span>
-</span></span><span style="display:flex;"><span>)
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">var</span> message <span style="color:#dc322f">string</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    flag.<span style="color:#268bd2">StringVar</span>(<span style="color:#719e07">&amp;</span>message, <span style="color:#2aa198">&#34;msg&#34;</span>, <span style="color:#2aa198">&#34;&#34;</span>, <span style="color:#2aa198">&#34;Message string&#34;</span>)
-</span></span><span style="display:flex;"><span>    flag.<span style="color:#268bd2">Parse</span>()
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    fmt.<span style="color:#268bd2">Println</span>(message)
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><p>Para definir &ldquo;opciones&rdquo; usando el paquete <code>flag</code>, podemos usar <code>flag.String</code> o <code>flag.StringVar</code> para definir una <em>opción</em> de tipo <code>string</code>; en el primer caso, el <em>flag</em> es un puntero a una variable del tipo indicado (en este caso, <code>string</code>):</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">mkdir doflag
+<span style="color:#b58900">cd</span> doflag
+go mod init doflag
+</code></pre></div><p>La primera versión de la aplicación es:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
+
+<span style="color:#719e07">import</span> (
+    <span style="color:#2aa198">&#34;flag&#34;</span>
+    <span style="color:#2aa198">&#34;fmt&#34;</span>
+)
+
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
+    <span style="color:#268bd2">var</span> message <span style="color:#dc322f">string</span>
+
+    flag.<span style="color:#268bd2">StringVar</span>(<span style="color:#719e07">&amp;</span>message, <span style="color:#2aa198">&#34;msg&#34;</span>, <span style="color:#2aa198">&#34;&#34;</span>, <span style="color:#2aa198">&#34;Message string&#34;</span>)
+    flag.<span style="color:#268bd2">Parse</span>()
+
+    fmt.<span style="color:#268bd2">Println</span>(message)
+}
+</code></pre></div><p>Para definir &ldquo;opciones&rdquo; usando el paquete <code>flag</code>, podemos usar <code>flag.String</code> o <code>flag.StringVar</code> para definir una <em>opción</em> de tipo <code>string</code>; en el primer caso, el <em>flag</em> es un puntero a una variable del tipo indicado (en este caso, <code>string</code>):</p>
 <blockquote>
 <p>Uso <em>opciones</em> como nombre genérico para no tener que distinguir entre <em>flags</em> y <em>arguments</em></p>
 </blockquote>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">var</span> message <span style="color:#719e07">*</span><span style="color:#dc322f">string</span> = flag.<span style="color:#268bd2">String</span>(<span style="color:#2aa198">&#34;msg&#34;</span>, <span style="color:#2aa198">&#34;&#34;</span>, <span style="color:#2aa198">&#34;Message string&#34;</span>)
-</span></span></code></pre></div><p>En el segundo caso, declaramos una variable del tipo deseado y pasamos la referencia a <code>flag.StringVar()</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">var</span> message <span style="color:#dc322f">string</span>
-</span></span><span style="display:flex;"><span>flag.<span style="color:#268bd2">StringVar</span>(<span style="color:#719e07">&amp;</span>message, <span style="color:#2aa198">&#34;msg&#34;</span>, <span style="color:#2aa198">&#34;&#34;</span>, <span style="color:#2aa198">&#34;Message string&#34;</span>)
-</span></span></code></pre></div><p>Prefiero usar esta segunda forma porque así <code>message</code> contiene el valor (y no un puntero al valor), lo que como <em>n00b</em> me parece más sencillo ;)</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-go" data-lang="go"><span style="color:#268bd2">var</span> message <span style="color:#719e07">*</span><span style="color:#dc322f">string</span> = flag.<span style="color:#268bd2">String</span>(<span style="color:#2aa198">&#34;msg&#34;</span>, <span style="color:#2aa198">&#34;&#34;</span>, <span style="color:#2aa198">&#34;Message string&#34;</span>)
+</code></pre></div><p>En el segundo caso, declaramos una variable del tipo deseado y pasamos la referencia a <code>flag.StringVar()</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-go" data-lang="go"><span style="color:#268bd2">var</span> message <span style="color:#dc322f">string</span>
+flag.<span style="color:#268bd2">StringVar</span>(<span style="color:#719e07">&amp;</span>message, <span style="color:#2aa198">&#34;msg&#34;</span>, <span style="color:#2aa198">&#34;&#34;</span>, <span style="color:#2aa198">&#34;Message string&#34;</span>)
+</code></pre></div><p>Prefiero usar esta segunda forma porque así <code>message</code> contiene el valor (y no un puntero al valor), lo que como <em>n00b</em> me parece más sencillo ;)</p>
 <p>Tras definir todas las <em>opciones</em> para la aplicación, usamos <code>flag.Parse()</code>.</p>
 <p>Al ejecutar la aplicación, <code>flag.Parse</code> asigna los valores proporcionados desde la línea de comandos a las variables indicadas; a partir de ese momento podemos usarlas en la aplicación con normalidad.</p>
 <p>Ejecutamos la aplicación (tras compilarla):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ ./doflag
-</span></span></code></pre></div><p>La aplicación <em>parece</em> que no hace nada pero en realidad está imprimiendo la cadena almacenada en <code>message</code>, que se debe proporcionar desde la CLI (y que por defecto está vacía).</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ ./doflag
+
+</code></pre></div><p>La aplicación <em>parece</em> que no hace nada pero en realidad está imprimiendo la cadena almacenada en <code>message</code>, que se debe proporcionar desde la CLI (y que por defecto está vacía).</p>
 <p>Lo vemos más claramente modificando el <strong>valor por defecto</strong> de la <em>opción</em> <code>msg</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span>    flag.<span style="color:#268bd2">StringVar</span>(<span style="color:#719e07">&amp;</span>message, <span style="color:#2aa198">&#34;msg&#34;</span>, <span style="color:#2aa198">&#34;Hello World!&#34;</span>, <span style="color:#2aa198">&#34;Message string&#34;</span>)
-</span></span></code></pre></div><p>Ejecutando de nuevo (tras compilar):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ ./doflag 
-</span></span><span style="display:flex;"><span>Hello World!
-</span></span></code></pre></div><p>Como ya habrás deducido, al definir una <em>opción</em> de CLI, pasamos el <em>identificador</em> de la opción (<code>msg</code>), el valor por defecto (<code>''</code> inicialmente y <code>'Hello World!</code> tras actualizar la aplicación) y la <em>descripción</em> de la opción&hellip;</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-go" data-lang="go">    flag.<span style="color:#268bd2">StringVar</span>(<span style="color:#719e07">&amp;</span>message, <span style="color:#2aa198">&#34;msg&#34;</span>, <span style="color:#2aa198">&#34;Hello World!&#34;</span>, <span style="color:#2aa198">&#34;Message string&#34;</span>)
+</code></pre></div><p>Ejecutando de nuevo (tras compilar):</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ ./doflag 
+Hello World!
+</code></pre></div><p>Como ya habrás deducido, al definir una <em>opción</em> de CLI, pasamos el <em>identificador</em> de la opción (<code>msg</code>), el valor por defecto (<code>''</code> inicialmente y <code>'Hello World!</code> tras actualizar la aplicación) y la <em>descripción</em> de la opción&hellip;</p>
 <p>Al usar el paquete <code>flag</code> éste proporciona una <em>opción</em> por defecto, <code>-h</code> o <code>-help</code> que muestra información sobre las <em>opciones</em> definidas para la aplicación:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ ./doflag -help
-</span></span><span style="display:flex;"><span>Usage of ./doflag:
-</span></span><span style="display:flex;"><span>  -msg string
-</span></span><span style="display:flex;"><span>        Message string <span style="color:#719e07">(</span>default <span style="color:#2aa198">&#34;Hello World!&#34;</span><span style="color:#719e07">)</span>
-</span></span></code></pre></div><p>Como ves, se muestra el uso de las opciones definidas y sus valores definidos por defecto.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ ./doflag -help
+Usage of ./doflag:
+  -msg string
+        Message string <span style="color:#719e07">(</span>default <span style="color:#2aa198">&#34;Hello World!&#34;</span><span style="color:#719e07">)</span>
+</code></pre></div><p>Como ves, se muestra el uso de las opciones definidas y sus valores definidos por defecto.</p>
 <p>Si ejecutamos la aplicación especificando un mensaje para la aplicación mediante <code>-msg</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ ./doflag -msg <span style="color:#2aa198">&#34;Hola que tal&#34;</span>
-</span></span><span style="display:flex;"><span>Hola que tal
-</span></span></code></pre></div><h2 id="flags">Flags</h2>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ ./doflag -msg <span style="color:#2aa198">&#34;Hola que tal&#34;</span>
+Hola que tal
+</code></pre></div><h2 id="flags">Flags</h2>
 <p>Otra de las opciones que tenemos para modificar el comportamiento de la aplicación es el uso de <em>flags</em>. Las <em>flags</em> corresponden a valores de tipo <em>bool</em> (<em>true</em> o <em>false</em>).</p>
 <p>Añadimos el <em>flag</em> <code>-up</code>, con valor por defecto <code>false</code>, asociado a la variable <code>uppercase</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span>flag.<span style="color:#268bd2">BoolVar</span>(<span style="color:#719e07">&amp;</span>uppercase, <span style="color:#2aa198">&#34;up&#34;</span>, <span style="color:#cb4b16">false</span>, <span style="color:#2aa198">&#34;Convert the message to uppercase&#34;</span>)
-</span></span></code></pre></div><p>El objetivo es que, si se proporciona el <em>flag</em> <code>-up</code>, la salida de la aplicación se muestre en mayúsculas:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#719e07">package</span> main
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">import</span> (
-</span></span><span style="display:flex;"><span>    <span style="color:#2aa198">&#34;flag&#34;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#2aa198">&#34;fmt&#34;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#2aa198">&#34;strings&#34;</span>
-</span></span><span style="display:flex;"><span>)
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">var</span> message <span style="color:#dc322f">string</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">var</span> uppercase <span style="color:#dc322f">bool</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    flag.<span style="color:#268bd2">StringVar</span>(<span style="color:#719e07">&amp;</span>message, <span style="color:#2aa198">&#34;msg&#34;</span>, <span style="color:#2aa198">&#34;Hello World!&#34;</span>, <span style="color:#2aa198">&#34;Message string&#34;</span>)
-</span></span><span style="display:flex;"><span>    flag.<span style="color:#268bd2">BoolVar</span>(<span style="color:#719e07">&amp;</span>uppercase, <span style="color:#2aa198">&#34;up&#34;</span>, <span style="color:#cb4b16">false</span>, <span style="color:#2aa198">&#34;Convert the message to uppercase&#34;</span>)
-</span></span><span style="display:flex;"><span>    flag.<span style="color:#268bd2">Parse</span>()
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#719e07">if</span> uppercase {
-</span></span><span style="display:flex;"><span>        message = strings.<span style="color:#268bd2">ToUpper</span>(message)
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>    fmt.<span style="color:#268bd2">Println</span>(message)
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><p>Compilamos y ejecutamos la aplicación:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ ./doflag 
-</span></span><span style="display:flex;"><span>Hello World!
-</span></span></code></pre></div><p>Por defecto, el mensaje (con la opción por defecto de <code>-msg</code>) se muestra en minúsculas.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-go" data-lang="go">flag.<span style="color:#268bd2">BoolVar</span>(<span style="color:#719e07">&amp;</span>uppercase, <span style="color:#2aa198">&#34;up&#34;</span>, <span style="color:#cb4b16">false</span>, <span style="color:#2aa198">&#34;Convert the message to uppercase&#34;</span>)
+</code></pre></div><p>El objetivo es que, si se proporciona el <em>flag</em> <code>-up</code>, la salida de la aplicación se muestre en mayúsculas:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
+
+<span style="color:#719e07">import</span> (
+    <span style="color:#2aa198">&#34;flag&#34;</span>
+    <span style="color:#2aa198">&#34;fmt&#34;</span>
+    <span style="color:#2aa198">&#34;strings&#34;</span>
+)
+
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
+    <span style="color:#268bd2">var</span> message <span style="color:#dc322f">string</span>
+    <span style="color:#268bd2">var</span> uppercase <span style="color:#dc322f">bool</span>
+
+    flag.<span style="color:#268bd2">StringVar</span>(<span style="color:#719e07">&amp;</span>message, <span style="color:#2aa198">&#34;msg&#34;</span>, <span style="color:#2aa198">&#34;Hello World!&#34;</span>, <span style="color:#2aa198">&#34;Message string&#34;</span>)
+    flag.<span style="color:#268bd2">BoolVar</span>(<span style="color:#719e07">&amp;</span>uppercase, <span style="color:#2aa198">&#34;up&#34;</span>, <span style="color:#cb4b16">false</span>, <span style="color:#2aa198">&#34;Convert the message to uppercase&#34;</span>)
+    flag.<span style="color:#268bd2">Parse</span>()
+
+    <span style="color:#719e07">if</span> uppercase {
+        message = strings.<span style="color:#268bd2">ToUpper</span>(message)
+    }
+    fmt.<span style="color:#268bd2">Println</span>(message)
+}
+</code></pre></div><p>Compilamos y ejecutamos la aplicación:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ ./doflag 
+Hello World!
+</code></pre></div><p>Por defecto, el mensaje (con la opción por defecto de <code>-msg</code>) se muestra en minúsculas.</p>
 <p>Al pasar <code>-up</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ ./doflag -up
-</span></span><span style="display:flex;"><span>HELLO WORLD!
-</span></span></code></pre></div><p>Obviamente, la opción de usar <code>-msg</code> sigue disponible:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ ./doflag -up -msg <span style="color:#2aa198">&#34;Hola de nuevo&#34;</span>
-</span></span><span style="display:flex;"><span>HOLA DE NUEVO
-</span></span></code></pre></div><p>Y el orden de las opciones no es relevante:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>./doflag  -msg <span style="color:#2aa198">&#34;Tanto monta, monta tanto...&#34;</span>  -up
-</span></span><span style="display:flex;"><span>TANTO MONTA, MONTA TANTO...
-</span></span></code></pre></div><p>Automáticamente, el paquete <code>flag</code> ha actualizado la opción <code>-h</code> para incluir la nueva opción de la aplicación:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ ./doflag -help
-</span></span><span style="display:flex;"><span>Usage of ./doflag:
-</span></span><span style="display:flex;"><span>  -msg string
-</span></span><span style="display:flex;"><span>        Message string <span style="color:#719e07">(</span>default <span style="color:#2aa198">&#34;Hello World!&#34;</span><span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>  -up
-</span></span><span style="display:flex;"><span>        Convert the message to uppercase
-</span></span></code></pre></div><p>Como las opciones de tipo <em>flag</em> (con valor <code>bool</code>) sólo provocan un efecto si están presentes, se considera que su valor por defecto es <code>false</code> (y por ello no se muestra el valor por defecto al usar <code>-help</code>).</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ ./doflag -up
+HELLO WORLD!
+</code></pre></div><p>Obviamente, la opción de usar <code>-msg</code> sigue disponible:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ ./doflag -up -msg <span style="color:#2aa198">&#34;Hola de nuevo&#34;</span>
+HOLA DE NUEVO
+</code></pre></div><p>Y el orden de las opciones no es relevante:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">./doflag  -msg <span style="color:#2aa198">&#34;Tanto monta, monta tanto...&#34;</span>  -up
+TANTO MONTA, MONTA TANTO...
+</code></pre></div><p>Automáticamente, el paquete <code>flag</code> ha actualizado la opción <code>-h</code> para incluir la nueva opción de la aplicación:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ ./doflag -help
+Usage of ./doflag:
+  -msg string
+        Message string <span style="color:#719e07">(</span>default <span style="color:#2aa198">&#34;Hello World!&#34;</span><span style="color:#719e07">)</span>
+  -up
+        Convert the message to uppercase
+</code></pre></div><p>Como las opciones de tipo <em>flag</em> (con valor <code>bool</code>) sólo provocan un efecto si están presentes, se considera que su valor por defecto es <code>false</code> (y por ello no se muestra el valor por defecto al usar <code>-help</code>).</p>
 <h2 id="formato-de-las-opciones">Formato de las opciones</h2>
 <p>En la documentación oficial del paquete <code>flag</code> se indica que las siguientes formas para las opciones son válidas:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#719e07">-</span>flag
-</span></span><span style="display:flex;"><span><span style="color:#719e07">-</span>flag=x
-</span></span><span style="display:flex;"><span><span style="color:#719e07">-</span>flag x  <span style="color:#586e75">// non-boolean flags only
-</span></span></span></code></pre></div><p>El <em>formato largo</em> <code>--option</code> (con dos guiones) no está oficialmente soportado (o no se menciona en la documentación), sin embargo parece que también funciona:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ ./doflag --up --msg<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;Las comillas son necesarias&#34;</span> 
-</span></span><span style="display:flex;"><span>LAS COMILLAS SON NECESARIAS
-</span></span></code></pre></div><h2 id="resumen">Resumen</h2>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-go" data-lang="go"><span style="color:#719e07">-</span>flag
+<span style="color:#719e07">-</span>flag=x
+<span style="color:#719e07">-</span>flag x  <span style="color:#586e75">// non-boolean flags only
+</span></code></pre></div><p>El <em>formato largo</em> <code>--option</code> (con dos guiones) no está oficialmente soportado (o no se menciona en la documentación), sin embargo parece que también funciona:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ ./doflag --up --msg<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;Las comillas son necesarias&#34;</span> 
+LAS COMILLAS SON NECESARIAS
+</code></pre></div><h2 id="resumen">Resumen</h2>
 <p>El paquete <code>flag</code> permite gestionar las opciones que se pasar a la aplicación desde la línea de comando de manera sencilla.</p>
 <p>También permite gestionar <em>subcomandos</em> (como en <code>git clone ...</code>), con opciones diferentes para cada subcomando.</p>
 <p>Existen paquetes de terceros que proporcionan todavía más funcionalidad, como <a href="https://pkg.go.dev/github.com/spf13/cobra"><code>cobra</code></a>.</p>

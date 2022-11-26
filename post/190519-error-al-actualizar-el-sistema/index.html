@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.95.0" />
+<meta name="generator" content="Hugo 0.92.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -132,87 +132,87 @@
 
   <div class="article-body"><p>Después de resolver el <a href="https://onthedock.github.io/post/190519-iniciar-dnsmasq-durante-el-inicio-del-sistema/">problema con el DNS</a> en el equipo de laboratorio tenía varias actualizaciones pendientes de instalar.</p>
 <p>Sin embargo, una de las actualizaciones ha fallado por no tener bien resueltas las depedencias:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ sudo apt upgrade -y
-</span></span><span style="display:flex;"><span>Reading package lists... Done
-</span></span><span style="display:flex;"><span>Building dependency tree       
-</span></span><span style="display:flex;"><span>Reading state information... Done
-</span></span><span style="display:flex;"><span>You might want to run <span style="color:#2aa198">&#39;apt --fix-broken install&#39;</span> to correct these.
-</span></span><span style="display:flex;"><span>The following packages have unmet dependencies:
-</span></span><span style="display:flex;"><span> python-samba : Depends: libwbclient0 <span style="color:#719e07">(=</span> 2:4.5.16+dfsg-1+deb9u1<span style="color:#719e07">)</span> but 2:4.5.16+dfsg-1+deb9u2 is installed
-</span></span><span style="display:flex;"><span>                Depends: samba-libs <span style="color:#719e07">(=</span> 2:4.5.16+dfsg-1+deb9u1<span style="color:#719e07">)</span> but 2:4.5.16+dfsg-1+deb9u2 is installed
-</span></span><span style="display:flex;"><span>E: Unmet dependencies. Try <span style="color:#2aa198">&#39;apt --fix-broken install&#39;</span> with no packages <span style="color:#719e07">(</span>or specify a solution<span style="color:#719e07">)</span>.
-</span></span></code></pre></div><p>Siguiendo las instrucciones de la salida del comando, he lanzado <code>sudo apt --fix-broken install</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ sudo apt --fix-broken install
-</span></span><span style="display:flex;"><span>...
-</span></span><span style="display:flex;"><span>SyntaxError: invalid syntax
-</span></span><span style="display:flex;"><span>dpkg: error processing archive /var/cache/apt/archives/python-samba_2%3a4.5.16+dfsg-1+deb9u2_amd64.deb <span style="color:#719e07">(</span>--unpack<span style="color:#719e07">)</span>:
-</span></span><span style="display:flex;"><span> subprocess new pre-removal script returned error <span style="color:#b58900">exit</span> status <span style="color:#2aa198">1</span>
-</span></span><span style="display:flex;"><span>Traceback <span style="color:#719e07">(</span>most recent call last<span style="color:#719e07">)</span>:
-</span></span><span style="display:flex;"><span>  File <span style="color:#2aa198">&#34;/usr/bin/pycompile&#34;</span>, line 35, in &lt;module&gt;
-</span></span><span style="display:flex;"><span>    from debpython.version import SUPPORTED, debsorted, vrepr, <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>  File <span style="color:#2aa198">&#34;/usr/share/python/debpython/version.py&#34;</span>, line 24, in &lt;module&gt;
-</span></span><span style="display:flex;"><span>    from ConfigParser import SafeConfigParser
-</span></span><span style="display:flex;"><span>ImportError: No module named <span style="color:#2aa198">&#39;ConfigParser&#39;</span>
-</span></span><span style="display:flex;"><span>dpkg: error <span style="color:#719e07">while</span> cleaning up:
-</span></span><span style="display:flex;"><span> subprocess installed post-installation script returned error <span style="color:#b58900">exit</span> status <span style="color:#2aa198">1</span>
-</span></span><span style="display:flex;"><span>Errors were encountered <span style="color:#719e07">while</span> processing:
-</span></span><span style="display:flex;"><span> /var/cache/apt/archives/python-samba_2%3a4.5.16+dfsg-1+deb9u2_amd64.deb
-</span></span><span style="display:flex;"><span>E: Sub-process /usr/bin/dpkg returned an error code <span style="color:#719e07">(</span>1<span style="color:#719e07">)</span>
-</span></span></code></pre></div><h2 id="buscando-información-sobre-el-error">Buscando información sobre el error</h2>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ sudo apt upgrade -y
+Reading package lists... Done
+Building dependency tree       
+Reading state information... Done
+You might want to run <span style="color:#2aa198">&#39;apt --fix-broken install&#39;</span> to correct these.
+The following packages have unmet dependencies:
+ python-samba : Depends: libwbclient0 <span style="color:#719e07">(=</span> 2:4.5.16+dfsg-1+deb9u1<span style="color:#719e07">)</span> but 2:4.5.16+dfsg-1+deb9u2 is installed
+                Depends: samba-libs <span style="color:#719e07">(=</span> 2:4.5.16+dfsg-1+deb9u1<span style="color:#719e07">)</span> but 2:4.5.16+dfsg-1+deb9u2 is installed
+E: Unmet dependencies. Try <span style="color:#2aa198">&#39;apt --fix-broken install&#39;</span> with no packages <span style="color:#719e07">(</span>or specify a solution<span style="color:#719e07">)</span>.
+</code></pre></div><p>Siguiendo las instrucciones de la salida del comando, he lanzado <code>sudo apt --fix-broken install</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ sudo apt --fix-broken install
+...
+SyntaxError: invalid syntax
+dpkg: error processing archive /var/cache/apt/archives/python-samba_2%3a4.5.16+dfsg-1+deb9u2_amd64.deb <span style="color:#719e07">(</span>--unpack<span style="color:#719e07">)</span>:
+ subprocess new pre-removal script returned error <span style="color:#b58900">exit</span> status <span style="color:#2aa198">1</span>
+Traceback <span style="color:#719e07">(</span>most recent call last<span style="color:#719e07">)</span>:
+  File <span style="color:#2aa198">&#34;/usr/bin/pycompile&#34;</span>, line 35, in &lt;module&gt;
+    from debpython.version import SUPPORTED, debsorted, vrepr, <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>  File <span style="color:#2aa198">&#34;/usr/share/python/debpython/version.py&#34;</span>, line 24, in &lt;module&gt;
+    from ConfigParser import SafeConfigParser
+ImportError: No module named <span style="color:#2aa198">&#39;ConfigParser&#39;</span>
+dpkg: error <span style="color:#719e07">while</span> cleaning up:
+ subprocess installed post-installation script returned error <span style="color:#b58900">exit</span> status <span style="color:#2aa198">1</span>
+Errors were encountered <span style="color:#719e07">while</span> processing:
+ /var/cache/apt/archives/python-samba_2%3a4.5.16+dfsg-1+deb9u2_amd64.deb
+E: Sub-process /usr/bin/dpkg returned an error code <span style="color:#719e07">(</span>1<span style="color:#719e07">)</span>
+</code></pre></div><h2 id="buscando-información-sobre-el-error">Buscando información sobre el error</h2>
 <p>A través de Google he encontrado esta entrada en <a href="https://askubuntu.com/questions/438345/how-to-remove-install-a-package-that-is-not-fully-installed">StackExchange: How to remove/install a package that is not fully installed?</a>.</p>
 <p>La respuesta indica que el fallo se encuentra en el <em>pre-removal script returned error exit status 1</em>, por lo que lo que hay que hacer es revisar este script y ver qué hace para entenderlo.</p>
 <p>Aunque el consejo parece lícito, he perdido un buen rato revisando el script y ejecutando comandos potencialmente peligrosos como <code>root</code>; el script lista los diferentes scripts en Python que componen el paquete <code>python-samba</code> y los elimina:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ cat /var/lib/dpkg/info/python-samba.prerm 
-</span></span><span style="display:flex;"><span><span style="color:#586e75">#!/bin/sh</span>
-</span></span><span style="display:flex;"><span><span style="color:#b58900">set</span> -e
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75"># Automatically added by dh_python2:</span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">if</span> which pyclean &gt;/dev/null 2&gt;&amp;1; <span style="color:#719e07">then</span>
-</span></span><span style="display:flex;"><span>	pyclean -p python-samba 
-</span></span><span style="display:flex;"><span><span style="color:#719e07">else</span>
-</span></span><span style="display:flex;"><span>	dpkg -L python-samba | grep <span style="color:#cb4b16">\.</span>py$ | <span style="color:#719e07">while</span> <span style="color:#b58900">read</span> file
-</span></span><span style="display:flex;"><span>	<span style="color:#719e07">do</span>
-</span></span><span style="display:flex;"><span>		rm -f <span style="color:#2aa198">&#34;</span><span style="color:#2aa198">${</span><span style="color:#268bd2">file</span><span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span><span style="color:#719e07">[</span>co<span style="color:#719e07">]</span> &gt;/dev/null
-</span></span><span style="display:flex;"><span>  	<span style="color:#719e07">done</span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">fi</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75"># End automatically added section</span>
-</span></span></code></pre></div><p>Me ha parecido <em>sospechoso</em> el <code>[co]</code> tras el nombre de fichero, pero después de eliminarlo, obtenía el mismo error.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ cat /var/lib/dpkg/info/python-samba.prerm 
+<span style="color:#586e75">#!/bin/sh</span>
+<span style="color:#b58900">set</span> -e
+
+<span style="color:#586e75"># Automatically added by dh_python2:</span>
+<span style="color:#719e07">if</span> which pyclean &gt;/dev/null 2&gt;&amp;1; <span style="color:#719e07">then</span>
+	pyclean -p python-samba 
+<span style="color:#719e07">else</span>
+	dpkg -L python-samba | grep <span style="color:#cb4b16">\.</span>py$ | <span style="color:#719e07">while</span> <span style="color:#b58900">read</span> file
+	<span style="color:#719e07">do</span>
+		rm -f <span style="color:#2aa198">&#34;</span><span style="color:#2aa198">${</span><span style="color:#268bd2">file</span><span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span><span style="color:#719e07">[</span>co<span style="color:#719e07">]</span> &gt;/dev/null
+  	<span style="color:#719e07">done</span>
+<span style="color:#719e07">fi</span>
+
+<span style="color:#586e75"># End automatically added section</span>
+</code></pre></div><p>Me ha parecido <em>sospechoso</em> el <code>[co]</code> tras el nombre de fichero, pero después de eliminarlo, obtenía el mismo error.</p>
 <h2 id="cambiando-el-enfoque">Cambiando el enfoque</h2>
 <p>Revisando de nuevo el error me he concentrado en la parte del <code>ImportError</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ sudo apt install python-samba --upgrade
-</span></span><span style="display:flex;"><span>...
-</span></span><span style="display:flex;"><span>ImportError: No module named <span style="color:#2aa198">&#39;ConfigParser&#39;</span>
-</span></span><span style="display:flex;"><span>dpkg: error <span style="color:#719e07">while</span> cleaning up:
-</span></span><span style="display:flex;"><span> subprocess installed post-installation script returned error <span style="color:#b58900">exit</span> status <span style="color:#2aa198">1</span>
-</span></span><span style="display:flex;"><span>Errors were encountered <span style="color:#719e07">while</span> processing:
-</span></span><span style="display:flex;"><span> /var/cache/apt/archives/python-samba_2%3a4.5.16+dfsg-1+deb9u2_amd64.deb
-</span></span><span style="display:flex;"><span>E: Sub-process /usr/bin/dpkg returned an error code <span style="color:#719e07">(</span>1<span style="color:#719e07">)</span>
-</span></span></code></pre></div><p>En la entrada de <a href="https://stackoverflow.com/questions/14087598/python-3-importerror-no-module-named-configparser">StackOverflow: Python 3 ImportError: No module named &lsquo;ConfigParser&rsquo;</a> se deja bien claro que <code>ConfigParser</code> ya no existe en Python 3; ha sido renombrado a <code>configparser</code>, por lo que el paquete que lo usa no es compatible con Python 3:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ sudo apt install python-samba --upgrade
+...
+ImportError: No module named <span style="color:#2aa198">&#39;ConfigParser&#39;</span>
+dpkg: error <span style="color:#719e07">while</span> cleaning up:
+ subprocess installed post-installation script returned error <span style="color:#b58900">exit</span> status <span style="color:#2aa198">1</span>
+Errors were encountered <span style="color:#719e07">while</span> processing:
+ /var/cache/apt/archives/python-samba_2%3a4.5.16+dfsg-1+deb9u2_amd64.deb
+E: Sub-process /usr/bin/dpkg returned an error code <span style="color:#719e07">(</span>1<span style="color:#719e07">)</span>
+</code></pre></div><p>En la entrada de <a href="https://stackoverflow.com/questions/14087598/python-3-importerror-no-module-named-configparser">StackOverflow: Python 3 ImportError: No module named &lsquo;ConfigParser&rsquo;</a> se deja bien claro que <code>ConfigParser</code> ya no existe en Python 3; ha sido renombrado a <code>configparser</code>, por lo que el paquete que lo usa no es compatible con Python 3:</p>
 <blockquote>
 <p>In Python 3, <code>ConfigParser</code> has been renamed to <code>configparser</code> for PEP 8 compliance. It looks like the package you are installing does not support Python 3.</p>
 </blockquote>
 <p>He comprobado la versión de Python y ¡boom! Python 3:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ python --version
-</span></span><span style="display:flex;"><span>Python 3.5.3
-</span></span></code></pre></div><h1 id="solución">Solución</h1>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ python --version
+Python 3.5.3
+</code></pre></div><h1 id="solución">Solución</h1>
 <p>Si el problema es que el paquete no es compatible con Python 3, ¿habría alguna manera de ejecutarlo con Python 2?</p>
 <p>Por otras instalaciones de Debian que he realizado sabía que en el sistema están instaladas tanto la versión 2 como la 3.</p>
 <p>Vamos a comprobarlo:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ ls -l /usr/bin/python*
-</span></span><span style="display:flex;"><span>lrwxrwxrwx <span style="color:#2aa198">1</span> root root      <span style="color:#2aa198">16</span> May <span style="color:#2aa198">19</span> 18:08 /usr/bin/python -&gt; /usr/bin/python3
-</span></span><span style="display:flex;"><span>lrwxrwxrwx <span style="color:#2aa198">1</span> root root       <span style="color:#2aa198">9</span> Jan <span style="color:#2aa198">24</span>  <span style="color:#2aa198">2017</span> /usr/bin/python2 -&gt; python2.7
-</span></span><span style="display:flex;"><span>-rwxr-xr-x <span style="color:#2aa198">1</span> root root <span style="color:#2aa198">3779512</span> Sep <span style="color:#2aa198">26</span>  <span style="color:#2aa198">2018</span> /usr/bin/python2.7
-</span></span><span style="display:flex;"><span>lrwxrwxrwx <span style="color:#2aa198">1</span> root root       <span style="color:#2aa198">9</span> Jan <span style="color:#2aa198">20</span>  <span style="color:#2aa198">2017</span> /usr/bin/python3 -&gt; python3.5
-</span></span><span style="display:flex;"><span>-rwxr-xr-x <span style="color:#2aa198">2</span> root root <span style="color:#2aa198">4751184</span> Sep <span style="color:#2aa198">27</span>  <span style="color:#2aa198">2018</span> /usr/bin/python3.5
-</span></span><span style="display:flex;"><span>-rwxr-xr-x <span style="color:#2aa198">2</span> root root <span style="color:#2aa198">4751184</span> Sep <span style="color:#2aa198">27</span>  <span style="color:#2aa198">2018</span> /usr/bin/python3.5m
-</span></span><span style="display:flex;"><span>lrwxrwxrwx <span style="color:#2aa198">1</span> root root      <span style="color:#2aa198">10</span> Jan <span style="color:#2aa198">20</span>  <span style="color:#2aa198">2017</span> /usr/bin/python3m -&gt; python3.5m
-</span></span></code></pre></div><p>De hecho, cuando lanzas el comando <code>python</code>, en realidad se encuentra el enlace simbólico que desde <code>/usr/bin/python</code> apunta a <code>/usr/bin/python3</code> (que a su ver apunta a <code>/usr/bin/python3.5</code>).</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ ls -l /usr/bin/python*
+lrwxrwxrwx <span style="color:#2aa198">1</span> root root      <span style="color:#2aa198">16</span> May <span style="color:#2aa198">19</span> 18:08 /usr/bin/python -&gt; /usr/bin/python3
+lrwxrwxrwx <span style="color:#2aa198">1</span> root root       <span style="color:#2aa198">9</span> Jan <span style="color:#2aa198">24</span>  <span style="color:#2aa198">2017</span> /usr/bin/python2 -&gt; python2.7
+-rwxr-xr-x <span style="color:#2aa198">1</span> root root <span style="color:#2aa198">3779512</span> Sep <span style="color:#2aa198">26</span>  <span style="color:#2aa198">2018</span> /usr/bin/python2.7
+lrwxrwxrwx <span style="color:#2aa198">1</span> root root       <span style="color:#2aa198">9</span> Jan <span style="color:#2aa198">20</span>  <span style="color:#2aa198">2017</span> /usr/bin/python3 -&gt; python3.5
+-rwxr-xr-x <span style="color:#2aa198">2</span> root root <span style="color:#2aa198">4751184</span> Sep <span style="color:#2aa198">27</span>  <span style="color:#2aa198">2018</span> /usr/bin/python3.5
+-rwxr-xr-x <span style="color:#2aa198">2</span> root root <span style="color:#2aa198">4751184</span> Sep <span style="color:#2aa198">27</span>  <span style="color:#2aa198">2018</span> /usr/bin/python3.5m
+lrwxrwxrwx <span style="color:#2aa198">1</span> root root      <span style="color:#2aa198">10</span> Jan <span style="color:#2aa198">20</span>  <span style="color:#2aa198">2017</span> /usr/bin/python3m -&gt; python3.5m
+</code></pre></div><p>De hecho, cuando lanzas el comando <code>python</code>, en realidad se encuentra el enlace simbólico que desde <code>/usr/bin/python</code> apunta a <code>/usr/bin/python3</code> (que a su ver apunta a <code>/usr/bin/python3.5</code>).</p>
 <h2 id="cambiando-la-versión-de-python-usada-en-el-sistema">Cambiando la versión de Python usada en el sistema</h2>
 <p>Para &ldquo;volver&rdquo; a Python 2 lo único que tengo que hacer es deshacer el enlace que apunta de <code>/usr/bin/python</code> a Python 3.5 y hacer que apunte a Python 2.7:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ sudo unlink /usr/bin/python
-</span></span><span style="display:flex;"><span>$ sudo ln -s /usr/bin/python2.7 /usr/bin/python
-</span></span></code></pre></div><p>Después de validar que <code>python</code> apunta a la versión 2.7, lanzo de nuevo el comando <code>sudo apt upgrade -y</code> y <strong>¡esta vez todo funciona correctamente!</strong>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ sudo unlink /usr/bin/python
+$ sudo ln -s /usr/bin/python2.7 /usr/bin/python
+</code></pre></div><p>Después de validar que <code>python</code> apunta a la versión 2.7, lanzo de nuevo el comando <code>sudo apt upgrade -y</code> y <strong>¡esta vez todo funciona correctamente!</strong>.</p>
 <p>Tras realizar la actualización, de eliminado el enlace a la versión 2.7 y he vuelto a crear el enlace para la versión 3.5.</p></div>
 
   <aside class="p-share">

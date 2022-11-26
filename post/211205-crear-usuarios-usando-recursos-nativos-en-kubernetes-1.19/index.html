@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.95.0" />
+<meta name="generator" content="Hugo 0.92.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -137,154 +137,154 @@ Crear usuarios en Kubernetes (y en K3s)</a>, escribía sobre cómo generar nuevo
 <p>En esta entrada se describe cómo aprovechar esta nueva funcionalidad para dar acceso a un usuario usando un certificado firmado por la CA del clúster.</p>
 <h2 id="generar-la-petición-de-firma-del-certificado-csr-a-partir-de-la-clave-privada-del-usuario">Generar la petición de firma del certificado (CSR) a partir de la clave privada del usuario</h2>
 <p>El usuario genera una clave privada mediante:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>openssl genrsa -out <span style="color:#2aa198">${</span><span style="color:#268bd2">keyName</span><span style="color:#2aa198">}</span> <span style="color:#2aa198">${</span><span style="color:#268bd2">keyBITS</span><span style="color:#2aa198">}</span>
-</span></span></code></pre></div><p>A continuación, genera una <em>certificate signing request</em> (CSR) a partir de la clave privada generada:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>openssl req -new -key <span style="color:#2aa198">${</span><span style="color:#268bd2">keyOwner</span><span style="color:#2aa198">}</span>.key <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>            -out csr_<span style="color:#2aa198">${</span><span style="color:#268bd2">keyOwner</span><span style="color:#2aa198">}</span>.csr <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>            -subj <span style="color:#2aa198">&#34;/CN=</span><span style="color:#2aa198">${</span><span style="color:#268bd2">keyOwner</span><span style="color:#2aa198">}</span><span style="color:#2aa198">/O=</span><span style="color:#2aa198">${</span><span style="color:#268bd2">keyOwnerGroup</span><span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span>
-</span></span></code></pre></div><p>En la petición, es importante que se incluya, en el campo <code>-subj</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">openssl genrsa -out <span style="color:#2aa198">${</span><span style="color:#268bd2">keyName</span><span style="color:#2aa198">}</span> <span style="color:#2aa198">${</span><span style="color:#268bd2">keyBITS</span><span style="color:#2aa198">}</span>
+</code></pre></div><p>A continuación, genera una <em>certificate signing request</em> (CSR) a partir de la clave privada generada:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">openssl req -new -key <span style="color:#2aa198">${</span><span style="color:#268bd2">keyOwner</span><span style="color:#2aa198">}</span>.key <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>            -out csr_<span style="color:#2aa198">${</span><span style="color:#268bd2">keyOwner</span><span style="color:#2aa198">}</span>.csr <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>            -subj <span style="color:#2aa198">&#34;/CN=</span><span style="color:#2aa198">${</span><span style="color:#268bd2">keyOwner</span><span style="color:#2aa198">}</span><span style="color:#2aa198">/O=</span><span style="color:#2aa198">${</span><span style="color:#268bd2">keyOwnerGroup</span><span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span>
+</code></pre></div><p>En la petición, es importante que se incluya, en el campo <code>-subj</code>:</p>
 <ul>
 <li><code>CN</code> (<em>Common Name</em>): este es el nombre con el que se identifica al usuario en el clúśter</li>
 <li><code>O</code> (<em>Organization</em>): indica a qué grupo (o grupos) pertenece el usuario. Lo usaremos para asignar un rol a los usuarios miembros del grupo.</li>
 </ul>
 <h2 id="creando-el-manifest-para-el-certificatesigningrequest">Creando el <em>manifest</em> para el <code>CertificateSigningRequest</code></h2>
 <p>En primer lugar, codificamos el CSR en base64 (y eliminamos los saltos de línea):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#268bd2">base64EncodedCSR</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>cat <span style="color:#2aa198">${</span><span style="color:#268bd2">csrFile</span><span style="color:#2aa198">}</span> | base64 | tr -d <span style="color:#2aa198">&#39;\n&#39;</span><span style="color:#719e07">)</span>
-</span></span></code></pre></div><p>Después, generamos el <em>manifest</em>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>cat &gt; csr_<span style="color:#2aa198">${</span><span style="color:#268bd2">keyOwner</span><span style="color:#2aa198">}</span>_manifest.yaml <span style="color:#2aa198">&lt;&lt; EOF
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">apiVersion: certificates.k8s.io/v1
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">kind: CertificateSigningRequest
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">metadata:
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">  name: ${keyOwner}-csr
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">spec:
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">  signerName: kubernetes.io/kube-apiserver-client
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">  request: ${base64EncodedCSR}
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">  usages:
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">  - client auth
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">EOF</span>
-</span></span></code></pre></div><p>Como vemos, estamos firmando un certificado que podrá usarse para autorizar un cliente:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>[...]
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">usages</span>:
-</span></span><span style="display:flex;"><span>  - client auth
-</span></span></code></pre></div><p>En la documentación oficial de Kubernetes puedes consultar otros usos: <a href="https://kubernetes.io/docs/reference/access-authn-authz/certificate-signing-requests/#signers">Certificate Signing Requests: Signers</a>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash"><span style="color:#268bd2">base64EncodedCSR</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>cat <span style="color:#2aa198">${</span><span style="color:#268bd2">csrFile</span><span style="color:#2aa198">}</span> | base64 | tr -d <span style="color:#2aa198">&#39;\n&#39;</span><span style="color:#719e07">)</span>
+</code></pre></div><p>Después, generamos el <em>manifest</em>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">cat &gt; csr_<span style="color:#2aa198">${</span><span style="color:#268bd2">keyOwner</span><span style="color:#2aa198">}</span>_manifest.yaml <span style="color:#2aa198">&lt;&lt; EOF
+</span><span style="color:#2aa198">apiVersion: certificates.k8s.io/v1
+</span><span style="color:#2aa198">kind: CertificateSigningRequest
+</span><span style="color:#2aa198">metadata:
+</span><span style="color:#2aa198">  name: ${keyOwner}-csr
+</span><span style="color:#2aa198">spec:
+</span><span style="color:#2aa198">  signerName: kubernetes.io/kube-apiserver-client
+</span><span style="color:#2aa198">  request: ${base64EncodedCSR}
+</span><span style="color:#2aa198">  usages:
+</span><span style="color:#2aa198">  - client auth
+</span><span style="color:#2aa198">EOF</span>
+</code></pre></div><p>Como vemos, estamos firmando un certificado que podrá usarse para autorizar un cliente:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">[...]
+  <span style="color:#268bd2">usages</span>:
+  - client auth
+</code></pre></div><p>En la documentación oficial de Kubernetes puedes consultar otros usos: <a href="https://kubernetes.io/docs/reference/access-authn-authz/certificate-signing-requests/#signers">Certificate Signing Requests: Signers</a>.</p>
 <blockquote>
 <p>Para Kubernetes 1.22+ se puede especificar la duración del certificado expedido mediante el campo <code>spec.expirationSeconds</code>.</p>
 </blockquote>
 <p>Creamos el objeto en la API de Kubernetes mediante:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>kubectl apply -f <span style="color:#2aa198">${</span><span style="color:#268bd2">csrManifestFile</span><span style="color:#2aa198">}</span>
-</span></span></code></pre></div><h2 id="aprobando-el-certificado-en-kubernetes-con-kubectl">Aprobando el certificado en Kubernetes con <code>kubectl</code></h2>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">kubectl apply -f <span style="color:#2aa198">${</span><span style="color:#268bd2">csrManifestFile</span><span style="color:#2aa198">}</span>
+</code></pre></div><h2 id="aprobando-el-certificado-en-kubernetes-con-kubectl">Aprobando el certificado en Kubernetes con <code>kubectl</code></h2>
 <p>El cliente <code>kubctl</code> permite realizar la aprobación (o denegación) de las peticiones de firma a través del comando <code>kubectl certificate approve</code> (o <code>deny</code>).</p>
 <p>Las peticiones aprobadas, denegadas y fallidas, se eliminan automáticamente del clúster pasada una hora. Las peticiones pendientes, tras 24 horas.</p>
 <p>Una vez aprobado el certificado, los clientes lo pueden obtener realizando llamdas a la API, obteniéndolo del campo <code>status.certificate</code>.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>kubectl get csr -o <span style="color:#268bd2">jsonpath</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;{.items[?(@.metadata.name==\&#34;</span><span style="color:#2aa198">${</span><span style="color:#268bd2">k8sUSER</span><span style="color:#2aa198">}</span><span style="color:#2aa198">-csr\&#34;)].status.certificate}&#34;</span> | base64 --decode | tee <span style="color:#2aa198">${</span><span style="color:#268bd2">userSignedCertificate</span><span style="color:#2aa198">}</span>
-</span></span></code></pre></div><p>Podemos inspeccionar el certificado obtenido:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ openssl x509 -in xavi_signed_certificate.crt -text -noout
-</span></span><span style="display:flex;"><span>Certificate:
-</span></span><span style="display:flex;"><span>    Data:
-</span></span><span style="display:flex;"><span>        Version: <span style="color:#2aa198">3</span> <span style="color:#719e07">(</span>0x2<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>        Serial Number:
-</span></span><span style="display:flex;"><span>            ed:ea:7c:5e:3c:65:03:d4:a8:f2:b7:ef:4f:ac:2d:49
-</span></span><span style="display:flex;"><span>        Signature Algorithm: ecdsa-with-SHA256
-</span></span><span style="display:flex;"><span>        Issuer: <span style="color:#268bd2">CN</span> <span style="color:#719e07">=</span> k3s-client-ca@1632676250
-</span></span><span style="display:flex;"><span>        Validity
-</span></span><span style="display:flex;"><span>            Not Before: Dec  <span style="color:#2aa198">5</span> 17:38:21 <span style="color:#2aa198">2021</span> GMT
-</span></span><span style="display:flex;"><span>            Not After : Dec  <span style="color:#2aa198">5</span> 17:38:21 <span style="color:#2aa198">2022</span> GMT
-</span></span><span style="display:flex;"><span>        Subject: <span style="color:#268bd2">O</span> <span style="color:#719e07">=</span> managers, <span style="color:#268bd2">CN</span> <span style="color:#719e07">=</span> xavi
-</span></span><span style="display:flex;"><span>        Subject Public Key Info:
-</span></span><span style="display:flex;"><span>            Public Key Algorithm: rsaEncryption
-</span></span><span style="display:flex;"><span>                RSA Public-Key: <span style="color:#719e07">(</span><span style="color:#2aa198">4096</span> bit<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>            .
-</span></span><span style="display:flex;"><span>            .
-</span></span><span style="display:flex;"><span>            .
-</span></span></code></pre></div><h2 id="generar-el-fichero-kubeconfig-para-el-usuario">Generar el fichero <code>kubeconfig</code> para el usuario</h2>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">kubectl get csr -o <span style="color:#268bd2">jsonpath</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;{.items[?(@.metadata.name==\&#34;</span><span style="color:#2aa198">${</span><span style="color:#268bd2">k8sUSER</span><span style="color:#2aa198">}</span><span style="color:#2aa198">-csr\&#34;)].status.certificate}&#34;</span> | base64 --decode | tee <span style="color:#2aa198">${</span><span style="color:#268bd2">userSignedCertificate</span><span style="color:#2aa198">}</span>
+</code></pre></div><p>Podemos inspeccionar el certificado obtenido:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ openssl x509 -in xavi_signed_certificate.crt -text -noout
+Certificate:
+    Data:
+        Version: <span style="color:#2aa198">3</span> <span style="color:#719e07">(</span>0x2<span style="color:#719e07">)</span>
+        Serial Number:
+            ed:ea:7c:5e:3c:65:03:d4:a8:f2:b7:ef:4f:ac:2d:49
+        Signature Algorithm: ecdsa-with-SHA256
+        Issuer: <span style="color:#268bd2">CN</span> <span style="color:#719e07">=</span> k3s-client-ca@1632676250
+        Validity
+            Not Before: Dec  <span style="color:#2aa198">5</span> 17:38:21 <span style="color:#2aa198">2021</span> GMT
+            Not After : Dec  <span style="color:#2aa198">5</span> 17:38:21 <span style="color:#2aa198">2022</span> GMT
+        Subject: <span style="color:#268bd2">O</span> <span style="color:#719e07">=</span> managers, <span style="color:#268bd2">CN</span> <span style="color:#719e07">=</span> xavi
+        Subject Public Key Info:
+            Public Key Algorithm: rsaEncryption
+                RSA Public-Key: <span style="color:#719e07">(</span><span style="color:#2aa198">4096</span> bit<span style="color:#719e07">)</span>
+            .
+            .
+            .
+</code></pre></div><h2 id="generar-el-fichero-kubeconfig-para-el-usuario">Generar el fichero <code>kubeconfig</code> para el usuario</h2>
 <p>En el fichero <code>kubeconfig</code> se define un <em>cluster</em>, un <em>user</em> y un <em>context</em>, que relaciona un <em>user</em> con un <em>cluster</em>.</p>
 <p>La información relativa al clúster la podemos extraer el fichero <code>kubeconfig</code> del usuario con el que se han realizado las acciones anteriores; primero determinamos cuál es el <em>current context</em>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>kubectl config view -o <span style="color:#268bd2">jsonpath</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#39;{.current-context}&#39;</span>
-</span></span></code></pre></div><p>Así podemos obtener la información relativa al clúster:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#586e75"># Get cluster&#39;s name from current context</span>
-</span></span><span style="display:flex;"><span>kubectl config view -o <span style="color:#268bd2">jsonpath</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;{.contexts[?(@.name==\&#34;</span><span style="color:#2aa198">${</span><span style="color:#268bd2">kubeconfigCurrentContext</span><span style="color:#2aa198">}</span><span style="color:#2aa198">\&#34;)].context.cluster}&#34;</span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75"># Get API URL from context</span>
-</span></span><span style="display:flex;"><span>kubectl config view -o <span style="color:#268bd2">jsonpath</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;{.clusters[?(@.name==\&#34;</span><span style="color:#2aa198">${</span><span style="color:#268bd2">clusterName</span><span style="color:#2aa198">}</span><span style="color:#2aa198">\&#34;)].cluster.server}&#34;</span>
-</span></span></code></pre></div><p>Tambien obtenemos el certificado público de la entidad certificadora y lo guardamos en un fichero:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>kubectl config view --raw -o <span style="color:#268bd2">jsonpath</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;{.clusters[?(@.name==\&#34;</span><span style="color:#2aa198">${</span><span style="color:#268bd2">clusterName</span><span style="color:#2aa198">}</span><span style="color:#2aa198">\&#34;)].cluster.certificate-authority-data}&#34;</span> | base64 --decode | tee cluster_ca_file.cert
-</span></span></code></pre></div><p>Con esta información, generamos la parte relativa al clúster del fichero <code>kubeconfig</code> personalizado para el usuario:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>kubectl --kubeconfig<span style="color:#719e07">=</span><span style="color:#2aa198">${</span><span style="color:#268bd2">k8sUSER</span><span style="color:#2aa198">}</span>_kubeconfig config set-cluster <span style="color:#2aa198">${</span><span style="color:#268bd2">k8sClusterName</span><span style="color:#2aa198">}</span> <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>        --server<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#2aa198">${</span><span style="color:#268bd2">apiURL</span><span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span> --certificate-authority<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#2aa198">${</span><span style="color:#268bd2">clusterCAfile</span><span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span> --embed-certs<span style="color:#719e07">=</span><span style="color:#b58900">true</span>
-</span></span></code></pre></div><p>Para la sección relativa al usuario en el fichero <code>kubeconfig</code>, dispondemos de toda la información de pasos anteriores:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>kubectl --kubeconfig<span style="color:#719e07">=</span><span style="color:#2aa198">${</span><span style="color:#268bd2">k8sUSER</span><span style="color:#2aa198">}</span>_kubeconfig config set-credentials <span style="color:#2aa198">${</span><span style="color:#268bd2">k8sUSER</span><span style="color:#2aa198">}</span> <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>    --client-certificate<span style="color:#719e07">=</span><span style="color:#2aa198">${</span><span style="color:#268bd2">k8sUSER</span><span style="color:#2aa198">}</span>_signed_certificate.crt <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>    --client-key<span style="color:#719e07">=</span><span style="color:#2aa198">${</span><span style="color:#268bd2">k8sUSER</span><span style="color:#2aa198">}</span>.key <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>    --embed-certs<span style="color:#719e07">=</span><span style="color:#b58900">true</span>
-</span></span></code></pre></div><p>Relacionamos el usuario y el clúster mediante un contexto:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>kubectl --kubeconfig<span style="color:#719e07">=</span><span style="color:#2aa198">${</span><span style="color:#268bd2">k8sUSER</span><span style="color:#2aa198">}</span>_kubeconfig config set-context <span style="color:#2aa198">${</span><span style="color:#268bd2">k8sUSER</span><span style="color:#2aa198">}</span>@<span style="color:#2aa198">${</span><span style="color:#268bd2">k8sClusterName</span><span style="color:#2aa198">}</span> <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>        --user<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#2aa198">${</span><span style="color:#268bd2">k8sUSER</span><span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span> --cluster<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#2aa198">${</span><span style="color:#268bd2">k8sClusterName</span><span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span>
-</span></span></code></pre></div><p>Finalmente, definimos el contexto recién definido como el <em>current context</em> del fichero:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span> kubectl --kubeconfig<span style="color:#719e07">=</span><span style="color:#2aa198">${</span><span style="color:#268bd2">k8sUSER</span><span style="color:#2aa198">}</span>_kubeconfig config use-context <span style="color:#2aa198">${</span><span style="color:#268bd2">k8sUSER</span><span style="color:#2aa198">}</span>@<span style="color:#2aa198">${</span><span style="color:#268bd2">k8sClusterName</span><span style="color:#2aa198">}</span>
-</span></span></code></pre></div><h2 id="validación">Validación</h2>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">kubectl config view -o <span style="color:#268bd2">jsonpath</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#39;{.current-context}&#39;</span>
+</code></pre></div><p>Así podemos obtener la información relativa al clúster:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># Get cluster&#39;s name from current context</span>
+kubectl config view -o <span style="color:#268bd2">jsonpath</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;{.contexts[?(@.name==\&#34;</span><span style="color:#2aa198">${</span><span style="color:#268bd2">kubeconfigCurrentContext</span><span style="color:#2aa198">}</span><span style="color:#2aa198">\&#34;)].context.cluster}&#34;</span>
+<span style="color:#586e75"># Get API URL from context</span>
+kubectl config view -o <span style="color:#268bd2">jsonpath</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;{.clusters[?(@.name==\&#34;</span><span style="color:#2aa198">${</span><span style="color:#268bd2">clusterName</span><span style="color:#2aa198">}</span><span style="color:#2aa198">\&#34;)].cluster.server}&#34;</span>
+</code></pre></div><p>Tambien obtenemos el certificado público de la entidad certificadora y lo guardamos en un fichero:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">kubectl config view --raw -o <span style="color:#268bd2">jsonpath</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;{.clusters[?(@.name==\&#34;</span><span style="color:#2aa198">${</span><span style="color:#268bd2">clusterName</span><span style="color:#2aa198">}</span><span style="color:#2aa198">\&#34;)].cluster.certificate-authority-data}&#34;</span> | base64 --decode | tee cluster_ca_file.cert
+</code></pre></div><p>Con esta información, generamos la parte relativa al clúster del fichero <code>kubeconfig</code> personalizado para el usuario:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">kubectl --kubeconfig<span style="color:#719e07">=</span><span style="color:#2aa198">${</span><span style="color:#268bd2">k8sUSER</span><span style="color:#2aa198">}</span>_kubeconfig config set-cluster <span style="color:#2aa198">${</span><span style="color:#268bd2">k8sClusterName</span><span style="color:#2aa198">}</span> <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>        --server<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#2aa198">${</span><span style="color:#268bd2">apiURL</span><span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span> --certificate-authority<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#2aa198">${</span><span style="color:#268bd2">clusterCAfile</span><span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span> --embed-certs<span style="color:#719e07">=</span><span style="color:#b58900">true</span>
+</code></pre></div><p>Para la sección relativa al usuario en el fichero <code>kubeconfig</code>, dispondemos de toda la información de pasos anteriores:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">kubectl --kubeconfig<span style="color:#719e07">=</span><span style="color:#2aa198">${</span><span style="color:#268bd2">k8sUSER</span><span style="color:#2aa198">}</span>_kubeconfig config set-credentials <span style="color:#2aa198">${</span><span style="color:#268bd2">k8sUSER</span><span style="color:#2aa198">}</span> <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>    --client-certificate<span style="color:#719e07">=</span><span style="color:#2aa198">${</span><span style="color:#268bd2">k8sUSER</span><span style="color:#2aa198">}</span>_signed_certificate.crt <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>    --client-key<span style="color:#719e07">=</span><span style="color:#2aa198">${</span><span style="color:#268bd2">k8sUSER</span><span style="color:#2aa198">}</span>.key <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>    --embed-certs<span style="color:#719e07">=</span><span style="color:#b58900">true</span>
+</code></pre></div><p>Relacionamos el usuario y el clúster mediante un contexto:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">kubectl --kubeconfig<span style="color:#719e07">=</span><span style="color:#2aa198">${</span><span style="color:#268bd2">k8sUSER</span><span style="color:#2aa198">}</span>_kubeconfig config set-context <span style="color:#2aa198">${</span><span style="color:#268bd2">k8sUSER</span><span style="color:#2aa198">}</span>@<span style="color:#2aa198">${</span><span style="color:#268bd2">k8sClusterName</span><span style="color:#2aa198">}</span> <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>        --user<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#2aa198">${</span><span style="color:#268bd2">k8sUSER</span><span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span> --cluster<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#2aa198">${</span><span style="color:#268bd2">k8sClusterName</span><span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span>
+</code></pre></div><p>Finalmente, definimos el contexto recién definido como el <em>current context</em> del fichero:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash"> kubectl --kubeconfig<span style="color:#719e07">=</span><span style="color:#2aa198">${</span><span style="color:#268bd2">k8sUSER</span><span style="color:#2aa198">}</span>_kubeconfig config use-context <span style="color:#2aa198">${</span><span style="color:#268bd2">k8sUSER</span><span style="color:#2aa198">}</span>@<span style="color:#2aa198">${</span><span style="color:#268bd2">k8sClusterName</span><span style="color:#2aa198">}</span>
+</code></pre></div><h2 id="validación">Validación</h2>
 <p>El usuario ya puede autenticar sus llamadas identificándose con su clave privada y el certificado firmado por la CA del clúster:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>kubectl --kubconfig<span style="color:#719e07">=</span><span style="color:#2aa198">${</span><span style="color:#268bd2">k8sUSER</span><span style="color:#2aa198">}</span>_kubeconfig get pods
-</span></span></code></pre></div><p>Para que el usuario pueda completar las llamadas, además de poder autenticarse, debe estar autorizado a realizar la acción incluida en la petición. Para ello, el usuario (o el grupo al que pertenece) debe tener asociado un <code>RoleBinding</code> con las acciones que puede realizar, sobre qué objetos de la API y en qué <em>namespaces</em>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">kubectl --kubconfig<span style="color:#719e07">=</span><span style="color:#2aa198">${</span><span style="color:#268bd2">k8sUSER</span><span style="color:#2aa198">}</span>_kubeconfig get pods
+</code></pre></div><p>Para que el usuario pueda completar las llamadas, además de poder autenticarse, debe estar autorizado a realizar la acción incluida en la petición. Para ello, el usuario (o el grupo al que pertenece) debe tener asociado un <code>RoleBinding</code> con las acciones que puede realizar, sobre qué objetos de la API y en qué <em>namespaces</em>.</p>
 <p>Una manera útil de revisar las acciones que puede realizar el usuario es mediante el comando <code>kubectl auth can-i</code>; por ejemplo:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ kubectl auth can-i list pods --as<span style="color:#719e07">=</span>xavi --as-group<span style="color:#719e07">=</span>managers -n development
-</span></span><span style="display:flex;"><span>yes
-</span></span><span style="display:flex;"><span>$ <span style="color:#586e75"># Los permisos del rol están limitados al namespace `development`</span>
-</span></span><span style="display:flex;"><span>$ kubectl auth can-i list pods --as<span style="color:#719e07">=</span>xavi --as-group<span style="color:#719e07">=</span>managers -n kube-system
-</span></span><span style="display:flex;"><span>no
-</span></span><span style="display:flex;"><span>$ <span style="color:#586e75"># Sólo permisos de lectura</span>
-</span></span><span style="display:flex;"><span>$ kubectl auth can-i create pods --as<span style="color:#719e07">=</span>xavi --as-group<span style="color:#719e07">=</span>managers -n development
-</span></span><span style="display:flex;"><span>no
-</span></span></code></pre></div><h2 id="automatizando-el-proceso">Automatizando el proceso</h2>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl auth can-i list pods --as<span style="color:#719e07">=</span>xavi --as-group<span style="color:#719e07">=</span>managers -n development
+yes
+$ <span style="color:#586e75"># Los permisos del rol están limitados al namespace `development`</span>
+$ kubectl auth can-i list pods --as<span style="color:#719e07">=</span>xavi --as-group<span style="color:#719e07">=</span>managers -n kube-system
+no
+$ <span style="color:#586e75"># Sólo permisos de lectura</span>
+$ kubectl auth can-i create pods --as<span style="color:#719e07">=</span>xavi --as-group<span style="color:#719e07">=</span>managers -n development
+no
+</code></pre></div><h2 id="automatizando-el-proceso">Automatizando el proceso</h2>
 <p>Gracias a la incorporación de la gestión de certificados en Kubernetes, es posible incorporar la creación de accesos para usuarios dentro de un flujo desatendido: el usuario que requiere acceso (puntual) al clúster sube un CSR generado a partir de su clave privada a un portal de autoservicio.</p>
 <p>Tras un revisión, el equipo de administradores del clúster aprueba la petición y se lanza el proceso que finaliza con la descarga por parte del usuario del fichero <code>kubeconfig</code> personalizado para conectar con el clúster.</p>
 <p>Si el clúster es v1.22+, se puede ajustar la validez del certificado para que caduque tras un determinado periodo de tiempo (al fin y al cabo, no debería ser necesario acceder al clúster para nada, ¿no?).</p>
 <p>Con esta idea, he creado un <em>script</em> tipo <em>prueba de concepto</em> que realiza todo el proceso.</p>
 <p>El <em>script</em> está disponible en <a href="https://github.com/onthedock/k8s-devops/blob/main/docs/seguridad/crear-usuarios-en-k8s/automate.sh">onthedock/k8s-devops/&hellip;/automate.sh</a>.</p>
 <p>Ejemplo:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>./automate.sh -u xavi -g managers
-</span></span><span style="display:flex;"><span><span style="color:#719e07">[</span>INFO<span style="color:#719e07">]</span> Generating xavi.key <span style="color:#719e07">(</span><span style="color:#2aa198">4096</span> bits<span style="color:#719e07">)</span>...
-</span></span><span style="display:flex;"><span>Generating RSA private key, <span style="color:#2aa198">4096</span> bit long modulus <span style="color:#719e07">(</span><span style="color:#2aa198">2</span> primes<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>................................................++++
-</span></span><span style="display:flex;"><span>....................................................................................................................................................................................................++++
-</span></span><span style="display:flex;"><span>e is <span style="color:#2aa198">65537</span> <span style="color:#719e07">(</span>0x010001<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">[</span>INFO<span style="color:#719e07">]</span> Created CSR csr_xavi.csr
-</span></span><span style="display:flex;"><span><span style="color:#719e07">[</span>INFO<span style="color:#719e07">]</span> Generating base64EncodedCSR
-</span></span><span style="display:flex;"><span><span style="color:#719e07">[</span>INFO<span style="color:#719e07">]</span> Generating manifest csr_xavi_manifest.yaml
-</span></span><span style="display:flex;"><span><span style="color:#719e07">[</span>INFO<span style="color:#719e07">]</span> Using csr_xavi_manifest.yaml
-</span></span><span style="display:flex;"><span><span style="color:#719e07">[</span>INFO<span style="color:#719e07">]</span> Applying file csr_xavi_manifest.yaml
-</span></span><span style="display:flex;"><span>certificatesigningrequest.certificates.k8s.io/xavi-csr created
-</span></span><span style="display:flex;"><span><span style="color:#719e07">[</span>INFO<span style="color:#719e07">]</span> xavi-csr is Pending <span style="color:#719e07">for</span> approval
-</span></span><span style="display:flex;"><span><span style="color:#719e07">[</span>INFO<span style="color:#719e07">]</span> Approving xavi-csr...
-</span></span><span style="display:flex;"><span>certificatesigningrequest.certificates.k8s.io/xavi-csr approved
-</span></span><span style="display:flex;"><span><span style="color:#719e07">[</span>INFO<span style="color:#719e07">]</span> Generating xavi_signed_certificate.crt ...
-</span></span><span style="display:flex;"><span>-----BEGIN CERTIFICATE-----
-</span></span><span style="display:flex;"><span>MIIDWTCCAv6gAwIBAgIQHuwjQI/iBPqmN5pBJ+oVdjAKBggqhkjOPQQDAjAjMSEw
-</span></span><span style="display:flex;"><span>HwYDVQQDDBhrM3MtY2xpZW50LWNhQDE2MzI2NzYyNTAwHhcNMjExMjA1MTcyMDU1
-</span></span><span style="display:flex;"><span>WhcNMjIxMjA1MTcyMDU1WjAmMRMwEQYDVQQKEwpkZXZlbG9wZXJzMQ8wDQYDVQQD
-</span></span><span style="display:flex;"><span>EwZwZXJpY28wggIiMA0GCSqGSIb3DQEBAQUAA4ICDwAwggIKAoICAQC0WhCUUHj6
-</span></span><span style="display:flex;"><span>8faURtQmdzs9jcAzXVj3C/IoK5hFn2Xf4/yse1tIAQlTRrbJpnZz3wERRlXToTj+
-</span></span><span style="display:flex;"><span>g4wm3UeGrWX/NG9cMTof7pqLgt5CCQHAfdvfCbRRc7pMTsDf9gzZbKwdL+8zKZQE
-</span></span><span style="display:flex;"><span>pcqCovmb799MELEBhrF7Psvb5xT4yAzKoRRGYg5U7CY+7TGPa3/mp0bqWM5dfOzO
-</span></span><span style="display:flex;"><span>hsJ2JA/y/FIhClSDiMIXYGAVZX8vvSXz4cyffSjlETwVYAFnlNE/LVn0Z78DyzIU
-</span></span><span style="display:flex;"><span>I+pAnN+dFPWR19bu0QBNROkOWyEVAcaKPP0DeZ3gx9OXJvyZ9PNWeYj4lWVNU95C
-</span></span><span style="display:flex;"><span>mmXPNpZiwVADPQfVt0gyUnjhiCxJlsHI4DlQ6FFRvVZ50WjoZLrK/EQ4fD4709J0
-</span></span><span style="display:flex;"><span>cJUK48AxeZSCxLHMjypTbsHKVHVhtikoP9yqAYQUe/gNSn3ApaVbA5fii2kxFXEW
-</span></span><span style="display:flex;"><span>+fxKaGJ/TYw68RXJ3bs3B7IpLNbdkgj78/Iw7Cr3KUM0b613VX3XWeoOlqbgwN+2
-</span></span><span style="display:flex;"><span>6n4K+XLfUBMWyEXMl5uwW4js0pn11yKpwM2Z6fMUHhDG6AtrGEV67USgWcfkiO6B
-</span></span><span style="display:flex;"><span>qf2yyg1L6tf/h5NRO1hpATOEpdrU/8qCdJx1693pjsgPfwNRBuBlHlYXQuyMdoqx
-</span></span><span style="display:flex;"><span>FfNyfMABV5FQXLdz0yeurP23Tkf44yonqwIDAQABo0YwRDATBgNVHSUEDDAKBggr
-</span></span><span style="display:flex;"><span>BgEFBQcDAjAMBgNVHRMBAf8EAjAAMB8GA1UdIwQYMBaAFF5NUrp44FW16SizbArY
-</span></span><span style="display:flex;"><span>cGpDhRc+MAoGCCqGSM49BAMCA0kAMEYCIQDjoxcaBYUpnwtiaXoSt9rshXZTXFhr
-</span></span><span style="display:flex;"><span>QS4GbFpw8IyhFAIhANS7H8K5lDHrYVxdssHdRDevoBBuH9GFXY3KuTbJDl3J
-</span></span><span style="display:flex;"><span>-----END CERTIFICATE-----
-</span></span><span style="display:flex;"><span><span style="color:#719e07">[</span>INFO<span style="color:#719e07">]</span> <span style="color:#719e07">[</span>kubeconfig<span style="color:#719e07">]</span> Setting cluster <span style="color:#2aa198">&#34;kubernetes&#34;</span>...
-</span></span><span style="display:flex;"><span>Cluster <span style="color:#2aa198">&#34;kubernetes&#34;</span> set.
-</span></span><span style="display:flex;"><span><span style="color:#719e07">[</span>INFO<span style="color:#719e07">]</span> <span style="color:#719e07">[</span>kubeconfig<span style="color:#719e07">]</span> Setting user <span style="color:#2aa198">&#34;xavi&#34;</span>...
-</span></span><span style="display:flex;"><span>User <span style="color:#2aa198">&#34;xavi&#34;</span> set.
-</span></span><span style="display:flex;"><span><span style="color:#719e07">[</span>INFO<span style="color:#719e07">]</span> <span style="color:#719e07">[</span>kubeconfig<span style="color:#719e07">]</span> Setting context to <span style="color:#2aa198">&#34;xavi@kubernetes&#34;</span>...
-</span></span><span style="display:flex;"><span>Context <span style="color:#2aa198">&#34;xavi@kubernetes&#34;</span> created.
-</span></span><span style="display:flex;"><span><span style="color:#719e07">[</span>INFO<span style="color:#719e07">]</span> <span style="color:#719e07">[</span>kubeconfig<span style="color:#719e07">]</span> Setting default context to <span style="color:#2aa198">&#34;xavi@kubernetes&#34;</span>...
-</span></span><span style="display:flex;"><span>Switched to context <span style="color:#2aa198">&#34;xavi@kubernetes&#34;</span>.
-</span></span></code></pre></div></div>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">./automate.sh -u xavi -g managers
+<span style="color:#719e07">[</span>INFO<span style="color:#719e07">]</span> Generating xavi.key <span style="color:#719e07">(</span><span style="color:#2aa198">4096</span> bits<span style="color:#719e07">)</span>...
+Generating RSA private key, <span style="color:#2aa198">4096</span> bit long modulus <span style="color:#719e07">(</span><span style="color:#2aa198">2</span> primes<span style="color:#719e07">)</span>
+................................................++++
+....................................................................................................................................................................................................++++
+e is <span style="color:#2aa198">65537</span> <span style="color:#719e07">(</span>0x010001<span style="color:#719e07">)</span>
+<span style="color:#719e07">[</span>INFO<span style="color:#719e07">]</span> Created CSR csr_xavi.csr
+<span style="color:#719e07">[</span>INFO<span style="color:#719e07">]</span> Generating base64EncodedCSR
+<span style="color:#719e07">[</span>INFO<span style="color:#719e07">]</span> Generating manifest csr_xavi_manifest.yaml
+<span style="color:#719e07">[</span>INFO<span style="color:#719e07">]</span> Using csr_xavi_manifest.yaml
+<span style="color:#719e07">[</span>INFO<span style="color:#719e07">]</span> Applying file csr_xavi_manifest.yaml
+certificatesigningrequest.certificates.k8s.io/xavi-csr created
+<span style="color:#719e07">[</span>INFO<span style="color:#719e07">]</span> xavi-csr is Pending <span style="color:#719e07">for</span> approval
+<span style="color:#719e07">[</span>INFO<span style="color:#719e07">]</span> Approving xavi-csr...
+certificatesigningrequest.certificates.k8s.io/xavi-csr approved
+<span style="color:#719e07">[</span>INFO<span style="color:#719e07">]</span> Generating xavi_signed_certificate.crt ...
+-----BEGIN CERTIFICATE-----
+MIIDWTCCAv6gAwIBAgIQHuwjQI/iBPqmN5pBJ+oVdjAKBggqhkjOPQQDAjAjMSEw
+HwYDVQQDDBhrM3MtY2xpZW50LWNhQDE2MzI2NzYyNTAwHhcNMjExMjA1MTcyMDU1
+WhcNMjIxMjA1MTcyMDU1WjAmMRMwEQYDVQQKEwpkZXZlbG9wZXJzMQ8wDQYDVQQD
+EwZwZXJpY28wggIiMA0GCSqGSIb3DQEBAQUAA4ICDwAwggIKAoICAQC0WhCUUHj6
+8faURtQmdzs9jcAzXVj3C/IoK5hFn2Xf4/yse1tIAQlTRrbJpnZz3wERRlXToTj+
+g4wm3UeGrWX/NG9cMTof7pqLgt5CCQHAfdvfCbRRc7pMTsDf9gzZbKwdL+8zKZQE
+pcqCovmb799MELEBhrF7Psvb5xT4yAzKoRRGYg5U7CY+7TGPa3/mp0bqWM5dfOzO
+hsJ2JA/y/FIhClSDiMIXYGAVZX8vvSXz4cyffSjlETwVYAFnlNE/LVn0Z78DyzIU
+I+pAnN+dFPWR19bu0QBNROkOWyEVAcaKPP0DeZ3gx9OXJvyZ9PNWeYj4lWVNU95C
+mmXPNpZiwVADPQfVt0gyUnjhiCxJlsHI4DlQ6FFRvVZ50WjoZLrK/EQ4fD4709J0
+cJUK48AxeZSCxLHMjypTbsHKVHVhtikoP9yqAYQUe/gNSn3ApaVbA5fii2kxFXEW
++fxKaGJ/TYw68RXJ3bs3B7IpLNbdkgj78/Iw7Cr3KUM0b613VX3XWeoOlqbgwN+2
+6n4K+XLfUBMWyEXMl5uwW4js0pn11yKpwM2Z6fMUHhDG6AtrGEV67USgWcfkiO6B
+qf2yyg1L6tf/h5NRO1hpATOEpdrU/8qCdJx1693pjsgPfwNRBuBlHlYXQuyMdoqx
+FfNyfMABV5FQXLdz0yeurP23Tkf44yonqwIDAQABo0YwRDATBgNVHSUEDDAKBggr
+BgEFBQcDAjAMBgNVHRMBAf8EAjAAMB8GA1UdIwQYMBaAFF5NUrp44FW16SizbArY
+cGpDhRc+MAoGCCqGSM49BAMCA0kAMEYCIQDjoxcaBYUpnwtiaXoSt9rshXZTXFhr
+QS4GbFpw8IyhFAIhANS7H8K5lDHrYVxdssHdRDevoBBuH9GFXY3KuTbJDl3J
+-----END CERTIFICATE-----
+<span style="color:#719e07">[</span>INFO<span style="color:#719e07">]</span> <span style="color:#719e07">[</span>kubeconfig<span style="color:#719e07">]</span> Setting cluster <span style="color:#2aa198">&#34;kubernetes&#34;</span>...
+Cluster <span style="color:#2aa198">&#34;kubernetes&#34;</span> set.
+<span style="color:#719e07">[</span>INFO<span style="color:#719e07">]</span> <span style="color:#719e07">[</span>kubeconfig<span style="color:#719e07">]</span> Setting user <span style="color:#2aa198">&#34;xavi&#34;</span>...
+User <span style="color:#2aa198">&#34;xavi&#34;</span> set.
+<span style="color:#719e07">[</span>INFO<span style="color:#719e07">]</span> <span style="color:#719e07">[</span>kubeconfig<span style="color:#719e07">]</span> Setting context to <span style="color:#2aa198">&#34;xavi@kubernetes&#34;</span>...
+Context <span style="color:#2aa198">&#34;xavi@kubernetes&#34;</span> created.
+<span style="color:#719e07">[</span>INFO<span style="color:#719e07">]</span> <span style="color:#719e07">[</span>kubeconfig<span style="color:#719e07">]</span> Setting default context to <span style="color:#2aa198">&#34;xavi@kubernetes&#34;</span>...
+Switched to context <span style="color:#2aa198">&#34;xavi@kubernetes&#34;</span>.
+</code></pre></div></div>
 
   <aside class="p-share">
 

@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.95.0" />
+<meta name="generator" content="Hugo 0.92.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -141,38 +141,38 @@
 <p>AWS ofrece una imagen <code>seed.iso</code> que puedes descargar desde el enlace <a href="https://cdn.amazonlinux.com/os-images/latest/">OS Images</a>, aunque quizás la mejor opción es seguir las instrucciones de <a href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/amazon-linux-2-virtual-machine.html">Running Amazon Linux 2 as a Virtual Machine On-Premises</a> para crear una imagen ISO con tus ficheros personalizados. También puedes echarle un vistazo al artículo que escribí al respecto: <a href="https://onthedock.github.io/post/181009-cloud-init/">Automatizando la personalización de máquinas virtuales con cloud-init</a>.</p>
 <p>En mi caso, he creado una imagen con la configuración de red estática y con una contraseña definida para el usuario creado por defecto <code>ec2-user</code>. Además, finalizo la configuración de red para poder &ldquo;despinchar&rdquo; la imagen ISO más adelante. Los ficheros son:</p>
 <h2 id="fichero-user-data">Fichero <code>user-data</code></h2>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yml" data-lang="yml"><span style="display:flex;"><span><span style="color:#586e75">#cloud-config</span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75"># vim:syntax=yaml</span>
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">users</span>:
-</span></span><span style="display:flex;"><span><span style="color:#586e75"># A user by the name ec2-user is created in the image by default.</span>
-</span></span><span style="display:flex;"><span>  - default
-</span></span><span style="display:flex;"><span><span style="color:#586e75"># The following entry creates user1 and assigns a plain text password.</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">chpasswd</span>:
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">list</span>: |<span style="color:#2aa198">
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">    </span>    ec2-user:sup3rs3cr3tp@55w0rd:)
-</span></span><span style="display:flex;"><span><span style="color:#586e75"># In the above line, do not add any spaces after &#39;ec2-user:&#39;.</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75"># NOTE: Cloud-init applies network settings on every boot by default. To retain network settings from first</span>
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">boot, uncomment the following ‘write_files’ section</span>:
-</span></span><span style="display:flex;"><span><span style="color:#586e75">#write_files:</span>
-</span></span><span style="display:flex;"><span>  - <span style="color:#268bd2">path</span>: /etc/cloud/cloud.cfg.d/80_disable_network_after_firstboot.cfg
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">content</span>: |<span style="color:#2aa198">
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">      # Disable network configuration after first boot
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">      network:
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">        config: disabled</span>      
-</span></span></code></pre></div><h2 id="fichero-meta-data">Fichero <code>meta-data</code></h2>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yml" data-lang="yml"><span style="display:flex;"><span><span style="color:#268bd2">local-hostname</span>: amazonlinux.onprem
-</span></span><span style="display:flex;"><span><span style="color:#586e75"># eth0 is the default network interface enabled in the image. You can configure static network settings with an entry like the following.</span>
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">network-interfaces</span>: |<span style="color:#2aa198">
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">  auto eth0
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">  iface eth0 inet static
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">  address 192.168.1.225
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">  network 192.168.1.0
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">  netmask 255.255.255.0
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">  broadcast 192.168.1.255
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">  gateway 192.168.1.1</span>  
-</span></span></code></pre></div><h1 id="sin-conectividad-de-red">Sin conectividad de red</h1>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yml" data-lang="yml"><span style="color:#586e75">#cloud-config</span>
+<span style="color:#586e75"># vim:syntax=yaml</span>
+<span style="color:#268bd2">users</span>:
+<span style="color:#586e75"># A user by the name ec2-user is created in the image by default.</span>
+  - default
+<span style="color:#586e75"># The following entry creates user1 and assigns a plain text password.</span>
+
+<span style="color:#268bd2">chpasswd</span>:
+  <span style="color:#268bd2">list</span>: |<span style="color:#2aa198">
+</span><span style="color:#2aa198">    </span>    ec2-user:sup3rs3cr3tp@55w0rd:)
+<span style="color:#586e75"># In the above line, do not add any spaces after &#39;ec2-user:&#39;.</span>
+
+<span style="color:#586e75"># NOTE: Cloud-init applies network settings on every boot by default. To retain network settings from first</span>
+<span style="color:#268bd2">boot, uncomment the following ‘write_files’ section</span>:
+<span style="color:#586e75">#write_files:</span>
+  - <span style="color:#268bd2">path</span>: /etc/cloud/cloud.cfg.d/80_disable_network_after_firstboot.cfg
+    <span style="color:#268bd2">content</span>: |<span style="color:#2aa198">
+</span><span style="color:#2aa198">      # Disable network configuration after first boot
+</span><span style="color:#2aa198">      network:
+</span><span style="color:#2aa198">        config: disabled</span>      
+</code></pre></div><h2 id="fichero-meta-data">Fichero <code>meta-data</code></h2>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yml" data-lang="yml"><span style="color:#268bd2">local-hostname</span>: amazonlinux.onprem
+<span style="color:#586e75"># eth0 is the default network interface enabled in the image. You can configure static network settings with an entry like the following.</span>
+<span style="color:#268bd2">network-interfaces</span>: |<span style="color:#2aa198">
+</span><span style="color:#2aa198">  auto eth0
+</span><span style="color:#2aa198">  iface eth0 inet static
+</span><span style="color:#2aa198">  address 192.168.1.225
+</span><span style="color:#2aa198">  network 192.168.1.0
+</span><span style="color:#2aa198">  netmask 255.255.255.0
+</span><span style="color:#2aa198">  broadcast 192.168.1.255
+</span><span style="color:#2aa198">  gateway 192.168.1.1</span>  
+</code></pre></div><h1 id="sin-conectividad-de-red">Sin conectividad de red</h1>
 <p>La VM configura la disposición del teclado en inglés, lo que complica encontrar algunos caracteres, como el <code>-</code> necesario para acceder al sistema con el usuario <code>ec2-user</code>.</p>
 <blockquote>
 <p>El <code>-</code> se encuentra en la tecla <code>'</code> del teclado con la distribución en español.</p>
@@ -180,9 +180,9 @@
 <p>Tras acceder localmente a la máquina virtual he descubierto que la configuración de red no se ha aplicado (o eso parece). Lanzando <code>ip add show</code> se puede comprobar que la tarjeta de red <code>eth0</code> sólo tiene configurada IPv6.</p>
 <p>He intentado <em>levantar</em> el interfaz mediante <code>sudo systemctl start network</code> y he obtenido un mensaje de error. Siguiendo las intrucciones mostradas, he consultado <code>sudo systemctl status network</code>, donde se muestra, entre otras cosas <strong>vendor preset: disabled</strong>.</p>
 <p>Tras buscar en Google, descubro que en RHEL/CentOS, la red viene desactivada por defecto y <a href="https://unix.stackexchange.com/questions/468058/systemctl-status-shows-vendor-preset-disabled">hay que activarla explícitamente</a>.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>sudo systemctl <span style="color:#b58900">enable</span> network
-</span></span><span style="display:flex;"><span>sudo systemctl start network
-</span></span></code></pre></div><h1 id="haciendo-las-cosas-bien-actualización">Haciendo las cosas bien (actualización)</h1>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">sudo systemctl <span style="color:#b58900">enable</span> network
+sudo systemctl start network
+</code></pre></div><h1 id="haciendo-las-cosas-bien-actualización">Haciendo las cosas bien (actualización)</h1>
 <p>En la primera prueba con Amazon Linux 2 cometí el error de especificar una IP que estaba siendo usada por una máquina Vagrant. Al tener una IP duplicada, la máquina virtual con Amazon Linux 2 no podía levantar la red.</p>
 <p>Una vez descubierto el problema (que documento paso a paso más abajo), he repetido los pasos necesarios para arrancar una máquina virtual con Amazon Linux 2 y no he tenido ningún problema.</p>
 <p>Es necesario habilitar la red después del primer arranque, aunque esto es una característica que Amazon Linux 2 hereda de RHEL/CentOS.</p>
@@ -196,10 +196,10 @@
 <p>La <code>/</code> se encuentra en la tecla <code>-</code> del teclado con la distribución en español.</p>
 </blockquote>
 <p>Verifico que el fichero existe y que contiene información autoconfigurada por Cloud-Init:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ cat /etc/sysconfig/network
-</span></span><span style="display:flex;"><span>...
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">NETWORKING</span><span style="color:#719e07">=</span>yes
-</span></span></code></pre></div><p>La información en el <a href="https://unix.stackexchange.com/questions/396096/centos-7-network-service-failed-to-start-because-systemd-starts-the-daemon-too">segundo resultado de la búsqueda en Google</a> apunta a editar el fichero <code>/etc/sysconfig/network-scripts/ifcfg-eno1</code> (en mi caso, <code>ifcfg-eth0</code>).</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ cat /etc/sysconfig/network
+...
+<span style="color:#268bd2">NETWORKING</span><span style="color:#719e07">=</span>yes
+</code></pre></div><p>La información en el <a href="https://unix.stackexchange.com/questions/396096/centos-7-network-service-failed-to-start-because-systemd-starts-the-daemon-too">segundo resultado de la búsqueda en Google</a> apunta a editar el fichero <code>/etc/sysconfig/network-scripts/ifcfg-eno1</code> (en mi caso, <code>ifcfg-eth0</code>).</p>
 <p>Revisando el contenido del fichero, todo parece OK&hellip; Hasta que me he dado cuenta que parece que había algún problema con la IP que estaba usando (estaba usando una IP asignada por DHCP a una máquina Vagrant). Solucionado el error, he podido levantar la red sin más problemas.</p>
 <blockquote>
 <p>Para salir de Vi, es necesario usar los &ldquo;dos puntos&rdquo;, <code>:</code> que se encuentran en el tecla <code>Ñ</code> (Shift+Ñ) del teclado con la distribución en español.</p>

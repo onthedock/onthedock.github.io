@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.95.0" />
+<meta name="generator" content="Hugo 0.92.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -139,83 +139,83 @@
 <li>Filtrar la respuesta usando <code>jq</code> leyendo el fichero.</li>
 </ul>
 <p>En general, algo como:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#586e75"># This dummy API from reqbin.com ignores `-d` and </span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75">#  the authorization `$token`</span>
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">url</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#39;https://reqbin.com/echo/post/json&#39;</span>
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">token</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>openssl rand -hex 20<span style="color:#719e07">)</span> <span style="color:#586e75"># Simulates getting the authorization token</span>
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">test_query</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>cat <span style="color:#2aa198">&lt;&lt;-EOF
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">{
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">    &#34;action&#34;: &#34;query&#34;,
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">    &#34;field&#34;: &#34;name&#34;,
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">    &#34;operand&#34;: &#34;==&#34;,
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">    &#34;value&#34;: &#34;$name&#34;
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">}
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">EOF</span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span><span style="color:#b58900">echo</span> <span style="color:#268bd2">$test_query</span> | curl -s <span style="color:#268bd2">$url</span> <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>    -H <span style="color:#2aa198">&#34;Accept: application/json&#34;</span> <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>    -H <span style="color:#2aa198">&#34;Authorization: Bearer </span><span style="color:#268bd2">$token</span><span style="color:#2aa198">&#34;</span> <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>    -d @- &gt; response.json
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75">## Do something with the response</span>
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">result</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>cat response.json | jq <span style="color:#2aa198">&#39;.success&#39;</span><span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;The result obtained was: </span><span style="color:#268bd2">$result</span><span style="color:#2aa198">&#34;</span>
-</span></span></code></pre></div><p>Hay varias cosas que pueden mejorarse, pero voy a centrarme en lo que indicaba en el título: problemas con <code>curl</code>. Ejecutando el <em>script</em>, todo funciona como se espera:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ bash example.sh
-</span></span><span style="display:flex;"><span>The result obtained was: <span style="color:#2aa198">&#34;true&#34;</span>
-</span></span></code></pre></div><p>Hasta aquí, todo bien.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell"><span style="color:#586e75"># This dummy API from reqbin.com ignores `-d` and </span>
+<span style="color:#586e75">#  the authorization `$token`</span>
+<span style="color:#268bd2">url</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#39;https://reqbin.com/echo/post/json&#39;</span>
+<span style="color:#268bd2">token</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>openssl rand -hex 20<span style="color:#719e07">)</span> <span style="color:#586e75"># Simulates getting the authorization token</span>
+<span style="color:#268bd2">test_query</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>cat <span style="color:#2aa198">&lt;&lt;-EOF
+</span><span style="color:#2aa198">{
+</span><span style="color:#2aa198">    &#34;action&#34;: &#34;query&#34;,
+</span><span style="color:#2aa198">    &#34;field&#34;: &#34;name&#34;,
+</span><span style="color:#2aa198">    &#34;operand&#34;: &#34;==&#34;,
+</span><span style="color:#2aa198">    &#34;value&#34;: &#34;$name&#34;
+</span><span style="color:#2aa198">}
+</span><span style="color:#2aa198">EOF</span>
+<span style="color:#719e07">)</span>
+<span style="color:#b58900">echo</span> <span style="color:#268bd2">$test_query</span> | curl -s <span style="color:#268bd2">$url</span> <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>    -H <span style="color:#2aa198">&#34;Accept: application/json&#34;</span> <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>    -H <span style="color:#2aa198">&#34;Authorization: Bearer </span><span style="color:#268bd2">$token</span><span style="color:#2aa198">&#34;</span> <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>    -d @- &gt; response.json
+
+<span style="color:#586e75">## Do something with the response</span>
+<span style="color:#268bd2">result</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>cat response.json | jq <span style="color:#2aa198">&#39;.success&#39;</span><span style="color:#719e07">)</span>
+
+<span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;The result obtained was: </span><span style="color:#268bd2">$result</span><span style="color:#2aa198">&#34;</span>
+</code></pre></div><p>Hay varias cosas que pueden mejorarse, pero voy a centrarme en lo que indicaba en el título: problemas con <code>curl</code>. Ejecutando el <em>script</em>, todo funciona como se espera:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ bash example.sh
+The result obtained was: <span style="color:#2aa198">&#34;true&#34;</span>
+</code></pre></div><p>Hasta aquí, todo bien.</p>
 <p>Pero ¿qué pasa si hay un problema cuando llamamos a la API mediante <code>curl</code>?</p>
 <p>Voy a simularlo cambiando la URL a:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#268bd2">url</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#39;https://reqbin.com/echo/post/NOT_VALID_URL_json&#39;</span>
-</span></span></code></pre></div><p>La salida ahora es:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ bash example.sh
-</span></span><span style="display:flex;"><span>parse error: Invalid numeric literal at line 1, column <span style="color:#2aa198">10</span>
-</span></span><span style="display:flex;"><span>The result obtained was: 
-</span></span></code></pre></div><p>El error no parece tener que ver nada con la URL&hellip; Así que es probable que empecemos a buscar qué pasa&hellip; En este ejemplo, está claro que hay un problema con la URL (la hemos cambiado a una incorrecta <em>a propósito</em>)&hellip; Pero ocurre lo mismo si el <code>$token</code> ha expirado o se comete un error al generar el <em>payload</em> (te olvidas una &ldquo;,&rdquo; por ejemplo).</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell"><span style="color:#268bd2">url</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#39;https://reqbin.com/echo/post/NOT_VALID_URL_json&#39;</span>
+</code></pre></div><p>La salida ahora es:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ bash example.sh
+parse error: Invalid numeric literal at line 1, column <span style="color:#2aa198">10</span>
+The result obtained was: 
+</code></pre></div><p>El error no parece tener que ver nada con la URL&hellip; Así que es probable que empecemos a buscar qué pasa&hellip; En este ejemplo, está claro que hay un problema con la URL (la hemos cambiado a una incorrecta <em>a propósito</em>)&hellip; Pero ocurre lo mismo si el <code>$token</code> ha expirado o se comete un error al generar el <em>payload</em> (te olvidas una &ldquo;,&rdquo; por ejemplo).</p>
 <p>Parecería que revisando el <em>exit code</em> de <code>curl</code> podríamos prevenir estas situaciones&hellip;Añadimos un <em>echo</em> para revisar el <em>exit_code</em> de <code>curl</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#268bd2">url</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#39;https://reqbin.com/echo/post/NOT_VALID_URL_json&#39;</span>
-</span></span><span style="display:flex;"><span>...
-</span></span><span style="display:flex;"><span><span style="color:#b58900">echo</span> <span style="color:#268bd2">$test_query</span> | curl -s <span style="color:#268bd2">$url</span> <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>    -H <span style="color:#2aa198">&#34;Accept: application/json&#34;</span> <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>    -H <span style="color:#2aa198">&#34;Authorization: Bearer </span><span style="color:#268bd2">$token</span><span style="color:#2aa198">&#34;</span> <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>    -d @- &gt; response.json
-</span></span><span style="display:flex;"><span>    
-</span></span><span style="display:flex;"><span><span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;el resultado fue </span><span style="color:#268bd2">$?</span><span style="color:#2aa198">&#34;</span>
-</span></span><span style="display:flex;"><span>...
-</span></span></code></pre></div><p>Ejecutando de nuevo el <em>script</em>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ bash example.sh
-</span></span><span style="display:flex;"><span>el resultado fue <span style="color:#2aa198">0</span>
-</span></span><span style="display:flex;"><span>parse error: Invalid numeric literal at line 1, column <span style="color:#2aa198">10</span>
-</span></span><span style="display:flex;"><span>The result obtained was: 
-</span></span></code></pre></div><p>Como se observa, el comando <code>curl</code> se ha ejecutado con éxito; lo que ha &ldquo;fallado&rdquo; es la interacción con la API.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell"><span style="color:#268bd2">url</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#39;https://reqbin.com/echo/post/NOT_VALID_URL_json&#39;</span>
+...
+<span style="color:#b58900">echo</span> <span style="color:#268bd2">$test_query</span> | curl -s <span style="color:#268bd2">$url</span> <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>    -H <span style="color:#2aa198">&#34;Accept: application/json&#34;</span> <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>    -H <span style="color:#2aa198">&#34;Authorization: Bearer </span><span style="color:#268bd2">$token</span><span style="color:#2aa198">&#34;</span> <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>    -d @- &gt; response.json
+    
+<span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;el resultado fue </span><span style="color:#268bd2">$?</span><span style="color:#2aa198">&#34;</span>
+...
+</code></pre></div><p>Ejecutando de nuevo el <em>script</em>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ bash example.sh
+el resultado fue <span style="color:#2aa198">0</span>
+parse error: Invalid numeric literal at line 1, column <span style="color:#2aa198">10</span>
+The result obtained was: 
+</code></pre></div><p>Como se observa, el comando <code>curl</code> se ha ejecutado con éxito; lo que ha &ldquo;fallado&rdquo; es la interacción con la API.</p>
 <p>Revisando el contenido del fichero con la respuesta <code>response.json</code>, está claro que no recibimos un fichero JSON:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-html" data-lang="html"><span style="display:flex;"><span><span style="color:#719e07">&lt;!DOCTYPE html&gt;</span>&lt;<span style="color:#268bd2">html</span> lang<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;en&#34;</span>&gt; &lt;<span style="color:#268bd2">head</span>&gt;&lt;<span style="color:#268bd2">title</span>&gt;404 Page Not Found&lt;/<span style="color:#268bd2">title</span>&gt;...
-</span></span></code></pre></div><h2 id="la-solución">La solución</h2>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-html" data-lang="html"><span style="color:#719e07">&lt;!DOCTYPE html&gt;</span>&lt;<span style="color:#268bd2">html</span> lang<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;en&#34;</span>&gt; &lt;<span style="color:#268bd2">head</span>&gt;&lt;<span style="color:#268bd2">title</span>&gt;404 Page Not Found&lt;/<span style="color:#268bd2">title</span>&gt;...
+</code></pre></div><h2 id="la-solución">La solución</h2>
 <p>Idealmente lo que quiero es obtener el código HTTP devuelto por la API <strong>además</strong> de la respuesta al realizar la petición. De esa forma, puedo validar si todo ha ido bien <strong>antes</strong> de manipular la respuesta obtenida.</p>
 <p>Revisando las opciones disponibles en la <a href="https://man7.org/linux/man-pages/man1/curl.1.html">documentación de <code>curl</code></a> y la ayuda de <a href="https://stackoverflow.com/a/55434980">StackOverflow</a>, vemos que podemos modificar el código a:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>...
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">api_response</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span><span style="color:#b58900">echo</span> <span style="color:#268bd2">$test_query</span> | curl <span style="color:#268bd2">$url</span> <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>    -H <span style="color:#2aa198">&#34;Accept: application/json&#34;</span> <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>    -H <span style="color:#2aa198">&#34;Authorization: Bearer </span><span style="color:#268bd2">$token</span><span style="color:#2aa198">&#34;</span> <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>    --write-out <span style="color:#2aa198">&#34;%{http_code}&#34;</span> <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>    --silent --output response.json <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>    -d @- <span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">if</span> <span style="color:#719e07">[[</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$api_response</span><span style="color:#2aa198">&#34;</span> -eq <span style="color:#2aa198">&#39;200&#39;</span> <span style="color:#719e07">]]</span>;<span style="color:#719e07">then</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#586e75">## Do something with the response</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">result</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>cat response.json | jq <span style="color:#2aa198">&#39;.success&#39;</span><span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;The result obtained was: </span><span style="color:#268bd2">$api_response</span><span style="color:#2aa198">&#34;</span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">else</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#b58900">printf</span> <span style="color:#2aa198">&#34;Server returned HTTP Code %s\n&#34;</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$response</span><span style="color:#2aa198">&#34;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#b58900">exit</span> <span style="color:#268bd2">$ERR_NON_SUCCESSFUL_EXIT_CODE</span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">fi</span>
-</span></span></code></pre></div><p>En este caso, al ejecutar (todavía con la URL inválida), obtenemos un error que tiene mucho sentido:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ bash example.sh
-</span></span><span style="display:flex;"><span>Server returned HTTP Code <span style="color:#2aa198">404</span>
-</span></span></code></pre></div><p>Y por supuesto, si la llamada a la API es exitosa:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ bash example.sh
-</span></span><span style="display:flex;"><span>The result obtained was: <span style="color:#2aa198">&#34;true&#34;</span>
-</span></span></code></pre></div><h2 id="otras-mejoras">Otras mejoras</h2>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">...
+<span style="color:#268bd2">api_response</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span><span style="color:#b58900">echo</span> <span style="color:#268bd2">$test_query</span> | curl <span style="color:#268bd2">$url</span> <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>    -H <span style="color:#2aa198">&#34;Accept: application/json&#34;</span> <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>    -H <span style="color:#2aa198">&#34;Authorization: Bearer </span><span style="color:#268bd2">$token</span><span style="color:#2aa198">&#34;</span> <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>    --write-out <span style="color:#2aa198">&#34;%{http_code}&#34;</span> <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>    --silent --output response.json <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>    -d @- <span style="color:#719e07">)</span>
+<span style="color:#719e07">if</span> <span style="color:#719e07">[[</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$api_response</span><span style="color:#2aa198">&#34;</span> -eq <span style="color:#2aa198">&#39;200&#39;</span> <span style="color:#719e07">]]</span>;<span style="color:#719e07">then</span>
+    <span style="color:#586e75">## Do something with the response</span>
+    <span style="color:#268bd2">result</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>cat response.json | jq <span style="color:#2aa198">&#39;.success&#39;</span><span style="color:#719e07">)</span>
+    <span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;The result obtained was: </span><span style="color:#268bd2">$api_response</span><span style="color:#2aa198">&#34;</span>
+<span style="color:#719e07">else</span>
+    <span style="color:#b58900">printf</span> <span style="color:#2aa198">&#34;Server returned HTTP Code %s\n&#34;</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$response</span><span style="color:#2aa198">&#34;</span>
+    <span style="color:#b58900">exit</span> <span style="color:#268bd2">$ERR_NON_SUCCESSFUL_EXIT_CODE</span>
+<span style="color:#719e07">fi</span>
+</code></pre></div><p>En este caso, al ejecutar (todavía con la URL inválida), obtenemos un error que tiene mucho sentido:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ bash example.sh
+Server returned HTTP Code <span style="color:#2aa198">404</span>
+</code></pre></div><p>Y por supuesto, si la llamada a la API es exitosa:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ bash example.sh
+The result obtained was: <span style="color:#2aa198">&#34;true&#34;</span>
+</code></pre></div><h2 id="otras-mejoras">Otras mejoras</h2>
 <h3 id="especificar-siempre-el-shebang-al-principio-del-script">Especificar siempre el <em>shebang</em> al principio del <em>script</em></h3>
 <p>Linux usa el <a href="https://en.wikipedia.org/wiki/Shebang_(Unix)">Shebang</a> para <em>obtener</em> el intérprete con el que ejecutar el <em>script</em>.</p>
 <p>El uso de <code>#!/usr/bin/env bash</code> favorece la portabilidad, pero lo habitual es que se haya establecido o acordado el uso de un determinado sistema operativo &ldquo;homologado&rdquo;, tanto a nivel de servidor (físico, virtual, cloud) como para las imágenes base en contenedores&hellip; Así que a nivel práctico (al menos a nivel empresarial), es que la portabilidad <strong>no es un factor a tener en cuenta</strong>.</p>
@@ -229,84 +229,84 @@
 <h3 id="aprovecha-la-potencia-de-los-comandos-usa-sólo-uno--si-es-posible--en-vez-de-dos">Aprovecha la potencia de los comandos: usa sólo uno -si es posible- en vez de dos</h3>
 <p>En Linux, se suele decir que los comandos hacen una cosa, pero la hacen bien.</p>
 <p>En el siguiente bloque de código, el objetivo del <code>echo</code> es pasar el <em>payload</em> a <code>curl</code> mediante la opción <code>-d @-</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#268bd2">test_query</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>cat <span style="color:#2aa198">&lt;&lt;-EOF
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">{
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">    &#34;action&#34;: &#34;query&#34;,
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">    &#34;field&#34;: &#34;name&#34;,
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">    &#34;operand&#34;: &#34;==&#34;,
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">    &#34;value&#34;: &#34;$name&#34;
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">}
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">EOF</span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">response</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span><span style="color:#b58900">echo</span> <span style="color:#268bd2">$test_query</span> | curl <span style="color:#268bd2">$url</span> ...<span style="color:#719e07">)</span>
-</span></span></code></pre></div><p>Podemos lograr lo mismo sin necesidad de usar <code>echo</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash"><span style="color:#268bd2">test_query</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>cat <span style="color:#2aa198">&lt;&lt;-EOF
+</span><span style="color:#2aa198">{
+</span><span style="color:#2aa198">    &#34;action&#34;: &#34;query&#34;,
+</span><span style="color:#2aa198">    &#34;field&#34;: &#34;name&#34;,
+</span><span style="color:#2aa198">    &#34;operand&#34;: &#34;==&#34;,
+</span><span style="color:#2aa198">    &#34;value&#34;: &#34;$name&#34;
+</span><span style="color:#2aa198">}
+</span><span style="color:#2aa198">EOF</span>
+<span style="color:#719e07">)</span>
+<span style="color:#268bd2">response</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span><span style="color:#b58900">echo</span> <span style="color:#268bd2">$test_query</span> | curl <span style="color:#268bd2">$url</span> ...<span style="color:#719e07">)</span>
+</code></pre></div><p>Podemos lograr lo mismo sin necesidad de usar <code>echo</code>:</p>
 <blockquote>
 <p><code>&lt;&lt;-EOF</code> permite ignorar la indentación del <em>HEREDOC</em>, pero <strong>es obligatorio usar TABS, no espacios</strong>.</p>
 </blockquote>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#268bd2">api_response</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>curl <span style="color:#268bd2">$url</span> <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>    -H <span style="color:#2aa198">&#34;Accept: application/json&#34;</span> <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>    -H <span style="color:#2aa198">&#34;Authorization: Bearer </span><span style="color:#268bd2">$token</span><span style="color:#2aa198">&#34;</span> <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>    --write-out <span style="color:#2aa198">&#34;%{http_code}&#34;</span> <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>    --silent --output response.json <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>    --data @- <span style="color:#2aa198">&lt;&lt;-QUERY 
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">    {
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">        &#34;action&#34;: &#34;query&#34;,
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">        &#34;field&#34;: &#34;name&#34;,
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">        &#34;operand&#34;: &#34;==&#34;,
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">        &#34;value&#34;: &#34;$name&#34;
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">    }
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">    QUERY</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#719e07">)</span>
-</span></span></code></pre></div><p>En mi humilde opinión, de esta forma tenemos todos los <em>ingredientes</em> del comando <code>curl</code> en un mismo sitio, lo que resulta más sencillo de <em>leer</em> e interpretar.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell"><span style="color:#268bd2">api_response</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>curl <span style="color:#268bd2">$url</span> <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>    -H <span style="color:#2aa198">&#34;Accept: application/json&#34;</span> <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>    -H <span style="color:#2aa198">&#34;Authorization: Bearer </span><span style="color:#268bd2">$token</span><span style="color:#2aa198">&#34;</span> <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>    --write-out <span style="color:#2aa198">&#34;%{http_code}&#34;</span> <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>    --silent --output response.json <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>    --data @- <span style="color:#2aa198">&lt;&lt;-QUERY 
+</span><span style="color:#2aa198">    {
+</span><span style="color:#2aa198">        &#34;action&#34;: &#34;query&#34;,
+</span><span style="color:#2aa198">        &#34;field&#34;: &#34;name&#34;,
+</span><span style="color:#2aa198">        &#34;operand&#34;: &#34;==&#34;,
+</span><span style="color:#2aa198">        &#34;value&#34;: &#34;$name&#34;
+</span><span style="color:#2aa198">    }
+</span><span style="color:#2aa198">    QUERY</span>
+    <span style="color:#719e07">)</span>
+</code></pre></div><p>En mi humilde opinión, de esta forma tenemos todos los <em>ingredientes</em> del comando <code>curl</code> en un mismo sitio, lo que resulta más sencillo de <em>leer</em> e interpretar.</p>
 <p>Si este tipo de <em>queries</em> se repite frecuentemente, quizás se puedan <em>esconder</em> los detalles en una función:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#719e07">#!/bin/bash
-</span></span></span><span style="display:flex;"><span><span style="color:#719e07"></span><span style="color:#268bd2">HTTP_CODE_ERR</span><span style="color:#719e07">=</span><span style="color:#2aa198">2</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>query_db<span style="color:#719e07">()</span> <span style="color:#719e07">{</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#b58900">local</span> response
-</span></span><span style="display:flex;"><span>    <span style="color:#b58900">local</span> token
-</span></span><span style="display:flex;"><span>    <span style="color:#b58900">local</span> url
-</span></span><span style="display:flex;"><span>    <span style="color:#b58900">local</span> value
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">value</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$1</span><span style="color:#2aa198">&#34;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">url</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$2</span><span style="color:#2aa198">&#34;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">token</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$3</span><span style="color:#2aa198">&#34;</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">response</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>curl <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$url</span><span style="color:#2aa198">&#34;</span> <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>    -H <span style="color:#2aa198">&#34;Accept: application/json&#34;</span> <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>    -H <span style="color:#2aa198">&#34;Authorization: Bearer </span><span style="color:#268bd2">$token</span><span style="color:#2aa198">&#34;</span> <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>    --write-out <span style="color:#2aa198">&#34;%{http_code}&#34;</span> <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>    --silent --output response.json <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>    --data @- <span style="color:#2aa198">&lt;&lt;-QUERY
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">    {
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">        &#34;action&#34;: &#34;query&#34;,
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">        &#34;field&#34;: &#34;name&#34;,
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">        &#34;operand&#34;: &#34;==&#34;,
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">        &#34;value&#34;: &#34;$value&#34;
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">    }
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">    QUERY</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$response</span><span style="color:#2aa198">&#34;</span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">}</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">api_url</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#39;https://reqbin.com/echo/post/json&#39;</span>
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">api_token</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>openssl rand -hex 20<span style="color:#719e07">)</span> <span style="color:#586e75"># Simulates getting the authorization token</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">api_response</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span> query_db <span style="color:#2aa198">&#34;xavi&#34;</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$api_url</span><span style="color:#2aa198">&#34;</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$api_token</span><span style="color:#2aa198">&#34;</span> <span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">if</span> <span style="color:#719e07">[[</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$api_response</span><span style="color:#2aa198">&#34;</span> -eq <span style="color:#2aa198">&#39;200&#39;</span> <span style="color:#719e07">]]</span>; <span style="color:#719e07">then</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#586e75">## Do something with the response</span>
-</span></span><span style="display:flex;"><span>    ...
-</span></span></code></pre></div><h2 id="jq-es-capaz-de-leer-ficheros"><code>jq</code> es capaz de leer ficheros</h2>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell"><span style="color:#719e07">#!/bin/bash
+</span><span style="color:#719e07"></span><span style="color:#268bd2">HTTP_CODE_ERR</span><span style="color:#719e07">=</span><span style="color:#2aa198">2</span>
+
+query_db<span style="color:#719e07">()</span> <span style="color:#719e07">{</span>
+    <span style="color:#b58900">local</span> response
+    <span style="color:#b58900">local</span> token
+    <span style="color:#b58900">local</span> url
+    <span style="color:#b58900">local</span> value
+
+    <span style="color:#268bd2">value</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$1</span><span style="color:#2aa198">&#34;</span>
+    <span style="color:#268bd2">url</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$2</span><span style="color:#2aa198">&#34;</span>
+    <span style="color:#268bd2">token</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$3</span><span style="color:#2aa198">&#34;</span>
+
+    <span style="color:#268bd2">response</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>curl <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$url</span><span style="color:#2aa198">&#34;</span> <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>    -H <span style="color:#2aa198">&#34;Accept: application/json&#34;</span> <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>    -H <span style="color:#2aa198">&#34;Authorization: Bearer </span><span style="color:#268bd2">$token</span><span style="color:#2aa198">&#34;</span> <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>    --write-out <span style="color:#2aa198">&#34;%{http_code}&#34;</span> <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>    --silent --output response.json <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>    --data @- <span style="color:#2aa198">&lt;&lt;-QUERY
+</span><span style="color:#2aa198">    {
+</span><span style="color:#2aa198">        &#34;action&#34;: &#34;query&#34;,
+</span><span style="color:#2aa198">        &#34;field&#34;: &#34;name&#34;,
+</span><span style="color:#2aa198">        &#34;operand&#34;: &#34;==&#34;,
+</span><span style="color:#2aa198">        &#34;value&#34;: &#34;$value&#34;
+</span><span style="color:#2aa198">    }
+</span><span style="color:#2aa198">    QUERY</span>
+    <span style="color:#719e07">)</span>
+    <span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$response</span><span style="color:#2aa198">&#34;</span>
+<span style="color:#719e07">}</span>
+
+<span style="color:#268bd2">api_url</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#39;https://reqbin.com/echo/post/json&#39;</span>
+<span style="color:#268bd2">api_token</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>openssl rand -hex 20<span style="color:#719e07">)</span> <span style="color:#586e75"># Simulates getting the authorization token</span>
+
+<span style="color:#268bd2">api_response</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span> query_db <span style="color:#2aa198">&#34;xavi&#34;</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$api_url</span><span style="color:#2aa198">&#34;</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$api_token</span><span style="color:#2aa198">&#34;</span> <span style="color:#719e07">)</span>
+
+<span style="color:#719e07">if</span> <span style="color:#719e07">[[</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$api_response</span><span style="color:#2aa198">&#34;</span> -eq <span style="color:#2aa198">&#39;200&#39;</span> <span style="color:#719e07">]]</span>; <span style="color:#719e07">then</span>
+    <span style="color:#586e75">## Do something with the response</span>
+    ...
+</code></pre></div><h2 id="jq-es-capaz-de-leer-ficheros"><code>jq</code> es capaz de leer ficheros</h2>
 <p>De nuevo, la idea es reducir el número de comandos usados.</p>
 <p>Directamente de la ayuda que imprime <code>jq</code> al ejecutarse sin comando, vemos que puede leer un fichero como <em>input</em>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>jq - commandline JSON processor <span style="color:#719e07">[</span>version 1.6<span style="color:#719e07">]</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>Usage:  jq <span style="color:#719e07">[</span>options<span style="color:#719e07">]</span> &lt;jq filter&gt; <span style="color:#719e07">[</span>file...<span style="color:#719e07">]</span>
-</span></span><span style="display:flex;"><span>...
-</span></span></code></pre></div><p>Así que no es necesaria la combinación <code>cat &lt;filename&gt; | jq '&lt;filter&gt;'</code>; en vez de tener que combinar dos comandos, conseguimos la misma funcionalidad únicamente con uno:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#268bd2">result</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>jq <span style="color:#2aa198">&#39;.success&#39;</span> response.json<span style="color:#719e07">)</span>
-</span></span></code></pre></div><h2 id="bonus-megacombo-innecesario">Bonus: <em>megacombo</em> (innecesario)</h2>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">jq - commandline JSON processor <span style="color:#719e07">[</span>version 1.6<span style="color:#719e07">]</span>
+
+Usage:  jq <span style="color:#719e07">[</span>options<span style="color:#719e07">]</span> &lt;jq filter&gt; <span style="color:#719e07">[</span>file...<span style="color:#719e07">]</span>
+...
+</code></pre></div><p>Así que no es necesaria la combinación <code>cat &lt;filename&gt; | jq '&lt;filter&gt;'</code>; en vez de tener que combinar dos comandos, conseguimos la misma funcionalidad únicamente con uno:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell"><span style="color:#268bd2">result</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>jq <span style="color:#2aa198">&#39;.success&#39;</span> response.json<span style="color:#719e07">)</span>
+</code></pre></div><h2 id="bonus-megacombo-innecesario">Bonus: <em>megacombo</em> (innecesario)</h2>
 <p>Leyendo el siguiente fragmento resulta sencillo imaginar el <em>hilo mental</em> que ha seguido su autor:</p>
 <blockquote>
 <p>Objetivo: Leer un fichero JSON, filtrarlo para obtener, por ejemplo, el valor de un campo y asignar el resultado a una variable</p>
@@ -317,10 +317,10 @@
 <li>Mediante <code>echo</code> paso la salida del comando <code>jq</code> a la variable</li>
 <li><em>¡Listo!</em></li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#268bd2">variable</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span><span style="color:#b58900">echo</span> <span style="color:#719e07">$(</span>cat fichero.json | jq <span style="color:#2aa198">&#39;&lt;filter&gt;&#39;</span><span style="color:#719e07">))</span>
-</span></span></code></pre></div><p>Sin embargo, podemos conseguir lo mismo sencillamente con:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#268bd2">variable</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>jq <span style="color:#2aa198">&#39;&lt;filter&#39;</span> fichero.json<span style="color:#719e07">)</span>
-</span></span></code></pre></div><h2 id="conclusión">Conclusión</h2>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell"><span style="color:#268bd2">variable</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span><span style="color:#b58900">echo</span> <span style="color:#719e07">$(</span>cat fichero.json | jq <span style="color:#2aa198">&#39;&lt;filter&gt;&#39;</span><span style="color:#719e07">))</span>
+</code></pre></div><p>Sin embargo, podemos conseguir lo mismo sencillamente con:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell"><span style="color:#268bd2">variable</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>jq <span style="color:#2aa198">&#39;&lt;filter&#39;</span> fichero.json<span style="color:#719e07">)</span>
+</code></pre></div><h2 id="conclusión">Conclusión</h2>
 <p>Cuanto más sencillo es el código, más fácil es entender qué hace y seguir la ejecución cuando falla. Al usar <em>pipes</em> (sin la opción <a href="https://tldp.org/LDP/abs/html/abs-guide.html#OPTIONSREF"><code>set -o pipefail</code></a>), es posible que los errores queden enmascarados/ocultados de manera que la ejecución del <em>script</em> continue aunque alguno de los comandos haya fallado.</p>
 <p>Este escenario es especialmente <em>peligroso</em> cuando la ejecución de los <em>scripts</em> se realiza de manera <em>desatendida</em> a medida que las <em>pipelines</em> se disparan como respuesta a eventos, como un nuevo <em>commit</em> o un mensaje en una cola.</p>
 <p>Por ello, el equipo debe acordar un <em>standard</em> y quizás unas <em>implementaciones de referencia</em> para las tareas comunes (como la consultas a las API o el procesado de las respuestas con <code>jq</code>, por ejemplo). Esto permite homogeneizar el código y reducir el tiempo necesario para que <strong>todo el equipo</strong> <em>entienda</em> el funcionamiento de los componentes, lo que puede resultar crítico cuando se produce un fallo.</p></div>

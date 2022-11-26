@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.95.0" />
+<meta name="generator" content="Hugo 0.92.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -133,81 +133,81 @@
   <div class="article-body"><p>Tras solucionar los problemas con Vagrant al actualizar a PoP_OS! 22.04 (basada en Ubuntu 22.04), encuentro otro problema relacionado también con SSH :(</p>
 <p><a href="https://github.com/alexellis/k3sup">k3sup</a>, el instalador de clústers de Kubernetes usando <a href="https://k3s.io/">k3s</a>, no puede conectar con las máquinas virtuales basadas en la imagen <a href="https://app.vagrantup.com/ubuntu/boxes/jammy64">ubuntu/jammy64</a> (la nueva versión de Ubuntu 22.04).</p>
 <p>El mensaje de error de <strong>k3sup</strong> indica que no se puede conectar vía SSH porque falla el <em>handshake</em>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>Running: k3sup install
-</span></span><span style="display:flex;"><span>2022/05/09 21:38:01 192.168.1.101
-</span></span><span style="display:flex;"><span>Public IP: 192.168.1.101
-</span></span><span style="display:flex;"><span>Error: unable to connect to 192.168.1.101:22 over ssh: ssh: handshake failed: ssh: unable to authenticate, attempted methods <span style="color:#719e07">[</span>none publickey<span style="color:#719e07">]</span>, no supported methods remain
-</span></span><span style="display:flex;"><span>Running: k3sup join
-</span></span><span style="display:flex;"><span>Server IP: 192.168.1.101
-</span></span><span style="display:flex;"><span>Error: unable to connect to <span style="color:#719e07">(</span>server<span style="color:#719e07">)</span> 192.168.1.101:22 over ssh: ssh: handshake failed: ssh: unable to authenticate, attempted methods <span style="color:#719e07">[</span>none publickey<span style="color:#719e07">]</span>, no supported methods remain
-</span></span></code></pre></div><p>Sin embargo, es posible conectar a las VMs vía SSH con normalidad:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ ssh operador@192.168.1.101
-</span></span><span style="display:flex;"><span>Warning: Permanently added <span style="color:#2aa198">&#39;192.168.1.101&#39;</span> <span style="color:#719e07">(</span>ED25519<span style="color:#719e07">)</span> to the list of known hosts.
-</span></span><span style="display:flex;"><span>Welcome to Ubuntu 22.04 LTS <span style="color:#719e07">(</span>GNU/Linux 5.15.0-27-generic x86_64<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span> * Documentation:  https://help.ubuntu.com
-</span></span><span style="display:flex;"><span> * Management:     https://landscape.canonical.com
-</span></span><span style="display:flex;"><span> * Support:        https://ubuntu.com/advantage
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>  System information as of Mon May  <span style="color:#2aa198">9</span> 19:55:23 UTC <span style="color:#2aa198">2022</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>  System load:  0.0107421875      Processes:               <span style="color:#2aa198">93</span>
-</span></span><span style="display:flex;"><span>  Usage of /:   3.5% of 38.71GB   Users logged in:         <span style="color:#2aa198">0</span>
-</span></span><span style="display:flex;"><span>  Memory usage: 9%                IPv4 address <span style="color:#719e07">for</span> enp0s3: 10.0.2.15
-</span></span><span style="display:flex;"><span>  Swap usage:   0%                IPv4 address <span style="color:#719e07">for</span> enp0s8: 192.168.1.101
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#2aa198">0</span> updates can be applied immediately.
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>Last login: Mon May  <span style="color:#2aa198">9</span> 19:55:23 <span style="color:#2aa198">2022</span> from 192.168.1.139
-</span></span><span style="display:flex;"><span>To run a <span style="color:#b58900">command</span> as administrator <span style="color:#719e07">(</span>user <span style="color:#2aa198">&#34;root&#34;</span><span style="color:#719e07">)</span>, use <span style="color:#2aa198">&#34;sudo &lt;command&gt;&#34;</span>.
-</span></span><span style="display:flex;"><span>See <span style="color:#2aa198">&#34;man sudo_root&#34;</span> <span style="color:#719e07">for</span> details.
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>operador@k3s-1:~$
-</span></span></code></pre></div><p>Hay un <em>issue</em> abierto <a href="https://github.com/alexellis/k3sup/issues/377">SSH key format deprecated in Ubuntu 22.04</a> al respecto.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">Running: k3sup install
+2022/05/09 21:38:01 192.168.1.101
+Public IP: 192.168.1.101
+Error: unable to connect to 192.168.1.101:22 over ssh: ssh: handshake failed: ssh: unable to authenticate, attempted methods <span style="color:#719e07">[</span>none publickey<span style="color:#719e07">]</span>, no supported methods remain
+Running: k3sup join
+Server IP: 192.168.1.101
+Error: unable to connect to <span style="color:#719e07">(</span>server<span style="color:#719e07">)</span> 192.168.1.101:22 over ssh: ssh: handshake failed: ssh: unable to authenticate, attempted methods <span style="color:#719e07">[</span>none publickey<span style="color:#719e07">]</span>, no supported methods remain
+</code></pre></div><p>Sin embargo, es posible conectar a las VMs vía SSH con normalidad:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ ssh operador@192.168.1.101
+Warning: Permanently added <span style="color:#2aa198">&#39;192.168.1.101&#39;</span> <span style="color:#719e07">(</span>ED25519<span style="color:#719e07">)</span> to the list of known hosts.
+Welcome to Ubuntu 22.04 LTS <span style="color:#719e07">(</span>GNU/Linux 5.15.0-27-generic x86_64<span style="color:#719e07">)</span>
+
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/advantage
+
+  System information as of Mon May  <span style="color:#2aa198">9</span> 19:55:23 UTC <span style="color:#2aa198">2022</span>
+
+  System load:  0.0107421875      Processes:               <span style="color:#2aa198">93</span>
+  Usage of /:   3.5% of 38.71GB   Users logged in:         <span style="color:#2aa198">0</span>
+  Memory usage: 9%                IPv4 address <span style="color:#719e07">for</span> enp0s3: 10.0.2.15
+  Swap usage:   0%                IPv4 address <span style="color:#719e07">for</span> enp0s8: 192.168.1.101
+
+
+<span style="color:#2aa198">0</span> updates can be applied immediately.
+
+
+Last login: Mon May  <span style="color:#2aa198">9</span> 19:55:23 <span style="color:#2aa198">2022</span> from 192.168.1.139
+To run a <span style="color:#b58900">command</span> as administrator <span style="color:#719e07">(</span>user <span style="color:#2aa198">&#34;root&#34;</span><span style="color:#719e07">)</span>, use <span style="color:#2aa198">&#34;sudo &lt;command&gt;&#34;</span>.
+See <span style="color:#2aa198">&#34;man sudo_root&#34;</span> <span style="color:#719e07">for</span> details.
+
+operador@k3s-1:~$
+</code></pre></div><p>Hay un <em>issue</em> abierto <a href="https://github.com/alexellis/k3sup/issues/377">SSH key format deprecated in Ubuntu 22.04</a> al respecto.</p>
 <p>Leyendo los diferentes comentarios no me queda claro dónde está la causa del error. Parece que está relacionado con la eliminación del soporte para SHA-1&hellip;</p>
 <p>Pero en la documentación de OpenSSH para el último <em>release</em> <a href="https://www.openssh.com/txt/release-8.2">OpenSSH 8.2</a> se indica cómo comprobar si este cambio nos impacta:</p>
 <blockquote>
 <p>To check whether a server is using the weak ssh-rsa public key
 algorithm for host authentication, try to connect to it after
 removing the ssh-rsa algorithm from ssh(1)&rsquo;s allowed list:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span> ssh -oHostKeyAlgorithms<span style="color:#719e07">=</span>-ssh-rsa user@host
-</span></span></code></pre></div><p>If the host key verification fails and no other supported host key
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell"> ssh -oHostKeyAlgorithms<span style="color:#719e07">=</span>-ssh-rsa user@host
+</code></pre></div><p>If the host key verification fails and no other supported host key
 types are available, the server software on that host should be
 upgraded.</p>
 </blockquote>
 <p>Es decir, si ejecutas el comando indicado y no puedes conectar, es necesario actualizar el servidor.</p>
 <p>En el caso de los nodos del clúster, no hay ningún problema usando SSH:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ ssh -oHostKeyAlgorithms<span style="color:#719e07">=</span>-ssh-rsa operador@192.168.1.101
-</span></span><span style="display:flex;"><span>Welcome to Ubuntu 22.04 LTS <span style="color:#719e07">(</span>GNU/Linux 5.15.0-27-generic x86_64<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>...
-</span></span></code></pre></div><p>Así que la causa parece estar en alguna de las bibliotecas de criptografía usadas por Go al compilar <strong>k3sup</strong>&hellip;</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ ssh -oHostKeyAlgorithms<span style="color:#719e07">=</span>-ssh-rsa operador@192.168.1.101
+Welcome to Ubuntu 22.04 LTS <span style="color:#719e07">(</span>GNU/Linux 5.15.0-27-generic x86_64<span style="color:#719e07">)</span>
+...
+</code></pre></div><p>Así que la causa parece estar en alguna de las bibliotecas de criptografía usadas por Go al compilar <strong>k3sup</strong>&hellip;</p>
 <p>Una <a href="https://github.com/alexellis/k3sup/issues/377#issuecomment-1117683647">solución alternativa</a> es la de generar nuevas claves <strong>sin usar el algoritmo RSA</strong>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#586e75"># Generate new (non-RSA) key</span>
-</span></span><span style="display:flex;"><span>$ ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519
-</span></span><span style="display:flex;"><span>Generating public/private ed25519 key pair.
-</span></span><span style="display:flex;"><span>...
-</span></span><span style="display:flex;"><span><span style="color:#586e75"># Transfer the key to target server</span>
-</span></span><span style="display:flex;"><span>$ ssh-copy-id -i ./id_ed25519.pub <span style="color:#2aa198">${</span><span style="color:#268bd2">USER</span><span style="color:#2aa198">}</span>@<span style="color:#2aa198">${</span><span style="color:#268bd2">IP</span><span style="color:#2aa198">}</span>
-</span></span><span style="display:flex;"><span>...
-</span></span><span style="display:flex;"><span><span style="color:#586e75"># Enjoy k3sup again</span>
-</span></span><span style="display:flex;"><span>$ k3sup install --ip <span style="color:#2aa198">${</span><span style="color:#268bd2">IP</span><span style="color:#2aa198">}</span> --user <span style="color:#2aa198">${</span><span style="color:#268bd2">USER</span><span style="color:#2aa198">}</span> --ssh-key ~/.ssh/id_ed25519
-</span></span><span style="display:flex;"><span>Running: k3sup install
-</span></span><span style="display:flex;"><span>2022/05/04 19:36:31 &lt;IP_ADDRESS&gt;
-</span></span><span style="display:flex;"><span>Public IP: &lt;IP_ADDRESS&gt;
-</span></span><span style="display:flex;"><span><span style="color:#719e07">[</span>INFO<span style="color:#719e07">]</span>  Finding release <span style="color:#719e07">for</span> channel stable
-</span></span><span style="display:flex;"><span><span style="color:#719e07">[</span>INFO<span style="color:#719e07">]</span>  Using v1.23.6+k3s1 as release
-</span></span><span style="display:flex;"><span>...
-</span></span></code></pre></div><p>Podría modificar el <code>Vagrantfile</code> para incorporar una nueva clave sin demasiados problemas:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-ruby" data-lang="ruby"><span style="display:flex;"><span>$accessUsingSSHkey <span style="color:#719e07">=</span> <span style="color:#2aa198">&lt;&lt;-SCRIPT
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198"></span><span style="color:#586e75">#!/bin/bash</span>
-</span></span><span style="display:flex;"><span>echo <span style="color:#2aa198">&#34;Configuring passwordless SSH access for </span><span style="color:#2aa198">#{</span><span style="color:#cb4b16">NonRootUser</span><span style="color:#2aa198">}</span><span style="color:#2aa198"> ...&#34;</span>
-</span></span><span style="display:flex;"><span>sudo su <span style="color:#586e75">#{NonRootUser}</span>
-</span></span><span style="display:flex;"><span>sudo mkdir <span style="color:#719e07">-</span><span style="color:#b58900">p</span> <span style="color:#dc322f">/home/</span><span style="color:#586e75">#{NonRootUser}/.ssh/</span>
-</span></span><span style="display:flex;"><span>cat <span style="color:#dc322f">/tmp/</span>tmp_id_rsa<span style="color:#719e07">.</span>pub <span style="color:#719e07">&gt;&gt;</span> <span style="color:#dc322f">/home/</span><span style="color:#586e75">#{NonRootUser}/.ssh/authorized_keys</span>
-</span></span><span style="display:flex;"><span><span style="color:#cb4b16">SCRIPT</span>
-</span></span></code></pre></div><p>Sin embargo, dado que no tengo ninguna urgencia para actualizar el SO de las VMs del clúster, esperaré a que se solucione el problema con <strong>k3sup</strong> antes de realizar la actualización a Ubuntu 22.04.</p></div>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell"><span style="color:#586e75"># Generate new (non-RSA) key</span>
+$ ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519
+Generating public/private ed25519 key pair.
+...
+<span style="color:#586e75"># Transfer the key to target server</span>
+$ ssh-copy-id -i ./id_ed25519.pub <span style="color:#2aa198">${</span><span style="color:#268bd2">USER</span><span style="color:#2aa198">}</span>@<span style="color:#2aa198">${</span><span style="color:#268bd2">IP</span><span style="color:#2aa198">}</span>
+...
+<span style="color:#586e75"># Enjoy k3sup again</span>
+$ k3sup install --ip <span style="color:#2aa198">${</span><span style="color:#268bd2">IP</span><span style="color:#2aa198">}</span> --user <span style="color:#2aa198">${</span><span style="color:#268bd2">USER</span><span style="color:#2aa198">}</span> --ssh-key ~/.ssh/id_ed25519
+Running: k3sup install
+2022/05/04 19:36:31 &lt;IP_ADDRESS&gt;
+Public IP: &lt;IP_ADDRESS&gt;
+<span style="color:#719e07">[</span>INFO<span style="color:#719e07">]</span>  Finding release <span style="color:#719e07">for</span> channel stable
+<span style="color:#719e07">[</span>INFO<span style="color:#719e07">]</span>  Using v1.23.6+k3s1 as release
+...
+</code></pre></div><p>Podría modificar el <code>Vagrantfile</code> para incorporar una nueva clave sin demasiados problemas:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-ruby" data-lang="ruby">$accessUsingSSHkey <span style="color:#719e07">=</span> <span style="color:#2aa198">&lt;&lt;-SCRIPT
+</span><span style="color:#2aa198"></span><span style="color:#586e75">#!/bin/bash</span>
+echo <span style="color:#2aa198">&#34;Configuring passwordless SSH access for </span><span style="color:#2aa198">#{</span><span style="color:#cb4b16">NonRootUser</span><span style="color:#2aa198">}</span><span style="color:#2aa198"> ...&#34;</span>
+sudo su <span style="color:#586e75">#{NonRootUser}</span>
+sudo mkdir <span style="color:#719e07">-</span><span style="color:#b58900">p</span> <span style="color:#dc322f">/home/</span><span style="color:#586e75">#{NonRootUser}/.ssh/</span>
+cat <span style="color:#dc322f">/tmp/</span>tmp_id_rsa<span style="color:#719e07">.</span>pub <span style="color:#719e07">&gt;&gt;</span> <span style="color:#dc322f">/home/</span><span style="color:#586e75">#{NonRootUser}/.ssh/authorized_keys</span>
+<span style="color:#cb4b16">SCRIPT</span>
+</code></pre></div><p>Sin embargo, dado que no tengo ninguna urgencia para actualizar el SO de las VMs del clúster, esperaré a que se solucione el problema con <strong>k3sup</strong> antes de realizar la actualización a Ubuntu 22.04.</p></div>
 
   <aside class="p-share">
 

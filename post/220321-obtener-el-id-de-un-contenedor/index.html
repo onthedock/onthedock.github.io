@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.95.0" />
+<meta name="generator" content="Hugo 0.92.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -139,65 +139,65 @@
 <p>He descubierto que el Deployment Controller añade la etiqueta <a href="https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#pod-template-hash-label"><code>pod-template-hash</code></a> a los <em>pods</em> creados y que ese valor se usa como parte del nombre de los <em>pods</em> gestionados por el ReplicaSet. El valor de <code>pod-template-hash</code> es una cadena aleatoria.</p>
 </blockquote>
 <p>Obtener el identificador de un <em>pod</em> puede referirse a varias cosas; por un lado, tenemos el nombre del <em>pod</em>, que lo identifica de forma unívoca&hellip; Usando únicamente <code>kubectl</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ kubectl get pods -n argocd -l app.kubernetes.io/name<span style="color:#719e07">=</span>argocd-server -o <span style="color:#268bd2">jsonpath</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#39;{ .items[].metadata.name }&#39;</span>
-</span></span><span style="display:flex;"><span>argocd-server-bff55c87-6sld4
-</span></span></code></pre></div><p>Cada <em>pod</em> tiene un identificador único <code>uid</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ kubectl get pods -n argocd -l app.kubernetes.io/name<span style="color:#719e07">=</span>argocd-server -o json | jq -r <span style="color:#2aa198">&#39;.items[].metadata.uid&#39;</span>
-</span></span><span style="display:flex;"><span>0e486b81-8e5d-4e61-adcf-3febfd61c9c5
-</span></span></code></pre></div><p>En estos ejemplos, sólo tenemos un <em>pod</em> que encaje con la etiqueta que usamos para filtrar, pero si tuviéramos varios <em>pods</em>, la expresión funciona del mismo modo:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ kubectl get pods -n longhorn-system -l <span style="color:#268bd2">app</span><span style="color:#719e07">=</span>csi-snapshotter -o json | jq -r <span style="color:#2aa198">&#39;.items[].metadata.uid&#39;</span>
-</span></span><span style="display:flex;"><span>337b5202-ac4f-4531-b8c9-c87c1de05ef6
-</span></span><span style="display:flex;"><span>49e9cec6-82c7-4889-aa0b-fdb960673f50
-</span></span><span style="display:flex;"><span>43fe7d09-791f-4076-9565-f98a27e4033f
-</span></span></code></pre></div><p>Pero la pregunta en el foro hacía referencia al <em>containerID</em>. Esto me resulta todavía más extraño; al fin y al cabo, el <em>containerID</em> es algo que sólo necesita conocer el <em>container engine</em>, pero que a nivel de aplicación es completamente irrelevante&hellip;</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl get pods -n argocd -l app.kubernetes.io/name<span style="color:#719e07">=</span>argocd-server -o <span style="color:#268bd2">jsonpath</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#39;{ .items[].metadata.name }&#39;</span>
+argocd-server-bff55c87-6sld4
+</code></pre></div><p>Cada <em>pod</em> tiene un identificador único <code>uid</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl get pods -n argocd -l app.kubernetes.io/name<span style="color:#719e07">=</span>argocd-server -o json | jq -r <span style="color:#2aa198">&#39;.items[].metadata.uid&#39;</span>
+0e486b81-8e5d-4e61-adcf-3febfd61c9c5
+</code></pre></div><p>En estos ejemplos, sólo tenemos un <em>pod</em> que encaje con la etiqueta que usamos para filtrar, pero si tuviéramos varios <em>pods</em>, la expresión funciona del mismo modo:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl get pods -n longhorn-system -l <span style="color:#268bd2">app</span><span style="color:#719e07">=</span>csi-snapshotter -o json | jq -r <span style="color:#2aa198">&#39;.items[].metadata.uid&#39;</span>
+337b5202-ac4f-4531-b8c9-c87c1de05ef6
+49e9cec6-82c7-4889-aa0b-fdb960673f50
+43fe7d09-791f-4076-9565-f98a27e4033f
+</code></pre></div><p>Pero la pregunta en el foro hacía referencia al <em>containerID</em>. Esto me resulta todavía más extraño; al fin y al cabo, el <em>containerID</em> es algo que sólo necesita conocer el <em>container engine</em>, pero que a nivel de aplicación es completamente irrelevante&hellip;</p>
 <p>En cualquier caso, le <em>he dado una vuelta</em> y he creado un <em>script</em> en plan <em>quick &amp; dirty</em> que obtiene el <em>containerID</em> cada vez que el contenedor se reinicia:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#719e07">#!/usr/bin/env bash
-</span></span></span><span style="display:flex;"><span><span style="color:#719e07"></span><span style="color:#b58900">set</span> -e
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">if</span> <span style="color:#719e07">[</span> -z <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$KUBECONFIG</span><span style="color:#2aa198">&#34;</span> <span style="color:#719e07">]</span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">then</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#b58900">printf</span> <span style="color:#2aa198">&#34;\$KUBECONFIG not set.\n&#34;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#b58900">exit</span> <span style="color:#2aa198">1</span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">fi</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">pod_label</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$1</span><span style="color:#2aa198">&#34;</span>
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">pod_namespace</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$2</span><span style="color:#2aa198">&#34;</span>
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">wait_seconds</span><span style="color:#719e07">=</span><span style="color:#2aa198">4</span>
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">last_container_id</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;&#34;</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>get_container_id<span style="color:#719e07">()</span> <span style="color:#719e07">{</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#b58900">echo</span> <span style="color:#719e07">$(</span>kubectl get pods -l <span style="color:#2aa198">&#34;app.kubernetes.io/name=</span><span style="color:#2aa198">${</span><span style="color:#268bd2">pod_label</span><span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span> -n <span style="color:#2aa198">&#34;</span><span style="color:#2aa198">${</span><span style="color:#268bd2">pod_namespace</span><span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span> -o json | jq -r <span style="color:#2aa198">&#39;.items[].status.containerStatuses[].containerID&#39;</span> | tr -d <span style="color:#2aa198">&#39;containerd://&#39;</span><span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">}</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#b58900">printf</span> <span style="color:#2aa198">&#39;Watching namespace &#34;%s&#34; (with label &#34;%s&#34;) ... \n&#39;</span> <span style="color:#2aa198">&#34;</span><span style="color:#2aa198">${</span><span style="color:#268bd2">pod_namespace</span><span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span> <span style="color:#2aa198">&#34;</span><span style="color:#2aa198">${</span><span style="color:#268bd2">pod_label</span><span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">while</span> <span style="color:#b58900">true</span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">do</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">container_id</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>get_container_id<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#586e75"># printf &#34;ContainerID: %s\n&#34; &#34;$container_id&#34;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#719e07">if</span> <span style="color:#719e07">[[</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$container_id</span><span style="color:#2aa198">&#34;</span> !<span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$last_container_id</span><span style="color:#2aa198">&#34;</span> <span style="color:#719e07">]]</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#719e07">then</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#b58900">printf</span> <span style="color:#2aa198">&#34;ContainerID: %s\n&#34;</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$container_id</span><span style="color:#2aa198">&#34;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">last_container_id</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#2aa198">${</span><span style="color:#268bd2">container_id</span><span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#719e07">fi</span>
-</span></span><span style="display:flex;"><span>    sleep <span style="color:#2aa198">&#34;</span><span style="color:#2aa198">${</span><span style="color:#268bd2">wait_seconds</span><span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">done</span>
-</span></span></code></pre></div><p>El <em>script</em> usa <code>kubectl</code> y el fichero de configuración para conectar al clúster y obtener el <em>containerID</em> del <em>pod</em> (o <em>pods</em>) que coinciden con una determinada etiqueta. A partir de ahí, obtiene los <em>containerID</em> usando <code>jq</code>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash"><span style="color:#719e07">#!/usr/bin/env bash
+</span><span style="color:#719e07"></span><span style="color:#b58900">set</span> -e
+
+<span style="color:#719e07">if</span> <span style="color:#719e07">[</span> -z <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$KUBECONFIG</span><span style="color:#2aa198">&#34;</span> <span style="color:#719e07">]</span>
+<span style="color:#719e07">then</span>
+    <span style="color:#b58900">printf</span> <span style="color:#2aa198">&#34;\$KUBECONFIG not set.\n&#34;</span>
+    <span style="color:#b58900">exit</span> <span style="color:#2aa198">1</span>
+<span style="color:#719e07">fi</span>
+
+<span style="color:#268bd2">pod_label</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$1</span><span style="color:#2aa198">&#34;</span>
+<span style="color:#268bd2">pod_namespace</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$2</span><span style="color:#2aa198">&#34;</span>
+<span style="color:#268bd2">wait_seconds</span><span style="color:#719e07">=</span><span style="color:#2aa198">4</span>
+<span style="color:#268bd2">last_container_id</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;&#34;</span>
+
+get_container_id<span style="color:#719e07">()</span> <span style="color:#719e07">{</span>
+    <span style="color:#b58900">echo</span> <span style="color:#719e07">$(</span>kubectl get pods -l <span style="color:#2aa198">&#34;app.kubernetes.io/name=</span><span style="color:#2aa198">${</span><span style="color:#268bd2">pod_label</span><span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span> -n <span style="color:#2aa198">&#34;</span><span style="color:#2aa198">${</span><span style="color:#268bd2">pod_namespace</span><span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span> -o json | jq -r <span style="color:#2aa198">&#39;.items[].status.containerStatuses[].containerID&#39;</span> | tr -d <span style="color:#2aa198">&#39;containerd://&#39;</span><span style="color:#719e07">)</span>
+<span style="color:#719e07">}</span>
+
+<span style="color:#b58900">printf</span> <span style="color:#2aa198">&#39;Watching namespace &#34;%s&#34; (with label &#34;%s&#34;) ... \n&#39;</span> <span style="color:#2aa198">&#34;</span><span style="color:#2aa198">${</span><span style="color:#268bd2">pod_namespace</span><span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span> <span style="color:#2aa198">&#34;</span><span style="color:#2aa198">${</span><span style="color:#268bd2">pod_label</span><span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span>
+
+<span style="color:#719e07">while</span> <span style="color:#b58900">true</span>
+<span style="color:#719e07">do</span>
+    <span style="color:#268bd2">container_id</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>get_container_id<span style="color:#719e07">)</span>
+    <span style="color:#586e75"># printf &#34;ContainerID: %s\n&#34; &#34;$container_id&#34;</span>
+    <span style="color:#719e07">if</span> <span style="color:#719e07">[[</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$container_id</span><span style="color:#2aa198">&#34;</span> !<span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$last_container_id</span><span style="color:#2aa198">&#34;</span> <span style="color:#719e07">]]</span>
+    <span style="color:#719e07">then</span>
+        <span style="color:#b58900">printf</span> <span style="color:#2aa198">&#34;ContainerID: %s\n&#34;</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$container_id</span><span style="color:#2aa198">&#34;</span>
+        <span style="color:#268bd2">last_container_id</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#2aa198">${</span><span style="color:#268bd2">container_id</span><span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span>
+    <span style="color:#719e07">fi</span>
+    sleep <span style="color:#2aa198">&#34;</span><span style="color:#2aa198">${</span><span style="color:#268bd2">wait_seconds</span><span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span>
+<span style="color:#719e07">done</span>
+</code></pre></div><p>El <em>script</em> usa <code>kubectl</code> y el fichero de configuración para conectar al clúster y obtener el <em>containerID</em> del <em>pod</em> (o <em>pods</em>) que coinciden con una determinada etiqueta. A partir de ahí, obtiene los <em>containerID</em> usando <code>jq</code>.</p>
 <p>Al ejecutar el <em>script</em>, indicamos la etiqueta (para filtrar los <em>pods</em>) y el <em>namespace</em> en el que se encuentran:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ ./pod_id.sh <span style="color:#2aa198">&#34;argocd-server&#34;</span> <span style="color:#2aa198">&#34;argocd&#34;</span>
-</span></span><span style="display:flex;"><span>Watching namespace <span style="color:#2aa198">&#34;argocd&#34;</span> <span style="color:#719e07">(</span>with label <span style="color:#2aa198">&#34;argocd-server&#34;</span><span style="color:#719e07">)</span> ... 
-</span></span><span style="display:flex;"><span>ContainerID: 21281939115633b63455b13b6079528b37f904f9ffb268b190bf0
-</span></span></code></pre></div><p>El <em>script</em>, que se ejecuta en un bucle infinito, muestra el <em>containerID</em> y comprueba periódicamente si el valor del <em>containerID</em> del contenedor en ejecución es diferente al <em>containerID</em> guardado (del anterior <em>check</em>); el <em>script</em> sólo actualiza la salida si el <em>containerID</em> cambia.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ ./pod_id.sh <span style="color:#2aa198">&#34;argocd-server&#34;</span> <span style="color:#2aa198">&#34;argocd&#34;</span>
+Watching namespace <span style="color:#2aa198">&#34;argocd&#34;</span> <span style="color:#719e07">(</span>with label <span style="color:#2aa198">&#34;argocd-server&#34;</span><span style="color:#719e07">)</span> ... 
+ContainerID: 21281939115633b63455b13b6079528b37f904f9ffb268b190bf0
+</code></pre></div><p>El <em>script</em>, que se ejecuta en un bucle infinito, muestra el <em>containerID</em> y comprueba periódicamente si el valor del <em>containerID</em> del contenedor en ejecución es diferente al <em>containerID</em> guardado (del anterior <em>check</em>); el <em>script</em> sólo actualiza la salida si el <em>containerID</em> cambia.</p>
 <p>Forzando el reinicio mediante:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ kubectl -n argocd rollout restart deployment argocd-server
-</span></span><span style="display:flex;"><span>deployment.apps/argocd-server restarted
-</span></span></code></pre></div><p>El <em>script</em> se actualiza como estaba previsto, pero tarde un par de iteraciones en mostrar el <em>containerID</em> del nuevo contenedor (corriendo en el nuevo <em>pod</em>):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ ./pod_id.sh <span style="color:#2aa198">&#34;argocd-server&#34;</span> <span style="color:#2aa198">&#34;argocd&#34;</span>
-</span></span><span style="display:flex;"><span>Watching namespace <span style="color:#2aa198">&#34;argocd&#34;</span> <span style="color:#719e07">(</span>with label <span style="color:#2aa198">&#34;argocd-server&#34;</span><span style="color:#719e07">)</span> ... 
-</span></span><span style="display:flex;"><span>ContainerID: 21281939115633b63455b13b6079528b37f904f9ffb268b190bf0
-</span></span><span style="display:flex;"><span>ContainerID: 21281939115633b63455b13b6079528b37f904f9ffb268b190bf0 ull
-</span></span><span style="display:flex;"><span>ContainerID: 08047900167b20192704669334768182f825281777f540
-</span></span></code></pre></div><p>Para eliminar estos <em>efecto transitorio</em> quizás lo más sencillo sería aumentar el tiempo que espera el <em>script</em> entre una comprobación y la siguiente del valor del <em>containerID</em>&hellip;</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl -n argocd rollout restart deployment argocd-server
+deployment.apps/argocd-server restarted
+</code></pre></div><p>El <em>script</em> se actualiza como estaba previsto, pero tarde un par de iteraciones en mostrar el <em>containerID</em> del nuevo contenedor (corriendo en el nuevo <em>pod</em>):</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ ./pod_id.sh <span style="color:#2aa198">&#34;argocd-server&#34;</span> <span style="color:#2aa198">&#34;argocd&#34;</span>
+Watching namespace <span style="color:#2aa198">&#34;argocd&#34;</span> <span style="color:#719e07">(</span>with label <span style="color:#2aa198">&#34;argocd-server&#34;</span><span style="color:#719e07">)</span> ... 
+ContainerID: 21281939115633b63455b13b6079528b37f904f9ffb268b190bf0
+ContainerID: 21281939115633b63455b13b6079528b37f904f9ffb268b190bf0 ull
+ContainerID: 08047900167b20192704669334768182f825281777f540
+</code></pre></div><p>Para eliminar estos <em>efecto transitorio</em> quizás lo más sencillo sería aumentar el tiempo que espera el <em>script</em> entre una comprobación y la siguiente del valor del <em>containerID</em>&hellip;</p>
 <p>En cualquier caso, espero que <a href="https://discuss.kubernetes.io/t/getting-pod-id-and-container-id-of-a-container-when-it-restarts/19413/2?u=xavi">mi respuesta</a> sirva de ayuda.</p></div>
 
   <aside class="p-share">

@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.95.0" />
+<meta name="generator" content="Hugo 0.92.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -135,216 +135,217 @@
 <h1 id="descripción-del-problema">Descripción del problema</h1>
 <p>Tras unas horas activos y formando parte del clúster, los dos nodos que corren sobre Raspberry Pi 3 dejan de responder y el clúster los muestra como <em>NotReady</em>.</p>
 <p>El clúster está formado por tres Raspberry Pi; el nodo <em>master</em> es una Raspberry Pi 2 B mientras que los dos nodos <em>worker</em> son Raspberry Pi 3 B.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ kubectl get nodes -o wide
-</span></span><span style="display:flex;"><span>NAME      STATUS     AGE       VERSION   EXTERNAL-IP   OS-IMAGE                        KERNEL-VERSION
-</span></span><span style="display:flex;"><span>k1        Ready      19d       v1.6.2    &lt;none&gt;        Raspbian GNU/Linux <span style="color:#2aa198">8</span> <span style="color:#719e07">(</span>jessie<span style="color:#719e07">)</span>   4.4.50-hypriotos-v7+
-</span></span><span style="display:flex;"><span>k2        NotReady   15d       v1.6.2    &lt;none&gt;        Raspbian GNU/Linux <span style="color:#2aa198">8</span> <span style="color:#719e07">(</span>jessie<span style="color:#719e07">)</span>   4.4.50-hypriotos-v7+
-</span></span><span style="display:flex;"><span>k3        NotReady   14d       v1.6.2    &lt;none&gt;        Raspbian GNU/Linux <span style="color:#2aa198">8</span> <span style="color:#719e07">(</span>jessie<span style="color:#719e07">)</span>   4.4.50-hypriotos-v7+
-</span></span></code></pre></div><h1 id="ping">Ping</h1>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ kubectl get nodes -o wide
+NAME      STATUS     AGE       VERSION   EXTERNAL-IP   OS-IMAGE                        KERNEL-VERSION
+k1        Ready      19d       v1.6.2    &lt;none&gt;        Raspbian GNU/Linux <span style="color:#2aa198">8</span> <span style="color:#719e07">(</span>jessie<span style="color:#719e07">)</span>   4.4.50-hypriotos-v7+
+k2        NotReady   15d       v1.6.2    &lt;none&gt;        Raspbian GNU/Linux <span style="color:#2aa198">8</span> <span style="color:#719e07">(</span>jessie<span style="color:#719e07">)</span>   4.4.50-hypriotos-v7+
+k3        NotReady   14d       v1.6.2    &lt;none&gt;        Raspbian GNU/Linux <span style="color:#2aa198">8</span> <span style="color:#719e07">(</span>jessie<span style="color:#719e07">)</span>   4.4.50-hypriotos-v7+
+</code></pre></div><h1 id="ping">Ping</h1>
 <h2 id="ping-al-nombre-del-nodo">Ping al nombre del nodo</h2>
 <p>La prueba más sencilla para ver si los nodos están colgados, es lanzar un ping desde el portátil:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ ping -c5 k2.local
-</span></span><span style="display:flex;"><span>ping: cannot resolve k2.local: Unknown host
-</span></span><span style="display:flex;"><span>$ ping -c5 k3.local
-</span></span><span style="display:flex;"><span>ping: cannot resolve k3.local: Unknown host
-</span></span></code></pre></div><p>En esta prueba vemos que ninguno de los nodos responde al nombre que <em>publica</em> el servicio <a href="https://en.wikipedia.org/wiki/Avahi_(software)">Avahi</a> en el sistema.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ ping -c5 k2.local
+ping: cannot resolve k2.local: Unknown host
+$ ping -c5 k3.local
+ping: cannot resolve k3.local: Unknown host
+</code></pre></div><p>En esta prueba vemos que ninguno de los nodos responde al nombre que <em>publica</em> el servicio <a href="https://en.wikipedia.org/wiki/Avahi_(software)">Avahi</a> en el sistema.</p>
 <h2 id="ping-a-la-ip-del-nodo">Ping a la IP del nodo</h2>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ ping -c5 192.168.1.12
-</span></span><span style="display:flex;"><span>PING 192.168.1.12 <span style="color:#719e07">(</span>192.168.1.12<span style="color:#719e07">)</span>: <span style="color:#2aa198">56</span> data bytes
-</span></span><span style="display:flex;"><span><span style="color:#2aa198">64</span> bytes from 192.168.1.12: <span style="color:#268bd2">icmp_seq</span><span style="color:#719e07">=</span><span style="color:#2aa198">0</span> <span style="color:#268bd2">ttl</span><span style="color:#719e07">=</span><span style="color:#2aa198">64</span> <span style="color:#268bd2">time</span><span style="color:#719e07">=</span>3.842 ms
-</span></span><span style="display:flex;"><span><span style="color:#2aa198">64</span> bytes from 192.168.1.12: <span style="color:#268bd2">icmp_seq</span><span style="color:#719e07">=</span><span style="color:#2aa198">1</span> <span style="color:#268bd2">ttl</span><span style="color:#719e07">=</span><span style="color:#2aa198">64</span> <span style="color:#268bd2">time</span><span style="color:#719e07">=</span>6.678 ms
-</span></span><span style="display:flex;"><span><span style="color:#2aa198">64</span> bytes from 192.168.1.12: <span style="color:#268bd2">icmp_seq</span><span style="color:#719e07">=</span><span style="color:#2aa198">2</span> <span style="color:#268bd2">ttl</span><span style="color:#719e07">=</span><span style="color:#2aa198">64</span> <span style="color:#268bd2">time</span><span style="color:#719e07">=</span>10.789 ms
-</span></span><span style="display:flex;"><span><span style="color:#2aa198">64</span> bytes from 192.168.1.12: <span style="color:#268bd2">icmp_seq</span><span style="color:#719e07">=</span><span style="color:#2aa198">3</span> <span style="color:#268bd2">ttl</span><span style="color:#719e07">=</span><span style="color:#2aa198">64</span> <span style="color:#268bd2">time</span><span style="color:#719e07">=</span>7.411 ms
-</span></span><span style="display:flex;"><span><span style="color:#2aa198">64</span> bytes from 192.168.1.12: <span style="color:#268bd2">icmp_seq</span><span style="color:#719e07">=</span><span style="color:#2aa198">4</span> <span style="color:#268bd2">ttl</span><span style="color:#719e07">=</span><span style="color:#2aa198">64</span> <span style="color:#268bd2">time</span><span style="color:#719e07">=</span>10.518 ms
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>--- 192.168.1.12 ping statistics ---
-</span></span><span style="display:flex;"><span><span style="color:#2aa198">5</span> packets transmitted, <span style="color:#2aa198">5</span> packets received, 0.0% packet loss
-</span></span><span style="display:flex;"><span>round-trip min/avg/max/stddev <span style="color:#719e07">=</span> 3.842/7.848/10.789/2.584 ms
-</span></span><span style="display:flex;"><span>$ ping -c5 192.168.1.13
-</span></span><span style="display:flex;"><span>PING 192.168.1.13 <span style="color:#719e07">(</span>192.168.1.13<span style="color:#719e07">)</span>: <span style="color:#2aa198">56</span> data bytes
-</span></span><span style="display:flex;"><span>Request timeout <span style="color:#719e07">for</span> icmp_seq <span style="color:#2aa198">0</span>
-</span></span><span style="display:flex;"><span>Request timeout <span style="color:#719e07">for</span> icmp_seq <span style="color:#2aa198">1</span>
-</span></span><span style="display:flex;"><span>Request timeout <span style="color:#719e07">for</span> icmp_seq <span style="color:#2aa198">2</span>
-</span></span><span style="display:flex;"><span>Request timeout <span style="color:#719e07">for</span> icmp_seq <span style="color:#2aa198">3</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>--- 192.168.1.13 ping statistics ---
-</span></span><span style="display:flex;"><span><span style="color:#2aa198">5</span> packets transmitted, <span style="color:#2aa198">0</span> packets received, 100.0% packet loss
-</span></span><span style="display:flex;"><span>$
-</span></span></code></pre></div><p>En este caso, el nodo <strong>k2</strong> sí que responde a ping a la IP, mientras que el nodo <strong>k3</strong> actúa como si estuviera apagado o con la red deshabilitada.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ ping -c5 192.168.1.12
+PING 192.168.1.12 <span style="color:#719e07">(</span>192.168.1.12<span style="color:#719e07">)</span>: <span style="color:#2aa198">56</span> data bytes
+<span style="color:#2aa198">64</span> bytes from 192.168.1.12: <span style="color:#268bd2">icmp_seq</span><span style="color:#719e07">=</span><span style="color:#2aa198">0</span> <span style="color:#268bd2">ttl</span><span style="color:#719e07">=</span><span style="color:#2aa198">64</span> <span style="color:#268bd2">time</span><span style="color:#719e07">=</span>3.842 ms
+<span style="color:#2aa198">64</span> bytes from 192.168.1.12: <span style="color:#268bd2">icmp_seq</span><span style="color:#719e07">=</span><span style="color:#2aa198">1</span> <span style="color:#268bd2">ttl</span><span style="color:#719e07">=</span><span style="color:#2aa198">64</span> <span style="color:#268bd2">time</span><span style="color:#719e07">=</span>6.678 ms
+<span style="color:#2aa198">64</span> bytes from 192.168.1.12: <span style="color:#268bd2">icmp_seq</span><span style="color:#719e07">=</span><span style="color:#2aa198">2</span> <span style="color:#268bd2">ttl</span><span style="color:#719e07">=</span><span style="color:#2aa198">64</span> <span style="color:#268bd2">time</span><span style="color:#719e07">=</span>10.789 ms
+<span style="color:#2aa198">64</span> bytes from 192.168.1.12: <span style="color:#268bd2">icmp_seq</span><span style="color:#719e07">=</span><span style="color:#2aa198">3</span> <span style="color:#268bd2">ttl</span><span style="color:#719e07">=</span><span style="color:#2aa198">64</span> <span style="color:#268bd2">time</span><span style="color:#719e07">=</span>7.411 ms
+<span style="color:#2aa198">64</span> bytes from 192.168.1.12: <span style="color:#268bd2">icmp_seq</span><span style="color:#719e07">=</span><span style="color:#2aa198">4</span> <span style="color:#268bd2">ttl</span><span style="color:#719e07">=</span><span style="color:#2aa198">64</span> <span style="color:#268bd2">time</span><span style="color:#719e07">=</span>10.518 ms
+
+--- 192.168.1.12 ping statistics ---
+<span style="color:#2aa198">5</span> packets transmitted, <span style="color:#2aa198">5</span> packets received, 0.0% packet loss
+round-trip min/avg/max/stddev <span style="color:#719e07">=</span> 3.842/7.848/10.789/2.584 ms
+$ ping -c5 192.168.1.13
+PING 192.168.1.13 <span style="color:#719e07">(</span>192.168.1.13<span style="color:#719e07">)</span>: <span style="color:#2aa198">56</span> data bytes
+Request timeout <span style="color:#719e07">for</span> icmp_seq <span style="color:#2aa198">0</span>
+Request timeout <span style="color:#719e07">for</span> icmp_seq <span style="color:#2aa198">1</span>
+Request timeout <span style="color:#719e07">for</span> icmp_seq <span style="color:#2aa198">2</span>
+Request timeout <span style="color:#719e07">for</span> icmp_seq <span style="color:#2aa198">3</span>
+
+--- 192.168.1.13 ping statistics ---
+<span style="color:#2aa198">5</span> packets transmitted, <span style="color:#2aa198">0</span> packets received, 100.0% packet loss
+$
+</code></pre></div><p>En este caso, el nodo <strong>k2</strong> sí que responde a ping a la IP, mientras que el nodo <strong>k3</strong> actúa como si estuviera apagado o con la red deshabilitada.</p>
 <h2 id="ssh">SSH</h2>
 <p>Aunque el nodo <strong>k2</strong> responde a ping, no es posible conectar vía SSH; el intento de conectar no tiene éxito, pero tampoco falla (por <em>timeout</em>, por ejemplo). He probado a conectar tanto desde el portátil como desde el nodo <strong>k1</strong>, con el mismo resulado:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>ssh pirate@192.168.1.12
-</span></span></code></pre></div><h1 id="kubelet-describe-node">kubelet describe node</h1>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">ssh pirate@192.168.1.12
+
+</code></pre></div><h1 id="kubelet-describe-node">kubelet describe node</h1>
 <p>Usamos el comando <code>kubelet describe node</code> para los dos nodos colgados.</p>
 <h2 id="nodo-k2">Nodo <strong>k2</strong></h2>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ kubectl describe node k2
-</span></span><span style="display:flex;"><span>Name:			k2
-</span></span><span style="display:flex;"><span>Role:
-</span></span><span style="display:flex;"><span>Labels:			beta.kubernetes.io/arch<span style="color:#719e07">=</span>arm
-</span></span><span style="display:flex;"><span>			beta.kubernetes.io/os<span style="color:#719e07">=</span>linux
-</span></span><span style="display:flex;"><span>			kubernetes.io/hostname<span style="color:#719e07">=</span>k2
-</span></span><span style="display:flex;"><span>Annotations:		node.alpha.kubernetes.io/ttl<span style="color:#719e07">=</span><span style="color:#2aa198">0</span>
-</span></span><span style="display:flex;"><span>			volumes.kubernetes.io/controller-managed-attach-detach<span style="color:#719e07">=</span><span style="color:#b58900">true</span>
-</span></span><span style="display:flex;"><span>Taints:			&lt;none&gt;
-</span></span><span style="display:flex;"><span>CreationTimestamp:	Sat, <span style="color:#2aa198">15</span> Apr <span style="color:#2aa198">2017</span> 10:25:31 +0000
-</span></span><span style="display:flex;"><span>Phase:
-</span></span><span style="display:flex;"><span>Conditions:
-</span></span><span style="display:flex;"><span>  Type			Status		LastHeartbeatTime			LastTransitionTime			Reason			Message
-</span></span><span style="display:flex;"><span>  ----			------		-----------------			------------------			------			-------
-</span></span><span style="display:flex;"><span>  OutOfDisk 		Unknown 	Sun, <span style="color:#2aa198">30</span> Apr <span style="color:#2aa198">2017</span> 11:56:26 +0000 	Sun, <span style="color:#2aa198">30</span> Apr <span style="color:#2aa198">2017</span> 11:57:11 +0000 	NodeStatusUnknown 	Kubelet stopped posting node status.
-</span></span><span style="display:flex;"><span>  MemoryPressure 	Unknown 	Sun, <span style="color:#2aa198">30</span> Apr <span style="color:#2aa198">2017</span> 11:56:26 +0000 	Sun, <span style="color:#2aa198">30</span> Apr <span style="color:#2aa198">2017</span> 11:57:11 +0000 	NodeStatusUnknown 	Kubelet stopped posting node status.
-</span></span><span style="display:flex;"><span>  DiskPressure 		Unknown 	Sun, <span style="color:#2aa198">30</span> Apr <span style="color:#2aa198">2017</span> 11:56:26 +0000 	Sun, <span style="color:#2aa198">30</span> Apr <span style="color:#2aa198">2017</span> 11:57:11 +0000 	NodeStatusUnknown 	Kubelet stopped posting node status.
-</span></span><span style="display:flex;"><span>  Ready 		Unknown 	Sun, <span style="color:#2aa198">30</span> Apr <span style="color:#2aa198">2017</span> 11:56:26 +0000 	Sun, <span style="color:#2aa198">30</span> Apr <span style="color:#2aa198">2017</span> 11:57:11 +0000 	NodeStatusUnknown 	Kubelet stopped posting node status.
-</span></span><span style="display:flex;"><span>Addresses:		192.168.1.12,192.168.1.12,k2
-</span></span><span style="display:flex;"><span>Capacity:
-</span></span><span style="display:flex;"><span> cpu:		<span style="color:#2aa198">4</span>
-</span></span><span style="display:flex;"><span> memory:	882632Ki
-</span></span><span style="display:flex;"><span> pods:		<span style="color:#2aa198">110</span>
-</span></span><span style="display:flex;"><span>Allocatable:
-</span></span><span style="display:flex;"><span> cpu:		<span style="color:#2aa198">4</span>
-</span></span><span style="display:flex;"><span> memory:	780232Ki
-</span></span><span style="display:flex;"><span> pods:		<span style="color:#2aa198">110</span>
-</span></span><span style="display:flex;"><span>System Info:
-</span></span><span style="display:flex;"><span> Machine ID:			9989a26f06984d6dbadc01770f018e3b
-</span></span><span style="display:flex;"><span> System UUID:			9989a26f06984d6dbadc01770f018e3b
-</span></span><span style="display:flex;"><span> Boot ID:			84bf8a2b-b83f-445b-a4b3-250dc6e5db40
-</span></span><span style="display:flex;"><span> Kernel Version:		4.4.50-hypriotos-v7+
-</span></span><span style="display:flex;"><span> OS Image:			Raspbian GNU/Linux <span style="color:#2aa198">8</span> <span style="color:#719e07">(</span>jessie<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span> Operating System:		linux
-</span></span><span style="display:flex;"><span> Architecture:			arm
-</span></span><span style="display:flex;"><span> Container Runtime Version:	docker://Unknown
-</span></span><span style="display:flex;"><span> Kubelet Version:		v1.6.2
-</span></span><span style="display:flex;"><span> Kube-Proxy Version:		v1.6.2
-</span></span><span style="display:flex;"><span>PodCIDR:			10.244.2.0/24
-</span></span><span style="display:flex;"><span>ExternalID:			k2
-</span></span><span style="display:flex;"><span>Non-terminated Pods:		<span style="color:#719e07">(</span><span style="color:#2aa198">2</span> in total<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>  Namespace			Name				CPU Requests	CPU Limits	Memory Requests	Memory Limits
-</span></span><span style="display:flex;"><span>  ---------			----				------------	----------	---------------	-------------
-</span></span><span style="display:flex;"><span>  kube-system			kube-proxy-g580s		<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>		<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>		<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>		<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>  kube-system			weave-net-kxpk6			20m <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>	<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>		<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>		<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>Allocated resources:
-</span></span><span style="display:flex;"><span>  <span style="color:#719e07">(</span>Total limits may be over <span style="color:#2aa198">100</span> percent, i.e., overcommitted.<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>  CPU Requests	CPU Limits	Memory Requests	Memory Limits
-</span></span><span style="display:flex;"><span>  ------------	----------	---------------	-------------
-</span></span><span style="display:flex;"><span>  20m <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>	<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>		<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>		<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>Events:		&lt;none&gt;
-</span></span></code></pre></div><h3 id="nodo-k3">Nodo <strong>k3</strong></h3>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ kubectl describe node k3
-</span></span><span style="display:flex;"><span>Name:			k3
-</span></span><span style="display:flex;"><span>Role:
-</span></span><span style="display:flex;"><span>Labels:			beta.kubernetes.io/arch<span style="color:#719e07">=</span>arm
-</span></span><span style="display:flex;"><span>			beta.kubernetes.io/os<span style="color:#719e07">=</span>linux
-</span></span><span style="display:flex;"><span>			kubernetes.io/hostname<span style="color:#719e07">=</span>k3
-</span></span><span style="display:flex;"><span>Annotations:		node.alpha.kubernetes.io/ttl<span style="color:#719e07">=</span><span style="color:#2aa198">0</span>
-</span></span><span style="display:flex;"><span>			volumes.kubernetes.io/controller-managed-attach-detach<span style="color:#719e07">=</span><span style="color:#b58900">true</span>
-</span></span><span style="display:flex;"><span>Taints:			&lt;none&gt;
-</span></span><span style="display:flex;"><span>CreationTimestamp:	Sat, <span style="color:#2aa198">15</span> Apr <span style="color:#2aa198">2017</span> 14:10:06 +0000
-</span></span><span style="display:flex;"><span>Phase:
-</span></span><span style="display:flex;"><span>Conditions:
-</span></span><span style="display:flex;"><span>  Type			Status		LastHeartbeatTime			LastTransitionTime			Reason			Message
-</span></span><span style="display:flex;"><span>  ----			------		-----------------			------------------			------			-------
-</span></span><span style="display:flex;"><span>  OutOfDisk 		Unknown 	Sun, <span style="color:#2aa198">30</span> Apr <span style="color:#2aa198">2017</span> 10:33:45 +0000 	Sun, <span style="color:#2aa198">30</span> Apr <span style="color:#2aa198">2017</span> 10:34:28 +0000 	NodeStatusUnknown 	Kubelet stopped posting node status.
-</span></span><span style="display:flex;"><span>  MemoryPressure 	Unknown 	Sun, <span style="color:#2aa198">30</span> Apr <span style="color:#2aa198">2017</span> 10:33:45 +0000 	Sun, <span style="color:#2aa198">30</span> Apr <span style="color:#2aa198">2017</span> 10:34:28 +0000 	NodeStatusUnknown 	Kubelet stopped posting node status.
-</span></span><span style="display:flex;"><span>  DiskPressure 		Unknown 	Sun, <span style="color:#2aa198">30</span> Apr <span style="color:#2aa198">2017</span> 10:33:45 +0000 	Sun, <span style="color:#2aa198">30</span> Apr <span style="color:#2aa198">2017</span> 10:34:28 +0000 	NodeStatusUnknown 	Kubelet stopped posting node status.
-</span></span><span style="display:flex;"><span>  Ready 		Unknown 	Sun, <span style="color:#2aa198">30</span> Apr <span style="color:#2aa198">2017</span> 10:33:45 +0000 	Sun, <span style="color:#2aa198">30</span> Apr <span style="color:#2aa198">2017</span> 10:34:28 +0000 	NodeStatusUnknown 	Kubelet stopped posting node status.
-</span></span><span style="display:flex;"><span>Addresses:		192.168.1.13,192.168.1.13,k3
-</span></span><span style="display:flex;"><span>Capacity:
-</span></span><span style="display:flex;"><span> cpu:		<span style="color:#2aa198">4</span>
-</span></span><span style="display:flex;"><span> memory:	882632Ki
-</span></span><span style="display:flex;"><span> pods:		<span style="color:#2aa198">110</span>
-</span></span><span style="display:flex;"><span>Allocatable:
-</span></span><span style="display:flex;"><span> cpu:		<span style="color:#2aa198">4</span>
-</span></span><span style="display:flex;"><span> memory:	780232Ki
-</span></span><span style="display:flex;"><span> pods:		<span style="color:#2aa198">110</span>
-</span></span><span style="display:flex;"><span>System Info:
-</span></span><span style="display:flex;"><span> Machine ID:			9989a26f06984d6dbadc01770f018e3b
-</span></span><span style="display:flex;"><span> System UUID:			9989a26f06984d6dbadc01770f018e3b
-</span></span><span style="display:flex;"><span> Boot ID:			23bf96e4-ec65-489c-be00-d0fa848265f3
-</span></span><span style="display:flex;"><span> Kernel Version:		4.4.50-hypriotos-v7+
-</span></span><span style="display:flex;"><span> OS Image:			Raspbian GNU/Linux <span style="color:#2aa198">8</span> <span style="color:#719e07">(</span>jessie<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span> Operating System:		linux
-</span></span><span style="display:flex;"><span> Architecture:			arm
-</span></span><span style="display:flex;"><span> Container Runtime Version:	docker://Unknown
-</span></span><span style="display:flex;"><span> Kubelet Version:		v1.6.2
-</span></span><span style="display:flex;"><span> Kube-Proxy Version:		v1.6.2
-</span></span><span style="display:flex;"><span>PodCIDR:			10.244.3.0/24
-</span></span><span style="display:flex;"><span>ExternalID:			k3
-</span></span><span style="display:flex;"><span>Non-terminated Pods:		<span style="color:#719e07">(</span><span style="color:#2aa198">2</span> in total<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>  Namespace			Name				CPU Requests	CPU Limits	Memory Requests	Memory Limits
-</span></span><span style="display:flex;"><span>  ---------			----				------------	----------	---------------	-------------
-</span></span><span style="display:flex;"><span>  kube-system			kube-proxy-bkl4g		<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>		<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>		<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>		<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>  kube-system			weave-net-3bf40			20m <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>	<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>		<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>		<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>Allocated resources:
-</span></span><span style="display:flex;"><span>  <span style="color:#719e07">(</span>Total limits may be over <span style="color:#2aa198">100</span> percent, i.e., overcommitted.<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>  CPU Requests	CPU Limits	Memory Requests	Memory Limits
-</span></span><span style="display:flex;"><span>  ------------	----------	---------------	-------------
-</span></span><span style="display:flex;"><span>  20m <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>	<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>		<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>		<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>Events:		&lt;none&gt;
-</span></span></code></pre></div><p>El nodo <strong>k2</strong> deja de responder a las 11:56:26, mientras que el <strong>k3</strong> lo hace a las 10:33:45.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ kubectl describe node k2
+Name:			k2
+Role:
+Labels:			beta.kubernetes.io/arch<span style="color:#719e07">=</span>arm
+			beta.kubernetes.io/os<span style="color:#719e07">=</span>linux
+			kubernetes.io/hostname<span style="color:#719e07">=</span>k2
+Annotations:		node.alpha.kubernetes.io/ttl<span style="color:#719e07">=</span><span style="color:#2aa198">0</span>
+			volumes.kubernetes.io/controller-managed-attach-detach<span style="color:#719e07">=</span><span style="color:#b58900">true</span>
+Taints:			&lt;none&gt;
+CreationTimestamp:	Sat, <span style="color:#2aa198">15</span> Apr <span style="color:#2aa198">2017</span> 10:25:31 +0000
+Phase:
+Conditions:
+  Type			Status		LastHeartbeatTime			LastTransitionTime			Reason			Message
+  ----			------		-----------------			------------------			------			-------
+  OutOfDisk 		Unknown 	Sun, <span style="color:#2aa198">30</span> Apr <span style="color:#2aa198">2017</span> 11:56:26 +0000 	Sun, <span style="color:#2aa198">30</span> Apr <span style="color:#2aa198">2017</span> 11:57:11 +0000 	NodeStatusUnknown 	Kubelet stopped posting node status.
+  MemoryPressure 	Unknown 	Sun, <span style="color:#2aa198">30</span> Apr <span style="color:#2aa198">2017</span> 11:56:26 +0000 	Sun, <span style="color:#2aa198">30</span> Apr <span style="color:#2aa198">2017</span> 11:57:11 +0000 	NodeStatusUnknown 	Kubelet stopped posting node status.
+  DiskPressure 		Unknown 	Sun, <span style="color:#2aa198">30</span> Apr <span style="color:#2aa198">2017</span> 11:56:26 +0000 	Sun, <span style="color:#2aa198">30</span> Apr <span style="color:#2aa198">2017</span> 11:57:11 +0000 	NodeStatusUnknown 	Kubelet stopped posting node status.
+  Ready 		Unknown 	Sun, <span style="color:#2aa198">30</span> Apr <span style="color:#2aa198">2017</span> 11:56:26 +0000 	Sun, <span style="color:#2aa198">30</span> Apr <span style="color:#2aa198">2017</span> 11:57:11 +0000 	NodeStatusUnknown 	Kubelet stopped posting node status.
+Addresses:		192.168.1.12,192.168.1.12,k2
+Capacity:
+ cpu:		<span style="color:#2aa198">4</span>
+ memory:	882632Ki
+ pods:		<span style="color:#2aa198">110</span>
+Allocatable:
+ cpu:		<span style="color:#2aa198">4</span>
+ memory:	780232Ki
+ pods:		<span style="color:#2aa198">110</span>
+System Info:
+ Machine ID:			9989a26f06984d6dbadc01770f018e3b
+ System UUID:			9989a26f06984d6dbadc01770f018e3b
+ Boot ID:			84bf8a2b-b83f-445b-a4b3-250dc6e5db40
+ Kernel Version:		4.4.50-hypriotos-v7+
+ OS Image:			Raspbian GNU/Linux <span style="color:#2aa198">8</span> <span style="color:#719e07">(</span>jessie<span style="color:#719e07">)</span>
+ Operating System:		linux
+ Architecture:			arm
+ Container Runtime Version:	docker://Unknown
+ Kubelet Version:		v1.6.2
+ Kube-Proxy Version:		v1.6.2
+PodCIDR:			10.244.2.0/24
+ExternalID:			k2
+Non-terminated Pods:		<span style="color:#719e07">(</span><span style="color:#2aa198">2</span> in total<span style="color:#719e07">)</span>
+  Namespace			Name				CPU Requests	CPU Limits	Memory Requests	Memory Limits
+  ---------			----				------------	----------	---------------	-------------
+  kube-system			kube-proxy-g580s		<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>		<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>		<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>		<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>
+  kube-system			weave-net-kxpk6			20m <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>	<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>		<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>		<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>
+Allocated resources:
+  <span style="color:#719e07">(</span>Total limits may be over <span style="color:#2aa198">100</span> percent, i.e., overcommitted.<span style="color:#719e07">)</span>
+  CPU Requests	CPU Limits	Memory Requests	Memory Limits
+  ------------	----------	---------------	-------------
+  20m <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>	<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>		<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>		<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>
+Events:		&lt;none&gt;
+</code></pre></div><h3 id="nodo-k3">Nodo <strong>k3</strong></h3>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ kubectl describe node k3
+Name:			k3
+Role:
+Labels:			beta.kubernetes.io/arch<span style="color:#719e07">=</span>arm
+			beta.kubernetes.io/os<span style="color:#719e07">=</span>linux
+			kubernetes.io/hostname<span style="color:#719e07">=</span>k3
+Annotations:		node.alpha.kubernetes.io/ttl<span style="color:#719e07">=</span><span style="color:#2aa198">0</span>
+			volumes.kubernetes.io/controller-managed-attach-detach<span style="color:#719e07">=</span><span style="color:#b58900">true</span>
+Taints:			&lt;none&gt;
+CreationTimestamp:	Sat, <span style="color:#2aa198">15</span> Apr <span style="color:#2aa198">2017</span> 14:10:06 +0000
+Phase:
+Conditions:
+  Type			Status		LastHeartbeatTime			LastTransitionTime			Reason			Message
+  ----			------		-----------------			------------------			------			-------
+  OutOfDisk 		Unknown 	Sun, <span style="color:#2aa198">30</span> Apr <span style="color:#2aa198">2017</span> 10:33:45 +0000 	Sun, <span style="color:#2aa198">30</span> Apr <span style="color:#2aa198">2017</span> 10:34:28 +0000 	NodeStatusUnknown 	Kubelet stopped posting node status.
+  MemoryPressure 	Unknown 	Sun, <span style="color:#2aa198">30</span> Apr <span style="color:#2aa198">2017</span> 10:33:45 +0000 	Sun, <span style="color:#2aa198">30</span> Apr <span style="color:#2aa198">2017</span> 10:34:28 +0000 	NodeStatusUnknown 	Kubelet stopped posting node status.
+  DiskPressure 		Unknown 	Sun, <span style="color:#2aa198">30</span> Apr <span style="color:#2aa198">2017</span> 10:33:45 +0000 	Sun, <span style="color:#2aa198">30</span> Apr <span style="color:#2aa198">2017</span> 10:34:28 +0000 	NodeStatusUnknown 	Kubelet stopped posting node status.
+  Ready 		Unknown 	Sun, <span style="color:#2aa198">30</span> Apr <span style="color:#2aa198">2017</span> 10:33:45 +0000 	Sun, <span style="color:#2aa198">30</span> Apr <span style="color:#2aa198">2017</span> 10:34:28 +0000 	NodeStatusUnknown 	Kubelet stopped posting node status.
+Addresses:		192.168.1.13,192.168.1.13,k3
+Capacity:
+ cpu:		<span style="color:#2aa198">4</span>
+ memory:	882632Ki
+ pods:		<span style="color:#2aa198">110</span>
+Allocatable:
+ cpu:		<span style="color:#2aa198">4</span>
+ memory:	780232Ki
+ pods:		<span style="color:#2aa198">110</span>
+System Info:
+ Machine ID:			9989a26f06984d6dbadc01770f018e3b
+ System UUID:			9989a26f06984d6dbadc01770f018e3b
+ Boot ID:			23bf96e4-ec65-489c-be00-d0fa848265f3
+ Kernel Version:		4.4.50-hypriotos-v7+
+ OS Image:			Raspbian GNU/Linux <span style="color:#2aa198">8</span> <span style="color:#719e07">(</span>jessie<span style="color:#719e07">)</span>
+ Operating System:		linux
+ Architecture:			arm
+ Container Runtime Version:	docker://Unknown
+ Kubelet Version:		v1.6.2
+ Kube-Proxy Version:		v1.6.2
+PodCIDR:			10.244.3.0/24
+ExternalID:			k3
+Non-terminated Pods:		<span style="color:#719e07">(</span><span style="color:#2aa198">2</span> in total<span style="color:#719e07">)</span>
+  Namespace			Name				CPU Requests	CPU Limits	Memory Requests	Memory Limits
+  ---------			----				------------	----------	---------------	-------------
+  kube-system			kube-proxy-bkl4g		<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>		<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>		<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>		<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>
+  kube-system			weave-net-3bf40			20m <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>	<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>		<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>		<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>
+Allocated resources:
+  <span style="color:#719e07">(</span>Total limits may be over <span style="color:#2aa198">100</span> percent, i.e., overcommitted.<span style="color:#719e07">)</span>
+  CPU Requests	CPU Limits	Memory Requests	Memory Limits
+  ------------	----------	---------------	-------------
+  20m <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>	<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>		<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>		<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>
+Events:		&lt;none&gt;
+</code></pre></div><p>El nodo <strong>k2</strong> deja de responder a las 11:56:26, mientras que el <strong>k3</strong> lo hace a las 10:33:45.</p>
 <ul>
 <li><input checked="" disabled="" type="checkbox"> Cuando reinicie los dos nodos lo haré a la misma hora, para comprobar si hay diferencias en el tiempo que tarda en dejar de responder cada nodo.</li>
 <li><input disabled="" type="checkbox"> Actualizar la zona horaria de las Raspberry Pi.</li>
 </ul>
 <h3 id="nodo-k1-ready">Nodo <strong>k1</strong> (<code>Ready</code>)</h3>
 <p>Como referencia, incluimos el mismo comando para el nodo <em>master</em> <strong>k1</strong>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ kubectl describe node k1
-</span></span><span style="display:flex;"><span>Name:			k1
-</span></span><span style="display:flex;"><span>Role:
-</span></span><span style="display:flex;"><span>Labels:			beta.kubernetes.io/arch<span style="color:#719e07">=</span>arm
-</span></span><span style="display:flex;"><span>			beta.kubernetes.io/os<span style="color:#719e07">=</span>linux
-</span></span><span style="display:flex;"><span>			kubernetes.io/hostname<span style="color:#719e07">=</span>k1
-</span></span><span style="display:flex;"><span>			node-role.kubernetes.io/master<span style="color:#719e07">=</span>
-</span></span><span style="display:flex;"><span>Annotations:		node.alpha.kubernetes.io/ttl<span style="color:#719e07">=</span><span style="color:#2aa198">0</span>
-</span></span><span style="display:flex;"><span>			volumes.kubernetes.io/controller-managed-attach-detach<span style="color:#719e07">=</span><span style="color:#b58900">true</span>
-</span></span><span style="display:flex;"><span>Taints:			node-role.kubernetes.io/master:NoSchedule
-</span></span><span style="display:flex;"><span>CreationTimestamp:	Mon, <span style="color:#2aa198">10</span> Apr <span style="color:#2aa198">2017</span> 20:22:32 +0000
-</span></span><span style="display:flex;"><span>Phase:
-</span></span><span style="display:flex;"><span>Conditions:
-</span></span><span style="display:flex;"><span>  Type			Status	LastHeartbeatTime			LastTransitionTime			Reason				Message
-</span></span><span style="display:flex;"><span>  ----			------	-----------------			------------------			------				-------
-</span></span><span style="display:flex;"><span>  OutOfDisk 		False 	Sun, <span style="color:#2aa198">30</span> Apr <span style="color:#2aa198">2017</span> 14:01:10 +0000 	Sun, <span style="color:#2aa198">30</span> Apr <span style="color:#2aa198">2017</span> 06:37:10 +0000 	KubeletHasSufficientDisk 	kubelet has sufficient disk space available
-</span></span><span style="display:flex;"><span>  MemoryPressure 	False 	Sun, <span style="color:#2aa198">30</span> Apr <span style="color:#2aa198">2017</span> 14:01:10 +0000 	Sun, <span style="color:#2aa198">30</span> Apr <span style="color:#2aa198">2017</span> 06:37:10 +0000 	KubeletHasSufficientMemory 	kubelet has sufficient memory available
-</span></span><span style="display:flex;"><span>  DiskPressure 		False 	Sun, <span style="color:#2aa198">30</span> Apr <span style="color:#2aa198">2017</span> 14:01:10 +0000 	Sun, <span style="color:#2aa198">30</span> Apr <span style="color:#2aa198">2017</span> 06:37:10 +0000 	KubeletHasNoDiskPressure 	kubelet has no disk pressure
-</span></span><span style="display:flex;"><span>  Ready 		True 	Sun, <span style="color:#2aa198">30</span> Apr <span style="color:#2aa198">2017</span> 14:01:10 +0000 	Sun, <span style="color:#2aa198">30</span> Apr <span style="color:#2aa198">2017</span> 06:37:20 +0000 	KubeletReady 			kubelet is posting ready status
-</span></span><span style="display:flex;"><span>Addresses:		192.168.1.11,192.168.1.11,k1
-</span></span><span style="display:flex;"><span>Capacity:
-</span></span><span style="display:flex;"><span> cpu:		<span style="color:#2aa198">4</span>
-</span></span><span style="display:flex;"><span> memory:	882632Ki
-</span></span><span style="display:flex;"><span> pods:		<span style="color:#2aa198">110</span>
-</span></span><span style="display:flex;"><span>Allocatable:
-</span></span><span style="display:flex;"><span> cpu:		<span style="color:#2aa198">4</span>
-</span></span><span style="display:flex;"><span> memory:	780232Ki
-</span></span><span style="display:flex;"><span> pods:		<span style="color:#2aa198">110</span>
-</span></span><span style="display:flex;"><span>System Info:
-</span></span><span style="display:flex;"><span> Machine ID:			9989a26f06984d6dbadc01770f018e3b
-</span></span><span style="display:flex;"><span> System UUID:			9989a26f06984d6dbadc01770f018e3b
-</span></span><span style="display:flex;"><span> Boot ID:			55e1fad0-d40c-480b-b039-5586ff728d2c
-</span></span><span style="display:flex;"><span> Kernel Version:		4.4.50-hypriotos-v7+
-</span></span><span style="display:flex;"><span> OS Image:			Raspbian GNU/Linux <span style="color:#2aa198">8</span> <span style="color:#719e07">(</span>jessie<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span> Operating System:		linux
-</span></span><span style="display:flex;"><span> Architecture:			arm
-</span></span><span style="display:flex;"><span> Container Runtime Version:	docker://Unknown
-</span></span><span style="display:flex;"><span> Kubelet Version:		v1.6.2
-</span></span><span style="display:flex;"><span> Kube-Proxy Version:		v1.6.2
-</span></span><span style="display:flex;"><span>PodCIDR:			10.244.0.0/24
-</span></span><span style="display:flex;"><span>ExternalID:			k1
-</span></span><span style="display:flex;"><span>Non-terminated Pods:		<span style="color:#719e07">(</span><span style="color:#2aa198">7</span> in total<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>  Namespace			Name					CPU Requests	CPU Limits	Memory Requests	Memory Limits
-</span></span><span style="display:flex;"><span>  ---------			----					------------	----------	---------------	-------------
-</span></span><span style="display:flex;"><span>  kube-system			etcd-k1					<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>		<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>		<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>		<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>  kube-system			kube-apiserver-k1			250m <span style="color:#719e07">(</span>6%<span style="color:#719e07">)</span>	<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>		<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>		<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>  kube-system			kube-controller-manager-k1		200m <span style="color:#719e07">(</span>5%<span style="color:#719e07">)</span>	<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>		<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>		<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>  kube-system			kube-dns-279829092-1b27r		260m <span style="color:#719e07">(</span>6%<span style="color:#719e07">)</span>	<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>		110Mi <span style="color:#719e07">(</span>14%<span style="color:#719e07">)</span>	170Mi <span style="color:#719e07">(</span>22%<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>  kube-system			kube-proxy-3dggd			<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>		<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>		<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>		<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>  kube-system			kube-scheduler-k1			100m <span style="color:#719e07">(</span>2%<span style="color:#719e07">)</span>	<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>		<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>		<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>  kube-system			weave-net-6qr0l				20m <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>	<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>		<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>		<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>Allocated resources:
-</span></span><span style="display:flex;"><span>  <span style="color:#719e07">(</span>Total limits may be over <span style="color:#2aa198">100</span> percent, i.e., overcommitted.<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>  CPU Requests	CPU Limits	Memory Requests	Memory Limits
-</span></span><span style="display:flex;"><span>  ------------	----------	---------------	-------------
-</span></span><span style="display:flex;"><span>  830m <span style="color:#719e07">(</span>20%<span style="color:#719e07">)</span>	<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>		110Mi <span style="color:#719e07">(</span>14%<span style="color:#719e07">)</span>	170Mi <span style="color:#719e07">(</span>22%<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>Events:		&lt;none&gt;
-</span></span></code></pre></div><h2 id="revisando-los-logs-en-el-nodo-_master_">Revisando los logs en el nodo <em>master</em></h2>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ kubectl describe node k1
+Name:			k1
+Role:
+Labels:			beta.kubernetes.io/arch<span style="color:#719e07">=</span>arm
+			beta.kubernetes.io/os<span style="color:#719e07">=</span>linux
+			kubernetes.io/hostname<span style="color:#719e07">=</span>k1
+			node-role.kubernetes.io/master<span style="color:#719e07">=</span>
+Annotations:		node.alpha.kubernetes.io/ttl<span style="color:#719e07">=</span><span style="color:#2aa198">0</span>
+			volumes.kubernetes.io/controller-managed-attach-detach<span style="color:#719e07">=</span><span style="color:#b58900">true</span>
+Taints:			node-role.kubernetes.io/master:NoSchedule
+CreationTimestamp:	Mon, <span style="color:#2aa198">10</span> Apr <span style="color:#2aa198">2017</span> 20:22:32 +0000
+Phase:
+Conditions:
+  Type			Status	LastHeartbeatTime			LastTransitionTime			Reason				Message
+  ----			------	-----------------			------------------			------				-------
+  OutOfDisk 		False 	Sun, <span style="color:#2aa198">30</span> Apr <span style="color:#2aa198">2017</span> 14:01:10 +0000 	Sun, <span style="color:#2aa198">30</span> Apr <span style="color:#2aa198">2017</span> 06:37:10 +0000 	KubeletHasSufficientDisk 	kubelet has sufficient disk space available
+  MemoryPressure 	False 	Sun, <span style="color:#2aa198">30</span> Apr <span style="color:#2aa198">2017</span> 14:01:10 +0000 	Sun, <span style="color:#2aa198">30</span> Apr <span style="color:#2aa198">2017</span> 06:37:10 +0000 	KubeletHasSufficientMemory 	kubelet has sufficient memory available
+  DiskPressure 		False 	Sun, <span style="color:#2aa198">30</span> Apr <span style="color:#2aa198">2017</span> 14:01:10 +0000 	Sun, <span style="color:#2aa198">30</span> Apr <span style="color:#2aa198">2017</span> 06:37:10 +0000 	KubeletHasNoDiskPressure 	kubelet has no disk pressure
+  Ready 		True 	Sun, <span style="color:#2aa198">30</span> Apr <span style="color:#2aa198">2017</span> 14:01:10 +0000 	Sun, <span style="color:#2aa198">30</span> Apr <span style="color:#2aa198">2017</span> 06:37:20 +0000 	KubeletReady 			kubelet is posting ready status
+Addresses:		192.168.1.11,192.168.1.11,k1
+Capacity:
+ cpu:		<span style="color:#2aa198">4</span>
+ memory:	882632Ki
+ pods:		<span style="color:#2aa198">110</span>
+Allocatable:
+ cpu:		<span style="color:#2aa198">4</span>
+ memory:	780232Ki
+ pods:		<span style="color:#2aa198">110</span>
+System Info:
+ Machine ID:			9989a26f06984d6dbadc01770f018e3b
+ System UUID:			9989a26f06984d6dbadc01770f018e3b
+ Boot ID:			55e1fad0-d40c-480b-b039-5586ff728d2c
+ Kernel Version:		4.4.50-hypriotos-v7+
+ OS Image:			Raspbian GNU/Linux <span style="color:#2aa198">8</span> <span style="color:#719e07">(</span>jessie<span style="color:#719e07">)</span>
+ Operating System:		linux
+ Architecture:			arm
+ Container Runtime Version:	docker://Unknown
+ Kubelet Version:		v1.6.2
+ Kube-Proxy Version:		v1.6.2
+PodCIDR:			10.244.0.0/24
+ExternalID:			k1
+Non-terminated Pods:		<span style="color:#719e07">(</span><span style="color:#2aa198">7</span> in total<span style="color:#719e07">)</span>
+  Namespace			Name					CPU Requests	CPU Limits	Memory Requests	Memory Limits
+  ---------			----					------------	----------	---------------	-------------
+  kube-system			etcd-k1					<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>		<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>		<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>		<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>
+  kube-system			kube-apiserver-k1			250m <span style="color:#719e07">(</span>6%<span style="color:#719e07">)</span>	<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>		<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>		<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>
+  kube-system			kube-controller-manager-k1		200m <span style="color:#719e07">(</span>5%<span style="color:#719e07">)</span>	<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>		<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>		<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>
+  kube-system			kube-dns-279829092-1b27r		260m <span style="color:#719e07">(</span>6%<span style="color:#719e07">)</span>	<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>		110Mi <span style="color:#719e07">(</span>14%<span style="color:#719e07">)</span>	170Mi <span style="color:#719e07">(</span>22%<span style="color:#719e07">)</span>
+  kube-system			kube-proxy-3dggd			<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>		<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>		<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>		<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>
+  kube-system			kube-scheduler-k1			100m <span style="color:#719e07">(</span>2%<span style="color:#719e07">)</span>	<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>		<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>		<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>
+  kube-system			weave-net-6qr0l				20m <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>	<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>		<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>		<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>
+Allocated resources:
+  <span style="color:#719e07">(</span>Total limits may be over <span style="color:#2aa198">100</span> percent, i.e., overcommitted.<span style="color:#719e07">)</span>
+  CPU Requests	CPU Limits	Memory Requests	Memory Limits
+  ------------	----------	---------------	-------------
+  830m <span style="color:#719e07">(</span>20%<span style="color:#719e07">)</span>	<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>		110Mi <span style="color:#719e07">(</span>14%<span style="color:#719e07">)</span>	170Mi <span style="color:#719e07">(</span>22%<span style="color:#719e07">)</span>
+Events:		&lt;none&gt;
+</code></pre></div><h2 id="revisando-los-logs-en-el-nodo-_master_">Revisando los logs en el nodo <em>master</em></h2>
 <p>En la guía de <em>Troubleshooting</em> de Kubernetes, el siguiente paso es revisar los logs. En el caso del nodo <em>master</em>, los logs relevantes se encuentran en:</p>
 <ul>
 <li><code>/var/log/kube-apiserver.log</code> - El <em>API Server</em>, encargado de servir la API</li>
@@ -352,9 +353,9 @@
 <li><code>/var/log/kube-controller-manager.log</code> - El responsable de gestionar los <em>replication controllers</em> encargados de mantener el <strong>estado deseado</strong></li>
 </ul>
 <p>Sin embargo, los logs indicados <strong>no existen en la ruta indicada</strong>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ ls /var/log/kube*
-</span></span><span style="display:flex;"><span>ls: cannot access /var/log/kube*: No such file or directory
-</span></span></code></pre></div><p>Es probable que la documentación no esté actualizada, así que continuaré en cuanto encuentre los logs para poder revisarlos.</p></div>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ ls /var/log/kube*
+ls: cannot access /var/log/kube*: No such file or directory
+</code></pre></div><p>Es probable que la documentación no esté actualizada, así que continuaré en cuanto encuentre los logs para poder revisarlos.</p></div>
 
   <aside class="p-share">
 

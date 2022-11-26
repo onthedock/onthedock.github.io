@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.95.0" />
+<meta name="generator" content="Hugo 0.92.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -146,98 +146,98 @@ Al tratarse de una máquina Vagrant, el usuario <code>vagrant</code> tiene contr
 </blockquote>
 <h2 id="instalando-python">Instalando Python</h2>
 <p>El script empieza instalando Python 3 y actualizando la ubicación del intérprete de Python en la máquina gestionada.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#586e75"># Always install Python 3</span>
-</span></span><span style="display:flex;"><span>sudo apt install python3 -y
-</span></span><span style="display:flex;"><span><span style="color:#586e75"># Update Python location</span>
-</span></span><span style="display:flex;"><span>sudo ln -sf /usr/bin/python3 /usr/bin/python
-</span></span></code></pre></div><p>En mi caso, la máquina Vagrant (con Debian 9) tenía instalado tanto Python 2.7 como Python 3.5. Sin embargo, <code>/usr/bin/python</code> apuntaba a la versión 2.7. En las primeras versiones, el script validaba la versión de Python para comprobar si era necesario actualizar, pero de esta forma el script es más sencillo. Al no tener requerimientos específicos respecto a la versión de Python, he optado por usar Python 3 por defecto.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># Always install Python 3</span>
+sudo apt install python3 -y
+<span style="color:#586e75"># Update Python location</span>
+sudo ln -sf /usr/bin/python3 /usr/bin/python
+</code></pre></div><p>En mi caso, la máquina Vagrant (con Debian 9) tenía instalado tanto Python 2.7 como Python 3.5. Sin embargo, <code>/usr/bin/python</code> apuntaba a la versión 2.7. En las primeras versiones, el script validaba la versión de Python para comprobar si era necesario actualizar, pero de esta forma el script es más sencillo. Al no tener requerimientos específicos respecto a la versión de Python, he optado por usar Python 3 por defecto.</p>
 <blockquote>
 <p>En la documentación de Ansible se indica la posibilidad de usar el módulo <code>raw</code> para instalar Python en aquellas máquinas que no tengan una versión soportada. Échale un vistazo a los <a href="https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html#managed-node-requirements">requerimientos para máquinas gestionadas</a>.</p>
 </blockquote>
 <h2 id="usuario-para-ansible">Usuario para Ansible</h2>
 <p>Para simplificar el mantenimiento de los sistemas las tareas de gestión realizadas desde la máquina de control de Ansible, usaremos un usuario dedicado; en mi caso le he llamado <code>ansible</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#586e75"># Create ansible user</span>
-</span></span><span style="display:flex;"><span><span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;Adding user </span><span style="color:#268bd2">$ANSIBLE_USER</span><span style="color:#2aa198"> ...&#34;</span>
-</span></span><span style="display:flex;"><span>sudo useradd <span style="color:#268bd2">$ANSIBLE_USER</span>
-</span></span></code></pre></div><p>Ansible se conectará usando este usuario a los diferentes sistemas usando claves SSH. Para poder conectar sin problemas, añadimos la clave pública al fichero <code>authorized_keys</code> en la carpeta <code>.ssh</code> del usuario <code>$ANSIBLE_USER</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#586e75"># Create .ssh folder</span>
-</span></span><span style="display:flex;"><span><span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;Configuring user </span><span style="color:#268bd2">$ANSIBLE_USER</span><span style="color:#2aa198"> authorized_keys&#34;</span>
-</span></span><span style="display:flex;"><span>sudo mkdir -p /home/<span style="color:#268bd2">$ANSIBLE_USER</span>/.ssh
-</span></span><span style="display:flex;"><span><span style="color:#586e75"># Copy PUBKEY to authorized_keys for $ANSIBLE_USER</span>
-</span></span><span style="display:flex;"><span><span style="color:#b58900">echo</span> <span style="color:#268bd2">$PUBKEY</span> &gt;&gt; authorized_keys
-</span></span><span style="display:flex;"><span>sudo mv authorized_keys /home/<span style="color:#268bd2">$ANSIBLE_USER</span>/.ssh/authorized_keys
-</span></span><span style="display:flex;"><span>sudo chown ansible:ansible -R /home/<span style="color:#268bd2">$ANSIBLE_USER</span>/
-</span></span><span style="display:flex;"><span>sudo chmod <span style="color:#2aa198">600</span> /home/<span style="color:#268bd2">$ANSIBLE_USER</span>/.ssh/authorized_keys
-</span></span></code></pre></div><p>Después de copiar el fichero, ajustamos los permisos de manera que sólo el usuario pueda leer y escribir en este fichero.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># Create ansible user</span>
+<span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;Adding user </span><span style="color:#268bd2">$ANSIBLE_USER</span><span style="color:#2aa198"> ...&#34;</span>
+sudo useradd <span style="color:#268bd2">$ANSIBLE_USER</span>
+</code></pre></div><p>Ansible se conectará usando este usuario a los diferentes sistemas usando claves SSH. Para poder conectar sin problemas, añadimos la clave pública al fichero <code>authorized_keys</code> en la carpeta <code>.ssh</code> del usuario <code>$ANSIBLE_USER</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># Create .ssh folder</span>
+<span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;Configuring user </span><span style="color:#268bd2">$ANSIBLE_USER</span><span style="color:#2aa198"> authorized_keys&#34;</span>
+sudo mkdir -p /home/<span style="color:#268bd2">$ANSIBLE_USER</span>/.ssh
+<span style="color:#586e75"># Copy PUBKEY to authorized_keys for $ANSIBLE_USER</span>
+<span style="color:#b58900">echo</span> <span style="color:#268bd2">$PUBKEY</span> &gt;&gt; authorized_keys
+sudo mv authorized_keys /home/<span style="color:#268bd2">$ANSIBLE_USER</span>/.ssh/authorized_keys
+sudo chown ansible:ansible -R /home/<span style="color:#268bd2">$ANSIBLE_USER</span>/
+sudo chmod <span style="color:#2aa198">600</span> /home/<span style="color:#268bd2">$ANSIBLE_USER</span>/.ssh/authorized_keys
+</code></pre></div><p>Después de copiar el fichero, ajustamos los permisos de manera que sólo el usuario pueda leer y escribir en este fichero.</p>
 <h2 id="elevación-de-privilegios-sin-password">Elevación de privilegios sin password</h2>
 <p>En vez de modificar el fichero <code>/etc/sudoers</code> aprovechamos que <code>sudo</code> procesa este fichero hasta encontrar la directiva <code>#includedir /etc/sudoers.d</code>. A partir de este punto se incluyen los ficheros en la ruta especificada. Esto nos permite crear un fichero por usuario, por ejemplo y así tener mejor organizados los permisos.</p>
 <blockquote>
 <p>El <code>#</code> <strong>no es un comentario</strong> y <strong>no debe eliminarse</strong>.</p>
 </blockquote>
 <p>Creamos un fichero llamado <code>user-ansible</code> en <code>/etc/sudoers.d/</code> y añadimos la directiva de manera que el usuario pueda ejecutar cualquier comando sin necesidad de proporcionar la contraseña:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#586e75"># Passwordless sudo</span>
-</span></span><span style="display:flex;"><span><span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;Configuring passwordless sudo...&#34;</span>
-</span></span><span style="display:flex;"><span><span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$ANSIBLE_USER</span><span style="color:#2aa198"> ALL=NOPASSWD: ALL&#34;</span> &gt;&gt; user-<span style="color:#268bd2">$ANSIBLE_USER</span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75"># Fix permissions</span>
-</span></span><span style="display:flex;"><span>sudo chown root:root user-<span style="color:#268bd2">$ANSIBLE_USER</span>
-</span></span><span style="display:flex;"><span>sudo mv user-<span style="color:#268bd2">$ANSIBLE_USER</span> /etc/sudoers.d/
-</span></span></code></pre></div><p>Finalmente, ajustamos el propietario del fichero al usuario <code>root</code> (en caso contrario, se produce un error al intentar acceder desde la máquina de control).</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># Passwordless sudo</span>
+<span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;Configuring passwordless sudo...&#34;</span>
+<span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$ANSIBLE_USER</span><span style="color:#2aa198"> ALL=NOPASSWD: ALL&#34;</span> &gt;&gt; user-<span style="color:#268bd2">$ANSIBLE_USER</span>
+<span style="color:#586e75"># Fix permissions</span>
+sudo chown root:root user-<span style="color:#268bd2">$ANSIBLE_USER</span>
+sudo mv user-<span style="color:#268bd2">$ANSIBLE_USER</span> /etc/sudoers.d/
+</code></pre></div><p>Finalmente, ajustamos el propietario del fichero al usuario <code>root</code> (en caso contrario, se produce un error al intentar acceder desde la máquina de control).</p>
 <p>Subimos el fichero a un repositorio desde donde podamos usarlo siempre que sea necesario (en mi caso, un repositorio de un Git local).</p>
 <h2 id="comprobación-en-una-nueva-máquina-vagrant">Comprobación en una nueva máquina Vagrant</h2>
 <p>Creamos una nueva máquina virtual (<code>vagrant destroy -f</code>, <code>vagrant up</code>) y accedemos a ella (por ejemplo, mediante <code>vagrant ssh</code>).</p>
 <p>Descargamos el fichero, lo convertimos en ejecutable y lo lanzamos:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>vagrant@scratch:~$ wget http://gitea.local:3000/xavi/vmconfig4ansible/raw/branch/master/vmconfig4ansible.sh
-</span></span><span style="display:flex;"><span>--2018-12-16 04:52:03--  http://gitea.local:3000/xavi/vmconfig4ansible/raw/branch/master/vmconfig4ansible.sh
-</span></span><span style="display:flex;"><span>Connecting to gitea.local:3000... connected.
-</span></span><span style="display:flex;"><span>HTTP request sent, awaiting response... <span style="color:#2aa198">200</span> OK
-</span></span><span style="display:flex;"><span>Length: <span style="color:#2aa198">1235</span> <span style="color:#719e07">(</span>1.2K<span style="color:#719e07">)</span> <span style="color:#719e07">[</span>text/plain<span style="color:#719e07">]</span>
-</span></span><span style="display:flex;"><span>Saving to: <span style="color:#2aa198">&#39;vmconfig4ansible.sh&#39;</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>vmconfig4ansible.sh   100%<span style="color:#719e07">[=======================</span>&gt;<span style="color:#719e07">]</span>   1.21K  --.-KB/s    in 0s
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>2018-12-16 04:52:03 <span style="color:#719e07">(</span><span style="color:#2aa198">124</span> MB/s<span style="color:#719e07">)</span> - <span style="color:#2aa198">&#39;vmconfig4ansible.sh&#39;</span> saved <span style="color:#719e07">[</span>1235/1235<span style="color:#719e07">]</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>vagrant@scratch:~$ chmod +x vmconfig4ansible.sh
-</span></span><span style="display:flex;"><span>vagrant@scratch:~$ ./vmconfig4ansible.sh
-</span></span><span style="display:flex;"><span>Reading package lists... Done
-</span></span><span style="display:flex;"><span>Building dependency tree
-</span></span><span style="display:flex;"><span>Reading state information... Done
-</span></span><span style="display:flex;"><span>python3 is already the newest version <span style="color:#719e07">(</span>3.5.3-1<span style="color:#719e07">)</span>.
-</span></span><span style="display:flex;"><span>python3 <span style="color:#b58900">set</span> to manually installed.
-</span></span><span style="display:flex;"><span><span style="color:#2aa198">0</span> upgraded, <span style="color:#2aa198">0</span> newly installed, <span style="color:#2aa198">0</span> to remove and <span style="color:#2aa198">0</span> not upgraded.
-</span></span><span style="display:flex;"><span>Adding user ansible ...
-</span></span><span style="display:flex;"><span>Configuring user ansible authorized_keys
-</span></span><span style="display:flex;"><span>Configuring passwordless sudo...
-</span></span></code></pre></div><p>Tras haber realizado la configuración previa, verificamos que desde Ansible podamos lanzar un <em>playbook</em>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">vagrant@scratch:~$ wget http://gitea.local:3000/xavi/vmconfig4ansible/raw/branch/master/vmconfig4ansible.sh
+--2018-12-16 04:52:03--  http://gitea.local:3000/xavi/vmconfig4ansible/raw/branch/master/vmconfig4ansible.sh
+Connecting to gitea.local:3000... connected.
+HTTP request sent, awaiting response... <span style="color:#2aa198">200</span> OK
+Length: <span style="color:#2aa198">1235</span> <span style="color:#719e07">(</span>1.2K<span style="color:#719e07">)</span> <span style="color:#719e07">[</span>text/plain<span style="color:#719e07">]</span>
+Saving to: <span style="color:#2aa198">&#39;vmconfig4ansible.sh&#39;</span>
+
+vmconfig4ansible.sh   100%<span style="color:#719e07">[=======================</span>&gt;<span style="color:#719e07">]</span>   1.21K  --.-KB/s    in 0s
+
+2018-12-16 04:52:03 <span style="color:#719e07">(</span><span style="color:#2aa198">124</span> MB/s<span style="color:#719e07">)</span> - <span style="color:#2aa198">&#39;vmconfig4ansible.sh&#39;</span> saved <span style="color:#719e07">[</span>1235/1235<span style="color:#719e07">]</span>
+
+vagrant@scratch:~$ chmod +x vmconfig4ansible.sh
+vagrant@scratch:~$ ./vmconfig4ansible.sh
+Reading package lists... Done
+Building dependency tree
+Reading state information... Done
+python3 is already the newest version <span style="color:#719e07">(</span>3.5.3-1<span style="color:#719e07">)</span>.
+python3 <span style="color:#b58900">set</span> to manually installed.
+<span style="color:#2aa198">0</span> upgraded, <span style="color:#2aa198">0</span> newly installed, <span style="color:#2aa198">0</span> to remove and <span style="color:#2aa198">0</span> not upgraded.
+Adding user ansible ...
+Configuring user ansible authorized_keys
+Configuring passwordless sudo...
+</code></pre></div><p>Tras haber realizado la configuración previa, verificamos que desde Ansible podamos lanzar un <em>playbook</em>.</p>
 <h2 id="comprobación-desde-ansible">Comprobación desde Ansible</h2>
 <p>Conectado en la máquina de control con Ansible, creamos un fichero de inventario temporal para realizar la validación de la configuración realizada por el <em>script</em> en la máquina gestionada. En el fichero de inventario, añadimos el nombre e IP de la máquina Vagrant de test:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>:~$ nano temp-vagrant
-</span></span><span style="display:flex;"><span><span style="color:#719e07">[</span>vagrant<span style="color:#719e07">]</span>
-</span></span><span style="display:flex;"><span>192.168.1.221
-</span></span></code></pre></div><p>A continuación, lanzamos un <em>ping</em> sobre la máquina con etiqueta <code>vagrant</code> (usando este <em>inventario</em> de ejemplo):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>:~$ ansible vagrant -i vagrant-test -m ping
-</span></span><span style="display:flex;"><span>The authenticity of host <span style="color:#2aa198">&#39;192.168.1.221 (192.168.1.221)&#39;</span> can&#39;t be established.
-</span></span><span style="display:flex;"><span>ECDSA key fingerprint is SHA256:EWnDBzCe7HyElk5vKD+nhEKVyPMIe0/MpO1S94Eus0c.
-</span></span><span style="display:flex;"><span>Are you sure you want to <span style="color:#719e07">continue</span> connecting <span style="color:#719e07">(</span>yes/no<span style="color:#719e07">)</span>? yes
-</span></span><span style="display:flex;"><span>192.168.1.221 | <span style="color:#268bd2">SUCCESS</span> <span style="color:#719e07">=</span>&gt; <span style="color:#719e07">{</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#2aa198">&#34;changed&#34;</span>: false,
-</span></span><span style="display:flex;"><span>    <span style="color:#2aa198">&#34;ping&#34;</span>: <span style="color:#2aa198">&#34;pong&#34;</span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">}</span>
-</span></span></code></pre></div><p>Observa que cuando Ansible intenta conectar con la máquina gestionada vía SSH por primera vez, se muestra una alerta indicando que no se puede validar la autenticidad del <em>host</em> remoto. Obviamente, esto detiene la ejecución del <em>playbook</em> hasta que se responde la pregunta. Si quieres evitar esta pregunta -la primera vez que conectas a una máquina remota- puedes configurar la variable <code>host_key_checking = False</code> (a través del fichero de configuración en <code>/etc/ansible/ansible.cfg</code> o <code>~/.ansible.cfg</code> o mediante la variable de entorno <code>$ export ANSIBLE_HOST_KEY_CHECKING=False</code>) según se indica en la sección <a href="https://docs.ansible.com/ansible/latest/user_guide/intro_getting_started.html#host-key-checking">Host Key Checking</a> de la documentación oficial de Ansible.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">:~$ nano temp-vagrant
+<span style="color:#719e07">[</span>vagrant<span style="color:#719e07">]</span>
+192.168.1.221
+</code></pre></div><p>A continuación, lanzamos un <em>ping</em> sobre la máquina con etiqueta <code>vagrant</code> (usando este <em>inventario</em> de ejemplo):</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">:~$ ansible vagrant -i vagrant-test -m ping
+The authenticity of host <span style="color:#2aa198">&#39;192.168.1.221 (192.168.1.221)&#39;</span> can&#39;t be established.
+ECDSA key fingerprint is SHA256:EWnDBzCe7HyElk5vKD+nhEKVyPMIe0/MpO1S94Eus0c.
+Are you sure you want to <span style="color:#719e07">continue</span> connecting <span style="color:#719e07">(</span>yes/no<span style="color:#719e07">)</span>? yes
+192.168.1.221 | <span style="color:#268bd2">SUCCESS</span> <span style="color:#719e07">=</span>&gt; <span style="color:#719e07">{</span>
+    <span style="color:#2aa198">&#34;changed&#34;</span>: false,
+    <span style="color:#2aa198">&#34;ping&#34;</span>: <span style="color:#2aa198">&#34;pong&#34;</span>
+<span style="color:#719e07">}</span>
+</code></pre></div><p>Observa que cuando Ansible intenta conectar con la máquina gestionada vía SSH por primera vez, se muestra una alerta indicando que no se puede validar la autenticidad del <em>host</em> remoto. Obviamente, esto detiene la ejecución del <em>playbook</em> hasta que se responde la pregunta. Si quieres evitar esta pregunta -la primera vez que conectas a una máquina remota- puedes configurar la variable <code>host_key_checking = False</code> (a través del fichero de configuración en <code>/etc/ansible/ansible.cfg</code> o <code>~/.ansible.cfg</code> o mediante la variable de entorno <code>$ export ANSIBLE_HOST_KEY_CHECKING=False</code>) según se indica en la sección <a href="https://docs.ansible.com/ansible/latest/user_guide/intro_getting_started.html#host-key-checking">Host Key Checking</a> de la documentación oficial de Ansible.</p>
 <p>Una vez verificado que Ansible puede conectar con la máquina gestionada, podemos incluirla en el fichero de <em>inventario real</em> para realizar las configuraciones adicionales que deseemos:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>:~$ ansible-playbook -i vagrant-test playbooks/update-all/update-server.yml
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>PLAY <span style="color:#719e07">[</span>all<span style="color:#719e07">]</span> ***************************************************************************
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>TASK <span style="color:#719e07">[</span>Gathering Facts<span style="color:#719e07">]</span> ***************************************************************
-</span></span><span style="display:flex;"><span>ok: <span style="color:#719e07">[</span>192.168.1.221<span style="color:#719e07">]</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>TASK <span style="color:#719e07">[</span>update and upgrade<span style="color:#719e07">]</span> ************************************************************
-</span></span><span style="display:flex;"><span>ok: <span style="color:#719e07">[</span>192.168.1.221<span style="color:#719e07">]</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>PLAY RECAP ***************************************************************************
-</span></span><span style="display:flex;"><span>192.168.1.221              : <span style="color:#268bd2">ok</span><span style="color:#719e07">=</span><span style="color:#2aa198">2</span>    <span style="color:#268bd2">changed</span><span style="color:#719e07">=</span><span style="color:#2aa198">0</span>    <span style="color:#268bd2">unreachable</span><span style="color:#719e07">=</span><span style="color:#2aa198">0</span>    <span style="color:#268bd2">failed</span><span style="color:#719e07">=</span><span style="color:#2aa198">0</span>
-</span></span></code></pre></div></div>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">:~$ ansible-playbook -i vagrant-test playbooks/update-all/update-server.yml
+
+PLAY <span style="color:#719e07">[</span>all<span style="color:#719e07">]</span> ***************************************************************************
+
+TASK <span style="color:#719e07">[</span>Gathering Facts<span style="color:#719e07">]</span> ***************************************************************
+ok: <span style="color:#719e07">[</span>192.168.1.221<span style="color:#719e07">]</span>
+
+TASK <span style="color:#719e07">[</span>update and upgrade<span style="color:#719e07">]</span> ************************************************************
+ok: <span style="color:#719e07">[</span>192.168.1.221<span style="color:#719e07">]</span>
+
+PLAY RECAP ***************************************************************************
+192.168.1.221              : <span style="color:#268bd2">ok</span><span style="color:#719e07">=</span><span style="color:#2aa198">2</span>    <span style="color:#268bd2">changed</span><span style="color:#719e07">=</span><span style="color:#2aa198">0</span>    <span style="color:#268bd2">unreachable</span><span style="color:#719e07">=</span><span style="color:#2aa198">0</span>    <span style="color:#268bd2">failed</span><span style="color:#719e07">=</span><span style="color:#2aa198">0</span>
+</code></pre></div></div>
 
   <aside class="p-share">
 

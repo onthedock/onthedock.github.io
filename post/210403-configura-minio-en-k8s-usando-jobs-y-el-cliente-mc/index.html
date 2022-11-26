@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.95.0" />
+<meta name="generator" content="Hugo 0.92.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -134,53 +134,53 @@
 <p><a href="https://docs.min.io/docs/minio-client-quickstart-guide.html"><code>mc</code></a> se puede usar como herramienta de línea de comandos o como contenedor <a href="https://hub.docker.com/r/minio/mc"><code>minio/mc</code></a>; sin embargo, en esta entrada veremos cómo usarlo en <em>Jobs</em> de Kubernetes para configurar el <em>alias</em> de un servidor de MinIO y crear un <em>bucket</em>.</p>
 <p>En primer lugar, definimos un <em>Persistent Volume Claim</em> para almacenar la configuración del cliente de MinIO y no tener que configurarlo en cada ejecución.</p>
 <p>La configuración de <strong>mc</strong> consiste en unos ficheros JSON, por lo que creamos un <em>pvc</em> de sólo 1 Mi.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>---
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">kind</span>: PersistentVolumeClaim
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">apiVersion</span>: v1
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">metadata</span>:
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">namespace</span>: minio
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">name</span>: minio-config
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">spec</span>:
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">accessModes</span>:
-</span></span><span style="display:flex;"><span>    - ReadWriteOnce
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">resources</span>:
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">requests</span>:
-</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">storage</span>: 1Mi
-</span></span></code></pre></div><p>La configuración de <strong>mc</strong> se almacena en <code>~/.mc/</code>; como el usuario en el contenedor <code>minio/mc</code> es <code>root</code>, montamos el volumen en <code>/root/.mc</code>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
+<span style="color:#268bd2">kind</span>: PersistentVolumeClaim
+<span style="color:#268bd2">apiVersion</span>: v1
+<span style="color:#268bd2">metadata</span>:
+  <span style="color:#268bd2">namespace</span>: minio
+  <span style="color:#268bd2">name</span>: minio-config
+<span style="color:#268bd2">spec</span>:
+  <span style="color:#268bd2">accessModes</span>:
+    - ReadWriteOnce
+  <span style="color:#268bd2">resources</span>:
+    <span style="color:#268bd2">requests</span>:
+      <span style="color:#268bd2">storage</span>: 1Mi
+</code></pre></div><p>La configuración de <strong>mc</strong> se almacena en <code>~/.mc/</code>; como el usuario en el contenedor <code>minio/mc</code> es <code>root</code>, montamos el volumen en <code>/root/.mc</code>.</p>
 <h2 id="crear-un-alias-para-el-servidor-de-minio">Crear un <em>alias</em> para el servidor de MinIO</h2>
 <p>Para simplificar la interacción entre el cliente de MinIO y el servidor, podemos asociar un <em>alias</em> al <em>endpoint</em> de MinIO. Por defecto, el cliente de MinIO tiene definidos -aunque no están configurados- <em>alias</em> para Google Cloud Storage (<code>gcs</code>), AWS S3 (<code>s3</code>) y un <em>sandbox</em> público de pruebas (<code>play</code>).</p>
 <p>En nuestro caso, vamos a denominar <code>minio</code> al servidor de MinIO desplegado en Kubernetes.</p>
 <p>Definimos un <em>Job</em> para crear el <em>alias</em>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>---
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">kind</span>: Job
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">apiVersion</span>:  batch/v1
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">metadata</span>:
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">namespace</span>: minio
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">generateName</span>: mc-alias-set
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">spec</span>:
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">template</span>:
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">metadata</span>:
-</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">labels</span>:
-</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">app</span>: minio
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">spec</span>:
-</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">restartPolicy</span>: Never
-</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">containers</span>:
-</span></span><span style="display:flex;"><span>        - <span style="color:#268bd2">name</span>: mc-alias-set
-</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">image</span>: minio/mc
-</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">env</span>:
-</span></span><span style="display:flex;"><span>            - <span style="color:#268bd2">name</span>: MINIO_ROOT_USER
-</span></span><span style="display:flex;"><span>              <span style="color:#268bd2">valueFrom</span>:
-</span></span><span style="display:flex;"><span>                <span style="color:#268bd2">secretKeyRef</span>:
-</span></span><span style="display:flex;"><span>                  <span style="color:#268bd2">name</span>: minio-secret
-</span></span><span style="display:flex;"><span>                  <span style="color:#268bd2">key</span>: minio-root-user
-</span></span><span style="display:flex;"><span>            - <span style="color:#268bd2">name</span>: MINIO_ROOT_PASSWORD
-</span></span><span style="display:flex;"><span>              <span style="color:#268bd2">valueFrom</span>:
-</span></span><span style="display:flex;"><span>                <span style="color:#268bd2">secretKeyRef</span>:
-</span></span><span style="display:flex;"><span>                  <span style="color:#268bd2">name</span>: minio-secret
-</span></span><span style="display:flex;"><span>                  <span style="color:#268bd2">key</span>: minio-root-password
-</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">command</span>: [<span style="color:#2aa198">&#34;mc&#34;</span>]
-</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">args</span>: [<span style="color:#2aa198">&#34;alias&#34;</span>, <span style="color:#2aa198">&#34;set&#34;</span>, <span style="color:#2aa198">&#34;minio&#34;</span>, <span style="color:#2aa198">&#34;http://minio:9000&#34;</span>, <span style="color:#2aa198">&#34;--debug&#34;</span>]
-</span></span></code></pre></div><blockquote>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
+<span style="color:#268bd2">kind</span>: Job
+<span style="color:#268bd2">apiVersion</span>:  batch/v1
+<span style="color:#268bd2">metadata</span>:
+  <span style="color:#268bd2">namespace</span>: minio
+  <span style="color:#268bd2">generateName</span>: mc-alias-set
+<span style="color:#268bd2">spec</span>:
+  <span style="color:#268bd2">template</span>:
+    <span style="color:#268bd2">metadata</span>:
+      <span style="color:#268bd2">labels</span>:
+        <span style="color:#268bd2">app</span>: minio
+    <span style="color:#268bd2">spec</span>:
+      <span style="color:#268bd2">restartPolicy</span>: Never
+      <span style="color:#268bd2">containers</span>:
+        - <span style="color:#268bd2">name</span>: mc-alias-set
+          <span style="color:#268bd2">image</span>: minio/mc
+          <span style="color:#268bd2">env</span>:
+            - <span style="color:#268bd2">name</span>: MINIO_ROOT_USER
+              <span style="color:#268bd2">valueFrom</span>:
+                <span style="color:#268bd2">secretKeyRef</span>:
+                  <span style="color:#268bd2">name</span>: minio-secret
+                  <span style="color:#268bd2">key</span>: minio-root-user
+            - <span style="color:#268bd2">name</span>: MINIO_ROOT_PASSWORD
+              <span style="color:#268bd2">valueFrom</span>:
+                <span style="color:#268bd2">secretKeyRef</span>:
+                  <span style="color:#268bd2">name</span>: minio-secret
+                  <span style="color:#268bd2">key</span>: minio-root-password
+          <span style="color:#268bd2">command</span>: [<span style="color:#2aa198">&#34;mc&#34;</span>]
+          <span style="color:#268bd2">args</span>: [<span style="color:#2aa198">&#34;alias&#34;</span>, <span style="color:#2aa198">&#34;set&#34;</span>, <span style="color:#2aa198">&#34;minio&#34;</span>, <span style="color:#2aa198">&#34;http://minio:9000&#34;</span>, <span style="color:#2aa198">&#34;--debug&#34;</span>]
+</code></pre></div><blockquote>
 <p>El <em>Job</em> se completa con éxito, pero el <em>alias</em> creado no contiene las credenciales de acceso a MinIO (debido a limitaciones de <strong>mc</strong>). Sigue leyendo&hellip;</p>
 </blockquote>
 <p>Algunos detalles a destacar:</p>
@@ -193,143 +193,143 @@
 <h3 id="limitaciones-del-cliente-de-minio">Limitaciones del cliente de MinIO</h3>
 <p>Revisando la documentación del cliente de MinIO <strong>mc</strong> <a href="https://docs.min.io/docs/minio-client-complete-guide.html">MinIO Client Complete Guide</a>, vemos que se indica que <strong>mc</strong> sólo acepta las credenciales como argumento o a través de <em>standard input</em>; es decir, no <em>recoge</em> las credenciales si se especifican como variables de entorno.</p>
 <p>Al ejecutar el <em>Job</em> anterior, se crea el <em>alias</em> <code>minio</code>, pero las credenciales están en blanco:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-ini" data-lang="ini"><span style="display:flex;"><span>...
-</span></span><span style="display:flex;"><span>minio
-</span></span><span style="display:flex;"><span>  URL       : http://minio:9000
-</span></span><span style="display:flex;"><span>  AccessKey : 
-</span></span><span style="display:flex;"><span>  SecretKey : 
-</span></span><span style="display:flex;"><span>  API       : 
-</span></span><span style="display:flex;"><span>  Path      : auto
-</span></span><span style="display:flex;"><span>...
-</span></span></code></pre></div><p>Esto es debido al comportamiento actual de <strong>mc</strong>, ignorando las variables de entorno, aunque estén definidas.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-ini" data-lang="ini">...
+minio
+  URL       : http://minio:9000
+  AccessKey : 
+  SecretKey : 
+  API       : 
+  Path      : auto
+...
+</code></pre></div><p>Esto es debido al comportamiento actual de <strong>mc</strong>, ignorando las variables de entorno, aunque estén definidas.</p>
 <p>Especificando las variables de entorno como argumentos del comando ejecutado por el <em>Job</em> anterior, tampoco funciona:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>...
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">command</span>: [<span style="color:#2aa198">&#34;mc&#34;</span>]
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">args</span>: [<span style="color:#2aa198">&#34;alias&#34;</span>, <span style="color:#2aa198">&#34;set&#34;</span>, <span style="color:#2aa198">&#34;minio&#34;</span>, <span style="color:#2aa198">&#34;http://minio:9000&#34;</span>, $MINIO_ROOT_USER , $MINIO_ROOT_PASSWORD ,&#34;--debug&#34;]
-</span></span></code></pre></div><p>En este caso, <code>$MINIO_ROOT_USER</code> y <code>$MINIO_ROOT_PASSWORD</code> se interpretan como cadenas literales, no se sustituyen con los valores de las variables de entorno.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">...
+<span style="color:#268bd2">command</span>: [<span style="color:#2aa198">&#34;mc&#34;</span>]
+<span style="color:#268bd2">args</span>: [<span style="color:#2aa198">&#34;alias&#34;</span>, <span style="color:#2aa198">&#34;set&#34;</span>, <span style="color:#2aa198">&#34;minio&#34;</span>, <span style="color:#2aa198">&#34;http://minio:9000&#34;</span>, $MINIO_ROOT_USER , $MINIO_ROOT_PASSWORD ,&#34;--debug&#34;]
+</code></pre></div><p>En este caso, <code>$MINIO_ROOT_USER</code> y <code>$MINIO_ROOT_PASSWORD</code> se interpretan como cadenas literales, no se sustituyen con los valores de las variables de entorno.</p>
 <p>Tampoco funcionan el resto de opciones indicadas en la documentación: <strong>Pipe from STDIN</strong>, <strong>Specify temporary host configuration through environment variable</strong>, con <code>export MC_HOST_&lt;alias&gt;=https://&lt;Access Key&gt;:&lt;Secret Key&gt;@&lt;YOUR-S3-ENDPOINT&gt;</code>).</p>
 <h3 id="plan-b-usar-un-script">Plan B: usar un <em>script</em></h3>
 <p>Después de comprobar que no es posible configurar el <em>alias</em> usando directamente el cliente de MinIO <strong>mc</strong>, modificamos el comando ejecutado por el <em>Job</em> para ejecutar <strong>bash</strong> en el contenedor:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>...
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">command</span>: [<span style="color:#2aa198">&#34;/bin/bash&#34;</span>]
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">args</span>:
-</span></span><span style="display:flex;"><span>  - <span style="color:#2aa198">&#34;-c&#34;</span>
-</span></span><span style="display:flex;"><span>  - <span style="color:#2aa198">&#34;mc alias set minio http://minio:9000 $MINIO_ROOT_USER $MINIO_ROOT_PASSWORD&#34;</span>
-</span></span></code></pre></div><p>A través de los logs del <em>Pod</em> generado por el <em>Job</em>, vemos que de esta forma <strong>sí</strong> que se configura el <em>alias</em> para MinIO:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ kubectl logs mc-alias-set-832smd-8md3l -n minio
-</span></span><span style="display:flex;"><span>...
-</span></span><span style="display:flex;"><span>minio
-</span></span><span style="display:flex;"><span>URL : http://minio:9000
-</span></span><span style="display:flex;"><span>AccessKey : ACCESSKEYEXAMPLE123
-</span></span><span style="display:flex;"><span>SecretKey : wdvb5rtghn76yujm
-</span></span><span style="display:flex;"><span>API : s3v4
-</span></span><span style="display:flex;"><span>Path : auto
-</span></span><span style="display:flex;"><span>...
-</span></span></code></pre></div><h2 id="persistiendo-la-configuración-del-cliente-de-minio-mc">Persistiendo la configuración del cliente de MinIO <strong>mc</strong></h2>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">...
+<span style="color:#268bd2">command</span>: [<span style="color:#2aa198">&#34;/bin/bash&#34;</span>]
+<span style="color:#268bd2">args</span>:
+  - <span style="color:#2aa198">&#34;-c&#34;</span>
+  - <span style="color:#2aa198">&#34;mc alias set minio http://minio:9000 $MINIO_ROOT_USER $MINIO_ROOT_PASSWORD&#34;</span>
+</code></pre></div><p>A través de los logs del <em>Pod</em> generado por el <em>Job</em>, vemos que de esta forma <strong>sí</strong> que se configura el <em>alias</em> para MinIO:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl logs mc-alias-set-832smd-8md3l -n minio
+...
+minio
+URL : http://minio:9000
+AccessKey : ACCESSKEYEXAMPLE123
+SecretKey : wdvb5rtghn76yujm
+API : s3v4
+Path : auto
+...
+</code></pre></div><h2 id="persistiendo-la-configuración-del-cliente-de-minio-mc">Persistiendo la configuración del cliente de MinIO <strong>mc</strong></h2>
 <p>Una vez hemos validado que el <em>Job</em> configura el <em>alias</em> para <strong>mc</strong> correctamente, modificamos la definición del <em>Job</em> para montar el <em>PVC</em> definido al principio del artículo; para ello, añadimos el bloque <code>volumeMounts</code> montando el <em>PVC</em> en <code>/root/.mc</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>...
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">volumeMounts</span>:
-</span></span><span style="display:flex;"><span>  - <span style="color:#268bd2">name</span>: minio-config
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">mountPath</span>: <span style="color:#2aa198">&#34;/root/.mc&#34;</span>
-</span></span><span style="display:flex;"><span>...
-</span></span></code></pre></div><p>También añadimos la referencia al volumen (en <code>spec.template.spec</code>):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>...
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">volumes</span>:
-</span></span><span style="display:flex;"><span>  - <span style="color:#268bd2">name</span>: minio-config
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">persistentVolumeClaim</span>:
-</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">claimName</span>: minio-config
-</span></span></code></pre></div><p>Para validar que la configuración del cliente de MinIO <strong>mc</strong> se guarda correctamente en el volumen creado, definimos un <em>Job</em> que consulte los <em>alias</em> definidos:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>---
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">kind</span>: Job
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">apiVersion</span>:  batch/v1
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">metadata</span>:
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">namespace</span>: minio
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">generateName</span>: mc-alias-list-
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">spec</span>:
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">template</span>:
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">metadata</span>:
-</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">labels</span>:
-</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">app</span>: minio
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">spec</span>:
-</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">restartPolicy</span>: Never
-</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">containers</span>:
-</span></span><span style="display:flex;"><span>        - <span style="color:#268bd2">name</span>: mc-alias-list
-</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">image</span>: minio/mc
-</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">env</span>:
-</span></span><span style="display:flex;"><span>            - <span style="color:#268bd2">name</span>: MINIO_ROOT_USER
-</span></span><span style="display:flex;"><span>              <span style="color:#268bd2">valueFrom</span>:
-</span></span><span style="display:flex;"><span>                <span style="color:#268bd2">secretKeyRef</span>:
-</span></span><span style="display:flex;"><span>                  <span style="color:#268bd2">name</span>: minio-secret
-</span></span><span style="display:flex;"><span>                  <span style="color:#268bd2">key</span>: minio-root-user
-</span></span><span style="display:flex;"><span>            - <span style="color:#268bd2">name</span>: MINIO_ROOT_PASSWORD
-</span></span><span style="display:flex;"><span>              <span style="color:#268bd2">valueFrom</span>:
-</span></span><span style="display:flex;"><span>                <span style="color:#268bd2">secretKeyRef</span>:
-</span></span><span style="display:flex;"><span>                  <span style="color:#268bd2">name</span>: minio-secret
-</span></span><span style="display:flex;"><span>                  <span style="color:#268bd2">key</span>: minio-root-password
-</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">command</span>: [<span style="color:#2aa198">&#34;mc&#34;</span>]
-</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">args</span>: [<span style="color:#2aa198">&#34;alias&#34;</span>, <span style="color:#2aa198">&#34;list&#34;</span>, <span style="color:#2aa198">&#34;--debug&#34;</span>]
-</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">volumeMounts</span>:
-</span></span><span style="display:flex;"><span>            - <span style="color:#268bd2">name</span>: minio-config
-</span></span><span style="display:flex;"><span>              <span style="color:#268bd2">mountPath</span>: <span style="color:#2aa198">&#34;/root/.mc&#34;</span>
-</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">volumes</span>:
-</span></span><span style="display:flex;"><span>        - <span style="color:#268bd2">name</span>: minio-config
-</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">persistentVolumeClaim</span>:
-</span></span><span style="display:flex;"><span>            <span style="color:#268bd2">claimName</span>: minio-config
-</span></span></code></pre></div><p>En los logs del <em>Job</em> reconocemos la configuración del <em>alias</em> creado por el <em>Job</em> definido anteriormente:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ kubectl logs mc-alias-list-9l9md-k6w2h -n minio
-</span></span><span style="display:flex;"><span>...
-</span></span><span style="display:flex;"><span>minio
-</span></span><span style="display:flex;"><span>URL : http://minio:9000
-</span></span><span style="display:flex;"><span>AccessKey : ACCESSKEYEXAMPLE123
-</span></span><span style="display:flex;"><span>SecretKey : wdvb5rtghn76yujm
-</span></span><span style="display:flex;"><span>API : s3v4
-</span></span><span style="display:flex;"><span>Path : auto
-</span></span><span style="display:flex;"><span>...
-</span></span></code></pre></div><h2 id="crear-un-bucket-en-minio">Crear un <em>bucket</em> en MinIO</h2>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">...
+<span style="color:#268bd2">volumeMounts</span>:
+  - <span style="color:#268bd2">name</span>: minio-config
+    <span style="color:#268bd2">mountPath</span>: <span style="color:#2aa198">&#34;/root/.mc&#34;</span>
+...
+</code></pre></div><p>También añadimos la referencia al volumen (en <code>spec.template.spec</code>):</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">...
+<span style="color:#268bd2">volumes</span>:
+  - <span style="color:#268bd2">name</span>: minio-config
+    <span style="color:#268bd2">persistentVolumeClaim</span>:
+      <span style="color:#268bd2">claimName</span>: minio-config
+</code></pre></div><p>Para validar que la configuración del cliente de MinIO <strong>mc</strong> se guarda correctamente en el volumen creado, definimos un <em>Job</em> que consulte los <em>alias</em> definidos:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml">---
+<span style="color:#268bd2">kind</span>: Job
+<span style="color:#268bd2">apiVersion</span>:  batch/v1
+<span style="color:#268bd2">metadata</span>:
+  <span style="color:#268bd2">namespace</span>: minio
+  <span style="color:#268bd2">generateName</span>: mc-alias-list-
+<span style="color:#268bd2">spec</span>:
+  <span style="color:#268bd2">template</span>:
+    <span style="color:#268bd2">metadata</span>:
+      <span style="color:#268bd2">labels</span>:
+        <span style="color:#268bd2">app</span>: minio
+    <span style="color:#268bd2">spec</span>:
+      <span style="color:#268bd2">restartPolicy</span>: Never
+      <span style="color:#268bd2">containers</span>:
+        - <span style="color:#268bd2">name</span>: mc-alias-list
+          <span style="color:#268bd2">image</span>: minio/mc
+          <span style="color:#268bd2">env</span>:
+            - <span style="color:#268bd2">name</span>: MINIO_ROOT_USER
+              <span style="color:#268bd2">valueFrom</span>:
+                <span style="color:#268bd2">secretKeyRef</span>:
+                  <span style="color:#268bd2">name</span>: minio-secret
+                  <span style="color:#268bd2">key</span>: minio-root-user
+            - <span style="color:#268bd2">name</span>: MINIO_ROOT_PASSWORD
+              <span style="color:#268bd2">valueFrom</span>:
+                <span style="color:#268bd2">secretKeyRef</span>:
+                  <span style="color:#268bd2">name</span>: minio-secret
+                  <span style="color:#268bd2">key</span>: minio-root-password
+          <span style="color:#268bd2">command</span>: [<span style="color:#2aa198">&#34;mc&#34;</span>]
+          <span style="color:#268bd2">args</span>: [<span style="color:#2aa198">&#34;alias&#34;</span>, <span style="color:#2aa198">&#34;list&#34;</span>, <span style="color:#2aa198">&#34;--debug&#34;</span>]
+          <span style="color:#268bd2">volumeMounts</span>:
+            - <span style="color:#268bd2">name</span>: minio-config
+              <span style="color:#268bd2">mountPath</span>: <span style="color:#2aa198">&#34;/root/.mc&#34;</span>
+      <span style="color:#268bd2">volumes</span>:
+        - <span style="color:#268bd2">name</span>: minio-config
+          <span style="color:#268bd2">persistentVolumeClaim</span>:
+            <span style="color:#268bd2">claimName</span>: minio-config
+</code></pre></div><p>En los logs del <em>Job</em> reconocemos la configuración del <em>alias</em> creado por el <em>Job</em> definido anteriormente:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl logs mc-alias-list-9l9md-k6w2h -n minio
+...
+minio
+URL : http://minio:9000
+AccessKey : ACCESSKEYEXAMPLE123
+SecretKey : wdvb5rtghn76yujm
+API : s3v4
+Path : auto
+...
+</code></pre></div><h2 id="crear-un-bucket-en-minio">Crear un <em>bucket</em> en MinIO</h2>
 <p>Para crear el <em>bucket</em> desde un <em>Job</em> podemos usar la &ldquo;sintaxis&rdquo; del <em>script</em> o directamente el cliente de MinIO <strong>mc</strong>. Prefiero usar directamente el cliente de MinIO en este caso.</p>
 <p>Copiamos la definición del <em>Job</em> para listar los <em>alias</em> y modificamos el comando y los argumentos para crear el <em>bucket</em> en MinIO:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#268bd2">kind</span>: Job
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">apiVersion</span>:  batch/v1
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">metadata</span>:
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">namespace</span>: minio
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">name</span>: mc-makebucket-velero-backups
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">spec</span>:
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">template</span>:
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">metadata</span>:
-</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">labels</span>:
-</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">app</span>: minio
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">spec</span>:
-</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">restartPolicy</span>: Never
-</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">containers</span>:
-</span></span><span style="display:flex;"><span>        - <span style="color:#268bd2">name</span>: mc-makebucket-velero-backups
-</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">image</span>: minio/mc
-</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">env</span>:
-</span></span><span style="display:flex;"><span>            - <span style="color:#268bd2">name</span>: MINIO_ROOT_USER
-</span></span><span style="display:flex;"><span>              <span style="color:#268bd2">valueFrom</span>:
-</span></span><span style="display:flex;"><span>                <span style="color:#268bd2">secretKeyRef</span>:
-</span></span><span style="display:flex;"><span>                  <span style="color:#268bd2">name</span>: minio-secret
-</span></span><span style="display:flex;"><span>                  <span style="color:#268bd2">key</span>: minio-root-user
-</span></span><span style="display:flex;"><span>            - <span style="color:#268bd2">name</span>: MINIO_ROOT_PASSWORD
-</span></span><span style="display:flex;"><span>              <span style="color:#268bd2">valueFrom</span>:
-</span></span><span style="display:flex;"><span>                <span style="color:#268bd2">secretKeyRef</span>:
-</span></span><span style="display:flex;"><span>                  <span style="color:#268bd2">name</span>: minio-secret
-</span></span><span style="display:flex;"><span>                  <span style="color:#268bd2">key</span>: minio-root-password
-</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">command</span>: [<span style="color:#2aa198">&#34;mc&#34;</span>]
-</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">args</span>: [<span style="color:#2aa198">&#34;mb&#34;</span>, <span style="color:#2aa198">&#34;mino/velero-backups&#34;</span>]
-</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">volumeMounts</span>:
-</span></span><span style="display:flex;"><span>            - <span style="color:#268bd2">name</span>: minio-config
-</span></span><span style="display:flex;"><span>              <span style="color:#268bd2">mountPath</span>: <span style="color:#2aa198">&#34;/root/.mc&#34;</span>
-</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">volumes</span>:
-</span></span><span style="display:flex;"><span>        - <span style="color:#268bd2">name</span>: minio-config
-</span></span><span style="display:flex;"><span>          <span style="color:#268bd2">persistentVolumeClaim</span>:
-</span></span><span style="display:flex;"><span>            <span style="color:#268bd2">claimName</span>: minio-config
-</span></span></code></pre></div><p>En los logs del <em>Job</em> comprobamos que se ha creado el <em>bucket</em> correctamente:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ kubectl logs mc-makebucket-velero-backup-fwxg7 -n minio
-</span></span><span style="display:flex;"><span>Bucket created successfully <span style="color:#586e75">`</span>minio/velero-backup<span style="color:#586e75">`</span>.
-</span></span></code></pre></div><p>En este caso, en la definición del <em>Job</em> he usado <code>metadata.name</code> y no <code>metadata.generatedName</code>; la creación de un <em>bucket</em> sólo debe realizarse una vez. Si lanzamos de nuevo el mismo <em>Job</em>, como la definición no ha cambiado, el <em>Job</em> no se ejecuta de nuevo:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ kubectl -n minio apply -f minio-mc-job-makebucket-velero-backups.yaml 
-</span></span><span style="display:flex;"><span>job.batch/mc-makebucket-velero-backups unchanged
-</span></span></code></pre></div></div>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">kind</span>: Job
+<span style="color:#268bd2">apiVersion</span>:  batch/v1
+<span style="color:#268bd2">metadata</span>:
+  <span style="color:#268bd2">namespace</span>: minio
+  <span style="color:#268bd2">name</span>: mc-makebucket-velero-backups
+<span style="color:#268bd2">spec</span>:
+  <span style="color:#268bd2">template</span>:
+    <span style="color:#268bd2">metadata</span>:
+      <span style="color:#268bd2">labels</span>:
+        <span style="color:#268bd2">app</span>: minio
+    <span style="color:#268bd2">spec</span>:
+      <span style="color:#268bd2">restartPolicy</span>: Never
+      <span style="color:#268bd2">containers</span>:
+        - <span style="color:#268bd2">name</span>: mc-makebucket-velero-backups
+          <span style="color:#268bd2">image</span>: minio/mc
+          <span style="color:#268bd2">env</span>:
+            - <span style="color:#268bd2">name</span>: MINIO_ROOT_USER
+              <span style="color:#268bd2">valueFrom</span>:
+                <span style="color:#268bd2">secretKeyRef</span>:
+                  <span style="color:#268bd2">name</span>: minio-secret
+                  <span style="color:#268bd2">key</span>: minio-root-user
+            - <span style="color:#268bd2">name</span>: MINIO_ROOT_PASSWORD
+              <span style="color:#268bd2">valueFrom</span>:
+                <span style="color:#268bd2">secretKeyRef</span>:
+                  <span style="color:#268bd2">name</span>: minio-secret
+                  <span style="color:#268bd2">key</span>: minio-root-password
+          <span style="color:#268bd2">command</span>: [<span style="color:#2aa198">&#34;mc&#34;</span>]
+          <span style="color:#268bd2">args</span>: [<span style="color:#2aa198">&#34;mb&#34;</span>, <span style="color:#2aa198">&#34;mino/velero-backups&#34;</span>]
+          <span style="color:#268bd2">volumeMounts</span>:
+            - <span style="color:#268bd2">name</span>: minio-config
+              <span style="color:#268bd2">mountPath</span>: <span style="color:#2aa198">&#34;/root/.mc&#34;</span>
+      <span style="color:#268bd2">volumes</span>:
+        - <span style="color:#268bd2">name</span>: minio-config
+          <span style="color:#268bd2">persistentVolumeClaim</span>:
+            <span style="color:#268bd2">claimName</span>: minio-config
+</code></pre></div><p>En los logs del <em>Job</em> comprobamos que se ha creado el <em>bucket</em> correctamente:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl logs mc-makebucket-velero-backup-fwxg7 -n minio
+Bucket created successfully <span style="color:#586e75">`</span>minio/velero-backup<span style="color:#586e75">`</span>.
+</code></pre></div><p>En este caso, en la definición del <em>Job</em> he usado <code>metadata.name</code> y no <code>metadata.generatedName</code>; la creación de un <em>bucket</em> sólo debe realizarse una vez. Si lanzamos de nuevo el mismo <em>Job</em>, como la definición no ha cambiado, el <em>Job</em> no se ejecuta de nuevo:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl -n minio apply -f minio-mc-job-makebucket-velero-backups.yaml 
+job.batch/mc-makebucket-velero-backups unchanged
+</code></pre></div></div>
 
   <aside class="p-share">
 

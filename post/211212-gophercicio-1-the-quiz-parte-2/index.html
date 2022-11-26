@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.95.0" />
+<meta name="generator" content="Hugo 0.92.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -135,46 +135,46 @@
 <p>En esta segunda parte, añadiremos un límite de tiempo (configurable por el usuario) en el que completar la prueba (o el máximo número de respuestas posibles).</p>
 <h2 id="mi-solución-de-la-parte-1">Mi solución (de la parte 1)</h2>
 <p>Esta es la función <code>main()</code> al final de la primera parte del ejercicio:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
-</span></span><span style="display:flex;"><span>    csvFile <span style="color:#719e07">:=</span> flag.<span style="color:#268bd2">String</span>(<span style="color:#2aa198">&#34;csv&#34;</span>, <span style="color:#2aa198">&#34;problems.csv&#34;</span>, <span style="color:#2aa198">&#34;Fichero de problemas en formato &#39;enunciado,respuesta&#39; (CSV)&#34;</span>)
-</span></span><span style="display:flex;"><span>    flag.<span style="color:#268bd2">Parse</span>()
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    r <span style="color:#719e07">:=</span> csv.<span style="color:#268bd2">NewReader</span>(<span style="color:#268bd2">openFile</span>(<span style="color:#719e07">*</span>csvFile))
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">var</span> lineas [][]<span style="color:#dc322f">string</span>
-</span></span><span style="display:flex;"><span>    lineas = <span style="color:#268bd2">readFile</span>(r)
-</span></span><span style="display:flex;"><span>    problemas <span style="color:#719e07">:=</span> <span style="color:#268bd2">parselines</span>(lineas)
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">var</span> puntuacion <span style="color:#dc322f">int</span> = <span style="color:#2aa198">0</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#719e07">for</span> i <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> problemas {
-</span></span><span style="display:flex;"><span>        fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;Pregunta %d:\t %s =\n&#34;</span>, i<span style="color:#719e07">+</span><span style="color:#2aa198">1</span>, problemas[i].enunciado)
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        <span style="color:#719e07">if</span> problemas[i].respuesta <span style="color:#719e07">==</span> <span style="color:#268bd2">getUserAnswer</span>() {
-</span></span><span style="display:flex;"><span>            puntuacion<span style="color:#719e07">++</span>
-</span></span><span style="display:flex;"><span>        }
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>    fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;Ha respondido %d respuestas correctas de %d preguntas.\n&#34;</span>, puntuacion, <span style="color:#b58900">len</span>(problemas))
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><blockquote>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
+    csvFile <span style="color:#719e07">:=</span> flag.<span style="color:#268bd2">String</span>(<span style="color:#2aa198">&#34;csv&#34;</span>, <span style="color:#2aa198">&#34;problems.csv&#34;</span>, <span style="color:#2aa198">&#34;Fichero de problemas en formato &#39;enunciado,respuesta&#39; (CSV)&#34;</span>)
+    flag.<span style="color:#268bd2">Parse</span>()
+
+    r <span style="color:#719e07">:=</span> csv.<span style="color:#268bd2">NewReader</span>(<span style="color:#268bd2">openFile</span>(<span style="color:#719e07">*</span>csvFile))
+
+    <span style="color:#268bd2">var</span> lineas [][]<span style="color:#dc322f">string</span>
+    lineas = <span style="color:#268bd2">readFile</span>(r)
+    problemas <span style="color:#719e07">:=</span> <span style="color:#268bd2">parselines</span>(lineas)
+
+    <span style="color:#268bd2">var</span> puntuacion <span style="color:#dc322f">int</span> = <span style="color:#2aa198">0</span>
+    <span style="color:#719e07">for</span> i <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> problemas {
+        fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;Pregunta %d:\t %s =\n&#34;</span>, i<span style="color:#719e07">+</span><span style="color:#2aa198">1</span>, problemas[i].enunciado)
+
+        <span style="color:#719e07">if</span> problemas[i].respuesta <span style="color:#719e07">==</span> <span style="color:#268bd2">getUserAnswer</span>() {
+            puntuacion<span style="color:#719e07">++</span>
+        }
+    }
+    fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;Ha respondido %d respuestas correctas de %d preguntas.\n&#34;</span>, puntuacion, <span style="color:#b58900">len</span>(problemas))
+}
+</code></pre></div><blockquote>
 <p>El código completo lo puedes consultar en GitHub <a href="https://github.com/onthedock/gophercicios/blob/main/01-quiz/quiz-parte-1.go">gophercicios/01-quiz/quiz-parte-1.go</a></p>
 </blockquote>
 <h2 id="nuevo-flag-para-establecer-el-límite-de-tiempo">Nuevo <em>flag</em> para establecer el límite de tiempo</h2>
 <p>Definimos un nuevo <em>flag</em> llamado <code>limite</code> para establecer el tiempo límite para realizar la prueba:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
-</span></span><span style="display:flex;"><span>    csvFile <span style="color:#719e07">:=</span> flag.<span style="color:#268bd2">String</span>(<span style="color:#2aa198">&#34;csv&#34;</span>, <span style="color:#2aa198">&#34;problems.csv&#34;</span>, <span style="color:#2aa198">&#34;Fichero de problemas en formato &#39;enunciado,respuesta&#39; (CSV)&#34;</span>)
-</span></span><span style="display:flex;"><span>    limite <span style="color:#719e07">:=</span> flag.<span style="color:#268bd2">Int</span>(<span style="color:#2aa198">&#34;limite&#34;</span>, <span style="color:#2aa198">30</span>, <span style="color:#2aa198">&#34;Tiempo limite para completar la prueba en segundos&#34;</span>)
-</span></span><span style="display:flex;"><span>    flag.<span style="color:#268bd2">Parse</span>()
-</span></span></code></pre></div><h2 id="temporizador">Temporizador</h2>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
+    csvFile <span style="color:#719e07">:=</span> flag.<span style="color:#268bd2">String</span>(<span style="color:#2aa198">&#34;csv&#34;</span>, <span style="color:#2aa198">&#34;problems.csv&#34;</span>, <span style="color:#2aa198">&#34;Fichero de problemas en formato &#39;enunciado,respuesta&#39; (CSV)&#34;</span>)
+    limite <span style="color:#719e07">:=</span> flag.<span style="color:#268bd2">Int</span>(<span style="color:#2aa198">&#34;limite&#34;</span>, <span style="color:#2aa198">30</span>, <span style="color:#2aa198">&#34;Tiempo limite para completar la prueba en segundos&#34;</span>)
+    flag.<span style="color:#268bd2">Parse</span>()
+</code></pre></div><h2 id="temporizador">Temporizador</h2>
 <p>El paquete <a href="https://pkg.go.dev/time"><code>time</code></a> incluye el tipo <code>NewTimer</code>, que permite definr un temporizador.</p>
 <p>El temporizador envía un mensaje en su <em>channel</em> una vez pasado el tiempo definido.</p>
 <p>Para no hacer perder tiempo al usuario mientras todavía estamos realizando el <em>setup</em> de la prueba, definimos el <em>timer</em> con el valor especificado en el <em>flag</em> <code>limite</code>, en segundos, después de inicializar la puntuación a cero:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">var</span> puntuacion <span style="color:#dc322f">int</span> = <span style="color:#2aa198">0</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>temporizador <span style="color:#719e07">:=</span> time.<span style="color:#268bd2">NewTimer</span>(time.<span style="color:#268bd2">Duration</span>(<span style="color:#719e07">*</span>limite) <span style="color:#719e07">*</span> time.Second)
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">for</span> i <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> problemas {
-</span></span><span style="display:flex;"><span>    <span style="color:#719e07">...</span>
-</span></span></code></pre></div><p><code>time.Duration(*limite)</code> se encarga de convertir el límite introducido (que es un entero) al tipo <code>Time</code>, usado por el temporizador; además, lo pasamos a segundos multiplicando por <code>time.Second</code>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-go" data-lang="go"><span style="color:#268bd2">var</span> puntuacion <span style="color:#dc322f">int</span> = <span style="color:#2aa198">0</span>
+
+temporizador <span style="color:#719e07">:=</span> time.<span style="color:#268bd2">NewTimer</span>(time.<span style="color:#268bd2">Duration</span>(<span style="color:#719e07">*</span>limite) <span style="color:#719e07">*</span> time.Second)
+
+<span style="color:#719e07">for</span> i <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> problemas {
+    <span style="color:#719e07">...</span>
+</code></pre></div><p><code>time.Duration(*limite)</code> se encarga de convertir el límite introducido (que es un entero) al tipo <code>Time</code>, usado por el temporizador; además, lo pasamos a segundos multiplicando por <code>time.Second</code>.</p>
 <h2 id="canales">Canales</h2>
 <p>El problema de los <em>channel</em> es que bloquean la ejecución del programa hasta que reciben un mensaje (como se indica, por ejemplo, en el <a href="https://go.dev/tour/concurrency/2">Go Tour: Channels</a>).</p>
 <p>Como la ejecución del programa también se detiene mientras esperamos la respuesta a la pregunta planteada al usuario, modificamos la función <code>getUserAnswer()</code>:</p>
@@ -183,68 +183,68 @@
 <li>enviamos la respuesta del usuario al canal <code>canalRespuestaUsuario</code></li>
 </ul>
 <p>Como el canal <code>canalRespuestaUsuario</code> tiene que estar disponible en la función <code>main</code> y en <code>getUserAnswer()</code>, lo definimos <em>fuera</em> de la función <code>main</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">var</span> canalRespuestaUsuario = <span style="color:#b58900">make</span>(<span style="color:#268bd2">chan</span> <span style="color:#dc322f">string</span>)
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
-</span></span><span style="display:flex;"><span>    <span style="color:#719e07">...</span>
-</span></span></code></pre></div><p>Y la función  <code>getUserAnswer()</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">getUserAnswer</span>() {
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    r <span style="color:#719e07">:=</span> bufio.<span style="color:#268bd2">NewReader</span>(os.Stdin)
-</span></span><span style="display:flex;"><span>    respuestaUsuario, err <span style="color:#719e07">:=</span> r.<span style="color:#268bd2">ReadString</span>(<span style="color:#2aa198">&#39;\n&#39;</span>)
-</span></span><span style="display:flex;"><span>    <span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
-</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">exit</span>(<span style="color:#2aa198">&#34;Error al leer la respuesta.\n[ERROR] %s\n&#34;</span>, err, ERROR_NO_ENTIENDO_RESPUESTA)
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>    canalRespuestaUsuario <span style="color:#719e07">&lt;-</span> strings.<span style="color:#268bd2">Trim</span>(respuestaUsuario, <span style="color:#2aa198">&#34;\n &#34;</span>)
-</span></span><span style="display:flex;"><span>    <span style="color:#719e07">return</span>
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><h2 id="select"><code>select</code></h2>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-go" data-lang="go"><span style="color:#268bd2">var</span> canalRespuestaUsuario = <span style="color:#b58900">make</span>(<span style="color:#268bd2">chan</span> <span style="color:#dc322f">string</span>)
+
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
+    <span style="color:#719e07">...</span>
+</code></pre></div><p>Y la función  <code>getUserAnswer()</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">getUserAnswer</span>() {
+
+    r <span style="color:#719e07">:=</span> bufio.<span style="color:#268bd2">NewReader</span>(os.Stdin)
+    respuestaUsuario, err <span style="color:#719e07">:=</span> r.<span style="color:#268bd2">ReadString</span>(<span style="color:#2aa198">&#39;\n&#39;</span>)
+    <span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+        <span style="color:#268bd2">exit</span>(<span style="color:#2aa198">&#34;Error al leer la respuesta.\n[ERROR] %s\n&#34;</span>, err, ERROR_NO_ENTIENDO_RESPUESTA)
+    }
+    canalRespuestaUsuario <span style="color:#719e07">&lt;-</span> strings.<span style="color:#268bd2">Trim</span>(respuestaUsuario, <span style="color:#2aa198">&#34;\n &#34;</span>)
+    <span style="color:#719e07">return</span>
+}
+</code></pre></div><h2 id="select"><code>select</code></h2>
 <p>El temporizador se ejecuta <em>en segundo plano</em> hasta que pasa el tiempo especificado y entonces, devuelve un mensaje en el canal asociado al temporizador; en mi caso, <code>temporizador.C</code>.</p>
 <p>Para que la llamada a la función <code>getUserAnswer()</code> no bloquee la ejecución del programa, la <em>convertimos</em> en una <em>goroutine</em> llamándola precedida de <code>go</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#719e07">for</span> i <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> problemas {
-</span></span><span style="display:flex;"><span>    fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;Pregunta %d:\t %s = &#34;</span>, i<span style="color:#719e07">+</span><span style="color:#2aa198">1</span>, problemas[i].enunciado)
-</span></span><span style="display:flex;"><span>    <span style="color:#719e07">go</span> <span style="color:#268bd2">getUserAnswer</span>()
-</span></span><span style="display:flex;"><span>    <span style="color:#719e07">...</span>
-</span></span></code></pre></div><p>De esta forma, programa continúa.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-go" data-lang="go"><span style="color:#719e07">for</span> i <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> problemas {
+    fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;Pregunta %d:\t %s = &#34;</span>, i<span style="color:#719e07">+</span><span style="color:#2aa198">1</span>, problemas[i].enunciado)
+    <span style="color:#719e07">go</span> <span style="color:#268bd2">getUserAnswer</span>()
+    <span style="color:#719e07">...</span>
+</code></pre></div><p>De esta forma, programa continúa.</p>
 <p>En este punto, tenemos que esperar a recibir un mensaje a través de alguno de los canales de las <em>goroutines</em> que se ejecutan en paralelo; el <em>timer</em> y la obtención de la respuesta por parte del usuario.</p>
 <p>Usamos <code>select</code> para esperar a la recepción de múltiples operaciones de comunicación, como dice el <a href="https://go.dev/tour/concurrency/5">Go Tour: Select</a>.</p>
 <p>Si recibimos respuesta por parte del usuario, comprobamos si es correcta y modificamos la puntuación como corresponda; si se ha alcanzado el tiempo límite de la prueba, mostramos un mensaje.</p>
 <p>Una vez finalizado el tiempo de la prueba, deberíamos acabar. Si usamos <code>break</code>, salimos del bloque <code>select</code>, pero seguimos dentro del <code>for</code>, por lo que se seguirían mostrando el resto de las preguntas pendientes&hellip; Y eso no es lo que queremos.</p>
 <p>Si se ha acabado el tiempo, queremos acabar el programa, pero debemos mostrar el número de preguntas acertadas antes de salir&hellip; También queremos mostrar el resultado si no se ha acabado el tiempo pero se han completado todas las respuestas de la prueba&hellip;</p>
 <p>Mi solución, ha sido mover el mensaje que muestra la puntuación a una función, que se llama en los dos casos; la función muestra la puntuación y termina el program (con éxito):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">printResult</span>(puntuacion <span style="color:#dc322f">int</span>, total <span style="color:#dc322f">int</span>) {
-</span></span><span style="display:flex;"><span>    fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;Ha respondido %d respuestas correctas de %d preguntas.\n&#34;</span>, puntuacion, total)
-</span></span><span style="display:flex;"><span>    os.<span style="color:#268bd2">Exit</span>(PRUEBA_FINALIZADA)
-</span></span><span style="display:flex;"><span>}
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
-</span></span><span style="display:flex;"><span>    <span style="color:#719e07">...</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#719e07">for</span> i <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> problemas {
-</span></span><span style="display:flex;"><span>        fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;Pregunta %d:\t %s = &#34;</span>, i<span style="color:#719e07">+</span><span style="color:#2aa198">1</span>, problemas[i].enunciado)
-</span></span><span style="display:flex;"><span>        <span style="color:#719e07">go</span> <span style="color:#268bd2">getUserAnswer</span>()
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        <span style="color:#719e07">select</span> {
-</span></span><span style="display:flex;"><span>        <span style="color:#719e07">case</span> msg <span style="color:#719e07">:=</span> <span style="color:#719e07">&lt;-</span>canalRespuestaUsuario:
-</span></span><span style="display:flex;"><span>            <span style="color:#719e07">if</span> problemas[i].respuesta <span style="color:#719e07">==</span> msg {
-</span></span><span style="display:flex;"><span>                puntuacion<span style="color:#719e07">++</span>
-</span></span><span style="display:flex;"><span>            }
-</span></span><span style="display:flex;"><span>        <span style="color:#719e07">case</span> <span style="color:#719e07">&lt;-</span>temporizador.C:
-</span></span><span style="display:flex;"><span>            fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;\n¡Campana y se acabó!&#34;</span>)
-</span></span><span style="display:flex;"><span>            <span style="color:#268bd2">printResult</span>(puntuacion, <span style="color:#b58900">len</span>(problemas))
-</span></span><span style="display:flex;"><span>        }
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">printResult</span>(puntuacion, <span style="color:#b58900">len</span>(problemas))
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><h2 id="cierre-del-fichero">Cierre del fichero</h2>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-go" data-lang="go"><span style="color:#268bd2">func</span> <span style="color:#268bd2">printResult</span>(puntuacion <span style="color:#dc322f">int</span>, total <span style="color:#dc322f">int</span>) {
+    fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;Ha respondido %d respuestas correctas de %d preguntas.\n&#34;</span>, puntuacion, total)
+    os.<span style="color:#268bd2">Exit</span>(PRUEBA_FINALIZADA)
+}
+
+<span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
+    <span style="color:#719e07">...</span>
+    <span style="color:#719e07">for</span> i <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> problemas {
+        fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;Pregunta %d:\t %s = &#34;</span>, i<span style="color:#719e07">+</span><span style="color:#2aa198">1</span>, problemas[i].enunciado)
+        <span style="color:#719e07">go</span> <span style="color:#268bd2">getUserAnswer</span>()
+
+        <span style="color:#719e07">select</span> {
+        <span style="color:#719e07">case</span> msg <span style="color:#719e07">:=</span> <span style="color:#719e07">&lt;-</span>canalRespuestaUsuario:
+            <span style="color:#719e07">if</span> problemas[i].respuesta <span style="color:#719e07">==</span> msg {
+                puntuacion<span style="color:#719e07">++</span>
+            }
+        <span style="color:#719e07">case</span> <span style="color:#719e07">&lt;-</span>temporizador.C:
+            fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;\n¡Campana y se acabó!&#34;</span>)
+            <span style="color:#268bd2">printResult</span>(puntuacion, <span style="color:#b58900">len</span>(problemas))
+        }
+    }
+    <span style="color:#268bd2">printResult</span>(puntuacion, <span style="color:#b58900">len</span>(problemas))
+}
+</code></pre></div><h2 id="cierre-del-fichero">Cierre del fichero</h2>
 <p>Revisando el código final del ejercicio he visto que el fichero CSV desde el que se cargan las preguntas de la prueba se dejaba abierto :(</p>
 <p>Para hacer que Go cierre el fichero al salir de la función (en este caso, <code>main()</code>, uso <code>defer</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#719e07">...</span>
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">var</span> fHandle <span style="color:#719e07">*</span>os.File = <span style="color:#268bd2">openFile</span>(<span style="color:#719e07">*</span>csvFile)
-</span></span><span style="display:flex;"><span><span style="color:#719e07">defer</span> fHandle.<span style="color:#268bd2">Close</span>()
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>r <span style="color:#719e07">:=</span> csv.<span style="color:#268bd2">NewReader</span>(fHandle)
-</span></span><span style="display:flex;"><span><span style="color:#719e07">...</span>
-</span></span></code></pre></div><p>El código del ejercicio está subido a GitHub <a href="https://github.com/onthedock/gophercicios/tree/main/01-quiz">onthedock/gophercicios/01-quiz/
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-go" data-lang="go"><span style="color:#719e07">...</span>
+<span style="color:#268bd2">var</span> fHandle <span style="color:#719e07">*</span>os.File = <span style="color:#268bd2">openFile</span>(<span style="color:#719e07">*</span>csvFile)
+<span style="color:#719e07">defer</span> fHandle.<span style="color:#268bd2">Close</span>()
+
+r <span style="color:#719e07">:=</span> csv.<span style="color:#268bd2">NewReader</span>(fHandle)
+<span style="color:#719e07">...</span>
+</code></pre></div><p>El código del ejercicio está subido a GitHub <a href="https://github.com/onthedock/gophercicios/tree/main/01-quiz">onthedock/gophercicios/01-quiz/
 </a></p></div>
 
   <aside class="p-share">

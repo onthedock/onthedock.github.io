@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.95.0" />
+<meta name="generator" content="Hugo 0.92.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -140,12 +140,12 @@
 <blockquote>
 <p>Los certificados de la CA del clúster deben estar ubicados en un lugar seguro con acceso controlado.</p>
 </blockquote>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>copy_ca_certs<span style="color:#719e07">()</span> <span style="color:#719e07">{</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">msg</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;Copying k3s certs to </span><span style="color:#268bd2">$workdir</span><span style="color:#2aa198">/ca\n&#34;</span>
-</span></span><span style="display:flex;"><span>    cp ./k3s/* <span style="color:#268bd2">$workdir</span>/ca
-</span></span><span style="display:flex;"><span>    <span style="color:#719e07">if</span> <span style="color:#719e07">[</span> <span style="color:#268bd2">$?</span> -eq <span style="color:#2aa198">0</span> <span style="color:#719e07">]</span>; <span style="color:#719e07">then</span> log <span style="color:#2aa198">&#34;</span><span style="color:#2aa198">${</span><span style="color:#268bd2">msg</span><span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span>; <span style="color:#719e07">else</span> log <span style="color:#2aa198">&#34;</span><span style="color:#2aa198">${</span><span style="color:#268bd2">msg</span><span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span> FAIL; <span style="color:#b58900">exit</span> 1;  <span style="color:#719e07">fi</span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">}</span>
-</span></span></code></pre></div><p>La función <code>setup_environment</code> crea una carpeta temporal usando <code>mktemp -d</code> y después se copian los certificados mediante la función <code>copy_ca_certs</code>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">copy_ca_certs<span style="color:#719e07">()</span> <span style="color:#719e07">{</span>
+    <span style="color:#268bd2">msg</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;Copying k3s certs to </span><span style="color:#268bd2">$workdir</span><span style="color:#2aa198">/ca\n&#34;</span>
+    cp ./k3s/* <span style="color:#268bd2">$workdir</span>/ca
+    <span style="color:#719e07">if</span> <span style="color:#719e07">[</span> <span style="color:#268bd2">$?</span> -eq <span style="color:#2aa198">0</span> <span style="color:#719e07">]</span>; <span style="color:#719e07">then</span> log <span style="color:#2aa198">&#34;</span><span style="color:#2aa198">${</span><span style="color:#268bd2">msg</span><span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span>; <span style="color:#719e07">else</span> log <span style="color:#2aa198">&#34;</span><span style="color:#2aa198">${</span><span style="color:#268bd2">msg</span><span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span> FAIL; <span style="color:#b58900">exit</span> 1;  <span style="color:#719e07">fi</span>
+<span style="color:#719e07">}</span>
+</code></pre></div><p>La función <code>setup_environment</code> crea una carpeta temporal usando <code>mktemp -d</code> y después se copian los certificados mediante la función <code>copy_ca_certs</code>.</p>
 <blockquote>
 <p>Es una buena idea eliminar la carpeta <code>$workir</code> una vez finalizada la generación de los certificados de usuario para asegurar que nadie accede a ellos.</p>
 </blockquote>
@@ -170,262 +170,262 @@
 <p>La última versión del <em>script</em> se puede encontrar en <a href="https://github.com/onthedock/k8s-devops">onthedock/k8s-devops</a>.<br>
 Esta es la versión del 10/10/2021</p>
 </blockquote>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#719e07">#!/usr/bin/env bash
-</span></span></span><span style="display:flex;"><span><span style="color:#719e07"></span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75"># Ref: https://github.com/k3s-io/k3s/issues/684</span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75"># Ref: https://stackoverflow.com/questions/5947742/how-to-change-the-output-color-of-echo-in-linux</span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75"># Ref: https://stackoverflow.com/questions/192249/how-do-i-parse-command-line-arguments-in-bash</span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75"># Ref: https://tldp.org/LDP/abs/html/here-docs.html</span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75"># Ref: https://linuxize.com/post/bash-check-if-file-exists/</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>log <span style="color:#719e07">()</span> <span style="color:#719e07">{</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">NOCOLOR</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#39;\033[0m&#39;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">GREEN</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#39;\033[1;32m&#39;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">YELLOW</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#39;\033[1;33m&#39;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">RED</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#39;\033[1;31m&#39;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">PURPLE</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#39;\033[0;35m&#39;</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#719e07">case</span> <span style="color:#268bd2">$2</span> in
-</span></span><span style="display:flex;"><span>        <span style="color:#2aa198">0</span> | INFO<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#268bd2">COLOR</span><span style="color:#719e07">=</span><span style="color:#268bd2">$GREEN</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#268bd2">LEVEL</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;INFO&#34;</span>
-</span></span><span style="display:flex;"><span>            ;;
-</span></span><span style="display:flex;"><span>        <span style="color:#2aa198">1</span> | WARN<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#268bd2">COLOR</span><span style="color:#719e07">=</span><span style="color:#268bd2">$YELLOW</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#268bd2">LEVEL</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;WARN&#34;</span>
-</span></span><span style="display:flex;"><span>            ;;
-</span></span><span style="display:flex;"><span>        <span style="color:#2aa198">2</span> | FAIL | ERROR <span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#268bd2">COLOR</span><span style="color:#719e07">=</span><span style="color:#268bd2">$RED</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#268bd2">LEVEL</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;FAIL&#34;</span>
-</span></span><span style="display:flex;"><span>            ;;
-</span></span><span style="display:flex;"><span>        * <span style="color:#719e07">)</span> <span style="color:#586e75"># When $2 it&#39;s not one of the above</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#268bd2">COLOR</span><span style="color:#719e07">=</span><span style="color:#268bd2">$PURPLE</span>
-</span></span><span style="display:flex;"><span>            <span style="color:#268bd2">LEVEL</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;\?\?\?\?&#34;</span>
-</span></span><span style="display:flex;"><span>            ;;
-</span></span><span style="display:flex;"><span>    <span style="color:#719e07">esac</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#586e75"># If no argument is passed we mean it&#39;s ok</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#719e07">if</span> <span style="color:#719e07">[[</span> -z <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$2</span><span style="color:#2aa198">&#34;</span> <span style="color:#719e07">]]</span>;
-</span></span><span style="display:flex;"><span>    <span style="color:#719e07">then</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">COLOR</span><span style="color:#719e07">=</span><span style="color:#268bd2">$GREEN</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">LEVEL</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;INFO&#34;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#719e07">fi</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#719e07">if</span> <span style="color:#719e07">[</span> -z <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$workdir</span><span style="color:#2aa198">&#34;</span> <span style="color:#719e07">]</span>; <span style="color:#719e07">then</span> <span style="color:#268bd2">workdir</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;.&#34;</span>; <span style="color:#719e07">fi</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#b58900">printf</span> <span style="color:#2aa198">&#34;</span><span style="color:#719e07">$(</span>date<span style="color:#719e07">)</span><span style="color:#268bd2">$COLOR</span><span style="color:#2aa198"> [</span><span style="color:#268bd2">$LEVEL</span><span style="color:#2aa198">]</span><span style="color:#268bd2">$NOCOLOR</span><span style="color:#2aa198"> </span><span style="color:#268bd2">$1</span><span style="color:#2aa198">\n&#34;</span> | tee -a <span style="color:#268bd2">$workdir</span>/log.log
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">}</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>setup_environment<span style="color:#719e07">()</span> <span style="color:#719e07">{</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">workdir</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>mktemp -d --suffix -k3s<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>    
-</span></span><span style="display:flex;"><span>    mkdir -p <span style="color:#268bd2">$workdir</span>/<span style="color:#719e07">{</span>ca,keys,kube<span style="color:#719e07">}</span> 
-</span></span><span style="display:flex;"><span>    log <span style="color:#2aa198">&#34;... created </span><span style="color:#268bd2">$workdir</span><span style="color:#2aa198">/{ca,keys,kube} subfolders&#34;</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">user</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$1</span><span style="color:#2aa198">&#34;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">group</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;CloudOps&#34;</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">cluster_name</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;vagrant-k3s&#34;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">cluster_url</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;https://192.168.1.101:6443&#34;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">cluster_ns</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$2</span><span style="color:#2aa198">&#34;</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">days_until_expiration</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$3</span><span style="color:#2aa198">&#34;</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">context</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$4</span><span style="color:#2aa198">&#34;</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    log <span style="color:#2aa198">&#34;... working directory      = </span><span style="color:#268bd2">$workdir</span><span style="color:#2aa198">&#34;</span>
-</span></span><span style="display:flex;"><span>    log <span style="color:#2aa198">&#34;... user                   = </span><span style="color:#268bd2">$1</span><span style="color:#2aa198">&#34;</span>
-</span></span><span style="display:flex;"><span>    log <span style="color:#2aa198">&#34;... group                  = </span><span style="color:#268bd2">$group</span><span style="color:#2aa198">&#34;</span>
-</span></span><span style="display:flex;"><span>    log <span style="color:#2aa198">&#34;... cluster_name           = </span><span style="color:#268bd2">$cluster_name</span><span style="color:#2aa198">&#34;</span>
-</span></span><span style="display:flex;"><span>    log <span style="color:#2aa198">&#34;... cluster_url            = </span><span style="color:#268bd2">$cluster_url</span><span style="color:#2aa198">&#34;</span>
-</span></span><span style="display:flex;"><span>    log <span style="color:#2aa198">&#34;... cluster_ns             = </span><span style="color:#268bd2">$cluster_ns</span><span style="color:#2aa198">&#34;</span>
-</span></span><span style="display:flex;"><span>    log <span style="color:#2aa198">&#34;... days_until_expiration  = </span><span style="color:#268bd2">$days_until_expiration</span><span style="color:#2aa198">&#34;</span>
-</span></span><span style="display:flex;"><span>    log <span style="color:#2aa198">&#34;... context                = </span><span style="color:#268bd2">$context</span><span style="color:#2aa198">\n&#34;</span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">}</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>copy_ca_certs<span style="color:#719e07">()</span> <span style="color:#719e07">{</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">msg</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;Copying k3s certs to </span><span style="color:#268bd2">$workdir</span><span style="color:#2aa198">/ca\n&#34;</span>
-</span></span><span style="display:flex;"><span>    cp ./k3s/* <span style="color:#268bd2">$workdir</span>/ca
-</span></span><span style="display:flex;"><span>    <span style="color:#719e07">if</span> <span style="color:#719e07">[</span> <span style="color:#268bd2">$?</span> -eq <span style="color:#2aa198">0</span> <span style="color:#719e07">]</span>; <span style="color:#719e07">then</span> log <span style="color:#2aa198">&#34;</span><span style="color:#2aa198">${</span><span style="color:#268bd2">msg</span><span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span>; <span style="color:#719e07">else</span> log <span style="color:#2aa198">&#34;</span><span style="color:#2aa198">${</span><span style="color:#268bd2">msg</span><span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span> FAIL; <span style="color:#b58900">exit</span> 1;  <span style="color:#719e07">fi</span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">}</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>generate_key_and_csr<span style="color:#719e07">()</span> <span style="color:#719e07">{</span>
-</span></span><span style="display:flex;"><span>    log <span style="color:#2aa198">&#34;... generating \&#34;keys/</span><span style="color:#268bd2">$user</span><span style="color:#2aa198">.key\&#34;&#34;</span>
-</span></span><span style="display:flex;"><span>    openssl genrsa -out <span style="color:#268bd2">$workdir</span>/keys/<span style="color:#268bd2">$user</span>.key <span style="color:#2aa198">2048</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#586e75"># openssl ecparam -name prime256v1 -genkey -noout -out $user.key</span>
-</span></span><span style="display:flex;"><span>    log <span style="color:#2aa198">&#34;... creating certificate signing request&#34;</span>
-</span></span><span style="display:flex;"><span>    openssl req -new -key <span style="color:#268bd2">$workdir</span>/keys/<span style="color:#268bd2">$user</span>.key -out <span style="color:#268bd2">$workdir</span>/keys/<span style="color:#268bd2">$user</span>.csr -subj <span style="color:#2aa198">&#34;/CN=</span><span style="color:#2aa198">${</span><span style="color:#268bd2">user</span><span style="color:#2aa198">}</span><span style="color:#2aa198">/O=</span><span style="color:#2aa198">${</span><span style="color:#268bd2">group</span><span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span>
-</span></span><span style="display:flex;"><span>    log <span style="color:#2aa198">&#34;... signing the CSR\n&#34;</span>
-</span></span><span style="display:flex;"><span>    openssl x509 -req -in <span style="color:#268bd2">$workdir</span>/keys/<span style="color:#268bd2">$user</span>.csr -out <span style="color:#268bd2">$workdir</span>/keys/<span style="color:#268bd2">$user</span>.crt <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>      -CA <span style="color:#268bd2">$workdir</span>/ca/client-ca.crt -CAkey <span style="color:#268bd2">$workdir</span>/ca/client-ca.key <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>      -CAcreateserial -days <span style="color:#268bd2">$days_until_expiration</span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">}</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>generate_kubeconfig<span style="color:#719e07">()</span> <span style="color:#719e07">{</span>
-</span></span><span style="display:flex;"><span>    log <span style="color:#2aa198">&#34;... kubeconfig&#39;s cluster name to </span><span style="color:#268bd2">$cluster_name</span><span style="color:#2aa198"> ...&#34;</span>
-</span></span><span style="display:flex;"><span>    kubectl --kubeconfig<span style="color:#719e07">=</span><span style="color:#268bd2">$workdir</span>/kube/<span style="color:#268bd2">$user</span>-kubeconfig config set-cluster <span style="color:#268bd2">$cluster_name</span> <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>      --server<span style="color:#719e07">=</span><span style="color:#268bd2">$cluster_url</span> --certificate-authority<span style="color:#719e07">=</span><span style="color:#268bd2">$workdir</span>/ca/server-ca.crt <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>      --embed-certs<span style="color:#719e07">=</span><span style="color:#b58900">true</span>
-</span></span><span style="display:flex;"><span>    log <span style="color:#2aa198">&#34;... kubeconfig&#39;s user to </span><span style="color:#268bd2">$user</span><span style="color:#2aa198"> ...&#34;</span>
-</span></span><span style="display:flex;"><span>    kubectl --kubeconfig<span style="color:#719e07">=</span><span style="color:#268bd2">$workdir</span>/kube/<span style="color:#268bd2">$user</span>-kubeconfig config set-credentials <span style="color:#268bd2">$user</span> <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>      --client-certificate<span style="color:#719e07">=</span><span style="color:#268bd2">$workdir</span>/keys/<span style="color:#268bd2">$user</span>.crt --client-key<span style="color:#719e07">=</span><span style="color:#268bd2">$workdir</span>/keys/<span style="color:#268bd2">$user</span>.key <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>      --embed-certs<span style="color:#719e07">=</span><span style="color:#b58900">true</span>
-</span></span><span style="display:flex;"><span>    log <span style="color:#2aa198">&#34;... context </span><span style="color:#268bd2">$context</span><span style="color:#2aa198"> ...&#34;</span>
-</span></span><span style="display:flex;"><span>    kubectl --kubeconfig<span style="color:#719e07">=</span><span style="color:#268bd2">$workdir</span>/kube/<span style="color:#268bd2">$user</span>-kubeconfig config set-context <span style="color:#268bd2">$context</span> <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>      --namespace<span style="color:#719e07">=</span><span style="color:#268bd2">$cluster_ns</span> --user<span style="color:#719e07">=</span><span style="color:#268bd2">$user</span> --cluster<span style="color:#719e07">=</span><span style="color:#268bd2">$cluster_name</span>
-</span></span><span style="display:flex;"><span>    log <span style="color:#2aa198">&#34;... Kubeconfig file created </span><span style="color:#268bd2">$workdir</span><span style="color:#2aa198">/kube/</span><span style="color:#268bd2">$user</span><span style="color:#2aa198">-kubeconfig&#34;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#719e07">if</span> <span style="color:#719e07">[</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$1</span><span style="color:#2aa198">&#34;</span> <span style="color:#719e07">==</span> <span style="color:#2aa198">&#34;use-context&#34;</span> <span style="color:#719e07">]</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#719e07">then</span>
-</span></span><span style="display:flex;"><span>        log <span style="color:#2aa198">&#34;... setting current context to \&#34;</span><span style="color:#268bd2">$context</span><span style="color:#2aa198">\&#34;&#34;</span>
-</span></span><span style="display:flex;"><span>        kubectl config use-context <span style="color:#268bd2">$context</span> --kubeconfig <span style="color:#268bd2">$workdir</span>/kube/<span style="color:#268bd2">$user</span>-kubeconfig
-</span></span><span style="display:flex;"><span>    <span style="color:#719e07">fi</span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">}</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>generate_sample_role<span style="color:#719e07">()</span> <span style="color:#719e07">{</span>
-</span></span><span style="display:flex;"><span>    cat &gt; <span style="color:#268bd2">$workdir</span>/kube/role.yaml <span style="color:#2aa198">&lt;&lt;ROLEDEF
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">apiVersion: rbac.authorization.k8s.io/v1
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">kind: Role
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">metadata:
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">  namespace: $cluster_ns
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">  name: sample-view-role-for-$user
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">rules:
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">- apiGroups: [&#39;&#39;] # &#39;&#39; indicates the core API group
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">  resources: [&#39;pods&#39;]
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">  verbs: [&#39;get&#39;, &#39;watch&#39;, &#39;list&#39;]
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">ROLEDEF</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>log <span style="color:#2aa198">&#34;... created sample \&#34;View pods\&#34; (sample-view-role-for-</span><span style="color:#268bd2">$user</span><span style="color:#2aa198">) role manifest for user \&#34;</span><span style="color:#268bd2">$user</span><span style="color:#2aa198">\&#34; at </span><span style="color:#268bd2">$workdir</span><span style="color:#2aa198">/kube/ &#34;</span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">}</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>generate_sample_rolebinding<span style="color:#719e07">()</span> <span style="color:#719e07">{</span>
-</span></span><span style="display:flex;"><span>    cat &gt; <span style="color:#268bd2">$workdir</span>/kube/rolebinding.yaml <span style="color:#2aa198">&lt;&lt;ROLEBINDINGDEF
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">apiVersion: rbac.authorization.k8s.io/v1
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">kind: RoleBinding
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">metadata:
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">  namespace: $cluster_ns
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">  name: bind-sample-view-role-to-$user
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">subjects:
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">- kind: User
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">  name: $user
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">  apiGroup: rbac.authorization.k8s.io
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">roleRef:
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">  kind: Role
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">  name: sample-view-role-for-$user
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">  apiGroup: rbac.authorization.k8s.io
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">ROLEBINDINGDEF</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>log <span style="color:#2aa198">&#34;... created RoleBinding manifest for User:\&#34;</span><span style="color:#268bd2">$user</span><span style="color:#2aa198">\&#34; and Role:\&#34;sample-view-role-for-</span><span style="color:#268bd2">$user</span><span style="color:#2aa198">\&#34; at </span><span style="color:#268bd2">$workdir</span><span style="color:#2aa198">/kube/ &#34;</span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">}</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>__check_kubeconfig<span style="color:#719e07">(){</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#719e07">if</span> <span style="color:#719e07">[[</span> ! -z <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$1</span><span style="color:#2aa198">&#34;</span> <span style="color:#719e07">]]</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#719e07">then</span>
-</span></span><span style="display:flex;"><span>        log <span style="color:#2aa198">&#34;Using custom kubeconfig file </span><span style="color:#268bd2">$1</span><span style="color:#2aa198">&#34;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">KUBECONFIG_FILE</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;--kubeconfig </span><span style="color:#268bd2">$1</span><span style="color:#2aa198">&#34;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#719e07">elif</span> <span style="color:#719e07">[[</span> ! -z <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$KUBECONFIG</span><span style="color:#2aa198">&#34;</span> <span style="color:#719e07">]]</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#719e07">then</span>
-</span></span><span style="display:flex;"><span>        log <span style="color:#2aa198">&#34;Using \&#34;\$KUBECONFIG=</span><span style="color:#268bd2">$KUBECONFIG</span><span style="color:#2aa198">\&#34; variable&#34;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">KUBECONFIG_FILE</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;&#34;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#719e07">elif</span> <span style="color:#719e07">[[</span> -f <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$HOME</span><span style="color:#2aa198">/.kube/config&#34;</span> <span style="color:#719e07">]]</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#719e07">then</span>
-</span></span><span style="display:flex;"><span>        log <span style="color:#2aa198">&#34;Using default kubeconfig at \&#34;</span><span style="color:#268bd2">$HOME</span><span style="color:#2aa198">/.kube/config\&#34;&#34;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">KUBECONFIG_FILE</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;--kubeconfig </span><span style="color:#268bd2">$HOME</span><span style="color:#2aa198">/.kube/config&#34;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#719e07">else</span>
-</span></span><span style="display:flex;"><span>        log <span style="color:#2aa198">&#34;No \&#34;kubeconfig\&#34; configuration found or provided. Abort&#34;</span> ERROR
-</span></span><span style="display:flex;"><span>        <span style="color:#b58900">exit</span> <span style="color:#2aa198">1</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#719e07">fi</span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">}</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>__check_current_context<span style="color:#719e07">(){</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">CURRENT_CONTEXT</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#719e07">$(</span>kubectl config current-context <span style="color:#268bd2">$1</span><span style="color:#719e07">)</span><span style="color:#2aa198">&#34;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#719e07">if</span> <span style="color:#719e07">[[</span> -z <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$CURRENT_CONTEXT</span><span style="color:#2aa198">&#34;</span> <span style="color:#719e07">]]</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#719e07">then</span>
-</span></span><span style="display:flex;"><span>        log <span style="color:#2aa198">&#34;No current context defined&#34;</span> ERROR
-</span></span><span style="display:flex;"><span>        <span style="color:#b58900">exit</span> <span style="color:#2aa198">1</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#719e07">else</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#719e07">if</span> <span style="color:#719e07">[[</span> ! -z <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$KUBECONFIG</span><span style="color:#2aa198">&#34;</span> <span style="color:#719e07">]]</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#719e07">then</span>
-</span></span><span style="display:flex;"><span>            log <span style="color:#2aa198">&#34;Current context \&#34;</span><span style="color:#268bd2">$CURRENT_CONTEXT</span><span style="color:#2aa198">\&#34; from \$KUBECONFIG=</span><span style="color:#268bd2">$KUBECONFIG</span><span style="color:#2aa198">&#34;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#719e07">else</span>
-</span></span><span style="display:flex;"><span>            log <span style="color:#2aa198">&#34;Current context \&#34;</span><span style="color:#268bd2">$CURRENT_CONTEXT</span><span style="color:#2aa198">\&#34; in \&#34;</span><span style="color:#268bd2">$1</span><span style="color:#2aa198">\&#34;&#34;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#719e07">fi</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#719e07">fi</span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">}</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>__kubectl_apply<span style="color:#719e07">(){</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">result</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span><span style="color:#268bd2">$1</span><span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#719e07">if</span> <span style="color:#719e07">[[</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$result</span><span style="color:#2aa198">&#34;</span> <span style="color:#719e07">]]</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#719e07">then</span>
-</span></span><span style="display:flex;"><span>        log <span style="color:#2aa198">&#34;\&#34;kubectl apply\&#34; SUCCEEDED: \&#34;</span><span style="color:#268bd2">$result</span><span style="color:#2aa198">\&#34;&#34;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#719e07">else</span>
-</span></span><span style="display:flex;"><span>        log <span style="color:#2aa198">&#34;\&#34;kubectl apply\&#34; FAILED :( \&#34;</span><span style="color:#268bd2">$result</span><span style="color:#2aa198">\&#34;&#34;</span> ERROR
-</span></span><span style="display:flex;"><span>        <span style="color:#b58900">exit</span> <span style="color:#2aa198">1</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#719e07">fi</span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">}</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>bind_sample_role_to_user<span style="color:#719e07">()</span> <span style="color:#719e07">{</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">custom_kubeconfig</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$1</span><span style="color:#2aa198">&#34;</span> 
-</span></span><span style="display:flex;"><span>    __check_kubeconfig <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$custom_kubeconfig</span><span style="color:#2aa198">&#34;</span>
-</span></span><span style="display:flex;"><span>    __check_current_context <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$KUBECONFIG_FILE</span><span style="color:#2aa198">&#34;</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">kubectl_apply_role</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;kubectl apply -f </span><span style="color:#268bd2">$workdir</span><span style="color:#2aa198">/kube/role.yaml </span><span style="color:#268bd2">$KUBECONFIG_FILE</span><span style="color:#2aa198">&#34;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">kubectl_apply_rolebinding</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;kubectl apply -f </span><span style="color:#268bd2">$workdir</span><span style="color:#2aa198">/kube/rolebinding.yaml </span><span style="color:#268bd2">$KUBECONFIG_FILE</span><span style="color:#2aa198">&#34;</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    __kubectl_apply <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$kubectl_apply_role</span><span style="color:#2aa198">&#34;</span>
-</span></span><span style="display:flex;"><span>    __kubectl_apply <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$kubectl_apply_rolebinding</span><span style="color:#2aa198">&#34;</span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">}</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75"># SCRIPT STARTS HERE</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75"># SETUP</span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75"># -----</span>
-</span></span><span style="display:flex;"><span><span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;------------------------------------------------------------------------------&#34;</span>
-</span></span><span style="display:flex;"><span>log <span style="color:#2aa198">&#34;Setting variables and temp dir ...&#34;</span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75"># setup_environment  USERNAME NAMESPACE DAYSTOEXPIRE CONTEXT</span>
-</span></span><span style="display:flex;"><span>setup_environment    <span style="color:#2aa198">&#34;xavi&#34;</span>   <span style="color:#2aa198">&#34;default&#34;</span> <span style="color:#2aa198">30</span>           <span style="color:#2aa198">&#34;k3s&#34;</span>
-</span></span><span style="display:flex;"><span>copy_ca_certs
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75"># Authentication</span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75"># --------------</span>
-</span></span><span style="display:flex;"><span><span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;------------------------------------------------------------------------------&#34;</span>
-</span></span><span style="display:flex;"><span>log <span style="color:#2aa198">&#34;Generating key and csr for </span><span style="color:#268bd2">$user</span><span style="color:#2aa198"> ...&#34;</span>
-</span></span><span style="display:flex;"><span>generate_key_and_csr
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75"># Authorization</span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75"># -------------</span>
-</span></span><span style="display:flex;"><span><span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;------------------------------------------------------------------------------&#34;</span>
-</span></span><span style="display:flex;"><span>log <span style="color:#2aa198">&#34;Generating Role manifest ...&#34;</span>
-</span></span><span style="display:flex;"><span>generate_sample_role
-</span></span><span style="display:flex;"><span>log <span style="color:#2aa198">&#34;Generating RoleBinding manifest ...&#34;</span>
-</span></span><span style="display:flex;"><span>generate_sample_rolebinding
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;------------------------------------------------------------------------------&#34;</span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75"># bind_sample_role_to_user KUBECONFIG file [OPTIONAL]  </span>
-</span></span><span style="display:flex;"><span>bind_sample_role_to_user   <span style="color:#2aa198">&#34;/home/xavi/vagrant/k3s-ubuntu-cluster/kubeconfig&#34;</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75"># Test new user</span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75"># -------------</span>
-</span></span><span style="display:flex;"><span><span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;------------------------------------------------------------------------------&#34;</span>
-</span></span><span style="display:flex;"><span>log <span style="color:#2aa198">&#34;Generating \&#34;kubeconfig\&#34; file for user </span><span style="color:#268bd2">$user</span><span style="color:#2aa198"> ...&#34;</span>
-</span></span><span style="display:flex;"><span>generate_kubeconfig <span style="color:#2aa198">&#34;use-context&#34;</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;------------------------------------------------------------------------------&#34;</span>
-</span></span><span style="display:flex;"><span><span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;Test the new user \&#34;</span><span style="color:#268bd2">$user</span><span style="color:#2aa198">\&#34; running:&#34;</span>
-</span></span><span style="display:flex;"><span><span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;  kubectl get pods --namespace </span><span style="color:#268bd2">$cluster_ns</span><span style="color:#2aa198"> --kubeconfig=</span><span style="color:#268bd2">$workdir</span><span style="color:#2aa198">/kube/</span><span style="color:#268bd2">$user</span><span style="color:#2aa198">-config&#34;</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75"># AUX function</span>
-</span></span><span style="display:flex;"><span>decode_cert<span style="color:#719e07">()</span> <span style="color:#719e07">{</span>
-</span></span><span style="display:flex;"><span>    log <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$1</span><span style="color:#2aa198">&#34;</span>
-</span></span><span style="display:flex;"><span>    openssl x509 -in <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$1</span><span style="color:#2aa198">&#34;</span> -text -noout
-</span></span><span style="display:flex;"><span><span style="color:#719e07">}</span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75"># decode_cert &#34;k3s/client-ca.crt&#34;    # Public CA&#39;s certificate </span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75"># decode_cert &#34;xavi.crt&#34;             # Client certificate signed by Kubernetes&#39;s CA</span>
-</span></span></code></pre></div></div>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash"><span style="color:#719e07">#!/usr/bin/env bash
+</span><span style="color:#719e07"></span>
+<span style="color:#586e75"># Ref: https://github.com/k3s-io/k3s/issues/684</span>
+<span style="color:#586e75"># Ref: https://stackoverflow.com/questions/5947742/how-to-change-the-output-color-of-echo-in-linux</span>
+<span style="color:#586e75"># Ref: https://stackoverflow.com/questions/192249/how-do-i-parse-command-line-arguments-in-bash</span>
+<span style="color:#586e75"># Ref: https://tldp.org/LDP/abs/html/here-docs.html</span>
+<span style="color:#586e75"># Ref: https://linuxize.com/post/bash-check-if-file-exists/</span>
+
+log <span style="color:#719e07">()</span> <span style="color:#719e07">{</span>
+
+    <span style="color:#268bd2">NOCOLOR</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#39;\033[0m&#39;</span>
+    <span style="color:#268bd2">GREEN</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#39;\033[1;32m&#39;</span>
+    <span style="color:#268bd2">YELLOW</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#39;\033[1;33m&#39;</span>
+    <span style="color:#268bd2">RED</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#39;\033[1;31m&#39;</span>
+    <span style="color:#268bd2">PURPLE</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#39;\033[0;35m&#39;</span>
+
+    <span style="color:#719e07">case</span> <span style="color:#268bd2">$2</span> in
+        <span style="color:#2aa198">0</span> | INFO<span style="color:#719e07">)</span>
+            <span style="color:#268bd2">COLOR</span><span style="color:#719e07">=</span><span style="color:#268bd2">$GREEN</span>
+            <span style="color:#268bd2">LEVEL</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;INFO&#34;</span>
+            ;;
+        <span style="color:#2aa198">1</span> | WARN<span style="color:#719e07">)</span>
+            <span style="color:#268bd2">COLOR</span><span style="color:#719e07">=</span><span style="color:#268bd2">$YELLOW</span>
+            <span style="color:#268bd2">LEVEL</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;WARN&#34;</span>
+            ;;
+        <span style="color:#2aa198">2</span> | FAIL | ERROR <span style="color:#719e07">)</span>
+            <span style="color:#268bd2">COLOR</span><span style="color:#719e07">=</span><span style="color:#268bd2">$RED</span>
+            <span style="color:#268bd2">LEVEL</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;FAIL&#34;</span>
+            ;;
+        * <span style="color:#719e07">)</span> <span style="color:#586e75"># When $2 it&#39;s not one of the above</span>
+            <span style="color:#268bd2">COLOR</span><span style="color:#719e07">=</span><span style="color:#268bd2">$PURPLE</span>
+            <span style="color:#268bd2">LEVEL</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;\?\?\?\?&#34;</span>
+            ;;
+    <span style="color:#719e07">esac</span>
+
+    <span style="color:#586e75"># If no argument is passed we mean it&#39;s ok</span>
+    <span style="color:#719e07">if</span> <span style="color:#719e07">[[</span> -z <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$2</span><span style="color:#2aa198">&#34;</span> <span style="color:#719e07">]]</span>;
+    <span style="color:#719e07">then</span>
+        <span style="color:#268bd2">COLOR</span><span style="color:#719e07">=</span><span style="color:#268bd2">$GREEN</span>
+        <span style="color:#268bd2">LEVEL</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;INFO&#34;</span>
+    <span style="color:#719e07">fi</span>
+
+    <span style="color:#719e07">if</span> <span style="color:#719e07">[</span> -z <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$workdir</span><span style="color:#2aa198">&#34;</span> <span style="color:#719e07">]</span>; <span style="color:#719e07">then</span> <span style="color:#268bd2">workdir</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;.&#34;</span>; <span style="color:#719e07">fi</span>
+
+    <span style="color:#b58900">printf</span> <span style="color:#2aa198">&#34;</span><span style="color:#719e07">$(</span>date<span style="color:#719e07">)</span><span style="color:#268bd2">$COLOR</span><span style="color:#2aa198"> [</span><span style="color:#268bd2">$LEVEL</span><span style="color:#2aa198">]</span><span style="color:#268bd2">$NOCOLOR</span><span style="color:#2aa198"> </span><span style="color:#268bd2">$1</span><span style="color:#2aa198">\n&#34;</span> | tee -a <span style="color:#268bd2">$workdir</span>/log.log
+
+<span style="color:#719e07">}</span>
+
+setup_environment<span style="color:#719e07">()</span> <span style="color:#719e07">{</span>
+    <span style="color:#268bd2">workdir</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>mktemp -d --suffix -k3s<span style="color:#719e07">)</span>
+    
+    mkdir -p <span style="color:#268bd2">$workdir</span>/<span style="color:#719e07">{</span>ca,keys,kube<span style="color:#719e07">}</span> 
+    log <span style="color:#2aa198">&#34;... created </span><span style="color:#268bd2">$workdir</span><span style="color:#2aa198">/{ca,keys,kube} subfolders&#34;</span>
+
+    <span style="color:#268bd2">user</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$1</span><span style="color:#2aa198">&#34;</span>
+    <span style="color:#268bd2">group</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;CloudOps&#34;</span>
+
+    <span style="color:#268bd2">cluster_name</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;vagrant-k3s&#34;</span>
+    <span style="color:#268bd2">cluster_url</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;https://192.168.1.101:6443&#34;</span>
+    <span style="color:#268bd2">cluster_ns</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$2</span><span style="color:#2aa198">&#34;</span>
+
+    <span style="color:#268bd2">days_until_expiration</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$3</span><span style="color:#2aa198">&#34;</span>
+
+    <span style="color:#268bd2">context</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$4</span><span style="color:#2aa198">&#34;</span>
+
+    log <span style="color:#2aa198">&#34;... working directory      = </span><span style="color:#268bd2">$workdir</span><span style="color:#2aa198">&#34;</span>
+    log <span style="color:#2aa198">&#34;... user                   = </span><span style="color:#268bd2">$1</span><span style="color:#2aa198">&#34;</span>
+    log <span style="color:#2aa198">&#34;... group                  = </span><span style="color:#268bd2">$group</span><span style="color:#2aa198">&#34;</span>
+    log <span style="color:#2aa198">&#34;... cluster_name           = </span><span style="color:#268bd2">$cluster_name</span><span style="color:#2aa198">&#34;</span>
+    log <span style="color:#2aa198">&#34;... cluster_url            = </span><span style="color:#268bd2">$cluster_url</span><span style="color:#2aa198">&#34;</span>
+    log <span style="color:#2aa198">&#34;... cluster_ns             = </span><span style="color:#268bd2">$cluster_ns</span><span style="color:#2aa198">&#34;</span>
+    log <span style="color:#2aa198">&#34;... days_until_expiration  = </span><span style="color:#268bd2">$days_until_expiration</span><span style="color:#2aa198">&#34;</span>
+    log <span style="color:#2aa198">&#34;... context                = </span><span style="color:#268bd2">$context</span><span style="color:#2aa198">\n&#34;</span>
+<span style="color:#719e07">}</span>
+
+copy_ca_certs<span style="color:#719e07">()</span> <span style="color:#719e07">{</span>
+    <span style="color:#268bd2">msg</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;Copying k3s certs to </span><span style="color:#268bd2">$workdir</span><span style="color:#2aa198">/ca\n&#34;</span>
+    cp ./k3s/* <span style="color:#268bd2">$workdir</span>/ca
+    <span style="color:#719e07">if</span> <span style="color:#719e07">[</span> <span style="color:#268bd2">$?</span> -eq <span style="color:#2aa198">0</span> <span style="color:#719e07">]</span>; <span style="color:#719e07">then</span> log <span style="color:#2aa198">&#34;</span><span style="color:#2aa198">${</span><span style="color:#268bd2">msg</span><span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span>; <span style="color:#719e07">else</span> log <span style="color:#2aa198">&#34;</span><span style="color:#2aa198">${</span><span style="color:#268bd2">msg</span><span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span> FAIL; <span style="color:#b58900">exit</span> 1;  <span style="color:#719e07">fi</span>
+<span style="color:#719e07">}</span>
+
+generate_key_and_csr<span style="color:#719e07">()</span> <span style="color:#719e07">{</span>
+    log <span style="color:#2aa198">&#34;... generating \&#34;keys/</span><span style="color:#268bd2">$user</span><span style="color:#2aa198">.key\&#34;&#34;</span>
+    openssl genrsa -out <span style="color:#268bd2">$workdir</span>/keys/<span style="color:#268bd2">$user</span>.key <span style="color:#2aa198">2048</span>
+    <span style="color:#586e75"># openssl ecparam -name prime256v1 -genkey -noout -out $user.key</span>
+    log <span style="color:#2aa198">&#34;... creating certificate signing request&#34;</span>
+    openssl req -new -key <span style="color:#268bd2">$workdir</span>/keys/<span style="color:#268bd2">$user</span>.key -out <span style="color:#268bd2">$workdir</span>/keys/<span style="color:#268bd2">$user</span>.csr -subj <span style="color:#2aa198">&#34;/CN=</span><span style="color:#2aa198">${</span><span style="color:#268bd2">user</span><span style="color:#2aa198">}</span><span style="color:#2aa198">/O=</span><span style="color:#2aa198">${</span><span style="color:#268bd2">group</span><span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span>
+    log <span style="color:#2aa198">&#34;... signing the CSR\n&#34;</span>
+    openssl x509 -req -in <span style="color:#268bd2">$workdir</span>/keys/<span style="color:#268bd2">$user</span>.csr -out <span style="color:#268bd2">$workdir</span>/keys/<span style="color:#268bd2">$user</span>.crt <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>      -CA <span style="color:#268bd2">$workdir</span>/ca/client-ca.crt -CAkey <span style="color:#268bd2">$workdir</span>/ca/client-ca.key <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>      -CAcreateserial -days <span style="color:#268bd2">$days_until_expiration</span>
+<span style="color:#719e07">}</span>
+
+generate_kubeconfig<span style="color:#719e07">()</span> <span style="color:#719e07">{</span>
+    log <span style="color:#2aa198">&#34;... kubeconfig&#39;s cluster name to </span><span style="color:#268bd2">$cluster_name</span><span style="color:#2aa198"> ...&#34;</span>
+    kubectl --kubeconfig<span style="color:#719e07">=</span><span style="color:#268bd2">$workdir</span>/kube/<span style="color:#268bd2">$user</span>-kubeconfig config set-cluster <span style="color:#268bd2">$cluster_name</span> <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>      --server<span style="color:#719e07">=</span><span style="color:#268bd2">$cluster_url</span> --certificate-authority<span style="color:#719e07">=</span><span style="color:#268bd2">$workdir</span>/ca/server-ca.crt <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>      --embed-certs<span style="color:#719e07">=</span><span style="color:#b58900">true</span>
+    log <span style="color:#2aa198">&#34;... kubeconfig&#39;s user to </span><span style="color:#268bd2">$user</span><span style="color:#2aa198"> ...&#34;</span>
+    kubectl --kubeconfig<span style="color:#719e07">=</span><span style="color:#268bd2">$workdir</span>/kube/<span style="color:#268bd2">$user</span>-kubeconfig config set-credentials <span style="color:#268bd2">$user</span> <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>      --client-certificate<span style="color:#719e07">=</span><span style="color:#268bd2">$workdir</span>/keys/<span style="color:#268bd2">$user</span>.crt --client-key<span style="color:#719e07">=</span><span style="color:#268bd2">$workdir</span>/keys/<span style="color:#268bd2">$user</span>.key <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>      --embed-certs<span style="color:#719e07">=</span><span style="color:#b58900">true</span>
+    log <span style="color:#2aa198">&#34;... context </span><span style="color:#268bd2">$context</span><span style="color:#2aa198"> ...&#34;</span>
+    kubectl --kubeconfig<span style="color:#719e07">=</span><span style="color:#268bd2">$workdir</span>/kube/<span style="color:#268bd2">$user</span>-kubeconfig config set-context <span style="color:#268bd2">$context</span> <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>      --namespace<span style="color:#719e07">=</span><span style="color:#268bd2">$cluster_ns</span> --user<span style="color:#719e07">=</span><span style="color:#268bd2">$user</span> --cluster<span style="color:#719e07">=</span><span style="color:#268bd2">$cluster_name</span>
+    log <span style="color:#2aa198">&#34;... Kubeconfig file created </span><span style="color:#268bd2">$workdir</span><span style="color:#2aa198">/kube/</span><span style="color:#268bd2">$user</span><span style="color:#2aa198">-kubeconfig&#34;</span>
+    <span style="color:#719e07">if</span> <span style="color:#719e07">[</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$1</span><span style="color:#2aa198">&#34;</span> <span style="color:#719e07">==</span> <span style="color:#2aa198">&#34;use-context&#34;</span> <span style="color:#719e07">]</span>
+    <span style="color:#719e07">then</span>
+        log <span style="color:#2aa198">&#34;... setting current context to \&#34;</span><span style="color:#268bd2">$context</span><span style="color:#2aa198">\&#34;&#34;</span>
+        kubectl config use-context <span style="color:#268bd2">$context</span> --kubeconfig <span style="color:#268bd2">$workdir</span>/kube/<span style="color:#268bd2">$user</span>-kubeconfig
+    <span style="color:#719e07">fi</span>
+<span style="color:#719e07">}</span>
+
+generate_sample_role<span style="color:#719e07">()</span> <span style="color:#719e07">{</span>
+    cat &gt; <span style="color:#268bd2">$workdir</span>/kube/role.yaml <span style="color:#2aa198">&lt;&lt;ROLEDEF
+</span><span style="color:#2aa198">apiVersion: rbac.authorization.k8s.io/v1
+</span><span style="color:#2aa198">kind: Role
+</span><span style="color:#2aa198">metadata:
+</span><span style="color:#2aa198">  namespace: $cluster_ns
+</span><span style="color:#2aa198">  name: sample-view-role-for-$user
+</span><span style="color:#2aa198">rules:
+</span><span style="color:#2aa198">- apiGroups: [&#39;&#39;] # &#39;&#39; indicates the core API group
+</span><span style="color:#2aa198">  resources: [&#39;pods&#39;]
+</span><span style="color:#2aa198">  verbs: [&#39;get&#39;, &#39;watch&#39;, &#39;list&#39;]
+</span><span style="color:#2aa198">ROLEDEF</span>
+
+log <span style="color:#2aa198">&#34;... created sample \&#34;View pods\&#34; (sample-view-role-for-</span><span style="color:#268bd2">$user</span><span style="color:#2aa198">) role manifest for user \&#34;</span><span style="color:#268bd2">$user</span><span style="color:#2aa198">\&#34; at </span><span style="color:#268bd2">$workdir</span><span style="color:#2aa198">/kube/ &#34;</span>
+<span style="color:#719e07">}</span>
+
+generate_sample_rolebinding<span style="color:#719e07">()</span> <span style="color:#719e07">{</span>
+    cat &gt; <span style="color:#268bd2">$workdir</span>/kube/rolebinding.yaml <span style="color:#2aa198">&lt;&lt;ROLEBINDINGDEF
+</span><span style="color:#2aa198">apiVersion: rbac.authorization.k8s.io/v1
+</span><span style="color:#2aa198">kind: RoleBinding
+</span><span style="color:#2aa198">metadata:
+</span><span style="color:#2aa198">  namespace: $cluster_ns
+</span><span style="color:#2aa198">  name: bind-sample-view-role-to-$user
+</span><span style="color:#2aa198">subjects:
+</span><span style="color:#2aa198">- kind: User
+</span><span style="color:#2aa198">  name: $user
+</span><span style="color:#2aa198">  apiGroup: rbac.authorization.k8s.io
+</span><span style="color:#2aa198">roleRef:
+</span><span style="color:#2aa198">  kind: Role
+</span><span style="color:#2aa198">  name: sample-view-role-for-$user
+</span><span style="color:#2aa198">  apiGroup: rbac.authorization.k8s.io
+</span><span style="color:#2aa198">ROLEBINDINGDEF</span>
+
+
+log <span style="color:#2aa198">&#34;... created RoleBinding manifest for User:\&#34;</span><span style="color:#268bd2">$user</span><span style="color:#2aa198">\&#34; and Role:\&#34;sample-view-role-for-</span><span style="color:#268bd2">$user</span><span style="color:#2aa198">\&#34; at </span><span style="color:#268bd2">$workdir</span><span style="color:#2aa198">/kube/ &#34;</span>
+<span style="color:#719e07">}</span>
+
+__check_kubeconfig<span style="color:#719e07">(){</span>
+    <span style="color:#719e07">if</span> <span style="color:#719e07">[[</span> ! -z <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$1</span><span style="color:#2aa198">&#34;</span> <span style="color:#719e07">]]</span>
+    <span style="color:#719e07">then</span>
+        log <span style="color:#2aa198">&#34;Using custom kubeconfig file </span><span style="color:#268bd2">$1</span><span style="color:#2aa198">&#34;</span>
+        <span style="color:#268bd2">KUBECONFIG_FILE</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;--kubeconfig </span><span style="color:#268bd2">$1</span><span style="color:#2aa198">&#34;</span>
+    <span style="color:#719e07">elif</span> <span style="color:#719e07">[[</span> ! -z <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$KUBECONFIG</span><span style="color:#2aa198">&#34;</span> <span style="color:#719e07">]]</span>
+    <span style="color:#719e07">then</span>
+        log <span style="color:#2aa198">&#34;Using \&#34;\$KUBECONFIG=</span><span style="color:#268bd2">$KUBECONFIG</span><span style="color:#2aa198">\&#34; variable&#34;</span>
+        <span style="color:#268bd2">KUBECONFIG_FILE</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;&#34;</span>
+    <span style="color:#719e07">elif</span> <span style="color:#719e07">[[</span> -f <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$HOME</span><span style="color:#2aa198">/.kube/config&#34;</span> <span style="color:#719e07">]]</span>
+    <span style="color:#719e07">then</span>
+        log <span style="color:#2aa198">&#34;Using default kubeconfig at \&#34;</span><span style="color:#268bd2">$HOME</span><span style="color:#2aa198">/.kube/config\&#34;&#34;</span>
+        <span style="color:#268bd2">KUBECONFIG_FILE</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;--kubeconfig </span><span style="color:#268bd2">$HOME</span><span style="color:#2aa198">/.kube/config&#34;</span>
+    <span style="color:#719e07">else</span>
+        log <span style="color:#2aa198">&#34;No \&#34;kubeconfig\&#34; configuration found or provided. Abort&#34;</span> ERROR
+        <span style="color:#b58900">exit</span> <span style="color:#2aa198">1</span>
+    <span style="color:#719e07">fi</span>
+<span style="color:#719e07">}</span>
+
+__check_current_context<span style="color:#719e07">(){</span>
+    <span style="color:#268bd2">CURRENT_CONTEXT</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#719e07">$(</span>kubectl config current-context <span style="color:#268bd2">$1</span><span style="color:#719e07">)</span><span style="color:#2aa198">&#34;</span>
+    <span style="color:#719e07">if</span> <span style="color:#719e07">[[</span> -z <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$CURRENT_CONTEXT</span><span style="color:#2aa198">&#34;</span> <span style="color:#719e07">]]</span>
+    <span style="color:#719e07">then</span>
+        log <span style="color:#2aa198">&#34;No current context defined&#34;</span> ERROR
+        <span style="color:#b58900">exit</span> <span style="color:#2aa198">1</span>
+    <span style="color:#719e07">else</span>
+        <span style="color:#719e07">if</span> <span style="color:#719e07">[[</span> ! -z <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$KUBECONFIG</span><span style="color:#2aa198">&#34;</span> <span style="color:#719e07">]]</span>
+        <span style="color:#719e07">then</span>
+            log <span style="color:#2aa198">&#34;Current context \&#34;</span><span style="color:#268bd2">$CURRENT_CONTEXT</span><span style="color:#2aa198">\&#34; from \$KUBECONFIG=</span><span style="color:#268bd2">$KUBECONFIG</span><span style="color:#2aa198">&#34;</span>
+        <span style="color:#719e07">else</span>
+            log <span style="color:#2aa198">&#34;Current context \&#34;</span><span style="color:#268bd2">$CURRENT_CONTEXT</span><span style="color:#2aa198">\&#34; in \&#34;</span><span style="color:#268bd2">$1</span><span style="color:#2aa198">\&#34;&#34;</span>
+        <span style="color:#719e07">fi</span>
+    <span style="color:#719e07">fi</span>
+<span style="color:#719e07">}</span>
+
+__kubectl_apply<span style="color:#719e07">(){</span>
+    <span style="color:#268bd2">result</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span><span style="color:#268bd2">$1</span><span style="color:#719e07">)</span>
+    <span style="color:#719e07">if</span> <span style="color:#719e07">[[</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$result</span><span style="color:#2aa198">&#34;</span> <span style="color:#719e07">]]</span>
+    <span style="color:#719e07">then</span>
+        log <span style="color:#2aa198">&#34;\&#34;kubectl apply\&#34; SUCCEEDED: \&#34;</span><span style="color:#268bd2">$result</span><span style="color:#2aa198">\&#34;&#34;</span>
+    <span style="color:#719e07">else</span>
+        log <span style="color:#2aa198">&#34;\&#34;kubectl apply\&#34; FAILED :( \&#34;</span><span style="color:#268bd2">$result</span><span style="color:#2aa198">\&#34;&#34;</span> ERROR
+        <span style="color:#b58900">exit</span> <span style="color:#2aa198">1</span>
+    <span style="color:#719e07">fi</span>
+<span style="color:#719e07">}</span>
+
+bind_sample_role_to_user<span style="color:#719e07">()</span> <span style="color:#719e07">{</span>
+    <span style="color:#268bd2">custom_kubeconfig</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$1</span><span style="color:#2aa198">&#34;</span> 
+    __check_kubeconfig <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$custom_kubeconfig</span><span style="color:#2aa198">&#34;</span>
+    __check_current_context <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$KUBECONFIG_FILE</span><span style="color:#2aa198">&#34;</span>
+
+    <span style="color:#268bd2">kubectl_apply_role</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;kubectl apply -f </span><span style="color:#268bd2">$workdir</span><span style="color:#2aa198">/kube/role.yaml </span><span style="color:#268bd2">$KUBECONFIG_FILE</span><span style="color:#2aa198">&#34;</span>
+    <span style="color:#268bd2">kubectl_apply_rolebinding</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;kubectl apply -f </span><span style="color:#268bd2">$workdir</span><span style="color:#2aa198">/kube/rolebinding.yaml </span><span style="color:#268bd2">$KUBECONFIG_FILE</span><span style="color:#2aa198">&#34;</span>
+
+    __kubectl_apply <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$kubectl_apply_role</span><span style="color:#2aa198">&#34;</span>
+    __kubectl_apply <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$kubectl_apply_rolebinding</span><span style="color:#2aa198">&#34;</span>
+<span style="color:#719e07">}</span>
+
+<span style="color:#586e75"># SCRIPT STARTS HERE</span>
+
+<span style="color:#586e75"># SETUP</span>
+<span style="color:#586e75"># -----</span>
+<span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;------------------------------------------------------------------------------&#34;</span>
+log <span style="color:#2aa198">&#34;Setting variables and temp dir ...&#34;</span>
+<span style="color:#586e75"># setup_environment  USERNAME NAMESPACE DAYSTOEXPIRE CONTEXT</span>
+setup_environment    <span style="color:#2aa198">&#34;xavi&#34;</span>   <span style="color:#2aa198">&#34;default&#34;</span> <span style="color:#2aa198">30</span>           <span style="color:#2aa198">&#34;k3s&#34;</span>
+copy_ca_certs
+
+<span style="color:#586e75"># Authentication</span>
+<span style="color:#586e75"># --------------</span>
+<span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;------------------------------------------------------------------------------&#34;</span>
+log <span style="color:#2aa198">&#34;Generating key and csr for </span><span style="color:#268bd2">$user</span><span style="color:#2aa198"> ...&#34;</span>
+generate_key_and_csr
+
+
+<span style="color:#586e75"># Authorization</span>
+<span style="color:#586e75"># -------------</span>
+<span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;------------------------------------------------------------------------------&#34;</span>
+log <span style="color:#2aa198">&#34;Generating Role manifest ...&#34;</span>
+generate_sample_role
+log <span style="color:#2aa198">&#34;Generating RoleBinding manifest ...&#34;</span>
+generate_sample_rolebinding
+
+<span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;------------------------------------------------------------------------------&#34;</span>
+<span style="color:#586e75"># bind_sample_role_to_user KUBECONFIG file [OPTIONAL]  </span>
+bind_sample_role_to_user   <span style="color:#2aa198">&#34;/home/xavi/vagrant/k3s-ubuntu-cluster/kubeconfig&#34;</span>
+
+<span style="color:#586e75"># Test new user</span>
+<span style="color:#586e75"># -------------</span>
+<span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;------------------------------------------------------------------------------&#34;</span>
+log <span style="color:#2aa198">&#34;Generating \&#34;kubeconfig\&#34; file for user </span><span style="color:#268bd2">$user</span><span style="color:#2aa198"> ...&#34;</span>
+generate_kubeconfig <span style="color:#2aa198">&#34;use-context&#34;</span>
+
+<span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;------------------------------------------------------------------------------&#34;</span>
+<span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;Test the new user \&#34;</span><span style="color:#268bd2">$user</span><span style="color:#2aa198">\&#34; running:&#34;</span>
+<span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;  kubectl get pods --namespace </span><span style="color:#268bd2">$cluster_ns</span><span style="color:#2aa198"> --kubeconfig=</span><span style="color:#268bd2">$workdir</span><span style="color:#2aa198">/kube/</span><span style="color:#268bd2">$user</span><span style="color:#2aa198">-config&#34;</span>
+
+
+<span style="color:#586e75"># AUX function</span>
+decode_cert<span style="color:#719e07">()</span> <span style="color:#719e07">{</span>
+    log <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$1</span><span style="color:#2aa198">&#34;</span>
+    openssl x509 -in <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$1</span><span style="color:#2aa198">&#34;</span> -text -noout
+<span style="color:#719e07">}</span>
+<span style="color:#586e75"># decode_cert &#34;k3s/client-ca.crt&#34;    # Public CA&#39;s certificate </span>
+<span style="color:#586e75"># decode_cert &#34;xavi.crt&#34;             # Client certificate signed by Kubernetes&#39;s CA</span>
+</code></pre></div></div>
 
   <aside class="p-share">
 

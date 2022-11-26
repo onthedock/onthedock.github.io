@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.95.0" />
+<meta name="generator" content="Hugo 0.92.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -139,71 +139,71 @@
 <h2 id="dnsmasq-en-un-contenedor"><strong>dnsmasq</strong> en un contenedor</h2>
 <p>Mi objetivo es usar <strong>dnsmasq</strong> como un complemento al resto de pruebas que estoy realizando, por lo que voy a instalarlo como contenedor en una de las Raspberry Pi.</p>
 <p>Creo el fichero <code>Dockerfile</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-Dockerfile" data-lang="Dockerfile"><span style="display:flex;"><span><span style="color:#719e07">FROM</span><span style="color:#2aa198"> xaviaznar/rpi-alpine-base</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">RUN</span> apk --no-cache add dnsmasq
-</span></span><span style="display:flex;"><span><span style="color:#719e07">EXPOSE</span><span style="color:#2aa198"> 53 53/udp</span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">ENTRYPOINT</span> [<span style="color:#2aa198">&#34;dnsmasq&#34;</span>, <span style="color:#2aa198">&#34;-k&#34;</span>]
-</span></span></code></pre></div><blockquote>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-Dockerfile" data-lang="Dockerfile"><span style="color:#719e07">FROM</span><span style="color:#2aa198"> xaviaznar/rpi-alpine-base</span>
+
+<span style="color:#719e07">RUN</span> apk --no-cache add dnsmasq
+<span style="color:#719e07">EXPOSE</span><span style="color:#2aa198"> 53 53/udp</span>
+<span style="color:#719e07">ENTRYPOINT</span> [<span style="color:#2aa198">&#34;dnsmasq&#34;</span>, <span style="color:#2aa198">&#34;-k&#34;</span>]
+</code></pre></div><blockquote>
 <p>En Dockerhub he encontrado la imagen de Andy Shinn para dnsmasq: <a href="https://hub.docker.com/r/andyshinn/dnsmasq/">andyshinn/dnsmasq</a>, que he usado como referencia.</p>
 </blockquote>
 <p>El fichero <code>Dockerfile</code> parte de mi <a href="https://hub.docker.com/r/xaviaznar/rpi-alpine-base/">imagen con Alpine Linux para Raspbery Pi</a>. A continuación instalo <strong>dnsmasq</strong> y expongo los puertos, lanzando <code>dnsmasq</code> con la <a href="http://www.thekelleys.org.uk/dnsmasq/docs/dnsmasq-man.html">opción <code>-k</code></a>, que hace que se ejecute &ldquo;en primer plano&rdquo; y no como &ldquo;servicio/demonio&rdquo;.</p>
 <p>Creamos la imagen:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>docker build xaviaznar/rpi-dnsmasq .
-</span></span></code></pre></div><h2 id="configuración">Configuración</h2>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">docker build xaviaznar/rpi-dnsmasq .
+</code></pre></div><h2 id="configuración">Configuración</h2>
 <p><strong>dnsmasq</strong> se configura a través del fichero <code>/etc/dnsmasq.conf</code>. Como <em>almacén</em> para los nombres e IPs asociadas usa el fichero <code>/etc/hosts</code> de la máquina en la que está instalada.</p>
 <h3 id="dnsmasqconf"><code>dnsmasq.conf</code></h3>
 <p>El fichero <code>dnsmasq.conf</code> es <strong>muy</strong> extenso, pero en mi caso únicamente modificaré unas pocas opciones (el resto las he dejado por defecto). Puedes encontrar el fichero completo en el repositorio <a href="https://github.com/onthedock/rpi-dnsmasq">onthedock/rpi-dnsmasq</a> de GitHub:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-txt" data-lang="txt"><span style="display:flex;"><span># Configuration file for dnsmasq.
-</span></span><span style="display:flex;"><span>...
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span># Never forward plain names (without a dot or domain part)
-</span></span><span style="display:flex;"><span>domain-needed
-</span></span><span style="display:flex;"><span># Never forward addresses in the non-routed address spaces.
-</span></span><span style="display:flex;"><span>bogus-priv
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>...
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span># Add local-only domains here, queries in these domains are answered
-</span></span><span style="display:flex;"><span># from /etc/hosts or DHCP only.
-</span></span><span style="display:flex;"><span>local=/ameisin.local/
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span># Add domains which you want to force to an IP address here.
-</span></span><span style="display:flex;"><span># The example below send any host in double-click.net to a local
-</span></span><span style="display:flex;"><span># web-server.
-</span></span><span style="display:flex;"><span>#address=/double-click.net/127.0.0.1
-</span></span><span style="display:flex;"><span>...
-</span></span></code></pre></div><p>La opción <code>#address=/double-click.net/127.0.0.1</code> permite deshacerse de anuncios y otras plagas de internet. Aunque si estás interesado en usar la Raspberry Pi para filtrar el contenido quizás te interese echar un vistazo a <a href="https://pi-hole.net">PI-HOLE®: A BLACK HOLE FOR INTERNET ADVERTISEMENTS</a>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-txt" data-lang="txt"># Configuration file for dnsmasq.
+...
+
+# Never forward plain names (without a dot or domain part)
+domain-needed
+# Never forward addresses in the non-routed address spaces.
+bogus-priv
+
+...
+
+# Add local-only domains here, queries in these domains are answered
+# from /etc/hosts or DHCP only.
+local=/ameisin.local/
+
+# Add domains which you want to force to an IP address here.
+# The example below send any host in double-click.net to a local
+# web-server.
+#address=/double-click.net/127.0.0.1
+...
+</code></pre></div><p>La opción <code>#address=/double-click.net/127.0.0.1</code> permite deshacerse de anuncios y otras plagas de internet. Aunque si estás interesado en usar la Raspberry Pi para filtrar el contenido quizás te interese echar un vistazo a <a href="https://pi-hole.net">PI-HOLE®: A BLACK HOLE FOR INTERNET ADVERTISEMENTS</a>.</p>
 <blockquote>
 <p>Si el contenedor no arranca debido a que no encuentra la ruta <code>/etc/dnsmasq.d/</code> comenta la siguiente línea en el fichero <code>dnsmasq.conf</code>:</p>
 </blockquote>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-txt" data-lang="txt"><span style="display:flex;"><span> # Include all files in a directory which end in .conf
-</span></span><span style="display:flex;"><span> #conf-dir=/etc/dnsmasq.d/,*.conf
-</span></span></code></pre></div><h2 id="fichero-hosts">Fichero <code>hosts</code></h2>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-txt" data-lang="txt"> # Include all files in a directory which end in .conf
+ #conf-dir=/etc/dnsmasq.d/,*.conf
+</code></pre></div><h2 id="fichero-hosts">Fichero <code>hosts</code></h2>
 <p><strong>dnsmasq</strong> usa el fichero <code>hosts</code> para obtener la dirección IP asociada a un nombre acerca del que recibe la petición.</p>
 <p>Debes adaptar el contenido del fichero <code>hosts</code> a los equipos en tu red local.</p>
 <h2 id="lanzar-el-contedor">Lanzar el contedor</h2>
 <p>Hay varias cosas a tener en cuenta al lanzar el contenedor para <strong>dnsmasq</strong>. En primer lugar, debe lanzarse con el <a href="https://docs.docker.com/engine/reference/run/#runtime-privilege-and-linux-capabilities">privilegio sobre la gestión de la red</a> mediante la opción:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>--cap-add<span style="color:#719e07">=</span>NET_ADMIN
-</span></span></code></pre></div><p>Otro punto a tener en cuenta es que estamos montando ficheros en el contenedor. A diferencia de cuando montamos carpetas, en las que los cambios realizados sobre los ficheros contenidos en esas carpetas se actualizan automáticamente en el contenedor, cuando montamos ficheros no sucede así.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">--cap-add<span style="color:#719e07">=</span>NET_ADMIN
+</code></pre></div><p>Otro punto a tener en cuenta es que estamos montando ficheros en el contenedor. A diferencia de cuando montamos carpetas, en las que los cambios realizados sobre los ficheros contenidos en esas carpetas se actualizan automáticamente en el contenedor, cuando montamos ficheros no sucede así.</p>
 <p>Al montar el fichero en el contenedor, se copia del <em>host</em> al contenedor, pero los cambios realizados mientras el contenedor está en ejecución no se reflejan en el fichero montado en el contenedor. Por tanto, para que los cambios realizados sobre el fichero <code>hosts</code> tengan efecto, es necesario reiniciar el contenedor (parándolo y arrancándolo de nuevo).</p>
 <p>Para simplificar esta tarea, he creado el script <code>run-home-dns.sh</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>docker stop home-dns
-</span></span><span style="display:flex;"><span>docker rm home-dns
-</span></span><span style="display:flex;"><span>docker run -d --name home-dns <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>   -p 53:53 -p 53:53/udp <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>   --cap-add<span style="color:#719e07">=</span>NET_ADMIN <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>   -v /home/pirate/home-dns/dnsmasq.conf:/etc/dnsmasq.conf <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>   -v /home/pirate/home-dns/hosts:/etc/hosts <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>   xaviaznar/rpi-dnsmasq
-</span></span></code></pre></div><h2 id="repositorio-con-los-ficheros-de-configuración-y-el-dockerfile">Repositorio con los ficheros de configuración y el <code>Dockerfile</code></h2>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">docker stop home-dns
+docker rm home-dns
+docker run -d --name home-dns <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>   -p 53:53 -p 53:53/udp <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>   --cap-add<span style="color:#719e07">=</span>NET_ADMIN <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>   -v /home/pirate/home-dns/dnsmasq.conf:/etc/dnsmasq.conf <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>   -v /home/pirate/home-dns/hosts:/etc/hosts <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>   xaviaznar/rpi-dnsmasq
+</code></pre></div><h2 id="repositorio-con-los-ficheros-de-configuración-y-el-dockerfile">Repositorio con los ficheros de configuración y el <code>Dockerfile</code></h2>
 <p>El fichero <code>Dockerfile</code> y los ficheros de configuración están disponibles en el repositorio <a href="https://github.com/onthedock/rpi-dnsmasq">onthedock/rpi-dnsmasq</a> en GitHub.</p>
 <h2 id="configuración-de-los-clientes">Configuración de los clientes</h2>
 <p>La configuración de los clientes depende del sistema operativo.</p>
 <p>En el caso de las máquinas con sistema operativo Linux, la resolución de nombres se gestiona desde el fichero <code>/etc/resolv.conf</code>.</p>
 <p>Edita el fichero especificando la dirección del <em>host</em> donde se encuentra el contenedor <code>rpi-dnsmasq</code>. En mi caso:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>nameserver 192.168.1.9
-</span></span></code></pre></div><h3 id="el-fichero-resolvconf-se-sobrescribe-en-cada-reinicio">El fichero <code>resolv.conf</code> se sobrescribe en cada reinicio</h3>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">nameserver 192.168.1.9
+</code></pre></div><h3 id="el-fichero-resolvconf-se-sobrescribe-en-cada-reinicio">El fichero <code>resolv.conf</code> se sobrescribe en cada reinicio</h3>
 <p>Si el fichero de configuración se sobrescribe al reiniciar la máquina (o el servicio de red), edita el fichero <code>/usr/share/udhcpc/default.script</code> y modifica la línea:</p>
 <pre><code>RESOLV_CONF=&quot;/etc/resolv.conf&quot;
 </code></pre>

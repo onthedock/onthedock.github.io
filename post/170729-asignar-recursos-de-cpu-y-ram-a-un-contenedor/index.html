@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.95.0" />
+<meta name="generator" content="Hugo 0.92.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -145,27 +145,27 @@
 <h1 id="unidades-de-cpu-y-ram">Unidades de CPU y RAM</h1>
 <p>Los recursos de CPU se miden en <strong>cpus</strong>. Se admiten valores fraccionados. Puedes usar el sufijo <em>m</em> para indicar &ldquo;mili&rdquo;; por ejemplo, <code>100m cpu</code> son <code>100 milicpu</code> o <code>0.1 cpu</code>.</p>
 <p>Los recursos de RAM se miden en <strong>bytes</strong>. Puedes indicar la RAM como un entero usando alguno de los siguientes sufijos: <code>E</code>, <code>P</code>, <code>T</code>, <code>G</code>, <code>M</code>, <code>Ei</code>, <code>Pi</code>,<code>Ti</code>, <code>Gi</code>, <code>Mi</code>y <code>Ki</code>. Por ejemplo, las siguientes cantidades representan aproximadamente el mismo valor:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-txt" data-lang="txt"><span style="display:flex;"><span>128974848, 129e6, 129M , 123Mi
-</span></span></code></pre></div><p>Si no conoces por adelantado los recursos que reservar para un <em>pod</em> puedes lanzar la aplicación sin especificar límites, usar el monitor de uso de recursos y determinar los valores apropiados.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-txt" data-lang="txt">128974848, 129e6, 129M , 123Mi
+</code></pre></div><p>Si no conoces por adelantado los recursos que reservar para un <em>pod</em> puedes lanzar la aplicación sin especificar límites, usar el monitor de uso de recursos y determinar los valores apropiados.</p>
 <p>Si un contenedor excede los límites establecidos de RAM, se elimina al quedarse sin memoria disponible: <code>out-of-memory</code>. Debes especificar un valor ligeramente superior al valor esperado para dar un poco de margen al <em>pod</em>.</p>
 <p>Si especificas una reserva (<code>request</code>), el <em>pod</em> tendrá garantizado disponer de la cantidad reservada del recurso. El <em>pod</em> puede usar más recursos que los reservados, pero nunca más del límite establecido.</p>
 <p>En el siguiene ejemplo, especificamos tanto una reserva como el límite de recursos de los que puede disponer un <em>pod</em>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#268bd2">apiVersion</span>: v1
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">kind</span>: Pod
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">metadata</span>:
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">name</span>: cpu-ram-demo
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">spec</span>:
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">containers</span>:
-</span></span><span style="display:flex;"><span>  - <span style="color:#268bd2">name</span>: cpu-ram-demo-container
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">image</span>: gcr.io/google-samples/node-hello:1.0
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">resources</span>:
-</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">requests</span>:
-</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">memory</span>: <span style="color:#2aa198">&#34;64Mi&#34;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">cpu</span>: <span style="color:#2aa198">&#34;250m&#34;</span>
-</span></span><span style="display:flex;"><span>      <span style="color:#268bd2">limits</span>:
-</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">memory</span>: <span style="color:#2aa198">&#34;128Mi&#34;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">cpu</span>: <span style="color:#2aa198">&#34;1&#34;</span>
-</span></span></code></pre></div><p>El <em>pod</em> reserva 64Mi de RAM y 0.25 cpus, pero puede llegar a usar hasta el doble de RAM y toda una CPU.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">apiVersion</span>: v1
+<span style="color:#268bd2">kind</span>: Pod
+<span style="color:#268bd2">metadata</span>:
+  <span style="color:#268bd2">name</span>: cpu-ram-demo
+<span style="color:#268bd2">spec</span>:
+  <span style="color:#268bd2">containers</span>:
+  - <span style="color:#268bd2">name</span>: cpu-ram-demo-container
+    <span style="color:#268bd2">image</span>: gcr.io/google-samples/node-hello:1.0
+    <span style="color:#268bd2">resources</span>:
+      <span style="color:#268bd2">requests</span>:
+        <span style="color:#268bd2">memory</span>: <span style="color:#2aa198">&#34;64Mi&#34;</span>
+        <span style="color:#268bd2">cpu</span>: <span style="color:#2aa198">&#34;250m&#34;</span>
+      <span style="color:#268bd2">limits</span>:
+        <span style="color:#268bd2">memory</span>: <span style="color:#2aa198">&#34;128Mi&#34;</span>
+        <span style="color:#268bd2">cpu</span>: <span style="color:#2aa198">&#34;1&#34;</span>
+</code></pre></div><p>El <em>pod</em> reserva 64Mi de RAM y 0.25 cpus, pero puede llegar a usar hasta el doble de RAM y toda una CPU.</p>
 <h1 id="si-no-especificas-reservas-o-límites">Si no especificas reservas o límites</h1>
 <p>Si no especificas un límite para la RAM, Kubernetes no restinge la cantidad de RAM que puede usar el contenedor. En esta situación un contenedor puede usar toda la memoria disponible en el nodo donde se está ejecutando. Del mismo modo, si no se especifica un límite máximo de CPU, un contenedor puede usar toda la capacidad de CPU del nodo.</p>
 <p>Los límites por defecto se aplican en función de la disponibilidad de recursos aplicados al espacio de nombres en el que se ejecutan los <em>pods</em>. Puedes consultar los límites mediante: <code>kubectl describe limitrange limits</code>.</p>

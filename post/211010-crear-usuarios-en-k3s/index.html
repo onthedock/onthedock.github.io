@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.95.0" />
+<meta name="generator" content="Hugo 0.92.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -143,30 +143,30 @@
 </blockquote>
 <h2 id="creación-del-certificado-de-usuario">Creación del certificado de usuario</h2>
 <p>Para generar el certificado de usuario, usamos <em>openssl</em>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>openssl genrsa -out <span style="color:#2aa198">${</span><span style="color:#268bd2">USER</span><span style="color:#2aa198">}</span>.key <span style="color:#2aa198">2048</span>
-</span></span></code></pre></div><p>El comando genera un fichero <code>${USER}.key</code> que contiene una clave privada:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>-----BEGIN RSA PRIVATE KEY-----
-</span></span><span style="display:flex;"><span>MIIEpAIBAAKCAQEA3UgD2srmh6W3VUsG2yEWRVeJ2wDmTdgnQmhgM0EYltMrNm+T
-</span></span><span style="display:flex;"><span>hV5xbWGsBIUhKc4iHLsRyAAKWSHxB08tgz0W9+jrRddBAqA+g3g15GK1Ro6j9QfI
-</span></span><span style="display:flex;"><span>...
-</span></span><span style="display:flex;"><span>5L/rOxsKs+AF5VHf+opkBTbv+ymTuKKtf9Lidpg5q0wvRryHh+Atbw<span style="color:#719e07">==</span>
-</span></span><span style="display:flex;"><span>-----END RSA PRIVATE KEY-----
-</span></span></code></pre></div><p>Esta clave privada identifica al usuario (solo él la posee).</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">openssl genrsa -out <span style="color:#2aa198">${</span><span style="color:#268bd2">USER</span><span style="color:#2aa198">}</span>.key <span style="color:#2aa198">2048</span>
+</code></pre></div><p>El comando genera un fichero <code>${USER}.key</code> que contiene una clave privada:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">-----BEGIN RSA PRIVATE KEY-----
+MIIEpAIBAAKCAQEA3UgD2srmh6W3VUsG2yEWRVeJ2wDmTdgnQmhgM0EYltMrNm+T
+hV5xbWGsBIUhKc4iHLsRyAAKWSHxB08tgz0W9+jrRddBAqA+g3g15GK1Ro6j9QfI
+...
+5L/rOxsKs+AF5VHf+opkBTbv+ymTuKKtf9Lidpg5q0wvRryHh+Atbw<span style="color:#719e07">==</span>
+-----END RSA PRIVATE KEY-----
+</code></pre></div><p>Esta clave privada identifica al usuario (solo él la posee).</p>
 <h2 id="solicitud-de-firma-del-certificado-de-usuario-certificate-signing-request">Solicitud de firma del certificado de usuario (<em>Certificate Signing Request</em>)</h2>
 <p>Generamos una petición de firma del certificado mediante el comando:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>openssl req -new -key <span style="color:#2aa198">${</span><span style="color:#268bd2">USER</span><span style="color:#2aa198">}</span>.key <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>    -out <span style="color:#2aa198">${</span><span style="color:#268bd2">USER</span><span style="color:#2aa198">}</span>.csr <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>    -subj <span style="color:#2aa198">&#34;/CN=</span><span style="color:#2aa198">${</span><span style="color:#268bd2">USER</span><span style="color:#2aa198">}</span><span style="color:#2aa198">/O=</span><span style="color:#2aa198">${</span><span style="color:#268bd2">GROUP</span><span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span>
-</span></span></code></pre></div><p>El contenido del campo <code>/CN=</code> es lo que identifica al usuario en Kubernetes. Opcionalmente, podemos indican el <em>grupo</em> (o grupos) al que pertenece el usuario.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">openssl req -new -key <span style="color:#2aa198">${</span><span style="color:#268bd2">USER</span><span style="color:#2aa198">}</span>.key <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>    -out <span style="color:#2aa198">${</span><span style="color:#268bd2">USER</span><span style="color:#2aa198">}</span>.csr <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>    -subj <span style="color:#2aa198">&#34;/CN=</span><span style="color:#2aa198">${</span><span style="color:#268bd2">USER</span><span style="color:#2aa198">}</span><span style="color:#2aa198">/O=</span><span style="color:#2aa198">${</span><span style="color:#268bd2">GROUP</span><span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span>
+</code></pre></div><p>El contenido del campo <code>/CN=</code> es lo que identifica al usuario en Kubernetes. Opcionalmente, podemos indican el <em>grupo</em> (o grupos) al que pertenece el usuario.</p>
 <p>El comando genera el fichero <code>${USER}.csr</code> que contiene la petición de firma del certificado:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>-----BEGIN CERTIFICATE REQUEST-----
-</span></span><span style="display:flex;"><span>MIICVDCCATwCAQAwDzENMAsGA1UEAwwEeGF2aTCCASIwDQYJKoZIhvcNAQEBBQAD
-</span></span><span style="display:flex;"><span>ggEPADCCAQoCggEBAN1IA9rK5oelt1VLBtshFkVXidsA5k3YJ0JoYDNBGJbTKzZv
-</span></span><span style="display:flex;"><span>...
-</span></span><span style="display:flex;"><span>XNDmUwoLsYtTY3rdlFDI5t7Dm2WitLrLu1TACdZWFvOK9Hb7OguNWIkUBLq1ng52
-</span></span><span style="display:flex;"><span>ddSpt9cBhFtkoLTMVF1XewQIYXoRIMXw
-</span></span><span style="display:flex;"><span>-----END CERTIFICATE REQUEST-----
-</span></span></code></pre></div><h2 id="firma-del-fichero-csr">Firma del fichero <em>CSR</em></h2>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">-----BEGIN CERTIFICATE REQUEST-----
+MIICVDCCATwCAQAwDzENMAsGA1UEAwwEeGF2aTCCASIwDQYJKoZIhvcNAQEBBQAD
+ggEPADCCAQoCggEBAN1IA9rK5oelt1VLBtshFkVXidsA5k3YJ0JoYDNBGJbTKzZv
+...
+XNDmUwoLsYtTY3rdlFDI5t7Dm2WitLrLu1TACdZWFvOK9Hb7OguNWIkUBLq1ng52
+ddSpt9cBhFtkoLTMVF1XewQIYXoRIMXw
+-----END CERTIFICATE REQUEST-----
+</code></pre></div><h2 id="firma-del-fichero-csr">Firma del fichero <em>CSR</em></h2>
 <p>Hasta ahora, el usuario ha generado un certificado que lo identifica y ha creado el fichero con la solicitud de firma del certificado.</p>
 <p>Para realizar las siguientes acceiones es necesario tener acceso a la clave privada de la entidad certificadora (<em>CA</em>) de Kubernetes, por lo que debe realizarlos un administrador del clúster.</p>
 <h3 id="firma-del-fichero-csr-en-k3s">Firma del fichero <strong>CSR</strong> en K3s</h3>
@@ -175,23 +175,23 @@
 <p>En Kubernetes sólo hay un certificado, <code>ca.crt</code> y <code>ca.key</code>, que se encuentra en <code>/etc/kubernetes/pki/</code></p>
 </blockquote>
 <p>Para realizar la firma del certificado de usuario, usamos el par de claves <code>client-ca.*</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>openssl x509 -req -in <span style="color:#2aa198">${</span><span style="color:#268bd2">USER</span><span style="color:#2aa198">}</span>.csr -out <span style="color:#2aa198">${</span><span style="color:#268bd2">USER</span><span style="color:#2aa198">}</span>.crt <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>    -CA client-ca.crt -CAkey client-ca.key <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>    -CAcreateserial -days <span style="color:#268bd2">$days_until_expiration</span>
-</span></span></code></pre></div><p>El valor para el parámetro <code>-days</code> indica la duración de la validez del certificado emitido.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">openssl x509 -req -in <span style="color:#2aa198">${</span><span style="color:#268bd2">USER</span><span style="color:#2aa198">}</span>.csr -out <span style="color:#2aa198">${</span><span style="color:#268bd2">USER</span><span style="color:#2aa198">}</span>.crt <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>    -CA client-ca.crt -CAkey client-ca.key <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>    -CAcreateserial -days <span style="color:#268bd2">$days_until_expiration</span>
+</code></pre></div><p>El valor para el parámetro <code>-days</code> indica la duración de la validez del certificado emitido.</p>
 <p>Si el comando tiene éxito, la salida será similar a:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>Signature ok
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">subject</span><span style="color:#719e07">=</span><span style="color:#268bd2">CN</span> <span style="color:#719e07">=</span> <span style="color:#2aa198">${</span><span style="color:#268bd2">USER</span><span style="color:#2aa198">}</span>
-</span></span><span style="display:flex;"><span>Getting CA Private Key
-</span></span></code></pre></div><p>El comando genera el fichero <code>${USER}.crt</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>-----BEGIN CERTIFICATE-----
-</span></span><span style="display:flex;"><span>MIIB+DCCAZ4CFEI3KK+a081d9SSOLBY5tecQgei0MAoGCCqGSM49BAMCMCMxITAf
-</span></span><span style="display:flex;"><span>BgNVBAMMGGszcy1jbGllbnQtY2FAMTYzMjY3NjI1MDAeFw0yMTEwMDUxOTIxNDBa
-</span></span><span style="display:flex;"><span>...
-</span></span><span style="display:flex;"><span>AwIDSAAwRQIhAPsU8FOJW0upv5JtsjIQaPRWL+/aWw8vMmgvUnwkEGNAAiB2IOI/
-</span></span><span style="display:flex;"><span>E4I7IUSkxXgfE+rphNUBfGstt4np0KnUkTIJyw<span style="color:#719e07">==</span>
-</span></span><span style="display:flex;"><span>-----END CERTIFICATE-----
-</span></span></code></pre></div><h2 id="generar-un-fichero-kubeconfig">Generar un fichero <code>kubeconfig</code></h2>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">Signature ok
+<span style="color:#268bd2">subject</span><span style="color:#719e07">=</span><span style="color:#268bd2">CN</span> <span style="color:#719e07">=</span> <span style="color:#2aa198">${</span><span style="color:#268bd2">USER</span><span style="color:#2aa198">}</span>
+Getting CA Private Key
+</code></pre></div><p>El comando genera el fichero <code>${USER}.crt</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">-----BEGIN CERTIFICATE-----
+MIIB+DCCAZ4CFEI3KK+a081d9SSOLBY5tecQgei0MAoGCCqGSM49BAMCMCMxITAf
+BgNVBAMMGGszcy1jbGllbnQtY2FAMTYzMjY3NjI1MDAeFw0yMTEwMDUxOTIxNDBa
+...
+AwIDSAAwRQIhAPsU8FOJW0upv5JtsjIQaPRWL+/aWw8vMmgvUnwkEGNAAiB2IOI/
+E4I7IUSkxXgfE+rphNUBfGstt4np0KnUkTIJyw<span style="color:#719e07">==</span>
+-----END CERTIFICATE-----
+</code></pre></div><h2 id="generar-un-fichero-kubeconfig">Generar un fichero <code>kubeconfig</code></h2>
 <p>Para que el usuario pueda acceder al clúster usando un cliente como <code>kubectl</code>, generamos un fichero <code>kubeconfig</code> (aunque podemos añadir la misma información a un fichero <code>kubeconfig</code> existente).</p>
 <p>La configuración necesaria para conectar al clúster en el fichero <code>kubeconfig</code> es:</p>
 <ul>
@@ -205,29 +205,29 @@
 </blockquote>
 <h3 id="configuración-del-clúster-en-el-fichero-kubeconfig">Configuración del clúster (en el fichero <code>kubeconfig</code>)</h3>
 <p>Configuración de clúster:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>kubectl config set-cluster <span style="color:#2aa198">${</span><span style="color:#268bd2">CLUSTER_NAME</span><span style="color:#2aa198">}</span> <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>    --kubeconfig<span style="color:#719e07">=</span><span style="color:#2aa198">${</span><span style="color:#268bd2">USER</span><span style="color:#2aa198">}</span>-kubeconfig <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>    --server<span style="color:#719e07">=</span><span style="color:#2aa198">${</span><span style="color:#268bd2">CLUSTER_URL</span><span style="color:#2aa198">}</span> --certificate-authority<span style="color:#719e07">=</span>server-ca.crt <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>    --embed-certs<span style="color:#719e07">=</span><span style="color:#b58900">true</span>
-</span></span></code></pre></div><ul>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">kubectl config set-cluster <span style="color:#2aa198">${</span><span style="color:#268bd2">CLUSTER_NAME</span><span style="color:#2aa198">}</span> <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>    --kubeconfig<span style="color:#719e07">=</span><span style="color:#2aa198">${</span><span style="color:#268bd2">USER</span><span style="color:#2aa198">}</span>-kubeconfig <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>    --server<span style="color:#719e07">=</span><span style="color:#2aa198">${</span><span style="color:#268bd2">CLUSTER_URL</span><span style="color:#2aa198">}</span> --certificate-authority<span style="color:#719e07">=</span>server-ca.crt <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>    --embed-certs<span style="color:#719e07">=</span><span style="color:#b58900">true</span>
+</code></pre></div><ul>
 <li><code>${CLUSTER_NAME}</code> especifica el nombre con el que queremos identificar el clúster en el fichero de configuración.</li>
 <li><code>${CLUSTER_URL}</code> indica la URL de acceso del API Server, incluyendo el puerto (por defecto, 6443)</li>
 </ul>
 <h3 id="configuración-del-usuario-en-el-fichero-kubeconfig">Configuración del usuario (en el fichero <code>kubeconfig</code>)</h3>
 <p>Configuración del usuario:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>kubectl config set-credentials <span style="color:#2aa198">${</span><span style="color:#268bd2">USER</span><span style="color:#2aa198">}</span> <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>    --kubeconfig<span style="color:#719e07">=</span><span style="color:#2aa198">${</span><span style="color:#268bd2">USER</span><span style="color:#2aa198">}</span>-kubeconfig <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>    --client-certificate<span style="color:#719e07">=</span><span style="color:#2aa198">${</span><span style="color:#268bd2">USER</span><span style="color:#2aa198">}</span>.crt --client-key<span style="color:#719e07">=</span><span style="color:#2aa198">${</span><span style="color:#268bd2">USER</span><span style="color:#2aa198">}</span>.key <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>    --embed-certs<span style="color:#719e07">=</span><span style="color:#b58900">true</span>
-</span></span></code></pre></div><ul>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">kubectl config set-credentials <span style="color:#2aa198">${</span><span style="color:#268bd2">USER</span><span style="color:#2aa198">}</span> <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>    --kubeconfig<span style="color:#719e07">=</span><span style="color:#2aa198">${</span><span style="color:#268bd2">USER</span><span style="color:#2aa198">}</span>-kubeconfig <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>    --client-certificate<span style="color:#719e07">=</span><span style="color:#2aa198">${</span><span style="color:#268bd2">USER</span><span style="color:#2aa198">}</span>.crt --client-key<span style="color:#719e07">=</span><span style="color:#2aa198">${</span><span style="color:#268bd2">USER</span><span style="color:#2aa198">}</span>.key <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>    --embed-certs<span style="color:#719e07">=</span><span style="color:#b58900">true</span>
+</code></pre></div><ul>
 <li><code>${USER}</code> especifica el nombre de usuario en el fichero <code>kubeconfig</code>; puede ser diferente del nombre de usuario contenido en el certificado. El nombre del usuario en el clúster será el especificado en el campo <code>CN=</code> del certificado.</li>
 </ul>
 <h3 id="configuración-del-contexto-en-el-fichero-kubeconfig">Configuración del contexto (en el fichero <code>kubeconfig</code>)</h3>
 <p>Configuración del contexto:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>kubectl config set-context <span style="color:#2aa198">${</span><span style="color:#268bd2">CONTEXT</span><span style="color:#2aa198">}</span> <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>    --kubeconfig<span style="color:#719e07">=</span><span style="color:#2aa198">${</span><span style="color:#268bd2">USER</span><span style="color:#2aa198">}</span>-kubeconfig <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>    --namespace<span style="color:#719e07">=</span><span style="color:#2aa198">${</span><span style="color:#268bd2">NAMESPACE</span><span style="color:#2aa198">}</span> --user<span style="color:#719e07">=</span><span style="color:#2aa198">${</span><span style="color:#268bd2">USER</span><span style="color:#2aa198">}</span> --cluster<span style="color:#719e07">=</span><span style="color:#2aa198">${</span><span style="color:#268bd2">CLUSTER_NAME</span><span style="color:#2aa198">}</span>
-</span></span></code></pre></div><ul>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">kubectl config set-context <span style="color:#2aa198">${</span><span style="color:#268bd2">CONTEXT</span><span style="color:#2aa198">}</span> <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>    --kubeconfig<span style="color:#719e07">=</span><span style="color:#2aa198">${</span><span style="color:#268bd2">USER</span><span style="color:#2aa198">}</span>-kubeconfig <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>    --namespace<span style="color:#719e07">=</span><span style="color:#2aa198">${</span><span style="color:#268bd2">NAMESPACE</span><span style="color:#2aa198">}</span> --user<span style="color:#719e07">=</span><span style="color:#2aa198">${</span><span style="color:#268bd2">USER</span><span style="color:#2aa198">}</span> --cluster<span style="color:#719e07">=</span><span style="color:#2aa198">${</span><span style="color:#268bd2">CLUSTER_NAME</span><span style="color:#2aa198">}</span>
+</code></pre></div><ul>
 <li>
 <p><code>${CONTEXTO}</code> especifica el nombre asignado a la combinación de nombre y usuario. Algunas herramientas muestran este nombre al usar la configuración del fichero <code>kubeconfig</code>. Este nombre también es el que se usa para cambiar de un contexto a otro en <code>kubectl</code></p>
 </li>
@@ -244,73 +244,73 @@
 <h4 id="establecer-el-contexto-como-current">Establecer el contexto como <em>current</em></h4>
 <p>Dado que el fichero <code>kubeconfig</code> puede contener múltiples <em>contextos</em>, es necesario indicar cuál es el contexto activo o <em>current</em>.</p>
 <p>Usamos el comando:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>kubectl config use-context <span style="color:#2aa198">${</span><span style="color:#268bd2">CONTEXT</span><span style="color:#2aa198">}</span> --kubeconfig <span style="color:#2aa198">${</span><span style="color:#268bd2">USER</span><span style="color:#2aa198">}</span>-kubeconfig
-</span></span></code></pre></div><h2 id="autorización-del-usuario">Autorización del usuario</h2>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">kubectl config use-context <span style="color:#2aa198">${</span><span style="color:#268bd2">CONTEXT</span><span style="color:#2aa198">}</span> --kubeconfig <span style="color:#2aa198">${</span><span style="color:#268bd2">USER</span><span style="color:#2aa198">}</span>-kubeconfig
+</code></pre></div><h2 id="autorización-del-usuario">Autorización del usuario</h2>
 <p>El certificado autentica al usuario en el clúster; es decir, demuestra que es quien dice ser. Pero todavía no hemos especificado qué puede hacer; para ello, necesitamos asignar permisos al usuario.</p>
 <h3 id="crear-un-role-o-clusterrole">Crear un <em>Role</em> (o <em>ClusterRole</em>)</h3>
 <p>En Kubernetes, los permisos se definen a través de los <em>Roles</em>; un rol especifica qué acciones (<code>verbs</code>) se pueden realizar sobre los elementos de la API (los recursos).</p>
 <p>El siguiente <em>Role</em> de ejemplo permite las acciones <code>get</code>, <code>watch</code> y <code>list</code> en el <em>namespace</em> <code>${NAMESPACE}</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#268bd2">apiVersion</span>: rbac.authorization.k8s.io/v1
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">kind</span>: Role
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">metadata</span>:
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">namespace</span>: ${NAMESPACE}
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">name</span>: sample-role-for-${USER}}
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">rules</span>:
-</span></span><span style="display:flex;"><span>- <span style="color:#268bd2">apiGroups</span>: [<span style="color:#2aa198">&#39;&#39;</span>] <span style="color:#586e75"># &#39;&#39; indicates the core API group</span>
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">resources</span>: [<span style="color:#2aa198">&#39;pods&#39;</span>]
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">verbs</span>: [<span style="color:#2aa198">&#39;get&#39;</span>, <span style="color:#2aa198">&#39;watch&#39;</span>, <span style="color:#2aa198">&#39;list&#39;</span>]
-</span></span></code></pre></div><p>Para asignar los permisos especificados en el <em>Role</em> a un usuario, usamos un <em>RoleBinding</em> (o un <em>ClusterRoleBinding</em>):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#268bd2">apiVersion</span>: rbac.authorization.k8s.io/v1
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">kind</span>: RoleBinding
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">metadata</span>:
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">namespace</span>: ${NAMESPACE}
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">name</span>: bind-sample-view-role-to-${USER}
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">subjects</span>:
-</span></span><span style="display:flex;"><span>- <span style="color:#268bd2">kind</span>: User
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">name</span>: ${USER}
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">apiGroup</span>: rbac.authorization.k8s.io
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">roleRef</span>:
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">kind</span>: Role
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">name</span>: sample-role-for-${USER}
-</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">apiGroup</span>: rbac.authorization.k8s.io
-</span></span></code></pre></div><p>El nombre del usuario <code>${USER}</code> es el indicado en el campo <code>CN</code> del certificado.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">apiVersion</span>: rbac.authorization.k8s.io/v1
+<span style="color:#268bd2">kind</span>: Role
+<span style="color:#268bd2">metadata</span>:
+  <span style="color:#268bd2">namespace</span>: ${NAMESPACE}
+  <span style="color:#268bd2">name</span>: sample-role-for-${USER}}
+<span style="color:#268bd2">rules</span>:
+- <span style="color:#268bd2">apiGroups</span>: [<span style="color:#2aa198">&#39;&#39;</span>] <span style="color:#586e75"># &#39;&#39; indicates the core API group</span>
+  <span style="color:#268bd2">resources</span>: [<span style="color:#2aa198">&#39;pods&#39;</span>]
+  <span style="color:#268bd2">verbs</span>: [<span style="color:#2aa198">&#39;get&#39;</span>, <span style="color:#2aa198">&#39;watch&#39;</span>, <span style="color:#2aa198">&#39;list&#39;</span>]
+</code></pre></div><p>Para asignar los permisos especificados en el <em>Role</em> a un usuario, usamos un <em>RoleBinding</em> (o un <em>ClusterRoleBinding</em>):</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-yaml" data-lang="yaml"><span style="color:#268bd2">apiVersion</span>: rbac.authorization.k8s.io/v1
+<span style="color:#268bd2">kind</span>: RoleBinding
+<span style="color:#268bd2">metadata</span>:
+  <span style="color:#268bd2">namespace</span>: ${NAMESPACE}
+  <span style="color:#268bd2">name</span>: bind-sample-view-role-to-${USER}
+<span style="color:#268bd2">subjects</span>:
+- <span style="color:#268bd2">kind</span>: User
+  <span style="color:#268bd2">name</span>: ${USER}
+  <span style="color:#268bd2">apiGroup</span>: rbac.authorization.k8s.io
+<span style="color:#268bd2">roleRef</span>:
+  <span style="color:#268bd2">kind</span>: Role
+  <span style="color:#268bd2">name</span>: sample-role-for-${USER}
+  <span style="color:#268bd2">apiGroup</span>: rbac.authorization.k8s.io
+</code></pre></div><p>El nombre del usuario <code>${USER}</code> es el indicado en el campo <code>CN</code> del certificado.</p>
 <h2 id="validación">Validación</h2>
 <p>Verificamos que el rol existe (con el usuario administrador):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ kubectl describe role sample-role-for-xavi
-</span></span><span style="display:flex;"><span>Name:         sample-role-for-xavi
-</span></span><span style="display:flex;"><span>Labels:       &lt;none&gt;
-</span></span><span style="display:flex;"><span>Annotations:  &lt;none&gt;
-</span></span><span style="display:flex;"><span>PolicyRule:
-</span></span><span style="display:flex;"><span>  Resources  Non-Resource URLs  Resource Names  Verbs
-</span></span><span style="display:flex;"><span>  ---------  -----------------  --------------  -----
-</span></span><span style="display:flex;"><span>  pods       <span style="color:#719e07">[]</span>                 <span style="color:#719e07">[]</span>              <span style="color:#719e07">[</span>get watch list<span style="color:#719e07">]</span>
-</span></span></code></pre></div><p>Verificamos que el <em>RoleBinding</em> proporciona los permisos indicados en el rol al usuario:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ kubectl describe rolebinding bind-sample-role-to-xavi
-</span></span><span style="display:flex;"><span>Name:         bind-sample-role-to-xavi
-</span></span><span style="display:flex;"><span>Labels:       &lt;none&gt;
-</span></span><span style="display:flex;"><span>Annotations:  &lt;none&gt;
-</span></span><span style="display:flex;"><span>Role:
-</span></span><span style="display:flex;"><span>  Kind:  Role
-</span></span><span style="display:flex;"><span>  Name:  sample-role-for-xavi
-</span></span><span style="display:flex;"><span>Subjects:
-</span></span><span style="display:flex;"><span>  Kind  Name  Namespace
-</span></span><span style="display:flex;"><span>  ----  ----  ---------
-</span></span><span style="display:flex;"><span>  User  xavi 
-</span></span></code></pre></div><blockquote>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl describe role sample-role-for-xavi
+Name:         sample-role-for-xavi
+Labels:       &lt;none&gt;
+Annotations:  &lt;none&gt;
+PolicyRule:
+  Resources  Non-Resource URLs  Resource Names  Verbs
+  ---------  -----------------  --------------  -----
+  pods       <span style="color:#719e07">[]</span>                 <span style="color:#719e07">[]</span>              <span style="color:#719e07">[</span>get watch list<span style="color:#719e07">]</span>
+</code></pre></div><p>Verificamos que el <em>RoleBinding</em> proporciona los permisos indicados en el rol al usuario:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl describe rolebinding bind-sample-role-to-xavi
+Name:         bind-sample-role-to-xavi
+Labels:       &lt;none&gt;
+Annotations:  &lt;none&gt;
+Role:
+  Kind:  Role
+  Name:  sample-role-for-xavi
+Subjects:
+  Kind  Name  Namespace
+  ----  ----  ---------
+  User  xavi 
+</code></pre></div><blockquote>
 <p>Aunque el <em>subject</em> aparezca en blanco, el rol es un recurso que sólo aplica al <em>namespace</em> en el que se encuentra definido.</p>
 </blockquote>
 <p>Ahora, como usuario <code>${USER}</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ kubectl get pods --kubeconfig<span style="color:#719e07">=</span>xavi-kubeconfig
-</span></span><span style="display:flex;"><span>No resources found in default namespace.
-</span></span></code></pre></div><p>La petición a la API para listar los pods en el namespace <code>default</code> se ejecuta con éxito; esto demuestra que el usuario ha podido autenticarse en la API de Kubernetes y que además, está autorizado a <em>listar</em> los pods en el <em>namespace</em> <code>default</code>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl get pods --kubeconfig<span style="color:#719e07">=</span>xavi-kubeconfig
+No resources found in default namespace.
+</code></pre></div><p>La petición a la API para listar los pods en el namespace <code>default</code> se ejecuta con éxito; esto demuestra que el usuario ha podido autenticarse en la API de Kubernetes y que además, está autorizado a <em>listar</em> los pods en el <em>namespace</em> <code>default</code>.</p>
 <p>Si el usuario intenta realizar la misma acción en otro <em>namespace</em>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ kubectl get pods --kubeconfig<span style="color:#719e07">=</span>xavi-kubeconfig --namespace kube-system
-</span></span><span style="display:flex;"><span>Error from server <span style="color:#719e07">(</span>Forbidden<span style="color:#719e07">)</span>: pods is forbidden: User <span style="color:#2aa198">&#34;xavi&#34;</span> cannot list resource <span style="color:#2aa198">&#34;pods&#34;</span> in API group <span style="color:#2aa198">&#34;&#34;</span> in the namespace <span style="color:#2aa198">&#34;kube-system&#34;</span>
-</span></span></code></pre></div><p>Como podemos ver, el usuario no está autorizado a realizar esta acción en otro <em>namespace</em> diferente, por lo que recibimos <em>Forbidden</em>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl get pods --kubeconfig<span style="color:#719e07">=</span>xavi-kubeconfig --namespace kube-system
+Error from server <span style="color:#719e07">(</span>Forbidden<span style="color:#719e07">)</span>: pods is forbidden: User <span style="color:#2aa198">&#34;xavi&#34;</span> cannot list resource <span style="color:#2aa198">&#34;pods&#34;</span> in API group <span style="color:#2aa198">&#34;&#34;</span> in the namespace <span style="color:#2aa198">&#34;kube-system&#34;</span>
+</code></pre></div><p>Como podemos ver, el usuario no está autorizado a realizar esta acción en otro <em>namespace</em> diferente, por lo que recibimos <em>Forbidden</em>.</p>
 <p>Lo mismo sucede si intentamos realizar una acción diferente a las especificadas, aunque sea en el <em>namespace</em> en el que el usuario tiene algunos permisos:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ kubectl get configmap --kubeconfig<span style="color:#719e07">=</span>xavi-kubeconfig
-</span></span><span style="display:flex;"><span>Error from server <span style="color:#719e07">(</span>Forbidden<span style="color:#719e07">)</span>: configmaps is forbidden: User <span style="color:#2aa198">&#34;xavi&#34;</span> cannot list resource <span style="color:#2aa198">&#34;configmaps&#34;</span> in API group <span style="color:#2aa198">&#34;&#34;</span> in the namespace <span style="color:#2aa198">&#34;default&#34;</span>
-</span></span></code></pre></div></div>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ kubectl get configmap --kubeconfig<span style="color:#719e07">=</span>xavi-kubeconfig
+Error from server <span style="color:#719e07">(</span>Forbidden<span style="color:#719e07">)</span>: configmaps is forbidden: User <span style="color:#2aa198">&#34;xavi&#34;</span> cannot list resource <span style="color:#2aa198">&#34;configmaps&#34;</span> in API group <span style="color:#2aa198">&#34;&#34;</span> in the namespace <span style="color:#2aa198">&#34;default&#34;</span>
+</code></pre></div></div>
 
   <aside class="p-share">
 

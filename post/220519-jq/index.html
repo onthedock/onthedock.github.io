@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.95.0" />
+<meta name="generator" content="Hugo 0.92.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -133,70 +133,70 @@
   <div class="article-body"><p>Siguendo con el <a href="https://onthedock.github.io/post/220518-obtener-respuesta-y-http-status-con-curl/">tema de ayer</a>, hoy quiero revisar otro bloque de código.</p>
 <p>En este caso, se construye un <em>array</em> en JSON usando Bash <em>puro</em>, cuando es el proceso se simplifica <strong>enormemente</strong> gracias a la función <code>--slurp</code> de <code>jq</code>.</p>
 <p>En el ejemplo de hoy usaré la API pública de <code>randomuser.me</code> para obtener tres usuarios aleatorios (de nacionalidad española) mediante el comando:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>curl -s https://randomuser.me/api?nat<span style="color:#719e07">=</span>es&amp;<span style="color:#268bd2">results</span><span style="color:#719e07">=</span><span style="color:#2aa198">3</span> &gt; users.json
-</span></span></code></pre></div><p>El documento obtenido tiene la estructura descrita en la documentación de <a href="https://randomuser.me/documentation#results">randomuser.me</a>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">curl -s https://randomuser.me/api?nat<span style="color:#719e07">=</span>es&amp;<span style="color:#268bd2">results</span><span style="color:#719e07">=</span><span style="color:#2aa198">3</span> &gt; users.json
+</code></pre></div><p>El documento obtenido tiene la estructura descrita en la documentación de <a href="https://randomuser.me/documentation#results">randomuser.me</a>.</p>
 <h2 id="escenario-de-salida">Escenario de salida</h2>
 <p>En el escenario que estuve analizando, el resultado de la consulta a la API podía devolver un número variable de resultados, por lo que el primer paso era averiguar <em>cuántos</em> resultados contenía el JSON devuelto.</p>
 <p>Este número se usará para recorrer los resultados y extraer el DNI y el nombre completo (nombre + apellido) de cada usuario:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#268bd2">number_of_results</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>jq <span style="color:#2aa198">&#39;.results | length&#39;</span> users.json<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">for</span> <span style="color:#719e07">((</span><span style="color:#268bd2">i</span><span style="color:#719e07">=</span>0; i&lt;number_of_results; i++<span style="color:#719e07">))</span>; <span style="color:#719e07">do</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">dni</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>jq -r <span style="color:#2aa198">&#34;.results[</span><span style="color:#268bd2">$i</span><span style="color:#2aa198">].id.value&#34;</span> users.json<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">nombre</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>jq -r <span style="color:#2aa198">&#34;.results[</span><span style="color:#268bd2">$i</span><span style="color:#2aa198">].name.first&#34;</span> users.json<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">apellido</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>jq -r <span style="color:#2aa198">&#34;.results[</span><span style="color:#268bd2">$i</span><span style="color:#2aa198">].name.last&#34;</span> users.json<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#586e75"># For demo purposes only</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#b58900">printf</span> <span style="color:#2aa198">&#39;{&#34;dni&#34;: &#34;%s&#34;, &#34;nombre_completo&#34;: &#34;%s %s&#34;}\n&#39;</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$dni</span><span style="color:#2aa198">&#34;</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$nombre</span><span style="color:#2aa198">&#34;</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$apellido</span><span style="color:#2aa198">&#34;</span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">done</span>
-</span></span></code></pre></div><p>El resultado hasta aquí es:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ bash script.sh
-</span></span><span style="display:flex;"><span><span style="color:#719e07">{</span><span style="color:#2aa198">&#34;dni&#34;</span>: <span style="color:#2aa198">&#34;34533796-A&#34;</span>, <span style="color:#2aa198">&#34;nombre_completo&#34;</span>: <span style="color:#2aa198">&#34;Martin Ortega&#34;</span><span style="color:#719e07">}</span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">{</span><span style="color:#2aa198">&#34;dni&#34;</span>: <span style="color:#2aa198">&#34;67448880-E&#34;</span>, <span style="color:#2aa198">&#34;nombre_completo&#34;</span>: <span style="color:#2aa198">&#34;Lucia Guerrero&#34;</span><span style="color:#719e07">}</span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">{</span><span style="color:#2aa198">&#34;dni&#34;</span>: <span style="color:#2aa198">&#34;22894495-W&#34;</span>, <span style="color:#2aa198">&#34;nombre_completo&#34;</span>: <span style="color:#2aa198">&#34;Luisa Fuentes&#34;</span><span style="color:#719e07">}</span>
-</span></span></code></pre></div><p>A continuación, el <em>script</em> construye cada uno de los objetos en <code>json_elements</code> y los concatena, añdiendo una <code>,</code> tras cada uno de ellos:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#719e07">#!/bin/bash
-</span></span></span><span style="display:flex;"><span><span style="color:#719e07"></span>
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">number_of_results</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>jq <span style="color:#2aa198">&#39;.results | length&#39;</span> users.json<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">json</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#39;&#39;</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">for</span> <span style="color:#719e07">((</span><span style="color:#268bd2">i</span><span style="color:#719e07">=</span>0; i&lt;number_of_results; i++<span style="color:#719e07">))</span>; <span style="color:#719e07">do</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">dni</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>jq -r <span style="color:#2aa198">&#34;.results[</span><span style="color:#268bd2">$i</span><span style="color:#2aa198">].id.value&#34;</span> users.json<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">nombre</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>jq -r <span style="color:#2aa198">&#34;.results[</span><span style="color:#268bd2">$i</span><span style="color:#2aa198">].name.first&#34;</span> users.json<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">apellido</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>jq -r <span style="color:#2aa198">&#34;.results[</span><span style="color:#268bd2">$i</span><span style="color:#2aa198">].name.last&#34;</span> users.json<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">json_element</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span><span style="color:#b58900">printf</span> <span style="color:#2aa198">&#39;{&#34;dni&#34;: &#34;%s&#34;, &#34;nombre_completo&#34;: &#34;%s %s&#34;}&#39;</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$dni</span><span style="color:#2aa198">&#34;</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$nombre</span><span style="color:#2aa198">&#34;</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$apellido</span><span style="color:#2aa198">&#34;</span><span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">json</span><span style="color:#719e07">+=</span><span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$json_element</span><span style="color:#2aa198">,&#34;</span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">done</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#b58900">echo</span> <span style="color:#268bd2">$json</span>
-</span></span></code></pre></div><p>El resultado es:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ bash script.sh
-</span></span><span style="display:flex;"><span><span style="color:#719e07">{</span><span style="color:#2aa198">&#34;dni&#34;</span>: <span style="color:#2aa198">&#34;34533796-A&#34;</span>, <span style="color:#2aa198">&#34;nombre_completo&#34;</span>: <span style="color:#2aa198">&#34;Martin Ortega&#34;</span><span style="color:#719e07">}</span>,<span style="color:#719e07">{</span><span style="color:#2aa198">&#34;dni&#34;</span>: <span style="color:#2aa198">&#34;67448880-E&#34;</span>, <span style="color:#2aa198">&#34;nombre_completo&#34;</span>: <span style="color:#2aa198">&#34;Lucia Guerrero&#34;</span><span style="color:#719e07">}</span>,<span style="color:#719e07">{</span><span style="color:#2aa198">&#34;dni&#34;</span>: <span style="color:#2aa198">&#34;22894495-W&#34;</span>, <span style="color:#2aa198">&#34;nombre_completo&#34;</span>: <span style="color:#2aa198">&#34;Luisa Fuentes&#34;</span><span style="color:#719e07">}</span>,
-</span></span></code></pre></div><p>El problema es que el resultado no es un objeto JSON válido: sobra una coma al final y el resultado debe ir entre <code>[ ]</code>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell"><span style="color:#268bd2">number_of_results</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>jq <span style="color:#2aa198">&#39;.results | length&#39;</span> users.json<span style="color:#719e07">)</span>
+
+<span style="color:#719e07">for</span> <span style="color:#719e07">((</span><span style="color:#268bd2">i</span><span style="color:#719e07">=</span>0; i&lt;number_of_results; i++<span style="color:#719e07">))</span>; <span style="color:#719e07">do</span>
+    <span style="color:#268bd2">dni</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>jq -r <span style="color:#2aa198">&#34;.results[</span><span style="color:#268bd2">$i</span><span style="color:#2aa198">].id.value&#34;</span> users.json<span style="color:#719e07">)</span>
+    <span style="color:#268bd2">nombre</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>jq -r <span style="color:#2aa198">&#34;.results[</span><span style="color:#268bd2">$i</span><span style="color:#2aa198">].name.first&#34;</span> users.json<span style="color:#719e07">)</span>
+    <span style="color:#268bd2">apellido</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>jq -r <span style="color:#2aa198">&#34;.results[</span><span style="color:#268bd2">$i</span><span style="color:#2aa198">].name.last&#34;</span> users.json<span style="color:#719e07">)</span>
+    <span style="color:#586e75"># For demo purposes only</span>
+    <span style="color:#b58900">printf</span> <span style="color:#2aa198">&#39;{&#34;dni&#34;: &#34;%s&#34;, &#34;nombre_completo&#34;: &#34;%s %s&#34;}\n&#39;</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$dni</span><span style="color:#2aa198">&#34;</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$nombre</span><span style="color:#2aa198">&#34;</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$apellido</span><span style="color:#2aa198">&#34;</span>
+<span style="color:#719e07">done</span>
+</code></pre></div><p>El resultado hasta aquí es:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ bash script.sh
+<span style="color:#719e07">{</span><span style="color:#2aa198">&#34;dni&#34;</span>: <span style="color:#2aa198">&#34;34533796-A&#34;</span>, <span style="color:#2aa198">&#34;nombre_completo&#34;</span>: <span style="color:#2aa198">&#34;Martin Ortega&#34;</span><span style="color:#719e07">}</span>
+<span style="color:#719e07">{</span><span style="color:#2aa198">&#34;dni&#34;</span>: <span style="color:#2aa198">&#34;67448880-E&#34;</span>, <span style="color:#2aa198">&#34;nombre_completo&#34;</span>: <span style="color:#2aa198">&#34;Lucia Guerrero&#34;</span><span style="color:#719e07">}</span>
+<span style="color:#719e07">{</span><span style="color:#2aa198">&#34;dni&#34;</span>: <span style="color:#2aa198">&#34;22894495-W&#34;</span>, <span style="color:#2aa198">&#34;nombre_completo&#34;</span>: <span style="color:#2aa198">&#34;Luisa Fuentes&#34;</span><span style="color:#719e07">}</span>
+</code></pre></div><p>A continuación, el <em>script</em> construye cada uno de los objetos en <code>json_elements</code> y los concatena, añdiendo una <code>,</code> tras cada uno de ellos:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell"><span style="color:#719e07">#!/bin/bash
+</span><span style="color:#719e07"></span>
+<span style="color:#268bd2">number_of_results</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>jq <span style="color:#2aa198">&#39;.results | length&#39;</span> users.json<span style="color:#719e07">)</span>
+
+<span style="color:#268bd2">json</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#39;&#39;</span>
+
+<span style="color:#719e07">for</span> <span style="color:#719e07">((</span><span style="color:#268bd2">i</span><span style="color:#719e07">=</span>0; i&lt;number_of_results; i++<span style="color:#719e07">))</span>; <span style="color:#719e07">do</span>
+    <span style="color:#268bd2">dni</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>jq -r <span style="color:#2aa198">&#34;.results[</span><span style="color:#268bd2">$i</span><span style="color:#2aa198">].id.value&#34;</span> users.json<span style="color:#719e07">)</span>
+    <span style="color:#268bd2">nombre</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>jq -r <span style="color:#2aa198">&#34;.results[</span><span style="color:#268bd2">$i</span><span style="color:#2aa198">].name.first&#34;</span> users.json<span style="color:#719e07">)</span>
+    <span style="color:#268bd2">apellido</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>jq -r <span style="color:#2aa198">&#34;.results[</span><span style="color:#268bd2">$i</span><span style="color:#2aa198">].name.last&#34;</span> users.json<span style="color:#719e07">)</span>
+    <span style="color:#268bd2">json_element</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span><span style="color:#b58900">printf</span> <span style="color:#2aa198">&#39;{&#34;dni&#34;: &#34;%s&#34;, &#34;nombre_completo&#34;: &#34;%s %s&#34;}&#39;</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$dni</span><span style="color:#2aa198">&#34;</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$nombre</span><span style="color:#2aa198">&#34;</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$apellido</span><span style="color:#2aa198">&#34;</span><span style="color:#719e07">)</span>
+    <span style="color:#268bd2">json</span><span style="color:#719e07">+=</span><span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$json_element</span><span style="color:#2aa198">,&#34;</span>
+<span style="color:#719e07">done</span>
+
+<span style="color:#b58900">echo</span> <span style="color:#268bd2">$json</span>
+</code></pre></div><p>El resultado es:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell">$ bash script.sh
+<span style="color:#719e07">{</span><span style="color:#2aa198">&#34;dni&#34;</span>: <span style="color:#2aa198">&#34;34533796-A&#34;</span>, <span style="color:#2aa198">&#34;nombre_completo&#34;</span>: <span style="color:#2aa198">&#34;Martin Ortega&#34;</span><span style="color:#719e07">}</span>,<span style="color:#719e07">{</span><span style="color:#2aa198">&#34;dni&#34;</span>: <span style="color:#2aa198">&#34;67448880-E&#34;</span>, <span style="color:#2aa198">&#34;nombre_completo&#34;</span>: <span style="color:#2aa198">&#34;Lucia Guerrero&#34;</span><span style="color:#719e07">}</span>,<span style="color:#719e07">{</span><span style="color:#2aa198">&#34;dni&#34;</span>: <span style="color:#2aa198">&#34;22894495-W&#34;</span>, <span style="color:#2aa198">&#34;nombre_completo&#34;</span>: <span style="color:#2aa198">&#34;Luisa Fuentes&#34;</span><span style="color:#719e07">}</span>,
+</code></pre></div><p>El problema es que el resultado no es un objeto JSON válido: sobra una coma al final y el resultado debe ir entre <code>[ ]</code>.</p>
 <p>Así que se recurre al clásico <code>sed</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#268bd2">json</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#719e07">$(</span><span style="color:#b58900">echo</span> <span style="color:#268bd2">$json</span> | sed <span style="color:#2aa198">&#39;s/,$//&#39;</span><span style="color:#719e07">)</span><span style="color:#2aa198">&#34;</span>
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">json</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;[ </span><span style="color:#268bd2">$json</span><span style="color:#2aa198"> ]&#34;</span>
-</span></span></code></pre></div><p>El <em>script</em> tenía un aspecto similar a:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#719e07">#!/bin/bash
-</span></span></span><span style="display:flex;"><span><span style="color:#719e07"></span>
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">number_of_results</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>jq <span style="color:#2aa198">&#39;.results | length&#39;</span> users.json<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">json</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#39;&#39;</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">for</span> <span style="color:#719e07">((</span><span style="color:#268bd2">i</span><span style="color:#719e07">=</span>0; i&lt;number_of_results; i++<span style="color:#719e07">))</span>; <span style="color:#719e07">do</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">dni</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>jq -r <span style="color:#2aa198">&#34;.results[</span><span style="color:#268bd2">$i</span><span style="color:#2aa198">].id.value&#34;</span> users.json<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">nombre</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>jq -r <span style="color:#2aa198">&#34;.results[</span><span style="color:#268bd2">$i</span><span style="color:#2aa198">].name.first&#34;</span> users.json<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">apellido</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>jq -r <span style="color:#2aa198">&#34;.results[</span><span style="color:#268bd2">$i</span><span style="color:#2aa198">].name.last&#34;</span> users.json<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">json_element</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span><span style="color:#b58900">printf</span> <span style="color:#2aa198">&#39;{&#34;dni&#34;: &#34;%s&#34;, &#34;nombre_completo&#34;: &#34;%s %s&#34;}&#39;</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$dni</span><span style="color:#2aa198">&#34;</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$nombre</span><span style="color:#2aa198">&#34;</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$apellido</span><span style="color:#2aa198">&#34;</span><span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">json</span><span style="color:#719e07">+=</span><span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$json_element</span><span style="color:#2aa198">,&#34;</span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">done</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">json</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span><span style="color:#b58900">echo</span> <span style="color:#268bd2">$json</span> | sed <span style="color:#2aa198">&#39;s/,$//&#39;</span><span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">json</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;[ </span><span style="color:#268bd2">$json</span><span style="color:#2aa198"> ]&#34;</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#b58900">echo</span> <span style="color:#268bd2">$json</span> | tee final.json
-</span></span></code></pre></div><p>Y el resultado de ejecutarlo es un fichero <code>final.json</code> que contiene:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#719e07">[</span> <span style="color:#719e07">{</span><span style="color:#2aa198">&#34;dni&#34;</span>: <span style="color:#2aa198">&#34;34533796-A&#34;</span>, <span style="color:#2aa198">&#34;nombre_completo&#34;</span>: <span style="color:#2aa198">&#34;Martin Ortega&#34;</span><span style="color:#719e07">}</span>,<span style="color:#719e07">{</span><span style="color:#2aa198">&#34;dni&#34;</span>: <span style="color:#2aa198">&#34;67448880-E&#34;</span>, <span style="color:#2aa198">&#34;nombre_completo&#34;</span>: <span style="color:#2aa198">&#34;Lucia Guerrero&#34;</span><span style="color:#719e07">}</span>,<span style="color:#719e07">{</span><span style="color:#2aa198">&#34;dni&#34;</span>: <span style="color:#2aa198">&#34;22894495-W&#34;</span>, <span style="color:#2aa198">&#34;nombre_completo&#34;</span>: <span style="color:#2aa198">&#34;Luisa Fuentes&#34;</span><span style="color:#719e07">}</span> <span style="color:#719e07">]</span>
-</span></span></code></pre></div><h3 id="simplificando">Simplificando</h3>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell"><span style="color:#268bd2">json</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#719e07">$(</span><span style="color:#b58900">echo</span> <span style="color:#268bd2">$json</span> | sed <span style="color:#2aa198">&#39;s/,$//&#39;</span><span style="color:#719e07">)</span><span style="color:#2aa198">&#34;</span>
+<span style="color:#268bd2">json</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;[ </span><span style="color:#268bd2">$json</span><span style="color:#2aa198"> ]&#34;</span>
+</code></pre></div><p>El <em>script</em> tenía un aspecto similar a:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell"><span style="color:#719e07">#!/bin/bash
+</span><span style="color:#719e07"></span>
+<span style="color:#268bd2">number_of_results</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>jq <span style="color:#2aa198">&#39;.results | length&#39;</span> users.json<span style="color:#719e07">)</span>
+
+<span style="color:#268bd2">json</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#39;&#39;</span>
+
+<span style="color:#719e07">for</span> <span style="color:#719e07">((</span><span style="color:#268bd2">i</span><span style="color:#719e07">=</span>0; i&lt;number_of_results; i++<span style="color:#719e07">))</span>; <span style="color:#719e07">do</span>
+    <span style="color:#268bd2">dni</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>jq -r <span style="color:#2aa198">&#34;.results[</span><span style="color:#268bd2">$i</span><span style="color:#2aa198">].id.value&#34;</span> users.json<span style="color:#719e07">)</span>
+    <span style="color:#268bd2">nombre</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>jq -r <span style="color:#2aa198">&#34;.results[</span><span style="color:#268bd2">$i</span><span style="color:#2aa198">].name.first&#34;</span> users.json<span style="color:#719e07">)</span>
+    <span style="color:#268bd2">apellido</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>jq -r <span style="color:#2aa198">&#34;.results[</span><span style="color:#268bd2">$i</span><span style="color:#2aa198">].name.last&#34;</span> users.json<span style="color:#719e07">)</span>
+    <span style="color:#268bd2">json_element</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span><span style="color:#b58900">printf</span> <span style="color:#2aa198">&#39;{&#34;dni&#34;: &#34;%s&#34;, &#34;nombre_completo&#34;: &#34;%s %s&#34;}&#39;</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$dni</span><span style="color:#2aa198">&#34;</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$nombre</span><span style="color:#2aa198">&#34;</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$apellido</span><span style="color:#2aa198">&#34;</span><span style="color:#719e07">)</span>
+    <span style="color:#268bd2">json</span><span style="color:#719e07">+=</span><span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$json_element</span><span style="color:#2aa198">,&#34;</span>
+<span style="color:#719e07">done</span>
+
+<span style="color:#268bd2">json</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span><span style="color:#b58900">echo</span> <span style="color:#268bd2">$json</span> | sed <span style="color:#2aa198">&#39;s/,$//&#39;</span><span style="color:#719e07">)</span>
+<span style="color:#268bd2">json</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;[ </span><span style="color:#268bd2">$json</span><span style="color:#2aa198"> ]&#34;</span>
+
+<span style="color:#b58900">echo</span> <span style="color:#268bd2">$json</span> | tee final.json
+</code></pre></div><p>Y el resultado de ejecutarlo es un fichero <code>final.json</code> que contiene:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell"><span style="color:#719e07">[</span> <span style="color:#719e07">{</span><span style="color:#2aa198">&#34;dni&#34;</span>: <span style="color:#2aa198">&#34;34533796-A&#34;</span>, <span style="color:#2aa198">&#34;nombre_completo&#34;</span>: <span style="color:#2aa198">&#34;Martin Ortega&#34;</span><span style="color:#719e07">}</span>,<span style="color:#719e07">{</span><span style="color:#2aa198">&#34;dni&#34;</span>: <span style="color:#2aa198">&#34;67448880-E&#34;</span>, <span style="color:#2aa198">&#34;nombre_completo&#34;</span>: <span style="color:#2aa198">&#34;Lucia Guerrero&#34;</span><span style="color:#719e07">}</span>,<span style="color:#719e07">{</span><span style="color:#2aa198">&#34;dni&#34;</span>: <span style="color:#2aa198">&#34;22894495-W&#34;</span>, <span style="color:#2aa198">&#34;nombre_completo&#34;</span>: <span style="color:#2aa198">&#34;Luisa Fuentes&#34;</span><span style="color:#719e07">}</span> <span style="color:#719e07">]</span>
+</code></pre></div><h3 id="simplificando">Simplificando</h3>
 <p><code>jq</code> permite construir un objeto JSON a partir de variables. Del manual de <a href="https://stedolan.github.io/jq/manual/">jq</a>:</p>
 <blockquote>
 <p><code>--arg name value</code>:</p>
@@ -206,110 +206,110 @@
 <p>En mi opinión, esta forma de construir el objeto es más robusta; <code>printf</code> se limita a insertar las <em>string</em> en el lugar indicado y el <strong>orden indicado</strong> en una cadena&hellip; <code>printf</code> no valida que &ldquo;la cadena resultante&rdquo; sea un objeto JSON válido. Por tanto, si queremos generar un documento JSON complejo, rápidamente controlar qué valor se está insertando dónde se convierte en una pesadilla (especialmente si se debe modificar la estructura del documento JSON)&hellip;</p>
 <p>Usando <code>jq</code> asignamos nombres a las variables; el orden en el que se pasan los valores deja de ser relevante; además, el nombre de la variable permite identificar qué se está insertando en el JSON final.</p>
 <p>Cambiamos el <code>printf</code> por <code>jq</code> (y de paso eliminamos la <em>variable intermedia</em> <code>json_element</code>):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#586e75"># json_element=$(printf &#39;{&#34;dni&#34;: &#34;%s&#34;, &#34;nombre_completo&#34;: &#34;%s %s&#34;}&#39; &#34;$dni&#34; &#34;$nombre&#34; &#34;$apellido&#34;)</span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75"># json+=&#34;$json_element,&#34;</span>
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">json</span><span style="color:#719e07">+=</span><span style="color:#719e07">$(</span>jq -n --arg dni <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$dni</span><span style="color:#2aa198">&#34;</span> --arg nombre <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$nombre</span><span style="color:#2aa198">&#34;</span> --arg apellido <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$apellido</span><span style="color:#2aa198">&#34;</span> <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span><span style="color:#2aa198">&#39;{
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">    &#34;dni&#34;: $dni,
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">    &#34;nombre_completo&#34;: ($nombre + &#34; &#34; + $apellido)
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">}&#39;</span><span style="color:#719e07">)</span>
-</span></span></code></pre></div><p>Usamos también <code>jq</code> para <em>combinar</em> <code>nombre</code> y <code>apellido</code> en un único campo <code>nombre_completo</code> en el JSON, separados por un espacio. Esta opción de combinar dos (o más) variables en un solo campo permite <em>unir</em>, por ejemplo, una IP y una máscara para crear un CIDR, <code>IP:Puerto</code>, etc:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#2aa198">&#34;cidr&#34;</span>: <span style="color:#719e07">(</span><span style="color:#268bd2">$ip</span> + <span style="color:#2aa198">&#34;/&#34;</span> <span style="color:#268bd2">$mask</span><span style="color:#719e07">)</span>
-</span></span></code></pre></div><p>Si más tarde se debe modificar la estructura del fichero JSON, no hay ningún problema en identificar qué valor se inserta dónde (sin importar el orden); en el siguiente ejemplo, generamos el JSON con los tres campos de forma independiente, sin tener que modificar las variables:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#586e75"># ejemplo</span>
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">json</span><span style="color:#719e07">+=</span><span style="color:#719e07">$(</span>jq -n --arg dni <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$dni</span><span style="color:#2aa198">&#34;</span> --arg nombre <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$nombre</span><span style="color:#2aa198">&#34;</span> --arg apellido <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$apellido</span><span style="color:#2aa198">&#34;</span> <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span><span style="color:#2aa198">&#39;{
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">    &#34;nombre&#34;: $nombre,
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">    &#34;apellido&#34;: $apellido,
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">    &#34;dni&#34;: $dni
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">}&#39;</span><span style="color:#719e07">)</span>
-</span></span></code></pre></div><p>En este punto, el contenido de <code>$json</code> al finalizar el bucle es:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell"><span style="color:#586e75"># json_element=$(printf &#39;{&#34;dni&#34;: &#34;%s&#34;, &#34;nombre_completo&#34;: &#34;%s %s&#34;}&#39; &#34;$dni&#34; &#34;$nombre&#34; &#34;$apellido&#34;)</span>
+<span style="color:#586e75"># json+=&#34;$json_element,&#34;</span>
+<span style="color:#268bd2">json</span><span style="color:#719e07">+=</span><span style="color:#719e07">$(</span>jq -n --arg dni <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$dni</span><span style="color:#2aa198">&#34;</span> --arg nombre <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$nombre</span><span style="color:#2aa198">&#34;</span> --arg apellido <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$apellido</span><span style="color:#2aa198">&#34;</span> <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span><span style="color:#2aa198">&#39;{
+</span><span style="color:#2aa198">    &#34;dni&#34;: $dni,
+</span><span style="color:#2aa198">    &#34;nombre_completo&#34;: ($nombre + &#34; &#34; + $apellido)
+</span><span style="color:#2aa198">}&#39;</span><span style="color:#719e07">)</span>
+</code></pre></div><p>Usamos también <code>jq</code> para <em>combinar</em> <code>nombre</code> y <code>apellido</code> en un único campo <code>nombre_completo</code> en el JSON, separados por un espacio. Esta opción de combinar dos (o más) variables en un solo campo permite <em>unir</em>, por ejemplo, una IP y una máscara para crear un CIDR, <code>IP:Puerto</code>, etc:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell"><span style="color:#2aa198">&#34;cidr&#34;</span>: <span style="color:#719e07">(</span><span style="color:#268bd2">$ip</span> + <span style="color:#2aa198">&#34;/&#34;</span> <span style="color:#268bd2">$mask</span><span style="color:#719e07">)</span>
+</code></pre></div><p>Si más tarde se debe modificar la estructura del fichero JSON, no hay ningún problema en identificar qué valor se inserta dónde (sin importar el orden); en el siguiente ejemplo, generamos el JSON con los tres campos de forma independiente, sin tener que modificar las variables:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell"><span style="color:#586e75"># ejemplo</span>
+<span style="color:#268bd2">json</span><span style="color:#719e07">+=</span><span style="color:#719e07">$(</span>jq -n --arg dni <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$dni</span><span style="color:#2aa198">&#34;</span> --arg nombre <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$nombre</span><span style="color:#2aa198">&#34;</span> --arg apellido <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$apellido</span><span style="color:#2aa198">&#34;</span> <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span><span style="color:#2aa198">&#39;{
+</span><span style="color:#2aa198">    &#34;nombre&#34;: $nombre,
+</span><span style="color:#2aa198">    &#34;apellido&#34;: $apellido,
+</span><span style="color:#2aa198">    &#34;dni&#34;: $dni
+</span><span style="color:#2aa198">}&#39;</span><span style="color:#719e07">)</span>
+</code></pre></div><p>En este punto, el contenido de <code>$json</code> al finalizar el bucle es:</p>
 <blockquote>
 <p>Muestro cada bloque del JSON en diferentes líneas para que sea más fácil observar que, al haber sustituido el <code>printf</code> por <code>jq -n ...</code>, no tenemos la &ldquo;coma&rdquo; tras cada objeto en el JSON resultante.</p>
 </blockquote>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{ <span style="color:#268bd2">&#34;dni&#34;</span>: <span style="color:#2aa198">&#34;34533796-A&#34;</span>, <span style="color:#268bd2">&#34;nombre_completo&#34;</span>: <span style="color:#2aa198">&#34;Martin Ortega&#34;</span> }
-</span></span><span style="display:flex;"><span>{ <span style="color:#268bd2">&#34;dni&#34;</span>: <span style="color:#2aa198">&#34;67448880-E&#34;</span>, <span style="color:#268bd2">&#34;nombre_completo&#34;</span>: <span style="color:#2aa198">&#34;Lucia Guerrero&#34;</span> }
-</span></span><span style="display:flex;"><span>{ <span style="color:#268bd2">&#34;dni&#34;</span>: <span style="color:#2aa198">&#34;22894495-W&#34;</span>, <span style="color:#268bd2">&#34;nombre_completo&#34;</span>: <span style="color:#2aa198">&#34;Luisa Fuentes&#34;</span> }
-</span></span></code></pre></div><p>Usando el comando <code>--slurp</code> (o <code>-s</code>, en su versión corta), <code>jq</code> procesa cada elemento; en nuestro caso sólo queremos añadirlo a un <em>array</em>, sin más modificaciones (y volcar el resultado a un fichero):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$json</span><span style="color:#2aa198">&#34;</span> | jq --slurp <span style="color:#2aa198">&#39;.&#39;</span> &gt; final.json
-</span></span></code></pre></div><p>El resultado final es el deseado, pero evitamos:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-json" data-lang="json">{ <span style="color:#268bd2">&#34;dni&#34;</span>: <span style="color:#2aa198">&#34;34533796-A&#34;</span>, <span style="color:#268bd2">&#34;nombre_completo&#34;</span>: <span style="color:#2aa198">&#34;Martin Ortega&#34;</span> }
+{ <span style="color:#268bd2">&#34;dni&#34;</span>: <span style="color:#2aa198">&#34;67448880-E&#34;</span>, <span style="color:#268bd2">&#34;nombre_completo&#34;</span>: <span style="color:#2aa198">&#34;Lucia Guerrero&#34;</span> }
+{ <span style="color:#268bd2">&#34;dni&#34;</span>: <span style="color:#2aa198">&#34;22894495-W&#34;</span>, <span style="color:#268bd2">&#34;nombre_completo&#34;</span>: <span style="color:#2aa198">&#34;Luisa Fuentes&#34;</span> }
+</code></pre></div><p>Usando el comando <code>--slurp</code> (o <code>-s</code>, en su versión corta), <code>jq</code> procesa cada elemento; en nuestro caso sólo queremos añadirlo a un <em>array</em>, sin más modificaciones (y volcar el resultado a un fichero):</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell"><span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$json</span><span style="color:#2aa198">&#34;</span> | jq --slurp <span style="color:#2aa198">&#39;.&#39;</span> &gt; final.json
+</code></pre></div><p>El resultado final es el deseado, pero evitamos:</p>
 <ul>
 <li>tener que añadir <code>,</code> tras cada elemento</li>
 <li>eliminar la <code>,</code> tras el último elemento (usando <code>sed</code> y expresiones regulares)</li>
 <li>añadir <code>[ ]</code> para convertirlo en un <em>array</em> de JSON válido</li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>[
-</span></span><span style="display:flex;"><span>  {
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">&#34;dni&#34;</span>: <span style="color:#2aa198">&#34;34533796-A&#34;</span>,
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">&#34;nombre_completo&#34;</span>: <span style="color:#2aa198">&#34;Martin Ortega&#34;</span>
-</span></span><span style="display:flex;"><span>  },
-</span></span><span style="display:flex;"><span>  {
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">&#34;dni&#34;</span>: <span style="color:#2aa198">&#34;67448880-E&#34;</span>,
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">&#34;nombre_completo&#34;</span>: <span style="color:#2aa198">&#34;Lucia Guerrero&#34;</span>
-</span></span><span style="display:flex;"><span>  },
-</span></span><span style="display:flex;"><span>  {
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">&#34;dni&#34;</span>: <span style="color:#2aa198">&#34;22894495-W&#34;</span>,
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">&#34;nombre_completo&#34;</span>: <span style="color:#2aa198">&#34;Luisa Fuentes&#34;</span>
-</span></span><span style="display:flex;"><span>  }
-</span></span><span style="display:flex;"><span>]
-</span></span></code></pre></div><p>El resultado hasta ahora es:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#719e07">#!/bin/bash
-</span></span></span><span style="display:flex;"><span><span style="color:#719e07"></span>
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">number_of_results</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>jq <span style="color:#2aa198">&#39;.results | length&#39;</span> users.json<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">json</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#39;&#39;</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">for</span> <span style="color:#719e07">((</span><span style="color:#268bd2">i</span><span style="color:#719e07">=</span>0; i&lt;number_of_results; i++<span style="color:#719e07">))</span>; <span style="color:#719e07">do</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">dni</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>jq -r <span style="color:#2aa198">&#34;.results[</span><span style="color:#268bd2">$i</span><span style="color:#2aa198">].id.value&#34;</span> users.json<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">nombre</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>jq -r <span style="color:#2aa198">&#34;.results[</span><span style="color:#268bd2">$i</span><span style="color:#2aa198">].name.first&#34;</span> users.json<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">apellido</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>jq -r <span style="color:#2aa198">&#34;.results[</span><span style="color:#268bd2">$i</span><span style="color:#2aa198">].name.last&#34;</span> users.json<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">json</span><span style="color:#719e07">+=</span><span style="color:#719e07">$(</span>jq -n --arg dni <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$dni</span><span style="color:#2aa198">&#34;</span> --arg nombre <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$nombre</span><span style="color:#2aa198">&#34;</span> --arg apellido <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$apellido</span><span style="color:#2aa198">&#34;</span> <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>           <span style="color:#2aa198">&#39;{
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">              &#34;dni&#34;: $dni,
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">              &#34;nombre_completo&#34;: ($nombre + &#34; &#34; + $apellido)
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">            }&#39;</span><span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">done</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$json</span><span style="color:#2aa198">&#34;</span> | jq --slurp <span style="color:#2aa198">&#39;.&#39;</span> | tee final.json
-</span></span></code></pre></div><p>Podríamos extraer el <em>template</em> JSON a una variable:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#268bd2">json_template</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#39;{
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">                  &#34;dni&#34;: $dni,
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">                  &#34;nombre_completo&#34;: ($nombre + &#34; &#34; + $apellido)
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">              }&#39;</span>
-</span></span></code></pre></div><p>Y así simplificar la expresión que construye los objetos JSON:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#268bd2">json</span><span style="color:#719e07">+=</span><span style="color:#719e07">$(</span>jq -n
-</span></span><span style="display:flex;"><span>           --arg dni <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$dni</span><span style="color:#2aa198">&#34;</span> <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>           --arg nombre <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$nombre</span><span style="color:#2aa198">&#34;</span> <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>           --arg apellido <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$apellido</span><span style="color:#2aa198">&#34;</span> <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>             <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$json_template</span><span style="color:#2aa198">&#34;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#719e07">)</span>
-</span></span></code></pre></div><p>De esta forma, obtenemos:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#719e07">#!/bin/bash
-</span></span></span><span style="display:flex;"><span><span style="color:#719e07"></span>
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">json_template</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#39;
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">{
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">  &#34;dni&#34;: $dni,
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">  &#34;nombre_completo&#34;: ($nombre + &#34; &#34; + $apellido)
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">}&#39;</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">json</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#39;&#39;</span>
-</span></span><span style="display:flex;"><span><span style="color:#268bd2">number_of_results</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>jq <span style="color:#2aa198">&#39;.results | length&#39;</span> users.json<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">for</span> <span style="color:#719e07">((</span><span style="color:#268bd2">i</span> <span style="color:#719e07">=</span> 0; i &lt; number_of_results; i++<span style="color:#719e07">))</span>; <span style="color:#719e07">do</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">dni</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>jq -r <span style="color:#2aa198">&#34;.results[</span><span style="color:#268bd2">$i</span><span style="color:#2aa198">].id.value&#34;</span> users.json<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">nombre</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>jq -r <span style="color:#2aa198">&#34;.results[</span><span style="color:#268bd2">$i</span><span style="color:#2aa198">].name.first&#34;</span> users.json<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">apellido</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>jq -r <span style="color:#2aa198">&#34;.results[</span><span style="color:#268bd2">$i</span><span style="color:#2aa198">].name.last&#34;</span> users.json<span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">json</span><span style="color:#719e07">+=</span><span style="color:#719e07">$(</span>jq --null-input <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$json_template</span><span style="color:#2aa198">&#34;</span>           <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>                            --arg dni      <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$dni</span><span style="color:#2aa198">&#34;</span>      <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>                            --arg nombre   <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$nombre</span><span style="color:#2aa198">&#34;</span>   <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>                            --arg apellido <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$apellido</span><span style="color:#2aa198">&#34;</span>  
-</span></span><span style="display:flex;"><span>            <span style="color:#719e07">)</span>
-</span></span><span style="display:flex;"><span><span style="color:#719e07">done</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$json</span><span style="color:#2aa198">&#34;</span> | jq --slurp <span style="color:#2aa198">&#39;.&#39;</span> | tee final.json
-</span></span></code></pre></div><h2 id="conclusión">Conclusión</h2>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-json" data-lang="json">[
+  {
+    <span style="color:#268bd2">&#34;dni&#34;</span>: <span style="color:#2aa198">&#34;34533796-A&#34;</span>,
+    <span style="color:#268bd2">&#34;nombre_completo&#34;</span>: <span style="color:#2aa198">&#34;Martin Ortega&#34;</span>
+  },
+  {
+    <span style="color:#268bd2">&#34;dni&#34;</span>: <span style="color:#2aa198">&#34;67448880-E&#34;</span>,
+    <span style="color:#268bd2">&#34;nombre_completo&#34;</span>: <span style="color:#2aa198">&#34;Lucia Guerrero&#34;</span>
+  },
+  {
+    <span style="color:#268bd2">&#34;dni&#34;</span>: <span style="color:#2aa198">&#34;22894495-W&#34;</span>,
+    <span style="color:#268bd2">&#34;nombre_completo&#34;</span>: <span style="color:#2aa198">&#34;Luisa Fuentes&#34;</span>
+  }
+]
+</code></pre></div><p>El resultado hasta ahora es:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell"><span style="color:#719e07">#!/bin/bash
+</span><span style="color:#719e07"></span>
+<span style="color:#268bd2">number_of_results</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>jq <span style="color:#2aa198">&#39;.results | length&#39;</span> users.json<span style="color:#719e07">)</span>
+
+<span style="color:#268bd2">json</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#39;&#39;</span>
+
+<span style="color:#719e07">for</span> <span style="color:#719e07">((</span><span style="color:#268bd2">i</span><span style="color:#719e07">=</span>0; i&lt;number_of_results; i++<span style="color:#719e07">))</span>; <span style="color:#719e07">do</span>
+    <span style="color:#268bd2">dni</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>jq -r <span style="color:#2aa198">&#34;.results[</span><span style="color:#268bd2">$i</span><span style="color:#2aa198">].id.value&#34;</span> users.json<span style="color:#719e07">)</span>
+    <span style="color:#268bd2">nombre</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>jq -r <span style="color:#2aa198">&#34;.results[</span><span style="color:#268bd2">$i</span><span style="color:#2aa198">].name.first&#34;</span> users.json<span style="color:#719e07">)</span>
+    <span style="color:#268bd2">apellido</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>jq -r <span style="color:#2aa198">&#34;.results[</span><span style="color:#268bd2">$i</span><span style="color:#2aa198">].name.last&#34;</span> users.json<span style="color:#719e07">)</span>
+
+    <span style="color:#268bd2">json</span><span style="color:#719e07">+=</span><span style="color:#719e07">$(</span>jq -n --arg dni <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$dni</span><span style="color:#2aa198">&#34;</span> --arg nombre <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$nombre</span><span style="color:#2aa198">&#34;</span> --arg apellido <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$apellido</span><span style="color:#2aa198">&#34;</span> <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>           <span style="color:#2aa198">&#39;{
+</span><span style="color:#2aa198">              &#34;dni&#34;: $dni,
+</span><span style="color:#2aa198">              &#34;nombre_completo&#34;: ($nombre + &#34; &#34; + $apellido)
+</span><span style="color:#2aa198">            }&#39;</span><span style="color:#719e07">)</span>
+<span style="color:#719e07">done</span>
+
+<span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$json</span><span style="color:#2aa198">&#34;</span> | jq --slurp <span style="color:#2aa198">&#39;.&#39;</span> | tee final.json
+</code></pre></div><p>Podríamos extraer el <em>template</em> JSON a una variable:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell"><span style="color:#268bd2">json_template</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#39;{
+</span><span style="color:#2aa198">                  &#34;dni&#34;: $dni,
+</span><span style="color:#2aa198">                  &#34;nombre_completo&#34;: ($nombre + &#34; &#34; + $apellido)
+</span><span style="color:#2aa198">              }&#39;</span>
+</code></pre></div><p>Y así simplificar la expresión que construye los objetos JSON:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell"><span style="color:#268bd2">json</span><span style="color:#719e07">+=</span><span style="color:#719e07">$(</span>jq -n
+           --arg dni <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$dni</span><span style="color:#2aa198">&#34;</span> <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>           --arg nombre <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$nombre</span><span style="color:#2aa198">&#34;</span> <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>           --arg apellido <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$apellido</span><span style="color:#2aa198">&#34;</span> <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>             <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$json_template</span><span style="color:#2aa198">&#34;</span>
+    <span style="color:#719e07">)</span>
+</code></pre></div><p>De esta forma, obtenemos:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-shell" data-lang="shell"><span style="color:#719e07">#!/bin/bash
+</span><span style="color:#719e07"></span>
+<span style="color:#268bd2">json_template</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#39;
+</span><span style="color:#2aa198">{
+</span><span style="color:#2aa198">  &#34;dni&#34;: $dni,
+</span><span style="color:#2aa198">  &#34;nombre_completo&#34;: ($nombre + &#34; &#34; + $apellido)
+</span><span style="color:#2aa198">}&#39;</span>
+
+<span style="color:#268bd2">json</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#39;&#39;</span>
+<span style="color:#268bd2">number_of_results</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>jq <span style="color:#2aa198">&#39;.results | length&#39;</span> users.json<span style="color:#719e07">)</span>
+
+<span style="color:#719e07">for</span> <span style="color:#719e07">((</span><span style="color:#268bd2">i</span> <span style="color:#719e07">=</span> 0; i &lt; number_of_results; i++<span style="color:#719e07">))</span>; <span style="color:#719e07">do</span>
+    <span style="color:#268bd2">dni</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>jq -r <span style="color:#2aa198">&#34;.results[</span><span style="color:#268bd2">$i</span><span style="color:#2aa198">].id.value&#34;</span> users.json<span style="color:#719e07">)</span>
+    <span style="color:#268bd2">nombre</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>jq -r <span style="color:#2aa198">&#34;.results[</span><span style="color:#268bd2">$i</span><span style="color:#2aa198">].name.first&#34;</span> users.json<span style="color:#719e07">)</span>
+    <span style="color:#268bd2">apellido</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>jq -r <span style="color:#2aa198">&#34;.results[</span><span style="color:#268bd2">$i</span><span style="color:#2aa198">].name.last&#34;</span> users.json<span style="color:#719e07">)</span>
+
+    <span style="color:#268bd2">json</span><span style="color:#719e07">+=</span><span style="color:#719e07">$(</span>jq --null-input <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$json_template</span><span style="color:#2aa198">&#34;</span>           <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>                            --arg dni      <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$dni</span><span style="color:#2aa198">&#34;</span>      <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>                            --arg nombre   <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$nombre</span><span style="color:#2aa198">&#34;</span>   <span style="color:#cb4b16">\
+</span><span style="color:#cb4b16"></span>                            --arg apellido <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$apellido</span><span style="color:#2aa198">&#34;</span>  
+            <span style="color:#719e07">)</span>
+<span style="color:#719e07">done</span>
+
+<span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$json</span><span style="color:#2aa198">&#34;</span> | jq --slurp <span style="color:#2aa198">&#39;.&#39;</span> | tee final.json
+</code></pre></div><h2 id="conclusión">Conclusión</h2>
 <p>En esta versión, aprovechamos mejor la funcionalidad que nos ofrece <code>jq</code>.</p>
 <p>En primer lugar, para generar los <em>objetos JSON</em> a partir de variables en Bash. De esta forma, tenemos flexibilidad para modificar la estructura del documento JSON. Además, <code>jq</code> se asegura de que el documento generado sea correcto, entrecomillando los valores, etc.</p>
 <p>Por otro lado, mediante <code>--slurp</code>, combinamos los objetos generados y los convertimos en un <em>array</em>. De nuevo, <code>jq</code> se encarga de añadir las comas para separar los elementos del <em>array</em>, incluir los <code>[]</code>. Así evitamos que se <em>cuelen</em> errores teniendo que manipular con comandos como <code>sed</code> (y expresiones regulares) que no &ldquo;saben&rdquo; que están modificando un objeto JSON.</p>
