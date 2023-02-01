@@ -9,15 +9,15 @@
 <meta name="generator" content="Hugo 0.108.0">
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
-<link rel="alternate" type="application/rss+xml" title="RSS" href="/tags/aws-cli/index.xml"> 
 
-<link rel="canonical" href="https://onthedock.github.io/tags/aws-cli/">
+
+<link rel="canonical" href="https://onthedock.github.io/post/230201-csv-parser-en-go/">
 
 
     
     <link href="https://fonts.googleapis.com/css?family=Special+Elite|Fira+Sans:400,700" rel="stylesheet">
     
-    <title>aws-cli - On The Dock</title>
+    <title>CSV Parser en Go (work in progress) - On The Dock</title>
     <style amp-boilerplate>body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}</style><noscript><style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style></noscript>
     <script async src="https://cdn.ampproject.org/v0.js"></script>
     
@@ -26,6 +26,60 @@
 <script async custom-element="amp-ad" src="https://cdn.ampproject.org/v0/amp-ad-0.1.js"></script>
 
     
+<meta name="description" content="&lt;p&gt;En la entrada &lt;a href=&#34;https://onthedock.github.io/post/230111-convertir-csv-en-json/&#34;&gt;Convertir CSV en JSON con Jq&lt;/a&gt; comentaba cómo realizar la conversión de un fichero CSV en JSON usando Jq.&lt;/p&gt;&lt;p&gt;En esta entrada repito (parcialmente) el ejercicio, pero usando Go.&lt;/p&gt;">
+
+<meta property="og:title" content="CSV Parser en Go (work in progress) - On The Dock">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://onthedock.github.io/post/230201-csv-parser-en-go/">
+<meta property="og:image" content="https://onthedock.github.io/images/go.png">
+<meta property="og:site_name" content="On The Dock">
+<meta property="og:description" content="&lt;p&gt;En la entrada &lt;a href=&#34;https://onthedock.github.io/post/230111-convertir-csv-en-json/&#34;&gt;Convertir CSV en JSON con Jq&lt;/a&gt; comentaba cómo realizar la conversión de un fichero CSV en JSON usando Jq.&lt;/p&gt;&lt;p&gt;En esta entrada repito (parcialmente) el ejercicio, pero usando Go.&lt;/p&gt;">
+<meta property="og:locale" content="ja_JP">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="On The Dock">
+<meta name="twitter:url" content="https://onthedock.github.io/post/230201-csv-parser-en-go/">
+<meta name="twitter:title" content="CSV Parser en Go (work in progress) - On The Dock">
+<meta name="twitter:description" content="&lt;p&gt;En la entrada &lt;a href=&#34;https://onthedock.github.io/post/230111-convertir-csv-en-json/&#34;&gt;Convertir CSV en JSON con Jq&lt;/a&gt; comentaba cómo realizar la conversión de un fichero CSV en JSON usando Jq.&lt;/p&gt;&lt;p&gt;En esta entrada repito (parcialmente) el ejercicio, pero usando Go.&lt;/p&gt;">
+<meta name="twitter:image" content="https://onthedock.github.io/images/go.png">
+
+
+<script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "NewsArticle",
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id":"https:\/\/onthedock.github.io\/"
+    },
+    "headline": "CSV Parser en Go (work in progress) - On The Dock",
+    "image": {
+      "@type": "ImageObject",
+      "url": "https:\/\/onthedock.github.io\/images\/go.png",
+      "height": 800,
+      "width": 800
+    },
+    "datePublished": "2023-02-01T20:08:55JST",
+    "dateModified": "2023-02-01T20:08:55JST",
+    "author": {
+      "@type": "Person",
+      "name": "On The Dock"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "On The Dock",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https:\/\/onthedock.github.io\/images/logo.png",
+        "width": 600,
+        "height": 60
+      }
+    },
+    "description": "\u003cp\u003eEn la entrada \u003ca href=\u0022https:\/\/onthedock.github.io\/post\/230111-convertir-csv-en-json\/\u0022\u003eConvertir CSV en JSON con Jq\u003c\/a\u003e comentaba cómo realizar la conversión de un fichero CSV en JSON usando Jq.\u003c\/p\u003e\n\u003cp\u003eEn esta entrada repito (parcialmente) el ejercicio, pero usando Go.\u003c\/p\u003e"
+  }
+</script>
+
+
     <style amp-custom>
       html { font-size: 18px;}@media (max-width: 768px) { html { font-size: 15px; }}body { font-family: 'Fira Sans', sans-serif; font-size: inherit; margin: 0; color: #263238;}html, body { margin: 0;}a { text-decoration: none; color: #e91e63;}p { margin: 0;}ul,ol { margin: 0; padding: 0;}h1, h2, h3, h4, h5, h6 { margin: 0; font-weight: 700;}h1 { font-size: 1.8rem; line-height: 2rem; margin: 1.5rem 0; }h2 { font-size: 1.4rem; line-height: 2rem; margin: 1.5rem 0; }h3 { font-size: 1.2rem; line-height: 1.5rem; margin: 1.5rem 0; }h4, h5, h6 { font-size: 1rem; line-height: 1.5rem; margin: 1.5rem 0; }.clearfix::after { content: ''; display: block; clear: both;}main{ display: block;}.searchbar{ display: block; border: none; margin: 1em auto; max-width: 780px; text-align: center;}/* Layouts */.l-header { padding: .5rem 0; margin-bottom: 2rem; border-bottom: 1px dashed #cfd8dc; text-align: center;}.l-footer { font-size: .8rem; padding: 1rem 0; border-top: 1px dashed #a3aaad;}.l-footer .copyright-notice,.l-footer .attribution { text-align: center; line-height: 1.5rem;}.l-container { max-width: 42rem; margin: 0 auto; padding: 0 1rem;}/* Parts:logo */.p-logo { font-family: 'Special Elite', cursive; font-weight: 700;}.p-logo a { color: #000; font-size: 1.8rem; line-height: 2rem;}.p-sublogo,.p-sublogo a { font-size: 1rem; line-height: 2rem;}img.linkedin { height: 1.1rem; border: 0; padding: 0; position: relative; top: 0.25rem;}.p-movetop { margin: 0 auto;}/* Parts:section */section { border-top: 2px solid #eceff1; padding: 1.5rem 0;}section>header { text-transform: uppercase; font-weight: 700; margin-bottom: 2rem; text-align: center;}section>header span { display: inline-block; background-color: #000; color: #fff; letter-spacing: 3px; font-size: .7rem; padding: .5rem .75rem;}/* Parts:facts */.p-facts { list-style: none; font-size: .8rem; margin-bottom: 1rem;}.p-facts:last-child { margin-bottom: 0;}.p-facts li { display: inline-block; margin-right: .5rem; text-transform: uppercase;}.p-facts li header { margin-bottom: .25rem; font-weight: 700;}.p-facts li header a { color: #000; text-decoration: underline;}.p-facts li li { display: inline-block; margin-right: .5rem;}.p-facts li li::after { content: ',';}.p-facts li li:last-child::after { content: '';}/* Parts:crumb */.p-crumb { list-style: none; margin-bottom: 1rem; font-size: .8rem; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}.p-crumb:last-child { margin-bottom: 0;}.p-crumb li { display: inline;}.p-crumb li::after { content: '›'; margin: 0 .5rem;}.p-crumb li:last-child::after { content: '';}/* Parts:page-title */.p-page-title { margin-bottom: 2rem;}.p-page-title .title { margin-bottom: .5rem;}/* Parts:share */.p-share { margin-bottom: 1.5rem; text-align: center;}.p-share a { display: inline-block; text-align: center; padding: .5rem .5rem; margin-right: .25rem; font-size: .6rem; background-color: #eceff1; font-weight: 700;}.p-share a { color: #1da1f2; }/* Parts:terms */.p-terms { padding-left: 2rem;}/* Parts:paginator */.p-paginator { text-align: center; margin-bottom: 3rem; padding-top: 2rem;}.p-paginator a { display: inline-block; border: 2px solid #eceff1; color: #263238; line-height: 2rem; padding: 0 1rem;}/* Parts:article */.p-articles { list-style: none;}.p-articles>li { margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px dashed #cfd8dc;}.p-articles>li:last-child { border-bottom: none; padding-bottom: 0;}.p-articles.thin>li { margin-bottom: 1rem; padding-bottom: 1rem;}article .article-header { display: table-cell; height: 6rem; vertical-align: middle;}article .title { margin: 0; margin-bottom: .5rem; font-size: 1.4rem; line-height: 2rem;}article .title a { color: #000;}article .header-wrapper { margin-bottom: 1.5rem;}article .thumbnail { display: block; background-position: center; background-size: cover; background-image: url(https://onthedock.github.io/images/default.jpg); width: 6rem; height: 6rem; border-radius: 50%; box-shadow: 0 0 3px 0 #333 inset; float: left; margin-right: 1rem;}article .summary { margin-bottom: 1.5rem;}article .readmore { text-align: center;}article .readmore a { font-size: .8rem; color: #000; text-decoration: underline;}article.li.sm .header-wrapper { margin-bottom: 0;}.article-body h2 { padding: 1rem 0; color: #55bbbb; border-bottom: 2px solid #eceff1;}.article-body h2:first-child { margin-top: 0; }.article-body h3 { color: #8997e4; font-style: italic;}.article-body h4 { border-left: solid .25rem #cddc39; padding: 0 .5rem;}.article-body p { margin: 1.5rem 0; line-height: 1.5rem;}.article-body a { text-decoration: underline;}.article-body ul,.article-body ol { padding-left: 1.5rem;}.article-body li { line-height: 2rem;}.article-body code { display: inline-block; font-family: Menlo, consolas, monospace; background-color: #eceff1; font-size: .8rem; padding: 0 .5rem; line-height: 1.5rem;}.article-body pre { margin: 1.5rem 0; padding: 1.5rem; font-size: .8rem; background-color: #eeeeef; color: #444; overflow: auto;}.article-body pre code { background-color: transparent;}.article-body blockquote { /* margin: 1.2rem 0; padding: .5rem 0; */ /*font-size: .8rem;*/ border-top: 1px solid #eceff1; border-bottom: 1px solid #eceff1; color: #607d8b;}.article-body blockquote p { margin: .5rem 0; line-height: 1.5rem;}.article-body strong { /*box-shadow: 0 -.5rem 0 0 #f06292 inset;*/ font-style: bold; font-weight: 700; /*color: #ff5722; */}.article-body em { /*font-style: normal;*/ /*font-weight: 700; color: #00c300;*/ /*color: #00c300;*/ font-style: oblique;}.article-body figure { margin: 1.5rem -2rem; }.article-body figure.left,.article-body figure.right { width: 15rem; height: 12rem; margin-top: 0; margin-left: 0; margin-right: 0;}.article-body figure.left { float: left; margin-right: 1rem; margin-left: -2rem; }.article-body figure.right { float: right; margin-left: 1rem; margin-right: -2rem; }@media (max-width: 768px) { .article-body figure { margin: 1.5rem -1rem; } .article-body figure.left, .article-body figure.right { float: none; margin: 0 -1rem; width: auto; height: auto; }}.article-body figcaption { padding: .5rem 0; font-size: .8rem; text-align: center;}.article-body figcaption a { color: #263238;}
 
@@ -60,47 +114,361 @@
     <main>
       
 <div class="l-container">
-  
-  <header class="p-page-title">
-    <h1 class="title">aws-cli</h1>
-  </header>
-  
+  <article class="single article-46e152ca8a71b2415b96f17ac0fbbd1f">
+  <div class="header-wrapper">
+    <a href="https://onthedock.github.io/post/230201-csv-parser-en-go/" class="thumbnail" title="CSV Parser en Go (work in progress)"></a>
+    <header class="article-header">
+      <div class="clearfix">
+        <h1 class="title">CSV Parser en Go (work in progress)</h1>
+        <ul class="p-facts">
+          <li><time datetime="2023-02-01T20:08:55JST">1 Feb 2023</time></li>
+          <li><a href="https://onthedock.github.io/post/">post</a></li>
+          
+          <li>Xavi Aznar</li>
+        </ul>
+      </div>
+    </header>
+  </div>
+
+  <div class="article-body"><p>En la entrada <a href="https://onthedock.github.io/post/230111-convertir-csv-en-json/">Convertir CSV en JSON con Jq</a> comentaba cómo realizar la conversión de un fichero CSV en JSON usando Jq.</p>
+<p>En esta entrada repito (parcialmente) el ejercicio, pero usando Go.</p>
+<blockquote>
+<p>Estoy pasando por uno de esos momentos de la vida en que todo pasa <strong>de golpe</strong> y tengo múltiples <em>frentes abiertos</em> tanto en el personal como en lo laboral&hellip; Así que tengo poco tiempo libre&hellip; que prefiero pasar con mi pareja o, simplemente, descansando y/o escuchando música o viendo alguna serie&hellip; De ahí lo de &ldquo;parcialmente&rdquo;.</p>
+</blockquote>
+<p>Como indicaba en la otra entrada, el <em>ejercicio</em> de conversión era una especie de <em>versión reducida a nivel de <strong>prueba de concepto</strong></em> del desarrollo que hemos realizado en el trabajo. El fichero CSV contiene los elementos que definen una regla en el <em>proxy</em>, que el usuario puede <em>autogestionar</em> a través de un automatismo.</p>
+<p>Como entrada, usamos las reglas definidas en el fichero CSV, las validamos y si son correctas, las aplicamos al <em>proxy</em>.</p>
+<h2 id="leyendo-un-fichero-csv">Leyendo un fichero CSV</h2>
+<p>En Go, la biblioteca <em>standar</em> contiene funciones específicas para gestionar ficheros CSV en el módulo <a href="https://pkg.go.dev/encoding/csv">enconding/csv</a>.</p>
+<p>Para leer el fichero CSV, abrimos el fichero y creamos un <code>Reader</code> mediante <code>csv.NewReader</code>. El método <code>ReadAll()</code> del <code>reader</code> lee todo el contenido del fichero y lo <em>parsea</em>.
+Si no se produce ningún error, obtenemos <code>[][]string</code>, es decir, un <em>slice</em> de &ldquo;líneas&rdquo; en el que cada línea es un <em>slice</em> de <em>strings</em>&hellip;</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">readCsvFile</span>(filePath <span style="color:#dc322f">string</span>, separator <span style="color:#dc322f">rune</span>) [][]<span style="color:#dc322f">string</span> {
+</span></span><span style="display:flex;"><span>  f, err <span style="color:#719e07">:=</span> os.<span style="color:#268bd2">Open</span>(filePath)
+</span></span><span style="display:flex;"><span>  <span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+</span></span><span style="display:flex;"><span>    log.<span style="color:#268bd2">Fatalf</span>(<span style="color:#2aa198">&#34;Unable to read input file: &#39;%s&#39;: &#39;%v&#39;\n&#34;</span>, filePath, err)
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>  <span style="color:#719e07">defer</span> f.<span style="color:#268bd2">Close</span>()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  csvReader <span style="color:#719e07">:=</span> csv.<span style="color:#268bd2">NewReader</span>(f)
+</span></span><span style="display:flex;"><span>  csvReader.Comma = separator
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  lines, err <span style="color:#719e07">:=</span> csvReader.<span style="color:#268bd2">ReadAll</span>()
+</span></span><span style="display:flex;"><span>  <span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+</span></span><span style="display:flex;"><span>    log.<span style="color:#268bd2">Fatalf</span>(<span style="color:#2aa198">&#34;Unable to parse &#39;%s&#39; as a CSV file\n&#34;</span>, filePath)
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>  <span style="color:#719e07">return</span> lines
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h2 id="separador-de-campos-en-el-fichero-csv">Separador de campos en el fichero CSV</h2>
+<p>En nuestro caso, el usuario puede proporcionar un fichero CSV que puede tener como delimitador de campos un &ldquo;punto y coma&rdquo; <code>;</code>, en vez de una &ldquo;coma&rdquo; <code>,</code>.</p>
+<blockquote>
+<p>Esto es culpa de MS Excel, que por defecto guarda los ficheros CSV usando <code>;</code> por algún motivo que se me escapa&hellip;</p>
+</blockquote>
+<p>Para tener flexibilidad a la hora de procesar ficheros CSV que usen como separador <code>,</code> tanto como <code>;</code> (o cualquier otro caracter), al invocar la aplicación en Go podemos especificar el delimitador usado en el fichero mediante el <em>flag</em> <code>-delimiter</code>.</p>
+<p>El nombre del fichero se proporciona mediante el <em>flag</em> <code>-input</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
+</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">var</span> delimiter <span style="color:#dc322f">string</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#268bd2">var</span> fileName = flag.<span style="color:#268bd2">String</span>(<span style="color:#2aa198">&#34;input&#34;</span>, <span style="color:#2aa198">&#34;&#34;</span>, <span style="color:#2aa198">&#34;rules points to a file containing the rules to parse&#34;</span>)
+</span></span><span style="display:flex;"><span>  flag.<span style="color:#268bd2">StringVar</span>(<span style="color:#719e07">&amp;</span>delimiter, <span style="color:#2aa198">&#34;delimiter&#34;</span>, <span style="color:#2aa198">&#34;,&#34;</span>, <span style="color:#2aa198">&#34;field delimiter&#34;</span>)
+</span></span><span style="display:flex;"><span>  flag.<span style="color:#268bd2">Parse</span>()
+</span></span><span style="display:flex;"><span>  <span style="color:#586e75">//...
+</span></span></span></code></pre></div><h2 id="procesado-de-reglas">Procesado de &ldquo;reglas&rdquo;</h2>
+<p>Cada línea del fichero CSV corresponde a una regla, que está compuesta por varios campos. En este ejemplo definimos cuatro campos:</p>
+<ul>
+<li>protocolo</li>
+<li>url (<em>fully qualified domain name</em>)</li>
+<li>puerto</li>
+<li>acción</li>
+</ul>
+<p>El módulo <code>enconding/csv</code> realiza algunas validaciones sobre el contenido del fichero CSV, ignorando líneas (completamente) vacías, por ejemplo.</p>
+<p>Sin embargo, las líneas que sólo contienen espacios (o tabuladores) no se consideran &ldquo;vacías&rdquo; y se procesan.</p>
+<p>Para mantener el nivel de simplicidad del ejercicio, en mi caso no compruebo si hay líneas que sólo contengan caracteres en blanco.</p>
+<p>Tampoco se contempla que haya líneas duplicadas.</p>
+<p>El espacio en blanco entre los delimitadores de campo se conserva, por lo que tengo que <em>limpiar</em> los espacios sobrantes.</p>
+<h2 id="procesando-las-reglas">Procesando las <em>reglas</em></h2>
+<p>Cada línea en el fichero CSV (que mediante el módulo <code>encondig/csv</code> se ha transformado en <code>[][]string</code>) es una <em>regla</em>.</p>
+<p>Una vez hemos leído el fichero CSV y lo tenemos en un objeto con el que trabajar en Go (<code>[][]string</code>), empezamos a analizar el contenido.</p>
+<p>El primer paso es recorrer cada una de las <em>líneas</em> y eliminar los espacios sobrantes; para ello, usamos la función <code>strings.Trim(r, &quot; &quot;)</code> para cada uno de los elementos de <code>rules</code>, que es el <code>[][]string</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// &#39;main&#39; function
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75">// ...
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>  <span style="color:#719e07">for</span> _, rule <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> rules {
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// trim extra spaces from each field in the line
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    <span style="color:#719e07">for</span> i, r <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> rule {
+</span></span><span style="display:flex;"><span>      rule[i] = strings.<span style="color:#268bd2">Trim</span>(r, <span style="color:#2aa198">&#34; &#34;</span>)
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// ...
+</span></span></span></code></pre></div><p>El primer bucle recorre el <em>slice</em> &ldquo;línea a línea&rdquo;; el segundo, recorre los campos de cada línea, eliminando espacios en blanco <em>alrededor</em> del valor de cada campo.</p>
+<h2 id="el-tipo-rule">El tipo <code>Rule</code></h2>
+<p>Los diferentes campos que forman una <em>regla</em> están relacionados, por lo que para trabajar con ellos como un <em>bloque</em>, defino el tipo <code>Rule</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">type</span> Rule <span style="color:#268bd2">struct</span> {
+</span></span><span style="display:flex;"><span> Protocol <span style="color:#dc322f">string</span>
+</span></span><span style="display:flex;"><span> Url      <span style="color:#dc322f">string</span>
+</span></span><span style="display:flex;"><span> Port     <span style="color:#dc322f">string</span>
+</span></span><span style="display:flex;"><span> Action   <span style="color:#dc322f">string</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>De momento, en la función <code>main</code> construyo cada una de las <em>regla</em>s dentro del bucle principal, asignando los valores de cada <em>línea</em> a cada uno de los campos de la <code>Rule</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span>  rule <span style="color:#719e07">:=</span> Rule{
+</span></span><span style="display:flex;"><span>   Protocol: rule[<span style="color:#2aa198">0</span>],
+</span></span><span style="display:flex;"><span>   Url:      rule[<span style="color:#2aa198">1</span>],
+</span></span><span style="display:flex;"><span>   Port:     rule[<span style="color:#2aa198">2</span>],
+</span></span><span style="display:flex;"><span>   Action:   rule[<span style="color:#2aa198">3</span>],
+</span></span><span style="display:flex;"><span>  }
+</span></span></code></pre></div><p>Para los <em>tests</em> he creado una función <code>func NewRule(rule []string) (*Rule, error)</code>; la idea es que esta función asigne los valores de una línea del fichero (una <em>regla</em>) y construya un objeto <code>Rule</code> con ellos. Si alguno de los campos es inválido, devolverá una <code>Rule</code> vacía y un <em>slice</em> de errores <code>[]error</code>.</p>
+<p>La idea es que este <em>slice</em> de errores contenga un elemento para cada uno de los campos que hayan fallado la valicación para la línea/regla actual de la iteración del bucle, aunque por ahora <strong>siempre</strong> devuelve el objeto <code>Rule</code> y el <em>slice</em> de errores siempre está vacío.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// Work in progress
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">NewRule</span>(rule []<span style="color:#dc322f">string</span>) (<span style="color:#719e07">*</span>Rule, []<span style="color:#dc322f">error</span>) {
+</span></span><span style="display:flex;"><span> r <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>Rule{
+</span></span><span style="display:flex;"><span>  Protocol: rule[<span style="color:#2aa198">0</span>],
+</span></span><span style="display:flex;"><span>  Url:      rule[<span style="color:#2aa198">1</span>],
+</span></span><span style="display:flex;"><span>  Port:     rule[<span style="color:#2aa198">2</span>],
+</span></span><span style="display:flex;"><span>  Action:   rule[<span style="color:#2aa198">3</span>],
+</span></span><span style="display:flex;"><span> }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span> <span style="color:#719e07">return</span> r, []<span style="color:#dc322f">error</span>{}
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h2 id="validación-de-los-campos-de-la-rule">Validación de los campos de la <code>Rule</code></h2>
+<p>La idea de la función <code>func NewRule(rule []string) (*Rule, []error)</code> es que le pasemos un conjunto de <em>strings</em> y que nos devuelva una <code>Rule</code>, si todo va bien. Esta función también tiene que encargarse de <em>validar</em> que los valores proporcionados son aceptables para crear la <code>Rule</code>; si no lo son, debe devolver un <em>slice</em> con todos los errores encontrados.</p>
+<p>El método <code>func (r *Rule) Validate() []error</code> se encarga de hacer esto mismo:</p>
+<blockquote>
+<p>De nuevo, he simplificado las validaciones; lo ideal es usar <code>regex</code> para filtrar los valores aceptables de cada campo, de acuerdo con las limitaciones que el fabricante del <em>proxy</em> indica en su documentación. En este artículo, priorizo la simplicidad.</p>
+</blockquote>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> (r <span style="color:#719e07">*</span>Rule) <span style="color:#268bd2">Validate</span>() []<span style="color:#dc322f">error</span> {
+</span></span><span style="display:flex;"><span> <span style="color:#268bd2">var</span> validationErrors = []<span style="color:#dc322f">error</span>{}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span> <span style="color:#719e07">if</span> r.Protocol <span style="color:#719e07">!=</span> <span style="color:#2aa198">&#34;tcp&#34;</span> <span style="color:#719e07">&amp;&amp;</span> r.Protocol <span style="color:#719e07">!=</span> <span style="color:#2aa198">&#34;udp&#34;</span> {
+</span></span><span style="display:flex;"><span>  validationErrors = <span style="color:#b58900">append</span>(validationErrors, fmt.<span style="color:#268bd2">Errorf</span>(<span style="color:#2aa198">&#34;invalid protocol %q. Accepted values are &#39;tcp&#39; or &#39;udp&#39;&#34;</span>, r.Protocol))
+</span></span><span style="display:flex;"><span> }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span> port, err <span style="color:#719e07">:=</span> strconv.<span style="color:#268bd2">Atoi</span>(r.Port)
+</span></span><span style="display:flex;"><span> <span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+</span></span><span style="display:flex;"><span>  validationErrors = <span style="color:#b58900">append</span>(validationErrors, fmt.<span style="color:#268bd2">Errorf</span>(<span style="color:#2aa198">&#34;failed to convert port %q to a valid number&#34;</span>, r.Port))
+</span></span><span style="display:flex;"><span> }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span> <span style="color:#719e07">if</span> port &lt; <span style="color:#2aa198">0</span> <span style="color:#719e07">||</span> port &gt; <span style="color:#2aa198">65532</span> {
+</span></span><span style="display:flex;"><span>  validationErrors = <span style="color:#b58900">append</span>(validationErrors, fmt.<span style="color:#268bd2">Errorf</span>(<span style="color:#2aa198">&#34;invalid port %s: Port must be greater than 0 and lower than 65532&#34;</span>, r.Port))
+</span></span><span style="display:flex;"><span> }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span> <span style="color:#719e07">if</span> r.Action <span style="color:#719e07">!=</span> <span style="color:#2aa198">&#34;allow&#34;</span> <span style="color:#719e07">&amp;&amp;</span> r.Action <span style="color:#719e07">!=</span> <span style="color:#2aa198">&#34;deny&#34;</span> {
+</span></span><span style="display:flex;"><span>  validationErrors = <span style="color:#b58900">append</span>(validationErrors, fmt.<span style="color:#268bd2">Errorf</span>(<span style="color:#2aa198">&#34;invalid action %q: Accepted values are &#39;allow&#39; or &#39;deny&#39;&#34;</span>, r.Action))
+</span></span><span style="display:flex;"><span> }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span> <span style="color:#719e07">return</span> validationErrors
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>La función <em>acumula</em> todos los errores que se producen para una <em>regla</em>, que se devuelven como el <em>slice</em> <code>validationErrors</code>.</p>
+<p>Para saber si se han producido errores de validación, comprobamos cuántos elementos contiene el <em>slice</em> de errores usando la función <code>len()</code>:</p>
+<blockquote>
+<p>De nuevo, por el momento sólo muestro la regla &ldquo;inválida&rdquo; seguida de todas las validaciones fallidas.
+El objetivo es generar un fichero estructurado -como JSON o YAML- con el que proporcionar <em>feedback</em> al usuario.</p>
+</blockquote>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span>  <span style="color:#586e75">// ...
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>  errs <span style="color:#719e07">:=</span> rule.<span style="color:#268bd2">Validate</span>()
+</span></span><span style="display:flex;"><span>  <span style="color:#719e07">if</span> <span style="color:#b58900">len</span>(errs) &gt; <span style="color:#2aa198">0</span> {
+</span></span><span style="display:flex;"><span>   log.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;[RULE] &#39;%s ; %s ; %s ; %s&#39; failed one or more validations:&#34;</span>, rule.Protocol, rule.Url, rule.Port, rule.Action)
+</span></span><span style="display:flex;"><span>   <span style="color:#719e07">for</span> _, e <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> errs {
+</span></span><span style="display:flex;"><span>    log.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;\t%v&#34;</span>, e)
+</span></span><span style="display:flex;"><span>   }
+</span></span><span style="display:flex;"><span>   <span style="color:#719e07">continue</span>
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>  fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;[ OK ] &#39;%s ; %s ; %s ; %s&#39; is valid\n&#34;</span>, rule.Protocol, rule.Url, rule.Port, rule.Action)
+</span></span><span style="display:flex;"><span> }
+</span></span></code></pre></div><p>Si la regla es inválida, se registran (en un <em>log</em>, en este caso por <code>stdout</code>) todos los campos de la línea y a continuación qué validación (o validaciones) han fallado.</p>
+<p>Si la regla es válida, se muestra la regla por <code>stdout</code>.</p>
+<h2 id="testing">Testing</h2>
+<p>A diferencia de lo que hice con el <a href="https://onthedock.github.io/post/221126-cliente-en-go/">cliente en Go</a>, esta vez estoy escribiendo <em>tests</em> <strong>antes</strong> de escribir el código (o lo intento). No me atrevo a llamarlo TDD (<em>test driven development</em>), pero la idea de fondo <strong>está ahí</strong> 😉.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ go <span style="color:#b58900">test</span> *.go -v
+</span></span><span style="display:flex;"><span><span style="color:#719e07">===</span> RUN   <span style="color:#268bd2">Test_matchAcceptedValues</span>
+</span></span><span style="display:flex;"><span><span style="color:#719e07">===</span> RUN   Test_matchAcceptedValues/invalid_value
+</span></span><span style="display:flex;"><span><span style="color:#719e07">===</span> RUN   Test_matchAcceptedValues/valid_value
+</span></span><span style="display:flex;"><span>--- PASS: Test_matchAcceptedValues <span style="color:#719e07">(</span>0.00s<span style="color:#719e07">)</span>
+</span></span><span style="display:flex;"><span>    --- PASS: Test_matchAcceptedValues/invalid_value <span style="color:#719e07">(</span>0.00s<span style="color:#719e07">)</span>
+</span></span><span style="display:flex;"><span>    --- PASS: Test_matchAcceptedValues/valid_value <span style="color:#719e07">(</span>0.00s<span style="color:#719e07">)</span>
+</span></span><span style="display:flex;"><span><span style="color:#719e07">===</span> RUN   <span style="color:#268bd2">Test_hasValue</span>
+</span></span><span style="display:flex;"><span><span style="color:#719e07">===</span> RUN   Test_hasValue/parameter_empty
+</span></span><span style="display:flex;"><span><span style="color:#719e07">===</span> RUN   Test_hasValue/parameter_all_whitespace
+</span></span><span style="display:flex;"><span><span style="color:#719e07">===</span> RUN   Test_hasValue/non_empty_parameter
+</span></span><span style="display:flex;"><span>--- PASS: Test_hasValue <span style="color:#719e07">(</span>0.00s<span style="color:#719e07">)</span>
+</span></span><span style="display:flex;"><span>    --- PASS: Test_hasValue/parameter_empty <span style="color:#719e07">(</span>0.00s<span style="color:#719e07">)</span>
+</span></span><span style="display:flex;"><span>    --- PASS: Test_hasValue/parameter_all_whitespace <span style="color:#719e07">(</span>0.00s<span style="color:#719e07">)</span>
+</span></span><span style="display:flex;"><span>    --- PASS: Test_hasValue/non_empty_parameter <span style="color:#719e07">(</span>0.00s<span style="color:#719e07">)</span>
+</span></span><span style="display:flex;"><span><span style="color:#719e07">===</span> RUN   <span style="color:#268bd2">Test_NewRule</span>
+</span></span><span style="display:flex;"><span><span style="color:#719e07">===</span> RUN   Test_NewRule/parameter_empty
+</span></span><span style="display:flex;"><span>--- PASS: Test_NewRule <span style="color:#719e07">(</span>0.00s<span style="color:#719e07">)</span>
+</span></span><span style="display:flex;"><span>    --- PASS: Test_NewRule/parameter_empty <span style="color:#719e07">(</span>0.00s<span style="color:#719e07">)</span>
+</span></span><span style="display:flex;"><span>PASS
+</span></span><span style="display:flex;"><span>ok      command-line-arguments  0.362s
+</span></span></code></pre></div><h2 id="siguientes-pasos">Siguientes pasos</h2>
+<p>Considero que para acabar el ejercicio me quedan un par de puntos por completar; por un lado, <em>integrar</em> la validación de los <em>strings</em> obtenidos del CSV al construir una nueva regla a través de la función <code>NewRule</code>.</p>
+<p>Por otro lado, la salida hacia un fichero en formato JSON o YAML.</p>
+<p>Si todo va como está previsto, en dos o tres semanas muchos de los temas <em>ongoing</em> estarán resueltos. Habrán acabado de pintar el piso y de poner <em>parquet</em>, así que tendré que dejar cosas de un lado a otro al llegar a casa del trabajo&hellip; Como le comentaba a un compañero hace unos días, es como hacer una mudanza pero sin ir a ningún lado.</p>
+<p>En lo laboral, varias cosas están moviéndose a la vez (en varias direcciones diferentes). De nuevo, en cuestión de un par de semanas algunas cosas (espero) se habrán aclarado 🤞&hellip;</p>
+<p>Así que podré dedicar más tiempo a seguir aprendiendo Go y otros proyectos personales.</p></div>
+
+  <aside class="p-share">
+
+
+  <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3a%2f%2fonthedock.github.io%2fpost%2f230201-csv-parser-en-go%2f&amp;source=https%3a%2f%2fonthedock.github.io%2fpost%2f230201-csv-parser-en-go%2f&amp;title=CSV%20Parser%20en%20Go%20%28work%20in%20progress%29" target="_blank" rel="noopener" aria-label="Share on LinkedIn">
+    <svg width="2rem" height="2rem" viewBox="0 0 352 352"><path d="M0 40v272c0 21.9 18.1 40 40 40h272c21.9.0 40-18.1 40-40V40c0-21.9-18.1-40-40-40H40C18.1.0.0 18.1.0 40zm312-8c4.6.0 8 3.4 8 8v272c0 4.6-3.4 8-8 8H40c-4.6.0-8-3.4-8-8V40c0-4.6 3.4-8 8-8H312zM59.5 87c0 15.2 12.3 27.5 27.5 27.5s27.5-12.3 27.5-27.5S102.2 59.5 87 59.5 59.5 71.8 59.5 87zM187 157h-1v-21h-45v152h47v-75c0-19.8 3.9-39 28.5-39 24.2.0 24.5 22.4 24.5 40v74h47v-83.5c0-40.9-8.7-72-56.5-72-23 0-38.2 12.6-44.5 24.5zM64 288h47.5V136H64V288z"></path></svg>
+    <p>LinkedIn</p>
+  </a>
+
+  <a href="https://twitter.com/intent/tweet?hashtags=onthedock&amp;url=https%3a%2f%2fonthedock.github.io%2fpost%2f230201-csv-parser-en-go%2f&amp;text=CSV%20Parser%20en%20Go%20%28work%20in%20progress%29" target="_blank" rel="noopener" aria-label="Share on Twitter" class="share-btn twitter">
+    <svg width="2rem" height="2rem" viewBox="0 0 384 312"><path d="m384 36.9c-14.1 6.3-29.3 10.5-45.2 12.4 16.3-9.7 28.8-25.2 34.6-43.6-15.2 9-32.1 15.6-50 19.1-14.4-15.2-34.9-24.8-57.5-24.8-43.5.0-78.8 35.3-78.8 78.8.0 6.2.7 12.2 2 17.9-65.5-3.3-123.5-34.6-162.4-82.3C20 26 16.1 39.6 16.1 54c0 27.3 13.9 51.4 35 65.6-12.9-.4-25.1-4-35.7-9.9v1c0 38.2 27.2 70 63.2 77.2-6.6 1.8-13.6 2.8-20.8 2.8-5.1.0-10-.5-14.8-1.4 10 31.3 39.1 54.1 73.6 54.7-27 21.1-60.9 33.7-97.8 33.7-6.4.0-12.6-.4-18.8-1.1C34.9 299 76.3 312 120.8 312c144.9.0 224.1-120 224.1-224.1.0-3.4-.1-6.8-.2-10.2 15.4-11.1 28.7-25 39.3-40.8z"></path></svg>
+    <p>Twitter</p>
+  </a>
+
+  <a href="mailto:?subject=CSV%20Parser%20en%20Go%20%28work%20in%20progress%29.&amp;body=CSV%20Parser%20en%20Go%20%28work%20in%20progress%29%0a%0ahttps%3a%2f%2fonthedock.github.io%2fpost%2f230201-csv-parser-en-go%2f%0a" target="_blank" class="share-btn email">
+    <svg width="2rem" height="2rem" viewBox="0 0 416 288"><path d="m0 16v256 16h16 384 16v-16V16 0h-16H16 0zm347 16-139 92.5L69 32zM199 157.5l9 5.5 9-5.5L384 46v210H32V46z"></path></svg>
+    <p>Email</p>
+  </a>
+
+  <a href="whatsapp://send?text=CSV%20Parser%20en%20Go%20%28work%20in%20progress%29%0a%0ahttps%3a%2f%2fonthedock.github.io%2fpost%2f230201-csv-parser-en-go%2f%0a" target="_blank">
+    <svg  width="2rem" height="2rem" viewBox="0 0 24 24">
+    <path d="M20.1 3.9C17.9 1.7 15 .5 12 .5 5.8.5.7 5.6.7 11.9c0 2 .5 3.9 1.5 5.6L.6 23.4l6-1.6c1.6.9 3.5 1.3 5.4 1.3 6.3.0 11.4-5.1 11.4-11.4-.1-2.8-1.2-5.7-3.3-7.8zM12 21.4c-1.7.0-3.3-.5-4.8-1.3l-.4-.2-3.5 1 1-3.4L4 17c-1-1.5-1.4-3.2-1.4-5.1.0-5.2 4.2-9.4 9.4-9.4 2.5.0 4.9 1 6.7 2.8s2.8 4.2 2.8 6.7c-.1 5.2-4.3 9.4-9.5 9.4zm5.1-7.1c-.3-.1-1.7-.9-1.9-1-.3-.1-.5-.1-.7.1-.2.3-.8 1-.9 1.1-.2.2-.3.2-.6.1s-1.2-.5-2.3-1.4c-.9-.8-1.4-1.7-1.6-2s0-.5.1-.6.3-.3.4-.5c.2-.1.3-.3.4-.5s0-.4.0-.5C10 9 9.3 7.6 9 7c-.1-.4-.4-.3-.5-.3h-.6s-.4.1-.7.3c-.3.3-1 1-1 2.4s1 2.8 1.1 3c.1.2 2 3.1 4.9 4.3.7.3 1.2.5 1.6.6.7.2 1.3.2 1.8.1.6-.1 1.7-.7 1.9-1.3.2-.7.2-1.2.2-1.3-.1-.3-.3-.4-.6-.5z"></path></svg>
+    <p>Whatsapp</p>
+  </a>
+
 
   <div class="searchbar">
       <iframe src="https://duckduckgo.com/search.html?site=https://onthedock.github.io/&prefill=Busca en este sitio usando DuckDuckGo" style="width: 25em;height: 48px" frameborder="0"></iframe>
-  </div>
+    </div>
+</aside>
 
-  <img src="https://onthedock.github.io//images/MabelAmber-mini.png" class="p-articles" width="100%">
+
+
+  <footer class="article-footer">
+    <section>
+      <ol class="p-crumb">
+        <li><a href="https://onthedock.github.io/">On The Dock</a></li>
+        
+        <li itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb"><a href="https://onthedock.github.io/post/" itemprop="url"><span itemprop="title">post</span></a></li>
+        
+        <li>CSV Parser en Go (work in progress)</li>
+      </ol>
+
+      
+      
+      
+      <ul class="p-facts">
+        <li>
+          <header><a href="https://onthedock.github.io/categories/">categories</a></header>
+          <ul>
+            
+            <li><a href="https://onthedock.github.io/categories/dev/">dev</a></li>
+            
+          </ul>
+        </li>
+      </ul>
+      
+      
+      
+      <ul class="p-facts">
+        <li>
+          <header><a href="https://onthedock.github.io/tags/">tags</a></header>
+          <ul>
+            
+            <li><a href="https://onthedock.github.io/tags/linux/">linux</a></li>
+            
+            <li><a href="https://onthedock.github.io/tags/go/">go</a></li>
+            
+          </ul>
+        </li>
+      </ul>
+      
+      
+    </section>
+  </footer>
+</article>
+
+<article>
+  <div id="disqus_thread"></div>
+  <script>
   
-  <p style="text-align: right"><small><a href="https://www.pexels.com/photo/jetty-feet-sign-wooden-128299/">Photo</a> by <a href="https://www.pexels.com/u/mabelamber/">Mabel Amber</a></small></p>
-   
-  <ul class="p-articles">
-    <li><article class="li article-cd0ad924309bc0e2310a28f4574f3ee6">
+  
+
+  
+
+  (function() { 
+  var d = document, s = d.createElement('script');
+  s.src = 'https://onthedock.disqus.com/embed.js';
+  s.setAttribute('data-timestamp', +new Date());
+  (d.head || d.body).appendChild(s);
+  })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+                              
+
+</article>
+
+
+
+  
+  
+  <section>
+    <header><span>Latests</span></header>
+    <ul class="p-articles thin">
+      <li><article class="li sm article-74390774ec132fb21b2ae59b4128ff58">
   <div class="header-wrapper">
-    <a href="https://onthedock.github.io/post/190830-configuracion-de-awscli-login/" class="thumbnail" title="Configuración de awscli-login"></a>
+    <a href="https://onthedock.github.io/post/230118-til-jq-considera-strings-los-argumentos/" class="thumbnail" title="En Jq, los valores pasados mediante &#39;--arg&#39; se tratan como &#39;strings&#39; sea cual sea su tipo #TIL"></a>
     <header class="article-header">
       <div class="clearfix">
-        <h2 class="title"><a href="https://onthedock.github.io/post/190830-configuracion-de-awscli-login/">Configuración de awscli-login</a></h2>
+        <h2 class="title"><a href="https://onthedock.github.io/post/230118-til-jq-considera-strings-los-argumentos/">En Jq, los valores pasados mediante &#39;--arg&#39; se tratan como &#39;strings&#39; sea cual sea su tipo #TIL</a></h2>
         <ul class="p-facts">
-          <li><time datetime="2019-08-30T23:07:34JST">30 Aug 2019</time></li>
+          <li><time datetime="2023-01-18T21:43:12JST">18 Jan 2023</time></li>
           <li><a href="https://onthedock.github.io/post/">post</a></li>
-          <li>Xavi Aznar</li>
           
         </ul>
       </div>
     </header>
   </div>
-  <div class="article-body summary"><p>Uno de los problemas de usar usuarios IAM con acceso programático a los recursos en AWS es la seguridad de la <em>secret key</em> (incluso habilitando la seguridad con varios factores de autenticación (MFA)).</p>
-<p>Cuando un trabajador deja de estar vinculado a la empresa, existen procesos que se encargan de <em>decomisionar</em> los elementos asociados al ex-trabajador; en particular, se elimina el acceso a los sistemas a los que tuviera acceso mediante la desactivación de las cuentas del usuario.</p>
-<p>El problema es que los usuarios IAM tienen claves de acceso programático que permiten el acceso a los recursos de manera independiente a los sistemas de gestión de identidad corporativa (generalmente un LDAP) sin necesidad de estar conectados a la red de la empresa.</p>
-<p>Aunque la solución más directa parece la modificación del proceso de baja para incluir anulación de los usuarios IAM, lo ideal es conseguir acceso programático a AWS con <strong>credenciales federadas</strong>, es decir, centralizando la autenticación en el sistema de gestión de identidades de la empresa.</p></div>
-  <footer class="readmore"><a href="https://onthedock.github.io/post/190830-configuracion-de-awscli-login/">LEER M&Aacute;S</a></footer>
+</article>
+</li><li><article class="li sm article-e6251be5408f4c10340c11b803c4a867">
+  <div class="header-wrapper">
+    <a href="https://onthedock.github.io/post/230111-convertir-csv-en-json/" class="thumbnail" title="Convertir un fichero CSV en JSON usando Jq"></a>
+    <header class="article-header">
+      <div class="clearfix">
+        <h2 class="title"><a href="https://onthedock.github.io/post/230111-convertir-csv-en-json/">Convertir un fichero CSV en JSON usando Jq</a></h2>
+        <ul class="p-facts">
+          <li><time datetime="2023-01-11T20:51:00JST">11 Jan 2023</time></li>
+          <li><a href="https://onthedock.github.io/post/">post</a></li>
+          
+        </ul>
+      </div>
+    </header>
+  </div>
+</article>
+</li><li><article class="li sm article-c2f92c9d8759d937d215e2bf720c69b2">
+  <div class="header-wrapper">
+    <a href="https://onthedock.github.io/post/230108-actualizando-el-script-de-despliegue-del-cluster-de-k3s/" class="thumbnail" title="Clúster de K3s: actualización del script de despliegue"></a>
+    <header class="article-header">
+      <div class="clearfix">
+        <h2 class="title"><a href="https://onthedock.github.io/post/230108-actualizando-el-script-de-despliegue-del-cluster-de-k3s/">Clúster de K3s: actualización del script de despliegue</a></h2>
+        <ul class="p-facts">
+          <li><time datetime="2023-01-08T13:35:14JST">8 Jan 2023</time></li>
+          <li><a href="https://onthedock.github.io/post/">post</a></li>
+          
+        </ul>
+      </div>
+    </header>
+  </div>
+</article>
+</li><li><article class="li sm article-e5c89bd85f869e68d512ada281bd56cd">
+  <div class="header-wrapper">
+    <a href="https://onthedock.github.io/post/221216-conectar-a-instancia-ec2-usando-session-manager/" class="thumbnail" title="Conectar a Instancia EC2 usando SSM Session Manager"></a>
+    <header class="article-header">
+      <div class="clearfix">
+        <h2 class="title"><a href="https://onthedock.github.io/post/221216-conectar-a-instancia-ec2-usando-session-manager/">Conectar a Instancia EC2 usando SSM Session Manager</a></h2>
+        <ul class="p-facts">
+          <li><time datetime="2022-12-16T20:12:02JST">16 Dec 2022</time></li>
+          <li><a href="https://onthedock.github.io/post/">post</a></li>
+          
+        </ul>
+      </div>
+    </header>
+  </div>
 </article>
 </li>
-  </ul>
+    </ul>
+  </section>
+  
 </div>
-
-
 
 
     </main>
