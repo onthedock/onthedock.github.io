@@ -9,15 +9,15 @@
 <meta name="generator" content="Hugo 0.92.2" />
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
-<link rel="alternate" type="application/rss+xml" title="RSS" href="/tags/kvm/index.xml"> 
 
-<link rel="canonical" href="https://onthedock.github.io/tags/kvm/">
+
+<link rel="canonical" href="https://onthedock.github.io/post/230309-git-sparse-checkout/">
 
 
     
     <link href="https://fonts.googleapis.com/css?family=Special+Elite|Fira+Sans:400,700" rel="stylesheet">
     
-    <title>kvm - On The Dock</title>
+    <title>Git sparse-checkout para clonar sólo subcarpeta(s) de un repositorio - On The Dock</title>
     <style amp-boilerplate>body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}</style><noscript><style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style></noscript>
     <script async src="https://cdn.ampproject.org/v0.js"></script>
     
@@ -26,6 +26,60 @@
 <script async custom-element="amp-ad" src="https://cdn.ampproject.org/v0/amp-ad-0.1.js"></script>
 
     
+<meta name="description" content="&lt;p&gt;El ejemplo habitual para introducir los &lt;em&gt;sparse checkouts&lt;/em&gt; es cuando todo el código de un equipo se encuentra en un &lt;em&gt;mono repo&lt;/em&gt;, es decir, un repositorio &lt;strong&gt;para todo&lt;/strong&gt;.En el repositorio cada &amp;ldquo;carpeta&amp;rdquo; contiene el código de un microservicio, por ejemplo&amp;hellip;&lt;/p&gt;&lt;p&gt;En esta situación, un miembro del equipo tiene que clonar el repositorio entero aunque sólo tenga que trabajar en una parte muy pequeña del mismo, generalmente circunscrita a una funcionalidad que se encuentra en una carpeta del repositorio.&lt;/p&gt;&lt;p&gt;Del mismo modo, para compilar el código de uno de los microservicios de este mono repo, es necesario clonarlo completamente&amp;hellip;&lt;/p&gt;&lt;p&gt;En este tipo de situaciones es cuando podemos usar &lt;code&gt;git sparse-checkout&lt;/code&gt;.&lt;/p&gt;">
+
+<meta property="og:title" content="Git sparse-checkout para clonar sólo subcarpeta(s) de un repositorio - On The Dock">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://onthedock.github.io/post/230309-git-sparse-checkout/">
+<meta property="og:image" content="https://onthedock.github.io/images/git.png">
+<meta property="og:site_name" content="On The Dock">
+<meta property="og:description" content="&lt;p&gt;El ejemplo habitual para introducir los &lt;em&gt;sparse checkouts&lt;/em&gt; es cuando todo el código de un equipo se encuentra en un &lt;em&gt;mono repo&lt;/em&gt;, es decir, un repositorio &lt;strong&gt;para todo&lt;/strong&gt;.En el repositorio cada &amp;ldquo;carpeta&amp;rdquo; contiene el código de un microservicio, por ejemplo&amp;hellip;&lt;/p&gt;&lt;p&gt;En esta situación, un miembro del equipo tiene que clonar el repositorio entero aunque sólo tenga que trabajar en una parte muy pequeña del mismo, generalmente circunscrita a una funcionalidad que se encuentra en una carpeta del repositorio.&lt;/p&gt;&lt;p&gt;Del mismo modo, para compilar el código de uno de los microservicios de este mono repo, es necesario clonarlo completamente&amp;hellip;&lt;/p&gt;&lt;p&gt;En este tipo de situaciones es cuando podemos usar &lt;code&gt;git sparse-checkout&lt;/code&gt;.&lt;/p&gt;">
+<meta property="og:locale" content="ja_JP">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="On The Dock">
+<meta name="twitter:url" content="https://onthedock.github.io/post/230309-git-sparse-checkout/">
+<meta name="twitter:title" content="Git sparse-checkout para clonar sólo subcarpeta(s) de un repositorio - On The Dock">
+<meta name="twitter:description" content="&lt;p&gt;El ejemplo habitual para introducir los &lt;em&gt;sparse checkouts&lt;/em&gt; es cuando todo el código de un equipo se encuentra en un &lt;em&gt;mono repo&lt;/em&gt;, es decir, un repositorio &lt;strong&gt;para todo&lt;/strong&gt;.En el repositorio cada &amp;ldquo;carpeta&amp;rdquo; contiene el código de un microservicio, por ejemplo&amp;hellip;&lt;/p&gt;&lt;p&gt;En esta situación, un miembro del equipo tiene que clonar el repositorio entero aunque sólo tenga que trabajar en una parte muy pequeña del mismo, generalmente circunscrita a una funcionalidad que se encuentra en una carpeta del repositorio.&lt;/p&gt;&lt;p&gt;Del mismo modo, para compilar el código de uno de los microservicios de este mono repo, es necesario clonarlo completamente&amp;hellip;&lt;/p&gt;&lt;p&gt;En este tipo de situaciones es cuando podemos usar &lt;code&gt;git sparse-checkout&lt;/code&gt;.&lt;/p&gt;">
+<meta name="twitter:image" content="https://onthedock.github.io/images/git.png">
+
+
+<script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "NewsArticle",
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id":"https:\/\/onthedock.github.io\/"
+    },
+    "headline": "Git sparse-checkout para clonar sólo subcarpeta(s) de un repositorio - On The Dock",
+    "image": {
+      "@type": "ImageObject",
+      "url": "https:\/\/onthedock.github.io\/images\/git.png",
+      "height": 800,
+      "width": 800
+    },
+    "datePublished": "2023-03-09T19:41:48JST",
+    "dateModified": "2023-03-09T19:41:48JST",
+    "author": {
+      "@type": "Person",
+      "name": "On The Dock"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "On The Dock",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https:\/\/onthedock.github.io\/images/logo.png",
+        "width": 600,
+        "height": 60
+      }
+    },
+    "description": "\u003cp\u003eEl ejemplo habitual para introducir los \u003cem\u003esparse checkouts\u003c\/em\u003e es cuando todo el código de un equipo se encuentra en un \u003cem\u003emono repo\u003c\/em\u003e, es decir, un repositorio \u003cstrong\u003epara todo\u003c\/strong\u003e.\nEn el repositorio cada \u0026ldquo;carpeta\u0026rdquo; contiene el código de un microservicio, por ejemplo\u0026hellip;\u003c\/p\u003e\n\u003cp\u003eEn esta situación, un miembro del equipo tiene que clonar el repositorio entero aunque sólo tenga que trabajar en una parte muy pequeña del mismo, generalmente circunscrita a una funcionalidad que se encuentra en una carpeta del repositorio.\u003c\/p\u003e\n\u003cp\u003eDel mismo modo, para compilar el código de uno de los microservicios de este mono repo, es necesario clonarlo completamente\u0026hellip;\u003c\/p\u003e\n\u003cp\u003eEn este tipo de situaciones es cuando podemos usar \u003ccode\u003egit sparse-checkout\u003c\/code\u003e.\u003c\/p\u003e"
+  }
+</script>
+
+
     <style amp-custom>
       html { font-size: 18px;}@media (max-width: 768px) { html { font-size: 15px; }}body { font-family: 'Fira Sans', sans-serif; font-size: inherit; margin: 0; color: #263238;}html, body { margin: 0;}a { text-decoration: none; color: #e91e63;}p { margin: 0;}ul,ol { margin: 0; padding: 0;}h1, h2, h3, h4, h5, h6 { margin: 0; font-weight: 700;}h1 { font-size: 1.8rem; line-height: 2rem; margin: 1.5rem 0; }h2 { font-size: 1.4rem; line-height: 2rem; margin: 1.5rem 0; }h3 { font-size: 1.2rem; line-height: 1.5rem; margin: 1.5rem 0; }h4, h5, h6 { font-size: 1rem; line-height: 1.5rem; margin: 1.5rem 0; }.clearfix::after { content: ''; display: block; clear: both;}main{ display: block;}.searchbar{ display: block; border: none; margin: 1em auto; max-width: 780px; text-align: center;}/* Layouts */.l-header { padding: .5rem 0; margin-bottom: 2rem; border-bottom: 1px dashed #cfd8dc; text-align: center;}.l-footer { font-size: .8rem; padding: 1rem 0; border-top: 1px dashed #a3aaad;}.l-footer .copyright-notice,.l-footer .attribution { text-align: center; line-height: 1.5rem;}.l-container { max-width: 42rem; margin: 0 auto; padding: 0 1rem;}/* Parts:logo */.p-logo { font-family: 'Special Elite', cursive; font-weight: 700;}.p-logo a { color: #000; font-size: 1.8rem; line-height: 2rem;}.p-sublogo,.p-sublogo a { font-size: 1rem; line-height: 2rem;}img.linkedin { height: 1.1rem; border: 0; padding: 0; position: relative; top: 0.25rem;}.p-movetop { margin: 0 auto;}/* Parts:section */section { border-top: 2px solid #eceff1; padding: 1.5rem 0;}section>header { text-transform: uppercase; font-weight: 700; margin-bottom: 2rem; text-align: center;}section>header span { display: inline-block; background-color: #000; color: #fff; letter-spacing: 3px; font-size: .7rem; padding: .5rem .75rem;}/* Parts:facts */.p-facts { list-style: none; font-size: .8rem; margin-bottom: 1rem;}.p-facts:last-child { margin-bottom: 0;}.p-facts li { display: inline-block; margin-right: .5rem; text-transform: uppercase;}.p-facts li header { margin-bottom: .25rem; font-weight: 700;}.p-facts li header a { color: #000; text-decoration: underline;}.p-facts li li { display: inline-block; margin-right: .5rem;}.p-facts li li::after { content: ',';}.p-facts li li:last-child::after { content: '';}/* Parts:crumb */.p-crumb { list-style: none; margin-bottom: 1rem; font-size: .8rem; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}.p-crumb:last-child { margin-bottom: 0;}.p-crumb li { display: inline;}.p-crumb li::after { content: '›'; margin: 0 .5rem;}.p-crumb li:last-child::after { content: '';}/* Parts:page-title */.p-page-title { margin-bottom: 2rem;}.p-page-title .title { margin-bottom: .5rem;}/* Parts:share */.p-share { margin-bottom: 1.5rem; text-align: center;}.p-share a { display: inline-block; text-align: center; padding: .5rem .5rem; margin-right: .25rem; font-size: .6rem; background-color: #eceff1; font-weight: 700;}.p-share a { color: #1da1f2; }/* Parts:terms */.p-terms { padding-left: 2rem;}/* Parts:paginator */.p-paginator { text-align: center; margin-bottom: 3rem; padding-top: 2rem;}.p-paginator a { display: inline-block; border: 2px solid #eceff1; color: #263238; line-height: 2rem; padding: 0 1rem;}/* Parts:article */.p-articles { list-style: none;}.p-articles>li { margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px dashed #cfd8dc;}.p-articles>li:last-child { border-bottom: none; padding-bottom: 0;}.p-articles.thin>li { margin-bottom: 1rem; padding-bottom: 1rem;}article .article-header { display: table-cell; height: 6rem; vertical-align: middle;}article .title { margin: 0; margin-bottom: .5rem; font-size: 1.4rem; line-height: 2rem;}article .title a { color: #000;}article .header-wrapper { margin-bottom: 1.5rem;}article .thumbnail { display: block; background-position: center; background-size: cover; background-image: url(https://onthedock.github.io/images/default.jpg); width: 6rem; height: 6rem; border-radius: 50%; box-shadow: 0 0 3px 0 #333 inset; float: left; margin-right: 1rem;}article .summary { margin-bottom: 1.5rem;}article .readmore { text-align: center;}article .readmore a { font-size: .8rem; color: #000; text-decoration: underline;}article.li.sm .header-wrapper { margin-bottom: 0;}.article-body h2 { padding: 1rem 0; color: #55bbbb; border-bottom: 2px solid #eceff1;}.article-body h2:first-child { margin-top: 0; }.article-body h3 { color: #8997e4; font-style: italic;}.article-body h4 { border-left: solid .25rem #cddc39; padding: 0 .5rem;}.article-body p { margin: 1.5rem 0; line-height: 1.5rem;}.article-body a { text-decoration: underline;}.article-body ul,.article-body ol { padding-left: 1.5rem;}.article-body li { line-height: 2rem;}.article-body code { display: inline-block; font-family: Menlo, consolas, monospace; background-color: #eceff1; font-size: .8rem; padding: 0 .5rem; line-height: 1.5rem;}.article-body pre { margin: 1.5rem 0; padding: 1.5rem; font-size: .8rem; background-color: #eeeeef; color: #444; overflow: auto;}.article-body pre code { background-color: transparent;}.article-body blockquote { /* margin: 1.2rem 0; padding: .5rem 0; */ /*font-size: .8rem;*/ border-top: 1px solid #eceff1; border-bottom: 1px solid #eceff1; color: #607d8b;}.article-body blockquote p { margin: .5rem 0; line-height: 1.5rem;}.article-body strong { /*box-shadow: 0 -.5rem 0 0 #f06292 inset;*/ font-style: bold; font-weight: 700; /*color: #ff5722; */}.article-body em { /*font-style: normal;*/ /*font-weight: 700; color: #00c300;*/ /*color: #00c300;*/ font-style: oblique;}.article-body figure { margin: 1.5rem -2rem; }.article-body figure.left,.article-body figure.right { width: 15rem; height: 12rem; margin-top: 0; margin-left: 0; margin-right: 0;}.article-body figure.left { float: left; margin-right: 1rem; margin-left: -2rem; }.article-body figure.right { float: right; margin-left: 1rem; margin-right: -2rem; }@media (max-width: 768px) { .article-body figure { margin: 1.5rem -1rem; } .article-body figure.left, .article-body figure.right { float: none; margin: 0 -1rem; width: auto; height: auto; }}.article-body figcaption { padding: .5rem 0; font-size: .8rem; text-align: center;}.article-body figcaption a { color: #263238;}
 
@@ -60,197 +114,273 @@
     <main>
       
 <div class="l-container">
-  
-  <header class="p-page-title">
-    <h1 class="title">kvm</h1>
-  </header>
-  
+  <article class="single article-f1120a12ca8dd05ff7add16ad6730aec">
+  <div class="header-wrapper">
+    <a href="https://onthedock.github.io/post/230309-git-sparse-checkout/" class="thumbnail" title="Git sparse-checkout para clonar sólo subcarpeta(s) de un repositorio"></a>
+    <header class="article-header">
+      <div class="clearfix">
+        <h1 class="title">Git sparse-checkout para clonar sólo subcarpeta(s) de un repositorio</h1>
+        <ul class="p-facts">
+          <li><time datetime="2023-03-09T19:41:48JST">9 Mar 2023</time></li>
+          <li><a href="https://onthedock.github.io/post/">post</a></li>
+          
+          <li>Xavi Aznar</li>
+        </ul>
+      </div>
+    </header>
+  </div>
+
+  <div class="article-body"><p>El ejemplo habitual para introducir los <em>sparse checkouts</em> es cuando todo el código de un equipo se encuentra en un <em>mono repo</em>, es decir, un repositorio <strong>para todo</strong>.
+En el repositorio cada &ldquo;carpeta&rdquo; contiene el código de un microservicio, por ejemplo&hellip;</p>
+<p>En esta situación, un miembro del equipo tiene que clonar el repositorio entero aunque sólo tenga que trabajar en una parte muy pequeña del mismo, generalmente circunscrita a una funcionalidad que se encuentra en una carpeta del repositorio.</p>
+<p>Del mismo modo, para compilar el código de uno de los microservicios de este mono repo, es necesario clonarlo completamente&hellip;</p>
+<p>En este tipo de situaciones es cuando podemos usar <code>git sparse-checkout</code>.</p>
+<h2 id="repositorio-de-ejemplo">Repositorio de ejemplo</h2>
+<p>Como repositorio de ejemplo usaré <a href="https://github.com/xaviatwork/reference_bash_scripts">xaviatwork/reference_bash_scripts</a>.
+El repositorio contiene un conjunto de scripts en Bash agrupados por funcionalidad.
+Me sirve como analogía de ese <em>monorepo</em> que contiene el código de múltiples microservicios.</p>
+<p>En este caso, queremos usar los scripts en cada carpeta del repositorio como &ldquo;bibliotecas de funciones&rdquo; (aka <em>librerías</em>) que incorporaremos a un nuevo script en el que estamos trabajando.</p>
+<p>Del conjunto de scripts presentes en el repositorio, sólo estamos interesados en la función para generar el UUID y en la relacionada con los logs.</p>
+<p>En vez de clonar el repositorio completo, usaremos <em>sparse-checkout</em>.</p>
+<h2 id="clonando-sólo-lo-que-nos-interesa-del-repositorio">Clonando sólo lo que nos interesa del repositorio</h2>
+<p>Usamos la opción <code>--no-checkout</code> para realizar el <em>clone</em> sin descargar el repositorio completo.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ git clone --no-checkout https://github.com/xaviatwork/reference_bash_scripts.git .
+Cloning into <span style="color:#2aa198">&#39;.&#39;</span>...
+remote: Enumerating objects: 119, <span style="color:#719e07">done</span>.
+remote: Counting objects: 100% <span style="color:#719e07">(</span>119/119<span style="color:#719e07">)</span>, <span style="color:#719e07">done</span>.
+remote: Compressing objects: 100% <span style="color:#719e07">(</span>81/81<span style="color:#719e07">)</span>, <span style="color:#719e07">done</span>.
+remote: Total <span style="color:#2aa198">119</span> <span style="color:#719e07">(</span>delta 42<span style="color:#719e07">)</span>, reused <span style="color:#2aa198">93</span> <span style="color:#719e07">(</span>delta 24<span style="color:#719e07">)</span>, pack-reused <span style="color:#2aa198">0</span>
+Receiving objects: 100% <span style="color:#719e07">(</span>119/119<span style="color:#719e07">)</span>, 18.30 KiB | 669.00 KiB/s, <span style="color:#719e07">done</span>.
+Resolving deltas: 100% <span style="color:#719e07">(</span>42/42<span style="color:#719e07">)</span>, <span style="color:#719e07">done</span>.
+</code></pre></div><p>La carpeta no contiene ningún fichero (aunque hayamos clonado el repositorio):</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ ls -a 
+.  ..  .git
+</code></pre></div><p>Ejecutamos el subcomando <em>sparse-checkout</em>, especificando qué carpeta(s) nos interesan del repositorio mediante <code>set</code>; como habíamos anticipado, indicamos a Git que sólo queremos la carpeta <code>generate_uuid</code> y <code>logmsg</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">git sparse-checkout <span style="color:#b58900">set</span> generate_uuid logmsg
+</code></pre></div><p>Seguimos sin tener nada en la carpeta, pero el comando ha preparado Git para &ldquo;trackear&rdquo; sólo las carpetas que nos interesan.</p>
+<blockquote>
+<p>Incluso tras ejecutar <code>git sparse-checkout set generate_uuid logmsg</code>, Git interpreta la carpeta vacía como si el contenido del repositorio hubiera sido  borrado; puedes comprobarlo ejecutando:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ git status 
+On branch main
+Your branch is up-to-date with <span style="color:#2aa198">&#39;origin/main&#39;</span>.
+
+Changes to be committed:
+  <span style="color:#719e07">(</span>use <span style="color:#2aa198">&#34;git restore --staged &lt;file&gt;...&#34;</span> to unstage<span style="color:#719e07">)</span>
+    deleted:    aws_configure_profile/aws_configure_profile.sh
+    deleted:    aws_configure_profile/config
+    deleted:    bash-ini-parser/bash-ini-parser
+    deleted:    bash-ini-parser/getKeyFromSection.sh
+    deleted:    generate_uuid/generate_uuid.sh
+    deleted:    helm/install_helm_chart.sh
+    deleted:    kubernetes/get_kubeconfig.sh
+    deleted:    kubernetes/set_default_storageclass.sh
+    deleted:    logmsg/logmsg.sh
+    deleted:    logmsg/tests.sh
+    deleted:    parse_cli_args/README.md
+    deleted:    parse_cli_args/parse_cli_args.sh
+    deleted:    parse_cli_args/test.sh
+    deleted:    request_user_input/README.md
+    deleted:    request_user_input/request.sh
+    deleted:    request_user_input/test.sh
+</code></pre></div></blockquote>
+<p>Finalmente, establecemos la rama del repositorio (en este caso, <code>main</code>):</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ git switch main
+Already on <span style="color:#2aa198">&#39;main&#39;</span>
+Your branch is up-to-date with <span style="color:#2aa198">&#39;origin/main&#39;</span>.
+</code></pre></div><p>Aunque nos indica que ya estábamos en <code>main</code>, el resultado de <code>git status</code> ahora es:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ git status 
+On branch main
+Your branch is up-to-date with <span style="color:#2aa198">&#39;origin/main&#39;</span>.
+
+You are in a sparse checkout with 19% of tracked files present.
+
+nothing to commit, working tree clean
+</code></pre></div><p>Git ahora <strong>sabe</strong> que está trabajando con un <em>sparse-checkout</em> (no que los ficheros se han borrado, como indicaba antes).</p>
+<p>Fíjate en la línea:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">You are in a sparse checkout with 19% of tracked files present.
+</code></pre></div><p>Y si mostramos los ficheros en la copia local del repositorio:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-bash" data-lang="bash">$ ls   
+generate_uuid  logmsg
+$ tree .
+.
+├── generate_uuid
+│   └── generate_uuid.sh
+└── logmsg
+    ├── logmsg.sh
+    └── tests.sh
+
+<span style="color:#2aa198">2</span> directories, <span style="color:#2aa198">3</span> files
+</code></pre></div><blockquote>
+<p>La documentación oficial para <a href="https://git-scm.com/docs/git-sparse-checkout"><code>sparse-checkout</code></a> (en este caso, para la versión 2.39.2) inidica que <code>git sparse-checkout init --clone</code> está <em>deprecated</em> y que puede ser eliminado en el futuro.
+Este artículo de GitHub <a href="https://github.blog/2020-01-17-bring-your-monorepo-down-to-size-with-sparse-checkout/">Bring your monorepo down to size with sparse-checkout</a> del 2020 (actualizado en Marzo 2021) que me ha servido como punto de partido todavía hace referencia a <code>git sparse-checkout init --cone</code>.</p>
+</blockquote></div>
+
+  <aside class="p-share">
+
+
+  <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3a%2f%2fonthedock.github.io%2fpost%2f230309-git-sparse-checkout%2f&amp;source=https%3a%2f%2fonthedock.github.io%2fpost%2f230309-git-sparse-checkout%2f&amp;title=Git%20sparse-checkout%20para%20clonar%20s%c3%b3lo%20subcarpeta%28s%29%20de%20un%20repositorio" target="_blank" rel="noopener" aria-label="Share on LinkedIn">
+    <svg width="2rem" height="2rem" viewBox="0 0 352 352"><path d="M0 40v272c0 21.9 18.1 40 40 40h272c21.9.0 40-18.1 40-40V40c0-21.9-18.1-40-40-40H40C18.1.0.0 18.1.0 40zm312-8c4.6.0 8 3.4 8 8v272c0 4.6-3.4 8-8 8H40c-4.6.0-8-3.4-8-8V40c0-4.6 3.4-8 8-8H312zM59.5 87c0 15.2 12.3 27.5 27.5 27.5s27.5-12.3 27.5-27.5S102.2 59.5 87 59.5 59.5 71.8 59.5 87zM187 157h-1v-21h-45v152h47v-75c0-19.8 3.9-39 28.5-39 24.2.0 24.5 22.4 24.5 40v74h47v-83.5c0-40.9-8.7-72-56.5-72-23 0-38.2 12.6-44.5 24.5zM64 288h47.5V136H64V288z"></path></svg>
+    <p>LinkedIn</p>
+  </a>
+
+  <a href="https://twitter.com/intent/tweet?hashtags=onthedock&amp;url=https%3a%2f%2fonthedock.github.io%2fpost%2f230309-git-sparse-checkout%2f&amp;text=Git%20sparse-checkout%20para%20clonar%20s%c3%b3lo%20subcarpeta%28s%29%20de%20un%20repositorio" target="_blank" rel="noopener" aria-label="Share on Twitter" class="share-btn twitter">
+    <svg width="2rem" height="2rem" viewBox="0 0 384 312"><path d="m384 36.9c-14.1 6.3-29.3 10.5-45.2 12.4 16.3-9.7 28.8-25.2 34.6-43.6-15.2 9-32.1 15.6-50 19.1-14.4-15.2-34.9-24.8-57.5-24.8-43.5.0-78.8 35.3-78.8 78.8.0 6.2.7 12.2 2 17.9-65.5-3.3-123.5-34.6-162.4-82.3C20 26 16.1 39.6 16.1 54c0 27.3 13.9 51.4 35 65.6-12.9-.4-25.1-4-35.7-9.9v1c0 38.2 27.2 70 63.2 77.2-6.6 1.8-13.6 2.8-20.8 2.8-5.1.0-10-.5-14.8-1.4 10 31.3 39.1 54.1 73.6 54.7-27 21.1-60.9 33.7-97.8 33.7-6.4.0-12.6-.4-18.8-1.1C34.9 299 76.3 312 120.8 312c144.9.0 224.1-120 224.1-224.1.0-3.4-.1-6.8-.2-10.2 15.4-11.1 28.7-25 39.3-40.8z"></path></svg>
+    <p>Twitter</p>
+  </a>
+
+  <a href="mailto:?subject=Git%20sparse-checkout%20para%20clonar%20s%c3%b3lo%20subcarpeta%28s%29%20de%20un%20repositorio.&amp;body=Git%20sparse-checkout%20para%20clonar%20s%c3%b3lo%20subcarpeta%28s%29%20de%20un%20repositorio%0a%0ahttps%3a%2f%2fonthedock.github.io%2fpost%2f230309-git-sparse-checkout%2f%0a" target="_blank" class="share-btn email">
+    <svg width="2rem" height="2rem" viewBox="0 0 416 288"><path d="m0 16v256 16h16 384 16v-16V16 0h-16H16 0zm347 16-139 92.5L69 32zM199 157.5l9 5.5 9-5.5L384 46v210H32V46z"></path></svg>
+    <p>Email</p>
+  </a>
+
+  <a href="whatsapp://send?text=Git%20sparse-checkout%20para%20clonar%20s%c3%b3lo%20subcarpeta%28s%29%20de%20un%20repositorio%0a%0ahttps%3a%2f%2fonthedock.github.io%2fpost%2f230309-git-sparse-checkout%2f%0a" target="_blank">
+    <svg  width="2rem" height="2rem" viewBox="0 0 24 24">
+    <path d="M20.1 3.9C17.9 1.7 15 .5 12 .5 5.8.5.7 5.6.7 11.9c0 2 .5 3.9 1.5 5.6L.6 23.4l6-1.6c1.6.9 3.5 1.3 5.4 1.3 6.3.0 11.4-5.1 11.4-11.4-.1-2.8-1.2-5.7-3.3-7.8zM12 21.4c-1.7.0-3.3-.5-4.8-1.3l-.4-.2-3.5 1 1-3.4L4 17c-1-1.5-1.4-3.2-1.4-5.1.0-5.2 4.2-9.4 9.4-9.4 2.5.0 4.9 1 6.7 2.8s2.8 4.2 2.8 6.7c-.1 5.2-4.3 9.4-9.5 9.4zm5.1-7.1c-.3-.1-1.7-.9-1.9-1-.3-.1-.5-.1-.7.1-.2.3-.8 1-.9 1.1-.2.2-.3.2-.6.1s-1.2-.5-2.3-1.4c-.9-.8-1.4-1.7-1.6-2s0-.5.1-.6.3-.3.4-.5c.2-.1.3-.3.4-.5s0-.4.0-.5C10 9 9.3 7.6 9 7c-.1-.4-.4-.3-.5-.3h-.6s-.4.1-.7.3c-.3.3-1 1-1 2.4s1 2.8 1.1 3c.1.2 2 3.1 4.9 4.3.7.3 1.2.5 1.6.6.7.2 1.3.2 1.8.1.6-.1 1.7-.7 1.9-1.3.2-.7.2-1.2.2-1.3-.1-.3-.3-.4-.6-.5z"></path></svg>
+    <p>Whatsapp</p>
+  </a>
+
 
   <div class="searchbar">
       <iframe src="https://duckduckgo.com/search.html?site=https://onthedock.github.io/&prefill=Busca en este sitio usando DuckDuckGo" style="width: 25em;height: 48px" frameborder="0"></iframe>
-  </div>
+    </div>
+</aside>
 
-  <img src="https://onthedock.github.io//images/MabelAmber-mini.png" class="p-articles" width="100%">
+
+
+  <footer class="article-footer">
+    <section>
+      <ol class="p-crumb">
+        <li><a href="https://onthedock.github.io/">On The Dock</a></li>
+        
+        <li itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb"><a href="https://onthedock.github.io/post/" itemprop="url"><span itemprop="title">post</span></a></li>
+        
+        <li>Git sparse-checkout para clonar sólo subcarpeta(s) de un repositorio</li>
+      </ol>
+
+      
+      
+      
+      <ul class="p-facts">
+        <li>
+          <header><a href="https://onthedock.github.io/categories/">categories</a></header>
+          <ul>
+            
+            <li><a href="https://onthedock.github.io/categories/dev/">dev</a></li>
+            
+          </ul>
+        </li>
+      </ul>
+      
+      
+      
+      <ul class="p-facts">
+        <li>
+          <header><a href="https://onthedock.github.io/tags/">tags</a></header>
+          <ul>
+            
+            <li><a href="https://onthedock.github.io/tags/git/">git</a></li>
+            
+          </ul>
+        </li>
+      </ul>
+      
+      
+    </section>
+  </footer>
+</article>
+
+<article>
+  <div id="disqus_thread"></div>
+  <script>
   
-  <p style="text-align: right"><small><a href="https://www.pexels.com/photo/jetty-feet-sign-wooden-128299/">Photo</a> by <a href="https://www.pexels.com/u/mabelamber/">Mabel Amber</a></small></p>
-   
-  <ul class="p-articles">
-    <li><article class="li article-4c8c13dd5627da332e5774b27cf40099">
-  <div class="header-wrapper">
-    <a href="https://onthedock.github.io/post/200710-ip-estatica-en-kvm/" class="thumbnail" title="IP estática en KVM"></a>
-    <header class="article-header">
-      <div class="clearfix">
-        <h2 class="title"><a href="https://onthedock.github.io/post/200710-ip-estatica-en-kvm/">IP estática en KVM</a></h2>
-        <ul class="p-facts">
-          <li><time datetime="2020-07-10T18:16:34JST">10 Jul 2020</time></li>
-          <li><a href="https://onthedock.github.io/post/">post</a></li>
-          <li>Xavi Aznar</li>
-          
-        </ul>
-      </div>
-    </header>
-  </div>
-  <div class="article-body summary"><p>Las máquinas virtuales en KVM obtienen una IP en el rango <code>192.168.122.2</code> a <code>192.168.122.254</code> (puedes comprobarlo mediante <code>virsh net-edit default</code> (para la red <em>default</em>)).</p>
-<p>Asignar una IP estática a una máquina virtual en KVM consiste en tres pasos:</p></div>
-  <footer class="readmore"><a href="https://onthedock.github.io/post/200710-ip-estatica-en-kvm/">LEER M&Aacute;S</a></footer>
+  
+
+  
+
+  (function() { 
+  var d = document, s = d.createElement('script');
+  s.src = 'https://onthedock.disqus.com/embed.js';
+  s.setAttribute('data-timestamp', +new Date());
+  (d.head || d.body).appendChild(s);
+  })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+                              
+
 </article>
-</li><li><article class="li article-6e92220fbd4bf73e9add44ea35db7875">
+
+
+
+  
+  
+  <section>
+    <header><span>Latests</span></header>
+    <ul class="p-articles thin">
+      <li><article class="li sm article-5f0e64ac132e87c8821f85ecc697cd8e">
   <div class="header-wrapper">
-    <a href="https://onthedock.github.io/post/200706-lanzar-instancias-en-kvm-y-configurarlas-con-cloudinit/" class="thumbnail" title="Lanzar instancias en KVM y configurarlas con Cloudinit"></a>
+    <a href="https://onthedock.github.io/post/230226-proxy-rules-csv-parser/" class="thumbnail" title="CSV Parser (II)"></a>
     <header class="article-header">
       <div class="clearfix">
-        <h2 class="title"><a href="https://onthedock.github.io/post/200706-lanzar-instancias-en-kvm-y-configurarlas-con-cloudinit/">Lanzar instancias en KVM y configurarlas con Cloudinit</a></h2>
+        <h2 class="title"><a href="https://onthedock.github.io/post/230226-proxy-rules-csv-parser/">CSV Parser (II)</a></h2>
         <ul class="p-facts">
-          <li><time datetime="2020-07-06T20:27:27JST">6 Jul 2020</time></li>
+          <li><time datetime="2023-02-26T12:11:54JST">26 Feb 2023</time></li>
           <li><a href="https://onthedock.github.io/post/">post</a></li>
-          <li>Xavi Aznar</li>
           
         </ul>
       </div>
     </header>
   </div>
-  <div class="article-body summary"><p>En la <a href="https://onthedock.github.io/post/200627-creacion-de-vm-en-kvm-con-virsh/">entrada anterior</a> describía los pasos para lanzar una instancia en KVM usando <code>virsh</code>. Pero aunque esto resuelve la creación de la máquina virtual, todavía tenemos que realizar la configuración manual del sistema operativo, establecer el <code>hostname</code>, crear usuarios, instalar de paquetes, etc.</p>
-<p>Usando <a href="https://cloudinit.readthedocs.io"><code>cloud-init</code></a> podemos automatizar el proceso de configuración tal y como lo hacen los proveedores de cloud público (AWS, Azure, Google Cloud&hellip;)</p></div>
-  <footer class="readmore"><a href="https://onthedock.github.io/post/200706-lanzar-instancias-en-kvm-y-configurarlas-con-cloudinit/">LEER M&Aacute;S</a></footer>
 </article>
-</li><li><article class="li article-65945fdc2f7a451d2eba88e27bcae615">
+</li><li><article class="li sm article-8a9f57a35daefc75b8c757a0d5875ab9">
   <div class="header-wrapper">
-    <a href="https://onthedock.github.io/post/200627-creacion-de-vm-en-kvm-con-virsh/" class="thumbnail" title="Creación de una máquina virtual en KVM con virsh"></a>
+    <a href="https://onthedock.github.io/post/230212-obtener-ultima-version-imagen-cis-en-gcp/" class="thumbnail" title="Obtén la última versión de imágenes publicadas por el CIS en Google Cloud Platform"></a>
     <header class="article-header">
       <div class="clearfix">
-        <h2 class="title"><a href="https://onthedock.github.io/post/200627-creacion-de-vm-en-kvm-con-virsh/">Creación de una máquina virtual en KVM con virsh</a></h2>
+        <h2 class="title"><a href="https://onthedock.github.io/post/230212-obtener-ultima-version-imagen-cis-en-gcp/">Obtén la última versión de imágenes publicadas por el CIS en Google Cloud Platform</a></h2>
         <ul class="p-facts">
-          <li><time datetime="2020-06-27T17:35:24JST">27 Jun 2020</time></li>
+          <li><time datetime="2023-02-12T21:23:23JST">12 Feb 2023</time></li>
           <li><a href="https://onthedock.github.io/post/">post</a></li>
-          <li>Xavi Aznar</li>
           
         </ul>
       </div>
     </header>
   </div>
-  <div class="article-body summary"><p>En la entrada <a href="https://onthedock.github.io/post/200627-instalacion-de-kvm-en-ubuntu-20.04/">Instalación de KVM en Ubuntu 20.04</a> instalamos KVM; ahora empieza lo divertido y vamos a crear una máquina virtual en KVM desde línea de comando con <code>virsh</code>.</p></div>
-  <footer class="readmore"><a href="https://onthedock.github.io/post/200627-creacion-de-vm-en-kvm-con-virsh/">LEER M&Aacute;S</a></footer>
 </article>
-</li><li><article class="li article-d4ae75e268955792710fe6fdbf38a8cd">
+</li><li><article class="li sm article-46e152ca8a71b2415b96f17ac0fbbd1f">
   <div class="header-wrapper">
-    <a href="https://onthedock.github.io/post/200627-instalacion-de-kvm-en-ubuntu-20.04/" class="thumbnail" title="Instalación de KVM en Ubuntu 20.04"></a>
+    <a href="https://onthedock.github.io/post/230201-csv-parser-en-go/" class="thumbnail" title="CSV Parser en Go (work in progress)"></a>
     <header class="article-header">
       <div class="clearfix">
-        <h2 class="title"><a href="https://onthedock.github.io/post/200627-instalacion-de-kvm-en-ubuntu-20.04/">Instalación de KVM en Ubuntu 20.04</a></h2>
+        <h2 class="title"><a href="https://onthedock.github.io/post/230201-csv-parser-en-go/">CSV Parser en Go (work in progress)</a></h2>
         <ul class="p-facts">
-          <li><time datetime="2020-06-27T16:27:29JST">27 Jun 2020</time></li>
+          <li><time datetime="2023-02-01T20:08:55JST">1 Feb 2023</time></li>
           <li><a href="https://onthedock.github.io/post/">post</a></li>
-          <li>Xavi Aznar</li>
           
         </ul>
       </div>
     </header>
   </div>
-  <div class="article-body summary"><p>Después de convertir el equipo de laboratorio en mi equipo de escritorio, poco a poco lo estoy convirtiendo de nuevo en un <strong>equipo de laboratorio</strong> :D</p>
-<p>Después del desagradable sabor de boca con <a href="https://wiki.gnome.org/Apps/Boxes">GNOME Boxes</a> que me dejó mi <a href="https://onthedock.github.io/post/200620-odiando-fedora-en-menos-de-1-hora/">efímera prueba en Fedora</a>, he recuperado el entorno basado en KVM (aunque no tuviera éxito con Proxmox VE).</p>
-<p>En esta entrada describo los pasos seguidos para instalar KVM en Ubuntu 20.04 con las notas que he ido tomando durante el proceso.</p></div>
-  <footer class="readmore"><a href="https://onthedock.github.io/post/200627-instalacion-de-kvm-en-ubuntu-20.04/">LEER M&Aacute;S</a></footer>
 </article>
-</li><li><article class="li article-bde56cbd0283e6a7909a444b8e08e5c5">
+</li><li><article class="li sm article-74390774ec132fb21b2ae59b4128ff58">
   <div class="header-wrapper">
-    <a href="https://onthedock.github.io/post/190213-como-clonar-vms-y-usar-sysprep-en-kvm/" class="thumbnail" title="Cómo clonar máquinas virtuales y usar virt-sysprep en KVM"></a>
+    <a href="https://onthedock.github.io/post/230118-til-jq-considera-strings-los-argumentos/" class="thumbnail" title="En Jq, los valores pasados mediante &#39;--arg&#39; se tratan como &#39;strings&#39; sea cual sea su tipo #TIL"></a>
     <header class="article-header">
       <div class="clearfix">
-        <h2 class="title"><a href="https://onthedock.github.io/post/190213-como-clonar-vms-y-usar-sysprep-en-kvm/">Cómo clonar máquinas virtuales y usar virt-sysprep en KVM</a></h2>
+        <h2 class="title"><a href="https://onthedock.github.io/post/230118-til-jq-considera-strings-los-argumentos/">En Jq, los valores pasados mediante &#39;--arg&#39; se tratan como &#39;strings&#39; sea cual sea su tipo #TIL</a></h2>
         <ul class="p-facts">
-          <li><time datetime="2019-02-13T20:57:24JST">13 Feb 2019</time></li>
+          <li><time datetime="2023-01-18T21:43:12JST">18 Jan 2023</time></li>
           <li><a href="https://onthedock.github.io/post/">post</a></li>
-          <li>Xavi Aznar</li>
           
         </ul>
       </div>
     </header>
   </div>
-  <div class="article-body summary"><p>En la entrada anterior hemos visto cómo crear y clonar discos. Si el disco clonado contiene el sistema operativo de una máquina virtual, el clon continene identificadores que deberían ser únicos (como el <em>machine ID</em>, direcciones MAC, claves SSH de <em>host</em>, etc).</p>
-<p>Podemos usar <code>virt-sysprep</code> para eliminar todos estos identificadores únicos.</p></div>
-  <footer class="readmore"><a href="https://onthedock.github.io/post/190213-como-clonar-vms-y-usar-sysprep-en-kvm/">LEER M&Aacute;S</a></footer>
-</article>
-</li><li><article class="li article-0c530d26aef03bb376ea14c3014c0325">
-  <div class="header-wrapper">
-    <a href="https://onthedock.github.io/post/190211-como-gestionar-discos-en-kvm/" class="thumbnail" title="Cómo gestionar discos en KVM"></a>
-    <header class="article-header">
-      <div class="clearfix">
-        <h2 class="title"><a href="https://onthedock.github.io/post/190211-como-gestionar-discos-en-kvm/">Cómo gestionar discos en KVM</a></h2>
-        <ul class="p-facts">
-          <li><time datetime="2019-02-11T19:31:08JST">11 Feb 2019</time></li>
-          <li><a href="https://onthedock.github.io/post/">post</a></li>
-          <li>Xavi Aznar</li>
-          
-        </ul>
-      </div>
-    </header>
-  </div>
-  <div class="article-body summary"><p>Una vez creados los <em>storage pools</em> llega el momento de empezar a llenarlos con discos.</p>
-<p>En la <a href="https://onthedock.github.io/post/190209-como-crear-un-storage-pool-en-kvm/">entrada anterior</a> hemos visto cómo añadir una imagen ISO al <em>pool</em> que hemos creado para los medios de instalación.</p>
-<p>Ahora vamos a crear discos para las máquinas virtuales.</p></div>
-  <footer class="readmore"><a href="https://onthedock.github.io/post/190211-como-gestionar-discos-en-kvm/">LEER M&Aacute;S</a></footer>
-</article>
-</li><li><article class="li article-0d445519a7825dfd55db94b8b9817031">
-  <div class="header-wrapper">
-    <a href="https://onthedock.github.io/post/190209-como-crear-un-storage-pool-en-kvm/" class="thumbnail" title="Cómo crear un storage pool en KVM"></a>
-    <header class="article-header">
-      <div class="clearfix">
-        <h2 class="title"><a href="https://onthedock.github.io/post/190209-como-crear-un-storage-pool-en-kvm/">Cómo crear un storage pool en KVM</a></h2>
-        <ul class="p-facts">
-          <li><time datetime="2019-02-09T19:07:08JST">9 Feb 2019</time></li>
-          <li><a href="https://onthedock.github.io/post/">post</a></li>
-          <li>Xavi Aznar</li>
-          
-        </ul>
-      </div>
-    </header>
-  </div>
-  <div class="article-body summary"><p>En KVM existe el concepto de <em>storage pool</em>, que como indica su nombre, es un recurso de almacenamiento.</p>
-<p>En mi caso, todo el almacenamiento es local, por lo que voy a examinar el <em>pool</em> existente y a continuación crearé un nuevo <em>storage pool</em> para guardar las ISOs de instalación de los diversos sistemas operativos que utilice.</p>
-<p>Al disponer únicamente del disco local como espacio de almacenamiento la creación de <em>storage pools</em> adicionales sirve para separar los discos de las VMs (que dejaré en el <em>pool</em> <strong>default</strong>) de las ISOs y de paso, aprender cómo funcionan los <em>storage pool</em> en KVM ;)</p></div>
-  <footer class="readmore"><a href="https://onthedock.github.io/post/190209-como-crear-un-storage-pool-en-kvm/">LEER M&Aacute;S</a></footer>
-</article>
-</li><li><article class="li article-a57735573e4d2b1c48a69a09a73878b7">
-  <div class="header-wrapper">
-    <a href="https://onthedock.github.io/post/190205-como-habilitar-virtualizacion-anidada-en-kvm/" class="thumbnail" title="Cómo habilitar virtualización anidada en KVM"></a>
-    <header class="article-header">
-      <div class="clearfix">
-        <h2 class="title"><a href="https://onthedock.github.io/post/190205-como-habilitar-virtualizacion-anidada-en-kvm/">Cómo habilitar virtualización anidada en KVM</a></h2>
-        <ul class="p-facts">
-          <li><time datetime="2019-02-05T22:14:15JST">5 Feb 2019</time></li>
-          <li><a href="https://onthedock.github.io/post/">post</a></li>
-          <li>Xavi Aznar</li>
-          
-        </ul>
-      </div>
-    </header>
-  </div>
-  <div class="article-body summary"><p>La virtualización anidada permite ejecutar una máquina virtual <em>dentro</em> de otra máquina virtual aprovechando las posibilidades de aceleración por hardware que proporciona el sistema anfitrión.</p></div>
-  <footer class="readmore"><a href="https://onthedock.github.io/post/190205-como-habilitar-virtualizacion-anidada-en-kvm/">LEER M&Aacute;S</a></footer>
-</article>
-</li><li><article class="li article-ccf02aadbf150df00f9a2962c5cc2c32">
-  <div class="header-wrapper">
-    <a href="https://onthedock.github.io/post/190124-kvm-en-ubuntu-server/" class="thumbnail" title="KVM en Ubuntu Server"></a>
-    <header class="article-header">
-      <div class="clearfix">
-        <h2 class="title"><a href="https://onthedock.github.io/post/190124-kvm-en-ubuntu-server/">KVM en Ubuntu Server</a></h2>
-        <ul class="p-facts">
-          <li><time datetime="2019-01-24T20:11:23JST">24 Jan 2019</time></li>
-          <li><a href="https://onthedock.github.io/post/">post</a></li>
-          <li>Xavi Aznar</li>
-          
-        </ul>
-      </div>
-    </header>
-  </div>
-  <div class="article-body summary"><p>KVM es un módulo de virtualización que permite al kernel de Linux funcionar como hipervisor. Al formar parte del kernel de Linux, no requiere un entorno de escritorio. Esto permite reducir el <em>peso extra</em> del sistema, pero también supone un reto a la hora de gestionar las máquinas virtuales.</p></div>
-  <footer class="readmore"><a href="https://onthedock.github.io/post/190124-kvm-en-ubuntu-server/">LEER M&Aacute;S</a></footer>
 </article>
 </li>
-  </ul>
+    </ul>
+  </section>
+  
 </div>
-
-
 
 
     </main>
