@@ -9,15 +9,15 @@
 <meta name="generator" content="Hugo 0.111.3">
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
-<link rel="alternate" type="application/rss+xml" title="RSS" href="/tags/tareas/index.xml"> 
 
-<link rel="canonical" href="https://onthedock.github.io/tags/tareas/">
+
+<link rel="canonical" href="https://onthedock.github.io/post/230816-patron-singleton-en-go-y-mas/">
 
 
     
     <link href="https://fonts.googleapis.com/css?family=Special+Elite|Fira+Sans:400,700" rel="stylesheet">
     
-    <title>tareas - On The Dock</title>
+    <title>Patrón *singleton* en Go (y alguna cosa más) - On The Dock</title>
     <style amp-boilerplate>body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}</style><noscript><style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style></noscript>
     <script async src="https://cdn.ampproject.org/v0.js"></script>
     
@@ -26,6 +26,60 @@
 <script async custom-element="amp-ad" src="https://cdn.ampproject.org/v0/amp-ad-0.1.js"></script>
 
     
+<meta name="description" content="&lt;p&gt;Uno de los problemas que he encontrado en mi &lt;em&gt;reinterpretación&lt;/em&gt; de la API que uso en el trabajo ha sido la conexión con la base de datos.&lt;/p&gt;&lt;p&gt;Siguiendo las buenas prácticas, mi intención era reutilizar el cliente a la base de datos. En vez de usar una variable global, que suele ser la aproximación &lt;em&gt;recomendada&lt;/em&gt;, guardaba la &lt;em&gt;struct&lt;/em&gt; en el &lt;em&gt;contexto&lt;/em&gt; de Gin.&lt;/p&gt;&lt;p&gt;Sin embargo, el contexto se propaga para una misma petición, pero no se mantiene entre peticiones&amp;hellip; Así que para cada nueva petición que recibía la API se creaba un nuevo &lt;em&gt;client&lt;/em&gt; 😞.&lt;/p&gt;&lt;p&gt;Todo lo relacionado con la base de datos se encuentra en su propio paquete, por lo que tendría sentido crear una variable &amp;ldquo;global&amp;rdquo; dentro del paquete&amp;hellip;&lt;/p&gt;&lt;p&gt;Sin embargo, seguía quedando pendiente el tema de cerrar la conexión con la base de datos al finalizar la aplicación&amp;hellip;&lt;/p&gt;&lt;p&gt;En esta entrada explico la solución que quiero probar (ya veremos si funciona 😉, parece que sí).&lt;/p&gt;">
+
+<meta property="og:title" content="Patrón *singleton* en Go (y alguna cosa más) - On The Dock">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://onthedock.github.io/post/230816-patron-singleton-en-go-y-mas/">
+<meta property="og:image" content="https://onthedock.github.io/images/go.png">
+<meta property="og:site_name" content="On The Dock">
+<meta property="og:description" content="&lt;p&gt;Uno de los problemas que he encontrado en mi &lt;em&gt;reinterpretación&lt;/em&gt; de la API que uso en el trabajo ha sido la conexión con la base de datos.&lt;/p&gt;&lt;p&gt;Siguiendo las buenas prácticas, mi intención era reutilizar el cliente a la base de datos. En vez de usar una variable global, que suele ser la aproximación &lt;em&gt;recomendada&lt;/em&gt;, guardaba la &lt;em&gt;struct&lt;/em&gt; en el &lt;em&gt;contexto&lt;/em&gt; de Gin.&lt;/p&gt;&lt;p&gt;Sin embargo, el contexto se propaga para una misma petición, pero no se mantiene entre peticiones&amp;hellip; Así que para cada nueva petición que recibía la API se creaba un nuevo &lt;em&gt;client&lt;/em&gt; 😞.&lt;/p&gt;&lt;p&gt;Todo lo relacionado con la base de datos se encuentra en su propio paquete, por lo que tendría sentido crear una variable &amp;ldquo;global&amp;rdquo; dentro del paquete&amp;hellip;&lt;/p&gt;&lt;p&gt;Sin embargo, seguía quedando pendiente el tema de cerrar la conexión con la base de datos al finalizar la aplicación&amp;hellip;&lt;/p&gt;&lt;p&gt;En esta entrada explico la solución que quiero probar (ya veremos si funciona 😉, parece que sí).&lt;/p&gt;">
+<meta property="og:locale" content="ja_JP">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="On The Dock">
+<meta name="twitter:url" content="https://onthedock.github.io/post/230816-patron-singleton-en-go-y-mas/">
+<meta name="twitter:title" content="Patrón *singleton* en Go (y alguna cosa más) - On The Dock">
+<meta name="twitter:description" content="&lt;p&gt;Uno de los problemas que he encontrado en mi &lt;em&gt;reinterpretación&lt;/em&gt; de la API que uso en el trabajo ha sido la conexión con la base de datos.&lt;/p&gt;&lt;p&gt;Siguiendo las buenas prácticas, mi intención era reutilizar el cliente a la base de datos. En vez de usar una variable global, que suele ser la aproximación &lt;em&gt;recomendada&lt;/em&gt;, guardaba la &lt;em&gt;struct&lt;/em&gt; en el &lt;em&gt;contexto&lt;/em&gt; de Gin.&lt;/p&gt;&lt;p&gt;Sin embargo, el contexto se propaga para una misma petición, pero no se mantiene entre peticiones&amp;hellip; Así que para cada nueva petición que recibía la API se creaba un nuevo &lt;em&gt;client&lt;/em&gt; 😞.&lt;/p&gt;&lt;p&gt;Todo lo relacionado con la base de datos se encuentra en su propio paquete, por lo que tendría sentido crear una variable &amp;ldquo;global&amp;rdquo; dentro del paquete&amp;hellip;&lt;/p&gt;&lt;p&gt;Sin embargo, seguía quedando pendiente el tema de cerrar la conexión con la base de datos al finalizar la aplicación&amp;hellip;&lt;/p&gt;&lt;p&gt;En esta entrada explico la solución que quiero probar (ya veremos si funciona 😉, parece que sí).&lt;/p&gt;">
+<meta name="twitter:image" content="https://onthedock.github.io/images/go.png">
+
+
+<script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "NewsArticle",
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id":"https:\/\/onthedock.github.io\/"
+    },
+    "headline": "Patrón *singleton* en Go (y alguna cosa más) - On The Dock",
+    "image": {
+      "@type": "ImageObject",
+      "url": "https:\/\/onthedock.github.io\/images\/go.png",
+      "height": 800,
+      "width": 800
+    },
+    "datePublished": "2023-08-16T20:25:52JST",
+    "dateModified": "2023-08-16T20:25:52JST",
+    "author": {
+      "@type": "Person",
+      "name": "On The Dock"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "On The Dock",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https:\/\/onthedock.github.io\/images/logo.png",
+        "width": 600,
+        "height": 60
+      }
+    },
+    "description": "\u003cp\u003eUno de los problemas que he encontrado en mi \u003cem\u003ereinterpretación\u003c\/em\u003e de la API que uso en el trabajo ha sido la conexión con la base de datos.\u003c\/p\u003e\n\u003cp\u003eSiguiendo las buenas prácticas, mi intención era reutilizar el cliente a la base de datos. En vez de usar una variable global, que suele ser la aproximación \u003cem\u003erecomendada\u003c\/em\u003e, guardaba la \u003cem\u003estruct\u003c\/em\u003e en el \u003cem\u003econtexto\u003c\/em\u003e de Gin.\u003c\/p\u003e\n\u003cp\u003eSin embargo, el contexto se propaga para una misma petición, pero no se mantiene entre peticiones\u0026hellip; Así que para cada nueva petición que recibía la API se creaba un nuevo \u003cem\u003eclient\u003c\/em\u003e 😞.\u003c\/p\u003e\n\u003cp\u003eTodo lo relacionado con la base de datos se encuentra en su propio paquete, por lo que tendría sentido crear una variable \u0026ldquo;global\u0026rdquo; dentro del paquete\u0026hellip;\u003c\/p\u003e\n\u003cp\u003eSin embargo, seguía quedando pendiente el tema de cerrar la conexión con la base de datos al finalizar la aplicación\u0026hellip;\u003c\/p\u003e\n\u003cp\u003eEn esta entrada explico la solución que quiero probar (ya veremos si funciona 😉, parece que sí).\u003c\/p\u003e"
+  }
+</script>
+
+
     <style amp-custom>
       html { font-size: 18px;}@media (max-width: 768px) { html { font-size: 15px; }}body { font-family: 'Fira Sans', sans-serif; font-size: inherit; margin: 0; color: #263238;}html, body { margin: 0;}a { text-decoration: none; color: #e91e63;}p { margin: 0;}ul,ol { margin: 0; padding: 0;}h1, h2, h3, h4, h5, h6 { margin: 0; font-weight: 700;}h1 { font-size: 1.8rem; line-height: 2rem; margin: 1.5rem 0; }h2 { font-size: 1.4rem; line-height: 2rem; margin: 1.5rem 0; }h3 { font-size: 1.2rem; line-height: 1.5rem; margin: 1.5rem 0; }h4, h5, h6 { font-size: 1rem; line-height: 1.5rem; margin: 1.5rem 0; }.clearfix::after { content: ''; display: block; clear: both;}main{ display: block;}.searchbar{ display: block; border: none; margin: 1em auto; max-width: 780px; text-align: center;}/* Layouts */.l-header { padding: .5rem 0; margin-bottom: 2rem; border-bottom: 1px dashed #cfd8dc; text-align: center;}.l-footer { font-size: .8rem; padding: 1rem 0; border-top: 1px dashed #a3aaad;}.l-footer .copyright-notice,.l-footer .attribution { text-align: center; line-height: 1.5rem;}.l-container { max-width: 42rem; margin: 0 auto; padding: 0 1rem;}/* Parts:logo */.p-logo { font-family: 'Special Elite', cursive; font-weight: 700;}.p-logo a { color: #000; font-size: 1.8rem; line-height: 2rem;}.p-sublogo,.p-sublogo a { font-size: 1rem; line-height: 2rem;}img.linkedin { height: 1.1rem; border: 0; padding: 0; position: relative; top: 0.25rem;}.p-movetop { margin: 0 auto;}/* Parts:section */section { border-top: 2px solid #eceff1; padding: 1.5rem 0;}section>header { text-transform: uppercase; font-weight: 700; margin-bottom: 2rem; text-align: center;}section>header span { display: inline-block; background-color: #000; color: #fff; letter-spacing: 3px; font-size: .7rem; padding: .5rem .75rem;}/* Parts:facts */.p-facts { list-style: none; font-size: .8rem; margin-bottom: 1rem;}.p-facts:last-child { margin-bottom: 0;}.p-facts li { display: inline-block; margin-right: .5rem; text-transform: uppercase;}.p-facts li header { margin-bottom: .25rem; font-weight: 700;}.p-facts li header a { color: #000; text-decoration: underline;}.p-facts li li { display: inline-block; margin-right: .5rem;}.p-facts li li::after { content: ',';}.p-facts li li:last-child::after { content: '';}/* Parts:crumb */.p-crumb { list-style: none; margin-bottom: 1rem; font-size: .8rem; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}.p-crumb:last-child { margin-bottom: 0;}.p-crumb li { display: inline;}.p-crumb li::after { content: '›'; margin: 0 .5rem;}.p-crumb li:last-child::after { content: '';}/* Parts:page-title */.p-page-title { margin-bottom: 2rem;}.p-page-title .title { margin-bottom: .5rem;}/* Parts:share */.p-share { margin-bottom: 1.5rem; text-align: center;}.p-share a { display: inline-block; text-align: center; padding: .5rem .5rem; margin-right: .25rem; font-size: .6rem; background-color: #eceff1; font-weight: 700;}.p-share a { color: #1da1f2; }/* Parts:terms */.p-terms { padding-left: 2rem;}/* Parts:paginator */.p-paginator { text-align: center; margin-bottom: 3rem; padding-top: 2rem;}.p-paginator a { display: inline-block; border: 2px solid #eceff1; color: #263238; line-height: 2rem; padding: 0 1rem;}/* Parts:article */.p-articles { list-style: none;}.p-articles>li { margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px dashed #cfd8dc;}.p-articles>li:last-child { border-bottom: none; padding-bottom: 0;}.p-articles.thin>li { margin-bottom: 1rem; padding-bottom: 1rem;}article .article-header { display: table-cell; height: 6rem; vertical-align: middle;}article .title { margin: 0; margin-bottom: .5rem; font-size: 1.4rem; line-height: 2rem;}article .title a { color: #000;}article .header-wrapper { margin-bottom: 1.5rem;}article .thumbnail { display: block; background-position: center; background-size: cover; background-image: url(https://onthedock.github.io/images/default.jpg); width: 6rem; height: 6rem; border-radius: 50%; box-shadow: 0 0 3px 0 #333 inset; float: left; margin-right: 1rem;}article .summary { margin-bottom: 1.5rem;}article .readmore { text-align: center;}article .readmore a { font-size: .8rem; color: #000; text-decoration: underline;}article.li.sm .header-wrapper { margin-bottom: 0;}.article-body h2 { padding: 1rem 0; color: #55bbbb; border-bottom: 2px solid #eceff1;}.article-body h2:first-child { margin-top: 0; }.article-body h3 { color: #8997e4; font-style: italic;}.article-body h4 { border-left: solid .25rem #cddc39; padding: 0 .5rem;}.article-body p { margin: 1.5rem 0; line-height: 1.5rem;}.article-body a { text-decoration: underline;}.article-body ul,.article-body ol { padding-left: 1.5rem;}.article-body li { line-height: 2rem;}.article-body code { display: inline-block; font-family: Menlo, consolas, monospace; background-color: #eceff1; font-size: .8rem; padding: 0 .5rem; line-height: 1.5rem;}.article-body pre { margin: 1.5rem 0; padding: 1.5rem; font-size: .8rem; background-color: #eeeeef; color: #444; overflow: auto;}.article-body pre code { background-color: transparent;}.article-body blockquote { /* margin: 1.2rem 0; padding: .5rem 0; */ /*font-size: .8rem;*/ border-top: 1px solid #eceff1; border-bottom: 1px solid #eceff1; color: #607d8b;}.article-body blockquote p { margin: .5rem 0; line-height: 1.5rem;}.article-body strong { /*box-shadow: 0 -.5rem 0 0 #f06292 inset;*/ font-style: bold; font-weight: 700; /*color: #ff5722; */}.article-body em { /*font-style: normal;*/ /*font-weight: 700; color: #00c300;*/ /*color: #00c300;*/ font-style: oblique;}.article-body figure { margin: 1.5rem -2rem; }.article-body figure.left,.article-body figure.right { width: 15rem; height: 12rem; margin-top: 0; margin-left: 0; margin-right: 0;}.article-body figure.left { float: left; margin-right: 1rem; margin-left: -2rem; }.article-body figure.right { float: right; margin-left: 1rem; margin-right: -2rem; }@media (max-width: 768px) { .article-body figure { margin: 1.5rem -1rem; } .article-body figure.left, .article-body figure.right { float: none; margin: 0 -1rem; width: auto; height: auto; }}.article-body figcaption { padding: .5rem 0; font-size: .8rem; text-align: center;}.article-body figcaption a { color: #263238;}
 
@@ -60,63 +114,302 @@
     <main>
       
 <div class="l-container">
-  
-  <header class="p-page-title">
-    <h1 class="title">tareas</h1>
-  </header>
-  
+  <article class="single article-3feecb09faf2ae6728d80681a8da9fc4">
+  <div class="header-wrapper">
+    <a href="https://onthedock.github.io/post/230816-patron-singleton-en-go-y-mas/" class="thumbnail" title="Patrón *singleton* en Go (y alguna cosa más)"></a>
+    <header class="article-header">
+      <div class="clearfix">
+        <h1 class="title">Patrón *singleton* en Go (y alguna cosa más)</h1>
+        <ul class="p-facts">
+          <li><time datetime="2023-08-16T20:25:52JST">16 Aug 2023</time></li>
+          <li><a href="https://onthedock.github.io/post/">post</a></li>
+          
+          <li>Xavi Aznar</li>
+        </ul>
+      </div>
+    </header>
+  </div>
+
+  <div class="article-body"><p>Uno de los problemas que he encontrado en mi <em>reinterpretación</em> de la API que uso en el trabajo ha sido la conexión con la base de datos.</p>
+<p>Siguiendo las buenas prácticas, mi intención era reutilizar el cliente a la base de datos. En vez de usar una variable global, que suele ser la aproximación <em>recomendada</em>, guardaba la <em>struct</em> en el <em>contexto</em> de Gin.</p>
+<p>Sin embargo, el contexto se propaga para una misma petición, pero no se mantiene entre peticiones&hellip; Así que para cada nueva petición que recibía la API se creaba un nuevo <em>client</em> 😞.</p>
+<p>Todo lo relacionado con la base de datos se encuentra en su propio paquete, por lo que tendría sentido crear una variable &ldquo;global&rdquo; dentro del paquete&hellip;</p>
+<p>Sin embargo, seguía quedando pendiente el tema de cerrar la conexión con la base de datos al finalizar la aplicación&hellip;</p>
+<p>En esta entrada explico la solución que quiero probar (ya veremos si funciona 😉, parece que sí).</p>
+<h2 id="una-sola-variable-global">Una sola variable &ldquo;global&rdquo;</h2>
+<p>En el paquete <code>dbclient</code>, defino:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">type</span> DB <span style="color:#268bd2">struct</span> {
+</span></span><span style="display:flex;"><span>    myConnectionString <span style="color:#dc322f">string</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>También defino una variable (&ldquo;global&rdquo; en el paquete <code>dbclient</code>):</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">var</span> db <span style="color:#719e07">*</span>DB
+</span></span></code></pre></div><p>Sólo quiero que haya una variable <code>db</code>; para éso sirve exactamente el patrón <em>singleton</em> (como referencia, <a href="https://refactoring.guru/design-patterns/singleton/go/example#example-1">Singleton in Go</a>), de <a href="https://refactoring.guru/">Refactoring Guru</a>.</p>
+<p>La manera <em>idiomática</em> de implementarlo en Go es usando el paquete <code>sync</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">var</span> once sync.Once
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">GetDB</span>() <span style="color:#719e07">*</span>DB {
+</span></span><span style="display:flex;"><span>    <span style="color:#719e07">if</span> db <span style="color:#719e07">==</span> <span style="color:#cb4b16">nil</span> {
+</span></span><span style="display:flex;"><span>        once.<span style="color:#268bd2">Do</span>(
+</span></span><span style="display:flex;"><span>            <span style="color:#268bd2">func</span>() {
+</span></span><span style="display:flex;"><span>                db = <span style="color:#719e07">&amp;</span>DB{
+</span></span><span style="display:flex;"><span>                    myConnectionString: <span style="color:#2aa198">&#34;start&#34;</span>,
+</span></span><span style="display:flex;"><span>                }
+</span></span><span style="display:flex;"><span>                log.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;initializing database connection to %s\n&#34;</span>, db.myConnectionString)
+</span></span><span style="display:flex;"><span>            })
+</span></span><span style="display:flex;"><span>    } <span style="color:#719e07">else</span> {
+</span></span><span style="display:flex;"><span>        log.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;database connection already initialized to %s\n&#34;</span>, db.myConnectionString)
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#719e07">return</span> db
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Si existe una instancia de <code>db</code>, la devuelvo; si no, la inicializo.</p>
+<p>Para comprobar que funciona:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#719e07">package</span> main
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#719e07">import</span> (
+</span></span><span style="display:flex;"><span>    <span style="color:#2aa198">&#34;math/rand&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#2aa198">&#34;github.com/xaviatwork/db/db&#34;</span>
+</span></span><span style="display:flex;"><span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
+</span></span><span style="display:flex;"><span>    <span style="color:#719e07">for</span> i <span style="color:#719e07">:=</span> <span style="color:#2aa198">1</span>; i &lt; <span style="color:#2aa198">10</span>; i<span style="color:#719e07">++</span> {
+</span></span><span style="display:flex;"><span>        db.<span style="color:#268bd2">GetDB</span>()
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Ejecutando la aplicación:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ go run main.go 
+</span></span><span style="display:flex;"><span>2023/08/16 18:48:43 initializing database connection to start
+</span></span><span style="display:flex;"><span>2023/08/16 18:48:43 database connection already initialized to start
+</span></span><span style="display:flex;"><span>2023/08/16 18:48:43 database connection already initialized to start
+</span></span><span style="display:flex;"><span>2023/08/16 18:48:43 database connection already initialized to start
+</span></span><span style="display:flex;"><span>2023/08/16 18:48:43 database connection already initialized to start
+</span></span><span style="display:flex;"><span>2023/08/16 18:48:43 database connection already initialized to start
+</span></span><span style="display:flex;"><span>2023/08/16 18:48:43 database connection already initialized to start
+</span></span><span style="display:flex;"><span>2023/08/16 18:48:43 database connection already initialized to start
+</span></span><span style="display:flex;"><span>2023/08/16 18:48:43 database connection already initialized to start
+</span></span></code></pre></div><p>Como vemos de la salida de la ejecución, gracias a <code>sync.Once()</code>, la primera vez se inicializa <code>db[&quot;myConnectionString]=&quot;start&quot;</code>, pero en las siguientes ejecuciones no se vuelve a inicializar.</p>
+<h2 id="cerrando-la-conexión-al-salir-de-la-aplicación">Cerrando la conexión al salir de la aplicación</h2>
+<p>Otro de los puntos que quería tratar era el de cerrar la conexión al finalizar la aplicación.
+Esto generalmente se consigue con un <code>defer</code> en <code>main</code>.</p>
+<p>Anteriormente no sabía cómo afrontar este escenario, ya que la variable se definía en <code>dbclient</code>, no en <code>main</code>&hellip;</p>
+<p>Ahora, simplemente:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
+</span></span><span style="display:flex;"><span>    <span style="color:#719e07">for</span> i <span style="color:#719e07">:=</span> <span style="color:#2aa198">1</span>; i &lt; <span style="color:#2aa198">10</span>; i<span style="color:#719e07">++</span> {
+</span></span><span style="display:flex;"><span>        db.<span style="color:#268bd2">GetDB</span>()
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#719e07">defer</span> db.<span style="color:#268bd2">GetDB</span>().<span style="color:#268bd2">Close</span>()
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Y en el paquete <code>dbclient</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> (db <span style="color:#719e07">*</span>DB) <span style="color:#268bd2">Close</span>() {
+</span></span><span style="display:flex;"><span>    log.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;closing database connection&#34;</span>)
+</span></span><span style="display:flex;"><span>    db = <span style="color:#cb4b16">nil</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Al ejecutar la aplicación:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ go run main.go 
+</span></span><span style="display:flex;"><span>2023/08/16 19:25:38 initializing database connection to start
+</span></span><span style="display:flex;"><span>2023/08/16 19:25:38 database connection already initialized to start
+</span></span><span style="display:flex;"><span>2023/08/16 19:25:38 database connection already initialized to start
+</span></span><span style="display:flex;"><span>2023/08/16 19:25:38 database connection already initialized to start
+</span></span><span style="display:flex;"><span>2023/08/16 19:25:38 database connection already initialized to start
+</span></span><span style="display:flex;"><span>2023/08/16 19:25:38 database connection already initialized to start
+</span></span><span style="display:flex;"><span>2023/08/16 19:25:38 database connection already initialized to start
+</span></span><span style="display:flex;"><span>2023/08/16 19:25:38 database connection already initialized to start
+</span></span><span style="display:flex;"><span>2023/08/16 19:25:38 database connection already initialized to start
+</span></span><span style="display:flex;"><span>2023/08/16 19:25:38 database connection already initialized to start
+</span></span><span style="display:flex;"><span>2023/08/16 19:25:38 closing database connection
+</span></span></code></pre></div><p>Finalmente, como validación final, quiero comprobar que puedo modificar la propiedad <code>myConnectionString</code> (privada) desde <code>main</code>; para ello, he definido un <em>setter</em>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> (db <span style="color:#719e07">*</span>DB) <span style="color:#268bd2">SetString</span>(connectionString <span style="color:#dc322f">string</span>) {
+</span></span><span style="display:flex;"><span>    db.myConnectionString = connectionString
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Y para validarlo:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
+</span></span><span style="display:flex;"><span>    s <span style="color:#719e07">:=</span> []<span style="color:#dc322f">string</span>{<span style="color:#2aa198">&#34;s7hobd7hAs&#34;</span>, <span style="color:#2aa198">&#34;cXnLvQm3hg&#34;</span>, <span style="color:#2aa198">&#34;o7LqFOeH9K&#34;</span>, <span style="color:#2aa198">&#34;xfO09Rk6EF&#34;</span>, <span style="color:#2aa198">&#34;Tx20FPFHX1&#34;</span>, <span style="color:#2aa198">&#34;KICv5ci9K9&#34;</span>, <span style="color:#2aa198">&#34;BrdlL0IPLw&#34;</span>, <span style="color:#2aa198">&#34;rNBLzzXj8S&#34;</span>, <span style="color:#2aa198">&#34;hb2AozseHH&#34;</span>, <span style="color:#2aa198">&#34;aIMnLjr2dU&#34;</span>}
+</span></span><span style="display:flex;"><span>    <span style="color:#719e07">for</span> i <span style="color:#719e07">:=</span> <span style="color:#2aa198">1</span>; i &lt; <span style="color:#2aa198">10</span>; i<span style="color:#719e07">++</span> {
+</span></span><span style="display:flex;"><span>        db.<span style="color:#268bd2">GetDB</span>().<span style="color:#268bd2">SetString</span>(s[rand.<span style="color:#268bd2">Intn</span>(<span style="color:#b58900">len</span>(s))])
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#719e07">defer</span> db.<span style="color:#268bd2">GetDB</span>().<span style="color:#268bd2">Close</span>()
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>La ejecución muestra que, efectivamente, no hay problema en establecer <code>myConnectionString</code> a través de:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ go run main.go 
+</span></span><span style="display:flex;"><span>2023/08/16 19:31:35 initializing database connection to start
+</span></span><span style="display:flex;"><span>2023/08/16 19:31:35 database connection already initialized to BrdlL0IPLw
+</span></span><span style="display:flex;"><span>2023/08/16 19:31:35 database connection already initialized to o7LqFOeH9K
+</span></span><span style="display:flex;"><span>2023/08/16 19:31:35 database connection already initialized to BrdlL0IPLw
+</span></span><span style="display:flex;"><span>2023/08/16 19:31:35 database connection already initialized to hb2AozseHH
+</span></span><span style="display:flex;"><span>2023/08/16 19:31:35 database connection already initialized to rNBLzzXj8S
+</span></span><span style="display:flex;"><span>2023/08/16 19:31:35 database connection already initialized to KICv5ci9K9
+</span></span><span style="display:flex;"><span>2023/08/16 19:31:35 database connection already initialized to hb2AozseHH
+</span></span><span style="display:flex;"><span>2023/08/16 19:31:35 database connection already initialized to xfO09Rk6EF
+</span></span><span style="display:flex;"><span>2023/08/16 19:31:35 database connection already initialized to KICv5ci9K9
+</span></span><span style="display:flex;"><span>2023/08/16 19:31:35 closing database connection
+</span></span></code></pre></div></div>
+
+  <aside class="p-share">
+
+
+  <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3a%2f%2fonthedock.github.io%2fpost%2f230816-patron-singleton-en-go-y-mas%2f&amp;source=https%3a%2f%2fonthedock.github.io%2fpost%2f230816-patron-singleton-en-go-y-mas%2f&amp;title=Patr%c3%b3n%20%2asingleton%2a%20en%20Go%20%28y%20alguna%20cosa%20m%c3%a1s%29" target="_blank" rel="noopener" aria-label="Share on LinkedIn">
+    <svg width="2rem" height="2rem" viewBox="0 0 352 352"><path d="M0 40v272c0 21.9 18.1 40 40 40h272c21.9.0 40-18.1 40-40V40c0-21.9-18.1-40-40-40H40C18.1.0.0 18.1.0 40zm312-8c4.6.0 8 3.4 8 8v272c0 4.6-3.4 8-8 8H40c-4.6.0-8-3.4-8-8V40c0-4.6 3.4-8 8-8H312zM59.5 87c0 15.2 12.3 27.5 27.5 27.5s27.5-12.3 27.5-27.5S102.2 59.5 87 59.5 59.5 71.8 59.5 87zM187 157h-1v-21h-45v152h47v-75c0-19.8 3.9-39 28.5-39 24.2.0 24.5 22.4 24.5 40v74h47v-83.5c0-40.9-8.7-72-56.5-72-23 0-38.2 12.6-44.5 24.5zM64 288h47.5V136H64V288z"></path></svg>
+    <p>LinkedIn</p>
+  </a>
+
+  <a href="https://twitter.com/intent/tweet?hashtags=onthedock&amp;url=https%3a%2f%2fonthedock.github.io%2fpost%2f230816-patron-singleton-en-go-y-mas%2f&amp;text=Patr%c3%b3n%20%2asingleton%2a%20en%20Go%20%28y%20alguna%20cosa%20m%c3%a1s%29" target="_blank" rel="noopener" aria-label="Share on Twitter" class="share-btn twitter">
+    <svg width="2rem" height="2rem" viewBox="0 0 384 312"><path d="m384 36.9c-14.1 6.3-29.3 10.5-45.2 12.4 16.3-9.7 28.8-25.2 34.6-43.6-15.2 9-32.1 15.6-50 19.1-14.4-15.2-34.9-24.8-57.5-24.8-43.5.0-78.8 35.3-78.8 78.8.0 6.2.7 12.2 2 17.9-65.5-3.3-123.5-34.6-162.4-82.3C20 26 16.1 39.6 16.1 54c0 27.3 13.9 51.4 35 65.6-12.9-.4-25.1-4-35.7-9.9v1c0 38.2 27.2 70 63.2 77.2-6.6 1.8-13.6 2.8-20.8 2.8-5.1.0-10-.5-14.8-1.4 10 31.3 39.1 54.1 73.6 54.7-27 21.1-60.9 33.7-97.8 33.7-6.4.0-12.6-.4-18.8-1.1C34.9 299 76.3 312 120.8 312c144.9.0 224.1-120 224.1-224.1.0-3.4-.1-6.8-.2-10.2 15.4-11.1 28.7-25 39.3-40.8z"></path></svg>
+    <p>Twitter</p>
+  </a>
+
+  <a href="mailto:?subject=Patr%c3%b3n%20%2asingleton%2a%20en%20Go%20%28y%20alguna%20cosa%20m%c3%a1s%29.&amp;body=Patr%c3%b3n%20%2asingleton%2a%20en%20Go%20%28y%20alguna%20cosa%20m%c3%a1s%29%0a%0ahttps%3a%2f%2fonthedock.github.io%2fpost%2f230816-patron-singleton-en-go-y-mas%2f%0a" target="_blank" class="share-btn email">
+    <svg width="2rem" height="2rem" viewBox="0 0 416 288"><path d="m0 16v256 16h16 384 16v-16V16 0h-16H16 0zm347 16-139 92.5L69 32zM199 157.5l9 5.5 9-5.5L384 46v210H32V46z"></path></svg>
+    <p>Email</p>
+  </a>
+
+  <a href="whatsapp://send?text=Patr%c3%b3n%20%2asingleton%2a%20en%20Go%20%28y%20alguna%20cosa%20m%c3%a1s%29%0a%0ahttps%3a%2f%2fonthedock.github.io%2fpost%2f230816-patron-singleton-en-go-y-mas%2f%0a" target="_blank">
+    <svg  width="2rem" height="2rem" viewBox="0 0 24 24">
+    <path d="M20.1 3.9C17.9 1.7 15 .5 12 .5 5.8.5.7 5.6.7 11.9c0 2 .5 3.9 1.5 5.6L.6 23.4l6-1.6c1.6.9 3.5 1.3 5.4 1.3 6.3.0 11.4-5.1 11.4-11.4-.1-2.8-1.2-5.7-3.3-7.8zM12 21.4c-1.7.0-3.3-.5-4.8-1.3l-.4-.2-3.5 1 1-3.4L4 17c-1-1.5-1.4-3.2-1.4-5.1.0-5.2 4.2-9.4 9.4-9.4 2.5.0 4.9 1 6.7 2.8s2.8 4.2 2.8 6.7c-.1 5.2-4.3 9.4-9.5 9.4zm5.1-7.1c-.3-.1-1.7-.9-1.9-1-.3-.1-.5-.1-.7.1-.2.3-.8 1-.9 1.1-.2.2-.3.2-.6.1s-1.2-.5-2.3-1.4c-.9-.8-1.4-1.7-1.6-2s0-.5.1-.6.3-.3.4-.5c.2-.1.3-.3.4-.5s0-.4.0-.5C10 9 9.3 7.6 9 7c-.1-.4-.4-.3-.5-.3h-.6s-.4.1-.7.3c-.3.3-1 1-1 2.4s1 2.8 1.1 3c.1.2 2 3.1 4.9 4.3.7.3 1.2.5 1.6.6.7.2 1.3.2 1.8.1.6-.1 1.7-.7 1.9-1.3.2-.7.2-1.2.2-1.3-.1-.3-.3-.4-.6-.5z"></path></svg>
+    <p>Whatsapp</p>
+  </a>
+
 
   <div class="searchbar">
       <iframe src="https://duckduckgo.com/search.html?site=https://onthedock.github.io/&prefill=Busca en este sitio usando DuckDuckGo" style="width: 25em;height: 48px" frameborder="0"></iframe>
-  </div>
+    </div>
+</aside>
 
-  <img src="https://onthedock.github.io//images/MabelAmber-mini.png" class="p-articles" width="100%">
-  
-  <p style="text-align: right"><small><a href="https://www.pexels.com/photo/jetty-feet-sign-wooden-128299/">Photo</a> by <a href="https://www.pexels.com/u/mabelamber/">Mabel Amber</a></small></p>
-   
-  <ul class="p-articles">
-    <li><article class="li article-2480be47fe45cfc13b07c86c32ed8cda">
-  <div class="header-wrapper">
-    <a href="https://onthedock.github.io/post/170729-asignar-recursos-de-cpu-y-ram-a-un-contenedor/" class="thumbnail" title="Asignar recursos de CPU y RAM a un contenedor"></a>
-    <header class="article-header">
-      <div class="clearfix">
-        <h2 class="title"><a href="https://onthedock.github.io/post/170729-asignar-recursos-de-cpu-y-ram-a-un-contenedor/">Asignar recursos de CPU y RAM a un contenedor</a></h2>
-        <ul class="p-facts">
-          <li><time datetime="2017-07-29T21:12:35JST">29 Jul 2017</time></li>
-          <li><a href="https://onthedock.github.io/post/">post</a></li>
-          <li>Xavi Aznar</li>
-          
-        </ul>
-      </div>
-    </header>
-  </div>
-  <div class="article-body summary"><p>Cuando se crea un <em>pod</em> se pueden reservar recursos de CPU y RAM para los contenedores que corren en el <em>pod</em>. Para reservar recursos, usa el campo <code>resources: requests</code> en el fichero de configuración. Para establecer límites, usa el campo <code>resources: limits</code>.</p></div>
-  <footer class="readmore"><a href="https://onthedock.github.io/post/170729-asignar-recursos-de-cpu-y-ram-a-un-contenedor/">LEER M&Aacute;S</a></footer>
+
+
+  <footer class="article-footer">
+    <section>
+      <ol class="p-crumb">
+        <li><a href="https://onthedock.github.io/">On The Dock</a></li>
+        
+        <li itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb"><a href="https://onthedock.github.io/post/" itemprop="url"><span itemprop="title">post</span></a></li>
+        
+        <li>Patrón *singleton* en Go (y alguna cosa más)</li>
+      </ol>
+
+      
+      
+      
+      <ul class="p-facts">
+        <li>
+          <header><a href="https://onthedock.github.io/categories/">categories</a></header>
+          <ul>
+            
+            <li><a href="https://onthedock.github.io/categories/dev/">dev</a></li>
+            
+          </ul>
+        </li>
+      </ul>
+      
+      
+      
+      <ul class="p-facts">
+        <li>
+          <header><a href="https://onthedock.github.io/tags/">tags</a></header>
+          <ul>
+            
+            <li><a href="https://onthedock.github.io/tags/go/">go</a></li>
+            
+          </ul>
+        </li>
+      </ul>
+      
+      
+    </section>
+  </footer>
 </article>
-</li><li><article class="li article-99a6578fdc273f40a61d182bcb5917c4">
+
+<article>
+  <div id="disqus_thread"></div>
+  <script>
+  
+  
+
+  
+
+  (function() { 
+  var d = document, s = d.createElement('script');
+  s.src = 'https://onthedock.disqus.com/embed.js';
+  s.setAttribute('data-timestamp', +new Date());
+  (d.head || d.body).appendChild(s);
+  })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+                              
+
+</article>
+
+
+
+  
+  
+  <section>
+    <header><span>Latests</span></header>
+    <ul class="p-articles thin">
+      <li><article class="li sm article-0e6a5871227ce942eac340d0a6f67a81">
   <div class="header-wrapper">
-    <a href="https://onthedock.github.io/post/170723-espacios-de-nombres-en-k8s/" class="thumbnail" title="Espacios de nombres en Kubernetes"></a>
+    <a href="https://onthedock.github.io/post/230719-usa-un-contenedor-como-entorno-de-desarrollo-con-devcontainers/" class="thumbnail" title="Usa un contenedor como entorno de desarrollo con &#39;devcontainers&#39;"></a>
     <header class="article-header">
       <div class="clearfix">
-        <h2 class="title"><a href="https://onthedock.github.io/post/170723-espacios-de-nombres-en-k8s/">Espacios de nombres en Kubernetes</a></h2>
+        <h2 class="title"><a href="https://onthedock.github.io/post/230719-usa-un-contenedor-como-entorno-de-desarrollo-con-devcontainers/">Usa un contenedor como entorno de desarrollo con &#39;devcontainers&#39;</a></h2>
         <ul class="p-facts">
-          <li><time datetime="2017-07-23T20:04:45JST">23 Jul 2017</time></li>
+          <li><time datetime="2023-07-19T07:43:19JST">19 Jul 2023</time></li>
           <li><a href="https://onthedock.github.io/post/">post</a></li>
-          <li>Xavi Aznar</li>
           
         </ul>
       </div>
     </header>
   </div>
-  <div class="article-body summary"><p>Los <a href="https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/"><em>namespaces</em> (espacios de nombres)</a> en Kubernetes permiten establecer un nivel adicional de separación entre los contenedores que comparten los recursos de un clúster.</p>
-<p>Esto es especialmente útil cuando diferentes grupos de DevOps usan el mismo clúster y existe el riesgo potencial de colisión de nombres de los <em>pods</em>, etc usados por los diferentes equipos.</p></div>
-  <footer class="readmore"><a href="https://onthedock.github.io/post/170723-espacios-de-nombres-en-k8s/">LEER M&Aacute;S</a></footer>
+</article>
+</li><li><article class="li sm article-bdf7456395baabf038f21fbe14380001">
+  <div class="header-wrapper">
+    <a href="https://onthedock.github.io/post/230713-agrega-linea-a-un-fichero-solo-si-no-esta-presente/" class="thumbnail" title="Agrega una línea a un fichero sólo si no está presente #TIL"></a>
+    <header class="article-header">
+      <div class="clearfix">
+        <h2 class="title"><a href="https://onthedock.github.io/post/230713-agrega-linea-a-un-fichero-solo-si-no-esta-presente/">Agrega una línea a un fichero sólo si no está presente #TIL</a></h2>
+        <ul class="p-facts">
+          <li><time datetime="2023-07-13T23:27:08JST">13 Jul 2023</time></li>
+          <li><a href="https://onthedock.github.io/post/">post</a></li>
+          
+        </ul>
+      </div>
+    </header>
+  </div>
+</article>
+</li><li><article class="li sm article-b633e0bae89926db1b3af9894dbc7dac">
+  <div class="header-wrapper">
+    <a href="https://onthedock.github.io/post/230708-funcional-options-pattern/" class="thumbnail" title="Patrón de &#39;functional options&#39;"></a>
+    <header class="article-header">
+      <div class="clearfix">
+        <h2 class="title"><a href="https://onthedock.github.io/post/230708-funcional-options-pattern/">Patrón de &#39;functional options&#39;</a></h2>
+        <ul class="p-facts">
+          <li><time datetime="2023-07-08T07:06:54JST">8 Jul 2023</time></li>
+          <li><a href="https://onthedock.github.io/post/">post</a></li>
+          
+        </ul>
+      </div>
+    </header>
+  </div>
+</article>
+</li><li><article class="li sm article-77b85335e071b49240c3c956199226be">
+  <div class="header-wrapper">
+    <a href="https://onthedock.github.io/post/230618-git-como-comparar-ficheros-en-ramas-diferentes-til/" class="thumbnail" title="Git: Cómo comparar ficheros en ramas diferentes #til"></a>
+    <header class="article-header">
+      <div class="clearfix">
+        <h2 class="title"><a href="https://onthedock.github.io/post/230618-git-como-comparar-ficheros-en-ramas-diferentes-til/">Git: Cómo comparar ficheros en ramas diferentes #til</a></h2>
+        <ul class="p-facts">
+          <li><time datetime="2023-06-18T07:06:08JST">18 Jun 2023</time></li>
+          <li><a href="https://onthedock.github.io/post/">post</a></li>
+          
+        </ul>
+      </div>
+    </header>
+  </div>
 </article>
 </li>
-  </ul>
+    </ul>
+  </section>
+  
 </div>
-
-
 
 
     </main>
