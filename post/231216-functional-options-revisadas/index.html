@@ -11,13 +11,13 @@
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
 
-<link rel="canonical" href="https://onthedock.github.io/post/180610-pods-en-estado-creatingcontainer-en-k8s/">
+<link rel="canonical" href="https://onthedock.github.io/post/231216-functional-options-revisadas/">
 
 
     
     <link href="https://fonts.googleapis.com/css?family=Special+Elite|Fira+Sans:400,700" rel="stylesheet">
     
-    <title>Pods encallados en estado CreatingContainer en Kubernetes con nodos creados usando Vagrant - On The Dock</title>
+    <title>Functional Options revisitadas - On The Dock</title>
     <style amp-boilerplate>body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}</style><noscript><style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style></noscript>
     <script async src="https://cdn.ampproject.org/v0.js"></script>
     
@@ -26,22 +26,22 @@
 <script async custom-element="amp-ad" src="https://cdn.ampproject.org/v0/amp-ad-0.1.js"></script>
 
     
-<meta name="description" content="&lt;p&gt;Una de las maneras más sencillas de crear un entorno de desarrollo para Kubernetes es usando Vagrant y Ansible.&lt;/p&gt;&lt;p&gt;En el &lt;code&gt;Vagrantfile&lt;/code&gt; definimos un conjunto de tres máquinas, llamadas &lt;code&gt;node1&lt;/code&gt;, &lt;code&gt;node2&lt;/code&gt; y &lt;code&gt;node3&lt;/code&gt;.&lt;/p&gt;&lt;p&gt;Una vez las máquinas están levantadas, desde el servidor de Ansible uso &lt;code&gt;ssh-copy-id&lt;/code&gt; para habilitar el &lt;em&gt;login&lt;/em&gt; sin password de Ansible en los nodos del clúster.&lt;/p&gt;&lt;p&gt;A partir de aquí, tanto la instalación de los prerequisitos como la inicialización del clúster funcionan sin problemas; sin embargo, al intentar desplegar una aplicación, los &lt;em&gt;pods&lt;/em&gt; se quedan en el estado &lt;em&gt;CreatingContainer&lt;/em&gt;.&lt;/p&gt;">
+<meta name="description" content="&lt;p&gt;Hace un tiempo escribí una artículo sobre el patrón de &lt;em&gt;functional options&lt;/em&gt;: &lt;a href=&#34;https://onthedock.github.io/post/230708-funcional-options-pattern/&#34;&gt;Patrón de &amp;lsquo;functional options&amp;rsquo;&lt;/a&gt;.&lt;/p&gt;&lt;p&gt;En este entrada reviso alguno de los errores que cometí al redactarla.&lt;/p&gt;">
 
-<meta property="og:title" content="Pods encallados en estado CreatingContainer en Kubernetes con nodos creados usando Vagrant - On The Dock">
+<meta property="og:title" content="Functional Options revisitadas - On The Dock">
 <meta property="og:type" content="article">
-<meta property="og:url" content="https://onthedock.github.io/post/180610-pods-en-estado-creatingcontainer-en-k8s/">
-<meta property="og:image" content="https://onthedock.github.io/images/kubernetes.png">
+<meta property="og:url" content="https://onthedock.github.io/post/231216-functional-options-revisadas/">
+<meta property="og:image" content="https://onthedock.github.io/images/go.png">
 <meta property="og:site_name" content="On The Dock">
-<meta property="og:description" content="&lt;p&gt;Una de las maneras más sencillas de crear un entorno de desarrollo para Kubernetes es usando Vagrant y Ansible.&lt;/p&gt;&lt;p&gt;En el &lt;code&gt;Vagrantfile&lt;/code&gt; definimos un conjunto de tres máquinas, llamadas &lt;code&gt;node1&lt;/code&gt;, &lt;code&gt;node2&lt;/code&gt; y &lt;code&gt;node3&lt;/code&gt;.&lt;/p&gt;&lt;p&gt;Una vez las máquinas están levantadas, desde el servidor de Ansible uso &lt;code&gt;ssh-copy-id&lt;/code&gt; para habilitar el &lt;em&gt;login&lt;/em&gt; sin password de Ansible en los nodos del clúster.&lt;/p&gt;&lt;p&gt;A partir de aquí, tanto la instalación de los prerequisitos como la inicialización del clúster funcionan sin problemas; sin embargo, al intentar desplegar una aplicación, los &lt;em&gt;pods&lt;/em&gt; se quedan en el estado &lt;em&gt;CreatingContainer&lt;/em&gt;.&lt;/p&gt;">
+<meta property="og:description" content="&lt;p&gt;Hace un tiempo escribí una artículo sobre el patrón de &lt;em&gt;functional options&lt;/em&gt;: &lt;a href=&#34;https://onthedock.github.io/post/230708-funcional-options-pattern/&#34;&gt;Patrón de &amp;lsquo;functional options&amp;rsquo;&lt;/a&gt;.&lt;/p&gt;&lt;p&gt;En este entrada reviso alguno de los errores que cometí al redactarla.&lt;/p&gt;">
 <meta property="og:locale" content="ja_JP">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="On The Dock">
-<meta name="twitter:url" content="https://onthedock.github.io/post/180610-pods-en-estado-creatingcontainer-en-k8s/">
-<meta name="twitter:title" content="Pods encallados en estado CreatingContainer en Kubernetes con nodos creados usando Vagrant - On The Dock">
-<meta name="twitter:description" content="&lt;p&gt;Una de las maneras más sencillas de crear un entorno de desarrollo para Kubernetes es usando Vagrant y Ansible.&lt;/p&gt;&lt;p&gt;En el &lt;code&gt;Vagrantfile&lt;/code&gt; definimos un conjunto de tres máquinas, llamadas &lt;code&gt;node1&lt;/code&gt;, &lt;code&gt;node2&lt;/code&gt; y &lt;code&gt;node3&lt;/code&gt;.&lt;/p&gt;&lt;p&gt;Una vez las máquinas están levantadas, desde el servidor de Ansible uso &lt;code&gt;ssh-copy-id&lt;/code&gt; para habilitar el &lt;em&gt;login&lt;/em&gt; sin password de Ansible en los nodos del clúster.&lt;/p&gt;&lt;p&gt;A partir de aquí, tanto la instalación de los prerequisitos como la inicialización del clúster funcionan sin problemas; sin embargo, al intentar desplegar una aplicación, los &lt;em&gt;pods&lt;/em&gt; se quedan en el estado &lt;em&gt;CreatingContainer&lt;/em&gt;.&lt;/p&gt;">
-<meta name="twitter:image" content="https://onthedock.github.io/images/kubernetes.png">
+<meta name="twitter:url" content="https://onthedock.github.io/post/231216-functional-options-revisadas/">
+<meta name="twitter:title" content="Functional Options revisitadas - On The Dock">
+<meta name="twitter:description" content="&lt;p&gt;Hace un tiempo escribí una artículo sobre el patrón de &lt;em&gt;functional options&lt;/em&gt;: &lt;a href=&#34;https://onthedock.github.io/post/230708-funcional-options-pattern/&#34;&gt;Patrón de &amp;lsquo;functional options&amp;rsquo;&lt;/a&gt;.&lt;/p&gt;&lt;p&gt;En este entrada reviso alguno de los errores que cometí al redactarla.&lt;/p&gt;">
+<meta name="twitter:image" content="https://onthedock.github.io/images/go.png">
 
 
 <script type="application/ld+json">
@@ -52,15 +52,15 @@
       "@type": "WebPage",
       "@id":"https:\/\/onthedock.github.io\/"
     },
-    "headline": "Pods encallados en estado CreatingContainer en Kubernetes con nodos creados usando Vagrant - On The Dock",
+    "headline": "Functional Options revisitadas - On The Dock",
     "image": {
       "@type": "ImageObject",
-      "url": "https:\/\/onthedock.github.io\/images\/kubernetes.png",
+      "url": "https:\/\/onthedock.github.io\/images\/go.png",
       "height": 800,
       "width": 800
     },
-    "datePublished": "2018-06-10T20:54:27JST",
-    "dateModified": "2018-06-10T20:54:27JST",
+    "datePublished": "2023-12-26T18:30:56JST",
+    "dateModified": "2023-12-26T18:30:56JST",
     "author": {
       "@type": "Person",
       "name": "On The Dock"
@@ -75,7 +75,7 @@
         "height": 60
       }
     },
-    "description": "\u003cp\u003eUna de las maneras más sencillas de crear un entorno de desarrollo para Kubernetes es usando Vagrant y Ansible.\u003c\/p\u003e\n\u003cp\u003eEn el \u003ccode\u003eVagrantfile\u003c\/code\u003e definimos un conjunto de tres máquinas, llamadas \u003ccode\u003enode1\u003c\/code\u003e, \u003ccode\u003enode2\u003c\/code\u003e y \u003ccode\u003enode3\u003c\/code\u003e.\u003c\/p\u003e\n\u003cp\u003eUna vez las máquinas están levantadas, desde el servidor de Ansible uso \u003ccode\u003essh-copy-id\u003c\/code\u003e para habilitar el \u003cem\u003elogin\u003c\/em\u003e sin password de Ansible en los nodos del clúster.\u003c\/p\u003e\n\u003cp\u003eA partir de aquí, tanto la instalación de los prerequisitos como la inicialización del clúster funcionan sin problemas; sin embargo, al intentar desplegar una aplicación, los \u003cem\u003epods\u003c\/em\u003e se quedan en el estado \u003cem\u003eCreatingContainer\u003c\/em\u003e.\u003c\/p\u003e"
+    "description": "\u003cp\u003eHace un tiempo escribí una artículo sobre el patrón de \u003cem\u003efunctional options\u003c\/em\u003e: \u003ca href=\u0022https:\/\/onthedock.github.io\/post\/230708-funcional-options-pattern\/\u0022\u003ePatrón de \u0026lsquo;functional options\u0026rsquo;\u003c\/a\u003e.\u003c\/p\u003e\n\u003cp\u003eEn este entrada reviso alguno de los errores que cometí al redactarla.\u003c\/p\u003e"
   }
 </script>
 
@@ -114,14 +114,14 @@
     <main>
       
 <div class="l-container">
-  <article class="single article-365473b8c27877be27245e38a5feb95c">
+  <article class="single article-b5b54f9b38af65957e557ba261c94bb0">
   <div class="header-wrapper">
-    <a href="https://onthedock.github.io/post/180610-pods-en-estado-creatingcontainer-en-k8s/" class="thumbnail" title="Pods encallados en estado CreatingContainer en Kubernetes con nodos creados usando Vagrant"></a>
+    <a href="https://onthedock.github.io/post/231216-functional-options-revisadas/" class="thumbnail" title="Functional Options revisitadas"></a>
     <header class="article-header">
       <div class="clearfix">
-        <h1 class="title">Pods encallados en estado CreatingContainer en Kubernetes con nodos creados usando Vagrant</h1>
+        <h1 class="title">Functional Options revisitadas</h1>
         <ul class="p-facts">
-          <li><time datetime="2018-06-10T20:54:27JST">10 Jun 2018</time></li>
+          <li><time datetime="2023-12-26T18:30:56JST">26 Dec 2023</time></li>
           <li><a href="https://onthedock.github.io/post/">post</a></li>
           
           <li>Xavi Aznar</li>
@@ -130,59 +130,124 @@
     </header>
   </div>
 
-  <div class="article-body"><p>Una de las maneras más sencillas de crear un entorno de desarrollo para Kubernetes es usando Vagrant y Ansible.</p>
-<p>En el <code>Vagrantfile</code> definimos un conjunto de tres máquinas, llamadas <code>node1</code>, <code>node2</code> y <code>node3</code>.</p>
-<p>Una vez las máquinas están levantadas, desde el servidor de Ansible uso <code>ssh-copy-id</code> para habilitar el <em>login</em> sin password de Ansible en los nodos del clúster.</p>
-<p>A partir de aquí, tanto la instalación de los prerequisitos como la inicialización del clúster funcionan sin problemas; sin embargo, al intentar desplegar una aplicación, los <em>pods</em> se quedan en el estado <em>CreatingContainer</em>.</p>
-<h1 id="análisis-de-logs">Análisis de logs</h1>
-<p>Analizando los logs el problema apuntaba a un problema de red con Weave.net. Al parecer, cada <em>pod</em> de Weave Net obtiene una lista de los nodos que componen el clúster e intenta conectar con los <em>pods</em> que corren en cada nodo. Esto implica que también intenta conectar consigo mismo, lo que genera un error.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#719e07">[</span>...<span style="color:#719e07">]</span> connection shutting down due to error: Cannot connect to ourself
-</span></span></code></pre></div><p>Sin embargo, este error es &ldquo;normal&rdquo; (hay alguna <a href="https://github.com/weaveworks/weave/issues/1305"><em>queja</em></a> en internet).</p>
-<p>Aunque el error al intentar conectar consigo mismo es inocuo, otro error debido a colisión de nombres no lo es:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#719e07">[</span>...<span style="color:#719e07">]</span> connection shutting down due to error: <span style="color:#b58900">local</span> and remote peer names collision
-</span></span></code></pre></div><p>Junto al mensaje de error aparecen las <em>MAC address</em> de las interfaces de red generadas por Weave, que coincidían en los tres nodos del clúster.</p>
-<p>Finalmente he encontrado la explicación y la solución en <a href="https://github.com/weaveworks/weave/issues/2767">Quorum not being reached on machines with identical IDs</a></p>
-<h2 id="causa">Causa</h2>
-<figure class="right"><img src="/images/vagrant.png"/>
-</figure>
-
-<p>Las tres máquinas se han generado a partir de la misma imagen de Vagrant, por lo que el <strong>identificador de máquina</strong> en los ficheros <code>/etc/machine-id</code> y <code>/var/lib/dbus/machine-id</code> eran el mismo en los tres nodos.</p>
-<p>De alguna manera, la <em>MAC</em> de la interfaz virtual <code>weave</code> se genera a partir del <em>machine-id</em> (que debería ser único). Pero en este caso, al ser el mismo en las tres máquinas virtuales, la <em>MAC</em> del interfaz <code>weave</code> también coincidía en los <em>pods</em> generados por Weave Net. Por este motivo se obtenía el error de colisión de nombres.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ ip address show
-</span></span><span style="display:flex;"><span>...
-</span></span><span style="display:flex;"><span>6: weave: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu <span style="color:#2aa198">1376</span> qdisc noqueue state UP group default qlen <span style="color:#2aa198">1000</span>
-</span></span><span style="display:flex;"><span>    link/ether 76:2f:d2:46:f8:94 brd ff:ff:ff:ff:ff:ff
-</span></span><span style="display:flex;"><span>    inet 10.44.0.1/12 brd 10.47.255.255 scope global weave
-</span></span><span style="display:flex;"><span>       valid_lft forever preferred_lft forever
-</span></span><span style="display:flex;"><span>...
-</span></span></code></pre></div><h2 id="solución">Solución</h2>
-<p>La solución es elimnar el <em>machine-id</em> y generar uno nuevo:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>sudo rm /etc/machine-id
-</span></span><span style="display:flex;"><span>sudo rm /var/lib/dbus/machine-id
-</span></span><span style="display:flex;"><span>sudo systemd-machine-id-setup
-</span></span></code></pre></div><p>Tras reiniciar los nodos del clúster, el <em>pod</em> de prueba del clúster se ha iniciado con normalidad.</p>
-<h2 id="update-2018-08-10">Update (2018-08-10)</h2>
-<p>En la documentación oficial de Kubernetes sobre cómo instalar <code>kubeadm</code> se incluye una sección específica sobre este tema: <a href="https://kubernetes.io/docs/setup/independent/install-kubeadm/#verify-the-mac-address-and-product-uuid-are-unique-for-every-node">Verify the MAC address and product_uuid are unique for every node</a>. Además, se hace referencia a que, en caso contrario, la instalación puede fallar, haciendo referencia a este <em>bug</em> documentado en GitHub que hace referencia a Weave.net: <a href="https://github.com/kubernetes/kubeadm/issues/31">The product_uuid and the hostname should be unique across nodes</a>.</p></div>
+  <div class="article-body"><p>Hace un tiempo escribí una artículo sobre el patrón de <em>functional options</em>: <a href="https://onthedock.github.io/post/230708-funcional-options-pattern/">Patrón de &lsquo;functional options&rsquo;</a>.</p>
+<p>En este entrada reviso alguno de los errores que cometí al redactarla.</p>
+<h2 id="refrescando-la-memoria-qué-son-las-functional-options-y-porqué-deberías-conocerlas">Refrescando la memoria: qué son las &ldquo;functional options&rdquo; y porqué deberías conocerlas</h2>
+<p>El patrón de <em>functional options</em> fue descrito inicialmente por Dave Cheney; puedes consultar el artículo original en <a href="https://dave.cheney.net/2014/10/17/functional-options-for-friendly-apis">Functional options for friendly APIs</a>.</p>
+<p>Este patrón permite resolver el problema de definir una función con una <a href="https://es.wikipedia.org/wiki/Signatura_(inform%C3%A1tica)">signatura</a> con un número variable de parámetros sin que éstos del mismo tipo. (Si fueran del mismo tipo, podríamos usar una función  <a href="https://gobyexample.com/variadic-functions">variádica</a>).</p>
+<p>El caso típico es tener que definir una función para definir un servidor (mira <a href="https://pkg.go.dev/net/http#Server">net/http</a>); la lista de parámetros es enorme, lo que hace que sea inconveniente tener que pasar una lista larguísima de parámetros (ya que Go no permite omitir ningún parámetro al llamar a una función). Además, añadir (o eliminar) un nuevo parámetro cambiaría la <em>signatura</em> y rompería la retrocompatibilidad.</p>
+<p>Las <em>functional options</em> resuelven los dos problemas mencionados en el párrafo anterior.</p>
+<h2 id="functional-options"><em>Functional options</em></h2>
+<p>Siguiendo con el ejemplo del servidor web, definimos el <code>type Server</code> como:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">type</span> Server <span style="color:#268bd2">struct</span> {
+</span></span><span style="display:flex;"><span>    hostname <span style="color:#dc322f">string</span>
+</span></span><span style="display:flex;"><span>    port     <span style="color:#dc322f">int</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Inicialmente, sólo consideramos incluir el <em>host</em> y el <em>puerto</em>, pero más adelate sabemos que tendremos que incluir la opción de configurar TLS, por ejemplo.</p>
+<p>En Go, las funciones son un tipo más; por tanto, podemos definir una función variádica que acepte un número variable de funciones como parámetros:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">NewServer</span>(<span style="color:#719e07">...</span><span style="color:#268bd2">func</span>(<span style="color:#719e07">*</span>Server)) <span style="color:#719e07">*</span>Server {
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// Do something
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    <span style="color:#719e07">return</span> s
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Las <em>opciones</em> para el <em>constructor</em> del <code>Server</code> son funciones; de ahí el nombre de <em>functional options</em>.</p>
+<h2 id="funciones-de-las-functional-option">Funciones de las <em>functional option</em></h2>
+<p>Cada una de las <em>functional options</em> es una función que se ocupa de establecer una de las propiedades de nuestro tipo <code>Server</code>:</p>
+<blockquote>
+<p>Convencionalmente, se nombra a las <em>functional options</em> con <code>With</code> seguido del <em>parámetro</em> que configuran.</p>
+</blockquote>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">WithHostname</span>(h <span style="color:#dc322f">string</span>) <span style="color:#268bd2">func</span>(<span style="color:#719e07">*</span>Server) {
+</span></span><span style="display:flex;"><span>    <span style="color:#719e07">return</span> <span style="color:#268bd2">func</span>(s <span style="color:#719e07">*</span>Server) {
+</span></span><span style="display:flex;"><span>        s.hostname = h
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Del mismo modo, para configurar el puerto en el que escucha el servidor:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">WithPort</span>(p <span style="color:#dc322f">int</span>) <span style="color:#268bd2">func</span>(<span style="color:#719e07">*</span>Server) {
+</span></span><span style="display:flex;"><span>    <span style="color:#719e07">return</span> <span style="color:#268bd2">func</span>(s <span style="color:#719e07">*</span>Server) {
+</span></span><span style="display:flex;"><span>        s.port = p
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h2 id="constructor-del-server">Constructor del <code>Server</code></h2>
+<p>Ahora, cuando queremos crear una nueva instancia de <code>Server</code>, usamos el constructor:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">NewServer</span>(options <span style="color:#719e07">...</span><span style="color:#268bd2">func</span>(<span style="color:#719e07">*</span>Server)) <span style="color:#719e07">*</span>Server {
+</span></span><span style="display:flex;"><span>    s <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>Server{}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#719e07">for</span> _, opt<span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> options {
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">opt</span>(s)
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#719e07">return</span> s
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Creamos una nueva instancia de <code>Server</code> y a continuación, ejecutamos todas las funciones recibidas para configurar alguna de sus propiedades. Finalmente, devolvemos la instancia configurada.</p>
+<h2 id="ventajas-de-las-functional-options">Ventajas de las <em>functional options</em></h2>
+<h3 id="valores-por-defecto">Valores por defecto</h3>
+<p>Al crear la instancia del <code>Server</code>, podemos proporcionar valores por defecto. Por ejemplo, <code>localhost</code> y puerto <code>80</code>; en este caso, aunque el usuario no establezca ninguna opción, el servidor se crea con unos valores <em>razonables</em>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">NewServer</span>(options <span style="color:#719e07">...</span><span style="color:#268bd2">func</span>(<span style="color:#719e07">*</span>Server)) <span style="color:#719e07">*</span>Server {
+</span></span><span style="display:flex;"><span>    s <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>Server{
+</span></span><span style="display:flex;"><span>        hostname: <span style="color:#2aa198">&#34;localhost&#34;</span>,
+</span></span><span style="display:flex;"><span>        port:     <span style="color:#2aa198">80</span>,
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#719e07">for</span> _, opt<span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> options {
+</span></span><span style="display:flex;"><span>        <span style="color:#268bd2">opt</span>(s)
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#719e07">return</span> s
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="ampliar-las-opciones-disponibles">Ampliar las opciones disponibles</h3>
+<p>Si queremos incluir una nueva opción para <code>Server</code>, por ejemplo, activar TLS, podemos hacerlo sin modificar la <em>signatura</em> de la función <code>NewServer( ...func(*Server)) *Server</code>.</p>
+<p>Actualizamos el tipo que describe el servidor:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">type</span> Server <span style="color:#268bd2">struct</span> {
+</span></span><span style="display:flex;"><span>    hostname <span style="color:#dc322f">string</span>
+</span></span><span style="display:flex;"><span>    port     <span style="color:#dc322f">int</span>
+</span></span><span style="display:flex;"><span>    tls      <span style="color:#dc322f">bool</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Añadimos la <em>functional option</em> correspondiente:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">WithTls</span>(tls <span style="color:#dc322f">bool</span>) <span style="color:#268bd2">func</span>(<span style="color:#719e07">*</span>Server) {
+</span></span><span style="display:flex;"><span>    <span style="color:#719e07">return</span> <span style="color:#268bd2">func</span>(s <span style="color:#719e07">*</span>Server) {
+</span></span><span style="display:flex;"><span>        s.tls = tls
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h2 id="creando-el-nuevo-servidor">Creando el nuevo servidor</h2>
+<p>Imaginemos que el paquete encargado de la creación y configuración del servidor <code>Server</code> se encuentra en el paquete <code>server</code>.</p>
+<p>Para realizar la creación del servidor en <code>main</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#719e07">package</span> main
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#719e07">import</span> <span style="color:#2aa198">&#34;github.com/xaviatwork/funcopts/server&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
+</span></span><span style="display:flex;"><span>    srv <span style="color:#719e07">:=</span> server.<span style="color:#268bd2">NewServer</span>(
+</span></span><span style="display:flex;"><span>        server.<span style="color:#268bd2">WithPort</span>(<span style="color:#2aa198">8080</span>),
+</span></span><span style="display:flex;"><span>        server.<span style="color:#268bd2">WithTls</span>(<span style="color:#cb4b16">false</span>),
+</span></span><span style="display:flex;"><span>    )
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// Do something with &#39;srv&#39; to stop the IDE from
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    <span style="color:#586e75">// complaining that srv has been declared but not used
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    _ = srv
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Como no hemos especificado nada para <code>srv.hostname</code>, se asignará el valor por defecto, por ejemplo, <code>localhost</code>.</p>
+<p>Si teníamos una aplicación que instanciaba otra versión de <code>Server</code>, seguirá funcionando sin problemas (en la versión anterior no usamos para nada la (entonces inexistente) nueva opción).</p>
+<h2 id="conclusión">Conclusión</h2>
+<p>El patrón de <em>functional options</em> permiten solucionar un problema habitual en Go, y lo hace de una manera relativamente sencilla y extremadamente potente a la vez que flexible.</p></div>
 
   <aside class="p-share">
 
 
-  <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3a%2f%2fonthedock.github.io%2fpost%2f180610-pods-en-estado-creatingcontainer-en-k8s%2f&amp;source=https%3a%2f%2fonthedock.github.io%2fpost%2f180610-pods-en-estado-creatingcontainer-en-k8s%2f&amp;title=Pods%20encallados%20en%20estado%20CreatingContainer%20en%20Kubernetes%20con%20nodos%20creados%20usando%20Vagrant" target="_blank" rel="noopener" aria-label="Share on LinkedIn">
+  <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3a%2f%2fonthedock.github.io%2fpost%2f231216-functional-options-revisadas%2f&amp;source=https%3a%2f%2fonthedock.github.io%2fpost%2f231216-functional-options-revisadas%2f&amp;title=Functional%20Options%20revisitadas" target="_blank" rel="noopener" aria-label="Share on LinkedIn">
     <svg width="2rem" height="2rem" viewBox="0 0 352 352"><path d="M0 40v272c0 21.9 18.1 40 40 40h272c21.9.0 40-18.1 40-40V40c0-21.9-18.1-40-40-40H40C18.1.0.0 18.1.0 40zm312-8c4.6.0 8 3.4 8 8v272c0 4.6-3.4 8-8 8H40c-4.6.0-8-3.4-8-8V40c0-4.6 3.4-8 8-8H312zM59.5 87c0 15.2 12.3 27.5 27.5 27.5s27.5-12.3 27.5-27.5S102.2 59.5 87 59.5 59.5 71.8 59.5 87zM187 157h-1v-21h-45v152h47v-75c0-19.8 3.9-39 28.5-39 24.2.0 24.5 22.4 24.5 40v74h47v-83.5c0-40.9-8.7-72-56.5-72-23 0-38.2 12.6-44.5 24.5zM64 288h47.5V136H64V288z"></path></svg>
     <p>LinkedIn</p>
   </a>
 
-  <a href="https://twitter.com/intent/tweet?hashtags=onthedock&amp;url=https%3a%2f%2fonthedock.github.io%2fpost%2f180610-pods-en-estado-creatingcontainer-en-k8s%2f&amp;text=Pods%20encallados%20en%20estado%20CreatingContainer%20en%20Kubernetes%20con%20nodos%20creados%20usando%20Vagrant" target="_blank" rel="noopener" aria-label="Share on Twitter" class="share-btn twitter">
+  <a href="https://twitter.com/intent/tweet?hashtags=onthedock&amp;url=https%3a%2f%2fonthedock.github.io%2fpost%2f231216-functional-options-revisadas%2f&amp;text=Functional%20Options%20revisitadas" target="_blank" rel="noopener" aria-label="Share on Twitter" class="share-btn twitter">
     <svg width="2rem" height="2rem" viewBox="0 0 384 312"><path d="m384 36.9c-14.1 6.3-29.3 10.5-45.2 12.4 16.3-9.7 28.8-25.2 34.6-43.6-15.2 9-32.1 15.6-50 19.1-14.4-15.2-34.9-24.8-57.5-24.8-43.5.0-78.8 35.3-78.8 78.8.0 6.2.7 12.2 2 17.9-65.5-3.3-123.5-34.6-162.4-82.3C20 26 16.1 39.6 16.1 54c0 27.3 13.9 51.4 35 65.6-12.9-.4-25.1-4-35.7-9.9v1c0 38.2 27.2 70 63.2 77.2-6.6 1.8-13.6 2.8-20.8 2.8-5.1.0-10-.5-14.8-1.4 10 31.3 39.1 54.1 73.6 54.7-27 21.1-60.9 33.7-97.8 33.7-6.4.0-12.6-.4-18.8-1.1C34.9 299 76.3 312 120.8 312c144.9.0 224.1-120 224.1-224.1.0-3.4-.1-6.8-.2-10.2 15.4-11.1 28.7-25 39.3-40.8z"></path></svg>
     <p>Twitter</p>
   </a>
 
-  <a href="mailto:?subject=Pods%20encallados%20en%20estado%20CreatingContainer%20en%20Kubernetes%20con%20nodos%20creados%20usando%20Vagrant.&amp;body=Pods%20encallados%20en%20estado%20CreatingContainer%20en%20Kubernetes%20con%20nodos%20creados%20usando%20Vagrant%0a%0ahttps%3a%2f%2fonthedock.github.io%2fpost%2f180610-pods-en-estado-creatingcontainer-en-k8s%2f%0a" target="_blank" class="share-btn email">
+  <a href="mailto:?subject=Functional%20Options%20revisitadas.&amp;body=Functional%20Options%20revisitadas%0a%0ahttps%3a%2f%2fonthedock.github.io%2fpost%2f231216-functional-options-revisadas%2f%0a" target="_blank" class="share-btn email">
     <svg width="2rem" height="2rem" viewBox="0 0 416 288"><path d="m0 16v256 16h16 384 16v-16V16 0h-16H16 0zm347 16-139 92.5L69 32zM199 157.5l9 5.5 9-5.5L384 46v210H32V46z"></path></svg>
     <p>Email</p>
   </a>
 
-  <a href="whatsapp://send?text=Pods%20encallados%20en%20estado%20CreatingContainer%20en%20Kubernetes%20con%20nodos%20creados%20usando%20Vagrant%0a%0ahttps%3a%2f%2fonthedock.github.io%2fpost%2f180610-pods-en-estado-creatingcontainer-en-k8s%2f%0a" target="_blank">
+  <a href="whatsapp://send?text=Functional%20Options%20revisitadas%0a%0ahttps%3a%2f%2fonthedock.github.io%2fpost%2f231216-functional-options-revisadas%2f%0a" target="_blank">
     <svg  width="2rem" height="2rem" viewBox="0 0 24 24">
     <path d="M20.1 3.9C17.9 1.7 15 .5 12 .5 5.8.5.7 5.6.7 11.9c0 2 .5 3.9 1.5 5.6L.6 23.4l6-1.6c1.6.9 3.5 1.3 5.4 1.3 6.3.0 11.4-5.1 11.4-11.4-.1-2.8-1.2-5.7-3.3-7.8zM12 21.4c-1.7.0-3.3-.5-4.8-1.3l-.4-.2-3.5 1 1-3.4L4 17c-1-1.5-1.4-3.2-1.4-5.1.0-5.2 4.2-9.4 9.4-9.4 2.5.0 4.9 1 6.7 2.8s2.8 4.2 2.8 6.7c-.1 5.2-4.3 9.4-9.5 9.4zm5.1-7.1c-.3-.1-1.7-.9-1.9-1-.3-.1-.5-.1-.7.1-.2.3-.8 1-.9 1.1-.2.2-.3.2-.6.1s-1.2-.5-2.3-1.4c-.9-.8-1.4-1.7-1.6-2s0-.5.1-.6.3-.3.4-.5c.2-.1.3-.3.4-.5s0-.4.0-.5C10 9 9.3 7.6 9 7c-.1-.4-.4-.3-.5-.3h-.6s-.4.1-.7.3c-.3.3-1 1-1 2.4s1 2.8 1.1 3c.1.2 2 3.1 4.9 4.3.7.3 1.2.5 1.6.6.7.2 1.3.2 1.8.1.6-.1 1.7-.7 1.9-1.3.2-.7.2-1.2.2-1.3-.1-.3-.3-.4-.6-.5z"></path></svg>
     <p>Whatsapp</p>
@@ -203,7 +268,7 @@
         
         <li itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb"><a href="https://onthedock.github.io/post/" itemprop="url"><span itemprop="title">post</span></a></li>
         
-        <li>Pods encallados en estado CreatingContainer en Kubernetes con nodos creados usando Vagrant</li>
+        <li>Functional Options revisitadas</li>
       </ol>
 
       
@@ -216,8 +281,6 @@
             
             <li><a href="https://onthedock.github.io/categories/dev/">dev</a></li>
             
-            <li><a href="https://onthedock.github.io/categories/ops/">ops</a></li>
-            
           </ul>
         </li>
       </ul>
@@ -229,13 +292,7 @@
           <header><a href="https://onthedock.github.io/tags/">tags</a></header>
           <ul>
             
-            <li><a href="https://onthedock.github.io/tags/linux/">linux</a></li>
-            
-            <li><a href="https://onthedock.github.io/tags/vagrant/">vagrant</a></li>
-            
-            <li><a href="https://onthedock.github.io/tags/kubernetes/">kubernetes</a></li>
-            
-            <li><a href="https://onthedock.github.io/tags/weave.net/">weave.net</a></li>
+            <li><a href="https://onthedock.github.io/tags/go/">go</a></li>
             
           </ul>
         </li>
@@ -273,22 +330,7 @@
   <section>
     <header><span>Latests</span></header>
     <ul class="p-articles thin">
-      <li><article class="li sm article-b5b54f9b38af65957e557ba261c94bb0">
-  <div class="header-wrapper">
-    <a href="https://onthedock.github.io/post/231216-functional-options-revisadas/" class="thumbnail" title="Functional Options revisitadas"></a>
-    <header class="article-header">
-      <div class="clearfix">
-        <h2 class="title"><a href="https://onthedock.github.io/post/231216-functional-options-revisadas/">Functional Options revisitadas</a></h2>
-        <ul class="p-facts">
-          <li><time datetime="2023-12-26T18:30:56JST">26 Dec 2023</time></li>
-          <li><a href="https://onthedock.github.io/post/">post</a></li>
-          
-        </ul>
-      </div>
-    </header>
-  </div>
-</article>
-</li><li><article class="li sm article-4dbf54e0ed0d94e87291d489d708d373">
+      <li><article class="li sm article-4dbf54e0ed0d94e87291d489d708d373">
   <div class="header-wrapper">
     <a href="https://onthedock.github.io/post/231102-usa-un-script-y-gum-para-crear-tus-conventional-commits/" class="thumbnail" title="Usa un script (y Gum) para crear tus Conventional Commits"></a>
     <header class="article-header">
@@ -326,6 +368,21 @@
         <h2 class="title"><a href="https://onthedock.github.io/post/231027-creando-mi-propia-landing-zone/">Creando mi propia Landing Zone (a escala)</a></h2>
         <ul class="p-facts">
           <li><time datetime="2023-10-28T07:10:42JST">28 Oct 2023</time></li>
+          <li><a href="https://onthedock.github.io/post/">post</a></li>
+          
+        </ul>
+      </div>
+    </header>
+  </div>
+</article>
+</li><li><article class="li sm article-1caedc1394779d35cecf4e1331a48181">
+  <div class="header-wrapper">
+    <a href="https://onthedock.github.io/post/231027-la-decepcion-con-sonoma/" class="thumbnail" title="Apple: la decepcionante actualización a Sonoma"></a>
+    <header class="article-header">
+      <div class="clearfix">
+        <h2 class="title"><a href="https://onthedock.github.io/post/231027-la-decepcion-con-sonoma/">Apple: la decepcionante actualización a Sonoma</a></h2>
+        <ul class="p-facts">
+          <li><time datetime="2023-10-27T18:46:34JST">27 Oct 2023</time></li>
           <li><a href="https://onthedock.github.io/post/">post</a></li>
           
         </ul>
