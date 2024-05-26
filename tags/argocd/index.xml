@@ -1,44 +1,34 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>argocd on On The Dock</title>
+    <title>Argocd on On The Dock</title>
     <link>https://onthedock.github.io/tags/argocd/</link>
-    <description>Recent content in argocd on On The Dock</description>
-    <generator>Hugo -- gohugo.io</generator>
+    <description>Recent content in Argocd on On The Dock</description>
+    <generator>Hugo</generator>
+    <language>en</language>
     <copyright>Handmade with &amp;#9829; by Xavi Aznar</copyright>
-    <lastBuildDate>Sun, 13 Feb 2022 09:04:04 +0100</lastBuildDate><atom:link href="https://onthedock.github.io/tags/argocd/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 13 Feb 2022 09:04:04 +0100</lastBuildDate>
+    <atom:link href="https://onthedock.github.io/tags/argocd/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Actualizar ArgoCD - ¡ojo! se sobrescriben los ConfigMap de configuración</title>
       <link>https://onthedock.github.io/post/220213-actualizar-argocd/</link>
       <pubDate>Sun, 13 Feb 2022 09:04:04 +0100</pubDate>
-      
       <guid>https://onthedock.github.io/post/220213-actualizar-argocd/</guid>
-      <description>&lt;p&gt;A raíz de la entrada anterior &lt;a href=&#34;https://onthedock.github.io/post/220212-instalacion-y-acceso-a-la-consola/&#34;&gt;GitOps con ArgoCD - Instalación y acceso a la consola&lt;/a&gt; he visto que la versión desplegada en el clúster de laboratorio era la 2.2.1, mientras que la versión actual es la 2.2.5.&lt;/p&gt;
-&lt;p&gt;Antes de actualizar, al tratarse de una versión &lt;em&gt;patch release&lt;/em&gt;, no es necesario tener en cuenta ninguna consideración especial, según se indica en la documentación oficial &lt;a href=&#34;https://argo-cd.readthedocs.io/en/stable/operator-manual/upgrading/overview/&#34;&gt;Upgrading &amp;gt; Overview&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;Sin embargo, aplicando el fichero correspondiente a la última versión estable, &lt;strong&gt;se sobreescriben los &lt;em&gt;ConfigMaps&lt;/em&gt; de configuración&lt;/strong&gt;, por lo que las modificaciones realizadas se pierden; en mi caso, la configuración del modo &lt;em&gt;inseguro&lt;/em&gt; necesario para el acceso a través de un &lt;em&gt;ingress&lt;/em&gt;.&lt;/p&gt;
-&lt;p&gt;Como solución temporal, se puede aplicar de nuevo el fichero con el &lt;em&gt;ConfigMap&lt;/em&gt; y ejecutar &lt;code&gt;kubectl -n argocd rollout restart deploy argocd-server&lt;/code&gt;.&lt;/p&gt;</description>
+      <description>&lt;p&gt;A raíz de la entrada anterior &lt;a href=&#34;https://onthedock.github.io/post/220212-instalacion-y-acceso-a-la-consola/&#34;&gt;GitOps con ArgoCD - Instalación y acceso a la consola&lt;/a&gt; he visto que la versión desplegada en el clúster de laboratorio era la 2.2.1, mientras que la versión actual es la 2.2.5.&lt;/p&gt;&#xA;&lt;p&gt;Antes de actualizar, al tratarse de una versión &lt;em&gt;patch release&lt;/em&gt;, no es necesario tener en cuenta ninguna consideración especial, según se indica en la documentación oficial &lt;a href=&#34;https://argo-cd.readthedocs.io/en/stable/operator-manual/upgrading/overview/&#34;&gt;Upgrading &amp;gt; Overview&lt;/a&gt;.&lt;/p&gt;&#xA;&lt;p&gt;Sin embargo, aplicando el fichero correspondiente a la última versión estable, &lt;strong&gt;se sobreescriben los &lt;em&gt;ConfigMaps&lt;/em&gt; de configuración&lt;/strong&gt;, por lo que las modificaciones realizadas se pierden; en mi caso, la configuración del modo &lt;em&gt;inseguro&lt;/em&gt; necesario para el acceso a través de un &lt;em&gt;ingress&lt;/em&gt;.&lt;/p&gt;&#xA;&lt;p&gt;Como solución temporal, se puede aplicar de nuevo el fichero con el &lt;em&gt;ConfigMap&lt;/em&gt; y ejecutar &lt;code&gt;kubectl -n argocd rollout restart deploy argocd-server&lt;/code&gt;.&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>GitOps con ArgoCD - Instalación y acceso a la consola</title>
       <link>https://onthedock.github.io/post/220212-instalacion-y-acceso-a-la-consola/</link>
       <pubDate>Sat, 12 Feb 2022 15:39:46 +0100</pubDate>
-      
       <guid>https://onthedock.github.io/post/220212-instalacion-y-acceso-a-la-consola/</guid>
-      <description>&lt;p&gt;GitOps es una forma de gestionar los clústers de Kubernetes y el proceso de &lt;em&gt;application delivery&lt;/em&gt;, según consta en la definición que hacen los inventores del término, el equipo de Weave.works en &lt;a href=&#34;https://www.weave.works/technologies/gitops/&#34;&gt;What is GitOps?&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;El concepto &lt;em&gt;gitOps&lt;/em&gt; proporciona un modelo operativo en el que &lt;em&gt;el estado deseado&lt;/em&gt; del clúster (y de las aplicaciones desplegadas en él) se encuentra definido de forma &lt;strong&gt;declarativa&lt;/strong&gt; en un repositorio Git.&lt;/p&gt;
-&lt;p&gt;Un agente se encarga de reconciliar el &lt;em&gt;estado deseado&lt;/em&gt; (en Git) con el &lt;em&gt;estado real&lt;/em&gt; (en Kubernetes), considerando -en general- como &lt;strong&gt;fuente de la verdad&lt;/strong&gt; el contenido del repositorio.&lt;/p&gt;
-&lt;p&gt;Aunque Weave.works desarrolló inicialmente &lt;a href=&#34;https://fluxcd.io/&#34;&gt;Flux&lt;/a&gt; (ahora forma parte de la CNCF), en este &lt;em&gt;post&lt;/em&gt; hablaré de &lt;a href=&#34;https://argo-cd.readthedocs.io/en/stable/&#34;&gt;ArgoCD&lt;/a&gt;. Hay otras herramientas con las que implementar GitOps, pero sin duda Flux y ArgoCD son las referencias indiscutibles.&lt;/p&gt;</description>
+      <description>&lt;p&gt;GitOps es una forma de gestionar los clústers de Kubernetes y el proceso de &lt;em&gt;application delivery&lt;/em&gt;, según consta en la definición que hacen los inventores del término, el equipo de Weave.works en &lt;a href=&#34;https://www.weave.works/technologies/gitops/&#34;&gt;What is GitOps?&lt;/a&gt;.&lt;/p&gt;&#xA;&lt;p&gt;El concepto &lt;em&gt;gitOps&lt;/em&gt; proporciona un modelo operativo en el que &lt;em&gt;el estado deseado&lt;/em&gt; del clúster (y de las aplicaciones desplegadas en él) se encuentra definido de forma &lt;strong&gt;declarativa&lt;/strong&gt; en un repositorio Git.&lt;/p&gt;&#xA;&lt;p&gt;Un agente se encarga de reconciliar el &lt;em&gt;estado deseado&lt;/em&gt; (en Git) con el &lt;em&gt;estado real&lt;/em&gt; (en Kubernetes), considerando -en general- como &lt;strong&gt;fuente de la verdad&lt;/strong&gt; el contenido del repositorio.&lt;/p&gt;&#xA;&lt;p&gt;Aunque Weave.works desarrolló inicialmente &lt;a href=&#34;https://fluxcd.io/&#34;&gt;Flux&lt;/a&gt; (ahora forma parte de la CNCF), en este &lt;em&gt;post&lt;/em&gt; hablaré de &lt;a href=&#34;https://argo-cd.readthedocs.io/en/stable/&#34;&gt;ArgoCD&lt;/a&gt;. Hay otras herramientas con las que implementar GitOps, pero sin duda Flux y ArgoCD son las referencias indiscutibles.&lt;/p&gt;</description>
     </item>
-    
     <item>
       <title>Interesante artículo &#34;More Problems with GitOps — and How to Fix Them&#34; en TheNewStack</title>
       <link>https://onthedock.github.io/post/201208-problemas-relacionados-con-gitops/</link>
       <pubDate>Tue, 08 Dec 2020 07:54:26 +0100</pubDate>
-      
       <guid>https://onthedock.github.io/post/201208-problemas-relacionados-con-gitops/</guid>
       <description>&lt;p&gt;Hace unos días leía &lt;a href=&#34;https://thenewstack.io/more-problems-with-gitops-and-how-to-fix-them/&#34;&gt;More Problems with GitOps — and How to Fix Them&lt;/a&gt; sobre los problemas asociados a GitOps, así que aprovecho para inaugurar esta nueva sección de reflexiones sobre artículos que considero interesantes.&lt;/p&gt;</description>
     </item>
-    
   </channel>
 </rss>
