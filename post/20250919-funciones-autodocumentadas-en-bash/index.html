@@ -165,7 +165,7 @@ El texto de <em>ayuda</em> es la descripción de la función (en el propio códi
 </span></span><span style="display:flex;"><span>    Comandos:
 </span></span><span style="display:flex;"><span>    - bienvenida
 </span></span><span style="display:flex;"><span>    - despedida
-</span></span></code></pre></div><p>El texto que se muestra con el <em>flag</em> <code>--help</code> proviene de los comentarios de la función <code>saludo</code>:</p>
+</span></span></code></pre></div><p>El texto que se muestra con el <em>flag</em> <code>--help</code> proviene de los comentarios de la función <code>saludo</code> (por eso lo de funciones <em>auto-documentadas</em> ;)):</p>
 <div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>saludo<span style="color:#719e07">()</span> <span style="color:#719e07">{</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#586e75"># saludo es una aplicación que permite imprimir</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#586e75"># un saludo de bienvenida o de despedida</span>
@@ -212,21 +212,21 @@ El texto de <em>ayuda</em> es la descripción de la función (en el propio códi
 <p>Para el caso en el que se proporciona <code>--help</code>, llamamos a la función <code>print-help</code> pasando <code>${FUNCNAME[1]}</code>.</p>
 <h2 id="qué-es-funcname">Qué es <code>${FUNCNAME[@]}</code></h2>
 <p><code>${FUNCNAME[@]}</code> es un <em>array</em> en Bash que contiene el <em>stack</em> de funciones en ejecución (<a href="https://www.gnu.org/software/bash/manual/html_node/Bash-Variables.html#index-FUNCNAME">documentación de Bash</a>).</p>
-<p>Esto significa que, cuando la ejecución del <em>script</em> se encuentra ejecutando la función <code>saludos_arg</code>, que se ha llamado desde la función <code>saludo</code>. Todas las funciones que se van ejecutando durante la ejecución se van añadiendo o eliminando del <em>stack</em>, aka, el <em>array</em> <code>${FUNCNAME[@]}</code>. Por tanto, <code>${FUNCNAME[0]}=saludo_args</code> y <code>${FUNCNAME[1]}=saludo</code>.</p>
+<p>Bash va añadiendo a la pila las funciones que se ejecutan (las añade al principio del <em>array</em>). Por tanto, cuando se está ejecutando <code>saludos_arg</code>, el <em>stack</em> contiene <code>saludos_arg</code> y <code>saludo</code> (desde donde llamó <code>saludos_arg</code>: <code>${FUNCNAME[0]}=saludo_args</code> y <code>${FUNCNAME[1]}=saludo</code>.</p>
 <p>En el caso de ejecutar un comando, por ejemplo <code>saludo.sh bienvenida --help</code>, la última función llamada es <code>bienvenida_args</code> (<code>${FUNCNAME[0]}</code>), llamada desde <code>bienvenida</code>, <code>${FUNCNAME[1]}</code> (que a su vez fue llamada desde <code>saludos_args</code> (<code>${FUNCNAME[2]}</code>)), etc&hellip; El caso es que, siempre tenemos el nombre de la función que corresponde al <em>comando</em> en ejecución en la variable <code>${FUNCNAME[1]}</code>, en la <em>penúltima</em> posición en el <em>stack</em> <code>${FUNCNAME[@]}</code> (Bash inserta la última función en ejecutarse al principio del <em>array</em> <code>${FUNCNAME[@]}</code>).</p>
 <h2 id="de-qué-sirve-saber-el-nombre-de-la-función">De qué sirve saber el nombre de la función</h2>
-<p>La &ldquo;ayuda&rdquo; o documentación de la función se encuentra, en comentarios, tras la definición de la función, un poco como los <a href="https://peps.python.org/pep-0257/#what-is-a-docstring">docstring</a> en Python:</p>
-<blockquote>
-<p>Google coloca la documentación de la función <strong>antes</strong> de la declaración: <a href="https://google.github.io/styleguide/shellguide.html#function-comments">Guía de estilo para Bash (EN)</a>, pero para la prueba de concepto, resulta más sencillo que se encuentre <strong>después</strong>.
-Usando las mismas técnicas descritas más adelante, podemos mostrar la ayuda también si se encuentra <strong>antes</strong> de la delcaración de la función.</p>
-</blockquote>
+<p>La &ldquo;ayuda&rdquo; o documentación de la función se encuentra, en forma de comentarios, tras la definición de la función, un poco como los <a href="https://peps.python.org/pep-0257/#what-is-a-docstring">docstring</a> en Python:</p>
 <div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>my-func<span style="color:#719e07">()</span> <span style="color:#719e07">{</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#586e75"># my-func is a dummy function in Bash</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#586e75"># to illustrate how to document functions</span>
 </span></span><span style="display:flex;"><span>    do_something
 </span></span><span style="display:flex;"><span>    ...
 </span></span><span style="display:flex;"><span><span style="color:#719e07">}</span>
-</span></span></code></pre></div><p>Por tanto, la <em>ayuda</em> (o <em>documentación</em>) que queremos mostrar para la función, se encuentra <strong>a continuación</strong> del nombre de la función en el código.</p>
+</span></span></code></pre></div><blockquote>
+<p>Google coloca la documentación de la función <strong>antes</strong> de la declaración: <a href="https://google.github.io/styleguide/shellguide.html#function-comments">Guía de estilo para Bash (EN)</a>, pero para la prueba de concepto, resulta más sencillo que se encuentre <strong>después</strong>.
+Usando las mismas técnicas descritas más adelante, podemos mostrar la ayuda también si se encuentra <strong>antes</strong> de la declaración de la función.</p>
+</blockquote>
+<p>Por tanto, la <em>ayuda</em> (o <em>documentación</em>) que queremos mostrar para la función, se encuentra <strong>a continuación</strong> del nombre de la función en el código.</p>
 <p>De forma <em>naive</em>, podría obtener la &ldquo;documentación&rdquo; de la función haciendo un <code>grep '#' &lt;filename&gt;</code> para obtener las líneas que contienen la documentación de la función&hellip;
 Siguiendo esa línea de pensamiento, para poder hacer ese <em>grep</em>, necesito el nombre del <strong>fichero</strong> en el que se encuentra definida la función&hellip;</p>
 <p>Afortunadamente, Bash gestionar internamente el <em>array</em> <a href="https://www.gnu.org/software/bash/manual/html_node/Bash-Variables.html#index-BASH_005fSOURCE"><code>${BASH_SOURCE[@]}</code></a>. Este <em>array</em> contiene los nombres de los ficheros en el que se encuentran las funciones del <em>array</em> <code>${FUNCNAME[@]}</code>. Para simplificar la <em>prueba de concepto</em>, en este caso todas las funciones se encuentran en el mismo fichero, por lo que sólo tenemos un elemento: <code>${BASH_SOURCE[0]}</code>.</p>
@@ -238,7 +238,7 @@ Siguiendo esa línea de pensamiento, para poder hacer ese <em>grep</em>, necesit
 <p>Por un lado, tenemos el nombre de la función para la que queremos obtener la ayuda, en <code>${FUNCNAME[@]}</code>.
 Por otro lado, tenemos la ruta al fichero donde se encuentra la función en <code>${BASH_SOURCE[@]}</code> (con <code>realpath</code>).</p>
 <p>Si buscamos el nombre de la función -de nuevo, usando <code>grep</code>-, obtenemos la línea en la que se encuentra.
-En la documentación de <code>grep</code> vemos que podemos usar <a href="https://www.gnu.org/software/grep/manual/grep.html#index-_002dn"><code>-n</code></a> (o la versión larga, <code>--line-number</code>) para obtener el <em>número de línea</em> en el que se se produce <em>match</em>.</p>
+Para ello, usamos <a href="https://www.gnu.org/software/grep/manual/grep.html#index-_002dn"><code>-n</code></a> (o la versión larga, <code>--line-number</code>) para que <code>grep</code> muestre el <em>número de línea</em> en el que se produce <em>match</em> del patrón buscado.</p>
 <p>Por ejemplo:</p>
 <div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ grep -n <span style="color:#2aa198">&#39;saludo&#39;</span> saludo.sh
 </span></span><span style="display:flex;"><span>3:saludo<span style="color:#719e07">()</span> <span style="color:#719e07">{</span>
@@ -287,24 +287,23 @@ Podemos usar <a href="https://man7.org/linux/man-pages/man1/tail.1.html"><code>t
 </span></span><span style="display:flex;"><span>11:    # Muestra el mensaje de bienvenida: &#39;Hello World!&#39;
 </span></span><span style="display:flex;"><span>12:    # Parametros:
 </span></span><span style="display:flex;"><span>...
-</span></span></code></pre></div><p>Observando la salida, vemos que los números de línea en los que se encuentran los <code>#</code> que documentan la función son consecutivos hasta la línea 6, y que después <strong>saltan</strong> hasta la línea 11, donde empieza la documentación de otra función&hellip; Podemos usar ese <em>salto</em> en los números como indicador del final de las líneas que <em>documentan</em> la función.</p>
+</span></span></code></pre></div><p>Observando la salida del comando anterior, vemos que los números de línea en los que se encuentran los <code>#</code> que documentan la función son consecutivos hasta la línea 6 (1..6), y que después <strong>saltan</strong> hasta la línea 11, donde empieza la documentación de otra función&hellip; Podemos usar ese <em>salto</em> en los números como indicador del final de las líneas que <em>documentan</em> la función que nos interesa.</p>
 <blockquote>
 <p>Si hay una o más líneas en blanco entre la definición de la función y la documentación, ésta no empezará en la línea 1, sino en la 2 ó la 3&hellip; Para simplificar, asumo que es 1.
 En cualquier caso, los números de línea de la documentación de una función son consecutivos&hellip; Del mismo modo, si hay líneas en blanco tras las líneas de la <em>documentación</em>, igualmente se produce un salto en los números de línea en los que <code>grep</code> encuentra <code>#</code>.</p>
 </blockquote>
 <h2 id="almacenando-los-números-de-línea-en-un-array">Almacenando los números de línea en un <em>array</em></h2>
-<p>Para poder analizar los números de línea y encontrar dónde se produce <em>el salto</em>, tenemos que almacenarlos en un <em>array</em>.
-Sin embargo, la aproximación directa:</p>
+<p>Para poder analizar los números de línea y encontrar dónde se produce <em>el salto</em>, los almaceno en un <em>array</em>.
+Sin embargo, la aproximación directa falla:</p>
 <div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ <span style="color:#b58900">read</span> -a doc <span style="color:#719e07">&lt;&lt;&lt;</span> <span style="color:#719e07">$(</span>tail -n +4 saludo.sh | grep -n <span style="color:#2aa198">&#39;#&#39;</span> | cut -d <span style="color:#2aa198">&#39;:&#39;</span> -f1<span style="color:#719e07">)</span>
 </span></span><span style="display:flex;"><span>$ <span style="color:#b58900">echo</span> <span style="color:#2aa198">${</span><span style="color:#268bd2">doc</span>[*]<span style="color:#2aa198">}</span>
 </span></span><span style="display:flex;"><span>1
-</span></span></code></pre></div><p>&hellip; no funciona :(</p>
-<p>Tenmos que usar <code>xargs</code>:</p>
+</span></span></code></pre></div><p>Tenmos que usar <code>xargs</code>:</p>
 <div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ <span style="color:#b58900">read</span> -a doc <span style="color:#719e07">&lt;&lt;&lt;</span> <span style="color:#719e07">$(</span>tail -n +4 saludo.sh | grep -n <span style="color:#2aa198">&#39;#&#39;</span> | cut -d <span style="color:#2aa198">&#39;:&#39;</span> -f1 | xargs <span style="color:#b58900">echo</span><span style="color:#719e07">)</span>
 </span></span><span style="display:flex;"><span>$<span style="color:#b58900">echo</span> <span style="color:#2aa198">${</span><span style="color:#268bd2">doc</span>[*]<span style="color:#2aa198">}</span>
 </span></span><span style="display:flex;"><span>1 2 3 4 5 6 11 12 13 14 22 31 33 35 39 42 43 52 53 60 81 83 109
 </span></span></code></pre></div><h2 id="detectando-el-salto-en-los-números-de-línea">Detectando el <em>salto</em> en los números de línea</h2>
-<p>Recorremos el <em>array</em> comparando cada elemento del <em>array</em> con el <em>siguiente</em> elemento en la lista:</p>
+<p>Recorremos el <em>array</em> comparando cada elemento con el <em>siguiente</em> en la lista:</p>
 <div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>help_line=${doc[0]}
 </span></span><span style="display:flex;"><span>for match in ${doc[@]:1}; do
 </span></span><span style="display:flex;"><span>    if [[ $match != $((help_line+1)) ]]; then
@@ -313,10 +312,10 @@ Sin embargo, la aproximación directa:</p>
 </span></span><span style="display:flex;"><span>    fi
 </span></span><span style="display:flex;"><span>    help_line=$match
 </span></span><span style="display:flex;"><span>done
-</span></span></code></pre></div><p>Si el <em>siguiente</em> elemento del <em>array</em> no es el <em>elemento anterior <code>+1</code></em>, tenemos <em>el salto</em>.</p>
+</span></span></code></pre></div><p>Si el <em>siguiente</em> elemento del <em>array</em> no es el <em>elemento anterior <code>+1</code></em>, significa que hemos encontrado <em>el salto</em>.</p>
 <p>Así, hemos conseguido identificar la última línea que corresponde a la <em>documentación</em>, en nuestro caso, la línea 6 tras la definición de la función.</p>
 <p>Lo único que queda pendiente ahora es imprimir las líneas de la documentación, entre el número siguiente a donde se encuentra la definición de la función (donde empieza la documentación) y la última línea de <em>documentación</em> de la función.</p>
-<p>Usamos una combinación de <code>tail</code> y <code>head</code>, para quedarnos sólo con las primeras <em>n</em> líneas de la salida de <code>tail</code>:</p>
+<p>Usamos una combinación de <code>tail</code> y <code>head</code>, para quedarnos sólo con las primeras <em>n</em> líneas de la salida de <code>tail</code> y <code>head</code> para limitar la salida hasta la última línea de la documentación:</p>
 <div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ tail -n +4 saludo.sh | head -n <span style="color:#2aa198">6</span>
 </span></span><span style="display:flex;"><span>    # saludo es una aplicación que permite imprimir
 </span></span><span style="display:flex;"><span>    # un saludo de bienvenida o de despedida
@@ -325,7 +324,7 @@ Sin embargo, la aproximación directa:</p>
 </span></span><span style="display:flex;"><span>    # - bienvenida
 </span></span><span style="display:flex;"><span>    # - despedida
 </span></span></code></pre></div><h2 id="retoques-finales">Retoques finales</h2>
-<p>Ya sólo queda hacer que la salida tenga mejor aspecto; al llamar a la función <code>print-help</code>, como tenemos el nombre la función, podemos añadir un <em>encabezado</em> como <code>Documentation for 'saludo':</code>, y filtrar los <code>#</code> con <code>sed</code> para obtener:</p>
+<p>Ya sólo queda hacer que la salida tenga mejor aspecto; al llamar a la función <code>print-help</code>, como tenemos el nombre la función, podemos añadir un <em>encabezado</em> como <code>Documentation for '$func_name$':</code>, y filtrar los <code>#</code> con <code>sed</code> para obtener:</p>
 <div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ ./saludo.sh --help
 </span></span><span style="display:flex;"><span>Help for &#39;saludo&#39;:
 </span></span><span style="display:flex;"><span>    saludo es una aplicación que permite imprimir
@@ -335,10 +334,10 @@ Sin embargo, la aproximación directa:</p>
 </span></span><span style="display:flex;"><span>    - bienvenida
 </span></span><span style="display:flex;"><span>    - despedida
 </span></span></code></pre></div><h2 id="resumen">Resumen</h2>
-<p>Podemos emular el comportamiento de aplicaciones como <code>git</code>, <code>kubectl</code>, etc en Bash, de manera que se muestre <em>ayuda</em> general para la aplicación o específica para cualquiera de sus <em>comandos</em> en Bash.</p>
+<p>Podemos emular el comportamiento de aplicaciones como <code>git</code>, <code>kubectl</code>, etc en Bash, de manera que se muestre <em>ayuda</em> general para la aplicación (o específica para cualquiera de sus <em>comandos</em>) en Bash.</p>
 <p>Usamos <code>${FUNCNAME[@]}</code> para obtener el nombre de la función que implementa el <em>comando</em> para el que se ha añadido el <em>flag</em> <code>--help</code>.
 Usamos también <code>${BASH_SOURCE[@]}</code> para obtener el nombre del fichero en el que se encuentra la función.</p>
-<p>Usando <code>grep</code>, <code>tail</code> y <code>head</code>, extraemos las líneas correspndientes a la <em>documentación</em> de la función.</p>
+<p>Usando <code>grep</code>, <code>tail</code> y <code>head</code>, extraemos las líneas correspondientes a la <em>documentación</em> de la función.</p>
 <p>El único requisito es que la <em>documentación</em> de la función esté en un <em>bloque continuo</em> de comentarios.</p></div>
 
   <aside class="p-share">
