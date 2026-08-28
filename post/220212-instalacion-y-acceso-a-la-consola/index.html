@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.136.5">
+<meta name="generator" content="Hugo 0.165.0">
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -92,7 +92,7 @@
       <script type="application/json">
         {
           "vars": {
-            "account": "Page(\/post\/220212-instalacion-y-acceso-a-la-consola)"
+            "account": "\/Users\/xavi\/repos\/personal\/onthedock-hugo\/content\/post\/220212-instalacion-y-acceso-a-la-consola.md"
           },
           "triggers": {
             "trackPageview": {
@@ -150,7 +150,7 @@
 <h2 id="cómo-desplegar-argocd">Cómo desplegar ArgoCD</h2>
 <p>El proyecto ArgoCD ofrece un fichero YAML que incluye todos los elementos necesarios para realizar el despliegue de la aplicación en <a href="https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml">argo-cd/stable/manifests/install.yaml</a></p>
 <p>El fichero de instalación <em>espera</em> que la aplicación se despliegue en el <em>namespace</em> <code>argocd</code>; si quieres instalar ArgoCD en otro <em>Namespace</em>, debes modificar modificar el valor especificado en los <em>ClusterRoleBinding</em> del fichero <code>install.yaml</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>---
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>---
 </span></span><span style="display:flex;"><span><span style="color:#268bd2">apiVersion</span>: rbac.authorization.k8s.io/v1
 </span></span><span style="display:flex;"><span><span style="color:#268bd2">kind</span>: ClusterRoleBinding
 </span></span><span style="display:flex;"><span><span style="color:#268bd2">metadata</span>:
@@ -187,12 +187,12 @@
 </span></span></code></pre></div><h2 id="acceso-a-la-consola-de-argocd">Acceso a la consola de ArgoCD</h2>
 <p>Una de las principales diferencias entre ArgoCD y Flux es que ArgoCD proporciona una consola gráfica desde donde gestionar las aplicaciones.</p>
 <p>Para acceder a la consola de ArgoCD, usa el usuario <code>admin</code>; como contraseña, inicialmente se establece usando el nombre del pod generado por el <em>Deployment</em> <code>argocd-server</code>.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ kubect get pods -n argocd -l app.kubernetes.io/name<span style="color:#719e07">=</span>argocd-server↵
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ kubect get pods -n argocd -l app.kubernetes.io/name<span style="color:#719e07">=</span>argocd-server↵
 </span></span><span style="display:flex;"><span>NAME                             READY   STATUS    RESTARTS         AGE
 </span></span><span style="display:flex;"><span>argocd-server-7765664bc6-wfm9l   1/1     Running   <span style="color:#2aa198">16</span> <span style="color:#719e07">(</span>4h52m ago<span style="color:#719e07">)</span>   5h38m
 </span></span></code></pre></div><p>Aunque ésto parece una buena idea (el nombre del pod generado por un <em>deployment</em> incluye una cadena aleatoria), si el pod se reinicia por algún motivo, el nombre del pod y el valor almacenado en el <em>Secret</em> <strong>no coincidirán</strong>, con lo que no podrás acceder a la consola de ArgoCD usando este método.</p>
 <p>Tampoco podrás averiguar el valor en el <em>Secret</em> inspeccionando el valor almacenado en como <code>admin.password</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ kubectl get secret argocd-secret -n argocd -o <span style="color:#268bd2">jsonpath</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#39;{.data.admin\.password}&#39;</span> | base64 -d
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ kubectl get secret argocd-secret -n argocd -o <span style="color:#268bd2">jsonpath</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#39;{.data.admin\.password}&#39;</span> | base64 -d
 </span></span><span style="display:flex;"><span><span style="color:#268bd2">$2</span>a<span style="color:#268bd2">$10$WCI9VQi91sDbHFplnb11S</span>.WLMSWOeC026TDMABhoTHUDkWYGWotjG
 </span></span></code></pre></div><p>El <em>password</em> de acceso a ArgoCD se almacena después de usar <a href="https://en.wikipedia.org/wiki/Bcrypt"><code>bcrypt</code></a><sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>.</p>
 <h2 id="cambia-la-contraseña">Cambia la contraseña</h2>
@@ -201,9 +201,9 @@
 <li>Usa <em>bcrypt</em> para generar el <em>hash</em> del password</li>
 <li><em>Parchea</em> el <em>secret</em> con el valor obtenido (no es necesario <em>codificarlo</em> previamente en base64):</li>
 </ol>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#586e75"># bcrypt(password)=$2a$10$rRyBsGSHK6.uc8fntPwVIuLVHgsAhAX7TcdrqW/RADU0uh7CaChLa</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#586e75"># bcrypt(password)=$2a$10$rRyBsGSHK6.uc8fntPwVIuLVHgsAhAX7TcdrqW/RADU0uh7CaChLa</span>
 </span></span><span style="display:flex;"><span>kubectl -n argocd patch secret argocd-secret <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>  -p <span style="color:#2aa198">&#39;{&#34;stringData&#34;: {
+</span></span></span><span style="display:flex;"><span>  -p <span style="color:#2aa198">&#39;{&#34;stringData&#34;: {
 </span></span></span><span style="display:flex;"><span><span style="color:#2aa198">    &#34;admin.password&#34;: &#34;$2a$10$rRyBsGSHK6.uc8fntPwVIuLVHgsAhAX7TcdrqW/RADU0uh7CaChLa&#34;,
 </span></span></span><span style="display:flex;"><span><span style="color:#2aa198">    &#34;admin.passwordMtime&#34;: &#34;&#39;</span><span style="color:#719e07">$(</span>date +%FT%T%Z<span style="color:#719e07">)</span><span style="color:#2aa198">&#39;&#34;
 </span></span></span><span style="display:flex;"><span><span style="color:#2aa198">  }}&#39;</span>
@@ -212,7 +212,7 @@
 <p>Para generar la contraseña si no dispones de la utilidad <code>bcrypt</code> en tu sistema operativo, puedes usar un servicio online como: <a href="https://bcrypt-generator.com/">Bcrypt-Generator.com</a>, <a href="https://www.browserling.com/tools/bcrypt">Bcrypt Password Generator</a> o <a href="https://bcrypt.online/">bcrypt.online</a></p>
 <h2 id="exponiendo-la-consola-de-argocd"><em>Exponiendo</em> la consola de ArgoCD</h2>
 <p>Todos los servicios creados por ArgoCD son de tipo <em>ClusterIP</em>, por lo que sólo son accesibles desde <em>dentro</em> del clúster.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ kubectl get svc -n argocd
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ kubectl get svc -n argocd
 </span></span><span style="display:flex;"><span>NAME                    TYPE        CLUSTER-IP      EXTERNAL-IP   PORT<span style="color:#719e07">(</span>S<span style="color:#719e07">)</span>                      AGE
 </span></span><span style="display:flex;"><span>argocd-dex-server       ClusterIP   10.43.120.14    &lt;none&gt;        5556/TCP,5557/TCP,5558/TCP   51d
 </span></span><span style="display:flex;"><span>argocd-metrics          ClusterIP   10.43.177.205   &lt;none&gt;        8082/TCP                     51d
@@ -227,14 +227,14 @@
 <p>En mi caso, expongo la aplicación usando un <em>Ingress</em>, <a href="https://argo-cd.readthedocs.io/en/stable/operator-manual/ingress/#traefik-v22">Traefik</a>.</p>
 <p>Para ello, es necesario configurar el modo de acceso <em>inseguro</em> (sin TLS) al API Server; puedes configurar TLS en el <em>Ingress</em>, si lo necesitas.</p>
 <p>En la documentación oficial se indica que debe lanzarse <code>argocd-server</code> con el <em>flag</em> <code>--insecure</code>; esto obliga a modificar el fichero de despliegue <code>install.yaml</code> (en particular, el <em>Deployment</em> de <code>argocd-server</code>):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#268bd2">containers</span>:
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#268bd2">containers</span>:
 </span></span><span style="display:flex;"><span>  - <span style="color:#268bd2">command</span>:
 </span></span><span style="display:flex;"><span>    - argocd-server
 </span></span><span style="display:flex;"><span>    - --staticassets
 </span></span><span style="display:flex;"><span>    - /shared/app
 </span></span><span style="display:flex;"><span>    - --insecure
 </span></span></code></pre></div><p>A partir de la versión 2.1.17 se puede usar un <em>ConfigMap</em> para definir las variables de entorno usadas por ArgoCD. Como se indica en <a href="https://argo-cd.readthedocs.io/en/stable/operator-manual/declarative-setup/">Declarative Setup</a>, podemos usar el <em>ConfigMap</em> <a href="https://argo-cd.readthedocs.io/en/stable/operator-manual/argocd-cmd-params-cm.yaml"><code>argocd-cmd-params-cm</code></a> para configurar el modo <em>inseguro</em> (entre muchos otros parámetros de ArgoCD):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#268bd2">apiVersion</span>: v1
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#268bd2">apiVersion</span>: v1
 </span></span><span style="display:flex;"><span><span style="color:#268bd2">kind</span>: ConfigMap
 </span></span><span style="display:flex;"><span><span style="color:#268bd2">metadata</span>:
 </span></span><span style="display:flex;"><span>  <span style="color:#268bd2">labels</span>:
@@ -247,7 +247,7 @@
 </span></span><span style="display:flex;"><span>  <span style="color:#586e75"># Run server without TLS</span>
 </span></span><span style="display:flex;"><span>  <span style="color:#268bd2">server.insecure</span>: <span style="color:#2aa198">&#34;true&#34;</span>  
 </span></span></code></pre></div><p>Antes de <em>reiniciar</em> del <em>Deployment</em> para que los cambios surtan efecto, desplegamos la configuración del <em>Ingress</em>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>---
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>---
 </span></span><span style="display:flex;"><span><span style="color:#268bd2">apiVersion</span>: networking.k8s.io/v1 <span style="color:#586e75"># Kubernetes 1.19+</span>
 </span></span><span style="display:flex;"><span><span style="color:#268bd2">kind</span>: Ingress
 </span></span><span style="display:flex;"><span><span style="color:#268bd2">metadata</span>:

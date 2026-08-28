@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.136.5">
+<meta name="generator" content="Hugo 0.165.0">
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -92,7 +92,7 @@
       <script type="application/json">
         {
           "vars": {
-            "account": "Page(\/post\/230326-k3d-cluster-como-codigo)"
+            "account": "\/Users\/xavi\/repos\/personal\/onthedock-hugo\/content\/post\/230326-k3d-cluster-como-codigo.md"
           },
           "triggers": {
             "trackPageview": {
@@ -162,7 +162,7 @@ Sin embargo, si estás acostumbrado a desplegar clústers de k3d desde la línea
 <h2 id="número-de-servidores-y-agentes">Número de servidores y agentes</h2>
 <p>Rancher denomina <code>server</code> a los nodos del <em>control plane</em> (anteriormente, <em>masters</em>), y <code>agent</code> a los nodos <em>worker</em>.</p>
 <p>En el fichero de configuración, especificamos cuántos nodos de cada tipo integrarán nuestro clúster:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#268bd2">apiVersion</span>: k3d.io/v1alpha4 <span style="color:#586e75"># this will change in the future as we make everything more stable</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#268bd2">apiVersion</span>: k3d.io/v1alpha4 <span style="color:#586e75"># this will change in the future as we make everything more stable</span>
 </span></span><span style="display:flex;"><span><span style="color:#268bd2">kind</span>: Simple                <span style="color:#586e75"># internally, we also have a Cluster config, which is not yet available externally</span>
 </span></span><span style="display:flex;"><span><span style="color:#586e75"># metadata:</span>
 </span></span><span style="display:flex;"><span><span style="color:#586e75">#   name: default           # name that you want to give to your cluster (will still be prefixed with `k3d-`)</span>
@@ -171,21 +171,21 @@ Sin embargo, si estás acostumbrado a desplegar clústers de k3d desde la línea
 </span></span></code></pre></div><p>Con esta configuración, k3d genera un clúster con un <em>control plane</em> de un solo nodo, y dos nodos adicionales como <em>workers</em>.</p>
 <h2 id="configuración-del-endpoint-de-la-api-del-clúster">Configuración del <em>endpoint</em> de la API del clúster</h2>
 <p>Mediante el siguiente bloque se puede configurar el <em>endpoint</em> de la API de Kubernetes del clúster:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#268bd2">kubeAPI</span>:                    <span style="color:#586e75"># same as `--api-port myhost.my.domain:6445` (where the name would resolve to 127.0.0.1)</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#268bd2">kubeAPI</span>:                    <span style="color:#586e75"># same as `--api-port myhost.my.domain:6445` (where the name would resolve to 127.0.0.1)</span>
 </span></span><span style="display:flex;"><span>  <span style="color:#268bd2">host</span>: <span style="color:#2aa198">&#34;myhost.my.domain&#34;</span>  <span style="color:#586e75"># important for the `server` setting in the kubeconfig</span>
 </span></span><span style="display:flex;"><span>  <span style="color:#268bd2">hostIP</span>: <span style="color:#2aa198">&#34;127.0.0.1&#34;</span>       <span style="color:#586e75"># where the Kubernetes API will be listening on</span>
 </span></span><span style="display:flex;"><span>  <span style="color:#268bd2">hostPort</span>: <span style="color:#2aa198">&#34;6445&#34;</span>          <span style="color:#586e75"># where the Kubernetes API listening port will be mapped to on your host system</span>
 </span></span></code></pre></div><p>Como el nombre especificado en <code>host</code> debe resolver a 127.0.0.1 no suelo tomarme la molestia de especificarlo, y accedo usando <code>localhost</code> directamente. Sin embargo, si usas <strong>k3d</strong> de forma local durante el desarrollo, puedes especificar el FQDN del clúster &ldquo;real&rdquo; y resolverlo a 127.0.0.1 en <code>/etc/hosts</code>, por ejemplo.</p>
 <h2 id="puerto-para-el-balanceador">Puerto para el balanceador</h2>
 <p>Otro bloque que no suelo usar para los clústers locales es el de configuración del balanceador del clúster, pero que es interesante tener en cuenta en algunos casos:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#268bd2">ports</span>:
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#268bd2">ports</span>:
 </span></span><span style="display:flex;"><span>  - <span style="color:#268bd2">port</span>: <span style="color:#2aa198">8080</span>:<span style="color:#2aa198">80</span> <span style="color:#586e75"># same as `--port &#39;8080:80@loadbalancer&#39;`</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#268bd2">nodeFilters</span>:
 </span></span><span style="display:flex;"><span>      - loadbalancer
 </span></span></code></pre></div><p>Para el resto de opciones, consulta la documentación oficial en <a href="https://k3d.io/v5.4.9/usage/configfile/">Using Config Files</a>.</p>
 <h2 id="despliegue-de-un-registry">Despliegue de un <em>registry</em></h2>
 <p>La configuración completa del <em>registry</em> se puede especificar mediante el bloque:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#268bd2">registries</span>: <span style="color:#586e75"># define how registries should be created or used</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#268bd2">registries</span>: <span style="color:#586e75"># define how registries should be created or used</span>
 </span></span><span style="display:flex;"><span>  <span style="color:#268bd2">create</span>: <span style="color:#586e75"># creates a default registry to be used with the cluster; same as `--registry-create registry.localhost`</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#268bd2">name</span>: registry.localhost
 </span></span><span style="display:flex;"><span>    <span style="color:#268bd2">host</span>: <span style="color:#2aa198">&#34;0.0.0.0&#34;</span>
@@ -207,7 +207,7 @@ Sin embargo, si estás acostumbrado a desplegar clústers de k3d desde la línea
 El <em>registry</em>  ofrece la posibilidad de usarse como <em>proxy</em> para <em>mirrorear</em> imágenes de un <em>registry</em> externo&hellip; De nuevo, es interesante en algunos escenarios pero no es el caso de uso más habitual.</p>
 <h2 id="configuración-definitiva">Configuración definitiva</h2>
 <p>Para un clúster de desarrollo <em>personal</em>, una configuración equilibrada es:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#268bd2">apiVersion</span>: k3d.io/v1alpha4 <span style="color:#586e75"># this will change in the future as we make everything more stable</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#268bd2">apiVersion</span>: k3d.io/v1alpha4 <span style="color:#586e75"># this will change in the future as we make everything more stable</span>
 </span></span><span style="display:flex;"><span><span style="color:#268bd2">kind</span>: Simple                <span style="color:#586e75"># internally, we also have a Cluster config, which is not yet available externally</span>
 </span></span><span style="display:flex;"><span><span style="color:#586e75"># metadata:</span>
 </span></span><span style="display:flex;"><span><span style="color:#586e75">#   name: demo              # name that you want to give to your cluster (will still be prefixed with `k3d-`)</span>
@@ -222,11 +222,11 @@ El <em>registry</em>  ofrece la posibilidad de usarse como <em>proxy</em> para <
 </span></span></span><span style="display:flex;"><span><span style="color:#2aa198">    mirrors:
 </span></span></span><span style="display:flex;"><span><span style="color:#2aa198">      &#34;registry.localhost:5000&#34;:
 </span></span></span><span style="display:flex;"><span><span style="color:#2aa198">         endpoint:
-</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">          -  &#34;http://registry.localhost:5000&#34;</span>    
+</span></span></span><span style="display:flex;"><span><span style="color:#2aa198">          -  &#34;http://registry.localhost:5000&#34;</span>
 </span></span></code></pre></div><h2 id="manos-a-la-obra">Manos a la obra</h2>
 <p>Creamos el fichero de configuración <code>k3d-cluster-1s-2a+registry.yaml</code>.</p>
 <p>El fichero tiene el campo <code>name</code> comentado porque especificaremos un nombre para el clúster desde la CLI:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ k3d cluster create  onthedock --config k3d-cluster-1s-2a+registry.yaml
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ k3d cluster create  onthedock --config k3d-cluster-1s-2a+registry.yaml
 </span></span><span style="display:flex;"><span>INFO<span style="color:#719e07">[</span>0000<span style="color:#719e07">]</span> Using config file k3d-cluster-1s-2a+registry.yaml <span style="color:#719e07">(</span>k3d.io/v1alpha4#simple<span style="color:#719e07">)</span>
 </span></span><span style="display:flex;"><span>INFO<span style="color:#719e07">[</span>0000<span style="color:#719e07">]</span> Prep: Network
 </span></span><span style="display:flex;"><span>INFO<span style="color:#719e07">[</span>0000<span style="color:#719e07">]</span> Created network <span style="color:#2aa198">&#39;k3d-onthedock&#39;</span>
@@ -255,14 +255,14 @@ El <em>registry</em>  ofrece la posibilidad de usarse como <em>proxy</em> para <
 </span></span><span style="display:flex;"><span>INFO<span style="color:#719e07">[</span>0054<span style="color:#719e07">]</span> You can now use it like this:
 </span></span><span style="display:flex;"><span>kubectl cluster-info
 </span></span></code></pre></div><p>Como no hemos configurado el <em>endpoint</em> de la API del clúster, es recomendable ejecutar <code>kubectl cluster-info</code> y averiguar en qué puerto se encuentra expuesta, aunque el fichero <code>.kube/config</code> se ha actualizado para incluir la información de autenticación en un nuevo contexto en el fichero existente.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ kubectl cluster-info
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ kubectl cluster-info
 </span></span><span style="display:flex;"><span>Kubernetes master is running at https://0.0.0.0:39643
 </span></span><span style="display:flex;"><span>CoreDNS is running at https://0.0.0.0:39643/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
 </span></span><span style="display:flex;"><span>Metrics-server is running at https://0.0.0.0:39643/api/v1/namespaces/kube-system/services/https:metrics-server:https/proxy
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>To further debug and diagnose cluster problems, use <span style="color:#2aa198">&#39;kubectl cluster-info dump&#39;</span>.
 </span></span></code></pre></div><p>Como k3d despliega los <em>nodos</em> del clúster de Kubernetes en contenedores, podemos ver los &ldquo;nodos&rdquo; del clúster mediante <code>docker ps</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ docker ps
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ docker ps
 </span></span><span style="display:flex;"><span>CONTAINER ID   IMAGE                            COMMAND                  CREATED         STATUS         PORTS                             NAMES
 </span></span><span style="display:flex;"><span>7ff706a7eeaf   ghcr.io/k3d-io/k3d-proxy:5.4.9   <span style="color:#2aa198">&#34;/bin/sh -c nginx-pr…&#34;</span>   <span style="color:#2aa198">6</span> minutes ago   Up <span style="color:#2aa198">6</span> minutes   80/tcp, 0.0.0.0:39643-&gt;6443/tcp   k3d-onthedock-serverlb
 </span></span><span style="display:flex;"><span>9642acef4de4   rancher/k3s:v1.25.7-k3s1         <span style="color:#2aa198">&#34;/bin/k3d-entrypoint…&#34;</span>   <span style="color:#2aa198">6</span> minutes ago   Up <span style="color:#2aa198">6</span> minutes                                     k3d-onthedock-agent-1
@@ -272,11 +272,11 @@ El <em>registry</em>  ofrece la posibilidad de usarse como <em>proxy</em> para <
 </span></span></code></pre></div><p>Vemos que tenemos los tres nodos del clúster, un nodo <code>k3d-onthedock-server-0</code> para el <em>control plane</em> y dos <em>workers</em> <code>k3d-onthedock-agent-0</code> y <code>k3d-onthedock-agent-1</code>.</p>
 <p>Además, tenemos un balanceador frente a la API del clúster, <code>k3d-onthedock-serverlb</code> y un nodo adicional para el <em>registry</em> <code>registry.localhost</code>.</p>
 <p><strong>k3d</strong> permite gestionar los diferentes clúster desplegados de manera sencilla (aunque en este ejemplo sólo tengo 1):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ k3d cluster list
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ k3d cluster list
 </span></span><span style="display:flex;"><span>NAME        SERVERS   AGENTS   LOADBALANCER
 </span></span><span style="display:flex;"><span>onthedock   1/1       2/2      <span style="color:#b58900">true</span>
 </span></span></code></pre></div><p>Crear un clúster adicional es tan sencillo como:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ k3d cluster create <span style="color:#b58900">test</span> -s <span style="color:#2aa198">1</span> -a <span style="color:#2aa198">1</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ k3d cluster create <span style="color:#b58900">test</span> -s <span style="color:#2aa198">1</span> -a <span style="color:#2aa198">1</span>
 </span></span><span style="display:flex;"><span>INFO<span style="color:#719e07">[</span>0000<span style="color:#719e07">]</span> Prep: Network
 </span></span><span style="display:flex;"><span>INFO<span style="color:#719e07">[</span>0000<span style="color:#719e07">]</span> Created network <span style="color:#2aa198">&#39;k3d-test&#39;</span>
 </span></span><span style="display:flex;"><span>INFO<span style="color:#719e07">[</span>0000<span style="color:#719e07">]</span> Created image volume k3d-test-images
@@ -299,12 +299,12 @@ El <em>registry</em>  ofrece la posibilidad de usarse como <em>proxy</em> para <
 </span></span><span style="display:flex;"><span>INFO<span style="color:#719e07">[</span>0035<span style="color:#719e07">]</span> You can now use it like this:
 </span></span><span style="display:flex;"><span>kubectl cluster-info
 </span></span></code></pre></div><p>Y ahora:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ k3d cluster list
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ k3d cluster list
 </span></span><span style="display:flex;"><span>NAME        SERVERS   AGENTS   LOADBALANCER
 </span></span><span style="display:flex;"><span>onthedock   1/1       2/2      <span style="color:#b58900">true</span>
 </span></span><span style="display:flex;"><span><span style="color:#b58900">test</span>        1/1       1/1      <span style="color:#b58900">true</span>
 </span></span></code></pre></div><p>Añadimos un nodo <code>agent</code> adicional (en el clúster <code>test</code>):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ k3d node create test-agent-1 -c <span style="color:#b58900">test</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ k3d node create test-agent-1 -c <span style="color:#b58900">test</span>
 </span></span><span style="display:flex;"><span>INFO<span style="color:#719e07">[</span>0000<span style="color:#719e07">]</span> Adding <span style="color:#2aa198">1</span> node<span style="color:#719e07">(</span>s<span style="color:#719e07">)</span> to the runtime <span style="color:#b58900">local</span> cluster <span style="color:#2aa198">&#39;test&#39;</span>...
 </span></span><span style="display:flex;"><span>INFO<span style="color:#719e07">[</span>0000<span style="color:#719e07">]</span> Using the k3d-tools node to gather environment information
 </span></span><span style="display:flex;"><span>INFO<span style="color:#719e07">[</span>0000<span style="color:#719e07">]</span> Starting new tools node...
@@ -315,13 +315,13 @@ El <em>registry</em>  ofrece la posibilidad de usarse como <em>proxy</em> para <
 </span></span></code></pre></div><blockquote>
 <p>De momento, no hay opción de <em>listar</em> los nodos de un solo clúster:</p>
 </blockquote>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ k3d node list | grep -i <span style="color:#b58900">test</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ k3d node list | grep -i <span style="color:#b58900">test</span>
 </span></span><span style="display:flex;"><span>k3d-test-agent-0         agent          <span style="color:#b58900">test</span>        running
 </span></span><span style="display:flex;"><span>k3d-test-agent-1-0       agent          <span style="color:#b58900">test</span>        running
 </span></span><span style="display:flex;"><span>k3d-test-server-0        server         <span style="color:#b58900">test</span>        running
 </span></span><span style="display:flex;"><span>k3d-test-serverlb        loadbalancer   <span style="color:#b58900">test</span>        running
 </span></span></code></pre></div><p>Tan fácil como es crear un clúster, podemos destruirlo:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ k3d cluster delete <span style="color:#b58900">test</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ k3d cluster delete <span style="color:#b58900">test</span>
 </span></span><span style="display:flex;"><span>INFO<span style="color:#719e07">[</span>0001<span style="color:#719e07">]</span> Deleting cluster <span style="color:#2aa198">&#39;test&#39;</span>
 </span></span><span style="display:flex;"><span>INFO<span style="color:#719e07">[</span>0004<span style="color:#719e07">]</span> Deleting cluster network <span style="color:#2aa198">&#39;k3d-test&#39;</span>
 </span></span><span style="display:flex;"><span>INFO<span style="color:#719e07">[</span>0004<span style="color:#719e07">]</span> Deleting <span style="color:#2aa198">1</span> attached volumes...

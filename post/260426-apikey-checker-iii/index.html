@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.136.5">
+<meta name="generator" content="Hugo 0.165.0">
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -92,7 +92,7 @@
       <script type="application/json">
         {
           "vars": {
-            "account": "Page(\/post\/260426-apikey-checker-iii)"
+            "account": "\/Users\/xavi\/repos\/personal\/onthedock-hugo\/content\/post\/260426-apikey-checker-iii.md"
           },
           "triggers": {
             "trackPageview": {
@@ -145,13 +145,13 @@
 
   <div class="article-body"><p>En esta entrada vamos a explorar qué propiedades tienen las API keys y cuáles pueden interesarnos para identificar las claves que deben ser rotadas.</p>
 <p>Está claro que para idenitificar si una API key fue creada hace más de X días, la propiedad que nos interesa es <a href="https://pkg.go.dev/cloud.google.com/go/apikeys/apiv2/apikeyspb#Key"><code>CreateTime</code></a>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>// Output only. A timestamp identifying the time this key was originally created.  
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>// Output only. A timestamp identifying the time this key was originally created.  
 </span></span><span style="display:flex;"><span>CreateTime *timestamppb.Timestamp `protobuf:&#34;bytes,4,opt,name=create_time,json=createTime,proto3&#34; json:&#34;create_time,omitempty&#34;`
 </span></span></code></pre></div><p>Pero para que el usuario pueda identificar de qué clave se trata, tendremos que obtener también, por ejemplo, su <em>DisplayName</em>.
 El problema es que el <em>DisplayName</em> puede cambiarse y no identifica unívocamente a la API key, por lo que también necesitaremos su <em>Name</em> (de la forma <code>projects/123456867718/locations/global/keys/b7ff1f9f-8275-410a-94dd-3855ee9b5dd2</code>).</p>
 <p>Para <em>agrupar</em> todos estos valores, definiremos un <em>struct</em> <code>Key</code>.</p>
 <p>Siguiendo buenas prácticas, todo lo relacionado con las <em>keys</em> lo vamos a organizar en el paquete <code>keys</code> (así evitamos conflictos con el nombre <code>apikeys</code>, usado por Google). Creamos la subcarpeta <code>internal/keys</code> y el fichero <code>keys.go</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#719e07">package</span> keys
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#719e07">package</span> keys
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#719e07">import</span> <span style="color:#2aa198">&#34;time&#34;</span>
 </span></span><span style="display:flex;"><span>
@@ -165,7 +165,7 @@ El problema es que el <em>DisplayName</em> puede cambiarse y no identifica unív
 <p>En la aplicación de Google Professional Services, las API keys se muestran en dos grupos: las que necesitan rotarse y las que no.</p>
 <p>Mi idea es recoger toda la información relativa a las API keys en un <em>slice</em> y proporcionar al usuario herramientas para mostrarlas de la manera que mejor le convenga; por ejemplo, mostrar sólo las N keys más antiguas, etc&hellip; También quiero proporcionar la opción de guardar los resultados en formatos como JSON o CSV&hellip;</p>
 <p>Con esa idea en mente, la salida &ldquo;por defecto&rdquo; de la aplicación sería algo como:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ ./apikeycheck <span style="color:#719e07">[</span>flags ...<span style="color:#719e07">]</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ ./apikeycheck <span style="color:#719e07">[</span>flags ...<span style="color:#719e07">]</span>
 </span></span><span style="display:flex;"><span>⚠️ apikey (project-9) 2025-11-01 (93 days old)
 </span></span><span style="display:flex;"><span>✅ test-api-001 (project-1) 2026-02-03 (45 days old)
 </span></span><span style="display:flex;"><span>✅ api-001 (project-2) 2026-04-23 (3 days old)
@@ -178,45 +178,45 @@ El problema es que el <em>DisplayName</em> puede cambiarse y no identifica unív
 </figure>
 
 <p>Es decir, idealmente, nuestro <code>main.go</code> debería ser algo como:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// get project list
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">var</span> projectIds []<span style="color:#dc322f">string</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// get project list</span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">var</span> projectIds []<span style="color:#dc322f">string</span>
 </span></span><span style="display:flex;"><span>projectIds = <span style="color:#268bd2">listProjects</span>(options)
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75">// get API key list
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>keys <span style="color:#719e07">:=</span> []keys.Key{}
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// get API key list</span>
+</span></span><span style="display:flex;"><span>keys <span style="color:#719e07">:=</span> []keys.Key{}
 </span></span><span style="display:flex;"><span><span style="color:#719e07">for</span> _, p <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> projectIds {
 </span></span><span style="display:flex;"><span>    kk <span style="color:#719e07">:=</span> <span style="color:#268bd2">listKeys</span>(p)
 </span></span><span style="display:flex;"><span>    keys = <span style="color:#b58900">append</span>(keys, kk<span style="color:#719e07">...</span>)
 </span></span><span style="display:flex;"><span>}
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#586e75">// filter, convert API keys
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#719e07">for</span> _, k<span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> keys {
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// filter, convert API keys</span>
+</span></span><span style="display:flex;"><span><span style="color:#719e07">for</span> _, k<span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> keys {
 </span></span><span style="display:flex;"><span>    k.<span style="color:#268bd2">Display</span>(format)
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><h2 id="reorganizando-el-código">Reorganizando el código</h2>
 <p>Siguiendo el esquema que hemos definido en la sección anterior, vamos a reescribir el fichero <code>main.go</code>.</p>
 <p>Tras comprobar que <code>projectId</code> no está vacío, dado que únicamente tenemos un proyecto por ahora pero esperamos trabajar con múltiples proyectos en el futuro, definimos un <em>slice</em> de <code>string</code> para almacenar toda la lista de proyectos:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// ... before
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    <span style="color:#719e07">if</span> <span style="color:#719e07">*</span>projectId <span style="color:#719e07">==</span> <span style="color:#2aa198">&#34;&#34;</span> {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// ... before</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#719e07">if</span> <span style="color:#719e07">*</span>projectId <span style="color:#719e07">==</span> <span style="color:#2aa198">&#34;&#34;</span> {
 </span></span><span style="display:flex;"><span>        fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;projectId cannot be empty&#34;</span>)
 </span></span><span style="display:flex;"><span>        os.<span style="color:#268bd2">Exit</span>(<span style="color:#2aa198">1</span>)
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>    ctx <span style="color:#719e07">:=</span> context.<span style="color:#268bd2">Background</span>()
-</span></span><span style="display:flex;"><span><span style="color:#586e75">// ... after
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    <span style="color:#719e07">if</span> <span style="color:#719e07">*</span>projectId <span style="color:#719e07">==</span> <span style="color:#2aa198">&#34;&#34;</span> {
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// ... after</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#719e07">if</span> <span style="color:#719e07">*</span>projectId <span style="color:#719e07">==</span> <span style="color:#2aa198">&#34;&#34;</span> {
 </span></span><span style="display:flex;"><span>        fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;projectId cannot be empty&#34;</span>)
 </span></span><span style="display:flex;"><span>        os.<span style="color:#268bd2">Exit</span>(<span style="color:#2aa198">1</span>)
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>    projectIds<span style="color:#719e07">:=</span>[]<span style="color:#dc322f">string</span>{<span style="color:#719e07">*</span>projectId}
 </span></span><span style="display:flex;"><span>    
-</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// get API key list
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    ctx <span style="color:#719e07">:=</span> context.<span style="color:#268bd2">Background</span>()
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// get API key list</span>
+</span></span><span style="display:flex;"><span>    ctx <span style="color:#719e07">:=</span> context.<span style="color:#268bd2">Background</span>()
 </span></span></code></pre></div><p>El siguiente paso es reemplazar el resto del código en <code>main.go</code> por una función <code>keys.List(projectId)</code> que devuelva todas las API keys definidas en el proyecto.</p>
 <p>Empezamos eliminado el código existente:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">//  ... before
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    projectIds <span style="color:#719e07">:=</span> []<span style="color:#dc322f">string</span>{<span style="color:#719e07">*</span>projectId}
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">//  ... before</span>
+</span></span><span style="display:flex;"><span>    projectIds <span style="color:#719e07">:=</span> []<span style="color:#dc322f">string</span>{<span style="color:#719e07">*</span>projectId}
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>    ctx <span style="color:#719e07">:=</span> context.<span style="color:#268bd2">Background</span>()
 </span></span><span style="display:flex;"><span>    c, err <span style="color:#719e07">:=</span> apikeys.<span style="color:#268bd2">NewClient</span>(ctx)
@@ -227,22 +227,22 @@ El problema es que el <em>DisplayName</em> puede cambiarse y no identifica unív
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">defer</span> c.<span style="color:#268bd2">Close</span>()
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>    req <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>apikeyspb.ListKeysRequest{
-</span></span><span style="display:flex;"><span>        <span style="color:#586e75">// See https://pkg.go.dev/cloud.google.com/go/apikeys/apiv2/apikeyspb#ListKeysRequest.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>        Parent: fmt.<span style="color:#268bd2">Sprintf</span>(<span style="color:#2aa198">&#34;projects/%s/locations/global&#34;</span>, <span style="color:#719e07">*</span>projectId),
+</span></span><span style="display:flex;"><span>        <span style="color:#586e75">// See https://pkg.go.dev/cloud.google.com/go/apikeys/apiv2/apikeyspb#ListKeysRequest.</span>
+</span></span><span style="display:flex;"><span>        Parent: fmt.<span style="color:#268bd2">Sprintf</span>(<span style="color:#2aa198">&#34;projects/%s/locations/global&#34;</span>, <span style="color:#719e07">*</span>projectId),
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">for</span> k, err <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> c.<span style="color:#268bd2">ListKeys</span>(ctx, req).<span style="color:#268bd2">All</span>() {
 </span></span><span style="display:flex;"><span>        <span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
-</span></span><span style="display:flex;"><span>            <span style="color:#586e75">// TODO: Handle error and break/return/continue. Iteration will stop after any error.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>            fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;list keys error: %s\n&#34;</span>, err.<span style="color:#268bd2">Error</span>())
+</span></span><span style="display:flex;"><span>            <span style="color:#586e75">// TODO: Handle error and break/return/continue. Iteration will stop after any error.</span>
+</span></span><span style="display:flex;"><span>            fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;list keys error: %s\n&#34;</span>, err.<span style="color:#268bd2">Error</span>())
 </span></span><span style="display:flex;"><span>            os.<span style="color:#268bd2">Exit</span>(<span style="color:#2aa198">1</span>)
 </span></span><span style="display:flex;"><span>        }
 </span></span><span style="display:flex;"><span>        fmt.<span style="color:#268bd2">Println</span>(k.DisplayName)
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>}
-</span></span><span style="display:flex;"><span><span style="color:#586e75">//  ... after
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    projectIds <span style="color:#719e07">:=</span> []<span style="color:#dc322f">string</span>{<span style="color:#719e07">*</span>projectId}
+</span></span><span style="display:flex;"><span><span style="color:#586e75">//  ... after</span>
+</span></span><span style="display:flex;"><span>    projectIds <span style="color:#719e07">:=</span> []<span style="color:#dc322f">string</span>{<span style="color:#719e07">*</span>projectId}
 </span></span></code></pre></div><p>En <code>internal/keys/keys.go</code>, creamos la función:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">List</span>(projectid <span style="color:#dc322f">string</span>) []<span style="color:#719e07">*</span>Key {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">List</span>(projectid <span style="color:#dc322f">string</span>) []<span style="color:#719e07">*</span>Key {
 </span></span><span style="display:flex;"><span>    ctx <span style="color:#719e07">:=</span> context.<span style="color:#268bd2">Background</span>()
 </span></span><span style="display:flex;"><span>    c, err <span style="color:#719e07">:=</span> apikeys.<span style="color:#268bd2">NewClient</span>(ctx)
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
@@ -252,15 +252,15 @@ El problema es que el <em>DisplayName</em> puede cambiarse y no identifica unív
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">defer</span> c.<span style="color:#268bd2">Close</span>()
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>    req <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>apikeyspb.ListKeysRequest{
-</span></span><span style="display:flex;"><span>        <span style="color:#586e75">// See https://pkg.go.dev/cloud.google.com/go/apikeys/apiv2/apikeyspb#ListKeysRequest.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>        Parent: fmt.<span style="color:#268bd2">Sprintf</span>(<span style="color:#2aa198">&#34;projects/%s/locations/global&#34;</span>, projectid),
+</span></span><span style="display:flex;"><span>        <span style="color:#586e75">// See https://pkg.go.dev/cloud.google.com/go/apikeys/apiv2/apikeyspb#ListKeysRequest.</span>
+</span></span><span style="display:flex;"><span>        Parent: fmt.<span style="color:#268bd2">Sprintf</span>(<span style="color:#2aa198">&#34;projects/%s/locations/global&#34;</span>, projectid),
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>    <span style="color:#268bd2">var</span> keys []<span style="color:#719e07">*</span>Key
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">for</span> k, err <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> c.<span style="color:#268bd2">ListKeys</span>(ctx, req).<span style="color:#268bd2">All</span>() {
 </span></span><span style="display:flex;"><span>        <span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
-</span></span><span style="display:flex;"><span>            <span style="color:#586e75">// TODO: Handle error and break/return/continue. Iteration will stop after any error.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>            fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;list keys error: %s\n&#34;</span>, err.<span style="color:#268bd2">Error</span>())
+</span></span><span style="display:flex;"><span>            <span style="color:#586e75">// TODO: Handle error and break/return/continue. Iteration will stop after any error.</span>
+</span></span><span style="display:flex;"><span>            fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;list keys error: %s\n&#34;</span>, err.<span style="color:#268bd2">Error</span>())
 </span></span><span style="display:flex;"><span>            os.<span style="color:#268bd2">Exit</span>(<span style="color:#2aa198">1</span>)
 </span></span><span style="display:flex;"><span>        }
 </span></span><span style="display:flex;"><span>        key <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>Key{
@@ -276,13 +276,13 @@ El problema es que el <em>DisplayName</em> puede cambiarse y no identifica unív
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>Como puede verse, la mayor parte del código es el que teníamos en <code>main.go</code>. La principal diferencia es que creamos una <code>Key</code> y que devolvemos el <em>slice</em> de <code>Key</code> para cada proyecto, como habíamos diseñado en la sección anterior.</p>
 <p>Volvemos ahora a <code>main.go</code> para seguir ajustándolo a nuestro <code>main.go</code> ideal&hellip;</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">//  ... before
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    projectIds <span style="color:#719e07">:=</span> []<span style="color:#dc322f">string</span>{<span style="color:#719e07">*</span>projectId}
-</span></span><span style="display:flex;"><span><span style="color:#586e75">//  ... after
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    projectIds <span style="color:#719e07">:=</span> []<span style="color:#dc322f">string</span>{<span style="color:#719e07">*</span>projectId}
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">//  ... before</span>
+</span></span><span style="display:flex;"><span>    projectIds <span style="color:#719e07">:=</span> []<span style="color:#dc322f">string</span>{<span style="color:#719e07">*</span>projectId}
+</span></span><span style="display:flex;"><span><span style="color:#586e75">//  ... after</span>
+</span></span><span style="display:flex;"><span>    projectIds <span style="color:#719e07">:=</span> []<span style="color:#dc322f">string</span>{<span style="color:#719e07">*</span>projectId}
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// get API key list
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    <span style="color:#268bd2">var</span> keylist []<span style="color:#719e07">*</span>keys.Key
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// get API key list</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#268bd2">var</span> keylist []<span style="color:#719e07">*</span>keys.Key
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">for</span> _, p <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> projectIds {
 </span></span><span style="display:flex;"><span>        kk <span style="color:#719e07">:=</span> keys.<span style="color:#268bd2">List</span>(p)
 </span></span><span style="display:flex;"><span>        keylist = <span style="color:#b58900">append</span>(keylist, kk<span style="color:#719e07">...</span>)
@@ -291,40 +291,40 @@ El problema es que el <em>DisplayName</em> puede cambiarse y no identifica unív
 <p>Para validar que todo funcionaba habíamos mostrado el <em>display name</em> de las API keys encontradas.</p>
 <p>Como <code>Key</code> es un <em>struct</em>, y queremos definir una función que devuelva un <code>string</code>, podemos definir un método <code>func (k Key) String() string</code>, de manera que satisfaga el interfaz <a href="https://pkg.go.dev/fmt#Stringer">Stringer</a>. Es una buena práctica porque, por defecto, una gran cantidad de funciones usan el método <code>String()</code> para mostrar información (logging, debugging, mensajes de cara al usuario&hellip;) Proporciona una manera consistente de representar un tipo complejo como Key.</p>
 <p>En <code>internal/keys/keys.go</code> añadimos la implementación de <code>String()</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> (k Key) <span style="color:#268bd2">String</span>() <span style="color:#dc322f">string</span> {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> (k Key) <span style="color:#268bd2">String</span>() <span style="color:#dc322f">string</span> {
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">return</span> fmt.<span style="color:#268bd2">Sprintf</span>(<span style="color:#2aa198">&#34;%s on project %s (created: %s)&#34;</span>, k.DisplayName, k.ProjectId, k.CreateTime.<span style="color:#268bd2">Format</span>(time.RFC1123))
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>Y ahora, en <code>main.go</code>, siguiendo nuestro esquema, añadimos el <em>bloque</em> final, el encargado de mostrar todas las API keys encontradas:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">//  ... before
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>        keylist = <span style="color:#b58900">append</span>(keylist, kk<span style="color:#719e07">...</span>)
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">//  ... before</span>
+</span></span><span style="display:flex;"><span>        keylist = <span style="color:#b58900">append</span>(keylist, kk<span style="color:#719e07">...</span>)
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>}
-</span></span><span style="display:flex;"><span><span style="color:#586e75">//  ... after
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>        keylist = <span style="color:#b58900">append</span>(keylist, kk<span style="color:#719e07">...</span>)
+</span></span><span style="display:flex;"><span><span style="color:#586e75">//  ... after</span>
+</span></span><span style="display:flex;"><span>        keylist = <span style="color:#b58900">append</span>(keylist, kk<span style="color:#719e07">...</span>)
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// display API keys
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    <span style="color:#719e07">for</span> _, k <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> keylist {
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// display API keys</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#719e07">for</span> _, k <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> keylist {
 </span></span><span style="display:flex;"><span>        fmt.<span style="color:#268bd2">Println</span>(k.<span style="color:#268bd2">String</span>())
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>Compilando la aplicación de nuevo, la salida de la aplicación es:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ ./apicheck --project XXXX-XXX-XXXX-XXXXXX-XXXX
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ ./apicheck --project XXXX-XXX-XXXX-XXXXXX-XXXX
 </span></span><span style="display:flex;"><span>test-api-key on project XXXX-XXX-XXXX-XXXXXX-XXXX (created: Sat, 18 Apr 2026 11:05:17 UTC)
 </span></span></code></pre></div><h2 id="mostrando-cuánto-tiempo-hace-que-la-api-key-fue-creada">Mostrando cuánto tiempo hace que la API key fue creada</h2>
 <p>Aunque tenemos cuándo fue creada la API key, no sabemos <strong>cuánto tiempo hace</strong> que fue creada&hellip;</p>
 <p>Modificaremos la función <code>String()</code> para calcular cuánto tiempo hace y mostrarlo también:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">//  ... before
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> (k Key) <span style="color:#268bd2">String</span>() <span style="color:#dc322f">string</span> {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">//  ... before</span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> (k Key) <span style="color:#268bd2">String</span>() <span style="color:#dc322f">string</span> {
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">return</span> fmt.<span style="color:#268bd2">Sprintf</span>(<span style="color:#2aa198">&#34;%s on project %s (created: %s)&#34;</span>, k.DisplayName, k.ProjectId, k.CreateTime.<span style="color:#268bd2">Format</span>(time.RFC1123))
 </span></span><span style="display:flex;"><span>}
-</span></span><span style="display:flex;"><span><span style="color:#586e75">//  ... after
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> (k Key) <span style="color:#268bd2">String</span>() <span style="color:#dc322f">string</span> {
+</span></span><span style="display:flex;"><span><span style="color:#586e75">//  ... after</span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> (k Key) <span style="color:#268bd2">String</span>() <span style="color:#dc322f">string</span> {
 </span></span><span style="display:flex;"><span>    <span style="color:#268bd2">const</span> hoursDay = <span style="color:#2aa198">24</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">return</span> fmt.<span style="color:#268bd2">Sprintf</span>(<span style="color:#2aa198">&#34;%s on project %s (created: %s, %.0f days ago)&#34;</span>, k.DisplayName, k.ProjectId, k.CreateTime.<span style="color:#268bd2">Format</span>(time.RFC1123), time.<span style="color:#268bd2">Since</span>(k.CreateTime).<span style="color:#268bd2">Hours</span>()<span style="color:#719e07">/</span>hoursDay)
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>De esta forma, tras compilar de nuevo la aplicación, la salida que proporciona es más parecida a lo que queríamos conseguir:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ ./apicheck --project XXXX-XXX-XXXX-XXXXXX-XXXX
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ ./apicheck --project XXXX-XXX-XXXX-XXXXXX-XXXX
 </span></span><span style="display:flex;"><span>test-api-key on project XXXX-XXX-XXXX-XXXXXX-XXXX (created: Sat, 18 Apr 2026 11:05:17 UTC, 8 days ago)
 </span></span></code></pre></div><h2 id="serie-completa">Serie completa</h2>
 <ul>

@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.136.5">
+<meta name="generator" content="Hugo 0.165.0">
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -92,7 +92,7 @@
       <script type="application/json">
         {
           "vars": {
-            "account": "Page(\/post\/230713-agrega-linea-a-un-fichero-solo-si-no-esta-presente)"
+            "account": "\/Users\/xavi\/repos\/personal\/onthedock-hugo\/content\/post\/230713-agrega-linea-a-un-fichero-solo-si-no-esta-presente.md"
           },
           "triggers": {
             "trackPageview": {
@@ -150,21 +150,21 @@
 <h2 id="el-concepto">El <em>concepto</em></h2>
 <p><code>grep</code> busca una cadena en un fichero. Así que es la herramienta perfecta para la primera parte del problema: averiguar si una determinada línea está presente en el fichero objetivo (al que voy a llamar <code>config.yaml</code>).</p>
 <p>Para ejemplificar la solución, usaré el fichero:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>---
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>---
 </span></span><span style="display:flex;"><span><span style="color:#268bd2">config</span>:
 </span></span><span style="display:flex;"><span>  <span style="color:#268bd2">name</span>: myapp
 </span></span><span style="display:flex;"><span>  <span style="color:#268bd2">path</span>: /path/to/some/myapp.conf
 </span></span></code></pre></div><p>Por defecto, <code>grep</code> devuelve (todo el contenido) de la línea en la que se encuentra coincidencias. Es decir, si buscamos <code>path</code>, obtenemos:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ grep path config.yaml 
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ grep path config.yaml 
 </span></span><span style="display:flex;"><span>  path: /path/to/some/myapp.conf
 </span></span></code></pre></div><p>Pero si buscamos <code>myapp</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ grep myapp config.yaml
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ grep myapp config.yaml
 </span></span><span style="display:flex;"><span>  name: myapp
 </span></span><span style="display:flex;"><span>  path: /path/to/some/myapp.conf
 </span></span></code></pre></div><p>En este segundo caso tenemos varias concidencias, lo que es un problema si queremos actualizar, por ejemplo, el <em>path</em> a la configuración de la aplicación.</p>
 <p>Por suerte, una de las opciones de <code>grep</code> es <code>-x</code> (o en versión larga, <code>--line-regexp</code>), que selecciona sólo aquellas coincidencias de la <em>línea completa</em>. Esto es justo lo que queremos.</p>
 <p>Por tanto, ahora podemos seleccionar sólo la línea que contiene la ruta al fichero de configuración mediante:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ grep --line-regexp <span style="color:#2aa198">&#39;  path: /path/to/some/myapp.conf&#39;</span> config.yaml 
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ grep --line-regexp <span style="color:#2aa198">&#39;  path: /path/to/some/myapp.conf&#39;</span> config.yaml 
 </span></span><span style="display:flex;"><span>  path: /path/to/some/myapp.conf
 </span></span></code></pre></div><p>Observa como es necesario incluir los espacios al principio de la línea para que el <strong>match</strong> funcione.</p>
 <p>Como vemos, en este caso usamos como <em>patrón</em> una cadena (no es una expresión regular); podemos indicárselo a <code>grep</code> mediante la opción <code>-F</code> (o en versión larga, <code>--fixed-strings</code>).</p>
@@ -173,14 +173,14 @@
 <p>A continuación, vemos cómo añadirla si no está presente.</p>
 <h2 id="echo-al-rescate"><code>echo</code> al rescate</h2>
 <p>La manera más sencilla de añadir una línea a un fichero es mediante el <em>humilde</em> <code>echo</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#b58900">echo</span> <span style="color:#2aa198">&#39;  path: /path/to/some/myapp.conf&#39;</span> &gt;&gt; config.yaml
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#b58900">echo</span> <span style="color:#2aa198">&#39;  path: /path/to/some/myapp.conf&#39;</span> &gt;&gt; config.yaml
 </span></span></code></pre></div><p>El problema es que de esta forma, cada vez que ejecutemos el <em>script</em>, <code>echo</code> añade la línea al fichero.</p>
 <p>¿Cómo lo combinamos con el comando <code>grep</code> anterior?</p>
 <p>En Bash, cuando un comando tiene éxito devuelve <code>0</code>; si falla, devuelve <code>1</code> (o cualquier otro código numérico, hasta 255).</p>
 <p>En Bash, el <code>0</code> también se interpreta como el valor &ldquo;lógico&rdquo; <code>true</code>, y por tanto, <code>1</code> (o cualquier otro valor), se considera <code>false</code>.</p>
 <p>El operador <code>OR</code> (representado en Bash por <code>||</code>), es <code>true</code> si uno (o los dos) operandos son <code>true</code>.</p>
 <p>Usamos esta propiedad de manera para conseguir el resultado que queremos:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>grep --quiet --fixed-strings --line-regexp <span style="color:#2aa198">&#39;  path: /path/to/some/myapp.conf&#39;</span> config.yaml <span style="color:#719e07">||</span> <span style="color:#b58900">echo</span> <span style="color:#2aa198">&#39;  path: /path/to/some/myapp.conf&#39;</span> &gt;&gt; config.yaml
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>grep --quiet --fixed-strings --line-regexp <span style="color:#2aa198">&#39;  path: /path/to/some/myapp.conf&#39;</span> config.yaml <span style="color:#719e07">||</span> <span style="color:#b58900">echo</span> <span style="color:#2aa198">&#39;  path: /path/to/some/myapp.conf&#39;</span> &gt;&gt; config.yaml
 </span></span></code></pre></div><p>Si <code>grep</code> devuelve <code>0</code> (todo Ok), significa que se ha encontrado la línea en el fichero.
 Como el operador || (<code>or</code>) ya tiene un operando con valor <code>true</code>, se evalúa como <code>true</code> (sin necesidad de evaluar el valor del segundo operando).</p>
 <p>Si el primero operando devuelve <code>1</code> (<code>false</code>), significa que <code>grep</code> no ha encontrado la línea completa. En este caso, Bash debe evaluar el segundo operando (el <code>echo</code>) para determinar el resultado de operar los dos lados del <code>OR</code>.</p>

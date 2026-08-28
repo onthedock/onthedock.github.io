@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.136.5">
+<meta name="generator" content="Hugo 0.165.0">
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -92,7 +92,7 @@
       <script type="application/json">
         {
           "vars": {
-            "account": "Page(\/post\/230212-obtener-ultima-version-imagen-cis-en-gcp)"
+            "account": "\/Users\/xavi\/repos\/personal\/onthedock-hugo\/content\/post\/230212-obtener-ultima-version-imagen-cis-en-gcp.md"
           },
           "triggers": {
             "trackPageview": {
@@ -149,19 +149,19 @@
 <p>Para obtener el proyecto en el que se encuentra la imagen que nos interesa, buscamos a través de la consola de GCP, en Marketplace.</p>
 <p>Al pulsar sobre la imagen en cuestión, se muestra información general (<em>Overview</em>), precio (estimado), etc&hellip; Observando la URL identificamos en qué proyecto se encuentra.</p>
 <p>Por ejemplo, para la imagen del CIS para Debian 10, la URL sobre esta imagen es:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>https://console.cloud.google.com/marketplace/product/cis-public/cis-debian-linux-10-level-1
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>https://console.cloud.google.com/marketplace/product/cis-public/cis-debian-linux-10-level-1
 </span></span></code></pre></div><p>El nombre del proyecto se encuentra <em>antes</em> del nombre de la imagen; así pues, <code>cis-public</code>.</p>
 <p>Usando la herramienta de CLI <code>gcloud</code>, obtenemos la lista de todas las imágenes ofrecidas por el CIS:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>gcloud compute images list --project<span style="color:#719e07">=</span>cis-public
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>gcloud compute images list --project<span style="color:#719e07">=</span>cis-public
 </span></span></code></pre></div><p>Como el objetivo es usar la imagen en Terraform para desplegar instancias, nos interesa únicamente el nombre de las imágenes&hellip; En el caso del CIS, todas las imágenes <em>hardenizadas</em> van prefijadas por <code>cis-*</code>.</p>
 <p>En el caso de Debian 10, tenemos varias versiones:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ gcloud compute images list --project<span style="color:#719e07">=</span>cis-public --format<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;value(NAME)&#34;</span> --filter<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;name:cis-debian-linux-10-level-1-*&#34;</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ gcloud compute images list --project<span style="color:#719e07">=</span>cis-public --format<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;value(NAME)&#34;</span> --filter<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;name:cis-debian-linux-10-level-1-*&#34;</span>
 </span></span><span style="display:flex;"><span>cis-debian-linux-10-level1-v1-1-0-0-26
 </span></span><span style="display:flex;"><span>cis-debian-linux-10-level1-v1-1-0-0-27
 </span></span><span style="display:flex;"><span>cis-debian-linux-10-level1-v1-1-0-0-28
 </span></span><span style="display:flex;"><span>cis-debian-linux-10-level1-v1-1-0-0-29
 </span></span></code></pre></div><p>El siguiente paso es obtener la última disponible&hellip;</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>latest_version<span style="color:#719e07">()</span> <span style="color:#719e07">{</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>latest_version<span style="color:#719e07">()</span> <span style="color:#719e07">{</span>
 </span></span><span style="display:flex;"><span>  <span style="color:#b58900">local</span> <span style="color:#268bd2">image_name</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$1</span><span style="color:#2aa198">&#34;</span>
 </span></span><span style="display:flex;"><span>  <span style="color:#b58900">local</span> <span style="color:#268bd2">filter</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;name:</span><span style="color:#2aa198">${</span><span style="color:#268bd2">image_name</span><span style="color:#2aa198">}</span><span style="color:#2aa198">-*&#34;</span>
 </span></span><span style="display:flex;"><span>  <span style="color:#268bd2">available_versions</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>gcloud compute images list --project<span style="color:#719e07">=</span>cis-public --format<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;value(NAME) --filter=&#34;</span><span style="color:#2aa198">${</span><span style="color:#268bd2">filter</span><span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;)
@@ -175,7 +175,7 @@
 </span></span></span><span style="display:flex;"><span><span style="color:#2aa198">  echo &#34;</span>projects/cis-public/global/images/<span style="color:#2aa198">${</span><span style="color:#268bd2">image_name</span><span style="color:#2aa198">}</span>-v<span style="color:#2aa198">${</span><span style="color:#268bd2">latest</span><span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;
 </span></span></span><span style="display:flex;"><span><span style="color:#2aa198">}
 </span></span></span></code></pre></div><p>Una vez obtenemos la última versión disponible para las imágenes que nos interesan, pasamos los resultados a un <em>map</em> de Terraform:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#268bd2">debian10</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;cis-debian-linux-10-level1&#34;</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#268bd2">debian10</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;cis-debian-linux-10-level1&#34;</span>
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>tee <span style="color:#2aa198">&#34;cis_images.auto.tfvars&#34;</span> <span style="color:#2aa198">&lt;&lt;LATEST_CIS_IMAGES
 </span></span></span><span style="display:flex;"><span><span style="color:#2aa198">cis_level1_images = {
@@ -184,7 +184,7 @@
 </span></span></span><span style="display:flex;"><span><span style="color:#2aa198">}
 </span></span></span><span style="display:flex;"><span><span style="color:#2aa198">LATEST_CIS_IMAGES</span>
 </span></span></code></pre></div><p>En Terraform, consumimos esta información mediante el <a href="https://developer.hashicorp.com/terraform/language/meta-arguments/for_each">meta-argumento <code>for_each</code></a>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>resource <span style="color:#2aa198">&#34;google_compute_instance&#34;</span> <span style="color:#2aa198">&#34;cis_vm&#34;</span> {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>resource <span style="color:#2aa198">&#34;google_compute_instance&#34;</span> <span style="color:#2aa198">&#34;cis_vm&#34;</span> {
 </span></span><span style="display:flex;"><span>  for_each var.cis_level1_images
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>  name = <span style="color:#268bd2">&#34;vm-${each.key}-cislevel1&#34;</span>

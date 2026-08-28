@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.136.5">
+<meta name="generator" content="Hugo 0.165.0">
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -92,7 +92,7 @@
       <script type="application/json">
         {
           "vars": {
-            "account": "Page(\/post\/260825-comandos-usando-flag-ii)"
+            "account": "\/Users\/xavi\/repos\/personal\/onthedock-hugo\/content\/post\/260825-comandos-usando-flag-ii.md"
           },
           "triggers": {
             "trackPageview": {
@@ -146,12 +146,12 @@
   <div class="article-body"><p>Una de las limitaciones del paquete <code>flag</code> es que no proporciona soporte para comandos o subcomandos. Sin embargo, podemos simularlos de manera sencilla.</p>
 <p>Lo primero que debemos tener en cuenta con respecto al paquete <code>flag</code>, es que el <em>parser</em> deja de buscar <em>flags</em> en cuanto encuentra un parámetro que no empieza por <code>-</code>. Por tanto, el primer paso a la hora de pensar en el diseño de la CLI es decidir la estructura que van a seguir los comandos y subcomandos que quieres proporcionar.</p>
 <p>Imaginamos una aplicación que permite leer y escribir ficheros:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ myapp -h
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ myapp -h
 </span></span><span style="display:flex;"><span>$ myapp <span style="color:#b58900">read</span> -h
 </span></span><span style="display:flex;"><span>$ myapp <span style="color:#b58900">read</span> --file somefile
 </span></span><span style="display:flex;"><span>$ myapp write --text <span style="color:#2aa198">&#34;hola que tal&#34;</span> --file somefile
 </span></span></code></pre></div><p>Es decir, en este ejemplo, el primer parámetro posicional (es decir, lo primero que no es un <em>flag</em>) siempre es un comando; si no hay ningún comando, entonces lo único que puede haber es el <em>flag</em> para mostrar la ayuda (y quizás, la versión de la aplicación).</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">mainFlags</span>(args []<span style="color:#dc322f">string</span>) <span style="color:#dc322f">error</span> {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">mainFlags</span>(args []<span style="color:#dc322f">string</span>) <span style="color:#dc322f">error</span> {
 </span></span><span style="display:flex;"><span>    fs <span style="color:#719e07">:=</span> flag.<span style="color:#268bd2">NewFlagSet</span>(<span style="color:#2aa198">&#34;myapp&#34;</span>, flag.ExitOnError)
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> fs.<span style="color:#268bd2">Parse</span>(args); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
 </span></span><span style="display:flex;"><span>        <span style="color:#719e07">return</span> err
@@ -165,7 +165,7 @@
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>Ésta sería una implementación mínima que permite mostrar ayuda en el caso de que la aplicación se ejecute con el <em>flag</em> <code>-h</code>, pero que (todavía) no &ldquo;sabe nada&rdquo; de comandos:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ go run main.go -h
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ go run main.go -h
 </span></span><span style="display:flex;"><span>Usage of myapp:
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>$ go run main.go patata -h
@@ -182,13 +182,13 @@
 Usage func()</p>
 </blockquote>
 <p>En nuestro caso:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">usage</span>() {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">usage</span>() {
 </span></span><span style="display:flex;"><span>    fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">`Usage of &#39;myapp&#39;:
 </span></span></span><span style="display:flex;"><span><span style="color:#2aa198">    myapp read --file &lt;path/to/file&gt;
 </span></span></span><span style="display:flex;"><span><span style="color:#2aa198">    myapp write --text &#34;&lt;text&gt;&#34; --file &lt;path/to/file&gt;`</span>)
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>Y actualizamos la función <code>mainFlags</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">mainFlags</span>(args []<span style="color:#dc322f">string</span>) <span style="color:#dc322f">error</span> {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">mainFlags</span>(args []<span style="color:#dc322f">string</span>) <span style="color:#dc322f">error</span> {
 </span></span><span style="display:flex;"><span>    fs <span style="color:#719e07">:=</span> flag.<span style="color:#268bd2">NewFlagSet</span>(<span style="color:#2aa198">&#34;myapp&#34;</span>, flag.ExitOnError)
 </span></span><span style="display:flex;"><span>    fs.Usage = usage
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> fs.<span style="color:#268bd2">Parse</span>(args); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
@@ -197,7 +197,7 @@ Usage func()</p>
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">return</span> <span style="color:#cb4b16">nil</span>
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>Ahora, si se ejecuta la aplicación con el <em>flag</em> <code>-h</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ go run main.go -h
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ go run main.go -h
 </span></span><span style="display:flex;"><span>Usage of &#39;myapp&#39;:
 </span></span><span style="display:flex;"><span>    myapp read --file &lt;path/to/file&gt;
 </span></span><span style="display:flex;"><span>    myapp write --text &#34;&lt;text&gt;&#34; --file &lt;path/to/file&gt;
@@ -206,12 +206,12 @@ Usage func()</p>
 <p>Podemos saber cuántos de estos argumentos hay después de haber procesado todos los flags mediante <code>NArg()</code>. En nuestro caso, el primer argumento será un <em>comando</em>, mientras que el resto pueden ser parámetros para este comando.</p>
 <p>Para poder extender más adelante éste mismo patrón con más subcomandos, modificamos la función <code>mainFlags</code> de manera que devuelva el nombre del comando y el resto de parámetros como <em>argumentos</em> del comando.</p>
 <p>Definimos un <em>struct</em>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">type</span> Command <span style="color:#268bd2">struct</span> {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">type</span> Command <span style="color:#268bd2">struct</span> {
 </span></span><span style="display:flex;"><span>    Name <span style="color:#dc322f">string</span>
 </span></span><span style="display:flex;"><span>    Args []<span style="color:#dc322f">string</span>
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>Y modificamos la función <code>mainFlags</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span>    fs <span style="color:#719e07">:=</span> flag.<span style="color:#268bd2">NewFlagSet</span>(<span style="color:#2aa198">&#34;myapp&#34;</span>, flag.ExitOnError)
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span>    fs <span style="color:#719e07">:=</span> flag.<span style="color:#268bd2">NewFlagSet</span>(<span style="color:#2aa198">&#34;myapp&#34;</span>, flag.ExitOnError)
 </span></span><span style="display:flex;"><span>    fs.Usage = usage
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> fs.<span style="color:#268bd2">Parse</span>(args); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
 </span></span><span style="display:flex;"><span>        <span style="color:#719e07">return</span> <span style="color:#cb4b16">nil</span>, err
@@ -225,7 +225,7 @@ Usage func()</p>
 </span></span><span style="display:flex;"><span>    fs.<span style="color:#268bd2">Usage</span>()
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">return</span> <span style="color:#cb4b16">nil</span>, fmt.<span style="color:#268bd2">Errorf</span>(<span style="color:#2aa198">&#34;No command provided&#34;</span>)
 </span></span></code></pre></div><p>Ahora, en <code>main</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
 </span></span><span style="display:flex;"><span>    cmd, err <span style="color:#719e07">:=</span> <span style="color:#268bd2">mainFlags</span>(os.Args[<span style="color:#2aa198">1</span>:])
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
 </span></span><span style="display:flex;"><span>        log.<span style="color:#268bd2">Fatalln</span>(err)
@@ -242,14 +242,14 @@ Usage func()</p>
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>Ahora, si se ejecuta la aplicación sin ningún comando:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ go run main.go 
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ go run main.go 
 </span></span><span style="display:flex;"><span>Usage of &#39;myapp&#39;:
 </span></span><span style="display:flex;"><span>        myapp read --file &lt;path/to/file&gt;
 </span></span><span style="display:flex;"><span>        myapp write --text &#34;&lt;text&gt;&#34; --file &lt;path/to/file&gt;
 </span></span><span style="display:flex;"><span>2026/08/27 05:49:57 No command provided
 </span></span><span style="display:flex;"><span>exit status 1
 </span></span></code></pre></div><p>Pero si se proporciona un comando:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ go run main.go <span style="color:#b58900">read</span> --foo bar
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ go run main.go <span style="color:#b58900">read</span> --foo bar
 </span></span><span style="display:flex;"><span>command &#39;read&#39;
 </span></span><span style="display:flex;"><span>arguments for command: [--foo bar]
 </span></span><span style="display:flex;"><span>
@@ -260,7 +260,7 @@ Usage func()</p>
 <h2 id="parseando-flags-para-los-comandos"><em>Parseando</em> <em>flags</em> para los comandos</h2>
 <p>Como hemos devuelto los argumentos que siguen al <em>comando</em> proporcionado por el usuario, podemos aplicar el mismo proceso para definir qué <em>flags</em> aplican a cada comando, o si alguno de los comandos tiene <em>subcomandos</em>, etc&hellip;</p>
 <p>Definimos una función que procese los <em>flags</em> para el <em>comando</em> <strong>write</strong>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">writeFlags</span>(args []<span style="color:#dc322f">string</span>) <span style="color:#dc322f">error</span> {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">writeFlags</span>(args []<span style="color:#dc322f">string</span>) <span style="color:#dc322f">error</span> {
 </span></span><span style="display:flex;"><span>    fs <span style="color:#719e07">:=</span> flag.<span style="color:#268bd2">NewFlagSet</span>(<span style="color:#2aa198">&#34;write&#34;</span>, flag.ExitOnError)
 </span></span><span style="display:flex;"><span>    text <span style="color:#719e07">:=</span> fs.<span style="color:#268bd2">String</span>(<span style="color:#2aa198">&#34;text&#34;</span>, <span style="color:#2aa198">&#34;&#34;</span>, <span style="color:#2aa198">&#34;Text to write to file&#34;</span>)
 </span></span><span style="display:flex;"><span>    filename <span style="color:#719e07">:=</span> fs.<span style="color:#268bd2">String</span>(<span style="color:#2aa198">&#34;file&#34;</span>, <span style="color:#2aa198">&#34;&#34;</span>, <span style="color:#2aa198">&#34;Name of the file to write to&#34;</span>)
@@ -274,7 +274,7 @@ Usage func()</p>
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">return</span> <span style="color:#cb4b16">nil</span>
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>Finalmente, actualizamos la función <code>main</code> para que llame a la función <code>writeFlags</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
 </span></span><span style="display:flex;"><span>    cmd, err <span style="color:#719e07">:=</span> <span style="color:#268bd2">mainFlags</span>(os.Args[<span style="color:#2aa198">1</span>:])
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
 </span></span><span style="display:flex;"><span>        log.<span style="color:#268bd2">Fatalln</span>(err)
@@ -292,7 +292,7 @@ Usage func()</p>
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>Como se trata de una aplicación de ejemplo, desde <code>writeFlags</code> mostramos un mensaje de texto en <em>stdOut</em> y finalizamos; en una aplicación más realista, podríamos devolver un <em>struct</em> con las opciones para la función encargada de escribir en el fichero.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#268bd2">type</span> WriteOptions <span style="color:#268bd2">struct</span> {
 </span></span><span style="display:flex;"><span>    Text     <span style="color:#dc322f">string</span>
 </span></span><span style="display:flex;"><span>    Filename <span style="color:#dc322f">string</span>
@@ -305,8 +305,8 @@ Usage func()</p>
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> fs.<span style="color:#268bd2">Parse</span>(args); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
 </span></span><span style="display:flex;"><span>        <span style="color:#719e07">return</span> <span style="color:#cb4b16">nil</span>, err
 </span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// validate values
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    <span style="color:#719e07">if</span> <span style="color:#719e07">*</span>filename <span style="color:#719e07">==</span> <span style="color:#2aa198">&#34;&#34;</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// validate values</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#719e07">if</span> <span style="color:#719e07">*</span>filename <span style="color:#719e07">==</span> <span style="color:#2aa198">&#34;&#34;</span> {
 </span></span><span style="display:flex;"><span>        <span style="color:#719e07">return</span> <span style="color:#cb4b16">nil</span>, fmt.<span style="color:#268bd2">Errorf</span>(<span style="color:#2aa198">&#34;--file cannot be empty&#34;</span>)
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">return</span> <span style="color:#719e07">&amp;</span>WriteOptions{
@@ -329,15 +329,15 @@ Usage func()</p>
 </span></span><span style="display:flex;"><span>        <span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
 </span></span><span style="display:flex;"><span>            log.<span style="color:#268bd2">Fatal</span>(err)
 </span></span><span style="display:flex;"><span>        }
-</span></span><span style="display:flex;"><span>        <span style="color:#586e75">// call function to write text to file
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>        fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;writing text %q to file %q\n&#34;</span>, wflags.Text, wflags.Filename)
+</span></span><span style="display:flex;"><span>        <span style="color:#586e75">// call function to write text to file</span>
+</span></span><span style="display:flex;"><span>        fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;writing text %q to file %q\n&#34;</span>, wflags.Text, wflags.Filename)
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">default</span>:
 </span></span><span style="display:flex;"><span>        log.<span style="color:#268bd2">Fatalf</span>(<span style="color:#2aa198">&#34;Unknown command: %s&#34;</span>, cmd.Name)
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>Lo importante del ejemplo es ver cómo, usando el paquete <code>flag</code>, podemos implementar comandos (y subcomandos) de manera relativamente sencilla.</p>
 <p>Aplicando éste patrón, seguimos disfrutando de todas las ventajas que proporciona el paquete <code>flag</code>, como la generación automática de mensajes de ayuda:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ go run main.go write --help
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ go run main.go write --help
 </span></span><span style="display:flex;"><span>Usage of write:
 </span></span><span style="display:flex;"><span>  -file string
 </span></span><span style="display:flex;"><span>        Name of the file to write to

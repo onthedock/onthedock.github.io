@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.136.5">
+<meta name="generator" content="Hugo 0.165.0">
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -92,7 +92,7 @@
       <script type="application/json">
         {
           "vars": {
-            "account": "Page(\/post\/211010-crear-usuarios-en-k3s-script)"
+            "account": "\/Users\/xavi\/repos\/personal\/onthedock-hugo\/content\/post\/211010-crear-usuarios-en-k3s-script.md"
           },
           "triggers": {
             "trackPageview": {
@@ -153,7 +153,7 @@
 <blockquote>
 <p>Los certificados de la CA del clúster deben estar ubicados en un lugar seguro con acceso controlado.</p>
 </blockquote>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>copy_ca_certs<span style="color:#719e07">()</span> <span style="color:#719e07">{</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>copy_ca_certs<span style="color:#719e07">()</span> <span style="color:#719e07">{</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#268bd2">msg</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;Copying k3s certs to </span><span style="color:#268bd2">$workdir</span><span style="color:#2aa198">/ca\n&#34;</span>
 </span></span><span style="display:flex;"><span>    cp ./k3s/* <span style="color:#268bd2">$workdir</span>/ca
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">if</span> <span style="color:#719e07">[</span> <span style="color:#268bd2">$?</span> -eq <span style="color:#2aa198">0</span> <span style="color:#719e07">]</span>; <span style="color:#719e07">then</span> log <span style="color:#2aa198">&#34;</span><span style="color:#2aa198">${</span><span style="color:#268bd2">msg</span><span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span>; <span style="color:#719e07">else</span> log <span style="color:#2aa198">&#34;</span><span style="color:#2aa198">${</span><span style="color:#268bd2">msg</span><span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span> FAIL; <span style="color:#b58900">exit</span> 1;  <span style="color:#719e07">fi</span>
@@ -183,8 +183,8 @@
 <p>La última versión del <em>script</em> se puede encontrar en <a href="https://github.com/onthedock/k8s-devops">onthedock/k8s-devops</a>.<br>
 Esta es la versión del 10/10/2021</p>
 </blockquote>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#719e07">#!/usr/bin/env bash
-</span></span></span><span style="display:flex;"><span><span style="color:#719e07"></span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#719e07">#!/usr/bin/env bash
+</span></span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#586e75"># Ref: https://github.com/k3s-io/k3s/issues/684</span>
 </span></span><span style="display:flex;"><span><span style="color:#586e75"># Ref: https://stackoverflow.com/questions/5947742/how-to-change-the-output-color-of-echo-in-linux</span>
 </span></span><span style="display:flex;"><span><span style="color:#586e75"># Ref: https://stackoverflow.com/questions/192249/how-do-i-parse-command-line-arguments-in-bash</span>
@@ -272,22 +272,22 @@ Esta es la versión del 10/10/2021</p>
 </span></span><span style="display:flex;"><span>    openssl req -new -key <span style="color:#268bd2">$workdir</span>/keys/<span style="color:#268bd2">$user</span>.key -out <span style="color:#268bd2">$workdir</span>/keys/<span style="color:#268bd2">$user</span>.csr -subj <span style="color:#2aa198">&#34;/CN=</span><span style="color:#2aa198">${</span><span style="color:#268bd2">user</span><span style="color:#2aa198">}</span><span style="color:#2aa198">/O=</span><span style="color:#2aa198">${</span><span style="color:#268bd2">group</span><span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span>
 </span></span><span style="display:flex;"><span>    log <span style="color:#2aa198">&#34;... signing the CSR\n&#34;</span>
 </span></span><span style="display:flex;"><span>    openssl x509 -req -in <span style="color:#268bd2">$workdir</span>/keys/<span style="color:#268bd2">$user</span>.csr -out <span style="color:#268bd2">$workdir</span>/keys/<span style="color:#268bd2">$user</span>.crt <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>      -CA <span style="color:#268bd2">$workdir</span>/ca/client-ca.crt -CAkey <span style="color:#268bd2">$workdir</span>/ca/client-ca.key <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>      -CAcreateserial -days <span style="color:#268bd2">$days_until_expiration</span>
+</span></span></span><span style="display:flex;"><span>      -CA <span style="color:#268bd2">$workdir</span>/ca/client-ca.crt -CAkey <span style="color:#268bd2">$workdir</span>/ca/client-ca.key <span style="color:#cb4b16">\
+</span></span></span><span style="display:flex;"><span>      -CAcreateserial -days <span style="color:#268bd2">$days_until_expiration</span>
 </span></span><span style="display:flex;"><span><span style="color:#719e07">}</span>
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>generate_kubeconfig<span style="color:#719e07">()</span> <span style="color:#719e07">{</span>
 </span></span><span style="display:flex;"><span>    log <span style="color:#2aa198">&#34;... kubeconfig&#39;s cluster name to </span><span style="color:#268bd2">$cluster_name</span><span style="color:#2aa198"> ...&#34;</span>
 </span></span><span style="display:flex;"><span>    kubectl --kubeconfig<span style="color:#719e07">=</span><span style="color:#268bd2">$workdir</span>/kube/<span style="color:#268bd2">$user</span>-kubeconfig config set-cluster <span style="color:#268bd2">$cluster_name</span> <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>      --server<span style="color:#719e07">=</span><span style="color:#268bd2">$cluster_url</span> --certificate-authority<span style="color:#719e07">=</span><span style="color:#268bd2">$workdir</span>/ca/server-ca.crt <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>      --embed-certs<span style="color:#719e07">=</span><span style="color:#b58900">true</span>
+</span></span></span><span style="display:flex;"><span>      --server<span style="color:#719e07">=</span><span style="color:#268bd2">$cluster_url</span> --certificate-authority<span style="color:#719e07">=</span><span style="color:#268bd2">$workdir</span>/ca/server-ca.crt <span style="color:#cb4b16">\
+</span></span></span><span style="display:flex;"><span>      --embed-certs<span style="color:#719e07">=</span><span style="color:#b58900">true</span>
 </span></span><span style="display:flex;"><span>    log <span style="color:#2aa198">&#34;... kubeconfig&#39;s user to </span><span style="color:#268bd2">$user</span><span style="color:#2aa198"> ...&#34;</span>
 </span></span><span style="display:flex;"><span>    kubectl --kubeconfig<span style="color:#719e07">=</span><span style="color:#268bd2">$workdir</span>/kube/<span style="color:#268bd2">$user</span>-kubeconfig config set-credentials <span style="color:#268bd2">$user</span> <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>      --client-certificate<span style="color:#719e07">=</span><span style="color:#268bd2">$workdir</span>/keys/<span style="color:#268bd2">$user</span>.crt --client-key<span style="color:#719e07">=</span><span style="color:#268bd2">$workdir</span>/keys/<span style="color:#268bd2">$user</span>.key <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>      --embed-certs<span style="color:#719e07">=</span><span style="color:#b58900">true</span>
+</span></span></span><span style="display:flex;"><span>      --client-certificate<span style="color:#719e07">=</span><span style="color:#268bd2">$workdir</span>/keys/<span style="color:#268bd2">$user</span>.crt --client-key<span style="color:#719e07">=</span><span style="color:#268bd2">$workdir</span>/keys/<span style="color:#268bd2">$user</span>.key <span style="color:#cb4b16">\
+</span></span></span><span style="display:flex;"><span>      --embed-certs<span style="color:#719e07">=</span><span style="color:#b58900">true</span>
 </span></span><span style="display:flex;"><span>    log <span style="color:#2aa198">&#34;... context </span><span style="color:#268bd2">$context</span><span style="color:#2aa198"> ...&#34;</span>
 </span></span><span style="display:flex;"><span>    kubectl --kubeconfig<span style="color:#719e07">=</span><span style="color:#268bd2">$workdir</span>/kube/<span style="color:#268bd2">$user</span>-kubeconfig config set-context <span style="color:#268bd2">$context</span> <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>      --namespace<span style="color:#719e07">=</span><span style="color:#268bd2">$cluster_ns</span> --user<span style="color:#719e07">=</span><span style="color:#268bd2">$user</span> --cluster<span style="color:#719e07">=</span><span style="color:#268bd2">$cluster_name</span>
+</span></span></span><span style="display:flex;"><span>      --namespace<span style="color:#719e07">=</span><span style="color:#268bd2">$cluster_ns</span> --user<span style="color:#719e07">=</span><span style="color:#268bd2">$user</span> --cluster<span style="color:#719e07">=</span><span style="color:#268bd2">$cluster_name</span>
 </span></span><span style="display:flex;"><span>    log <span style="color:#2aa198">&#34;... Kubeconfig file created </span><span style="color:#268bd2">$workdir</span><span style="color:#2aa198">/kube/</span><span style="color:#268bd2">$user</span><span style="color:#2aa198">-kubeconfig&#34;</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">if</span> <span style="color:#719e07">[</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$1</span><span style="color:#2aa198">&#34;</span> <span style="color:#719e07">==</span> <span style="color:#2aa198">&#34;use-context&#34;</span> <span style="color:#719e07">]</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">then</span>

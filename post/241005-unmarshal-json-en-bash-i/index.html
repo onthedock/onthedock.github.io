@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.136.5">
+<meta name="generator" content="Hugo 0.165.0">
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -92,7 +92,7 @@
       <script type="application/json">
         {
           "vars": {
-            "account": "Page(\/post\/241005-unmarshal-json-en-bash-i)"
+            "account": "\/Users\/xavi\/repos\/personal\/onthedock-hugo\/content\/post\/241005-unmarshal-json-en-bash-i.md"
           },
           "triggers": {
             "trackPageview": {
@@ -153,19 +153,19 @@ Según Google, sería algo así como &ldquo;<a href="https://www.google.com/sear
 <p>Como es una tarea bastante común, pensé que alguien ya habría desarrollado algo por el estilo&hellip; Como hoy tenía mucho tiempo libre, he realizado una (superficial) búsqueda por internet y no he encontrado nada como lo que necesitaba&hellip;</p>
 <h2 id="idea">Idea</h2>
 <p>Imagina que tienes un fichero JSON como:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
 </span></span><span style="display:flex;"><span>    <span style="color:#268bd2">&#34;customer&#34;</span>: <span style="color:#2aa198">&#34;Dunder Mifflin Scranton&#34;</span>,
 </span></span><span style="display:flex;"><span>    <span style="color:#268bd2">&#34;uuid&#34;</span>: <span style="color:#2aa198">&#34;3f6b0814-e923-415b-9fd8-db9407e69546&#34;</span>,
 </span></span><span style="display:flex;"><span>    <span style="color:#268bd2">&#34;active&#34;</span>: <span style="color:#cb4b16">true</span>
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>Mi idea era usar una una función como <code>unmarshal --path customer.json</code> en el que el script cree una variable para cada una de las <em>keys</em> del documento JSON. Además, debe asignar el valor de la <em>key</em> en el documento a la variable en Bash; es decir:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>#!/usr/bin/env bash
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>#!/usr/bin/env bash
 </span></span><span style="display:flex;"><span># ...
 </span></span><span style="display:flex;"><span>unmarshal --path customer.json
 </span></span><span style="display:flex;"><span># ...
 </span></span><span style="display:flex;"><span>echo &#34;CustomerID for customer $customer&#34; is $uuid&#34;
 </span></span></code></pre></div><p>El resultado debe ser:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ bash demo.sh --path customer.json 
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ bash demo.sh --path customer.json 
 </span></span><span style="display:flex;"><span>CustomerID for customer &#39;Dunder Mifflin Scranton&#39; is &#39;3f6b0814-e923-415b-9fd8-db9407e69546&#39;
 </span></span></code></pre></div><blockquote>
 <p>Por si no te suena <a href="https://theoffice.fandom.com/wiki/Dunder_Mifflin_Scranton">Dunder Mifflin Scranton</a></p>
@@ -174,20 +174,20 @@ Según Google, sería algo así como &ldquo;<a href="https://www.google.com/sear
 <p>Una de las mejores maneras para interaccionar con JSON desde Bash es usando <a href="https://jqlang.github.io/jq/">Jq</a>.</p>
 <p>Para obtener las <em>keys</em> de un documento JSON, usamos <code>jq -r 'keys[]' &quot;$document&quot;</code> (donde <code>$document</code> contiene el valor pasado desde la CLI mediante <code>--path</code>).
 En nuestro caso:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ jq -r <span style="color:#2aa198">&#39;keys[]&#39;</span> customer.json 
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ jq -r <span style="color:#2aa198">&#39;keys[]&#39;</span> customer.json 
 </span></span><span style="display:flex;"><span>active
 </span></span><span style="display:flex;"><span>customer
 </span></span><span style="display:flex;"><span>uuid
 </span></span></code></pre></div><p>Pero lo que quiero es añadir las <em>keys</em> del documento a un <em>array</em> en Bash.
 Esto lo consigo mediante:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>mapfile -t keys &lt; &lt;(jq -r &#39;keys[]&#39; &#34;$document&#34;)
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>mapfile -t keys &lt; &lt;(jq -r &#39;keys[]&#39; &#34;$document&#34;)
 </span></span></code></pre></div><blockquote>
 <p><code>readarray</code> es un sinónimo de <code>mapfile</code>. Uso <code>mapfile</code> porque <code>mapfile --help</code> devuelve más información que <code>readarray --help</code>.</p>
 </blockquote>
 <p>Esto era lo más sencillo; el siguiente paso es más complicado.</p>
 <h3 id="definir-variables-cuyo-nombre-es-el-valor-de-un-variable">Definir variables cuyo nombre es el valor de un variable</h3>
 <p>Definir una variable en Bash y asignarle el valor de una propiedad de un documento JSON, usando Jq, puede conseguirse mediante:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>active=$(jq -r &#39;.active&#39; &#34;$document&#34;)
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>active=$(jq -r &#39;.active&#39; &#34;$document&#34;)
 </span></span><span style="display:flex;"><span>customer=$(jq -r &#39;.customer&#39; &#34;$document&#34;)
 </span></span><span style="display:flex;"><span>uuid=$(jq -r &#39;.uuid&#39; &#34;$document&#34;)
 </span></span></code></pre></div><p>El problema es que, dado que quiero que la función <code>unmarshal</code> funcione con cualquier documento JSON (*), <strong>el script no conoce <em>a priori</em> los nombres de las <em>keys</em> en el documento JSON</strong>.</p>
@@ -195,7 +195,7 @@ Esto lo consigo mediante:</p>
 <p>(*)= Un documento JSON de <strong>tipo object</strong> <code>{...}</code>; otros tipos de documentos <a href="https://www.json.org/">JSON</a> válidos, de tipo &ldquo;string&rdquo;, &ldquo;number&rdquo; o &ldquo;array&rdquo; no están soportados.</p>
 </blockquote>
 <p>Por tanto, lo primero que tengo que hacer es convertir el <em>array</em> de <em>keys</em> devuelto por Jq y convertirlo en un array de Bash; a continuación, puedo recorrer el <em>array</em> en Bash para declarar una variable con el nombre de cada elemento:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>declare -a keys # requires Bash 4+
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>declare -a keys # requires Bash 4+
 </span></span><span style="display:flex;"><span>mapfile -t keys &lt; &lt;(jq -r &#39;keys[]&#39; &#34;$document&#34;)
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>for k in &#34;${keys[@]}&#34;; do
@@ -205,7 +205,7 @@ Esto lo consigo mediante:</p>
 Dentro del bucle, quiero definir una <strong>variable</strong> llamada <code>active</code> en la primera iteración, <code>customer</code> en la segunda, etc&hellip;</p>
 <p>¿Cómo puedo definir una variable cuyo nombre no conozco a priori?</p>
 <p>La solución es definir una variable como <a href="https://www.gnu.org/software/bash/manual/html_node/Bash-Builtins.html#index-declare"><em>referencia</em></a>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>for k in &#34;${keys[@]}&#34;; do
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>for k in &#34;${keys[@]}&#34;; do
 </span></span><span style="display:flex;"><span>    declare -n ref=&#34;$k&#34;
 </span></span><span style="display:flex;"><span>    # ...
 </span></span><span style="display:flex;"><span>done
@@ -213,19 +213,19 @@ Dentro del bucle, quiero definir una <strong>variable</strong> llamada <code>act
 <p>Lo que es importante tener en cuenta es que <strong>no puedo acceder directamente</strong> a esas variables, por ejemplo, para asignarles un valor.</p>
 <p>Es decir, <code>$k=&quot;my_customer&quot;</code> es inválido; sin embargo, mediante <code>ref=&quot;my_customer&quot;</code> asigno <code>&quot;my_customer&quot;</code> a <code>$ref</code>, y como <code>$ref</code> es una <em>referencia</em> a la variable <code>$customer</code> (por ejemplo, en la segunda iteración),<code>ref=&quot;my_customer&quot;</code> es equivalente a <code>customer=&quot;my_customer&quot;</code>, <strong>aunque nunca se haya definido explícitamente <code>customer</code> como variable</strong> (se hace implícitamente al definir una <em>referencia</em> a la variable mediante <code>declare -n</code>).</p>
 <p>Esto resuelve la primera parte del problema, definir una variable para cada <em>key</em> del documento JSON.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>for k in &#34;${keys[@]}&#34;; do
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>for k in &#34;${keys[@]}&#34;; do
 </span></span><span style="display:flex;"><span>    declare -n ref=&#34;$k&#34;
 </span></span><span style="display:flex;"><span>    ref=... # We have a variable per each key of the JSON document
 </span></span><span style="display:flex;"><span>    # ...
 </span></span><span style="display:flex;"><span>done
 </span></span></code></pre></div><p>El siguiente paso es leer la <em>key</em> correspondiente en Jq para asignar su valor a la variable.</p>
 <p>En Jq, obtenemos el valor de la <em>key</em> <code>customer</code> (por ejemplo), mediante:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ jq <span style="color:#2aa198">&#39;.customer&#39;</span> customer.json
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ jq <span style="color:#2aa198">&#39;.customer&#39;</span> customer.json
 </span></span><span style="display:flex;"><span>&#34;Dunder Mifflin Scranton&#34;
 </span></span></code></pre></div><p>Sin embargo, en nuestro caso, el nombre de la propiedad que queremos &ldquo;leer&rdquo; desde el documento mediante Jq lo tenemos almacenado en una variable (<code>$k</code>) y es diferente en cada iteración del bucle.</p>
 <p>Podemos definir variables en Jq y usarlas en nuestros filtros usando <a href="https://jqlang.github.io/jq/manual/#invoking-jq"><code>--arg name value</code></a>.
 Generalmente, queremos usar el valor de <code>value</code> como el <strong>valor</strong> de una <em>key</em> en el documento (por ejemplo, para seleccionar sólo una parte del documento JSON)</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ <span style="color:#268bd2">UUID</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;3f6b0814-e923-415b-9fd8-db9407e69546&#34;</span>; jq --arg uuid <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$UUID</span><span style="color:#2aa198">&#34;</span> <span style="color:#2aa198">&#39;select( .uuid == $uuid )&#39;</span> customer.json
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ <span style="color:#268bd2">UUID</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;3f6b0814-e923-415b-9fd8-db9407e69546&#34;</span>; jq --arg uuid <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$UUID</span><span style="color:#2aa198">&#34;</span> <span style="color:#2aa198">&#39;select( .uuid == $uuid )&#39;</span> customer.json
 </span></span><span style="display:flex;"><span>{
 </span></span><span style="display:flex;"><span>  &#34;customer&#34;: &#34;Dunder Mifflin Scranton&#34;,
 </span></span><span style="display:flex;"><span>  &#34;uuid&#34;: &#34;3f6b0814-e923-415b-9fd8-db9407e69546&#34;,
@@ -237,13 +237,13 @@ Generalmente, queremos usar el valor de <code>value</code> como el <strong>valor
 </span></span><span style="display:flex;"><span>       # &lt;- Found no results
 </span></span></code></pre></div><p>En nuestro caso, queremos usar el valor de la variable como una <em>key</em> (no como un valor) en el documento JSON.
 La solución es usar el &ldquo;value iterator construct&rdquo;, según se indica, por ejemplo, en <a href="https://stackoverflow.com/a/64614295">JSON: using jq with variable keys</a>.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ jq --arg key <span style="color:#2aa198">&#34;customer&#34;</span> <span style="color:#2aa198">&#39;.[$key]&#39;</span> customer.json
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ jq --arg key <span style="color:#2aa198">&#34;customer&#34;</span> <span style="color:#2aa198">&#39;.[$key]&#39;</span> customer.json
 </span></span><span style="display:flex;"><span>&#34;Dunder Mifflin Scranton&#34;
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>$ jq --arg key <span style="color:#2aa198">&#34;active&#34;</span> <span style="color:#2aa198">&#39;.[$key]&#39;</span> customer.json
 </span></span><span style="display:flex;"><span>true
 </span></span></code></pre></div><p>Por tanto, ahora tenemos la pieza final del puzzle:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>for k in &#34;${keys[@]}&#34;; do
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>for k in &#34;${keys[@]}&#34;; do
 </span></span><span style="display:flex;"><span>    declare -n ref=&#34;$k&#34;
 </span></span><span style="display:flex;"><span>    ref=$(jq -r --arg key &#34;$k&#34; &#39;.[$key]&#39; &#34;$document&#34;)
 </span></span><span style="display:flex;"><span>done
@@ -252,7 +252,7 @@ La solución es usar el &ldquo;value iterator construct&rdquo;, según se indica
 <blockquote>
 <p>argparse.sh proviene de <code>https://github.com/yaacov/argparse-sh/</code></p>
 </blockquote>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>#!/usr/bin/env bash
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>#!/usr/bin/env bash
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>source ./argparse.sh
 </span></span><span style="display:flex;"><span>define_arg &#34;doc&#34; &#34;&#34; &#34;Path to document&#34; &#34;string&#34; &#34;true&#34;
@@ -270,17 +270,17 @@ La solución es usar el &ldquo;value iterator construct&rdquo;, según se indica
 </span></span><span style="display:flex;"><span># Use variables
 </span></span><span style="display:flex;"><span>echo &#34;CustomerID for customer &#39;$customer&#39; is &#39;$uuid&#39; (active: $active)&#34;
 </span></span></code></pre></div><p>Y vemos que, efectivamente, funciona como esperamos:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ bash mvp_unmarshal.sh --doc customer.json
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ bash mvp_unmarshal.sh --doc customer.json
 </span></span><span style="display:flex;"><span>CustomerID for customer &#39;Dunder Mifflin Scranton&#39; is &#39;3f6b0814-e923-415b-9fd8-db9407e69546&#39; (active: true)
 </span></span></code></pre></div><h2 id="limitaciones">Limitaciones</h2>
 <p>El MVP es muy básico; no me refiero a que no se comprueba si el fichero proporcionado existe (por ejemplo), sino a la funcionalidad relacionada con el <em>unmarshalling</em> del contenido del documento.</p>
 <p>Por ejemplo, si alguna de las <em>keys</em> del documento contiene un <em>array</em> o un <em>object</em>, el resultado no es el esperado:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
 </span></span><span style="display:flex;"><span>    <span style="color:#268bd2">&#34;characters&#34;</span>: [<span style="color:#2aa198">&#34;jim&#34;</span>, <span style="color:#2aa198">&#34;pam&#34;</span>, <span style="color:#2aa198">&#34;michael&#34;</span>],
 </span></span><span style="display:flex;"><span>    <span style="color:#268bd2">&#34;show&#34;</span>: { <span style="color:#268bd2">&#34;title&#34;</span>: <span style="color:#2aa198">&#34;the office&#34;</span> }
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>Cada &ldquo;bloque de texto&rdquo; se interpreta como un valor (no importa cómo se formatee el fichero JSON):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ bash mvp_unmarshal.sh --doc invalid.json 
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ bash mvp_unmarshal.sh --doc invalid.json 
 </span></span><span style="display:flex;"><span>characters:
 </span></span><span style="display:flex;"><span> - [
 </span></span><span style="display:flex;"><span> - &#34;jim&#34;,

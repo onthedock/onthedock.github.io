@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.136.5">
+<meta name="generator" content="Hugo 0.165.0">
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -92,7 +92,7 @@
       <script type="application/json">
         {
           "vars": {
-            "account": "Page(\/post\/201208-actualizar-el-certificado-de-traefik-en-k3s)"
+            "account": "\/Users\/xavi\/repos\/personal\/onthedock-hugo\/content\/post\/201208-actualizar-el-certificado-de-traefik-en-k3s.md"
           },
           "triggers": {
             "trackPageview": {
@@ -149,9 +149,9 @@
 <p>En las pruebas, estoy usando K3os con K3s versión v1.18.9+k3s1 (630bebf9).</p>
 </blockquote>
 <p>El certificado usado por Traefik se encuentra en el secreto <code>traefik-default-cert</code> del <em>namespace</em> <code>kube-system</code>. Puedes exportarlo mediante:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>kubectl get secret traefik-default-cert -n kube-system -o <span style="color:#268bd2">jsonpath</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#39;{.data.tls\.crt}&#39;</span> | base64 --decode - &gt; traefik-certificate.txt
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>kubectl get secret traefik-default-cert -n kube-system -o <span style="color:#268bd2">jsonpath</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#39;{.data.tls\.crt}&#39;</span> | base64 --decode - &gt; traefik-certificate.txt
 </span></span></code></pre></div><p>El contenido del fichero <code>traefik-certificate.txt</code> será algo como:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>-----BEGIN CERTIFICATE-----
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>-----BEGIN CERTIFICATE-----
 </span></span><span style="display:flex;"><span>MIIEmzCCA4OgAwIBAgIJAJAGQlMmC0kyMA0GCSqGSIb3DQEBBQUAMIGPMQswCQYD
 </span></span><span style="display:flex;"><span>VQQGEwJVUzERMA8GA1UECBMIQ29sb3JhZG8xEDAOBgNVBAcTB0JvdWxkZXIxFDAS
 </span></span><span style="display:flex;"><span>BgNVBAoTC0V4YW1wbGVDb3JwMQswCQYDVQQLEwJJVDEWMBQGA1UEAxQNKi5leGFt
@@ -179,7 +179,7 @@
 </span></span><span style="display:flex;"><span>vIFqaZx84+DlSCc93yfk/GlBt+SKG46zEHMB9hqPbA==
 </span></span><span style="display:flex;"><span>-----END CERTIFICATE-----
 </span></span></code></pre></div><p>Revisa los datos del certificado usando <em>openssl</em>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ openssl x509 -in traefik-certificate.txt -text -noout
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ openssl x509 -in traefik-certificate.txt -text -noout
 </span></span><span style="display:flex;"><span>Certificate:
 </span></span><span style="display:flex;"><span>    Data:
 </span></span><span style="display:flex;"><span>        Version: <span style="color:#2aa198">3</span> <span style="color:#719e07">(</span>0x2<span style="color:#719e07">)</span>
@@ -202,10 +202,10 @@
 <p>En mi caso, para un entorno de Laboratorio privado, voy a usar una entidad certificadora propia.</p>
 <h3 id="crear-la-entidad-certificadora-certificate-authority">Crear la entidad certificadora (<em>Certificate Authority</em>)</h3>
 <p>Generamos la clave privada para la CA:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#586e75"># Generate private key</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#586e75"># Generate private key</span>
 </span></span><span style="display:flex;"><span>openssl genrsa -out ca.key <span style="color:#2aa198">2048</span>
 </span></span></code></pre></div><p>Usando la clave privada recién creada, generamos el certificado raíz de la CA; en esta caso, le damos una validez de 10 años:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#586e75"># Generate root certificate</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#586e75"># Generate root certificate</span>
 </span></span><span style="display:flex;"><span>openssl req -x509 -new -nodes -subj <span style="color:#2aa198">&#34;/C=ES/O=Internal Development CA/CN=Development certificates&#34;</span> -key ca.key -sha256 -days <span style="color:#2aa198">3650</span> -out ca.crt
 </span></span></code></pre></div><h3 id="configurar-los-navegadores">Configurar los navegadores</h3>
 <p>Los navegadores traen <em>de fábrica</em> los certificados raíz de las entidades certificadores comerciales o de confianza. De esta forma pueden validar los certificados de sitios web firmados por estas CAs.</p>
@@ -227,13 +227,13 @@
 <p>Ben Morel proporciona un <a href="https://raw.githubusercontent.com/BenMorel/dev-certificates/main/create-certificate.sh">script</a> para generar el certificado de forma automática.</p>
 <p>Para generar el certificado <em>wildcard</em> autofirmado para tu dominio <code>dev.lab</code>, usa <code>DOMAIN=dev.lab</code>.</p>
 <p>Genera la clave privada:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#586e75"># Generate a private key</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#586e75"># Generate a private key</span>
 </span></span><span style="display:flex;"><span>openssl genrsa -out <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$DOMAIN</span><span style="color:#2aa198">.key&#34;</span> <span style="color:#2aa198">2048</span>
 </span></span></code></pre></div><p>Genera la petición de firma del certificado (<em>certificate signing request, CSR</em>)</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#586e75"># Create a certificate signing request</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#586e75"># Create a certificate signing request</span>
 </span></span><span style="display:flex;"><span>openssl req -new -subj <span style="color:#2aa198">&#34;/C=ES/O=Local Development/CN=</span><span style="color:#268bd2">$DOMAIN</span><span style="color:#2aa198">&#34;</span> -key <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$DOMAIN</span><span style="color:#2aa198">.key&#34;</span> -out <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$DOMAIN</span><span style="color:#2aa198">.csr&#34;</span>
 </span></span></code></pre></div><p>El <em>script</em> también genera un fichero de extensiones:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#586e75"># Create a config file for the extensions</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#586e75"># Create a config file for the extensions</span>
 </span></span><span style="display:flex;"><span>&gt;<span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$DOMAIN</span><span style="color:#2aa198">.ext&#34;</span> cat <span style="color:#2aa198">&lt;&lt;-EOF
 </span></span></span><span style="display:flex;"><span><span style="color:#2aa198">authorityKeyIdentifier=keyid,issuer
 </span></span></span><span style="display:flex;"><span><span style="color:#2aa198">basicConstraints=CA:FALSE
@@ -247,16 +247,16 @@
 <blockquote>
 <p>El <em>script</em> asume que todos los fichero se encuentran en la misma carpeta.</p>
 </blockquote>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#586e75"># Create the signed certificate</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#586e75"># Create the signed certificate</span>
 </span></span><span style="display:flex;"><span>openssl x509 -req <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>    -in <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$DOMAIN</span><span style="color:#2aa198">.csr&#34;</span> <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>    -extfile <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$DOMAIN</span><span style="color:#2aa198">.ext&#34;</span> <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>    -CA ca.crt <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>    -CAkey ca.key <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>    -CAcreateserial <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>    -out <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$DOMAIN</span><span style="color:#2aa198">.crt&#34;</span> <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>    -days <span style="color:#2aa198">3650</span> <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>    -sha256
+</span></span></span><span style="display:flex;"><span>    -in <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$DOMAIN</span><span style="color:#2aa198">.csr&#34;</span> <span style="color:#cb4b16">\
+</span></span></span><span style="display:flex;"><span>    -extfile <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$DOMAIN</span><span style="color:#2aa198">.ext&#34;</span> <span style="color:#cb4b16">\
+</span></span></span><span style="display:flex;"><span>    -CA ca.crt <span style="color:#cb4b16">\
+</span></span></span><span style="display:flex;"><span>    -CAkey ca.key <span style="color:#cb4b16">\
+</span></span></span><span style="display:flex;"><span>    -CAcreateserial <span style="color:#cb4b16">\
+</span></span></span><span style="display:flex;"><span>    -out <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$DOMAIN</span><span style="color:#2aa198">.crt&#34;</span> <span style="color:#cb4b16">\
+</span></span></span><span style="display:flex;"><span>    -days <span style="color:#2aa198">3650</span> <span style="color:#cb4b16">\
+</span></span></span><span style="display:flex;"><span>    -sha256
 </span></span></code></pre></div><h2 id="configurar-la-aplicación-con-los-certificados-generados">Configurar la aplicación con los certificados generados</h2>
 <p>Este proceso es específico para cada aplicación; en el caso de Trafik en Kubernetes,los certificados <code>dev.lab.crt</code> y <code>dev.lab.key</code> pueden proporcionarse a través de un <em>secret</em> en el <em>namespace</em>  <code>kube-system</code>.</p>
 <p>Recuerda que los <em>secrets</em> en Kubernetes deben codificarse en <strong>base64</strong>. Puedes codificar en base64 un fichero mediante <code>base64 ${nombre-fichero}</code>, p.ej <code>base64 somefile.txt &gt; base64-somefile.txt</code>. Para descodificar el fichero, <code>base64 -d ${nombre-fichero}</code>.</p>
@@ -265,21 +265,21 @@
 </blockquote>
 <h3 id="agregar-los-certificados-al-secret">Agregar los certificados al <em>secret</em></h3>
 <p>Para configurar los certificados generados en Traefik, primero exporta el secret desde Kubernetes:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>kubectl get secret -n kube-system traefik-default-cert -o yaml &gt; secret-traefik-default-cert.yaml
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>kubectl get secret -n kube-system traefik-default-cert -o yaml &gt; secret-traefik-default-cert.yaml
 </span></span><span style="display:flex;"><span>cp secret-traefik-default-cert.yaml secret-traefik-custom-cert.yaml
 </span></span></code></pre></div><p>Modifica los valores de los campos <code>tls.cert</code> y <code>tls.key</code> con el certificado <strong>en base64</strong> generado en el paso anterior.</p>
 <blockquote>
 <p>El valor en base64 debes copiarlo en una sola línea:</p>
 </blockquote>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#268bd2">apiVersion</span>: v1
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#268bd2">apiVersion</span>: v1
 </span></span><span style="display:flex;"><span><span style="color:#268bd2">data</span>:
 </span></span><span style="display:flex;"><span>    <span style="color:#268bd2">tls.cert</span>: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS...
 </span></span><span style="display:flex;"><span>    <span style="color:#268bd2">tls.key</span>: LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRV...
 </span></span><span style="display:flex;"><span>...
 </span></span></code></pre></div><p>Una vez modificado el <em>secret</em>, actualízalo en Kubernetes mediante:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>kubectl -n kube-system apply -f secret-traefik-custom-cert.yaml
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>kubectl -n kube-system apply -f secret-traefik-custom-cert.yaml
 </span></span></code></pre></div><p>Una vez actualizado, haz un rollout de Traefik (requiere Kubernetes 1.15+):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ kubectl -n kube-system rollout restart deployment traefik
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ kubectl -n kube-system rollout restart deployment traefik
 </span></span><span style="display:flex;"><span>deployment.apps/traefik restarted
 </span></span></code></pre></div><p>Así podemos publicar vía HTTPS una aplicación por subdominio (<code>git.dev.lab</code>, <code>cd.dev.lab</code>, etc&hellip;) usando un único certificado <em>wildcard</em>.</p></div>
 

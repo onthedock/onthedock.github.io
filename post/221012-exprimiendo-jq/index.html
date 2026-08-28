@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.136.5">
+<meta name="generator" content="Hugo 0.165.0">
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -92,7 +92,7 @@
       <script type="application/json">
         {
           "vars": {
-            "account": "Page(\/post\/221012-exprimiendo-jq)"
+            "account": "\/Users\/xavi\/repos\/personal\/onthedock-hugo\/content\/post\/221012-exprimiendo-jq.md"
           },
           "triggers": {
             "trackPageview": {
@@ -153,7 +153,7 @@
 <p>Finalmente, tenemos un objeto llamado <em>binding</em> que relaciona el <em>quién</em> con las acciones a realizar.</p>
 <p>En la página con la documentación para las <em>policies</em> <a href="https://cloud.google.com/iam/docs/reference/rest/v1/Policy">Policy</a> se indica cómo se implementan los conceptos de los párrafos anteriores.</p>
 <p>Una <em>IAM Policy</em> en GCP tiene el siguiente aspecto:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
 </span></span><span style="display:flex;"><span>  <span style="color:#268bd2">&#34;bindings&#34;</span>: [
 </span></span><span style="display:flex;"><span>    {
 </span></span><span style="display:flex;"><span>      <span style="color:#268bd2">&#34;role&#34;</span>: <span style="color:#2aa198">&#34;roles/resourcemanager.organizationAdmin&#34;</span>,
@@ -187,7 +187,7 @@ Es decir, el <em>quién</em> y <em>qué puede hacer</em> (los roles no son más 
 <h2 id="jq"><em>jq</em></h2>
 <p><em>jq</em> es <em>extremadamente</em> potente. <em>jq</em> suele usarse para seleccionar uno o más elementos de un documento JSON, obtenido desde la respuesta de una API.</p>
 <p>Por ejemplo, para obtener el valor de la <em>key</em> <code>etag</code> de un documento IAM Policy de Google, usaríamos (usando la <em>policy</em> de muestra en la documentación de Google guardada en el fichero <code>policy.json</code> como <em>input</em>)</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#586e75"># https://jqplay.org/s/AuN-CNAUfWD</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#586e75"># https://jqplay.org/s/AuN-CNAUfWD</span>
 </span></span><span style="display:flex;"><span>$ jq <span style="color:#2aa198">&#39;.etag&#39;</span> policy.json
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#2aa198">&#34;BwWWja0YfJA=&#34;</span>
@@ -202,7 +202,7 @@ Desgraciadamente (para mí), no he sido capaz de encontrar un tutorial que me ay
 <p>En la <em>policy</em> de ejemplo de Google, esta suposición se cumple.</p>
 <p>Como vemos, en el ejemplo, el <em>array</em> <code>bindings</code> tienen múltiples elementos; en general no sabemos cuántos ni en qué orden aparecen.</p>
 <p>Si supiéramos que el rol que nos interesa es el primero del <em>array</em> <code>bindings</code>, haríamos referencia a él directamente (y nuestra vida sería mucho más feliz):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>$ jq &#39;.bindings[<span style="color:#2aa198">0</span>]&#39; iam_policy.json
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>$ jq &#39;.bindings[<span style="color:#2aa198">0</span>]&#39; iam_policy.json
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>{
 </span></span><span style="display:flex;"><span>  <span style="color:#268bd2">&#34;role&#34;</span>: <span style="color:#2aa198">&#34;roles/resourcemanager.organizationAdmin&#34;</span>,
@@ -220,7 +220,7 @@ Desgraciadamente (para mí), no he sido capaz de encontrar un tutorial que me ay
 <p>Por tanto, lo que tenemos que hacer es iterar sobre las clave <code>role</code> de los elementos del <em>array</em> <code>bindings</code> y encontrar el que coincide con el que nos interesa.</p>
 <p>El filtro <code>.bindings</code> devuelve el <em>array</em> completo; usando el <em>iterador</em> <code>[]</code> obtenemos cada uno de los elementos del <em>array</em>.</p>
 <p>Encuentra las diferencias entre <code>.bindings</code>&hellip;</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>$ jq &#39;.bindings&#39; iam_policy.json 
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>$ jq &#39;.bindings&#39; iam_policy.json 
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>[
 </span></span><span style="display:flex;"><span>  {
@@ -245,7 +245,7 @@ Desgraciadamente (para mí), no he sido capaz de encontrar un tutorial que me ay
 </span></span><span style="display:flex;"><span>  }
 </span></span><span style="display:flex;"><span>]
 </span></span></code></pre></div><p>Y <code>.bindings[]</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>$ jq &#39;.bindings[]&#39; iam_policy.json
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>$ jq &#39;.bindings[]&#39; iam_policy.json
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>{
 </span></span><span style="display:flex;"><span>  <span style="color:#268bd2">&#34;role&#34;</span>: <span style="color:#2aa198">&#34;roles/resourcemanager.organizationAdmin&#34;</span>,
@@ -272,11 +272,11 @@ Desgraciadamente (para mí), no he sido capaz de encontrar un tutorial que me ay
 <p>Esta diferencia es significativa para el siguiente paso: seleccionar la clave <code>role</code> de cada elemento del <em>array</em> <code>bindings</code>.</p>
 <h3 id="despotricando-aka-rant-en-inglés">Despotricando (aka, <code>rant</code> en inglés)</h3>
 <p>Si intentas <code>.bindings.role</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ jq <span style="color:#2aa198">&#39;.bindings.role &#39;</span> iam_policy.json
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ jq <span style="color:#2aa198">&#39;.bindings.role &#39;</span> iam_policy.json
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>jq: error <span style="color:#719e07">(</span>at iam_policy.json:25<span style="color:#719e07">)</span>: Cannot index array with string <span style="color:#2aa198">&#34;role&#34;</span>
 </span></span></code></pre></div><p><em>jq</em> se queja con uno de sus típicos errores que no tienen sentido para mí; parece como si el error estuviera en usar <code>role</code> (que es un <em>string</em>) como índice del <em>array</em> <code>bindings</code>. Por tanto, usando un valor numérico (en vez de un <em>string</em>, que es de lo que se queja) debería funcionar&hellip;</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ jq <span style="color:#2aa198">&#39;.bindings.0&#39;</span> iam_policy.json
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ jq <span style="color:#2aa198">&#39;.bindings.0&#39;</span> iam_policy.json
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>jq: error: syntax error, unexpected LITERAL, expecting <span style="color:#268bd2">$end</span> <span style="color:#719e07">(</span>Unix shell quoting issues?<span style="color:#719e07">)</span> at &lt;top-level&gt;, line 1:
 </span></span><span style="display:flex;"><span>.bindings.0
@@ -285,7 +285,7 @@ Desgraciadamente (para mí), no he sido capaz de encontrar un tutorial que me ay
 <p>Ya he comentado antes que la forma de especificar un elemento de un <em>array</em> es usando <code>.bindings[0]</code>, pero quería ejemplificar lo <strong>abolutamente crípticos y sinsentido</strong> (IMHO) de los mensajes de error de <em>jq</em>.</p>
 <h2 id="back-to-work"><em>Back to work</em></h2>
 <p>Una vez aprendido (a las duras) cómo usar el operador <em>iterador</em> <code>[]</code>, para seleccionar los elementos con clave <code>role</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>$ jq &#39;.bindings[].role&#39; iam_policy.json
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>$ jq &#39;.bindings[].role&#39; iam_policy.json
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#2aa198">&#34;roles/resourcemanager.organizationAdmin&#34;</span>
 </span></span><span style="display:flex;"><span><span style="color:#2aa198">&#34;roles/resourcemanager.organizationViewer&#34;</span>
@@ -296,7 +296,7 @@ Desgraciadamente (para mí), no he sido capaz de encontrar un tutorial que me ay
 <p>Mediante <code>.bindings[]</code> obtenemos cada uno de los elementos del <em>array</em>. Sobre <strong>el resultado de este filtro</strong>, queremos seleccionar el elemento que se ajusta a nuestro criterio.</p>
 <p>Para <em>encadenar</em> filtros en <em>jq</em>, se usa el operador <code>|</code> (<em>pipe</em>).</p>
 <p>Con el primer filtro (<code>.bindings[]</code>) obtenemos dos resultados con la estructura:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
 </span></span><span style="display:flex;"><span>  <span style="color:#268bd2">&#34;role&#34;</span>: <span style="color:#2aa198">&#34;...&#34;</span>,
 </span></span><span style="display:flex;"><span>  <span style="color:#268bd2">&#34;members&#34;</span>: [...]
 </span></span><span style="display:flex;"><span>}
@@ -306,7 +306,7 @@ Mediante la función <code>select()</code> seleccionamos el elemento del <em>inp
 <blockquote>
 <p>Muestro el filtro en varias líneas porque así resulta más fácil de &ldquo;leer&rdquo;</p>
 </blockquote>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>$ jq &#39;.bindings[]
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>$ jq &#39;.bindings[]
 </span></span><span style="display:flex;"><span>     | select( .role == <span style="color:#2aa198">&#34;roles/resourcemanager.organizationAdmin&#34;</span>)&#39; iam_policy.json
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>{
@@ -320,7 +320,7 @@ Mediante la función <code>select()</code> seleccionamos el elemento del <em>inp
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>El siguiente paso es añadir un nuevo miembro al <em>array</em> <code>members</code>.</p>
 <p>Añadimos un nuevo filtro y obtenemos el <em>array</em> con los miembros que pertencen al rol especificado:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>$ jq &#39;.bindings[]
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>$ jq &#39;.bindings[]
 </span></span><span style="display:flex;"><span>     | select( .role == <span style="color:#2aa198">&#34;roles/resourcemanager.organizationAdmin&#34;</span>)
 </span></span><span style="display:flex;"><span>     | .members&#39; iam_policy.json
 </span></span><span style="display:flex;"><span>
@@ -331,7 +331,7 @@ Mediante la función <code>select()</code> seleccionamos el elemento del <em>inp
 </span></span><span style="display:flex;"><span>  <span style="color:#2aa198">&#34;serviceAccount:my-project-id@appspot.gserviceaccount.com&#34;</span>
 </span></span><span style="display:flex;"><span>]
 </span></span></code></pre></div><p>Finalmente, añadimos el nuevo miembro; para poder <em>sumar</em> dos elementos, deben ser del mismo tipo; como <code>members</code> es un <em>array</em>, el nuevo elemento debe ser también un <em>array</em>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>$ jq &#39;.bindings[]
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>$ jq &#39;.bindings[]
 </span></span><span style="display:flex;"><span>     | select( .role == <span style="color:#2aa198">&#34;roles/resourcemanager.organizationAdmin&#34;</span>)
 </span></span><span style="display:flex;"><span>     | .members + [ <span style="color:#2aa198">&#34;user:xavi.aznar@onthedock.github.io&#34;</span> ]&#39; iam_policy.json
 </span></span><span style="display:flex;"><span>
@@ -348,7 +348,7 @@ Es un gran paso en la dirección en la que queremos avanzar, pero el objetivo es
 <p>Construimos un nuevo <em>binding</em> añadiendo campos a lo que tenemos.</p>
 <p>El <em>binding</em> es un objeto que tiene dos claves, <code>role</code> y <code>members</code>; el rol lo conocemos (es en el que hemos añadido un nuevo miembro) y <code>members</code> es el array que acabamos de construir.
 Construimos el objeto en <em>jq</em> y añadimos el <em>array</em> <code>members</code> recién creado como valor de la clave <code>&quot;members&quot;:</code></p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>$ jq &#39;.bindings[]
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>$ jq &#39;.bindings[]
 </span></span><span style="display:flex;"><span>     | select( .role == <span style="color:#2aa198">&#34;roles/resourcemanager.organizationAdmin&#34;</span>)
 </span></span><span style="display:flex;"><span>     | .members + [ <span style="color:#2aa198">&#34;user:xavi.aznar@onthedock.github.io&#34;</span> ]
 </span></span><span style="display:flex;"><span>     | { <span style="color:#268bd2">&#34;role&#34;</span>: <span style="color:#2aa198">&#34;roles/resourcemanager.organizationAdmin&#34;</span> , <span style="color:#268bd2">&#34;members&#34;</span>: . }&#39; iam_policy.json
@@ -368,7 +368,7 @@ Construimos el objeto en <em>jq</em> y añadimos el <em>array</em> <code>members
 </blockquote>
 <p>Repetimos el proceso para insertar el objeto <em>binding</em> en el <em>array</em> <code>bindings</code>&hellip; Solo que no podemos, porque no tenemos el resto del documento original: lo hemos ido filtrando a través de <em>jq</em> 😟.</p>
 <p>Nos gustaría poder añadir el nuevo <em>binding</em> que hemos creado al <em>array</em> <code>bindings</code> como hemos hecho con el nuevo miembro en <code>members</code>, pero no funciona:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>$ jq &#39;.bindings[]
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>$ jq &#39;.bindings[]
 </span></span><span style="display:flex;"><span>     | select( .role == <span style="color:#2aa198">&#34;roles/resourcemanager.organizationAdmin&#34;</span>)
 </span></span><span style="display:flex;"><span>     | .members + [ <span style="color:#2aa198">&#34;user:xavi.aznar@onthedock.github.io&#34;</span> ]
 </span></span><span style="display:flex;"><span>     | { <span style="color:#268bd2">&#34;role&#34;</span>: <span style="color:#2aa198">&#34;roles/resourcemanager.organizationAdmin&#34;</span> , <span style="color:#268bd2">&#34;members&#34;</span>: . }
@@ -380,7 +380,7 @@ Construimos el objeto en <em>jq</em> y añadimos el <em>array</em> <code>members
 Para guardar el resultado de un filtro en una variable, usamos la sintaxis <code>as $&lt;nombre_variable&gt;</code>.</p>
 <p>El plan consiste en guardar el resultado en una variable y añadirlo al <em>array</em> de <code>bindings</code>.</p>
 <p>Si lo intentamos directamente:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>$ jq &#39;.bindings[]
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>$ jq &#39;.bindings[]
 </span></span><span style="display:flex;"><span>     | select( .role == <span style="color:#2aa198">&#34;roles/resourcemanager.organizationAdmin&#34;</span>)
 </span></span><span style="display:flex;"><span>     | .members + [ <span style="color:#2aa198">&#34;user:xavi.aznar@onthedock.github.io&#34;</span> ]
 </span></span><span style="display:flex;"><span>     | { <span style="color:#268bd2">&#34;role&#34;</span>: <span style="color:#2aa198">&#34;roles/resourcemanager.organizationAdmin&#34;</span> , <span style="color:#268bd2">&#34;members&#34;</span>: . } as $newbinding
@@ -390,7 +390,7 @@ Para guardar el resultado de un filtro en una variable, usamos la sintaxis <code
 </span></span></code></pre></div><p>¿Qué ocurre 🤔?</p>
 <p>Mi primera teoría ha sido que hemos construido un <strong>objeto</strong> (<code>{...}</code>), pero <code>bindings</code> es un <em>array</em>, y sólo podemos añadir <em>arrays con arrays</em>.</p>
 <p>He modificado el paso previo para construir un <em>array</em> de un solo elemento. Añadimos <code>[ ... ]</code> alrededor del objeto <em>binding</em>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>$ jq &#39;.bindings[]
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>$ jq &#39;.bindings[]
 </span></span><span style="display:flex;"><span>     | select( .role == <span style="color:#2aa198">&#34;roles/resourcemanager.organizationAdmin&#34;</span>)
 </span></span><span style="display:flex;"><span>     | .members + [ <span style="color:#2aa198">&#34;user:xavi.aznar@onthedock.github.io&#34;</span> ]
 </span></span><span style="display:flex;"><span>     | [{ <span style="color:#268bd2">&#34;role&#34;</span>: <span style="color:#2aa198">&#34;roles/resourcemanager.organizationAdmin&#34;</span> , <span style="color:#268bd2">&#34;members&#34;</span>: . }] as $newbinding
@@ -400,7 +400,7 @@ Para guardar el resultado de un filtro en una variable, usamos la sintaxis <code
 </span></span></code></pre></div><h2 id="agrupando-filtros">Agrupando filtros</h2>
 <p>La raíz del problema, si lo he entendido correctamente, es que las variables están limitadas al <em>scope</em> en el que se encuentran definidas. Aunque lo que yo esperaría es que el <em>array</em> de un solo elemento para el <em>binding</em> generado se almacene en la variable <code>$newbinding</code>, <em>jq</em> no lo interpreta del mismo modo (aunque no tengo claro porqué).</p>
 <p>Para generar el <em>binding</em> tengo que agrupar todos los filtros que generan el <em>binding</em>, usando paréntesis <code>(...)</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>$ jq &#39;(
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>$ jq &#39;(
 </span></span><span style="display:flex;"><span>        .bindings[]
 </span></span><span style="display:flex;"><span>        | select( .role == <span style="color:#2aa198">&#34;roles/resourcemanager.organizationAdmin&#34;</span>)
 </span></span><span style="display:flex;"><span>        | .members + [ <span style="color:#2aa198">&#34;user:xavi.aznar@onthedock.github.io&#34;</span> ]
@@ -444,7 +444,7 @@ Para guardar el resultado de un filtro en una variable, usamos la sintaxis <code
 <p>Al guardar el contenido de uno o más filtros sobre el <em>input</em> en una variable, la <em>pipeline</em> de procesado empieza de nuevo con el <em>input</em> <strong>original</strong>.</p>
 </blockquote>
 <p>No es exactamente lo que necesito&hellip; Pero puedo <em>maquillarlo</em> un poco para conseguir que el resultado se ajuste al esquema:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>$ jq &#39;(
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>$ jq &#39;(
 </span></span><span style="display:flex;"><span>        .bindings[]
 </span></span><span style="display:flex;"><span>        | select( .role == <span style="color:#2aa198">&#34;roles/resourcemanager.organizationAdmin&#34;</span>)
 </span></span><span style="display:flex;"><span>        | .members + [ <span style="color:#2aa198">&#34;user:xavi.aznar@onthedock.github.io&#34;</span> ]
@@ -498,7 +498,7 @@ El problema es que nuestros elementos no son duplicados: el contenido del <em>ar
 <p>Para simplificar, nos centramos en el proceso de borrado (sin el resto de filtros)</p>
 </blockquote>
 <p>Al principio hemos visto cómo usar <code>select()</code> para seleccionar sólo el elemento que nos interesa del documento:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>$ jq &#39;.bindings[]
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>$ jq &#39;.bindings[]
 </span></span><span style="display:flex;"><span>     | select( .role == <span style="color:#2aa198">&#34;roles/resourcemanager.organizationAdmin&#34;</span>)&#39; iam_policy.json
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>{
@@ -512,7 +512,7 @@ El problema es que nuestros elementos no son duplicados: el contenido del <em>ar
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>Este elemento es precisamente el que tenemos que borrar para evitar &ldquo;duplicarlo&rdquo; al añadir el objeto actualizado (con la misma clave).</p>
 <p>Para borrarlo, usamos la función <code>del()</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>$ jq &#39;del(  .bindings[]
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>$ jq &#39;del(  .bindings[]
 </span></span><span style="display:flex;"><span>            | select( .role == <span style="color:#2aa198">&#34;roles/resourcemanager.organizationAdmin&#34;</span>)
 </span></span><span style="display:flex;"><span>         )&#39; iam_policy.json
 </span></span><span style="display:flex;"><span>
@@ -534,7 +534,7 @@ El problema es que nuestros elementos no son duplicados: el contenido del <em>ar
 </span></span><span style="display:flex;"><span>  <span style="color:#268bd2">&#34;version&#34;</span>: <span style="color:#2aa198">3</span>
 </span></span></code></pre></div><p><em>jq</em> devuelve el documento proporcionado como <em>input</em> sin la clave que hemos eliminado 👍.</p>
 <h2 id="insertar-el-borrado-en-la-pipeline-de-jq">Insertar el borrado en la <em>pipeline</em> de <em>jq</em></h2>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>$ jq &#39;(
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>$ jq &#39;(
 </span></span><span style="display:flex;"><span>        .bindings[]
 </span></span><span style="display:flex;"><span>        | select( .role == <span style="color:#2aa198">&#34;roles/resourcemanager.organizationAdmin&#34;</span>)
 </span></span><span style="display:flex;"><span>        | .members + [ <span style="color:#2aa198">&#34;user:xavi.aznar@onthedock.github.io&#34;</span> ]
@@ -582,10 +582,10 @@ El problema es que nuestros elementos no son duplicados: el contenido del <em>ar
 <blockquote>
 <p>Para simplificar, uso el mismo nombre para la variable de <em>jq</em> que para la variable en <em>Bash</em>.</p>
 </blockquote>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#268bd2">role</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;roles/resourcemanager.organizationAdmin&#34;</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#268bd2">role</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;roles/resourcemanager.organizationAdmin&#34;</span>
 </span></span><span style="display:flex;"><span><span style="color:#268bd2">principal</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;user:xavi.aznar@onthedock.github.io&#34;</span>
 </span></span><span style="display:flex;"><span>jq --arg role <span style="color:#268bd2">$role</span> --arg principal <span style="color:#268bd2">$principal</span> <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>   <span style="color:#2aa198">&#39;(
+</span></span></span><span style="display:flex;"><span>   <span style="color:#2aa198">&#39;(
 </span></span></span><span style="display:flex;"><span><span style="color:#2aa198">      .bindings[]
 </span></span></span><span style="display:flex;"><span><span style="color:#2aa198">      | select( .role == $role )
 </span></span></span><span style="display:flex;"><span><span style="color:#2aa198">      | .members + [ $principal ]

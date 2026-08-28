@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.136.5">
+<meta name="generator" content="Hugo 0.165.0">
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -92,7 +92,7 @@
       <script type="application/json">
         {
           "vars": {
-            "account": "Page(\/post\/181216-automatizando-la-configuracion-previa-de-una-vm-para-ansible)"
+            "account": "\/Users\/xavi\/repos\/personal\/onthedock-hugo\/content\/post\/181216-automatizando-la-configuracion-previa-de-una-vm-para-ansible.md"
           },
           "triggers": {
             "trackPageview": {
@@ -159,7 +159,7 @@ Al tratarse de una máquina Vagrant, el usuario <code>vagrant</code> tiene contr
 </blockquote>
 <h2 id="instalando-python">Instalando Python</h2>
 <p>El script empieza instalando Python 3 y actualizando la ubicación del intérprete de Python en la máquina gestionada.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#586e75"># Always install Python 3</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#586e75"># Always install Python 3</span>
 </span></span><span style="display:flex;"><span>sudo apt install python3 -y
 </span></span><span style="display:flex;"><span><span style="color:#586e75"># Update Python location</span>
 </span></span><span style="display:flex;"><span>sudo ln -sf /usr/bin/python3 /usr/bin/python
@@ -169,11 +169,11 @@ Al tratarse de una máquina Vagrant, el usuario <code>vagrant</code> tiene contr
 </blockquote>
 <h2 id="usuario-para-ansible">Usuario para Ansible</h2>
 <p>Para simplificar el mantenimiento de los sistemas las tareas de gestión realizadas desde la máquina de control de Ansible, usaremos un usuario dedicado; en mi caso le he llamado <code>ansible</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#586e75"># Create ansible user</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#586e75"># Create ansible user</span>
 </span></span><span style="display:flex;"><span><span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;Adding user </span><span style="color:#268bd2">$ANSIBLE_USER</span><span style="color:#2aa198"> ...&#34;</span>
 </span></span><span style="display:flex;"><span>sudo useradd <span style="color:#268bd2">$ANSIBLE_USER</span>
 </span></span></code></pre></div><p>Ansible se conectará usando este usuario a los diferentes sistemas usando claves SSH. Para poder conectar sin problemas, añadimos la clave pública al fichero <code>authorized_keys</code> en la carpeta <code>.ssh</code> del usuario <code>$ANSIBLE_USER</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#586e75"># Create .ssh folder</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#586e75"># Create .ssh folder</span>
 </span></span><span style="display:flex;"><span><span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;Configuring user </span><span style="color:#268bd2">$ANSIBLE_USER</span><span style="color:#2aa198"> authorized_keys&#34;</span>
 </span></span><span style="display:flex;"><span>sudo mkdir -p /home/<span style="color:#268bd2">$ANSIBLE_USER</span>/.ssh
 </span></span><span style="display:flex;"><span><span style="color:#586e75"># Copy PUBKEY to authorized_keys for $ANSIBLE_USER</span>
@@ -188,7 +188,7 @@ Al tratarse de una máquina Vagrant, el usuario <code>vagrant</code> tiene contr
 <p>El <code>#</code> <strong>no es un comentario</strong> y <strong>no debe eliminarse</strong>.</p>
 </blockquote>
 <p>Creamos un fichero llamado <code>user-ansible</code> en <code>/etc/sudoers.d/</code> y añadimos la directiva de manera que el usuario pueda ejecutar cualquier comando sin necesidad de proporcionar la contraseña:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#586e75"># Passwordless sudo</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#586e75"># Passwordless sudo</span>
 </span></span><span style="display:flex;"><span><span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;Configuring passwordless sudo...&#34;</span>
 </span></span><span style="display:flex;"><span><span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$ANSIBLE_USER</span><span style="color:#2aa198"> ALL=NOPASSWD: ALL&#34;</span> &gt;&gt; user-<span style="color:#268bd2">$ANSIBLE_USER</span>
 </span></span><span style="display:flex;"><span><span style="color:#586e75"># Fix permissions</span>
@@ -199,7 +199,7 @@ Al tratarse de una máquina Vagrant, el usuario <code>vagrant</code> tiene contr
 <h2 id="comprobación-en-una-nueva-máquina-vagrant">Comprobación en una nueva máquina Vagrant</h2>
 <p>Creamos una nueva máquina virtual (<code>vagrant destroy -f</code>, <code>vagrant up</code>) y accedemos a ella (por ejemplo, mediante <code>vagrant ssh</code>).</p>
 <p>Descargamos el fichero, lo convertimos en ejecutable y lo lanzamos:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>vagrant@scratch:~$ wget http://gitea.local:3000/xavi/vmconfig4ansible/raw/branch/master/vmconfig4ansible.sh
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>vagrant@scratch:~$ wget http://gitea.local:3000/xavi/vmconfig4ansible/raw/branch/master/vmconfig4ansible.sh
 </span></span><span style="display:flex;"><span>--2018-12-16 04:52:03--  http://gitea.local:3000/xavi/vmconfig4ansible/raw/branch/master/vmconfig4ansible.sh
 </span></span><span style="display:flex;"><span>Connecting to gitea.local:3000... connected.
 </span></span><span style="display:flex;"><span>HTTP request sent, awaiting response... <span style="color:#2aa198">200</span> OK
@@ -224,11 +224,11 @@ Al tratarse de una máquina Vagrant, el usuario <code>vagrant</code> tiene contr
 </span></span></code></pre></div><p>Tras haber realizado la configuración previa, verificamos que desde Ansible podamos lanzar un <em>playbook</em>.</p>
 <h2 id="comprobación-desde-ansible">Comprobación desde Ansible</h2>
 <p>Conectado en la máquina de control con Ansible, creamos un fichero de inventario temporal para realizar la validación de la configuración realizada por el <em>script</em> en la máquina gestionada. En el fichero de inventario, añadimos el nombre e IP de la máquina Vagrant de test:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>:~$ nano temp-vagrant
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>:~$ nano temp-vagrant
 </span></span><span style="display:flex;"><span><span style="color:#719e07">[</span>vagrant<span style="color:#719e07">]</span>
 </span></span><span style="display:flex;"><span>192.168.1.221
 </span></span></code></pre></div><p>A continuación, lanzamos un <em>ping</em> sobre la máquina con etiqueta <code>vagrant</code> (usando este <em>inventario</em> de ejemplo):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>:~$ ansible vagrant -i vagrant-test -m ping
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>:~$ ansible vagrant -i vagrant-test -m ping
 </span></span><span style="display:flex;"><span>The authenticity of host <span style="color:#2aa198">&#39;192.168.1.221 (192.168.1.221)&#39;</span> can&#39;t be established.
 </span></span><span style="display:flex;"><span>ECDSA key fingerprint is SHA256:EWnDBzCe7HyElk5vKD+nhEKVyPMIe0/MpO1S94Eus0c.
 </span></span><span style="display:flex;"><span>Are you sure you want to <span style="color:#719e07">continue</span> connecting <span style="color:#719e07">(</span>yes/no<span style="color:#719e07">)</span>? yes
@@ -238,7 +238,7 @@ Al tratarse de una máquina Vagrant, el usuario <code>vagrant</code> tiene contr
 </span></span><span style="display:flex;"><span><span style="color:#719e07">}</span>
 </span></span></code></pre></div><p>Observa que cuando Ansible intenta conectar con la máquina gestionada vía SSH por primera vez, se muestra una alerta indicando que no se puede validar la autenticidad del <em>host</em> remoto. Obviamente, esto detiene la ejecución del <em>playbook</em> hasta que se responde la pregunta. Si quieres evitar esta pregunta -la primera vez que conectas a una máquina remota- puedes configurar la variable <code>host_key_checking = False</code> (a través del fichero de configuración en <code>/etc/ansible/ansible.cfg</code> o <code>~/.ansible.cfg</code> o mediante la variable de entorno <code>$ export ANSIBLE_HOST_KEY_CHECKING=False</code>) según se indica en la sección <a href="https://docs.ansible.com/ansible/latest/user_guide/intro_getting_started.html#host-key-checking">Host Key Checking</a> de la documentación oficial de Ansible.</p>
 <p>Una vez verificado que Ansible puede conectar con la máquina gestionada, podemos incluirla en el fichero de <em>inventario real</em> para realizar las configuraciones adicionales que deseemos:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>:~$ ansible-playbook -i vagrant-test playbooks/update-all/update-server.yml
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>:~$ ansible-playbook -i vagrant-test playbooks/update-all/update-server.yml
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>PLAY <span style="color:#719e07">[</span>all<span style="color:#719e07">]</span> ***************************************************************************
 </span></span><span style="display:flex;"><span>

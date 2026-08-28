@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.136.5">
+<meta name="generator" content="Hugo 0.165.0">
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -92,7 +92,7 @@
       <script type="application/json">
         {
           "vars": {
-            "account": "Page(\/post\/260425-apikey-checker-i)"
+            "account": "\/Users\/xavi\/repos\/personal\/onthedock-hugo\/content\/post\/260425-apikey-checker-i.md"
           },
           "triggers": {
             "trackPageview": {
@@ -159,28 +159,28 @@
 <p>Por tanto, para empezar, sólo listaremos las API keys de un proyecto especificado; más adelante, cuando querramos listar las API keys de todos los proyectos a los que tiene acceso el usuario, sólo tendremos que iterar sobre los proyectos y listar las API keys para cada proyecto.</p>
 <h2 id="manos-a-la-obra">Manos a la obra</h2>
 <p>Empezamos inicializando el módulo en Go:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#719e07">go</span> mod init github.com<span style="color:#719e07">/</span>xaviatwork<span style="color:#719e07">/</span>api<span style="color:#719e07">-</span>key<span style="color:#719e07">-</span>checker
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#719e07">go</span> mod init github.com<span style="color:#719e07">/</span>xaviatwork<span style="color:#719e07">/</span>api<span style="color:#719e07">-</span>key<span style="color:#719e07">-</span>checker
 </span></span></code></pre></div><p>Creamos el fichero <code>main.go</code> y utilizamos el ejemplo en <a href="https://docs.cloud.google.com/go/docs/reference/cloud.google.com/go/apikeys/latest/apiv2#hdr-Example_usage">Example usage</a> como punto de partida:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// go get cloud.google.com/go/apikeys/apiv2@latest
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>ctx <span style="color:#719e07">:=</span> context.<span style="color:#268bd2">Background</span>()
-</span></span><span style="display:flex;"><span><span style="color:#586e75">// This snippet has been automatically generated and should be regarded as a code template only.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75">// It will require modifications to work:
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75">// - It may require correct/in-range values for request initialization.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75">// - It may require specifying regional endpoints when creating the service client as shown in:
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75">//   https://pkg.go.dev/cloud.google.com/go#hdr-Client_Options
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>c, err <span style="color:#719e07">:=</span> apikeys.<span style="color:#268bd2">NewClient</span>(ctx)
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// go get cloud.google.com/go/apikeys/apiv2@latest</span>
+</span></span><span style="display:flex;"><span>ctx <span style="color:#719e07">:=</span> context.<span style="color:#268bd2">Background</span>()
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// This snippet has been automatically generated and should be regarded as a code template only.</span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// It will require modifications to work:</span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// - It may require correct/in-range values for request initialization.</span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// - It may require specifying regional endpoints when creating the service client as shown in:</span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">//   https://pkg.go.dev/cloud.google.com/go#hdr-Client_Options</span>
+</span></span><span style="display:flex;"><span>c, err <span style="color:#719e07">:=</span> apikeys.<span style="color:#268bd2">NewClient</span>(ctx)
 </span></span><span style="display:flex;"><span><span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
-</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// TODO: Handle error.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>}
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// TODO: Handle error.</span>
+</span></span><span style="display:flex;"><span>}
 </span></span><span style="display:flex;"><span><span style="color:#719e07">defer</span> c.<span style="color:#268bd2">Close</span>()
 </span></span></code></pre></div><p>El <em>linter</em> se queja que de <code>apikeys</code> no está definido (incluso después de ejecutar <code>go get...</code> y <code>go mod tidy</code>)&hellip; Revisando el ejemplo en <a href="https://pkg.go.dev/cloud.google.com/go/apikeys@v1.5.0/apiv2#NewClient">pkg.go.dev</a> para <code>NewClient</code>, vemos que se crea un <em>alias</em> para el paquete:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#719e07">import</span> (
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#719e07">import</span> (
 </span></span><span style="display:flex;"><span>    <span style="color:#2aa198">&#34;context&#34;</span>
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>    apikeys <span style="color:#2aa198">&#34;cloud.google.com/go/apikeys/apiv2&#34;</span>
 </span></span><span style="display:flex;"><span>)
 </span></span></code></pre></div><p>Actualizando el código y ejecutando <code>go mod tidy</code>, el <em>linter</em> deja de quejarse.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#719e07">package</span> main
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#719e07">package</span> main
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#719e07">import</span> (
 </span></span><span style="display:flex;"><span>    <span style="color:#2aa198">&#34;context&#34;</span>
@@ -189,23 +189,23 @@
 </span></span><span style="display:flex;"><span>)
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
-</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// go get cloud.google.com/go/apikeys/apiv2@latest
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    ctx <span style="color:#719e07">:=</span> context.<span style="color:#268bd2">Background</span>()
-</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// This snippet has been automatically generated and should be regarded as a code template only.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    <span style="color:#586e75">// It will require modifications to work:
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    <span style="color:#586e75">//   - It may require correct/in-range values for request initialization.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    <span style="color:#586e75">//   - It may require specifying regional endpoints when creating the service client as shown in:
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    <span style="color:#586e75">//     https://pkg.go.dev/cloud.google.com/go#hdr-Client_Options
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    c, err <span style="color:#719e07">:=</span> apikeys.<span style="color:#268bd2">NewClient</span>(ctx)
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// go get cloud.google.com/go/apikeys/apiv2@latest</span>
+</span></span><span style="display:flex;"><span>    ctx <span style="color:#719e07">:=</span> context.<span style="color:#268bd2">Background</span>()
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// This snippet has been automatically generated and should be regarded as a code template only.</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// It will require modifications to work:</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">//   - It may require correct/in-range values for request initialization.</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">//   - It may require specifying regional endpoints when creating the service client as shown in:</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">//     https://pkg.go.dev/cloud.google.com/go#hdr-Client_Options</span>
+</span></span><span style="display:flex;"><span>    c, err <span style="color:#719e07">:=</span> apikeys.<span style="color:#268bd2">NewClient</span>(ctx)
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
-</span></span><span style="display:flex;"><span>        <span style="color:#586e75">// TODO: Handle error.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    }
+</span></span><span style="display:flex;"><span>        <span style="color:#586e75">// TODO: Handle error.</span>
+</span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">defer</span> c.<span style="color:#268bd2">Close</span>()
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><h2 id="usando-el-cliente">Usando el cliente</h2>
 <p>Como queremos listar las API keys, usaremos el método <code>ListKeys</code> del cliente: <a href="https://docs.cloud.google.com/go/docs/reference/cloud.google.com/go/apikeys/latest/apiv2#cloud_google_com_go_apikeys_apiv2_Client_ListKeys">func (*Client) ListKeys</a>. La documentación del método <code>ListKeys</code> incluye dos ejemplos; el primero, usa un <em>iterator</em> para iterar sobre todas las API keys presentes en el proyecto, mientras que el segundo usa <code>.All()</code> para obtenerlas todas de una sola vez.</p>
 <p>Como vemos en el ejemplo, de nuevo se usa un <em>alias</em> para el paquete <code>apikeyspb</code>, por lo que copiamos y pegamos el código del ejemplo <code>.All()</code> en nuestro <code>main.go</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#719e07">package</span> main
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#719e07">package</span> main
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#719e07">import</span> (
 </span></span><span style="display:flex;"><span>    <span style="color:#2aa198">&#34;context&#34;</span>
@@ -216,27 +216,27 @@
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
 </span></span><span style="display:flex;"><span>    ctx <span style="color:#719e07">:=</span> context.<span style="color:#268bd2">Background</span>()
-</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// This snippet has been automatically generated and should be regarded as a code template only.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    <span style="color:#586e75">// It will require modifications to work:
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    <span style="color:#586e75">// - It may require correct/in-range values for request initialization.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    <span style="color:#586e75">// - It may require specifying regional endpoints when creating the service client as shown in:
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    <span style="color:#586e75">//   https://pkg.go.dev/cloud.google.com/go#hdr-Client_Options
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    c, err <span style="color:#719e07">:=</span> apikeys.<span style="color:#268bd2">NewClient</span>(ctx)
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// This snippet has been automatically generated and should be regarded as a code template only.</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// It will require modifications to work:</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// - It may require correct/in-range values for request initialization.</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// - It may require specifying regional endpoints when creating the service client as shown in:</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">//   https://pkg.go.dev/cloud.google.com/go#hdr-Client_Options</span>
+</span></span><span style="display:flex;"><span>    c, err <span style="color:#719e07">:=</span> apikeys.<span style="color:#268bd2">NewClient</span>(ctx)
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
-</span></span><span style="display:flex;"><span>        <span style="color:#586e75">// TODO: Handle error.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    }
+</span></span><span style="display:flex;"><span>        <span style="color:#586e75">// TODO: Handle error.</span>
+</span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">defer</span> c.<span style="color:#268bd2">Close</span>()
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>    req <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>apikeyspb.ListKeysRequest{
-</span></span><span style="display:flex;"><span>        <span style="color:#586e75">// TODO: Fill request struct fields.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>        <span style="color:#586e75">// See https://pkg.go.dev/cloud.google.com/go/apikeys/apiv2/apikeyspb#ListKeysRequest.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    }
+</span></span><span style="display:flex;"><span>        <span style="color:#586e75">// TODO: Fill request struct fields.</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#586e75">// See https://pkg.go.dev/cloud.google.com/go/apikeys/apiv2/apikeyspb#ListKeysRequest.</span>
+</span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">for</span> resp, err <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> c.<span style="color:#268bd2">ListKeys</span>(ctx, req).<span style="color:#268bd2">All</span>() {
 </span></span><span style="display:flex;"><span>        <span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
-</span></span><span style="display:flex;"><span>            <span style="color:#586e75">// TODO: Handle error and break/return/continue. Iteration will stop after any error.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>        }
-</span></span><span style="display:flex;"><span>        <span style="color:#586e75">// TODO: Use resp.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>        _ = resp
+</span></span><span style="display:flex;"><span>            <span style="color:#586e75">// TODO: Handle error and break/return/continue. Iteration will stop after any error.</span>
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>        <span style="color:#586e75">// TODO: Use resp.</span>
+</span></span><span style="display:flex;"><span>        _ = resp
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><h2 id="primeros-ajustes">Primeros ajustes</h2>
@@ -245,30 +245,30 @@
 Haremos lo mismo con el error devuelto por <code>ListKeys()</code>.</p>
 <p>En cuanto a los campos que hay que proporcionar en la petición, en la documentación de <a href="https://pkg.go.dev/cloud.google.com/go/apikeys/apiv2/apikeyspb#ListKeysRequest">ListKeysRequest</a> el único campo requerido es <code>Parent</code>, que indica el proyecto en el que listar las API keys. Desgraciadamente, no he podido encontrar cuál es el &ldquo;formato correcto&rdquo; con el que especificar el proyecto en el campo <code>Parent</code> en la documentación oficial; sin embargo, en <a href="https://stackoverflow.com/a/77452242">StackOverflow</a>, se indica que es <code>projects/&lt;project-id&gt;/locations/global</code></p>
 <p>Para comprobar que todo funciona hasta el momento, vamos a obtener el <code>projectId</code> de una variable de entorno para insertarlo en la <em>request</em>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// ... before
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    req <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>apikeyspb.ListKeysRequest{
-</span></span><span style="display:flex;"><span>        <span style="color:#586e75">// TODO: Fill request struct fields.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>        <span style="color:#586e75">// See https://pkg.go.dev/cloud.google.com/go/apikeys/apiv2/apikeyspb#ListKeysRequest.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    }
-</span></span><span style="display:flex;"><span><span style="color:#586e75">// ------------- 
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75">// ... after
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    req <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>apikeyspb.ListKeysRequest{
-</span></span><span style="display:flex;"><span>        <span style="color:#586e75">// See https://pkg.go.dev/cloud.google.com/go/apikeys/apiv2/apikeyspb#ListKeysRequest.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>        Parent: fmt.<span style="color:#268bd2">Sprintf</span>(<span style="color:#2aa198">&#34;projects/%s/locations/global&#34;</span>, os.<span style="color:#268bd2">Getenv</span>(<span style="color:#2aa198">&#34;PROJECTID&#34;</span>)),
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// ... before</span>
+</span></span><span style="display:flex;"><span>    req <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>apikeyspb.ListKeysRequest{
+</span></span><span style="display:flex;"><span>        <span style="color:#586e75">// TODO: Fill request struct fields.</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#586e75">// See https://pkg.go.dev/cloud.google.com/go/apikeys/apiv2/apikeyspb#ListKeysRequest.</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// ------------- </span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// ... after</span>
+</span></span><span style="display:flex;"><span>    req <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>apikeyspb.ListKeysRequest{
+</span></span><span style="display:flex;"><span>        <span style="color:#586e75">// See https://pkg.go.dev/cloud.google.com/go/apikeys/apiv2/apikeyspb#ListKeysRequest.</span>
+</span></span><span style="display:flex;"><span>        Parent: fmt.<span style="color:#268bd2">Sprintf</span>(<span style="color:#2aa198">&#34;projects/%s/locations/global&#34;</span>, os.<span style="color:#268bd2">Getenv</span>(<span style="color:#2aa198">&#34;PROJECTID&#34;</span>)),
 </span></span><span style="display:flex;"><span>    }
 </span></span></code></pre></div><p>Como utilizamos <a href="https://docs.cloud.google.com/go/docs/reference/cloud.google.com/go/apikeys/latest/apiv2.html#cloud_google_com_go_apikeys_apiv2_KeyIterator_All"><code>All()</code></a>, la respuesta es un <em>iterator</em> sobre todas las <em>Key</em>.</p>
 <p>Como sólo queremos validar que todo funciona, mostramos el <em>display name</em> de cada <em>key</em> (también reemplazamos el genérico <code>resp</code> por <code>k</code>, de <em>key</em>):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// ... before
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    <span style="color:#719e07">for</span> resp, err <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> c.<span style="color:#268bd2">ListKeys</span>(ctx, req).<span style="color:#268bd2">All</span>() {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// ... before</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#719e07">for</span> resp, err <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> c.<span style="color:#268bd2">ListKeys</span>(ctx, req).<span style="color:#268bd2">All</span>() {
 </span></span><span style="display:flex;"><span>        <span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
 </span></span><span style="display:flex;"><span>            fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;list keys error: %s\n&#34;</span>, err.<span style="color:#268bd2">Error</span>())
 </span></span><span style="display:flex;"><span>            os.<span style="color:#268bd2">Exit</span>(<span style="color:#2aa198">1</span>)
 </span></span><span style="display:flex;"><span>        }
-</span></span><span style="display:flex;"><span>        <span style="color:#586e75">// TODO: Use resp.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>        _ = resp
+</span></span><span style="display:flex;"><span>        <span style="color:#586e75">// TODO: Use resp.</span>
+</span></span><span style="display:flex;"><span>        _ = resp
 </span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span><span style="color:#586e75">// ... after
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    <span style="color:#719e07">for</span> k, err <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> c.<span style="color:#268bd2">ListKeys</span>(ctx, req).<span style="color:#268bd2">All</span>() {
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// ... after</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#719e07">for</span> k, err <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> c.<span style="color:#268bd2">ListKeys</span>(ctx, req).<span style="color:#268bd2">All</span>() {
 </span></span><span style="display:flex;"><span>        <span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
 </span></span><span style="display:flex;"><span>            fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;list keys error: %s\n&#34;</span>, err.<span style="color:#268bd2">Error</span>())
 </span></span><span style="display:flex;"><span>            os.<span style="color:#268bd2">Exit</span>(<span style="color:#2aa198">1</span>)
@@ -278,7 +278,7 @@ Haremos lo mismo con el error devuelto por <code>ListKeys()</code>.</p>
 </span></span></code></pre></div><h2 id="validación">Validación</h2>
 <p>Sólo nos queda compilar y validar que todo funciona. Como estamos usando las <em>librerías</em> del SDK, éste se encarga de obtener las credenciales, por ejemplo, de ejecutar <code>gcloud auth login --update-adc</code>.</p>
 <p>Antes de ejecutar la aplicación, establecemos el <code>projectId</code> como variable de entorno; el resultado es:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ ./apikeycheck
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ ./apikeycheck
 </span></span><span style="display:flex;"><span>test-api-key
 </span></span></code></pre></div><h2 id="serie-completa">Serie completa</h2>
 <ul>

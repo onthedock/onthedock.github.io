@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.136.5">
+<meta name="generator" content="Hugo 0.165.0">
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -92,7 +92,7 @@
       <script type="application/json">
         {
           "vars": {
-            "account": "Page(\/post\/231216-functional-options-revisadas)"
+            "account": "\/Users\/xavi\/repos\/personal\/onthedock-hugo\/content\/post\/231216-functional-options-revisadas.md"
           },
           "triggers": {
             "trackPageview": {
@@ -152,15 +152,15 @@
 <p>Las <em>functional options</em> resuelven los dos problemas mencionados en el párrafo anterior.</p>
 <h2 id="functional-options"><em>Functional options</em></h2>
 <p>Siguiendo con el ejemplo del servidor web, definimos el <code>type Server</code> como:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">type</span> Server <span style="color:#268bd2">struct</span> {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">type</span> Server <span style="color:#268bd2">struct</span> {
 </span></span><span style="display:flex;"><span>    hostname <span style="color:#dc322f">string</span>
 </span></span><span style="display:flex;"><span>    port     <span style="color:#dc322f">int</span>
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>Inicialmente, sólo consideramos incluir el <em>host</em> y el <em>puerto</em>, pero más adelate sabemos que tendremos que incluir la opción de configurar TLS, por ejemplo.</p>
 <p>En Go, las funciones son un tipo más; por tanto, podemos definir una función variádica que acepte un número variable de funciones como parámetros:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">NewServer</span>(<span style="color:#719e07">...</span><span style="color:#268bd2">func</span>(<span style="color:#719e07">*</span>Server)) <span style="color:#719e07">*</span>Server {
-</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// Do something
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    <span style="color:#719e07">return</span> s
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">NewServer</span>(<span style="color:#719e07">...</span><span style="color:#268bd2">func</span>(<span style="color:#719e07">*</span>Server)) <span style="color:#719e07">*</span>Server {
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// Do something</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#719e07">return</span> s
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>Las <em>opciones</em> para el <em>constructor</em> del <code>Server</code> son funciones; de ahí el nombre de <em>functional options</em>.</p>
 <h2 id="funciones-de-las-functional-option">Funciones de las <em>functional option</em></h2>
@@ -168,20 +168,20 @@
 <blockquote>
 <p>Convencionalmente, se nombra a las <em>functional options</em> con <code>With</code> seguido del <em>parámetro</em> que configuran.</p>
 </blockquote>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">WithHostname</span>(h <span style="color:#dc322f">string</span>) <span style="color:#268bd2">func</span>(<span style="color:#719e07">*</span>Server) {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">WithHostname</span>(h <span style="color:#dc322f">string</span>) <span style="color:#268bd2">func</span>(<span style="color:#719e07">*</span>Server) {
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">return</span> <span style="color:#268bd2">func</span>(s <span style="color:#719e07">*</span>Server) {
 </span></span><span style="display:flex;"><span>        s.hostname = h
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>Del mismo modo, para configurar el puerto en el que escucha el servidor:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">WithPort</span>(p <span style="color:#dc322f">int</span>) <span style="color:#268bd2">func</span>(<span style="color:#719e07">*</span>Server) {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">WithPort</span>(p <span style="color:#dc322f">int</span>) <span style="color:#268bd2">func</span>(<span style="color:#719e07">*</span>Server) {
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">return</span> <span style="color:#268bd2">func</span>(s <span style="color:#719e07">*</span>Server) {
 </span></span><span style="display:flex;"><span>        s.port = p
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><h2 id="constructor-del-server">Constructor del <code>Server</code></h2>
 <p>Ahora, cuando queremos crear una nueva instancia de <code>Server</code>, usamos el constructor:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">NewServer</span>(options <span style="color:#719e07">...</span><span style="color:#268bd2">func</span>(<span style="color:#719e07">*</span>Server)) <span style="color:#719e07">*</span>Server {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">NewServer</span>(options <span style="color:#719e07">...</span><span style="color:#268bd2">func</span>(<span style="color:#719e07">*</span>Server)) <span style="color:#719e07">*</span>Server {
 </span></span><span style="display:flex;"><span>    s <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>Server{}
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">for</span> _, opt<span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> options {
@@ -194,7 +194,7 @@
 <h2 id="ventajas-de-las-functional-options">Ventajas de las <em>functional options</em></h2>
 <h3 id="valores-por-defecto">Valores por defecto</h3>
 <p>Al crear la instancia del <code>Server</code>, podemos proporcionar valores por defecto. Por ejemplo, <code>localhost</code> y puerto <code>80</code>; en este caso, aunque el usuario no establezca ninguna opción, el servidor se crea con unos valores <em>razonables</em>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">NewServer</span>(options <span style="color:#719e07">...</span><span style="color:#268bd2">func</span>(<span style="color:#719e07">*</span>Server)) <span style="color:#719e07">*</span>Server {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">NewServer</span>(options <span style="color:#719e07">...</span><span style="color:#268bd2">func</span>(<span style="color:#719e07">*</span>Server)) <span style="color:#719e07">*</span>Server {
 </span></span><span style="display:flex;"><span>    s <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>Server{
 </span></span><span style="display:flex;"><span>        hostname: <span style="color:#2aa198">&#34;localhost&#34;</span>,
 </span></span><span style="display:flex;"><span>        port:     <span style="color:#2aa198">80</span>,
@@ -209,13 +209,13 @@
 </span></span></code></pre></div><h3 id="ampliar-las-opciones-disponibles">Ampliar las opciones disponibles</h3>
 <p>Si queremos incluir una nueva opción para <code>Server</code>, por ejemplo, activar TLS, podemos hacerlo sin modificar la <em>signatura</em> de la función <code>NewServer( ...func(*Server)) *Server</code>.</p>
 <p>Actualizamos el tipo que describe el servidor:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">type</span> Server <span style="color:#268bd2">struct</span> {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">type</span> Server <span style="color:#268bd2">struct</span> {
 </span></span><span style="display:flex;"><span>    hostname <span style="color:#dc322f">string</span>
 </span></span><span style="display:flex;"><span>    port     <span style="color:#dc322f">int</span>
 </span></span><span style="display:flex;"><span>    tls      <span style="color:#dc322f">bool</span>
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>Añadimos la <em>functional option</em> correspondiente:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">WithTls</span>(tls <span style="color:#dc322f">bool</span>) <span style="color:#268bd2">func</span>(<span style="color:#719e07">*</span>Server) {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">WithTls</span>(tls <span style="color:#dc322f">bool</span>) <span style="color:#268bd2">func</span>(<span style="color:#719e07">*</span>Server) {
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">return</span> <span style="color:#268bd2">func</span>(s <span style="color:#719e07">*</span>Server) {
 </span></span><span style="display:flex;"><span>        s.tls = tls
 </span></span><span style="display:flex;"><span>    }
@@ -223,7 +223,7 @@
 </span></span></code></pre></div><h2 id="creando-el-nuevo-servidor">Creando el nuevo servidor</h2>
 <p>Imaginemos que el paquete encargado de la creación y configuración del servidor <code>Server</code> se encuentra en el paquete <code>server</code>.</p>
 <p>Para realizar la creación del servidor en <code>main</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#719e07">package</span> main
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#719e07">package</span> main
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#719e07">import</span> <span style="color:#2aa198">&#34;github.com/xaviatwork/funcopts/server&#34;</span>
 </span></span><span style="display:flex;"><span>
@@ -233,9 +233,9 @@
 </span></span><span style="display:flex;"><span>        server.<span style="color:#268bd2">WithTls</span>(<span style="color:#cb4b16">false</span>),
 </span></span><span style="display:flex;"><span>    )
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// Do something with &#39;srv&#39; to stop the IDE from
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    <span style="color:#586e75">// complaining that srv has been declared but not used
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    _ = srv
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// Do something with &#39;srv&#39; to stop the IDE from</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// complaining that srv has been declared but not used</span>
+</span></span><span style="display:flex;"><span>    _ = srv
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>Como no hemos especificado nada para <code>srv.hostname</code>, se asignará el valor por defecto, por ejemplo, <code>localhost</code>.</p>
 <p>Si teníamos una aplicación que instanciaba otra versión de <code>Server</code>, seguirá funcionando sin problemas (en la versión anterior no usamos para nada la (entonces inexistente) nueva opción).</p>

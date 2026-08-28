@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.136.5">
+<meta name="generator" content="Hugo 0.165.0">
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -92,7 +92,7 @@
       <script type="application/json">
         {
           "vars": {
-            "account": "Page(\/post\/260425-apikey-checker-ii)"
+            "account": "\/Users\/xavi\/repos\/personal\/onthedock-hugo\/content\/post\/260425-apikey-checker-ii.md"
           },
           "triggers": {
             "trackPageview": {
@@ -148,14 +148,14 @@
 <p>En el apartado anterior el parámetro <code>projectId</code>, necesario para indicar en qué proyecto queremos listar las API keys, se obtenía desde una variable de entorno.
 Sin embargo, queremos que el usuario puede especificar el valor del proyecto desde la línea de comando, por ejemplo, mediante <code>--project &lt;projec-id&gt;</code>.</p>
 <p>Empezamos definiendo un nuevo <em>flagSet</em>, al que llamamos <code>apikeycheck</code>.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// ... before
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// ... before</span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
 </span></span><span style="display:flex;"><span>    ctx <span style="color:#719e07">:=</span> context.<span style="color:#268bd2">Background</span>()
 </span></span><span style="display:flex;"><span>    c, err <span style="color:#719e07">:=</span> apikeys.<span style="color:#268bd2">NewClient</span>(ctx)
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">if</span> err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
-</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// ...
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75">// ... after
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// ...</span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// ... after</span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
 </span></span><span style="display:flex;"><span>    fs <span style="color:#719e07">:=</span> flag.<span style="color:#268bd2">NewFlagSet</span>(<span style="color:#2aa198">&#34;apikeycheck&#34;</span>, flag.ExitOnError)
 </span></span><span style="display:flex;"><span>    projectId <span style="color:#719e07">:=</span> fs.<span style="color:#268bd2">String</span>(<span style="color:#2aa198">&#34;project&#34;</span>, <span style="color:#2aa198">&#34;&#34;</span>, <span style="color:#2aa198">&#34;Check API keys in the project identified by ProjectId&#34;</span>)
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> fs.<span style="color:#268bd2">Parse</span>(os.Args[<span style="color:#2aa198">1</span>:]); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
@@ -167,29 +167,29 @@ Sin embargo, queremos que el usuario puede especificar el valor del proyecto des
 </span></span></code></pre></div><p>De esta forma, el usuario puede proporcionar el <em>projectId</em> a través de la línea de comando mediante <code>--project &lt;projectid&gt;</code>.
 Lo único importante a tener en cuenta es que <code>projectId</code> es <code>*string</code>, no <code>string</code>.
 Por tanto, en la <code>ListKeysRequest</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// ... before
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    req <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>apikeyspb.ListKeysRequest{
-</span></span><span style="display:flex;"><span>        <span style="color:#586e75">// See https://pkg.go.dev/cloud.google.com/go/apikeys/apiv2/apikeyspb#ListKeysRequest.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>        Parent: fmt.<span style="color:#268bd2">Sprintf</span>(<span style="color:#2aa198">&#34;projects/%s/locations/global&#34;</span>, os.<span style="color:#268bd2">Getenv</span>(<span style="color:#2aa198">&#34;PROJECTID&#34;</span>),
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// ... before</span>
+</span></span><span style="display:flex;"><span>    req <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>apikeyspb.ListKeysRequest{
+</span></span><span style="display:flex;"><span>        <span style="color:#586e75">// See https://pkg.go.dev/cloud.google.com/go/apikeys/apiv2/apikeyspb#ListKeysRequest.</span>
+</span></span><span style="display:flex;"><span>        Parent: fmt.<span style="color:#268bd2">Sprintf</span>(<span style="color:#2aa198">&#34;projects/%s/locations/global&#34;</span>, os.<span style="color:#268bd2">Getenv</span>(<span style="color:#2aa198">&#34;PROJECTID&#34;</span>),
 </span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span><span style="color:#586e75">// ... after
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    req <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>apikeyspb.ListKeysRequest{
-</span></span><span style="display:flex;"><span>        <span style="color:#586e75">// See https://pkg.go.dev/cloud.google.com/go/apikeys/apiv2/apikeyspb#ListKeysRequest.
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>        Parent: fmt.<span style="color:#268bd2">Sprintf</span>(<span style="color:#2aa198">&#34;projects/%s/locations/global&#34;</span>, <span style="color:#719e07">*</span>projectId),
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// ... after</span>
+</span></span><span style="display:flex;"><span>    req <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>apikeyspb.ListKeysRequest{
+</span></span><span style="display:flex;"><span>        <span style="color:#586e75">// See https://pkg.go.dev/cloud.google.com/go/apikeys/apiv2/apikeyspb#ListKeysRequest.</span>
+</span></span><span style="display:flex;"><span>        Parent: fmt.<span style="color:#268bd2">Sprintf</span>(<span style="color:#2aa198">&#34;projects/%s/locations/global&#34;</span>, <span style="color:#719e07">*</span>projectId),
 </span></span><span style="display:flex;"><span>    }
 </span></span></code></pre></div><h3 id="validar-que-el-projectid-no-está-vacío">Validar que el <code>projectId</code> no está vacío</h3>
 <p>El paquete <code>flag</code> genera un error si se especifica un <em>flag</em> y no se le asigna un valor, como <code>--project &lt;nothing&gt;</code>, pero el valor <code>&quot;&quot;</code> es perfectamente válido: <code>--project &quot;&quot;</code>.
 Pero si no especificamos el valor del <code>projectId</code>, la llamada a la API de las API keys fallará.</p>
 <p>Además, como no hay ninguna forma de indicar que un <em>flag</em> es requerido, tenemos que encargarnos nosotros de realizar esas validaciones en nuestra aplicación por si el usuario no incluye <code>--project</code>.</p>
 <p>La solución es validar que el valor de <code>projectId</code> <strong>no está vacío</strong>.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">//  ... before
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>        fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;error parsing flags: %s\n&#34;</span>, err.<span style="color:#268bd2">Error</span>())
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">//  ... before</span>
+</span></span><span style="display:flex;"><span>        fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;error parsing flags: %s\n&#34;</span>, err.<span style="color:#268bd2">Error</span>())
 </span></span><span style="display:flex;"><span>        os.<span style="color:#268bd2">Exit</span>(<span style="color:#2aa198">1</span>)
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>    ctx <span style="color:#719e07">:=</span> context.<span style="color:#268bd2">Background</span>()
-</span></span><span style="display:flex;"><span><span style="color:#586e75">//  ... after
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>        fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;error parsing flags: %s\n&#34;</span>, err.<span style="color:#268bd2">Error</span>())
+</span></span><span style="display:flex;"><span><span style="color:#586e75">//  ... after</span>
+</span></span><span style="display:flex;"><span>        fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;error parsing flags: %s\n&#34;</span>, err.<span style="color:#268bd2">Error</span>())
 </span></span><span style="display:flex;"><span>        os.<span style="color:#268bd2">Exit</span>(<span style="color:#2aa198">1</span>)
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>
@@ -200,31 +200,31 @@ Pero si no especificamos el valor del <code>projectId</code>, la llamada a la AP
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>    ctx <span style="color:#719e07">:=</span> context.<span style="color:#268bd2">Background</span>()
 </span></span></code></pre></div><p>De esta forma, si el usuario no proporciona un valor para <code>--project</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ ./apikeycheck
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ ./apikeycheck
 </span></span><span style="display:flex;"><span>projectId cannot be empty
 </span></span></code></pre></div><h2 id="ayuda-incorporada">Ayuda incorporada</h2>
 <p>Una de las ventajas de usar el paquete <code>flag</code> es que la información que proporcionamos al definir los parámetros se muestra al usuario en forma de <em>ayuda</em>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ ./apikeycheck --help
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ ./apikeycheck --help
 </span></span><span style="display:flex;"><span>Usage of apikeycheck:
 </span></span><span style="display:flex;"><span>  -project string
 </span></span><span style="display:flex;"><span>      Check API keys in the project identified by ProjectId
 </span></span></code></pre></div><h2 id="periodo-de-rotación">Periodo de rotación</h2>
 <p>El periodo recomendado de rotación de las API keys es de 90 días. Pero puede que el criterio para tu organización sea diferente; usando el paquete <code>flag</code> añadimos una nueva <em>flag</em> para que el usuario especifique su propio valor, en días, si así lo desea. Si no, la aplicación usará el valor de 90 por defecto.</p>
 <p>Añadimos una nueva línea tras la declaración de <code>projectId</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">//  ... before
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    fs <span style="color:#719e07">:=</span> flag.<span style="color:#268bd2">NewFlagSet</span>(<span style="color:#2aa198">&#34;apikeycheck&#34;</span>, flag.ExitOnError)
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">//  ... before</span>
+</span></span><span style="display:flex;"><span>    fs <span style="color:#719e07">:=</span> flag.<span style="color:#268bd2">NewFlagSet</span>(<span style="color:#2aa198">&#34;apikeycheck&#34;</span>, flag.ExitOnError)
 </span></span><span style="display:flex;"><span>    projectId <span style="color:#719e07">:=</span> fs.<span style="color:#268bd2">String</span>(<span style="color:#2aa198">&#34;project&#34;</span>, <span style="color:#2aa198">&#34;&#34;</span>, <span style="color:#2aa198">&#34;Check API keys in the project identified by ProjectId&#34;</span>)
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> fs.<span style="color:#268bd2">Parse</span>(os.Args[<span style="color:#2aa198">1</span>:]); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
-</span></span><span style="display:flex;"><span>        <span style="color:#586e75">// ...
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75">//  ... after
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    fs <span style="color:#719e07">:=</span> flag.<span style="color:#268bd2">NewFlagSet</span>(<span style="color:#2aa198">&#34;apikeycheck&#34;</span>, flag.ExitOnError)
+</span></span><span style="display:flex;"><span>        <span style="color:#586e75">// ...</span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">//  ... after</span>
+</span></span><span style="display:flex;"><span>    fs <span style="color:#719e07">:=</span> flag.<span style="color:#268bd2">NewFlagSet</span>(<span style="color:#2aa198">&#34;apikeycheck&#34;</span>, flag.ExitOnError)
 </span></span><span style="display:flex;"><span>    projectId <span style="color:#719e07">:=</span> fs.<span style="color:#268bd2">String</span>(<span style="color:#2aa198">&#34;project&#34;</span>, <span style="color:#2aa198">&#34;&#34;</span>, <span style="color:#2aa198">&#34;Check API keys in the project identified by ProjectId&#34;</span>)
 </span></span><span style="display:flex;"><span>    maxDays <span style="color:#719e07">:=</span> fs.<span style="color:#268bd2">Int</span>(<span style="color:#2aa198">&#34;max-days&#34;</span>, <span style="color:#2aa198">90</span>, <span style="color:#2aa198">&#34;Max. number of days before API keys should be rotated&#34;</span>)
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> fs.<span style="color:#268bd2">Parse</span>(os.Args[<span style="color:#2aa198">1</span>:]); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
-</span></span><span style="display:flex;"><span>        <span style="color:#586e75">// ...
-</span></span></span></code></pre></div><p>Como hemos definido <code>maxDays</code> pero no lo usamos, el <em>linter</em> se queja; para evitarlo, asignamos <em>temporalmente</em> <code>maxDays</code> al <em>blank identifier</em>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// ... temporary fix
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    <span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> fs.<span style="color:#268bd2">Parse</span>(os.Args[<span style="color:#2aa198">1</span>:]); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
+</span></span><span style="display:flex;"><span>        <span style="color:#586e75">// ...</span>
+</span></span></code></pre></div><p>Como hemos definido <code>maxDays</code> pero no lo usamos, el <em>linter</em> se queja; para evitarlo, asignamos <em>temporalmente</em> <code>maxDays</code> al <em>blank identifier</em>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// ... temporary fix</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> fs.<span style="color:#268bd2">Parse</span>(os.Args[<span style="color:#2aa198">1</span>:]); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
 </span></span><span style="display:flex;"><span>        fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;error parsing flags: %s\n&#34;</span>, err.<span style="color:#268bd2">Error</span>())
 </span></span><span style="display:flex;"><span>        os.<span style="color:#268bd2">Exit</span>(<span style="color:#2aa198">1</span>)
 </span></span><span style="display:flex;"><span>    }

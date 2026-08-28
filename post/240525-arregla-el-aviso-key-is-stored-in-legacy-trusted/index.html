@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.136.5">
+<meta name="generator" content="Hugo 0.165.0">
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -92,7 +92,7 @@
       <script type="application/json">
         {
           "vars": {
-            "account": "Page(\/post\/240525-arregla-el-aviso-key-is-stored-in-legacy-trusted)"
+            "account": "\/Users\/xavi\/repos\/personal\/onthedock-hugo\/content\/post\/240525-arregla-el-aviso-key-is-stored-in-legacy-trusted.md"
           },
           "triggers": {
             "trackPageview": {
@@ -149,7 +149,7 @@
 <p>Aunque sólo es un <em>warning</em>, el proceso de actualización de paquetes se detiene, por lo que no podía actualizar el sistema.</p>
 <p>En mi caso, estaba claro que el problema era el respositorio de paquetes de Docker.
 De todas formas, puedes usar:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ sudo apt-key list
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ sudo apt-key list
 </span></span><span style="display:flex;"><span>Warning: apt-key is deprecated. Manage keyring files in trusted.gpg.d instead (see apt-key(8)).
 </span></span><span style="display:flex;"><span>/etc/apt/trusted.gpg
 </span></span><span style="display:flex;"><span>---------------------------------
@@ -161,14 +161,14 @@ De todas formas, puedes usar:</p>
 <p>En mi caso, la <code>key</code> de Docker es la única que se encuentra en <code>/etc/apt/trusted.gpg</code> (omito las otras <em>keys</em> que ya se encuentran en la carpeta <code>/etc/apt/trusted.gpg.d/</code>).</p>
 <h2 id="exporta-la-key">Exporta la <em>key</em></h2>
 <p>El primer paso es <em>exportar</em> la <em>key</em>; para ello, usamos los últimos 8 caracteres que identifican la <em>key</em> (eliminando el espacio): <code>0EBFCD88</code>.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>sudo apt-key export 0EBFCD88 | sudo gpg --dearmour -o /etc/apt/trusted.gpg.d/docker.gpg
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>sudo apt-key export 0EBFCD88 | sudo gpg --dearmour -o /etc/apt/trusted.gpg.d/docker.gpg
 </span></span></code></pre></div><p>Como ves, el comando anterior exporta la <em>key</em> desde el <code>keyring</code> <code>trusted.gpg</code> y la guarda en el fichero <code>docker.gpg</code> en <code>/etc/apt/trusted.gpg.d/</code>.</p>
 <h2 id="elimina-la-key-en-etcapttrustedgpg">Elimina la <em>key</em> en <code>/etc/apt/trusted.gpg</code></h2>
 <p>Ahora tenemos la clave (para Docker, en mi caso) en dos <em>keyrings</em>: <code>/etc/apt/trusted.gpg</code> y en <code>/etc/apt/trusted.gpg.d/docker.gpg</code>. Por tanto, si intentas ejecutar la actualización de paquetes, vuelves a recibir el <em>warning</em>.</p>
 <p>En mi caso, como sólo tengo la clave de Docker en <code>trusted.gpg</code>, elimino el fichero.</p>
 <h2 id="actualiza-el-sistema">Actualiza el sistema</h2>
 <p>Una vez eliminada la clave en el <em>keyring</em> &ldquo;deprecado&rdquo;, podemos actualizar el sistema sin problemas:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>sudo apt update &amp;&amp; sudo apt upgrade -y
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>sudo apt update &amp;&amp; sudo apt upgrade -y
 </span></span></code></pre></div></div>
 
   <aside class="p-share">

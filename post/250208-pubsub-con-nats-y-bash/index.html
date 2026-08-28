@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.136.5">
+<meta name="generator" content="Hugo 0.165.0">
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -92,7 +92,7 @@
       <script type="application/json">
         {
           "vars": {
-            "account": "Page(\/post\/250208-pubsub-con-nats-y-bash)"
+            "account": "\/Users\/xavi\/repos\/personal\/onthedock-hugo\/content\/post\/250208-pubsub-con-nats-y-bash.md"
           },
           "triggers": {
             "trackPageview": {
@@ -149,12 +149,12 @@ Ahora he encontrado una manera sencilla de integrar NATS (corriendo en Docker) c
 <p>NATS es un sistema de mensajería <em>pubsub</em> escrito en Go. Aunque es relativamente sencillo usar las <a href="https://docs.nats.io/using-nats/developer">bibliotecas</a> que ofrecen para desarrollar clientes e interaccionar con NATS, quería aprovechar la existencia de NATS CLI para integrarlo en mis scripts de manera sencilla.</p>
 <h2 id="el-problema">El problema</h2>
 <p>Usando el cliente <code>nats</code>, suscribirse a un <em>topic</em> es tan sencillo como:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>nats sub &lt;topic-name&gt;
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>nats sub &lt;topic-name&gt;
 </span></span></code></pre></div><p>Sin embargo, al ejecutar el comando, el cliente <code>nats</code> se queda <em>escuchando</em>, y no finaliza.
 El comando muestra los mensajes que se reciben en el <em>topic</em> indicado, pero no he sabido capturarlos de forma que pudiera consumir los mensajes recibidos desde un script en Bash.</p>
 <h2 id="la-solución">La solución</h2>
 <p>La solución ha venido de revisar la ayuda del comando y descubrir que se puede finalizar &ldquo;la suscripción&rdquo; tras recibir un número determinado de mensajes:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ nats sub --help
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ nats sub --help
 </span></span><span style="display:flex;"><span>usage: nats subscribe [&lt;flags&gt;] [&lt;subject&gt;]
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>Generic subscription client
@@ -167,7 +167,7 @@ El comando muestra los mensajes que se reciben en el <em>topic</em> indicado, pe
 </span></span><span style="display:flex;"><span>--count=COUNT                 Quit after receiving this many messages
 </span></span></code></pre></div><p>Al finalizar el comando, el mensaje recibido se puede capturar en una variable, y el script continua, <em>consumiendo</em> el valor y haciendo con él lo que queramos&hellip;</p>
 <p>Una simple prueba de concepto:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>#!/usr/bin/env bash
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>#!/usr/bin/env bash
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>while true ; do
 </span></span><span style="display:flex;"><span>    sleep 0.1
@@ -175,19 +175,19 @@ El comando muestra los mensajes que se reciben en el <em>topic</em> indicado, pe
 </span></span><span style="display:flex;"><span>    echo &#34;message: $msg&#34;
 </span></span><span style="display:flex;"><span>done
 </span></span></code></pre></div><p>Añadimos <code>--raw</code> para evitar el mensaje de NATS del número de mensaje recibido, etc..</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>message: 19:30:08 Subscribing on sample.topic
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>message: 19:30:08 Subscribing on sample.topic
 </span></span><span style="display:flex;"><span>[#1] Received on &#34;sample.topic&#34;
 </span></span><span style="display:flex;"><span>hola
 </span></span></code></pre></div><p>Una vez <em>desbloqueada</em> la recepción de los mensajes, la publicación no presenta ningún problema.
 En este ejemplo, enviamos un ID y un <em>timestamp</em> generados por NATS en bucle:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>#!/usr/bin/env bash
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>#!/usr/bin/env bash
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>while true ; do
 </span></span><span style="display:flex;"><span>    sleep 0.5
 </span></span><span style="display:flex;"><span>    nats pub stuff &#39;{ &#34;id&#34;: &#34;{{ ID }}&#34;, &#34;time&#34;: &#34;{{ UnixNano }}&#34; }&#39;
 </span></span><span style="display:flex;"><span>done
 </span></span></code></pre></div><p>El <em>subscriber</em> recibe el mensaje y lo imprime por pantalla usando <code>echo</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ bash subscriber.sh
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ bash subscriber.sh
 </span></span><span style="display:flex;"><span>message: { &#34;id&#34;: &#34;vqUCNi4QzgspHAGj2WyfZl&#34;, &#34;time&#34;: &#34;1739102475245242000&#34; }
 </span></span><span style="display:flex;"><span>message: { &#34;id&#34;: &#34;AC6pFZcnRHQ5Xzt9CV5RbP&#34;, &#34;time&#34;: &#34;1739102475787266000&#34; }
 </span></span><span style="display:flex;"><span>message: { &#34;id&#34;: &#34;7s8IiQxxeife2AxTXOG1JR&#34;, &#34;time&#34;: &#34;1739102476327454000&#34; }
@@ -196,7 +196,7 @@ En este ejemplo, enviamos un ID y un <em>timestamp</em> generados por NATS en bu
 <p>Imprimir un mensaje a <code>stdout</code> no lleva prácticamente nada de tiempo&hellip; Pero si queremos hacer alguna cosa más &ldquo;complicada&rdquo;, que lleve más tiempo, el <em>subscriber</em> podría perder algunos mensajes&hellip; Para evitar esto, usamos la idea de las <em>go routines</em>, lanzando un proceso independiente para no bloquear la ejecución de <code>subscriber.sh</code>.
 En Bash, movemos el proceso &ldquo;pesado&rdquo; a segundo plano añadiendo un <code>&amp;</code> tras el comando.</p>
 <p>Por ejemplo:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>#!/bin/bash
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>#!/bin/bash
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>while true ; do
 </span></span><span style="display:flex;"><span>    sleep 0.1
@@ -205,7 +205,7 @@ En Bash, movemos el proceso &ldquo;pesado&rdquo; a segundo plano añadiendo un <
 </span></span><span style="display:flex;"><span>    ./processor.sh &#34;$msg&#34; &amp;
 </span></span><span style="display:flex;"><span>done
 </span></span></code></pre></div><p><code>processor.sh</code> llevaría a cabo un proceso que requiere más tiempo (que en este caso simulamos con un <code>sleep</code>), aunque en este caso sólo se trata de guardar los mensajes que recibimos en un fichero CSV:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>#!/usr/bin/env bash
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>#!/usr/bin/env bash
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>parser() {
 </span></span><span style="display:flex;"><span>    local msg=&#34;$1&#34;
@@ -230,7 +230,7 @@ En Bash, movemos el proceso &ldquo;pesado&rdquo; a segundo plano añadiendo un <
 La idea es que cada uno de los suscriptores sólo procese un determinado &ldquo;tipo&rdquo; de mensaje.
 Para ello, en primer lugar, deberíamos tener diferentes tipos de mensajes.</p>
 <p>Imaginemos que nuestro sistema de mensajería pubsub recibe el resultado del lanzamiento de una moneda:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>#!/bin/bash
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>#!/bin/bash
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>flipper() {
 </span></span><span style="display:flex;"><span>    (( RANDOM % 2 )) &amp;&amp; echo &#34;cara&#34; || echo &#34;cruz&#34;
@@ -241,7 +241,7 @@ Para ello, en primer lugar, deberíamos tener diferentes tipos de mensajes.</p>
 </span></span><span style="display:flex;"><span>    nats pub stuff &#39;{ &#34;result&#34;: &#34;&#39;$(flipper)&#39;&#34; }&#39; 
 </span></span><span style="display:flex;"><span>done
 </span></span></code></pre></div><p>Como antes, generamos un <em>subscriber</em>, pero esta vez sólo actuará cuando el mensaje contenga <code>cara</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>#!/bin/bash
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>#!/bin/bash
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>while true ; do
 </span></span><span style="display:flex;"><span>    sleep 0.1
@@ -250,7 +250,7 @@ Para ello, en primer lugar, deberíamos tener diferentes tipos de mensajes.</p>
 </span></span><span style="display:flex;"><span>done
 </span></span></code></pre></div><p>El <em>subscriber</em> en sí no contiene ninguna lógica; sólo pasa la información al script <em>flip_logger.sh</em> para que éste la procese sin bloquear la recepción de mensajes.
 El análisis y procesado del contenido del mensaje se hace en <code>flip_logger.sh</code>; en este caso, se muestra un mensaje en <code>stdout</code> indicando que el lanzamiento ha resultado <code>cara</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>#!/usr/bin/env bash
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>#!/usr/bin/env bash
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>if [[ &#34;$(echo $1 | jq -r &#39;.result&#39;)&#34; == &#34;cara&#34; ]]; then
 </span></span><span style="display:flex;"><span>    echo &#34;Ha salido &#39;Cara&#39;&#34;

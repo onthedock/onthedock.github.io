@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.136.5">
+<meta name="generator" content="Hugo 0.165.0">
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -92,7 +92,7 @@
       <script type="application/json">
         {
           "vars": {
-            "account": "Page(\/post\/230816-patron-singleton-en-go-y-mas)"
+            "account": "\/Users\/xavi\/repos\/personal\/onthedock-hugo\/content\/post\/230816-patron-singleton-en-go-y-mas.md"
           },
           "triggers": {
             "trackPageview": {
@@ -151,14 +151,14 @@
 <p>En esta entrada explico la solución que quiero probar (ya veremos si funciona 😉, parece que sí).</p>
 <h2 id="una-sola-variable-global">Una sola variable &ldquo;global&rdquo;</h2>
 <p>En el paquete <code>dbclient</code>, defino:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">type</span> DB <span style="color:#268bd2">struct</span> {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">type</span> DB <span style="color:#268bd2">struct</span> {
 </span></span><span style="display:flex;"><span>    myConnectionString <span style="color:#dc322f">string</span>
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>También defino una variable (&ldquo;global&rdquo; en el paquete <code>dbclient</code>):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">var</span> db <span style="color:#719e07">*</span>DB
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">var</span> db <span style="color:#719e07">*</span>DB
 </span></span></code></pre></div><p>Sólo quiero que haya una variable <code>db</code>; para éso sirve exactamente el patrón <em>singleton</em> (como referencia, <a href="https://refactoring.guru/design-patterns/singleton/go/example#example-1">Singleton in Go</a>), de <a href="https://refactoring.guru/">Refactoring Guru</a>.</p>
 <p>La manera <em>idiomática</em> de implementarlo en Go es usando el paquete <code>sync</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">var</span> once sync.Once
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">var</span> once sync.Once
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">GetDB</span>() <span style="color:#719e07">*</span>DB {
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">if</span> db <span style="color:#719e07">==</span> <span style="color:#cb4b16">nil</span> {
@@ -176,7 +176,7 @@
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>Si existe una instancia de <code>db</code>, la devuelvo; si no, la inicializo.</p>
 <p>Para comprobar que funciona:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#719e07">package</span> main
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#719e07">package</span> main
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#719e07">import</span> (
 </span></span><span style="display:flex;"><span>    <span style="color:#2aa198">&#34;math/rand&#34;</span>
@@ -190,7 +190,7 @@
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>Ejecutando la aplicación:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ go run main.go 
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ go run main.go 
 </span></span><span style="display:flex;"><span>2023/08/16 18:48:43 initializing database connection to start
 </span></span><span style="display:flex;"><span>2023/08/16 18:48:43 database connection already initialized to start
 </span></span><span style="display:flex;"><span>2023/08/16 18:48:43 database connection already initialized to start
@@ -206,19 +206,19 @@
 Esto generalmente se consigue con un <code>defer</code> en <code>main</code>.</p>
 <p>Anteriormente no sabía cómo afrontar este escenario, ya que la variable se definía en <code>dbclient</code>, no en <code>main</code>&hellip;</p>
 <p>Ahora, simplemente:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">for</span> i <span style="color:#719e07">:=</span> <span style="color:#2aa198">1</span>; i &lt; <span style="color:#2aa198">10</span>; i<span style="color:#719e07">++</span> {
 </span></span><span style="display:flex;"><span>        db.<span style="color:#268bd2">GetDB</span>()
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">defer</span> db.<span style="color:#268bd2">GetDB</span>().<span style="color:#268bd2">Close</span>()
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>Y en el paquete <code>dbclient</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> (db <span style="color:#719e07">*</span>DB) <span style="color:#268bd2">Close</span>() {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> (db <span style="color:#719e07">*</span>DB) <span style="color:#268bd2">Close</span>() {
 </span></span><span style="display:flex;"><span>    log.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;closing database connection&#34;</span>)
 </span></span><span style="display:flex;"><span>    db = <span style="color:#cb4b16">nil</span>
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>Al ejecutar la aplicación:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ go run main.go 
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ go run main.go 
 </span></span><span style="display:flex;"><span>2023/08/16 19:25:38 initializing database connection to start
 </span></span><span style="display:flex;"><span>2023/08/16 19:25:38 database connection already initialized to start
 </span></span><span style="display:flex;"><span>2023/08/16 19:25:38 database connection already initialized to start
@@ -231,11 +231,11 @@ Esto generalmente se consigue con un <code>defer</code> en <code>main</code>.</p
 </span></span><span style="display:flex;"><span>2023/08/16 19:25:38 database connection already initialized to start
 </span></span><span style="display:flex;"><span>2023/08/16 19:25:38 closing database connection
 </span></span></code></pre></div><p>Finalmente, como validación final, quiero comprobar que puedo modificar la propiedad <code>myConnectionString</code> (privada) desde <code>main</code>; para ello, he definido un <em>setter</em>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> (db <span style="color:#719e07">*</span>DB) <span style="color:#268bd2">SetString</span>(connectionString <span style="color:#dc322f">string</span>) {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> (db <span style="color:#719e07">*</span>DB) <span style="color:#268bd2">SetString</span>(connectionString <span style="color:#dc322f">string</span>) {
 </span></span><span style="display:flex;"><span>    db.myConnectionString = connectionString
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>Y para validarlo:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
 </span></span><span style="display:flex;"><span>    s <span style="color:#719e07">:=</span> []<span style="color:#dc322f">string</span>{<span style="color:#2aa198">&#34;s7hobd7hAs&#34;</span>, <span style="color:#2aa198">&#34;cXnLvQm3hg&#34;</span>, <span style="color:#2aa198">&#34;o7LqFOeH9K&#34;</span>, <span style="color:#2aa198">&#34;xfO09Rk6EF&#34;</span>, <span style="color:#2aa198">&#34;Tx20FPFHX1&#34;</span>, <span style="color:#2aa198">&#34;KICv5ci9K9&#34;</span>, <span style="color:#2aa198">&#34;BrdlL0IPLw&#34;</span>, <span style="color:#2aa198">&#34;rNBLzzXj8S&#34;</span>, <span style="color:#2aa198">&#34;hb2AozseHH&#34;</span>, <span style="color:#2aa198">&#34;aIMnLjr2dU&#34;</span>}
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">for</span> i <span style="color:#719e07">:=</span> <span style="color:#2aa198">1</span>; i &lt; <span style="color:#2aa198">10</span>; i<span style="color:#719e07">++</span> {
 </span></span><span style="display:flex;"><span>        db.<span style="color:#268bd2">GetDB</span>().<span style="color:#268bd2">SetString</span>(s[rand.<span style="color:#268bd2">Intn</span>(<span style="color:#b58900">len</span>(s))])
@@ -243,7 +243,7 @@ Esto generalmente se consigue con un <code>defer</code> en <code>main</code>.</p
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">defer</span> db.<span style="color:#268bd2">GetDB</span>().<span style="color:#268bd2">Close</span>()
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>La ejecución muestra que, efectivamente, no hay problema en establecer <code>myConnectionString</code> a través de:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ go run main.go 
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ go run main.go 
 </span></span><span style="display:flex;"><span>2023/08/16 19:31:35 initializing database connection to start
 </span></span><span style="display:flex;"><span>2023/08/16 19:31:35 database connection already initialized to BrdlL0IPLw
 </span></span><span style="display:flex;"><span>2023/08/16 19:31:35 database connection already initialized to o7LqFOeH9K

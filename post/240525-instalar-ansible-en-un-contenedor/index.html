@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.136.5">
+<meta name="generator" content="Hugo 0.165.0">
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -92,7 +92,7 @@
       <script type="application/json">
         {
           "vars": {
-            "account": "Page(\/post\/240525-instalar-ansible-en-un-contenedor)"
+            "account": "\/Users\/xavi\/repos\/personal\/onthedock-hugo\/content\/post\/240525-instalar-ansible-en-un-contenedor.md"
           },
           "triggers": {
             "trackPageview": {
@@ -161,15 +161,15 @@ Sin embargo, en las pruebas que iba haciendo para verificar que Ansible en el co
 Unas búsquedas después, parece que el error era que, para evitar problemas, <em>pip</em> me indicaba que debía usar un <em>virtual env</em> (y yo no lo hacía)&hellip;</p>
 <p>Finalmente, volví al punto de partida y realicé la instalación usando el gestor de paquetes de Alpine Linux (aunque conservando <code>py3-pip</code> en el contenedor). Quizás el paquete se podría eliminar, pero de momento, he decidido mantenerlo en el fichero <code>Dockerfile</code>.</p>
 <p>Algo parecido sucede con <code>sshpass</code>; en principio, es necesario para que Ansible pueda solicitar el password para conectar vía SSH a la(s) máquina(s) remota(s). Sin embargo, una vez configurado el acceso usando una clave SSH, es probable que no sea necesario. De nuevo, de momento, lo mantengo en la definición de la imagen del contenedor en el fichero <code>Dockerfile</code>.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-dockerfile" data-lang="dockerfile"><span style="display:flex;"><span><span style="color:#719e07">FROM</span><span style="color:#2aa198"> alpine:3.19</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-dockerfile" data-lang="dockerfile"><span style="display:flex;"><span><span style="color:#719e07">FROM</span> <span style="color:#2aa198">alpine:3.19</span>
 </span></span><span style="display:flex;"><span><span style="color:#719e07">ENV</span> <span style="color:#268bd2">ALPINE_ANSIBLE_PKG_VERSION</span><span style="color:#719e07">=</span><span style="color:#2aa198">8</span>.6.1-r0
 </span></span><span style="display:flex;"><span><span style="color:#719e07">RUN</span> apk add gcc python3 py3-pip <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>            openssh sshpass <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>            <span style="color:#268bd2">ansible</span><span style="color:#719e07">=</span><span style="color:#268bd2">$ALPINE_ANSIBLE_PKG_VERSION</span>
+</span></span></span><span style="display:flex;"><span>            openssh sshpass <span style="color:#cb4b16">\
+</span></span></span><span style="display:flex;"><span>            <span style="color:#268bd2">ansible</span><span style="color:#719e07">=</span><span style="color:#268bd2">$ALPINE_ANSIBLE_PKG_VERSION</span>
 </span></span></code></pre></div><p>La imagen resultante, con Ansible Core (2.16.1) en Alpine 3.19 se encuentra disponible en Docker Hub <a href="https://hub.docker.com/repository/docker/xaviaznar/ansible/general">xaviaznar/ansible:2.16</a>.</p>
 <h2 id="docker-compose">Docker Compose</h2>
 <p>En vez de crear un <em>script</em> para lanzar el contenedor, sigo la práctica de usar un fichero de <code>docker-compose.yaml</code>, que incluye todos los parámetros, volúmenes, etc en un solo fichero YAML.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-Dockerfile" data-lang="Dockerfile"><span style="display:flex;"><span>version: <span style="color:#2aa198">&#34;3&#34;</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-Dockerfile" data-lang="Dockerfile"><span style="display:flex;"><span>version: <span style="color:#2aa198">&#34;3&#34;</span>
 </span></span><span style="display:flex;"><span>name: ansible
 </span></span><span style="display:flex;"><span>services:
 </span></span><span style="display:flex;"><span>  cli:
@@ -186,14 +186,14 @@ Los <em>playbooks</em> (y el inventario) de Ansible estarán en la carpeta local
 <p>El otro volumen monta la clave privada que usará Ansible para autenticarse en las máquinas remotas.
 Una posible mejora sería la de montar esta clave privada como <em>read only</em> para evitar borrarla o modificarla por error desde el contenedor.</p>
 <p>Levantamos la &ldquo;máquina de control&rdquo; de Ansible mediante el comando:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>docker compose up -d
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>docker compose up -d
 </span></span></code></pre></div><p>Una vez el contenedor ha arrancado, nos conectamos para ejecutar los <em>playbooks</em>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>docker exec -it ansible-cli-1 /bin/sh
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>docker exec -it ansible-cli-1 /bin/sh
 </span></span></code></pre></div><p>Una vez conectados al contenedor, ejecutamos Ansible:</p>
 <blockquote>
 <p>Usamos la clave privada con la que hemos configurado el acceso a la máquina remota para el usuario <code>xavi</code>, en este caso.</p>
 </blockquote>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>ansible-playbook playbooks/docker.yaml -i inventory.yaml -u xavi --key-file /ansible.key
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>ansible-playbook playbooks/docker.yaml -i inventory.yaml -u xavi --key-file /ansible.key
 </span></span></code></pre></div><h2 id="playbook-de-instalación-de-docker-ce"><em>Playbook</em> de instalación de Docker CE</h2>
 <p>Ansible se conecta vía SSH a las máquinas remotas. Al conectar por primera vez a un equipo remoto por SSH, si la &ldquo;firma&rdquo; del equipo remoto no se encuentra en el fichero <code>$HOME/.ssh/known_hosts</code>, openSSH espera hasta que se le indica si debe confiar o no el equipo al que intenta conectar.</p>
 <p>Como el contenedor es desechable, el fichero <code>$HOME/.ssh/known_hosts</code> no existe/está vacío para cada nueva instancia del contenedor.
@@ -202,14 +202,14 @@ Para evitar que Ansible pregunte si debe confiar en la máquina remota, tenemos 
 <p>Ansible se conecta a las máquinas remotas y obtiene información de las máquinas remotas que se puede utilizar en el <em>playbook</em>.
 Pero como esa conexión se realiza a través de SSH, la ejecución se detiene hasta que se indica si confiamos en el equipo remoto o no <strong>antes de que podamos realizar ninguna acción para evitarlo</strong>.</p>
 <p>Así que lo primero que hacemos en el <em>playbook</em> es desactivar la recolección de &ldquo;hechos&rdquo;</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>---
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>---
 </span></span><span style="display:flex;"><span>- <span style="color:#268bd2">hosts</span>: all
 </span></span><span style="display:flex;"><span>  <span style="color:#268bd2">become</span>: <span style="color:#cb4b16">true</span>
 </span></span><span style="display:flex;"><span>  <span style="color:#586e75"># Don&#39;t gather facts automatically because that will trigger</span>
 </span></span><span style="display:flex;"><span>  <span style="color:#586e75"># a connection, which needs to check the remote host key</span>
 </span></span><span style="display:flex;"><span>  <span style="color:#268bd2">gather_facts</span>: <span style="color:#cb4b16">false</span>
 </span></span></code></pre></div><p>A continuación, creamos el fichero la carpeta <code>$HOME/.ssh/</code> y el fichero <code>known_hosts</code> en el contenedor:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>---
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>---
 </span></span><span style="display:flex;"><span>- <span style="color:#268bd2">hosts</span>: all
 </span></span><span style="display:flex;"><span>  <span style="color:#268bd2">become</span>: <span style="color:#cb4b16">true</span>
 </span></span><span style="display:flex;"><span>  <span style="color:#586e75"># Don&#39;t gather facts automatically because that will trigger</span>
@@ -230,7 +230,7 @@ Pero como esa conexión se realiza a través de SSH, la ejecución se detiene ha
 </span></span></code></pre></div><p>Estas acciones deben realizarse en la <em>máquina de control</em>, es decir, en el contenedor donde se ejecuta Ansible.
 Lo habitual es que Ansible realice acciones en <em>máquinas remotas</em>; por lo que usamos la directriz <code>delegate_to: localhost</code> para indicar que las acciones se deben realizar en la máquina local (la <em>máquina de control</em>).</p>
 <p>Finalmente, una vez que samos que el fichero <code>$HOME/.ssh/known_hosts</code> existe, anadimos la firma de la máquina remota:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>---
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>---
 </span></span><span style="display:flex;"><span>- <span style="color:#268bd2">hosts</span>: all
 </span></span><span style="display:flex;"><span>  <span style="color:#268bd2">become</span>: <span style="color:#cb4b16">true</span>
 </span></span><span style="display:flex;"><span>  <span style="color:#586e75"># Don&#39;t gather facts automatically because that will trigger</span>
@@ -258,18 +258,18 @@ Idealmente, se debería calcular la firma de cada una de las máquinas en el inv
 <p>El usuario con el que nos conectamos debe ser capaz de, como mínimo, usar <code>sudo</code> para elevar los permisos y poder realizar acciones como instalar aplicaciones en los equipos remotos.</p>
 <p>Para que el usuario utilizado por Ansible pueda elevar sus permisos usando <code>sudo</code>, debe estar incluido en el fichero de <em>sudoers</em>.</p>
 <p>En vez de proporcionar permisos de manera individual a cada usuario, creamos el grupo <code>ansible</code> en la(s) máquina(s) remota(s):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>sudo groupadd ansible
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>sudo groupadd ansible
 </span></span></code></pre></div><p>A continuación, añadimos el usuario o usuarios que Ansible usará en la máquina remota; en nuestro caso, únicamente el usuario actual:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>sudo usermod -aG ansible $USER
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>sudo usermod -aG ansible $USER
 </span></span></code></pre></div><p>Validamos que el usuario se ha añadido al grupo <code>ansible</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ groups <span style="color:#268bd2">$USER</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$ groups <span style="color:#268bd2">$USER</span>
 </span></span><span style="display:flex;"><span>xavi : xavi adm cdrom sudo dip plugdev lxd ansible
 </span></span></code></pre></div><p>A continuación, incluimos el grupo <code>ansible</code> en el fichero de <em>sudoers</em> (usando <code>visudo</code>):</p>
 <pre tabindex="0"><code class="language-code" data-lang="code"># Users of the &#39;ansible&#39; group do not require password to become root
 %ansible ALL=(ALL) NOPASSWD: ALL
 </code></pre><h2 id="instalación-de-docker-ce">Instalación de Docker CE</h2>
 <p>Siguiendo las instrucciones de la página de Docker, instalamos los pre-requisitos, añadimos la <em>key</em> para autenticar el repositorio de paquetes de Docker, añadimos el repositorio y finalmente instalamos:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>    - <span style="color:#268bd2">name</span>: Install required system packages
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>    - <span style="color:#268bd2">name</span>: Install required system packages
 </span></span><span style="display:flex;"><span>      <span style="color:#268bd2">ansible.builtin.apt</span>:
 </span></span><span style="display:flex;"><span>        <span style="color:#268bd2">pkg</span>:
 </span></span><span style="display:flex;"><span>          - apt-transport-https

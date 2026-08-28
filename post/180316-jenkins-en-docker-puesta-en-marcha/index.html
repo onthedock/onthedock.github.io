@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.136.5">
+<meta name="generator" content="Hugo 0.165.0">
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -92,7 +92,7 @@
       <script type="application/json">
         {
           "vars": {
-            "account": "Page(\/post\/180316-jenkins-en-docker-puesta-en-marcha)"
+            "account": "\/Users\/xavi\/repos\/personal\/onthedock-hugo\/content\/post\/180316-jenkins-en-docker-puesta-en-marcha.md"
           },
           "triggers": {
             "trackPageview": {
@@ -164,7 +164,7 @@
 <p>Puedes realizar configuraciones adicionales a través de parámetros al ejecutar el contenedor, como ajustar el nivel de detalle en los <em>logs</em>, configurar el número de <em>ejecutores</em>, etc.</p>
 <h3 id="preinstalación-de-plugins">Preinstalación de plugins</h3>
 <p>Para preinstalar <em>plugins</em> en Jenkins, debes crear una imagen personalizada. En la imagen, puedes usar el script <code>install-plugins.sh</code> para descargar los plugins indicados. Puedes pasar una lista de plugins a instalar al script mediante:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>...
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>...
 </span></span><span style="display:flex;"><span>COPY plugins.txt /usr/share/jenkins/ref/plugins.txt
 </span></span><span style="display:flex;"><span>RUN /usr/local/bin/install-plugins.sh &lt; /usr/share/jenkins/ref/plugins.txt
 </span></span></code></pre></div><p>Cuando el contenedor de Jenkins arranca, comprueba si los <em>plugins</em> indicados existen en <code>JENKINS_HOME</code> y los copia si es necesario. <strong>No sobrescribirá los ficheros</strong>, por lo que si has actualizado los <em>plugins</em> desde la interfaz web, no los modificará.</p>
@@ -175,7 +175,7 @@
 </figure>
 
 <p>Jenkins genera una contraseña segura en <code>/var/jenkins_home/secrets/initialAdminPassword</code>. Puedes obtener esta contraseña inicial de diferentes maneras, pero la más sencilla es revisando los logs de arranque de Jenkins:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ docker logs jenkins
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ docker logs jenkins
 </span></span><span style="display:flex;"><span>...
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>Jenkins initial setup is required. An admin user has been created and a password generated.
@@ -204,10 +204,10 @@
 </span></span><span style="display:flex;"><span>--&gt; setting agent port <span style="color:#719e07">for</span> jnlp
 </span></span><span style="display:flex;"><span>--&gt; setting agent port <span style="color:#719e07">for</span> jnlp... <span style="color:#719e07">done</span>
 </span></span></code></pre></div><p>Personalmente considero más útil aprovechar que el password inicial se encuentra en el fichero <code>/var/jenkins_home/secrets/initialAdminPassword</code> y obtenerlo usando <code>cat /var/jenkins_home/secrets/initialAdminPassword</code> mediante <code>docker exec</code>.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ docker <span style="color:#b58900">exec</span> jenkins cat /var/jenkins_home/secrets/initialAdminPassword
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ docker <span style="color:#b58900">exec</span> jenkins cat /var/jenkins_home/secrets/initialAdminPassword
 </span></span><span style="display:flex;"><span>cb6e558c91e946ab8f06cf085c9cf88b
 </span></span></code></pre></div><p>De esta forma puedes guardar el password en una variable de entorno y usarlo en un script, para acceder desde otra aplicación usando la API, etc.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ <span style="color:#268bd2">JENKINS_InitialPassword</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>docker <span style="color:#b58900">exec</span> jenkins cat /var/jenkins_home/secrets/initialAdminPassword<span style="color:#719e07">)</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ <span style="color:#268bd2">JENKINS_InitialPassword</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>docker <span style="color:#b58900">exec</span> jenkins cat /var/jenkins_home/secrets/initialAdminPassword<span style="color:#719e07">)</span>
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>$ <span style="color:#b58900">echo</span> <span style="color:#268bd2">$JENKINS_InitialPassword</span>
 </span></span><span style="display:flex;"><span>cb6e558c91e946ab8f06cf085c9cf88b

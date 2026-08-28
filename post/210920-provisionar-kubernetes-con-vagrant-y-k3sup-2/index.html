@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.136.5">
+<meta name="generator" content="Hugo 0.165.0">
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -92,7 +92,7 @@
       <script type="application/json">
         {
           "vars": {
-            "account": "Page(\/post\/210920-provisionar-kubernetes-con-vagrant-y-k3sup-2)"
+            "account": "\/Users\/xavi\/repos\/personal\/onthedock-hugo\/content\/post\/210920-provisionar-kubernetes-con-vagrant-y-k3sup-2.md"
           },
           "triggers": {
             "trackPageview": {
@@ -169,7 +169,7 @@
 <p>El usuario <em>no-root</em> también es necesario para realizar la instalación de <em>K3s</em> mediante <em>k3sup</em>. Como requerimiento adicional de <em>k3sup</em>, este usuario <em>no-root</em> debe poder elevar permisos mediante <em>sudo</em> sin necesidad de proporcionar la contraseña.</p>
 <h3 id="script-de-bootstrap"><em>Script</em> de <em>bootstrap</em></h3>
 <p>Este <em>script</em> está basado en el fichero de Venkat Nagappan:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#268bd2">$bootstrap</span> <span style="color:#719e07">=</span> <span style="color:#2aa198">&lt;&lt;-SCRIPT
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#268bd2">$bootstrap</span> <span style="color:#719e07">=</span> <span style="color:#2aa198">&lt;&lt;-SCRIPT
 </span></span></span><span style="display:flex;"><span><span style="color:#2aa198">#!/bin/bash
 </span></span></span><span style="display:flex;"><span><span style="color:#2aa198">
 </span></span></span><span style="display:flex;"><span><span style="color:#2aa198"># Enable ssh password authentication
@@ -190,12 +190,12 @@
 </span></span></span><span style="display:flex;"><span><span style="color:#2aa198">echo -e &#34;admin\nadmin&#34; | passwd root &gt;/dev/null 2&gt;&amp;1
 </span></span></span><span style="display:flex;"><span><span style="color:#2aa198">SCRIPT</span>
 </span></span></code></pre></div><p>La primera sección modifica el fichero de configuración de SSH para permitir el acceso usando autenticación con contraseña; aunque fue útil al principio, una vez configurado el acceso usando claves SSH, ya no es necesario y probablemente acabe eliminando estas líneas:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#586e75"># Enable ssh password authentication</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#586e75"># Enable ssh password authentication</span>
 </span></span><span style="display:flex;"><span><span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;Enable ssh password authentication&#34;</span>
 </span></span><span style="display:flex;"><span>sed -i <span style="color:#2aa198">&#39;s/^PasswordAuthentication no/PasswordAuthentication yes/&#39;</span> /etc/ssh/sshd_config
 </span></span></code></pre></div><p>A continuación, se habilita el acceso SSH para el usuario <code>root</code>; tras validar la creación del usuario <em>no-root</em> <code>operador</code>, no es necesario acceder con <code>root</code>, así que comenté estas líneas y, de nuevo, las eliminaré en una iteración futura.</p>
 <p>En la siguiente sección genero el usuario <em>no-root</em> <code>operador</code> y establezco su contraseña (como <code>admin</code>, que sin duda no es una elección acertada):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#586e75"># Create operador user</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#586e75"># Create operador user</span>
 </span></span><span style="display:flex;"><span><span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;Create user operador&#34;</span>
 </span></span><span style="display:flex;"><span>useradd -s /bin/bash -m -G sudo -U operador
 </span></span><span style="display:flex;"><span><span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;Set operador password&#34;</span>
@@ -203,7 +203,7 @@
 </span></span></code></pre></div><p>Dado que conseguí habilitar el acceso usando claves SSH para acceder a las máquinas virtuales provisionadas usando el usuario <code>operador</code>, ya no es necesario establecer la contraseña para el usuario.</p>
 <p>En la parte final del <em>script</em> se establece la contraseña para el usuario <code>root</code>; de nuevo, esto no es necesario, ya que el usuario <em>no-root</em> puede elevar permisos usando <em>sudo</em>.</p>
 <p>En algún momento del futuro, este <em>script</em> se reducirá a:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#268bd2">$bootstrap</span> <span style="color:#719e07">=</span> <span style="color:#2aa198">&lt;&lt;-SCRIPT
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#268bd2">$bootstrap</span> <span style="color:#719e07">=</span> <span style="color:#2aa198">&lt;&lt;-SCRIPT
 </span></span></span><span style="display:flex;"><span><span style="color:#2aa198">#!/bin/bash
 </span></span></span><span style="display:flex;"><span><span style="color:#2aa198">
 </span></span></span><span style="display:flex;"><span><span style="color:#2aa198"># Create operador user
@@ -211,7 +211,7 @@
 </span></span></span><span style="display:flex;"><span><span style="color:#2aa198">useradd -s /bin/bash -m -G sudo -U operador
 </span></span></span><span style="display:flex;"><span><span style="color:#2aa198">SCRIPT</span>
 </span></span></code></pre></div><h3 id="elevación-de-permisos-con-sudo-sin-contraseña">Elevación de permisos con <em>sudo</em> sin contraseña</h3>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#268bd2">$passwordlessSudo</span> <span style="color:#719e07">=</span> <span style="color:#2aa198">&lt;&lt;-SCRIPT
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#268bd2">$passwordlessSudo</span> <span style="color:#719e07">=</span> <span style="color:#2aa198">&lt;&lt;-SCRIPT
 </span></span></span><span style="display:flex;"><span><span style="color:#2aa198">#!/bin/bash
 </span></span></span><span style="display:flex;"><span><span style="color:#2aa198">
 </span></span></span><span style="display:flex;"><span><span style="color:#2aa198">echo &#34;operador    ALL=(ALL) NOPASSWD:ALL&#34; &gt;&gt; &#34;/etc/sudoers.d/operador&#34;
@@ -221,7 +221,7 @@
 <p>Una mejora del <em>script</em> es que el nombre elegido para el usuario <em>no-root</em> pueda ser definido a través de una variable.</p>
 <h3 id="copia-de-la-clave-ssh-a-las-máquinas-provisionadas">Copia de la clave SSH a las máquinas provisionadas</h3>
 <p>Este es un ejemplo de lo <em>terriblemente hardcodeado</em> que está el nombre del usuario, el nombre de la clave pública, la ruta de destino&hellip; <em>Gets the job done</em>, pero necesita darle un poco de cariño y refinarlo para darle algo más de flexibilidad:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#586e75"># Passwordless SSH access for operador</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#586e75"># Passwordless SSH access for operador</span>
 </span></span><span style="display:flex;"><span>node.vm.provision <span style="color:#2aa198">&#34;file&#34;</span>, source: <span style="color:#2aa198">&#34;~/.ssh/id_rsa.pub&#34;</span>, destination: <span style="color:#2aa198">&#34;/tmp/xavi.pub&#34;</span>
 </span></span><span style="display:flex;"><span>node.vm.provision <span style="color:#2aa198">&#34;shell&#34;</span>, inline: <span style="color:#2aa198">&lt;&lt;-SHELL
 </span></span></span><span style="display:flex;"><span><span style="color:#2aa198">    sudo su operador
@@ -234,7 +234,7 @@
 </blockquote>
 <p>Para configurar la tarjeta de red adicional en las máquinas provisionadas en modo <em>bridge</em>, debe indicarse qué tarjeta física es la que está conectada a la red local.</p>
 <p><strong>Suponiendo que sólo hay una tarjeta de red activa</strong> y haciendo algo de fontanería:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$  ip link
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$  ip link
 </span></span><span style="display:flex;"><span>1: lo: &lt;LOOPBACK,UP,LOWER_UP&gt; mtu <span style="color:#2aa198">65536</span> qdisc noqueue state UNKNOWN mode DEFAULT group default qlen <span style="color:#2aa198">1000</span>
 </span></span><span style="display:flex;"><span>    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
 </span></span><span style="display:flex;"><span>2: enp2s0: &lt;NO-CARRIER,BROADCAST,MULTICAST,UP&gt; mtu <span style="color:#2aa198">1500</span> qdisc fq_codel state DOWN mode DEFAULT group default qlen <span style="color:#2aa198">1000</span>
@@ -258,8 +258,8 @@
 <li>sólo permite usar un nodo <em>server</em> en el clúster</li>
 </ul>
 <p>El <em>script</em> no tiene misterio si has revisado la documentación de <a href="https://github.com/alexellis/k3sup">k3sup</a>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#719e07">#!/usr/bin/env bash
-</span></span></span><span style="display:flex;"><span><span style="color:#719e07"></span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#719e07">#!/usr/bin/env bash
+</span></span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#b58900">export</span> <span style="color:#268bd2">IPControlPlaneNode</span><span style="color:#719e07">=</span>192.168.1.101
 </span></span><span style="display:flex;"><span><span style="color:#b58900">export</span> <span style="color:#268bd2">IPWorkerNode1</span><span style="color:#719e07">=</span>192.168.1.102
 </span></span><span style="display:flex;"><span><span style="color:#b58900">export</span> <span style="color:#268bd2">IPWorkerNode2</span><span style="color:#719e07">=</span>192.168.1.103

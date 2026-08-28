@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.136.5">
+<meta name="generator" content="Hugo 0.165.0">
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -92,7 +92,7 @@
       <script type="application/json">
         {
           "vars": {
-            "account": "Page(\/post\/171118-gogs-no-arranca-en-rpi)"
+            "account": "\/Users\/xavi\/repos\/personal\/onthedock-hugo\/content\/post\/171118-gogs-no-arranca-en-rpi.md"
           },
           "triggers": {
             "trackPageview": {
@@ -199,7 +199,7 @@ Nov 18 16:29:51 sshd[26]: Server listening on 0.0.0.0 port 22.
 <p>La única forma en la que he conseguido devolver a la vida la interfaz web ha sido borrando el fichero <code>app.ini</code> y configurando Gogs de nuevo :(</p>
 <h1 id="actualización-19112017">Actualización (19/11/2017)</h1>
 <p>He descargado la imagen <code>gogs/gogs</code> (0.11.29) en el equipo de laboratorio (x64):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ docker images
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ docker images
 </span></span><span style="display:flex;"><span>REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
 </span></span><span style="display:flex;"><span>gogs/gogs           0.11.29             111330b56503        <span style="color:#2aa198">15</span> hours ago        139MB
 </span></span><span style="display:flex;"><span>gogs/gogs           latest              111330b56503        <span style="color:#2aa198">15</span> hours ago        139MB
@@ -208,7 +208,7 @@ Nov 18 16:29:51 sshd[26]: Server listening on 0.0.0.0 port 22.
 <p>He comprobado que la imagen está basada en Alpine Linux, por lo que finalmente sí que he podido acceder mediante <code>docker exec -it /bin/ash</code>, pero no he averiguado nada relevante.</p>
 <p>Finalmente se me ha ocurrido lanzar el contenedor sin pasarlo a segundo plano (omitiendo el parámetro <code>-d</code>), de manera que la salida se mostraba en la línea de comandos.</p>
 <p>De esta forma he observado mensajes de error en la salida por pantalla. Y aunque los errores se muestran al ejecutar <code>docker logs gogs</code>, cuando redirijo la salida del comando a un fichero  (<code>docker logs gogs &gt; docker-gogs.log</code> no se registran los mensajes de error (aunque parece que está en un bucle infinito, que se va repitiendo constantemente):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ cat test.log
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ cat test.log
 </span></span><span style="display:flex;"><span>Nov <span style="color:#2aa198">19</span> 19:37:32 syslogd started: BusyBox v1.25.1
 </span></span><span style="display:flex;"><span>Nov <span style="color:#2aa198">19</span> 19:37:32 sshd<span style="color:#719e07">[</span>31<span style="color:#719e07">]</span>: Server listening on :: port 22.
 </span></span><span style="display:flex;"><span>Nov <span style="color:#2aa198">19</span> 19:37:32 sshd<span style="color:#719e07">[</span>31<span style="color:#719e07">]</span>: Server listening on 0.0.0.0 port 22.
@@ -241,7 +241,7 @@ Nov 18 16:29:51 sshd[26]: Server listening on 0.0.0.0 port 22.
 </span></span><span style="display:flex;"><span>2017/11/19 19:37:51 <span style="color:#719e07">[</span>TRACE<span style="color:#719e07">]</span> Build Git Hash:
 </span></span></code></pre></div><p>En estas pruebas que estoy realizando, el fichero <code>app.ini</code> no se llega a crear (tampoco la base de datos SQLite, <code>gogs.db</code>). Esto me ha llevado a pensar en un problema de permisos, pero tampoco se ha creado cuando he asignado permisos a todo el mundo (777).</p>
 <p>Para comprobar esta hipótesis he lanzado el contenedor sin montar ningún volumen (es decir, haciendo que la base de datos se genere <em>dentro</em> del propio contenedor).</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>docker run -d -p 8022:22 -p 3000:3000 gogs/gogs
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>docker run -d -p 8022:22 -p 3000:3000 gogs/gogs
 </span></span></code></pre></div><p>Pero tampoco he tenido éxito.</p>
 <p>Pensaba que los errores que he visto desfilar por pantalla los causaba el intento de conectar a la URL de Gogs. Después de crear el contenedor y esperar un rato (unos 5 o 10 segundos), he visto que el error aparecía de forma espontánea.</p>
 <p>Dado que <code>docker logs gogs &gt; errores.log</code> no escribe los errores en el log, he optado por crear un contenedor mediante <code>docker run --name gogs -p 8022:22 p:3000:3000 gogs/gogs</code> y esperar&hellip;</p>
@@ -249,7 +249,7 @@ Nov 18 16:29:51 sshd[26]: Server listening on 0.0.0.0 port 22.
 <p>Revisando los <em>issues</em> en GitHub, parece que es un error conocido que se trata como <em>mejora</em> :<a href="https://github.com/gogits/gogs/issues/1022">Panics should get logged</a></p>
 </blockquote>
 <p>Al haber lanzado el contenedor sin <code>-d</code>, los mensajes se muestran por pantalla, de donde he hecho un <em>copy &amp; paste</em>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span> docker run --name gogs -p 3000:3000 gogs/gogs
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span> docker run --name gogs -p 3000:3000 gogs/gogs
 </span></span><span style="display:flex;"><span>usermod: no changes
 </span></span><span style="display:flex;"><span>Nov <span style="color:#2aa198">19</span> 19:37:32 syslogd started: BusyBox v1.25.1
 </span></span><span style="display:flex;"><span>Nov <span style="color:#2aa198">19</span> 19:37:32 sshd<span style="color:#719e07">[</span>31<span style="color:#719e07">]</span>: Server listening on :: port 22.
@@ -339,7 +339,7 @@ Nov 18 16:29:51 sshd[26]: Server listening on 0.0.0.0 port 22.
 </figure>
 
 <p>Y a todo esto, tengo problemas para descargar la última versión:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ docker pull gogs/gogs
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ docker pull gogs/gogs
 </span></span><span style="display:flex;"><span>Using default tag: latest
 </span></span><span style="display:flex;"><span>Error response from daemon: Get https://registry-1.docker.io/v2/: dial tcp: lookup registry-1.docker.io on <span style="color:#719e07">[</span>::1<span style="color:#719e07">]</span>:53: <span style="color:#b58900">read</span> udp <span style="color:#719e07">[</span>::1<span style="color:#719e07">]</span>:52357-&gt;<span style="color:#719e07">[</span>::1<span style="color:#719e07">]</span>:53: read: connection refused
 </span></span></code></pre></div><p>La <a href="https://github.com/docker/for-mac/issues/1317">solución</a> pasa por desinstalar y volver a instalar Docker (¿¡!?) y cuando lo intento descubro que la máquina virtual tiene algún problema con la resolución de nombres (usando los DNSs de Google (¡¡¿¿??!!)), así que después de cambiar de nuevo a IP dinámica, reiniciar, recuperar la conectividad, reinstalar Docker, descargar la última versión de la imagen de Gogs (0.11.33) la página de configuración vuelve a mostrarse.</p>

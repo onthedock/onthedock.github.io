@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.136.5">
+<meta name="generator" content="Hugo 0.165.0">
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -92,7 +92,7 @@
       <script type="application/json">
         {
           "vars": {
-            "account": "Page(\/post\/230111-convertir-csv-en-json)"
+            "account": "\/Users\/xavi\/repos\/personal\/onthedock-hugo\/content\/post\/230111-convertir-csv-en-json.md"
           },
           "triggers": {
             "trackPageview": {
@@ -150,9 +150,9 @@
 <p>En esta entrada, esbozo una versión simplificada de la solución.</p>
 <h2 id="el-fichero-proporcionado-por-el-usuario">El fichero proporcionado por el usuario</h2>
 <p>El fichero en el que el usuario proporciona las reglas a implementar en el <em>proxy</em> puede ser algo como:</p>
-<pre tabindex="0"><code class="language-csv" data-lang="csv">tcp,    www.ubuntu.com     , 443, allow
-tcp, www.badsite.com, 80, deny
-</code></pre><blockquote>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-csv" data-lang="csv"><span style="display:flex;"><span><span style="color:#2aa198">tcp</span>,<span style="color:#2aa198">    www.ubuntu.com     </span>,<span style="color:#2aa198"> 443</span>,<span style="color:#2aa198"> allow</span>
+</span></span><span style="display:flex;"><span><span style="color:#2aa198">tcp</span>,<span style="color:#2aa198"> www.badsite.com</span>,<span style="color:#2aa198"> 80</span>,<span style="color:#2aa198"> deny</span>
+</span></span></code></pre></div><blockquote>
 <p>En una de las reglas, hemos introducido espacios adicionales para <em>simular</em> cierta <em>aleatoriedad</em> que pueda introducir el usuario.</p>
 </blockquote>
 <h2 id="solución-quick--dirty-pero-funcional">Solución <em>quick &amp; dirty</em> (pero funcional)</h2>
@@ -160,8 +160,8 @@ tcp, www.badsite.com, 80, deny
 <blockquote>
 <p>El <em>script</em> no considera el caso de que haya líneas vacías en el fichero de entrada proporcionado por el usuario, que falte alguno de los parámetros requeridos, que los valores sean los apropiados&hellip;</p>
 </blockquote>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#719e07">#!/bin/bash
-</span></span></span><span style="display:flex;"><span><span style="color:#719e07"></span><span style="color:#268bd2">file_name</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$1</span><span style="color:#2aa198">&#34;</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#719e07">#!/bin/bash
+</span></span></span><span style="display:flex;"><span><span style="color:#268bd2">file_name</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$1</span><span style="color:#2aa198">&#34;</span>
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#719e07">while</span> <span style="color:#b58900">read</span> -r line; <span style="color:#719e07">do</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#586e75"># using &#39;xargs&#39; to strip spaces</span>
@@ -171,10 +171,10 @@ tcp, www.badsite.com, 80, deny
 </span></span><span style="display:flex;"><span>    <span style="color:#268bd2">action</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span><span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$line</span><span style="color:#2aa198">&#34;</span> | awk -F <span style="color:#2aa198">&#39;,&#39;</span> <span style="color:#2aa198">&#39;{print $4}&#39;</span> | xargs<span style="color:#719e07">)</span>
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>    <span style="color:#268bd2">item</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>jq --null-input <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>              --arg action <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$action</span><span style="color:#2aa198">&#34;</span> <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>              --arg fqdn <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$fqdn</span><span style="color:#2aa198">&#34;</span> <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>              --arg port <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$port</span><span style="color:#2aa198">&#34;</span> <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>              --arg protocol <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$protocol</span><span style="color:#2aa198">&#34;</span> <span style="color:#2aa198">&#39;
+</span></span></span><span style="display:flex;"><span>              --arg action <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$action</span><span style="color:#2aa198">&#34;</span> <span style="color:#cb4b16">\
+</span></span></span><span style="display:flex;"><span>              --arg fqdn <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$fqdn</span><span style="color:#2aa198">&#34;</span> <span style="color:#cb4b16">\
+</span></span></span><span style="display:flex;"><span>              --arg port <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$port</span><span style="color:#2aa198">&#34;</span> <span style="color:#cb4b16">\
+</span></span></span><span style="display:flex;"><span>              --arg protocol <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$protocol</span><span style="color:#2aa198">&#34;</span> <span style="color:#2aa198">&#39;
 </span></span></span><span style="display:flex;"><span><span style="color:#2aa198">              {
 </span></span></span><span style="display:flex;"><span><span style="color:#2aa198">                &#34;action&#34;: $action,
 </span></span></span><span style="display:flex;"><span><span style="color:#2aa198">                &#34;fqdn&#34;: $fqdn,
@@ -187,8 +187,8 @@ tcp, www.badsite.com, 80, deny
 </span></span><span style="display:flex;"><span><span style="color:#b58900">echo</span> <span style="color:#2aa198">&#34;</span><span style="color:#268bd2">$ruleset</span><span style="color:#2aa198">&#34;</span> | jq --slurp &gt;ruleset.json
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>jq --argjson rules <span style="color:#2aa198">&#34;</span><span style="color:#719e07">$(</span>&lt;ruleset.json<span style="color:#719e07">)</span><span style="color:#2aa198">&#34;</span> <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>    --arg now <span style="color:#2aa198">&#34;</span><span style="color:#719e07">$(</span>date +%s<span style="color:#719e07">)</span><span style="color:#2aa198">&#34;</span> <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span>    <span style="color:#2aa198">&#39;.modified_at = $now | .rules = $rules&#39;</span> url_policies.json
+</span></span></span><span style="display:flex;"><span>    --arg now <span style="color:#2aa198">&#34;</span><span style="color:#719e07">$(</span>date +%s<span style="color:#719e07">)</span><span style="color:#2aa198">&#34;</span> <span style="color:#cb4b16">\
+</span></span></span><span style="display:flex;"><span>    <span style="color:#2aa198">&#39;.modified_at = $now | .rules = $rules&#39;</span> url_policies.json
 </span></span></code></pre></div><p>El <em>script</em> lee línea a línea el fichero proporcionado por el usuario. De cada línea, extrae los diferentes elementos y los asigna a variables.</p>
 <p>Usamos Jq para generar el documento JSON que representa la regla expresada en cada una de las líneas del documento del usuario.
 Concatenamos todas las reglas, las convertimos en un <em>array</em> usando <code>--slurp</code> y lo guardamos en un fichero intermedio (<code>ruleset.json</code>).</p>
@@ -196,7 +196,7 @@ Concatenamos todas las reglas, las convertimos en un <em>array</em> usando <code
 <p>Para conseguirlo, usamos Jq, pasando el <em>array</em> de reglas mediante <code>--argjson</code> desde el fichero intermedio (<code>ruleset.json</code>); finalmente, insertamos el conjunto de reglas en el fichero de configuración.</p>
 <p>Aprovechamos también para insertar el valor del momento en el que se ha modificado la configuración.</p>
 <p>El resultado sería algo similar a:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
 </span></span><span style="display:flex;"><span>  <span style="color:#268bd2">&#34;type&#34;</span>: <span style="color:#2aa198">&#34;url_policies&#34;</span>,
 </span></span><span style="display:flex;"><span>  <span style="color:#268bd2">&#34;rules&#34;</span>: [
 </span></span><span style="display:flex;"><span>    {

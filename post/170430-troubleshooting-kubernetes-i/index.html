@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.136.5">
+<meta name="generator" content="Hugo 0.165.0">
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -92,7 +92,7 @@
       <script type="application/json">
         {
           "vars": {
-            "account": "Page(\/post\/170430-troubleshooting-kubernetes-i)"
+            "account": "\/Users\/xavi\/repos\/personal\/onthedock-hugo\/content\/post\/170430-troubleshooting-kubernetes-i.md"
           },
           "triggers": {
             "trackPageview": {
@@ -148,7 +148,7 @@
 <h1 id="descripción-del-problema">Descripción del problema</h1>
 <p>Tras unas horas activos y formando parte del clúster, los dos nodos que corren sobre Raspberry Pi 3 dejan de responder y el clúster los muestra como <em>NotReady</em>.</p>
 <p>El clúster está formado por tres Raspberry Pi; el nodo <em>master</em> es una Raspberry Pi 2 B mientras que los dos nodos <em>worker</em> son Raspberry Pi 3 B.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ kubectl get nodes -o wide
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ kubectl get nodes -o wide
 </span></span><span style="display:flex;"><span>NAME      STATUS     AGE       VERSION   EXTERNAL-IP   OS-IMAGE                        KERNEL-VERSION
 </span></span><span style="display:flex;"><span>k1        Ready      19d       v1.6.2    &lt;none&gt;        Raspbian GNU/Linux <span style="color:#2aa198">8</span> <span style="color:#719e07">(</span>jessie<span style="color:#719e07">)</span>   4.4.50-hypriotos-v7+
 </span></span><span style="display:flex;"><span>k2        NotReady   15d       v1.6.2    &lt;none&gt;        Raspbian GNU/Linux <span style="color:#2aa198">8</span> <span style="color:#719e07">(</span>jessie<span style="color:#719e07">)</span>   4.4.50-hypriotos-v7+
@@ -156,13 +156,13 @@
 </span></span></code></pre></div><h1 id="ping">Ping</h1>
 <h2 id="ping-al-nombre-del-nodo">Ping al nombre del nodo</h2>
 <p>La prueba más sencilla para ver si los nodos están colgados, es lanzar un ping desde el portátil:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ ping -c5 k2.local
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ ping -c5 k2.local
 </span></span><span style="display:flex;"><span>ping: cannot resolve k2.local: Unknown host
 </span></span><span style="display:flex;"><span>$ ping -c5 k3.local
 </span></span><span style="display:flex;"><span>ping: cannot resolve k3.local: Unknown host
 </span></span></code></pre></div><p>En esta prueba vemos que ninguno de los nodos responde al nombre que <em>publica</em> el servicio <a href="https://en.wikipedia.org/wiki/Avahi_(software)">Avahi</a> en el sistema.</p>
 <h2 id="ping-a-la-ip-del-nodo">Ping a la IP del nodo</h2>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ ping -c5 192.168.1.12
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ ping -c5 192.168.1.12
 </span></span><span style="display:flex;"><span>PING 192.168.1.12 <span style="color:#719e07">(</span>192.168.1.12<span style="color:#719e07">)</span>: <span style="color:#2aa198">56</span> data bytes
 </span></span><span style="display:flex;"><span><span style="color:#2aa198">64</span> bytes from 192.168.1.12: <span style="color:#268bd2">icmp_seq</span><span style="color:#719e07">=</span><span style="color:#2aa198">0</span> <span style="color:#268bd2">ttl</span><span style="color:#719e07">=</span><span style="color:#2aa198">64</span> <span style="color:#268bd2">time</span><span style="color:#719e07">=</span>3.842 ms
 </span></span><span style="display:flex;"><span><span style="color:#2aa198">64</span> bytes from 192.168.1.12: <span style="color:#268bd2">icmp_seq</span><span style="color:#719e07">=</span><span style="color:#2aa198">1</span> <span style="color:#268bd2">ttl</span><span style="color:#719e07">=</span><span style="color:#2aa198">64</span> <span style="color:#268bd2">time</span><span style="color:#719e07">=</span>6.678 ms
@@ -186,11 +186,11 @@
 </span></span></code></pre></div><p>En este caso, el nodo <strong>k2</strong> sí que responde a ping a la IP, mientras que el nodo <strong>k3</strong> actúa como si estuviera apagado o con la red deshabilitada.</p>
 <h2 id="ssh">SSH</h2>
 <p>Aunque el nodo <strong>k2</strong> responde a ping, no es posible conectar vía SSH; el intento de conectar no tiene éxito, pero tampoco falla (por <em>timeout</em>, por ejemplo). He probado a conectar tanto desde el portátil como desde el nodo <strong>k1</strong>, con el mismo resulado:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>ssh pirate@192.168.1.12
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>ssh pirate@192.168.1.12
 </span></span></code></pre></div><h1 id="kubelet-describe-node">kubelet describe node</h1>
 <p>Usamos el comando <code>kubelet describe node</code> para los dos nodos colgados.</p>
 <h2 id="nodo-k2">Nodo <strong>k2</strong></h2>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ kubectl describe node k2
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ kubectl describe node k2
 </span></span><span style="display:flex;"><span>Name:			k2
 </span></span><span style="display:flex;"><span>Role:
 </span></span><span style="display:flex;"><span>Labels:			beta.kubernetes.io/arch<span style="color:#719e07">=</span>arm
@@ -242,7 +242,7 @@
 </span></span><span style="display:flex;"><span>  20m <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>	<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>		<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>		<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>
 </span></span><span style="display:flex;"><span>Events:		&lt;none&gt;
 </span></span></code></pre></div><h3 id="nodo-k3">Nodo <strong>k3</strong></h3>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ kubectl describe node k3
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ kubectl describe node k3
 </span></span><span style="display:flex;"><span>Name:			k3
 </span></span><span style="display:flex;"><span>Role:
 </span></span><span style="display:flex;"><span>Labels:			beta.kubernetes.io/arch<span style="color:#719e07">=</span>arm
@@ -300,7 +300,7 @@
 </ul>
 <h3 id="nodo-k1-ready">Nodo <strong>k1</strong> (<code>Ready</code>)</h3>
 <p>Como referencia, incluimos el mismo comando para el nodo <em>master</em> <strong>k1</strong>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ kubectl describe node k1
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ kubectl describe node k1
 </span></span><span style="display:flex;"><span>Name:			k1
 </span></span><span style="display:flex;"><span>Role:
 </span></span><span style="display:flex;"><span>Labels:			beta.kubernetes.io/arch<span style="color:#719e07">=</span>arm
@@ -357,7 +357,7 @@
 </span></span><span style="display:flex;"><span>  ------------	----------	---------------	-------------
 </span></span><span style="display:flex;"><span>  830m <span style="color:#719e07">(</span>20%<span style="color:#719e07">)</span>	<span style="color:#2aa198">0</span> <span style="color:#719e07">(</span>0%<span style="color:#719e07">)</span>		110Mi <span style="color:#719e07">(</span>14%<span style="color:#719e07">)</span>	170Mi <span style="color:#719e07">(</span>22%<span style="color:#719e07">)</span>
 </span></span><span style="display:flex;"><span>Events:		&lt;none&gt;
-</span></span></code></pre></div><h2 id="revisando-los-logs-en-el-nodo-_master_">Revisando los logs en el nodo <em>master</em></h2>
+</span></span></code></pre></div><h2 id="revisando-los-logs-en-el-nodo-master">Revisando los logs en el nodo <em>master</em></h2>
 <p>En la guía de <em>Troubleshooting</em> de Kubernetes, el siguiente paso es revisar los logs. En el caso del nodo <em>master</em>, los logs relevantes se encuentran en:</p>
 <ul>
 <li><code>/var/log/kube-apiserver.log</code> - El <em>API Server</em>, encargado de servir la API</li>
@@ -365,7 +365,7 @@
 <li><code>/var/log/kube-controller-manager.log</code> - El responsable de gestionar los <em>replication controllers</em> encargados de mantener el <strong>estado deseado</strong></li>
 </ul>
 <p>Sin embargo, los logs indicados <strong>no existen en la ruta indicada</strong>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ ls /var/log/kube*
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ ls /var/log/kube*
 </span></span><span style="display:flex;"><span>ls: cannot access /var/log/kube*: No such file or directory
 </span></span></code></pre></div><p>Es probable que la documentación no esté actualizada, así que continuaré en cuanto encuentre los logs para poder revisarlos.</p></div>
 

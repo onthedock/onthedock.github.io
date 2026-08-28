@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.136.5">
+<meta name="generator" content="Hugo 0.165.0">
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -92,7 +92,7 @@
       <script type="application/json">
         {
           "vars": {
-            "account": "Page(\/post\/230930-ip-estatica-en-ubuntu-server-22-04-con-netplan)"
+            "account": "\/Users\/xavi\/repos\/personal\/onthedock-hugo\/content\/post\/230930-ip-estatica-en-ubuntu-server-22-04-con-netplan.md"
           },
           "triggers": {
             "trackPageview": {
@@ -156,14 +156,14 @@
 <p>Los ficheros se aplican en orden alfabético <strong>independientemente</strong> de la carpeta en la que se encuentren (revisa <a href="https://netplan.io/faq#hierarchy-of-configuration-files">Hierarchy of configuration files
 </a> en la documentación oficial).</p>
 <p>En mi caso, en la carpeta <code>/etc/netplan/</code> se encuentra el fichero <code>00-installer-config.yaml</code>, que configura la interfaz de red existente en modo DHCP:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#586e75"># This is the network config written by &#39;subiquity&#39;</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#586e75"># This is the network config written by &#39;subiquity&#39;</span>
 </span></span><span style="display:flex;"><span><span style="color:#268bd2">network</span>:
 </span></span><span style="display:flex;"><span>  <span style="color:#268bd2">ethernets</span>:
 </span></span><span style="display:flex;"><span>    <span style="color:#268bd2">enp0s3</span>:
 </span></span><span style="display:flex;"><span>      <span style="color:#268bd2">dhcp4</span>: <span style="color:#cb4b16">true</span>
 </span></span><span style="display:flex;"><span>  <span style="color:#268bd2">version</span>: <span style="color:#2aa198">2</span>
 </span></span></code></pre></div><p>En vez eliminar el fichero existente, creamos un nuevo fichero (en la misma carpeta) llamado <code>01-static-ip-config.yaml</code> con la siguiente configuración:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#268bd2">network</span>:
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#268bd2">network</span>:
 </span></span><span style="display:flex;"><span>  <span style="color:#268bd2">ethernets</span>:
 </span></span><span style="display:flex;"><span>    <span style="color:#268bd2">enp0s3</span>:
 </span></span><span style="display:flex;"><span>      <span style="color:#268bd2">dhcp4</span>: <span style="color:#cb4b16">no</span> 
@@ -182,25 +182,25 @@
 <h2 id="especificar-la-ip-estática">Especificar la IP estática</h2>
 <p>A continuación establecemos la IP para la interfaz en formato CIDR: <code>192.168.1.101/24</code>.</p>
 <p>Como es posible asignar múltiples direcciones IP, el valor de <code>addresses</code> es un array. En muchos tutoriales se expresa en formato JSON, es decir, como:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#268bd2">addresses</span>: [ <span style="color:#2aa198">192.168.1.101</span>/24 ]
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#268bd2">addresses</span>: [ <span style="color:#2aa198">192.168.1.101</span>/24 ]
 </span></span></code></pre></div><p>Personalmente, prefiero usar el formato YAML, aunque sea algo más <em>verbose</em>.</p>
 <h2 id="especificar-la-puerta-de-enlace-por-defecto">Especificar la puerta de enlace por defecto</h2>
 <p>En la mayoría de tutoriales que he consultado, se usa la propiedad <code>gateway4</code> para establecer la puerta de enlace por defecto.
 Sin embargo, al aplicar la configuración se indica que <strong>gateway4 está desaconsejado</strong> (<em>deprecated</em>).</p>
 <p>Dado que el objetivo de la entrada es servirme de guía para el futuro, prefiero usar la forma aconsejada <code>routes</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#268bd2">routes</span>:
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#268bd2">routes</span>:
 </span></span><span style="display:flex;"><span>- <span style="color:#268bd2">to</span>: default
 </span></span><span style="display:flex;"><span>  <span style="color:#268bd2">via</span>: <span style="color:#2aa198">192.168.1.1</span>
 </span></span></code></pre></div><h2 id="servidores-de-dns">Servidores de DNS</h2>
 <p>Como en el caso de las direcciones IP asignadas al interfaz, para la propiedad <code>nameservers</code>, podemos especificar un <em>array</em> de direcciones IP de servidores de nombres.
 De nuevo, uso la forma &ldquo;nativa&rdquo; de YAML para especificar dos servidores de DNS:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#268bd2">nameservers</span>:
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#268bd2">nameservers</span>:
 </span></span><span style="display:flex;"><span>  <span style="color:#268bd2">addresses</span>: 
 </span></span><span style="display:flex;"><span>    - <span style="color:#2aa198">1.1.1.1</span>
 </span></span><span style="display:flex;"><span>    - <span style="color:#2aa198">8.8.8.8</span>
 </span></span></code></pre></div><h2 id="aplicando-la-configuración">Aplicando la configuración</h2>
 <p>Para aplicar la configuración, ejecuta:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>sudo netplan apply
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>sudo netplan apply
 </span></span></code></pre></div><p>Se puede validar la configuración existente (antes de aplicarla) ejecutando <code>sudo netplan generate</code>. Sin embargo, <code>generate</code> modifica los ficheros, por lo que es necesario realizar un backup si planeas realizar un <em>rollback</em> si surge algún problema con tu configuración actual&hellip;</p>
 <p>En mi caso, se trata de una máquina virtual local; puedo acceder a ella por consola independientemente de si hay un problema con la configuración de red. Si estás modificando una máquina remota, quizás debas probar con <code>netplan try</code>, que incluye la posibilidad de realizar un <em>rollback</em> automática si algo no funciona como estaba previsto.</p></div>
 

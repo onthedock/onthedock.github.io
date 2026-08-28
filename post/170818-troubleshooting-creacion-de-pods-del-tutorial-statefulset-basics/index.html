@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.136.5">
+<meta name="generator" content="Hugo 0.165.0">
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -92,7 +92,7 @@
       <script type="application/json">
         {
           "vars": {
-            "account": "Page(\/post\/170818-troubleshooting-creacion-de-pods-del-tutorial-statefulset-basics)"
+            "account": "\/Users\/xavi\/repos\/personal\/onthedock-hugo\/content\/post\/170818-troubleshooting-creacion-de-pods-del-tutorial-statefulset-basics.md"
           },
           "triggers": {
             "trackPageview": {
@@ -146,17 +146,17 @@
   <div class="article-body"><p>Esta entrada es un registro de las diferentes acciones que realicé para conseguir que los <em>pods</em> asociados al <em>StatefulSet</em> del tutorial <a href="https://kubernetes.io/docs/tutorials/stateful-application/basic-stateful-set/">StatefulSet Basics</a> se crearan correctamente.</p>
 <p>Lo publico como lo que es, un <em>log</em> de todos los pasos que fui dando, en modo <em>ensayo y error</em>, hasta que conseguí que los <em>pods</em> se crearan con éxito. Mi intención al publicarlo no es tanto que sirva como referencia sino como archivo. Y si alguien se encuentra con un problema similar, que pueda consultar los pasos que he dado durante el <em>troubleshooting</em>.</p>
 <p>Como indicaba en el artículo anterior, quiero publicar un tutorial paso a paso con el proceso correcto para provisionar los <em>PersistentVolumes</em> necesarios para el tutorial <a href="https://kubernetes.io/docs/tutorials/stateful-application/basic-stateful-set/">StatefulSet Basics</a> del sitio de Kubernetes.</p>
-<h1 id="creación-de-un-_statefulset_">Creación de un <em>StatefulSet</em></h1>
+<h1 id="creación-de-un-statefulset">Creación de un <em>StatefulSet</em></h1>
 <p><a href="https://kubernetes.io/docs/tutorials/stateful-application/basic-stateful-set/">StatefulSet Basics</a></p>
-<h2 id="creación-del-_persistentvolume_">Creación del <em>PersistentVolume</em></h2>
+<h2 id="creación-del-persistentvolume">Creación del <em>PersistentVolume</em></h2>
 <ol>
 <li>
 <p>Creamos la carpeta que contiene el <em>PersistentVolume</em>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>mkdir /tmp/data/pv001 -p
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>mkdir /tmp/data/pv001 -p
 </span></span></code></pre></div></li>
 <li>
 <p>Definimos el <em>PersistentVolume</em> (<code>vi pv001.yaml</code>):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#268bd2">kind</span>: PersistentVolume
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#268bd2">kind</span>: PersistentVolume
 </span></span><span style="display:flex;"><span><span style="color:#268bd2">apiVersion</span>: v1
 </span></span><span style="display:flex;"><span><span style="color:#268bd2">metadata</span>:
 </span></span><span style="display:flex;"><span>    <span style="color:#268bd2">name</span>: pv001
@@ -173,7 +173,7 @@
 </span></span></code></pre></div></li>
 <li>
 <p>Creamos el <em>PersistentVolume</em></p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ kubectl apply -f pv001.yaml
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ kubectl apply -f pv001.yaml
 </span></span><span style="display:flex;"><span>persistentvolume <span style="color:#2aa198">&#34;pv001&#34;</span> created
 </span></span><span style="display:flex;"><span>$ kubectl get pv
 </span></span><span style="display:flex;"><span>NAME      CAPACITY   ACCESSMODES   RECLAIMPOLICY   STATUS      CLAIM     STORAGECLASS   REASON    AGE
@@ -181,7 +181,7 @@
 </span></span></code></pre></div></li>
 <li>
 <p>Definimos un <em>PersistentVolumeClaim</em> (<code>pv001claim.yaml</code>)</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ vi pv001-claim.yaml
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ vi pv001-claim.yaml
 </span></span><span style="display:flex;"><span>kind: PersistentVolumeClaim
 </span></span><span style="display:flex;"><span>apiVersion: v1
 </span></span><span style="display:flex;"><span>metadata:
@@ -196,22 +196,22 @@
 </span></span></code></pre></div></li>
 <li>
 <p>Creamos el <em>PersistentVolumeClaim</em></p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ kubectl apply -f pv001-claim.yaml
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ kubectl apply -f pv001-claim.yaml
 </span></span><span style="display:flex;"><span>persistentvolumeclaim <span style="color:#2aa198">&#34;pv001claim&#34;</span> created
 </span></span></code></pre></div></li>
 <li>
 <p>Verificamos que el <em>PVClaim</em> ha quedado ligado al <em>PV</em>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ kubectl get pvc
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ kubectl get pvc
 </span></span><span style="display:flex;"><span>NAME         STATUS    VOLUME    CAPACITY   ACCESSMODES   STORAGECLASS   AGE
 </span></span><span style="display:flex;"><span>pv001claim   Bound     pv001     1Gi        RWO           manual         43s
 </span></span></code></pre></div></li>
 </ol>
-<h2 id="creación-del-_statefulset_">Creación del <em>StatefulSet</em></h2>
-<h3 id="creación-del-_headless-service_">Creación del <em>headless service</em></h3>
+<h2 id="creación-del-statefulset">Creación del <em>StatefulSet</em></h2>
+<h3 id="creación-del-headless-service">Creación del <em>headless service</em></h3>
 <ol>
 <li>Definimos el <em>headless service</em> <code>nginx</code></li>
 </ol>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#268bd2">kind</span>: Service
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#268bd2">kind</span>: Service
 </span></span><span style="display:flex;"><span><span style="color:#268bd2">apiVersion</span>: v1
 </span></span><span style="display:flex;"><span><span style="color:#268bd2">metadata</span>:
 </span></span><span style="display:flex;"><span>    <span style="color:#268bd2">name</span>: nginx
@@ -226,15 +226,15 @@
 </span></span><span style="display:flex;"><span>    <span style="color:#268bd2">app</span>: nginx
 </span></span></code></pre></div><ol>
 <li>Creamos el servicio:
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span> $ kubectl apply -f nginx_svc.yaml
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span> $ kubectl apply -f nginx_svc.yaml
 </span></span><span style="display:flex;"><span> service <span style="color:#2aa198">&#34;nginx&#34;</span> created
 </span></span></code></pre></div></li>
 </ol>
-<h2 id="definición-del-_statefulset_">Definición del <em>StatefulSet</em></h2>
+<h2 id="definición-del-statefulset">Definición del <em>StatefulSet</em></h2>
 <ol>
 <li>
 <p>Definimos el <em>StatefulSet</em></p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#268bd2">kind</span>: StatefulSet
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#268bd2">kind</span>: StatefulSet
 </span></span><span style="display:flex;"><span><span style="color:#268bd2">apiVersion</span>: apps/v1beta1
 </span></span><span style="display:flex;"><span><span style="color:#268bd2">metadata</span>:
 </span></span><span style="display:flex;"><span>    <span style="color:#268bd2">name</span>: web
@@ -266,12 +266,12 @@
 </span></span></code></pre></div></li>
 <li>
 <p>Creamos el <em>StatefulSet</em>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span> $ kubectl apply -f statefulset.yaml
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span> $ kubectl apply -f statefulset.yaml
 </span></span><span style="display:flex;"><span> statefulset <span style="color:#2aa198">&#34;web&#34;</span> created
 </span></span></code></pre></div></li>
 <li>
 <p>Verificamos:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span> $ kubectl get statefulset
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span> $ kubectl get statefulset
 </span></span><span style="display:flex;"><span> NAME      DESIRED   CURRENT   AGE
 </span></span><span style="display:flex;"><span> web       <span style="color:#2aa198">2</span>         <span style="color:#2aa198">1</span>         53s
 </span></span><span style="display:flex;"><span> $ kubectl describe statefulset web
@@ -308,7 +308,7 @@
 </span></span></span><span style="display:flex;"><span><span style="color:#2aa198"> </span>$<span style="color:#2aa198">
 </span></span></span></code></pre></div><p>Observamos que hay 1 <em>pod</em> en <em>waiting</em>.</p>
 <p>Revisamos los <em>pods</em></p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>kubectl get pods
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>kubectl get pods
 </span></span><span style="display:flex;"><span>NAME      READY     STATUS    RESTARTS   AGE
 </span></span><span style="display:flex;"><span>web-0     0/1       Pending   <span style="color:#2aa198">0</span>          5m
 </span></span><span style="display:flex;"><span>$ kubectl describe pod web-0
@@ -365,7 +365,7 @@
 <li>
 <p>Eliminar <em>StorageClassName</em> del <em>PV</em></p>
 <p>El <em>PVClaim</em> creado automáticamente con el <em>StatefulSet</em> no especifica una <em>StorageClassName</em>. Vamos a crear un nuevo <em>PV</em> <strong>sin <em>StorageClassName</em></strong>. Tras unos segundos, el <em>PVClaim</em> enlaza con el nuevo <em>PV</em> automáticamente.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ kubectl apply -f pv001.yaml
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ kubectl apply -f pv001.yaml
 </span></span><span style="display:flex;"><span>persistentvolume <span style="color:#2aa198">&#34;pv001&#34;</span> created
 </span></span><span style="display:flex;"><span>$ kubectl get pvc
 </span></span><span style="display:flex;"><span>NAME        STATUS    VOLUME    CAPACITY   ACCESSMODES   STORAGECLASS   AGE
@@ -381,7 +381,7 @@
 </span></span><span style="display:flex;"><span>www-web-0   Bound     pv001     1Gi        RWO                          22m
 </span></span></code></pre></div><p>Eliminamos el <em>PVClaim</em> creado manualmente.</p>
 <p>Revisamos qué ha pasado con los <em>pods</em> pendientes de creación.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ kubectl get pods
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ kubectl get pods
 </span></span><span style="display:flex;"><span>NAME      READY     STATUS    RESTARTS   AGE
 </span></span><span style="display:flex;"><span>web-0     0/1       Pending   <span style="color:#2aa198">0</span>          24m
 </span></span><span style="display:flex;"><span>$ kubectl describe pod web-0
@@ -392,10 +392,10 @@
 </span></span><span style="display:flex;"><span>25m           3m              <span style="color:#2aa198">78</span>      default-scheduler                       Warning         FailedScheduling        PersistentVolumeClaim is not bound:<span style="color:#2aa198">&#34;www-web-0&#34;</span>
 </span></span><span style="display:flex;"><span>2m            11s             <span style="color:#2aa198">14</span>      default-scheduler                       Warning         FailedScheduling        No nodes are available that match all of the following predicates:: PodToleratesNodeTaints <span style="color:#719e07">(</span>1<span style="color:#719e07">)</span>.
 </span></span></code></pre></div><p>Parece que el mensaje de error se debe a que no hay nodos disponibles donde planificar el <em>pod</em>. Aunque estoy haciendo las pruebas con un clúster de un solo nodo, he aplicado el <em>taint</em> para poder planificar <em>pods</em> en el nodo <strong>master</strong>. Por si acaso, aplicamos de nuevo:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ kubectl taint nodes --all node-role.kubernetes.io/master-
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ kubectl taint nodes --all node-role.kubernetes.io/master-
 </span></span><span style="display:flex;"><span>node <span style="color:#2aa198">&#34;node1&#34;</span> untainted
 </span></span></code></pre></div><p>Revisamos los <em>pods</em> de nuevo:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ kubectl describe pod web-0
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ kubectl describe pod web-0
 </span></span><span style="display:flex;"><span>...
 </span></span><span style="display:flex;"><span>Events:
 </span></span><span style="display:flex;"><span>FirstSeen     LastSeen        Count   From                    SubObjectPath           Type            Reason                  Message
@@ -416,7 +416,7 @@
 <li>
 <p>Troubleshooting del segundo <em>pod</em></p>
 <p>Ya tenemos un <em>pod</em> corriendo&hellip; Pero todavía nos falta otro :(</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ kubectl get pods
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ kubectl get pods
 </span></span><span style="display:flex;"><span>NAME      READY     STATUS    RESTARTS   AGE
 </span></span><span style="display:flex;"><span>web-0     1/1       Running   <span style="color:#2aa198">0</span>          34m
 </span></span><span style="display:flex;"><span>web-1     0/1       Pending   <span style="color:#2aa198">0</span>          1m
@@ -429,15 +429,15 @@
 </span></span><span style="display:flex;"><span>2m            1s              <span style="color:#2aa198">9</span>       default-scheduler                       Warning         FailedScheduling        PersistentVolumeClaim is not bound: <span style="color:#2aa198">&#34;www-web-1&#34;</span>
 </span></span></code></pre></div><p>Seguimos teniendo el problema de que no tenemos el <em>PVClaim</em> enlazado con un <em>PV</em>. Parece claro que el la causa es que sólo hemos creado un <em>PV</em> y necesitamos otro para el segundo <em>pod</em>.</p>
 <p>Creamos un segundo <em>PV</em> (sin especificar <em>StorageClassName</em>):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>mkdir /tmp/data/pv002 -p
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>mkdir /tmp/data/pv002 -p
 </span></span><span style="display:flex;"><span>cp pv001.yaml pv002.yaml
 </span></span><span style="display:flex;"><span>vi pv002.yaml
 </span></span></code></pre></div><p>Modificamos el fichero de definición del <code>pv002</code> para cambiar el nombre y la ruta a la carpeta donde se almacenarán los ficheros.</p>
 <p>Creamos el <code>pv002</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ kubectl apply -f pv002.yaml
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ kubectl apply -f pv002.yaml
 </span></span><span style="display:flex;"><span>persistentvolume <span style="color:#2aa198">&#34;pv002&#34;</span> created
 </span></span></code></pre></div><p>Revisamos de nuevo el estado del segundo <em>pod</em>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ kubectl get pods
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ kubectl get pods
 </span></span><span style="display:flex;"><span>NAME      READY     STATUS    RESTARTS   AGE
 </span></span><span style="display:flex;"><span>web-0     1/1       Running   <span style="color:#2aa198">0</span>          42m
 </span></span><span style="display:flex;"><span>web-1     1/1       Running   <span style="color:#2aa198">0</span>          9m

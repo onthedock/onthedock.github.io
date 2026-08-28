@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.136.5">
+<meta name="generator" content="Hugo 0.165.0">
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -92,7 +92,7 @@
       <script type="application/json">
         {
           "vars": {
-            "account": "Page(\/post\/230226-proxy-rules-csv-parser)"
+            "account": "\/Users\/xavi\/repos\/personal\/onthedock-hugo\/content\/post\/230226-proxy-rules-csv-parser.md"
           },
           "triggers": {
             "trackPageview": {
@@ -168,7 +168,7 @@
 <h2 id="validación-de-cada-campo-de-la-regla-y-errores-custom">Validación de cada campo de la regla y errores <em>custom</em></h2>
 <p>Con el enfoque de escribir los tests <strong>antes</strong> de escribir el código, resultó obvio que la validación de cada uno de los campos obtenidos del fichero CSV o bien era válido, o no lo era. Esto significaba que las funciones de validación de cada uno de los campos sólo devolvieran un <code>bool</code>.</p>
 <p>Inicialmente me atrajo la idea de que, para verificar si la regla era válida o no, sólo tenía que validar que todos los campos lo fueran&hellip; Y esto resultaba de los más sencillo si cada una de las funciones de validación de los camops devolvían <code>bool</code>.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> (r <span style="color:#719e07">*</span>Rule) <span style="color:#268bd2">IsValid</span>() <span style="color:#dc322f">bool</span> {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> (r <span style="color:#719e07">*</span>Rule) <span style="color:#268bd2">IsValid</span>() <span style="color:#dc322f">bool</span> {
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">return</span> rule.<span style="color:#268bd2">ValidateAction</span>() <span style="color:#719e07">&amp;&amp;</span> rule.<span style="color:#268bd2">ValidatePort</span>() <span style="color:#719e07">&amp;&amp;</span> rule.<span style="color:#268bd2">ValidateProtocol</span>() <span style="color:#719e07">&amp;&amp;</span> rule.<span style="color:#268bd2">ValidateUrl</span>()
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>Sin embargo, de cara al usuario, la única infomración que se proporcionaría sería que &ldquo;alguno&rdquo; de los camos de la regla no es válido, pero no se indicaría qué campo o porqué no es válido&hellip;</p>
@@ -176,7 +176,7 @@
 <p>De nuevo, el problema era que para una sola regla, varios camos pueden no ser válidos&hellip;</p>
 <p>La solución la encontré usando la función <code>Join</code>, del paquete <code>errors</code>, que une varios errores (descartando aquellos que sean <code>nil</code>) y los devuelve como un solo error.</p>
 <p>De esta forma:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> (rule <span style="color:#719e07">*</span>Rule) <span style="color:#268bd2">IsValid</span>() (<span style="color:#dc322f">bool</span>, <span style="color:#dc322f">error</span>) {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> (rule <span style="color:#719e07">*</span>Rule) <span style="color:#268bd2">IsValid</span>() (<span style="color:#dc322f">bool</span>, <span style="color:#dc322f">error</span>) {
 </span></span><span style="display:flex;"><span>    <span style="color:#268bd2">var</span> err <span style="color:#dc322f">error</span>
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">if</span> !rule.<span style="color:#268bd2">ValidateAction</span>() {
@@ -198,7 +198,7 @@
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">return</span> rule.<span style="color:#268bd2">ValidateAction</span>() <span style="color:#719e07">&amp;&amp;</span> rule.<span style="color:#268bd2">ValidatePort</span>() <span style="color:#719e07">&amp;&amp;</span> rule.<span style="color:#268bd2">ValidateProtocol</span>() <span style="color:#719e07">&amp;&amp;</span> rule.<span style="color:#268bd2">ValidateUrl</span>(), err
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>Es decir, si se produce uno o más errores, estos se van <em>acumulando</em> y finalmente se devuelve un solo error por regla, idenpendientemente del número de campos inválidos que contenga.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>...
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>...
 </span></span><span style="display:flex;"><span>2023/02/26 12:25:16 error processing line [http  spam.com]:
 </span></span><span style="display:flex;"><span>CSV parse error on line 3, column 20: bare &#34; in non-quoted-field. Ignoring line.
 </span></span><span style="display:flex;"><span>2023/02/26 12:25:16 error processing line [http p0rn.com 6969 block].
@@ -209,7 +209,7 @@
 </span></span><span style="display:flex;"><span>...
 </span></span></code></pre></div><p>En esta segunda versión también se comunican los errores derivados de la propia estructura del fichero CSV, como por ejemplo, que haya campos delimitados con comillas que no estén emparejadas o líneas con campos de más (o de menos).</p>
 <p>Aunque los errores no se convierten a JSON, es posible guardarlos en un fichero usando el <em>flag</em> <code>-log</code>; por defecto, se guardan en el fichero <code>errors.log</code>, pero si se prefiere otro nombre, se puede especificar mediante la opción <code>-logfile</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ go run main.go -log
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ go run main.go -log
 </span></span><span style="display:flex;"><span>$ cat errors.log 
 </span></span><span style="display:flex;"><span>2023/02/26 12:32:11 error processing line <span style="color:#719e07">[</span>http  spam.com<span style="color:#719e07">]</span>:
 </span></span><span style="display:flex;"><span>CSV parse error on line 3, column 20: bare <span style="color:#2aa198">&#34; in non-quoted-field. Ignoring line.
@@ -218,7 +218,7 @@
 </span></span></span><span style="display:flex;"><span><span style="color:#2aa198">invalid protocol: &#34;</span>http<span style="color:#2aa198">&#34;
 </span></span></span><span style="display:flex;"><span><span style="color:#2aa198">2023/02/26 12:32:11 error processing line [ ]:
 </span></span></span><span style="display:flex;"><span><span style="color:#2aa198">CSV record on line 5: wrong number of fields. Ignoring line.
-</span></span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ go run main.go -log -logfile custom_error.log
+</span></span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ go run main.go -log -logfile custom_error.log
 </span></span><span style="display:flex;"><span>$ cat custom_error.log 
 </span></span><span style="display:flex;"><span>2023/02/26 12:33:31 error processing line <span style="color:#719e07">[</span>http  spam.com<span style="color:#719e07">]</span>:
 </span></span><span style="display:flex;"><span>CSV parse error on line 3, column 20: bare <span style="color:#2aa198">&#34; in non-quoted-field. Ignoring line.
@@ -231,7 +231,7 @@
 <p>Como comentaba al principio, <strong>esta vez sí</strong> he empezado escribiendo el test antes que el código. Eso me ha ayudado a <strong>pensar más</strong> en qué es lo que cada una de las funciones debería hacer y cómo comprobar que lo estaban haciendo&hellip;</p>
 <p>En algunos casos me ha llevado a hacer más tests de los que debería&hellip;</p>
 <p>Inicialmente, por ejemplo, no validaba el campo <code>Url</code>, más allá de validar que tuviera algún valor:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">Test_ValidateUrl</span>(t <span style="color:#719e07">*</span>testing.T) {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">Test_ValidateUrl</span>(t <span style="color:#719e07">*</span>testing.T) {
 </span></span><span style="display:flex;"><span>    t.<span style="color:#268bd2">Run</span>(<span style="color:#2aa198">&#34;empty not allowed&#34;</span>, <span style="color:#268bd2">func</span>(t <span style="color:#719e07">*</span>testing.T) {
 </span></span><span style="display:flex;"><span>        rule <span style="color:#719e07">:=</span> <span style="color:#b58900">new</span>(Rule)
 </span></span><span style="display:flex;"><span>
@@ -241,7 +241,7 @@
 </span></span><span style="display:flex;"><span>    })
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>Más adelante decidí probar a usar expresiones regulates en Go, así que busqué añadí los tests:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span>    t.<span style="color:#268bd2">Run</span>(<span style="color:#2aa198">&#34;regex for RFC 123 fqdn&#34;</span>, <span style="color:#268bd2">func</span>(t <span style="color:#719e07">*</span>testing.T) {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span>    t.<span style="color:#268bd2">Run</span>(<span style="color:#2aa198">&#34;regex for RFC 123 fqdn&#34;</span>, <span style="color:#268bd2">func</span>(t <span style="color:#719e07">*</span>testing.T) {
 </span></span><span style="display:flex;"><span>        <span style="color:#719e07">for</span> _, url <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> []<span style="color:#dc322f">string</span>{<span style="color:#2aa198">&#34;ubuntu.com&#34;</span>, <span style="color:#2aa198">&#34;packages.ubuntu.com&#34;</span>, <span style="color:#2aa198">&#34;www.google.com&#34;</span>, <span style="color:#2aa198">&#34;vm01.compute.aws.com&#34;</span>} {
 </span></span><span style="display:flex;"><span>            rule <span style="color:#719e07">:=</span> <span style="color:#b58900">new</span>(Rule)
 </span></span><span style="display:flex;"><span>            rule.Url = url
@@ -252,7 +252,7 @@
 </span></span><span style="display:flex;"><span>        }
 </span></span><span style="display:flex;"><span>    })
 </span></span></code></pre></div><p>La expresión regular falla si el campo <code>Url</code> está vacío, así que el test <code>empty not allowed</code> en realidad es redundante; si incluyo <code>&quot;&quot;</code> en la lista de casos de prueba para el test <code>regex for RFC 123 fqdn</code></p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>Running tool: /usr/local/go/bin/go <span style="color:#b58900">test</span> -timeout 30s -run ^<span style="color:#cb4b16">\Q</span>Test_ValidateUrl<span style="color:#cb4b16">\E</span>$/^<span style="color:#cb4b16">\Q</span>regex_for_RFC_123_fqdn<span style="color:#cb4b16">\E</span>$ rules/rules
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>Running tool: /usr/local/go/bin/go <span style="color:#b58900">test</span> -timeout 30s -run ^<span style="color:#cb4b16">\Q</span>Test_ValidateUrl<span style="color:#cb4b16">\E</span>$/^<span style="color:#cb4b16">\Q</span>regex_for_RFC_123_fqdn<span style="color:#cb4b16">\E</span>$ rules/rules
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>--- FAIL: Test_ValidateUrl <span style="color:#719e07">(</span>0.00s<span style="color:#719e07">)</span>
 </span></span><span style="display:flex;"><span>    --- FAIL: Test_ValidateUrl/regex_for_RFC_123_fqdn <span style="color:#719e07">(</span>0.00s<span style="color:#719e07">)</span>
@@ -261,7 +261,7 @@
 </span></span><span style="display:flex;"><span>FAIL rules/rules 0.002s
 </span></span><span style="display:flex;"><span>FAIL
 </span></span></code></pre></div><p>He preferido dejarlo para que sea más <em>visible</em> en los resultados de los tests, si falla:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ go <span style="color:#b58900">test</span> -v -run <span style="color:#2aa198">&#34;Test_ValidateUrl&#34;</span> rules/*.go
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ go <span style="color:#b58900">test</span> -v -run <span style="color:#2aa198">&#34;Test_ValidateUrl&#34;</span> rules/*.go
 </span></span><span style="display:flex;"><span><span style="color:#719e07">===</span> RUN   <span style="color:#268bd2">Test_ValidateUrl</span>
 </span></span><span style="display:flex;"><span><span style="color:#719e07">===</span> RUN   Test_ValidateUrl/empty_not_allowed
 </span></span><span style="display:flex;"><span><span style="color:#719e07">===</span> RUN   Test_ValidateUrl/regex_for_RFC_123_fqdn
@@ -271,7 +271,7 @@
 </span></span><span style="display:flex;"><span>PASS
 </span></span><span style="display:flex;"><span>ok      command-line-arguments  0.002s
 </span></span></code></pre></div><p>Observando la salida de los tests ejecutados desde VSCode, se observa que la <em>cobertura</em> es de casi el 95% del código (del módulo <code>rules</code>):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>Running tool: /usr/local/go/bin/go <span style="color:#b58900">test</span> -timeout 30s -coverprofile<span style="color:#719e07">=</span>/tmp/vscode-gosqNBTR/go-code-cover rules/rules
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>Running tool: /usr/local/go/bin/go <span style="color:#b58900">test</span> -timeout 30s -coverprofile<span style="color:#719e07">=</span>/tmp/vscode-gosqNBTR/go-code-cover rules/rules
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>ok   rules/rules 0.003s coverage: 94.7% of statements
 </span></span></code></pre></div><p>No está nada mal ;)</p></div>

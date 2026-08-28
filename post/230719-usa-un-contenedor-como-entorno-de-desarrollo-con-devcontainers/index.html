@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.136.5">
+<meta name="generator" content="Hugo 0.165.0">
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -92,7 +92,7 @@
       <script type="application/json">
         {
           "vars": {
-            "account": "Page(\/post\/230719-usa-un-contenedor-como-entorno-de-desarrollo-con-devcontainers)"
+            "account": "\/Users\/xavi\/repos\/personal\/onthedock-hugo\/content\/post\/230719-usa-un-contenedor-como-entorno-de-desarrollo-con-devcontainers.md"
           },
           "triggers": {
             "trackPageview": {
@@ -176,10 +176,10 @@
 <p>VSCode puede usar la información del fichero <code>devcontainer.json</code> para gestionar automáticamente el contenedor: puede construirlo si incluimos un fichero <code>Dockerfile</code>, añadir extensiones y configuraciones de VSCode a partir de una imagen de terceros, ejecutar scripts para realizar configuraciones arbitrarias en el mismo, establecer variables de entorno (o inyectar variables de entorno del sistema), montar volúmenes, etc&hellip;</p>
 <h2 id="crea-tu-entorno-de-desarrollo-como-código">Crea tu entorno de desarrollo (como código)</h2>
 <p>Crea el fichero <code>devcontainer.json</code> en una carpeta en la raíz de tu repositorio/carpeta de trabajo llamada <code>.devcontainer</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>mkdir .devcontainer
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>mkdir .devcontainer
 </span></span><span style="display:flex;"><span>touch .devcontainer/devcontainer.json
 </span></span></code></pre></div><p>El fichero <code>devcontainer.json</code> más sencillo posible sería el que especifica únicamente el nombre de la imagen base para ejecutar el contenedor:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
 </span></span><span style="display:flex;"><span>  <span style="color:#268bd2">&#34;image&#34;</span>: <span style="color:#2aa198">&#34;gcr.io/google.com/cloudsdktool/google-cloud-cli:439.0.0&#34;</span>
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>La extensión VSCode monta por defecto la carpeta &ldquo;local&rdquo; en el contenedor, así que ésta podría ser una configuración funcional completamente minimalista. Tanto en <a href="https://code.visualstudio.com/docs/devcontainers/containers">Developing inside a Container</a> como en <a href="https://containers.dev/implementors/spec/">Development Container Specification</a> tienes toda la información necesaria para personalizar el contenedor de acuerdo con tus necesidades específicas.</p>
@@ -188,13 +188,13 @@
 <p>En el caso de los nuevos MacBooks con chips ARM64 (M1, M2), podemos usar contenedores para arquitecturas tanto ARM64 como AMD64, aunque en este segundo caso, el rendimiento es menor ya que <em>qemu</em> tiene que emular AMD64.</p>
 <p>Cuando ejecutas <code>docker pull</code>, si la imagen es <em>multi arquitectura</em>, Docker es capaz de seleccionar la imagen adecuada a la arquitectura del sistema. En el caso del Mac, se descarga la imagen para ARM64 (si está disponible).</p>
 <p>En mi caso, en el contanedor quiero instalar un paquete que sólo está disponible para AMD64, por lo que en mi fichero <code>devcontainer.json</code> añado la línea:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
 </span></span><span style="display:flex;"><span>  <span style="color:#268bd2">&#34;image&#34;</span>: <span style="color:#2aa198">&#34;gcr.io/google.com/cloudsdktool/google-cloud-cli:438.0.0-slim&#34;</span>,
 </span></span><span style="display:flex;"><span>  <span style="color:#268bd2">&#34;runArgs&#34;</span>: [<span style="color:#2aa198">&#34;--platform=linux/amd64&#34;</span> ]
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><h2 id="montar-una-carpeta-local-en-el-contenedor">Montar una carpeta local en el contenedor</h2>
 <p>El paquete a instalar está disponible en un <em>bucket</em> en la nube, pero también lo tengo descargado localmente para no depender de la red. Para poder instalarlo en el contendor desde la &ldquo;copia local&rdquo; en mi equipo, monto la carpeta en la que se encuentra en el contenedor:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
 </span></span><span style="display:flex;"><span>  <span style="color:#268bd2">&#34;image&#34;</span>: <span style="color:#2aa198">&#34;gcr.io/google.com/cloudsdktool/google-cloud-cli:438.0.0-slim&#34;</span>,
 </span></span><span style="display:flex;"><span>  <span style="color:#268bd2">&#34;runArgs&#34;</span>: [<span style="color:#2aa198">&#34;--platform=linux/amd64&#34;</span> ],
 </span></span><span style="display:flex;"><span>  <span style="color:#268bd2">&#34;mounts&#34;</span>: [
@@ -208,7 +208,7 @@
 <p>No está mal, pero el paquete <code>sample_package.1.2.3.deb</code> lo he montado para instalarlo.</p>
 <p>¿No sería fantástico que VSCode también lo instalara automáticamente?</p>
 <p>Podemos especificar un comando o un script para que Dev Container lo ejecute tras la creación del contenedor; por ejemplo:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
 </span></span><span style="display:flex;"><span>  <span style="color:#268bd2">&#34;image&#34;</span>: <span style="color:#2aa198">&#34;gcr.io/google.com/cloudsdktool/google-cloud-cli:438.0.0-slim&#34;</span>,
 </span></span><span style="display:flex;"><span>  <span style="color:#268bd2">&#34;runArgs&#34;</span>: [<span style="color:#2aa198">&#34;--platform=linux/amd64&#34;</span> ],
 </span></span><span style="display:flex;"><span>  <span style="color:#268bd2">&#34;mounts&#34;</span>: [
@@ -217,13 +217,13 @@
 </span></span><span style="display:flex;"><span>  <span style="color:#268bd2">&#34;postCreateCommand&#34;</span>: <span style="color:#2aa198">&#34;bash .devcontainer/postCreateScript.sh&#34;</span>
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>El script puede llamarse de cualquier modo; por ejemplo, <code>postCreateScript.sh</code> permite instalar paquetes necesarios en el contenedor final (procedentes de repositorios públicos) así como el paquete <em>custom</em> que hemos <em>montado</em> desde nuestro equipo local:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#719e07">#!/bin/bash
-</span></span></span><span style="display:flex;"><span><span style="color:#719e07"></span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#719e07">#!/bin/bash
+</span></span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>apt install vim -y
 </span></span><span style="display:flex;"><span>dpkg -i /tmp/sample_package_1.2.3.deb
 </span></span></code></pre></div><h2 id="establecer-o-actualizar-variables-de-entorno-en-el-contenedor">Establecer o actualizar variables de entorno en el contenedor</h2>
 <p>Dev Container también permite establecer variables de entorno en el contendor, por ejemplo:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
 </span></span><span style="display:flex;"><span>  <span style="color:#268bd2">&#34;image&#34;</span>: <span style="color:#2aa198">&#34;gcr.io/google.com/cloudsdktool/google-cloud-cli:438.0.0-slim&#34;</span>,
 </span></span><span style="display:flex;"><span>  <span style="color:#268bd2">&#34;runArgs&#34;</span>: [<span style="color:#2aa198">&#34;--platform=linux/amd64&#34;</span> ],
 </span></span><span style="display:flex;"><span>  <span style="color:#268bd2">&#34;mounts&#34;</span>: [
@@ -240,7 +240,7 @@
 <h2 id="instalando-extensiones-adicionales-de-vscode-en-el-contenedor">Instalando extensiones adicionales de VSCode en el contenedor</h2>
 <p>Si usas VSCode para desarrollar, es bastante probable que tengas instaladas algunas extensiones que te facilitan la tarea (como <a href="https://marketplace.visualstudio.com/items?itemName=hoovercj.vscode-power-mode">Power Mode</a> o <a href="https://marketplace.visualstudio.com/items?itemName=VirejDasani.in-your-face">DOOM In your face</a>).</p>
 <p>Puedes instalarlas también en el contenedor para que hacer que te sientas &ldquo;como en casa&rdquo; cuando estés desarrollando dentro del contenedor:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
 </span></span><span style="display:flex;"><span>  <span style="color:#268bd2">&#34;image&#34;</span>: <span style="color:#2aa198">&#34;gcr.io/google.com/cloudsdktool/google-cloud-cli:438.0.0-slim&#34;</span>,
 </span></span><span style="display:flex;"><span>  <span style="color:#268bd2">&#34;runArgs&#34;</span>: [<span style="color:#2aa198">&#34;--platform=linux/amd64&#34;</span> ],
 </span></span><span style="display:flex;"><span>  <span style="color:#268bd2">&#34;customizations&#34;</span>: {

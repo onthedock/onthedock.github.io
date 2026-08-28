@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.136.5">
+<meta name="generator" content="Hugo 0.165.0">
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -92,7 +92,7 @@
       <script type="application/json">
         {
           "vars": {
-            "account": "Page(\/post\/220507-error-en-vagrant-tras-actualizar-a-pop-os-22-04)"
+            "account": "\/Users\/xavi\/repos\/personal\/onthedock-hugo\/content\/post\/220507-error-en-vagrant-tras-actualizar-a-pop-os-22-04.md"
           },
           "triggers": {
             "trackPageview": {
@@ -151,7 +151,7 @@
 <p>En primer lugar, Vagrant se ha quejado de los <em>plugins</em>, pero afortunadamente el contenido de los los mensajes de error proporciona los comandos para reinstalarlos.</p>
 <p>Tras solucionar el problema con los <em>plugins</em>, la creación de las máquinas virtuales también ha fallado&hellip; Después de reinstalar de nuevo Vagrant (en la línea de la solución para el problema de los <em>plugins</em>) sin que ésto solucionara el problema, he revisado con más detalle la <em>verborreica</em> salida del error en Vagrant.</p>
 <p>El proceso comienza con normalidad, pero las cosas se complican cuando se intenta acceder por SSH a la nueva máquina:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ vagrant up        
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ vagrant up        
 </span></span><span style="display:flex;"><span>Bringing machine <span style="color:#2aa198">&#39;k3s-1&#39;</span> up with <span style="color:#2aa198">&#39;virtualbox&#39;</span> provider...
 </span></span><span style="display:flex;"><span>Bringing machine <span style="color:#2aa198">&#39;k3s-2&#39;</span> up with <span style="color:#2aa198">&#39;virtualbox&#39;</span> provider...
 </span></span><span style="display:flex;"><span>Bringing machine <span style="color:#2aa198">&#39;k3s-3&#39;</span> up with <span style="color:#2aa198">&#39;virtualbox&#39;</span> provider...
@@ -176,15 +176,15 @@
 </span></span><span style="display:flex;"><span><span style="color:#719e07">==</span>&gt; k3s-1: Attempting graceful shutdown of VM...
 </span></span><span style="display:flex;"><span>...
 </span></span></code></pre></div><p>Después de un tiempo intentantdo el <em>graceful shutdown</em> de la VM, se produce el error (lo muestro en dos líneas):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>/usr/share/rubygems-integration/all/gems/net-ssh-6.1.0/lib/net/ssh/transport/kex/ecdh_sha2_nistp256.rb:21:in <span style="color:#cb4b16">\
-</span></span></span><span style="display:flex;"><span><span style="color:#cb4b16"></span><span style="color:#586e75">`</span>generate_key!&#39;: pkeys are immutable on OpenSSL 3.0 <span style="color:#719e07">(</span>OpenSSL::PKey::PKeyError<span style="color:#719e07">)</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>/usr/share/rubygems-integration/all/gems/net-ssh-6.1.0/lib/net/ssh/transport/kex/ecdh_sha2_nistp256.rb:21:in <span style="color:#cb4b16">\
+</span></span></span><span style="display:flex;"><span><span style="color:#586e75">`</span>generate_key!&#39;: pkeys are immutable on OpenSSL 3.0 <span style="color:#719e07">(</span>OpenSSL::PKey::PKeyError<span style="color:#719e07">)</span>
 </span></span><span style="display:flex;"><span>...
 </span></span></code></pre></div><p>Al buscar el mensaje de error en Google, he llegado a la página <a href="https://discuss.hashicorp.com/t/vagrant-up-error-on-ubuntu-22-04-pkeys-are-immutable-on-openssl-3-0/38734">Vagrant up error on Ubuntu 22.04: pkeys are immutable on OpenSSL 3.0</a> de los foros de Hashicorp.</p>
 <p>El problema está reportado también tras la actualización de Pop_OS! de 20.04 a 22.04 y apunta a una entrada en StackOverflow.</p>
 <p>En StackOverflow, el problema está reportado para Ubuntu 22.04 en la que se indica que la solución pasa por instalar la versión 2.2.19 de Vagrant a partir del paquete <code>.deb</code> de instalación. De hecho, el autor de la respuesta en StackOverflow indica que la solución procede del <em>issue</em> <a href="https://github.com/hashicorp/vagrant/issues/12751">Vagrant up fails with Ubuntu 22.04 #12751</a> en el repositorio de Vagrant.</p>
 <p>La causa raíz del problema está (o eso parece) en un problema de compatibilidad del paquete <a href="https://bugs.launchpad.net/ubuntu/+source/ruby-net-ssh/+bug/1964025"><code>ruby-net-ssh</code></a> relacionado con SSL 3.0</p>
 <p>La instalación de Vagrant 2.2.19 soluciona el problema:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>sudo apt install <span style="color:#268bd2">vagrant</span><span style="color:#719e07">=</span>2.2.19
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>sudo apt install <span style="color:#268bd2">vagrant</span><span style="color:#719e07">=</span>2.2.19
 </span></span><span style="display:flex;"><span>Reading package lists... Done
 </span></span><span style="display:flex;"><span>Building dependency tree... Done
 </span></span><span style="display:flex;"><span>Reading state information... Done
@@ -206,7 +206,7 @@
 </span></span><span style="display:flex;"><span>Setting up vagrant <span style="color:#719e07">(</span>2.2.19<span style="color:#719e07">)</span> ...
 </span></span><span style="display:flex;"><span>Processing triggers <span style="color:#719e07">for</span> man-db <span style="color:#719e07">(</span>2.10.2-1<span style="color:#719e07">)</span> ...
 </span></span></code></pre></div><p>Como se indica en el foro de Hashicorp, el <em>downgrade</em> es entre:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>Unpacking vagrant <span style="color:#719e07">(</span>2.2.19<span style="color:#719e07">)</span> over <span style="color:#719e07">(</span>2.2.19+dfsg-1ubuntu1<span style="color:#719e07">)</span> ...
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>Unpacking vagrant <span style="color:#719e07">(</span>2.2.19<span style="color:#719e07">)</span> over <span style="color:#719e07">(</span>2.2.19+dfsg-1ubuntu1<span style="color:#719e07">)</span> ...
 </span></span></code></pre></div><p>Pero bueno, funciona ¯\_(ツ)_/¯</p></div>
 
   <aside class="p-share">

@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.136.5">
+<meta name="generator" content="Hugo 0.165.0">
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -92,7 +92,7 @@
       <script type="application/json">
         {
           "vars": {
-            "account": "Page(\/post\/210407-velero-backup-y-disaster-recovery-para-kubernetes-iii)"
+            "account": "\/Users\/xavi\/repos\/personal\/onthedock-hugo\/content\/post\/210407-velero-backup-y-disaster-recovery-para-kubernetes-iii.md"
           },
           "triggers": {
             "trackPageview": {
@@ -147,12 +147,12 @@
 <p>En la entrada anterior <a href="https://onthedock.github.io/post/210405-velero-backup-y-disaster-recovery-para-kubernetes-ii/">Velero - Backup y Disaster Recovery para Kubernetes (II) Crear copia de seguridad</a> desplegamos una aplicación de prueba en el clúster (dos réplicas de Nginx en el <em>Namespace</em> <code>nginx-example</code>). Simulamos la pérdida &ldquo;accidental&rdquo; del <em>Namespace</em> <code>nginx-example</code> para ver cómo recuperarnos usando la copia creada por Velero.</p>
 <h2 id="pérdida-accidental-de-un-namespace">Pérdida &ldquo;accidental&rdquo; de un <em>Namespace</em></h2>
 <p>Eliminamos el <em>Namespace</em> <code>nginx-example</code> para simular un desastre:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ kubectl delete ns nginx-example
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ kubectl delete ns nginx-example
 </span></span><span style="display:flex;"><span>namespace <span style="color:#2aa198">&#34;nginx-example&#34;</span> deleted
 </span></span></code></pre></div><h2 id="consultar-las-copias-de-seguridad-disponibles">Consultar las copias de seguridad disponibles</h2>
 <p>Si hemos programado un <em>schedule</em>, disponemos de múltiples copias de seguridad.</p>
 <p>Consultamos las copias disponibles:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>---
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>---
 </span></span><span style="display:flex;"><span><span style="color:#268bd2">kind</span>: Job
 </span></span><span style="display:flex;"><span><span style="color:#268bd2">apiVersion</span>:  batch/v1
 </span></span><span style="display:flex;"><span><span style="color:#268bd2">metadata</span>:
@@ -175,7 +175,7 @@
 </span></span><span style="display:flex;"><span>          <span style="color:#268bd2">command</span>: [<span style="color:#2aa198">&#34;/bin/sh&#34;</span>]
 </span></span><span style="display:flex;"><span>          <span style="color:#268bd2">args</span>: [<span style="color:#2aa198">&#34;-c&#34;</span>, <span style="color:#2aa198">&#34;velero restore get&#34;</span>]
 </span></span></code></pre></div><p>Lo que devuelve, en los logs:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>NAME STATUS ERRORS WARNINGS CREATED EXPIRES STORAGE LOCATION SELECTOR
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>NAME STATUS ERRORS WARNINGS CREATED EXPIRES STORAGE LOCATION SELECTOR
 </span></span><span style="display:flex;"><span>nginx-backup Completed <span style="color:#2aa198">0</span> <span style="color:#2aa198">0</span> 2021-04-04 18:12:00 +0000 UTC 26d default &lt;none&gt;
 </span></span><span style="display:flex;"><span>nginx-backup-2021-04-04 Completed <span style="color:#2aa198">0</span> <span style="color:#2aa198">0</span> 2021-04-04 18:47:20 +0000 UTC 26d default &lt;none&gt;
 </span></span><span style="display:flex;"><span>nginx-example-backups-20210404203557 Completed <span style="color:#2aa198">0</span> <span style="color:#2aa198">0</span> 2021-04-04 20:35:57 +0000 UTC 27d default &lt;none&gt;
@@ -198,7 +198,7 @@
 <blockquote>
 <p>Definimos el nombre de la copia específica de la que queremos recuperar en una variable de entorno: <code>$BACKUP2RESTORE</code></p>
 </blockquote>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>---
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>---
 </span></span><span style="display:flex;"><span><span style="color:#268bd2">kind</span>: Job
 </span></span><span style="display:flex;"><span><span style="color:#268bd2">apiVersion</span>:  batch/v1
 </span></span><span style="display:flex;"><span><span style="color:#268bd2">metadata</span>:
@@ -224,17 +224,17 @@
 </span></span><span style="display:flex;"><span>          <span style="color:#268bd2">command</span>: [<span style="color:#2aa198">&#34;/bin/sh&#34;</span>]
 </span></span><span style="display:flex;"><span>          <span style="color:#268bd2">args</span>: [<span style="color:#2aa198">&#34;-c&#34;</span>, <span style="color:#2aa198">&#34;velero restore create --from-backup $BACKUP2RESTORE&#34;</span>]
 </span></span></code></pre></div><p>Consultando los logs del <em>Job</em>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>Restore request <span style="color:#2aa198">&#34;nginx-example-backups-20210404203557-20210407190834&#34;</span> submitted successfully.
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>Restore request <span style="color:#2aa198">&#34;nginx-example-backups-20210404203557-20210407190834&#34;</span> submitted successfully.
 </span></span><span style="display:flex;"><span>Run <span style="color:#586e75">`</span>velero restore describe nginx-example-backups-20210404203557-20210407190834<span style="color:#586e75">`</span> or <span style="color:#586e75">`</span>velero restore logs nginx-example-backups-20210404203557-20210407190834<span style="color:#586e75">`</span> <span style="color:#719e07">for</span> more details.
 </span></span></code></pre></div><p>Al cabo de un instante, cuando ha finalizado la restauración a partir de la copia de seguridad, se han creado todos los recursos eliminados y la aplicación vuelve a estar disponible:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ curl http://nginx.k3s.lab:31142
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ curl http://nginx.k3s.lab:31142
 </span></span><span style="display:flex;"><span>...
 </span></span><span style="display:flex;"><span>&lt;h1&gt;Welcome to nginx!&lt;/h1&gt;
 </span></span><span style="display:flex;"><span>&lt;p&gt;If you see this page, the nginx web server is successfully installed and
 </span></span><span style="display:flex;"><span>working. Further configuration is required.&lt;/p&gt;
 </span></span><span style="display:flex;"><span>...
 </span></span></code></pre></div><p>Tanto el <em>Namespace</em> como todos los recursos desplegados por la aplicación vuelven a estar disponibles (incluídos los creados automáticamente por Kubernetes, como <code>configmap/kube-root-ca.crt</code>, <code>secret/default-token-fj9gv</code>, etc&hellip;):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ kubectl get all,secret,cm,sa -n nginx-example
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ kubectl get all,secret,cm,sa -n nginx-example
 </span></span><span style="display:flex;"><span>NAME                                   READY   STATUS    RESTARTS   AGE
 </span></span><span style="display:flex;"><span>pod/nginx-deployment-57d5dcb68-jc7jx   1/1     Running   <span style="color:#2aa198">0</span>          24m
 </span></span><span style="display:flex;"><span>pod/nginx-deployment-57d5dcb68-jbbjj   1/1     Running   <span style="color:#2aa198">0</span>          24m
@@ -257,7 +257,7 @@
 </span></span><span style="display:flex;"><span>NAME                     SECRETS   AGE
 </span></span><span style="display:flex;"><span>serviceaccount/default   <span style="color:#2aa198">1</span>         24m
 </span></span></code></pre></div><p>Si lo deseamos, podemos consultar los logs del <em>Job</em> de restauración para obtener el detalle de todas las acciones realizadas para recuperar la copia:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>---
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>---
 </span></span><span style="display:flex;"><span><span style="color:#268bd2">kind</span>: Job
 </span></span><span style="display:flex;"><span><span style="color:#268bd2">apiVersion</span>:  batch/v1
 </span></span><span style="display:flex;"><span><span style="color:#268bd2">metadata</span>:
@@ -282,7 +282,7 @@
 </span></span><span style="display:flex;"><span>              value &#34;nginx-example-backups-20210404203557-20210407190834&#34;
 </span></span><span style="display:flex;"><span>          <span style="color:#268bd2">command</span>: [<span style="color:#2aa198">&#34;/bin/sh&#34;</span>]
 </span></span><span style="display:flex;"><span>          <span style="color:#268bd2">args</span>: [<span style="color:#2aa198">&#34;-c&#34;</span>, <span style="color:#2aa198">&#34;velero restore logs $RESTORE_NAME&#34;</span>]
-</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#268bd2">time</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;2021-04-07T19:08:34Z&#34;</span> <span style="color:#268bd2">level</span><span style="color:#719e07">=</span>info <span style="color:#268bd2">msg</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;starting restore&#34;</span> <span style="color:#268bd2">logSource</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;pkg/controller/restore_controller.go:467&#34;</span> <span style="color:#268bd2">restore</span><span style="color:#719e07">=</span>velero/nginx-example-backups-20210404203557-20210407190834
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#268bd2">time</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;2021-04-07T19:08:34Z&#34;</span> <span style="color:#268bd2">level</span><span style="color:#719e07">=</span>info <span style="color:#268bd2">msg</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;starting restore&#34;</span> <span style="color:#268bd2">logSource</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;pkg/controller/restore_controller.go:467&#34;</span> <span style="color:#268bd2">restore</span><span style="color:#719e07">=</span>velero/nginx-example-backups-20210404203557-20210407190834
 </span></span><span style="display:flex;"><span>...
 </span></span><span style="display:flex;"><span><span style="color:#268bd2">time</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;2021-04-07T19:08:35Z&#34;</span> <span style="color:#268bd2">level</span><span style="color:#719e07">=</span>info <span style="color:#268bd2">msg</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;Attempting to restore Endpoints: my-nginx&#34;</span> <span style="color:#268bd2">logSource</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;pkg/restore/restore.go:1107&#34;</span> <span style="color:#268bd2">restore</span><span style="color:#719e07">=</span>velero/nginx-example-backups-20210404203557-20210407190834
 </span></span><span style="display:flex;"><span><span style="color:#268bd2">time</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;2021-04-07T19:08:35Z&#34;</span> <span style="color:#268bd2">level</span><span style="color:#719e07">=</span>info <span style="color:#268bd2">msg</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;Restoring resource &#39;endpointslices.discovery.k8s.io&#39; into namespace &#39;nginx-example&#39;&#34;</span> <span style="color:#268bd2">logSource</span><span style="color:#719e07">=</span><span style="color:#2aa198">&#34;pkg/restore/restore.go:724&#34;</span> <span style="color:#268bd2">restore</span><span style="color:#719e07">=</span>velero/nginx-example-backups-20210404203557-20210407190834

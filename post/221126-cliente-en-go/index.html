@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.136.5">
+<meta name="generator" content="Hugo 0.165.0">
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -92,7 +92,7 @@
       <script type="application/json">
         {
           "vars": {
-            "account": "Page(\/post\/221126-cliente-en-go)"
+            "account": "\/Users\/xavi\/repos\/personal\/onthedock-hugo\/content\/post\/221126-cliente-en-go.md"
           },
           "triggers": {
             "trackPageview": {
@@ -157,7 +157,7 @@
 <p>En mi caso, el <code>rootCmd</code> únicamente muestra la ayuda, pues es necesario especificar un subcomando.</p>
 <p>La estructura jerárquica en Cobra también aplica a los <em>flags</em>; los <em>flags</em> &ldquo;globales&rdquo; se denominan <em>persistent</em> y están disponibles para todos los subcomandos. Además de los <em>persistent flags</em> se pueden definir <em>flags</em> específicos para cada comando.</p>
 <p>Entre los parámetros &ldquo;globales&rdquo;, Cobra define por defecto <code>--help</code> y <code>--version</code>; para mi cliente, he añadido dos <em>persistent flags</em> adicionales: <code>--url</code> permite especificar la URL del <em>endpoint</em> de la API y <code>--dry-run</code>, que indica si el comando debe evaluarse sin ser aplicado:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#719e07">package</span> cli
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#719e07">package</span> cli
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#719e07">import</span> (
 </span></span><span style="display:flex;"><span>    <span style="color:#2aa198">&#34;os&#34;</span>
@@ -185,7 +185,7 @@
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>Para otros comandos en Cobra, la estructura es la misma, excepto que no se define la función <code>Execute()</code>: definimos el comando como un <em>struct</em> de tipo <a href="https://pkg.go.dev/github.com/spf13/cobra#Command"><code>cobra.Command</code></a> y le asociamos <em>flags</em> en la función <code>init()</code>.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#719e07">package</span> cli
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#719e07">package</span> cli
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#719e07">import</span> (
 </span></span><span style="display:flex;"><span>    <span style="color:#2aa198">&#34;github.com/spf13/cobra&#34;</span>
@@ -214,7 +214,7 @@
 <p>Una vez construido el mensaje para la API, la función <code>sendRequest</code> instancia el cliente HTTP que realiza la petición contra el <em>endpoint</em> de la API. <code>sendRequest</code> obtiene el token para autenticar la petición de una variable de entorno (<code>IDENTITY_TOKEN</code>).</p>
 <p>Finalmente, <code>processResponse</code> valida si se ha producido ningún error (y lo gestiona) antes de devolver al respuesta de la API.</p>
 <p>La funcionalidad del cliente está creado como un módulo en Go, por lo que <code>main.go</code> es muy sencillo:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#719e07">package</span> main
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#719e07">package</span> main
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#719e07">import</span> (
 </span></span><span style="display:flex;"><span>    <span style="color:#2aa198">&#34;go-client/cli&#34;</span>
@@ -229,13 +229,13 @@
 </span></span></code></pre></div><h2 id="mejoras-algunas-implementadas-otras-no-">Mejoras (algunas implementadas, otras no 😉)</h2>
 <h3 id="tomar-el-contenido-para-un-documento-desde-un-fichero">Tomar el contenido para un documento desde un fichero</h3>
 <p>En la versión en Bash del cliente, para añadir un nuevo documento a la base de datos, el contenido del documento debe pasarse como una cadena (<em>string</em>). Dado que se trata de un objeto JSON que puede ser bastante grande, es habitual hacer algo como:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#268bd2">new_document</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>cat new_document.json<span style="color:#719e07">)</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#268bd2">new_document</span><span style="color:#719e07">=</span><span style="color:#719e07">$(</span>cat new_document.json<span style="color:#719e07">)</span>
 </span></span><span style="display:flex;"><span>add_doc --document <span style="color:#2aa198">&#34;</span><span style="color:#2aa198">${</span><span style="color:#268bd2">new_document</span><span style="color:#2aa198">}</span><span style="color:#2aa198">&#34;</span>
 </span></span></code></pre></div><p>El cliente en Go incluye un nuevo argumento, <code>--docfile</code> que permite especificar el nombre de un <strong>fichero</strong> y leer su contenido directamente:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span>cli add <span style="color:#719e07">--</span>docfile path<span style="color:#719e07">/</span>to<span style="color:#719e07">/</span>new_document.json
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span>cli add <span style="color:#719e07">--</span>docfile path<span style="color:#719e07">/</span>to<span style="color:#719e07">/</span>new_document.json
 </span></span></code></pre></div><h3 id="autocompletado-ayuda-sugerencias-de-comandos-multiplataforma">Autocompletado, ayuda, sugerencias de comandos, multiplataforma</h3>
 <p>Todas estas funcinalidades las proporciona Cobra; por un lado, permite generar un fichero de autocompletado para diferentes <em>shells</em>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ cli completion --help
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ cli completion --help
 </span></span><span style="display:flex;"><span>Generate the autocompletion script <span style="color:#719e07">for</span> cli <span style="color:#719e07">for</span> the specified shell.
 </span></span><span style="display:flex;"><span>See each sub-command&#39;s <span style="color:#b58900">help</span> <span style="color:#719e07">for</span> details on how to use the generated script.
 </span></span><span style="display:flex;"><span>
@@ -258,7 +258,7 @@
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>Use <span style="color:#2aa198">&#34;cli completion [command] --help&#34;</span> <span style="color:#719e07">for</span> more information about a command.
 </span></span></code></pre></div><p>De esta manera, pulsando <em>Tab</em> dos veces, se muestran todos los comandos disponibles:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ cli <span style="color:#586e75"># tab, tab</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ cli <span style="color:#586e75"># tab, tab</span>
 </span></span><span style="display:flex;"><span>add                         <span style="color:#719e07">(</span>Add document to &lt;API_NAME&gt;<span style="color:#719e07">)</span>
 </span></span><span style="display:flex;"><span>completion                  <span style="color:#719e07">(</span>Generate the autocompletion script <span style="color:#719e07">for</span> the specified shell<span style="color:#719e07">)</span>
 </span></span><span style="display:flex;"><span>delete                      <span style="color:#719e07">(</span>Delete document from &lt;API_NAME&gt;<span style="color:#719e07">)</span>
@@ -274,7 +274,7 @@
 </span></span><span style="display:flex;"><span>version                     <span style="color:#719e07">(</span>Get version of the &lt;API_NAME&gt;<span style="color:#719e07">)</span>
 </span></span></code></pre></div><p>Si se pulsa <em>tab</em> tras escribir parte del nombre de un comando, se completa.</p>
 <p>Cobra no sólo muestra el <em>usage</em> para el comando principal, sino que para se pued obtener ayuda específica para cada <em>subcomando</em>, como los alias definidos, los parámetros, si éstos son obligatorios o no, si tienen un valor por defecto definido&hellip;</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ cli update --help
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ cli update --help
 </span></span><span style="display:flex;"><span>Update document with documentId
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>Usage:
@@ -296,7 +296,7 @@
 </span></span><span style="display:flex;"><span>      --url string   &lt;API_NAME&gt; URL
 </span></span><span style="display:flex;"><span>                     Alternatively, use the environment variable &lt;API_NAME&gt;_URL
 </span></span></code></pre></div><p>Cobra también ofrece sugerencias si esribimos un subcomando desconocido:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ cli git --document <span style="color:#2aa198">12345</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ cli git --document <span style="color:#2aa198">12345</span>
 </span></span><span style="display:flex;"><span>Error: unknown <span style="color:#b58900">command</span> <span style="color:#2aa198">&#34;git&#34;</span> <span style="color:#719e07">for</span> <span style="color:#2aa198">&#34;cli&#34;</span>
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>Did you mean this?
@@ -305,7 +305,7 @@
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>Run <span style="color:#2aa198">&#39;cli --help&#39;</span> <span style="color:#719e07">for</span> usage.
 </span></span></code></pre></div><p>Al estar escrito en Go, realizar la compilación para que el cliente se puede ejecutar en MS Windows, es tan sencillo como añadir :</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-make" data-lang="make"><span style="display:flex;"><span><span style="color:#268bd2">GOOS</span><span style="color:#719e07">=</span>windows <span style="color:#268bd2">GOARCH</span><span style="color:#719e07">=</span>amd64 go build -o ./<span style="color:#719e07">$(</span>binaryName<span style="color:#719e07">)</span>.exe -ldflags<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;-X &#39;go-client/cli.version=v</span><span style="color:#719e07">$(</span>version<span style="color:#719e07">)</span><span style="color:#2aa198">&#39;&#34;</span> *.go
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-make" data-lang="make"><span style="display:flex;"><span><span style="color:#268bd2">GOOS</span><span style="color:#719e07">=</span>windows <span style="color:#268bd2">GOARCH</span><span style="color:#719e07">=</span>amd64 go build -o ./<span style="color:#719e07">$(</span>binaryName<span style="color:#719e07">)</span>.exe -ldflags<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;-X &#39;go-client/cli.version=v</span><span style="color:#719e07">$(</span>version<span style="color:#719e07">)</span><span style="color:#2aa198">&#39;&#34;</span> *.go
 </span></span></code></pre></div><h3 id="tests-todavía-no-shameonme">Tests (todavía no, <em>#shameOnMe</em>)</h3>
 <p>Sé que los tests deben crearse primero, hacer que fallen, escribir el <strong>mínimo</strong> código que los haga pasar y después, <em>rafactorizar</em>&hellip;</p>
 <p>La ventaja de tener que crear los tests <strong>primero</strong> y escribir el código <strong>después</strong> es que antes de escribir nada, tienes que <em>darle una vuelta</em> a lo que quieres que haga el código&hellip;</p>

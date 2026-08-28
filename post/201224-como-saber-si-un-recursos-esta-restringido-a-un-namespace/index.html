@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.136.5">
+<meta name="generator" content="Hugo 0.165.0">
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -92,7 +92,7 @@
       <script type="application/json">
         {
           "vars": {
-            "account": "Page(\/post\/201224-como-saber-si-un-recursos-esta-restringido-a-un-namespace)"
+            "account": "\/Users\/xavi\/repos\/personal\/onthedock-hugo\/content\/post\/201224-como-saber-si-un-recursos-esta-restringido-a-un-namespace.md"
           },
           "triggers": {
             "trackPageview": {
@@ -148,19 +148,19 @@
 <p>¿Cómo podemos obtener una lista de los recursos con alcance restringido al <em>namespace</em> en el que se encuentran?</p>
 <p>En la documentación oficial Kubernetes sobre los <em>Namespaces</em>, encontramos cómo obtener esta lista en la sección <a href="https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/#not-all-objects-are-in-a-namespace">Not All Objects are in a Namespace</a></p>
 <p>Los recursos limitados a un <em>namespace</em> son:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#586e75"># In a namespace</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#586e75"># In a namespace</span>
 </span></span><span style="display:flex;"><span>kubectl api-resources --namespaced<span style="color:#719e07">=</span><span style="color:#b58900">true</span>
 </span></span></code></pre></div><p>Para los que no:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#586e75"># In a namespace</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#586e75"># In a namespace</span>
 </span></span><span style="display:flex;"><span>kubectl api-resources --namespaced<span style="color:#719e07">=</span><span style="color:#b58900">false</span>
 </span></span></code></pre></div><h2 id="establecer-un-namespace-por-defecto">Establecer un <em>namespace</em> por defecto</h2>
 <p>Es una buena práctica especificar <strong>siempre</strong> el <em>namespace</em> en los comandos que se ejecutan para evitar errores&hellip; Es tan sencillo como incluir el parámetro <code>-n &lt;nombre-namespace&gt;</code> en cualquier comando:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ kubectl get pods -n toolbox-gitea
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ kubectl get pods -n toolbox-gitea
 </span></span><span style="display:flex;"><span>NAME                     READY   STATUS    RESTARTS   AGE
 </span></span><span style="display:flex;"><span>gitea-59db876d4f-bqm5f   1/1     Running   <span style="color:#2aa198">1</span>          16h
 </span></span></code></pre></div><p>Si embargo, es fácil <em>despistarse</em> y no incluirlo, lo que puede resultar fatal; por ejemplo, en un comando del tipo <code>kubectl apply -f &lt;definicion-de-recursos.yaml&gt;</code>.</p>
 <p>Para evitar este tipo de errores, podemos establecer el <em>namespace por defecto</em> para todos los comandos siguiendo las instrucciones de la documentación oficial <a href="https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/#setting-the-namespace-preference">Setting the namespace preference</a></p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>kubectl config set-context --current --namespace<span style="color:#719e07">=</span>&lt;insert-namespace-name-here&gt;
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>kubectl config set-context --current --namespace<span style="color:#719e07">=</span>&lt;insert-namespace-name-here&gt;
 </span></span><span style="display:flex;"><span><span style="color:#586e75"># Validate it</span>
 </span></span><span style="display:flex;"><span>kubectl config view --minify | grep namespace:
 </span></span></code></pre></div><h2 id="el-origen-de-mi-duda-al-respecto-del-alcance-de-los-recursos-en-kubernetes">El origen de mi duda al respecto del alcance de los recursos en Kubernetes</h2>
@@ -170,7 +170,7 @@
 <p>Al crear el <em>pod</em> que debía usar el volumen especificado en el <em>claim</em>, se quedaba en estado <em>pending</em> y al revisar los logs, observé que era porque no se podía montar el volumen.</p>
 <p>La salida del comando <code>kubectl get pv -n &lt;namespace&gt;</code> mostraba que el volumen estaba disponible, así que no entendía porqué no se realizaba el <em>binding</em>&hellip;</p>
 <p>El <strong>fallo</strong> es que los <code>persistentVolume</code> son globales, por lo que son visibles desde todos los <em>namespaces</em>&hellip; De hecho, parece que el parámetro <code>-n</code> se ignora para estos elementos; puedes probar usando el nombre de un <em>namespace</em> que no exista:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ kubectl get pv -n safhadlkfhjaldskfjasd
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ kubectl get pv -n safhadlkfhjaldskfjasd
 </span></span><span style="display:flex;"><span>NAME                                CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM                              STORAGECLASS   REASON   AGE
 </span></span><span style="display:flex;"><span>gitea-volume                        10Gi       RWO            Retain           Bound    toolbox-gitea/gitea-volume-claim   manual                  12d
 </span></span><span style="display:flex;"><span>docker-registry-persistent-volume   10Gi       RWO            Retain           Bound    registry/docker-registry-storage   manual                  12h

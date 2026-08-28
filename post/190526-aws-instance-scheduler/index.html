@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.136.5">
+<meta name="generator" content="Hugo 0.165.0">
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -92,7 +92,7 @@
       <script type="application/json">
         {
           "vars": {
-            "account": "Page(\/post\/190526-aws-instance-scheduler)"
+            "account": "\/Users\/xavi\/repos\/personal\/onthedock-hugo\/content\/post\/190526-aws-instance-scheduler.md"
           },
           "triggers": {
             "trackPageview": {
@@ -148,15 +148,15 @@ Esta es una de las formas más sencillas de ahorrar en el uso de estos servicios
 <p>Amazon proporciona una plantilla de <em>AWS CloudFormation</em> que permite desplegar todos los recursos necesarios de forma automática.</p>
 <h2 id="cómo-funciona-aws-instance-scheduler">Cómo funciona AWS Instance Scheduler</h2>
 <figure class="center"><img src="/images/190526/instance-scheduler-architecture.png"
-    alt="AWS Instance Scheduler Architecture"><figcaption>
-      <p>AWS Instance Scheduler Architecture</p>
-    </figcaption>
+			alt="AWS Instance Scheduler Architecture"><figcaption>
+			<p>AWS Instance Scheduler Architecture</p>
+		</figcaption>
 </figure>
 
 <p>La plantilla de CloudFormation configura eventos en Amazon CloudWatch de manera que se ejecute una acción -la ejecución de una función Lambda- con la frecuencia que especifiquemos.</p>
 <p>La función <em>NombreDelStack-InstanceSchedulerMain</em> lee la configuración de una tabla de DynamoDB con los periodos en los que las instancias tienen que estar en ejecución.</p>
 <p>Cuando se ejecuta la <em>lambda</em>, se comprueban las etiquetas aplicadas a las instancias y se encienden o apagan según corresponda.</p>
-<h2 id="definir-_schedules_-y-_periods_">Definir <em>schedules</em> y <em>periods</em></h2>
+<h2 id="definir-schedules-y-periods">Definir <em>schedules</em> y <em>periods</em></h2>
 <p>En mi opinión este es uno de los puntos mejorables de la documentación de AWS Instance Scheduler.</p>
 <p>En la documentación no se indica -en mi opinión- con suficiente detalle cómo crear estos periodos o programaciones. Se indica, eso sí, que se pueden crear desde la consola de DynamoDB, desde un <a href="https://docs.aws.amazon.com/solutions/latest/instance-scheduler/appendix-d.html"><em>custom resource</em></a> o desde el <em>AWS Instance Scheduler CLI</em> (un script en Python), pero no cómo hacerlo.</p>
 <p>Curiosamente, si revisas los elementos que contiene la tabla <code>&lt;NombreDelStack&gt;-ConfigTable-...</code>, verás que sí que contiene algunas entradas (tanto para definir periodos como <em>schedules</em>):</p>
@@ -174,7 +174,7 @@ Esta es una de las formas más sencillas de ahorrar en el uso de estos servicios
 <p>Selecciona la tabla <code>...-ConfigTable-...</code> y la pestaña <em>Items</em> para ver las entradas de esta tabla (los de la imagen superior).</p>
 <p>Selecciona un <em>period</em> y en el desplegable <em>Actions</em>, selecciona <em>Duplicate</em>. A partir de ahí edita el nuevo ítem para ajustarlo al periodo que quieres definir.</p>
 <p>Por ejemplo, el siguiente periodo define como hora de inicio (arranque de las máquinas) las 06h, apagándolas a las 18h de lunes a viernes.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
 </span></span><span style="display:flex;"><span>  <span style="color:#268bd2">&#34;begintime&#34;</span>: {
 </span></span><span style="display:flex;"><span>    <span style="color:#268bd2">&#34;S&#34;</span>: <span style="color:#2aa198">&#34;06:00&#34;</span>
 </span></span><span style="display:flex;"><span>  },
@@ -197,7 +197,7 @@ Esta es una de las formas más sencillas de ahorrar en el uso de estos servicios
 </span></span><span style="display:flex;"><span>  }
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>A continuación, repito el proceso para duplicar un <em>schedule</em> y lo &ldquo;asocio&rdquo; al periodo definido mediante el uso de la propiedad <code>name</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
 </span></span><span style="display:flex;"><span>  <span style="color:#268bd2">&#34;description&#34;</span>: {
 </span></span><span style="display:flex;"><span>    <span style="color:#268bd2">&#34;S&#34;</span>: <span style="color:#2aa198">&#34;Schedule for 06h-18h&#34;</span>
 </span></span><span style="display:flex;"><span>  },
@@ -223,21 +223,21 @@ Esta es una de las formas más sencillas de ahorrar en el uso de estos servicios
 <h2 id="etiquetado-automático-de-las-instancias-arrancadasparadas-por-aws-instance-scheduler">Etiquetado automático de las instancias arrancadas/paradas por AWS Instance Scheduler</h2>
 <p>Un detalle muy interesante de AWS Instance Scheduler es que permite etiquetar automáticamente las instancias iniciadas/detenidas. En la documentación se indica, por ejemplo:</p>
 <table>
-  <thead>
-      <tr>
-          <th>Example Parameter Input</th>
-          <th>Instance Scheduler Tag</th>
-      </tr>
-  </thead>
-  <tbody>
-      <tr>
-          <td><code>ScheduleMessage=Started on {year}/{month}/{day} at {hour}:{minute} {timezone}</code></td>
-          <td><code>ScheduleMessage=Started on 2017/07/06 at 09:00 UTC</code></td>
-      </tr>
-  </tbody>
+	<thead>
+			<tr>
+					<th>Example Parameter Input</th>
+					<th>Instance Scheduler Tag</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td><code>ScheduleMessage=Started on {year}/{month}/{day} at {hour}:{minute} {timezone}</code></td>
+					<td><code>ScheduleMessage=Started on 2017/07/06 at 09:00 UTC</code></td>
+			</tr>
+	</tbody>
 </table>
 <p>Esto puede ayudar en aquipos en los que la administración de las instancias (o el control de costes) está separado de los usuarios finales de las instancias, de manera que sepan porqué motivo la instancia se encuentra parada, por ejemplo.</p>
-<h2 id="otros-parámetros-interesantes-de-los-_schedules_">Otros parámetros interesantes de los <em>schedules</em></h2>
+<h2 id="otros-parámetros-interesantes-de-los-schedules">Otros parámetros interesantes de los <em>schedules</em></h2>
 <p>Revisa los parámetros de los <em>schedules</em> porque hay algunos que permiten implementar medidas interesantes, como el <code>enforced</code>, el <code>override_status</code> o el <code>use_maintenance_window</code> para RDS.</p>
 <p>Por ejemplo, estableciendo el <code>enforced</code> a <code>true</code>, AWS Instance Scheduler detendrá una instancia incluso si se arranca manualmente fuera del periodo definido. Debes recordarlo si algún día ves quieres arrancar una máquina fuera del <em>schedule</em> configurado y ésta se apaga una y otra vez ;)</p>
 <p>Otra medida interesante puede ser establecer un periodo que sólo tenga <em>endtime</em>  -desde el punto de vista de recortar gastos-, de manera que las instancias se apaguen siempre a una determinada hora, pero que no arranquen automáticamente. Esto puede ser útil en entornos de desarrollo o de test en los que las instancias se usen sólo de forma esporádica, arrancándose de forma manual o como respuesta a algún evento, para evitar que se queden arrancadas indefinidamente.</p>

@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.136.5">
+<meta name="generator" content="Hugo 0.165.0">
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -92,7 +92,7 @@
       <script type="application/json">
         {
           "vars": {
-            "account": "Page(\/post\/260426-apikey-checker-iv)"
+            "account": "\/Users\/xavi\/repos\/personal\/onthedock-hugo\/content\/post\/260426-apikey-checker-iv.md"
           },
           "triggers": {
             "trackPageview": {
@@ -145,48 +145,48 @@
 
   <div class="article-body"><p>Ahora que somos capaces de mostrar cuántos dias hace que se creó una API key, ha llegado el momento de comparar ése dato con el periodo de rotación y así indicar si la API key debe ser rotada o no.</p>
 <p>Hasta ahora, la parte final del proceso, la de &ldquo;mostrar&rdquo; las API keys en el proyecto se ha limitado a un <code>Println</code>.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span>    <span style="color:#586e75">// display API keys
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    <span style="color:#719e07">for</span> _, k <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> keylist {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span>    <span style="color:#586e75">// display API keys</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#719e07">for</span> _, k <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> keylist {
 </span></span><span style="display:flex;"><span>        fmt.<span style="color:#268bd2">Println</span>(k.<span style="color:#268bd2">String</span>())
 </span></span><span style="display:flex;"><span>    }
 </span></span></code></pre></div><p>En la línea de lo que hemos hecho para cada una de las fases anteriores del proceso, vamos <em>extraer</em> la acción de <em>mostrar</em> la API key a una función en el paquete <code>keys</code>.</p>
 <p>Creamos una función <code>Display</code> en <code>keys.go</code> con el mismo contenido que tenemos en el <em>snippet</em> de código anterior:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">Display</span>(keylist []<span style="color:#719e07">*</span>Key) {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">Display</span>(keylist []<span style="color:#719e07">*</span>Key) {
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">for</span> _, k <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> keylist {
 </span></span><span style="display:flex;"><span>        fmt.<span style="color:#268bd2">Println</span>(k.<span style="color:#268bd2">String</span>())
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>En <code>main.go</code>, reemplazamos el código existente por la llamada a esta nueva función:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// ... before
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    <span style="color:#586e75">// display API keys
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    <span style="color:#719e07">for</span> _, k <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> keylist {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// ... before</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// display API keys</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#719e07">for</span> _, k <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> keylist {
 </span></span><span style="display:flex;"><span>        fmt.<span style="color:#268bd2">Println</span>(k.<span style="color:#268bd2">String</span>())
 </span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span><span style="color:#586e75">// ... after
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    <span style="color:#586e75">// display API keys
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    keys.<span style="color:#268bd2">Display</span>(keylist)
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// ... after</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// display API keys</span>
+</span></span><span style="display:flex;"><span>    keys.<span style="color:#268bd2">Display</span>(keylist)
 </span></span></code></pre></div><p>Esta modificación es sólo un <em>refactor</em> que no altera la funcionalidad existente, pero nos permite organizar mejor el código.</p>
 <h2 id="mostrar-qué-claves-deben-ser-rotadas-y-cuáles-no">Mostrar qué claves deben ser rotadas y cuáles no</h2>
 <p>La solución original de Google Professional Services mostraba las API keys en dos grupos: las que tenían que rotarse y las que no.</p>
 <p>Para que la función <code>Display</code> diferencie la forma en la que muestra las API keys que deben rotarse de las que no, debe poder identificarlas. Para ello, debemos pasar el valor de <code>maxDays</code> a <code>Display</code>, e introducir la lógica necesaria para que se compruebe si la API key debe rotarse o no.</p>
 <p>Una forma posible es añadir <code>maxDays</code> a la lista de parámetros de <code>Display</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">Display</span>(keylist []<span style="color:#719e07">*</span>Key, maxdays <span style="color:#dc322f">int</span>) { <span style="color:#719e07">...</span> }
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">Display</span>(keylist []<span style="color:#719e07">*</span>Key, maxdays <span style="color:#dc322f">int</span>) { <span style="color:#719e07">...</span> }
 </span></span></code></pre></div><p>Sin embargo, también nos gustaría pasar un parámetro para especificar el formato en el que mostrar las API keys en el futuro&hellip;</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">Display</span>(keylist []<span style="color:#719e07">*</span>Key, maxdays <span style="color:#dc322f">int</span>, format <span style="color:#dc322f">string</span>) { <span style="color:#719e07">...</span> }
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">Display</span>(keylist []<span style="color:#719e07">*</span>Key, maxdays <span style="color:#dc322f">int</span>, format <span style="color:#dc322f">string</span>) { <span style="color:#719e07">...</span> }
 </span></span></code></pre></div><p>Como vemos, para cada nuevo parámetro que querramos introducir en el futuro, modificaríamos la <em>signatura</em> de la función&hellip; Eso significa que deberíamos actualizar también todas las referencias a la función <code>Display</code> en nuestro código&hellip; Siendo ésta una aplicación sencilla, no sería mayor problema; pero en una aplicación más compleja, éste tipo de cambios no son nada recomendables.</p>
 <p>Personalmente, prefiero usar un <em>struct</em> de <em>opciones</em>.</p>
 <p>En <code>keys.go</code>, añadimos:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">type</span> Options <span style="color:#268bd2">struct</span> {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">type</span> Options <span style="color:#268bd2">struct</span> {
 </span></span><span style="display:flex;"><span>    MaxDays <span style="color:#dc322f">int</span>
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>En <code>main.go</code>, reemplazamos:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// ... before
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>        fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;error parsing flags: %s\n&#34;</span>, err.<span style="color:#268bd2">Error</span>())
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// ... before</span>
+</span></span><span style="display:flex;"><span>        fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;error parsing flags: %s\n&#34;</span>, err.<span style="color:#268bd2">Error</span>())
 </span></span><span style="display:flex;"><span>        os.<span style="color:#268bd2">Exit</span>(<span style="color:#2aa198">1</span>)
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>    _ = maxDays
-</span></span><span style="display:flex;"><span><span style="color:#586e75">// ... after
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>        fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;error parsing flags: %s\n&#34;</span>, err.<span style="color:#268bd2">Error</span>())
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// ... after</span>
+</span></span><span style="display:flex;"><span>        fmt.<span style="color:#268bd2">Printf</span>(<span style="color:#2aa198">&#34;error parsing flags: %s\n&#34;</span>, err.<span style="color:#268bd2">Error</span>())
 </span></span><span style="display:flex;"><span>        os.<span style="color:#268bd2">Exit</span>(<span style="color:#2aa198">1</span>)
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>
@@ -194,50 +194,50 @@
 </span></span><span style="display:flex;"><span>        MaxDays: <span style="color:#719e07">*</span>maxDays,
 </span></span><span style="display:flex;"><span>    }
 </span></span></code></pre></div><p>Actualizamos la llamada a <code>Display</code> (aunque todavía no hemos actualizado su <em>signature</em>):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// ... before
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    <span style="color:#586e75">// display API keys
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    keys.<span style="color:#268bd2">Display</span>(keylist)
-</span></span><span style="display:flex;"><span><span style="color:#586e75">// ... after
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    <span style="color:#586e75">// display API keys
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    keys.<span style="color:#268bd2">Display</span>(keylist, options)
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// ... before</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// display API keys</span>
+</span></span><span style="display:flex;"><span>    keys.<span style="color:#268bd2">Display</span>(keylist)
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// ... after</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// display API keys</span>
+</span></span><span style="display:flex;"><span>    keys.<span style="color:#268bd2">Display</span>(keylist, options)
 </span></span></code></pre></div><p>Finalmente, en <code>keys.go</code>, actualizamos la función <code>Display</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// ... before
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">Display</span>(keylist []<span style="color:#719e07">*</span>Key) {
-</span></span><span style="display:flex;"><span><span style="color:#586e75">// ... after
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">Display</span>(keylist []<span style="color:#719e07">*</span>Key, options Options) {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// ... before</span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">Display</span>(keylist []<span style="color:#719e07">*</span>Key) {
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// ... after</span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">Display</span>(keylist []<span style="color:#719e07">*</span>Key, options Options) {
 </span></span></code></pre></div><p>Tenemos <code>options</code> disponible en <code>Display</code>, aunque todavía no lo estamos utilizando para nada.</p>
 <p>Para saber si una API key tiene que ser rotada, debemos comparar cuánto tiempo hace desde que se creó con el valor de <code>maxDays</code>. Al tratarse de una operación central en la aplicación, vamos a crear un método <code>NeedsToBeRotated</code> que devuelva <code>true</code> o <code>false</code>.</p>
 <p>Para facilitar el cálculo, añadimos una función privada en <code>keys.go</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">daysSinceCreated</span>(c time.Time) <span style="color:#dc322f">int</span> {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">daysSinceCreated</span>(c time.Time) <span style="color:#dc322f">int</span> {
 </span></span><span style="display:flex;"><span>    <span style="color:#268bd2">const</span> hoursDay = <span style="color:#2aa198">24</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">return</span> <span style="color:#b58900">int</span>(time.<span style="color:#268bd2">Since</span>(c).<span style="color:#268bd2">Hours</span>() <span style="color:#719e07">/</span> hoursDay)
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>En <code>keys.go</code> añadimos:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> (k Key) <span style="color:#268bd2">NeedsToBeRotated</span>(options Options) <span style="color:#dc322f">bool</span> {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> (k Key) <span style="color:#268bd2">NeedsToBeRotated</span>(options Options) <span style="color:#dc322f">bool</span> {
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">if</span> <span style="color:#268bd2">daysSinceCreated</span>(k.CreateTime) <span style="color:#719e07">&lt;=</span> options.MaxDays {
 </span></span><span style="display:flex;"><span>        <span style="color:#719e07">return</span> <span style="color:#cb4b16">false</span>
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">return</span> <span style="color:#cb4b16">true</span>
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>La creación de la función <code>daysSinceCreated</code> también nos permite actualizar <code>String()</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// ... before
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> (k Key) <span style="color:#268bd2">String</span>() <span style="color:#dc322f">string</span> {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// ... before</span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> (k Key) <span style="color:#268bd2">String</span>() <span style="color:#dc322f">string</span> {
 </span></span><span style="display:flex;"><span>    <span style="color:#268bd2">const</span> hoursDay = <span style="color:#2aa198">24</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">return</span> fmt.<span style="color:#268bd2">Sprintf</span>(<span style="color:#2aa198">&#34;%s on project %s (created: %s, %.0f days ago)&#34;</span>, k.DisplayName, k.ProjectId, k.CreateTime.<span style="color:#268bd2">Format</span>(time.RFC1123), time.<span style="color:#268bd2">Since</span>(k.CreateTime).<span style="color:#268bd2">Hours</span>()<span style="color:#719e07">/</span>hoursDay)
 </span></span><span style="display:flex;"><span>}
-</span></span><span style="display:flex;"><span><span style="color:#586e75">// ... after
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> (k Key) <span style="color:#268bd2">String</span>() <span style="color:#dc322f">string</span> {
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// ... after</span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> (k Key) <span style="color:#268bd2">String</span>() <span style="color:#dc322f">string</span> {
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">return</span> fmt.<span style="color:#268bd2">Sprintf</span>(<span style="color:#2aa198">&#34;%s on project %s (created: %s, %d days ago)&#34;</span>, k.DisplayName, k.ProjectId, k.CreateTime.<span style="color:#268bd2">Format</span>(time.RFC1123), <span style="color:#268bd2">daysSinceCreated</span>(k.CreateTime))
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>Volvemos ahora a la función <code>Display</code>; en vez de imprimir, en forma de <em>string</em> la API key, prefijamos la salida de la función con un icono dependiendo de si la API key supera o no el periodo máximo de rotación establecido en nuestra organización:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// ... before
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">Display</span>(keylist []<span style="color:#719e07">*</span>Key, options Options) {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// ... before</span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">Display</span>(keylist []<span style="color:#719e07">*</span>Key, options Options) {
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">for</span> _, k <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> keylist {
 </span></span><span style="display:flex;"><span>        fmt.<span style="color:#268bd2">Println</span>(k.<span style="color:#268bd2">String</span>())
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>}
-</span></span><span style="display:flex;"><span><span style="color:#586e75">// ... after
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// ... after</span>
+</span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">Display</span>(keylist []<span style="color:#719e07">*</span>Key, options Options) {
 </span></span><span style="display:flex;"><span>    <span style="color:#268bd2">const</span> (
 </span></span><span style="display:flex;"><span>        warningIcon <span style="color:#dc322f">string</span> = <span style="color:#2aa198">&#34;⚠️&#34;</span>
@@ -252,7 +252,7 @@
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>El resultado es:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$  ./apicheck --project XXXX-XXX-XXXX-XXXXXX-XXXX
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>$  ./apicheck --project XXXX-XXX-XXXX-XXXXXX-XXXX
 </span></span><span style="display:flex;"><span>✅ test-api-key on project XXXX-XXX-XXXX-XXXXXX-XXXX (created: Sat, 18 Apr 2026 11:05:17 UTC, 8 days ago)
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>$ ./apicheck --project XXXX-XXX-XXXX-XXXXXX-XXXX --max-days <span style="color:#2aa198">7</span>

@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.136.5">
+<meta name="generator" content="Hugo 0.165.0">
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -92,7 +92,7 @@
       <script type="application/json">
         {
           "vars": {
-            "account": "Page(\/post\/260501-apikey-checker-vii)"
+            "account": "\/Users\/xavi\/repos\/personal\/onthedock-hugo\/content\/post\/260501-apikey-checker-vii.md"
           },
           "triggers": {
             "trackPageview": {
@@ -147,15 +147,15 @@
 <p>Al mostrar por pantalla los resultados, ya incluimos un icono para diferenciar las API keys. Ahora vamos a introducir un <em>flag</em> para filtrar las API keys encontradas, no sólo cuando las mostramos por pantalla, sino también cuando las exportamos a cualquiera de los formatos soportados.</p>
 <p>Por defecto, se deben mostrar todas las API keys. Sin embargo, vemos que si se muestran por pantalla, podemos distinguir aquellas que deben rotarse de las que no, pero ésto no sucede si exportamos a JSON o CSV.</p>
 <p>Empezamos añadiendo dos campos al <em>struct</em> que modela la <code>Key</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// ... before
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">type</span> Key <span style="color:#268bd2">struct</span> {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// ... before</span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">type</span> Key <span style="color:#268bd2">struct</span> {
 </span></span><span style="display:flex;"><span>    CreateTime  time.Time <span style="color:#2aa198">`json:&#34;create_time,omitempty&#34;`</span>
 </span></span><span style="display:flex;"><span>    DisplayName <span style="color:#dc322f">string</span>    <span style="color:#2aa198">`json:&#34;display_name,omitempty&#34;`</span>
 </span></span><span style="display:flex;"><span>    Name        <span style="color:#dc322f">string</span>    <span style="color:#2aa198">`json:&#34;name,omitempty&#34;`</span>
 </span></span><span style="display:flex;"><span>    ProjectId   <span style="color:#dc322f">string</span>    <span style="color:#2aa198">`json:&#34;project_id,omitempty&#34;`</span>
 </span></span><span style="display:flex;"><span>}
-</span></span><span style="display:flex;"><span><span style="color:#586e75">// ... after
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">type</span> Key <span style="color:#268bd2">struct</span> {
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// ... after</span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">type</span> Key <span style="color:#268bd2">struct</span> {
 </span></span><span style="display:flex;"><span>    CreateTime  time.Time <span style="color:#2aa198">`json:&#34;create_time,omitempty&#34;`</span>
 </span></span><span style="display:flex;"><span>    DisplayName <span style="color:#dc322f">string</span>    <span style="color:#2aa198">`json:&#34;display_name,omitempty&#34;`</span>
 </span></span><span style="display:flex;"><span>    Name        <span style="color:#dc322f">string</span>    <span style="color:#2aa198">`json:&#34;name,omitempty&#34;`</span>
@@ -164,15 +164,15 @@
 </span></span><span style="display:flex;"><span>    Rotate      <span style="color:#dc322f">bool</span>      <span style="color:#2aa198">`json:&#34;rotate,omitempty&#34;`</span>
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>En la función <code>List</code>, cuando obtenemos la información de la <em>Key</em>, añadimos el valor de <code>AgeDays</code> usando la función que desarrollamos anteriormente <code>daysSinceCreated()</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// ... before
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    key <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>Key{
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// ... before</span>
+</span></span><span style="display:flex;"><span>    key <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>Key{
 </span></span><span style="display:flex;"><span>        Name:        k.Name,
 </span></span><span style="display:flex;"><span>        DisplayName: k.DisplayName,
 </span></span><span style="display:flex;"><span>        CreateTime:  k.CreateTime.<span style="color:#268bd2">AsTime</span>(),
 </span></span><span style="display:flex;"><span>        ProjectId:   projectid,
 </span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span><span style="color:#586e75">// ... after
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    key <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>Key{
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// ... after</span>
+</span></span><span style="display:flex;"><span>    key <span style="color:#719e07">:=</span> <span style="color:#719e07">&amp;</span>Key{
 </span></span><span style="display:flex;"><span>        Name:        k.Name,
 </span></span><span style="display:flex;"><span>        DisplayName: k.DisplayName,
 </span></span><span style="display:flex;"><span>        CreateTime:  k.CreateTime.<span style="color:#268bd2">AsTime</span>(),
@@ -181,37 +181,37 @@
 </span></span><span style="display:flex;"><span>    }
 </span></span></code></pre></div><h2 id="nuevo-flag---rotate">Nuevo <em>flag</em> <code>--rotate</code></h2>
 <p>Si especificamos el <em>flag</em> <code>--rotate</code>, entonces sólo se mostrarán las API keys cuya antigüedad sea mayor que <code>--max-days</code>.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// ... before
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    format <span style="color:#719e07">:=</span> fs.<span style="color:#268bd2">String</span>(<span style="color:#2aa198">&#34;format&#34;</span>, <span style="color:#2aa198">&#34;&#34;</span>, <span style="color:#2aa198">&#34;Output format for displaying the API keys&#34;</span>)
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// ... before</span>
+</span></span><span style="display:flex;"><span>    format <span style="color:#719e07">:=</span> fs.<span style="color:#268bd2">String</span>(<span style="color:#2aa198">&#34;format&#34;</span>, <span style="color:#2aa198">&#34;&#34;</span>, <span style="color:#2aa198">&#34;Output format for displaying the API keys&#34;</span>)
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> fs.<span style="color:#268bd2">Parse</span>(os.Args[<span style="color:#2aa198">1</span>:]); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
-</span></span><span style="display:flex;"><span>        <span style="color:#586e75">// ...
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75">// ... after
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    format <span style="color:#719e07">:=</span> fs.<span style="color:#268bd2">String</span>(<span style="color:#2aa198">&#34;format&#34;</span>, <span style="color:#2aa198">&#34;&#34;</span>, <span style="color:#2aa198">&#34;Output format for displaying the API keys&#34;</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#586e75">// ...</span>
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// ... after</span>
+</span></span><span style="display:flex;"><span>    format <span style="color:#719e07">:=</span> fs.<span style="color:#268bd2">String</span>(<span style="color:#2aa198">&#34;format&#34;</span>, <span style="color:#2aa198">&#34;&#34;</span>, <span style="color:#2aa198">&#34;Output format for displaying the API keys&#34;</span>)
 </span></span><span style="display:flex;"><span>    rotate <span style="color:#719e07">:=</span> fs.<span style="color:#268bd2">Bool</span>(<span style="color:#2aa198">&#34;rotate&#34;</span>, <span style="color:#cb4b16">false</span>, <span style="color:#2aa198">&#34;Display only API keys older than &#39;max-days&#39;&#34;</span>)
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">if</span> err <span style="color:#719e07">:=</span> fs.<span style="color:#268bd2">Parse</span>(os.Args[<span style="color:#2aa198">1</span>:]); err <span style="color:#719e07">!=</span> <span style="color:#cb4b16">nil</span> {
-</span></span><span style="display:flex;"><span>        <span style="color:#586e75">// ...
-</span></span></span></code></pre></div><p>Añadimos el valor a <code>options</code> y el campo en la definición del <em>struct</em> <code>Options</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// ... before
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    options <span style="color:#719e07">:=</span> keys.Options{
+</span></span><span style="display:flex;"><span>        <span style="color:#586e75">// ...</span>
+</span></span></code></pre></div><p>Añadimos el valor a <code>options</code> y el campo en la definición del <em>struct</em> <code>Options</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// ... before</span>
+</span></span><span style="display:flex;"><span>    options <span style="color:#719e07">:=</span> keys.Options{
 </span></span><span style="display:flex;"><span>        MaxDays: <span style="color:#719e07">*</span>maxDays,
 </span></span><span style="display:flex;"><span>        Redact:  <span style="color:#719e07">*</span>redact,
 </span></span><span style="display:flex;"><span>        Format:  strings.<span style="color:#268bd2">ToLower</span>(<span style="color:#719e07">*</span>format),
 </span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span><span style="color:#586e75">// ... after
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    options <span style="color:#719e07">:=</span> keys.Options{
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// ... after</span>
+</span></span><span style="display:flex;"><span>    options <span style="color:#719e07">:=</span> keys.Options{
 </span></span><span style="display:flex;"><span>        MaxDays: <span style="color:#719e07">*</span>maxDays,
 </span></span><span style="display:flex;"><span>        Redact:  <span style="color:#719e07">*</span>redact,
 </span></span><span style="display:flex;"><span>        Format:  strings.<span style="color:#268bd2">ToLower</span>(<span style="color:#719e07">*</span>format),
 </span></span><span style="display:flex;"><span>        Rotate: <span style="color:#719e07">*</span>rotate,
 </span></span><span style="display:flex;"><span>    }
-</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// ... before
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">type</span> Options <span style="color:#268bd2">struct</span> {
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// ... before</span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">type</span> Options <span style="color:#268bd2">struct</span> {
 </span></span><span style="display:flex;"><span>    MaxDays <span style="color:#dc322f">int</span>
 </span></span><span style="display:flex;"><span>    Redact  <span style="color:#dc322f">bool</span>
 </span></span><span style="display:flex;"><span>    Format  <span style="color:#dc322f">string</span>
 </span></span><span style="display:flex;"><span>}
-</span></span><span style="display:flex;"><span><span style="color:#586e75">// ... after
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">type</span> Options <span style="color:#268bd2">struct</span> {
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// ... after</span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">type</span> Options <span style="color:#268bd2">struct</span> {
 </span></span><span style="display:flex;"><span>    MaxDays <span style="color:#dc322f">int</span>
 </span></span><span style="display:flex;"><span>    Redact  <span style="color:#dc322f">bool</span>
 </span></span><span style="display:flex;"><span>    Format  <span style="color:#dc322f">string</span>
@@ -221,26 +221,26 @@
 <p>Creamos una función llamada <code>Filter</code> en <code>internal/keys/keys.go</code>; la idea es que si se especifica el <em>flag</em>, sólo se deben mostrar las API keys que deben rotarse.
 Por tanto, <code>Filter</code> recibe un <em>slice</em> de <code>Key</code>, los <em>flags</em> (en format de <code>Options</code>) y devuelve un <em>subconjunto</em> de <code>Key</code> en forma de <em>slice</em>.</p>
 <p>Si no se especifica <code>--rotate</code>, significa que debemos mostrar todas las API keys; es decir, no tenemos que filtrar nada:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">Filter</span>(keylist []<span style="color:#719e07">*</span>Key, options Options) []<span style="color:#719e07">*</span>Key {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">Filter</span>(keylist []<span style="color:#719e07">*</span>Key, options Options) []<span style="color:#719e07">*</span>Key {
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">if</span> !options.Rotate {
-</span></span><span style="display:flex;"><span>        <span style="color:#586e75">// nothing to filter
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>        <span style="color:#719e07">return</span> keylist
+</span></span><span style="display:flex;"><span>        <span style="color:#586e75">// nothing to filter</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#719e07">return</span> keylist
 </span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span><span style="color:#586e75">// ...
-</span></span></span></code></pre></div><p>Si tenemos que filtrar, entonces:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// ... before
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">Filter</span>(keylist []<span style="color:#719e07">*</span>Key, options Options) []<span style="color:#719e07">*</span>Key {
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// ...</span>
+</span></span></code></pre></div><p>Si tenemos que filtrar, entonces:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// ... before</span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">Filter</span>(keylist []<span style="color:#719e07">*</span>Key, options Options) []<span style="color:#719e07">*</span>Key {
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">if</span> !options.Rotate {
-</span></span><span style="display:flex;"><span>        <span style="color:#586e75">// nothing to filter
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>        <span style="color:#719e07">return</span> keylist
+</span></span><span style="display:flex;"><span>        <span style="color:#586e75">// nothing to filter</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#719e07">return</span> keylist
 </span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// ... TODO
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>}
-</span></span><span style="display:flex;"><span><span style="color:#586e75">// ... after
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> <span style="color:#268bd2">Filter</span>(keylist []<span style="color:#719e07">*</span>Key, options Options) []<span style="color:#719e07">*</span>Key {
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// ... TODO</span>
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// ... after</span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> <span style="color:#268bd2">Filter</span>(keylist []<span style="color:#719e07">*</span>Key, options Options) []<span style="color:#719e07">*</span>Key {
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">if</span> !options.Rotate {
-</span></span><span style="display:flex;"><span>        <span style="color:#586e75">// nothing to filter
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>        <span style="color:#719e07">return</span> keylist
+</span></span><span style="display:flex;"><span>        <span style="color:#586e75">// nothing to filter</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#719e07">return</span> keylist
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>    filteredKeys <span style="color:#719e07">:=</span> []<span style="color:#719e07">*</span>Key{}
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">for</span> _, k <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> keylist {
@@ -253,35 +253,35 @@ Por tanto, <code>Filter</code> recibe un <em>slice</em> de <code>Key</code>, los
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><h2 id="actualizando-display">Actualizando <code>Display</code></h2>
 <p>Como, cuando filtramos las API keys añadimos la información de si deben rotarse o no, no es necesario volver a calcular si la API key tiene que rotarse o no para mostrar un icono u otro (por pantalla)</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// ... before
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    <span style="color:#719e07">for</span> _, k <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> keylist {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// ... before</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#719e07">for</span> _, k <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> keylist {
 </span></span><span style="display:flex;"><span>        <span style="color:#719e07">if</span> k.<span style="color:#268bd2">NeedsToBeRotated</span>(options) {
 </span></span><span style="display:flex;"><span>            icon = warningIcon
 </span></span><span style="display:flex;"><span>        }
-</span></span><span style="display:flex;"><span><span style="color:#586e75">// ... after
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    <span style="color:#719e07">for</span> _, k <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> keylist {
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// ... after</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#719e07">for</span> _, k <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> keylist {
 </span></span><span style="display:flex;"><span>        <span style="color:#719e07">if</span> k.Rotate {
 </span></span><span style="display:flex;"><span>            icon = warningIcon
 </span></span><span style="display:flex;"><span>        }
 </span></span></code></pre></div><p>Finalmente, tenemos que <em>insertar</em> la función <code>Filter</code> entre la obtención de las API keys y que se muestran por pantalla (o exporten a JSON/CSV).</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// ... before
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    <span style="color:#586e75">// ...
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    <span style="color:#586e75">// display API keys
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    keys.<span style="color:#268bd2">Display</span>(keylist, options)
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// ... before</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// ...</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// display API keys</span>
+</span></span><span style="display:flex;"><span>    keys.<span style="color:#268bd2">Display</span>(keylist, options)
 </span></span><span style="display:flex;"><span>}
-</span></span><span style="display:flex;"><span><span style="color:#586e75">// ... after
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    <span style="color:#586e75">// filter API keys
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    keylist = keys.<span style="color:#268bd2">Filter</span>(keylist, options)
-</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// display API keys
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span>    keys.<span style="color:#268bd2">Display</span>(keylist, options)
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// ... after</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// filter API keys</span>
+</span></span><span style="display:flex;"><span>    keylist = keys.<span style="color:#268bd2">Filter</span>(keylist, options)
+</span></span><span style="display:flex;"><span>    <span style="color:#586e75">// display API keys</span>
+</span></span><span style="display:flex;"><span>    keys.<span style="color:#268bd2">Display</span>(keylist, options)
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>Si queremos mostrar los dos nuevos campos que hemos introducido para la <code>Key</code>, debemos añadirlos a la función <code>ToCSV()</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// ... before
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> (k Key) <span style="color:#268bd2">ToCSV</span>(options Options) []<span style="color:#dc322f">string</span> {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#586e75">// ... before</span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> (k Key) <span style="color:#268bd2">ToCSV</span>(options Options) []<span style="color:#dc322f">string</span> {
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">return</span> []<span style="color:#dc322f">string</span>{k.DisplayName, k.Name, k.CreateTime.<span style="color:#268bd2">Format</span>(time.RFC1123), k.ProjectId}
 </span></span><span style="display:flex;"><span>}
-</span></span><span style="display:flex;"><span><span style="color:#586e75">// ... after
-</span></span></span><span style="display:flex;"><span><span style="color:#586e75"></span><span style="color:#268bd2">func</span> (k Key) <span style="color:#268bd2">ToCSV</span>(options Options) []<span style="color:#dc322f">string</span> {
+</span></span><span style="display:flex;"><span><span style="color:#586e75">// ... after</span>
+</span></span><span style="display:flex;"><span><span style="color:#268bd2">func</span> (k Key) <span style="color:#268bd2">ToCSV</span>(options Options) []<span style="color:#dc322f">string</span> {
 </span></span><span style="display:flex;"><span>    <span style="color:#719e07">return</span> []<span style="color:#dc322f">string</span>{k.DisplayName, k.Name, k.CreateTime.<span style="color:#268bd2">Format</span>(time.RFC1123), k.ProjectId, strconv.<span style="color:#268bd2">Itoa</span>(k.AgeDays), strconv.<span style="color:#268bd2">FormatBool</span>(k.Rotate)}
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><h2 id="resultado-final">Resultado final</h2>

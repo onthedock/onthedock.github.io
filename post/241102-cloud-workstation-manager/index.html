@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.136.5">
+<meta name="generator" content="Hugo 0.165.0">
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -92,7 +92,7 @@
       <script type="application/json">
         {
           "vars": {
-            "account": "Page(\/post\/241102-cloud-workstation-manager)"
+            "account": "\/Users\/xavi\/repos\/personal\/onthedock-hugo\/content\/post\/241102-cloud-workstation-manager.md"
           },
           "triggers": {
             "trackPageview": {
@@ -149,7 +149,7 @@ Partiendo de una imagen de contenedor, podemos desplegar una máquina virtual y 
 <p>El <em>script</em> en sí no es más que un <em>wrapper</em> para el grupo de comandos <code>gcloud workstations</code>, pero la idea es simplificar todo lo posible el proceso de interacción con la <em>workstation</em>.</p>
 <p>Cualquiera de los comandos del grupo <code>workstations</code> de <code>gcloud</code> requiere parámetros que tienen valores difíciles de recordar, como el nombre del clúster o de la &ldquo;configuración&rdquo;.
 Por ejemplo, para <em>crear</em> una <em>workstatation</em> el comando <a href="https://cloud.google.com/sdk/gcloud/reference/workstations/create"><code>create</code></a> es:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>gcloud workstations create (WORKSTATION : --cluster=CLUSTER --config=CONFIG --region=REGION) [--async] [--env=[KEY=VALUE,…]] [--labels=[KEY=VALUE,…]] [GCLOUD_WIDE_FLAG …]
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>gcloud workstations create (WORKSTATION : --cluster=CLUSTER --config=CONFIG --region=REGION) [--async] [--env=[KEY=VALUE,…]] [--labels=[KEY=VALUE,…]] [GCLOUD_WIDE_FLAG …]
 </span></span></code></pre></div><p>En nuestro caso, tenemos un proyecto dedicado a la Cloud Workstations, por lo que necesitaremos especificar el <em>project_id</em> (como mínimo).</p>
 <p>Cada miembro del equipo tienen una <em>workstation</em> &ldquo;personal&rdquo;, por lo que para que hemos acordado denominarlas <code>workstation-&lt;nombre&gt;</code>.
 Esto hace que sea sencillo identificar a quién pertenece cada una de las <em>workstations</em>.</p>
@@ -160,9 +160,9 @@ Esta <em>configuration</em> es una plantilla a partir de la cual instanciar una 
 <h2 id="work-smarter-not-harder">Work smarter, not harder</h2>
 <p>Como puede verse en la imagen que indica cómo crear una nueva configuración, la <strong>configuration</strong> contiene toda la información necesaria para ejectuar los comandos del grupo <code>workstations</code>:</p>
 <figure><img src="/images/241102/console-configurations-page-create-button.png"
-    alt="De la documentación oficial https://cloud.google.com/workstations/docs/create-configuration" width="100%"><figcaption>
-      <p>De la documentación oficial <a href="https://cloud.google.com/workstations/docs/create-configuration">https://cloud.google.com/workstations/docs/create-configuration</a></p>
-    </figcaption>
+			alt="De la documentación oficial https://cloud.google.com/workstations/docs/create-configuration" width="100%"><figcaption>
+			<p>De la documentación oficial <a href="https://cloud.google.com/workstations/docs/create-configuration">https://cloud.google.com/workstations/docs/create-configuration</a></p>
+		</figcaption>
 </figure>
 
 <p>Es decir, tenemos el nombre de la configuración, el nombre del clúster y su ubicación.
@@ -170,22 +170,22 @@ Pero como queremos obtener la información desde un <em>script</em> y no desde l
 <p>En nuestro caso, como en la imagen de la documentación, tenemos varias configuraciones disponibles, por lo que tenemos que indicar qué configuración es la que queremos usar para, por ejemplo, crear unan nueva <em>workstation</em>. Desgraciadamente, no tenemos una nomenclatura que permita identificar de forma tan sencilla como en la imagen de la documentación de Google qué configuración es la que debemos seleccionar.</p>
 <p>Así que lo que uso para filtrar cuál es la configuración correcta es que la imagen base del contenedor está etiquetada como <code>stable</code>.</p>
 <p>Por tanto, lo primero que hace el <em>script</em> es listar las configuraciones e inspeccionar la propiedad <code>container.image</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>gcloud workstations configs list --project=&#34;$project_id&#34; --format=&#34;json&#34; | \
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>gcloud workstations configs list --project=&#34;$project_id&#34; --format=&#34;json&#34; | \
 </span></span><span style="display:flex;"><span>  jq -r &#39;.[] | select( .container.image | contains (&#34;stable&#34;) ) | .name&#39; &gt; $tmpfile
 </span></span></code></pre></div><p>La propiedad <code>name</code> de la configuración, según la <a href="https://cloud.google.com/workstations/docs/customize-development-environment#resource:-workstationconfig">documentación</a> es un <code>string</code>; sin embargo, inspeccionando el <em>formato</em> de ese <em>string</em>, vemos que tiene es de la forma:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>projects/&lt;project_id&gt;/locations/&lt;region&gt;/workstationClusters/&lt;cluster_name&gt;/workstationConfigs/&lt;config_name&gt;
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>projects/&lt;project_id&gt;/locations/&lt;region&gt;/workstationClusters/&lt;cluster_name&gt;/workstationConfigs/&lt;config_name&gt;
 </span></span></code></pre></div><p>Así que, como vemos, podemos extraer información sobre la <em>región</em>, el nombre del <em>clúster</em> y el nombre de la <em>configuration</em> (que corresponde a la imagen base etiquetada como <code>stable</code>).</p>
 <p>A partir de aquí, usamos <code>awk</code> para extraer la información que necesitamos, como en:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>region=$(awk -F &#39;/&#39; &#39;{ print $4}&#39; $tmpfile)
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>region=$(awk -F &#39;/&#39; &#39;{ print $4}&#39; $tmpfile)
 </span></span></code></pre></div><p>De esta forma, volviendo al comando <code>create</code> que usaba más arriba como ejemplo, tenemos la información relativa al clúster, la configuración y la región.
 Estos son los parámetros &ldquo;difíciles de recordar&rdquo;, por lo que el resto (excepto el <em>project_id</em>), los puede facilitar el usuario como parámetro a través de la CLI.</p>
 <p>Para simplificar todavía más el uso del <em>script</em>, si alguno de los parámetros requridos no se proporciona como parámetro, el <em>script</em> pregunta al usuario y espera una respuesta; si ésta está vacía, el <em>script</em> finaliza.</p>
 <p>Esta estrategia se sigue para el <em>nombre</em> de la <em>workstation</em> (de la que el usuario sólo tiene que proporcionar su nombre, que debería conocer 😉), y el ID del proyecto.</p>
 <p>Si se proporciona la dirección de correo del usuario a través de la variable de entorno <code>USER_EMAIL</code>, se realizan algunas configuraciones en la <em>workstation</em> para configurar algunas herramientas preinstaladas, por lo que queremos que esté configurada.</p>
 <p>Aunque se puede pasar la dirección de correo mediante el <em>flag</em> <code>-e</code>, el <em>script</em> intenta obtenerlo automáticamente de la configuración global de Git, mediante:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>email=$(git config user.email 2&gt;/dev/null)
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>email=$(git config user.email 2&gt;/dev/null)
 </span></span></code></pre></div><p>Si, en cualquier caso, <code>$email</code> está vacío, también se solicita al usuario que lo proporcione de manera interactiva durante la ejecución del <em>script</em>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>gcloud workstations create &#34;workstation-$name&#34; \
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>gcloud workstations create &#34;workstation-$name&#34; \
 </span></span><span style="display:flex;"><span>       --cluster=&#34;$cluster&#34; \
 </span></span><span style="display:flex;"><span>       --config=&#34;$configuration&#34; \
 </span></span><span style="display:flex;"><span>       --region=&#34;$region&#34; \

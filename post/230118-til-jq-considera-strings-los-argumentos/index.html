@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.136.5">
+<meta name="generator" content="Hugo 0.165.0">
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -92,7 +92,7 @@
       <script type="application/json">
         {
           "vars": {
-            "account": "Page(\/post\/230118-til-jq-considera-strings-los-argumentos)"
+            "account": "\/Users\/xavi\/repos\/personal\/onthedock-hugo\/content\/post\/230118-til-jq-considera-strings-los-argumentos.md"
           },
           "triggers": {
             "trackPageview": {
@@ -149,23 +149,23 @@
 <p>This option passes a value to the jq program as a predefined variable. If you run jq with &ndash;arg foo bar, then $foo is available in the program and has the value &ldquo;bar&rdquo;. Note that value will be treated as a string, so &ndash;arg foo 123 will bind $foo to &ldquo;123&rdquo;.</p>
 </blockquote>
 <p>Entonces, ¿cómo generamos un documento JSON con Jq usando <code>--arg</code> si queremos un valor con tipo numérico?</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ jq --null-input --arg userId <span style="color:#2aa198">1234</span> <span style="color:#2aa198">&#39;{ &#34;user_id&#34;: $userId }&#39;</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ jq --null-input --arg userId <span style="color:#2aa198">1234</span> <span style="color:#2aa198">&#39;{ &#34;user_id&#34;: $userId }&#39;</span>
 </span></span><span style="display:flex;"><span><span style="color:#719e07">{</span>
 </span></span><span style="display:flex;"><span>  <span style="color:#2aa198">&#34;user_id&#34;</span>: <span style="color:#2aa198">&#34;1234&#34;</span> <span style="color:#586e75"># String, not a number 😟</span>
 </span></span><span style="display:flex;"><span><span style="color:#719e07">}</span>
 </span></span></code></pre></div><p>Una posible solución pasa por usar la función <code>tonumber</code> de Jq:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ jq --null-input --arg userId <span style="color:#2aa198">1234</span> <span style="color:#2aa198">&#39;{ &#34;user_id&#34;: $userId | tonumber }&#39;</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ jq --null-input --arg userId <span style="color:#2aa198">1234</span> <span style="color:#2aa198">&#39;{ &#34;user_id&#34;: $userId | tonumber }&#39;</span>
 </span></span><span style="display:flex;"><span><span style="color:#719e07">{</span>
 </span></span><span style="display:flex;"><span>  <span style="color:#2aa198">&#34;user_id&#34;</span>: <span style="color:#2aa198">1234</span> <span style="color:#586e75"># 😀 </span>
 </span></span><span style="display:flex;"><span><span style="color:#719e07">}</span>
 </span></span></code></pre></div><p>Pero&hellip; ¿y si queremos convertir a un <code>boolean</code>? Jq no proporciona un <code>tobool</code> o similar&hellip;</p>
 <p>La solución válida para cualquier tipo es usar <code>--argjson</code>, en vez de <code>--arg</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ jq --null-input --argjson good <span style="color:#b58900">true</span> <span style="color:#2aa198">&#39;{ &#34;good&#34;: $good }&#39;</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ jq --null-input --argjson good <span style="color:#b58900">true</span> <span style="color:#2aa198">&#39;{ &#34;good&#34;: $good }&#39;</span>
 </span></span><span style="display:flex;"><span><span style="color:#719e07">{</span>
 </span></span><span style="display:flex;"><span>  <span style="color:#2aa198">&#34;good&#34;</span>: <span style="color:#b58900">true</span> <span style="color:#586e75"># 👍</span>
 </span></span><span style="display:flex;"><span><span style="color:#719e07">}</span>
 </span></span></code></pre></div><p>Esta técnica sirve para cualquier tipo; repitiendo el ejemplo anterior para un <code>number</code> :</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ jq --null-input --argjson userId <span style="color:#2aa198">1234</span> <span style="color:#2aa198">&#39;{ &#34;user_id&#34;: $userId }&#39;</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ jq --null-input --argjson userId <span style="color:#2aa198">1234</span> <span style="color:#2aa198">&#39;{ &#34;user_id&#34;: $userId }&#39;</span>
 </span></span><span style="display:flex;"><span><span style="color:#719e07">{</span>
 </span></span><span style="display:flex;"><span>  <span style="color:#2aa198">&#34;user_id&#34;</span>: <span style="color:#2aa198">1234</span> <span style="color:#586e75"># 😀 </span>
 </span></span><span style="display:flex;"><span><span style="color:#719e07">}</span>

@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <meta name="theme-color" content="#263238">
 
-<meta name="generator" content="Hugo 0.136.5">
+<meta name="generator" content="Hugo 0.165.0">
 
 <link rel="apple-touch-icon" href="https://onthedock.github.io/images/logo.png">
 
@@ -92,7 +92,7 @@
       <script type="application/json">
         {
           "vars": {
-            "account": "Page(\/post\/221210-prohibido-anidar-codigo)"
+            "account": "\/Users\/xavi\/repos\/personal\/onthedock-hugo\/content\/post\/221210-prohibido-anidar-codigo.md"
           },
           "triggers": {
             "trackPageview": {
@@ -152,7 +152,7 @@
 <h2 id="escenario">Escenario</h2>
 <p>En una arquitectura basada en eventos, la ejecución de las diferentes <em>pipelines</em> se <em>disparan</em> cuando se modifica cualquier registro en la base de datos. La <em>pipeline</em> recibe el identificador del registro y el <em>tipo</em> de recurso al que hace referencia, por lo que toda la información disponible se obtiene del valor de los campos del registro modificado.</p>
 <p>En <em>pseudo-código</em>, el <em>step</em> tenía, inicialmente, una estructura como la siguiente:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>terraform init
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>terraform init
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#719e07">if</span> <span style="color:#268bd2">$dry</span>-run <span style="color:#719e07">==</span> enabled <span style="color:#719e07">then</span> <span style="color:#719e07">{</span>
 </span></span><span style="display:flex;"><span>  terraform plan
@@ -188,7 +188,7 @@
 <p>El objetivo del ejercicio de <em>refactor</em> es simplicar los <em>niveles de anidamiento</em> del código y simplificar su estructura.</p>
 <h3 id="modo-dry-run">¿Modo <em>dry-run</em>?</h3>
 <p>Lo primero que revisamos es si la <em>pipeline</em> se ejecuta en modo <em>dry-run</em>; si es así, sólo tenemos que ejecutar <code>terraform plan</code> y finalizar, por lo que podemos simplicar el (pseudo) código de la siguiente forma:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>terraform init
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>terraform init
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#719e07">if</span> <span style="color:#268bd2">$dry</span>-run <span style="color:#719e07">==</span> enabled <span style="color:#719e07">then</span> <span style="color:#719e07">{</span>
 </span></span><span style="display:flex;"><span>  terraform plan
@@ -214,7 +214,7 @@
 </span></span><span style="display:flex;"><span><span style="color:#719e07">}}</span>
 </span></span></code></pre></div><h3 id="el-recurso-está-borrado">¿El recurso está borrado?</h3>
 <p>El siguiente bloque revisa el valor de <code>deleted</code>; invertimos la condición y comprobamos si <code>deleted == false</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>terraform init
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>terraform init
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#719e07">if</span> <span style="color:#268bd2">$dry</span>-run <span style="color:#719e07">==</span> enabled <span style="color:#719e07">then</span> <span style="color:#719e07">{</span>
 </span></span><span style="display:flex;"><span>  terraform plan
@@ -251,7 +251,7 @@
 <p>Como <code>deleted == true</code>, el elemento se tiene que borrar o ya se borró anteriormente.</p>
 <p>Validamos el valor del campo <code>dependent</code>; si tenemos recursos dependientes, no podemos hacer nada, así que finalizamos la ejecución del <em>step</em>. La eliminación de los recursos dependientes, si es necesaria, se gestiona desde la <em>pipeline</em> que gestione esos recursos, así que no tenemos que preocuparnos por ellos aquí.</p>
 <p>Usamos el principio de inversión de la condición (y comprobamos si <code>dependent = true</code>):</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>terraform init
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>terraform init
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#719e07">if</span> <span style="color:#268bd2">$dry</span>-run <span style="color:#719e07">==</span> enabled <span style="color:#719e07">then</span> <span style="color:#719e07">{</span>
 </span></span><span style="display:flex;"><span>  terraform plan
@@ -285,7 +285,7 @@
 <p>En este caso, ya hemos comprobado si hay elementos dependientes; si hemos llegado hasta aquí, <code>dependent</code> es <code>false</code>, por lo que no hay elementos dependientes y podríamos eliminar el recurso.</p>
 <p>Sin embargo, tras eliminar el recurso actualizamos el campo <code>deleted_at</code> del registro en la base de datos con la hora a la que se ha eliminado el recurso (por ejemplo, las 00:00:00). Esta actualización dispararía de nuevo la ejecución de la pipeline; dado que el registro en la base de datos sigue indicando que <code>deleted=true</code> y <code>dependent=false</code>, volveríamos a ejecutar <code>terraform destroy</code>. El comando finaliza sin error, ya que Terraform  reconoce que no hay ningún cambio en la configuración y no hace nada. Tras la (no) destrucción del recurso, se actualizaría el campo <code>deleted_at</code> con la hora actual (por ejemplo, 00:00:05), y se iniciaría el ciclo de nuevo&hellip;</p>
 <p>Para evitar este tipo de bucles infinitos, revisamos el valor del campo <code>deleted_at</code>; cuando el recurso se crea, el valor de este campo es nulo. Cuando el recurso se destruye, se registra la hora de la eliminación. Incluso si se modifica el registro de un recurso eliminado (por cualquier motivo), ya hemos visto que no hay problema con respecto a Terraform, que es capaz de darse cuenta de que no hay cambios en la configuración del recurso (sigue eliminado 😉). Revisando si el campo <code>deleted_at</code> ya ha sido informado, evitamos tener que actualizar de nuevo el campo en la base de datos y no caemos en el bucle infinito descrito antes.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>terraform init
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>terraform init
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#719e07">if</span> <span style="color:#268bd2">$dry</span>-run <span style="color:#719e07">==</span> enabled <span style="color:#719e07">then</span> <span style="color:#719e07">{</span>
 </span></span><span style="display:flex;"><span>  terraform plan
@@ -320,7 +320,7 @@
 <h2 id="resumen">Resumen</h2>
 <p>Al evitar el anidamiento de condiciones y el uso de <code>else</code> en los condicionales, cada uno de los bloques tiene un enfoque más simple, más sencillo. No es necesario <em>recordar</em> el valor de múltiples variables, complicando el proceso de <em>debugging</em>: el análisis de cada una las casuísticas se realiza en su propio bloque de código; si aplica, sólo es necesario revisar unas pocas líneas de código. Si no aplica, descartamos el bloque completo y pasamos al siguiente&hellip;</p>
 <p>Para simplificar todavía más <em>encontrar</em> el bloque adecuado, podemos incluir comentarios con el estado de los parámetros relevantes del recurso:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>terraform init
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>terraform init
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#586e75"># DRY-RUN: ENABLED</span>
 </span></span><span style="display:flex;"><span><span style="color:#719e07">if</span> <span style="color:#268bd2">$dry</span>-run <span style="color:#719e07">==</span> enabled <span style="color:#719e07">then</span> <span style="color:#719e07">{</span>
